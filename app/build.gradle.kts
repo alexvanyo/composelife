@@ -1,7 +1,6 @@
 plugins {
     id("com.android.application")
     kotlin("android")
-    id("com.github.plnice.canidropjetifier") version "0.5"
 }
 
 android {
