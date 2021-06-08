@@ -6,6 +6,7 @@ androidxEspresso = "3.3.0"
 androidxLifecycle = "2.3.1"
 androidxTest = "1.1.2"
 compose = "1.0.0-beta08"
+googleMaterial = "1.3.0"
 junit4 = "4.13.2"
 
 [libraries]
@@ -19,4 +20,5 @@ androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "and
 androidx-espresso = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxEspresso" }
 androidx-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
 androidx-test = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTest" }
+google-material = { group = "com.google.android.material", name = "material", version.ref = "googleMaterial" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }

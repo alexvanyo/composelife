@@ -1,11 +1,16 @@
 plugins {
     id("com.android.application")
     kotlin("android")
+    id("com.github.plnice.canidropjetifier") version "0.5"
 }
 
 android {
     compileSdk = 30
     buildToolsVersion = "30.0.3"
+
+    lint {
+        isWarningsAsErrors = true
+    }
 
     defaultConfig {
         applicationId = "com.alexvanyo.composelife"
@@ -32,7 +37,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
-        useIR = true
+        freeCompilerArgs = listOf("-Werror")
     }
     buildFeatures {
         compose = true
@@ -50,6 +55,7 @@ dependencies {
     implementation(libs.androidx.compose.uiTooling)
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle)
+    implementation(libs.google.material)
 
     testImplementation(libs.junit4)
 
