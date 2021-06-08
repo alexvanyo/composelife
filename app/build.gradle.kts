@@ -10,6 +10,7 @@ android {
 
     lint {
         isWarningsAsErrors = true
+        disable("ObsoleteLintCustomCheck")
     }
 
     defaultConfig {
