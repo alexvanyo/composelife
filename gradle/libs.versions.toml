@@ -1,0 +1,5 @@
+[versions]
+compose = "1.0.0-beta07"
+
+[libraries]
+
