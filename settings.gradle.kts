@@ -6,4 +6,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "Compose Life"
-include ':app'
+include(":app")
