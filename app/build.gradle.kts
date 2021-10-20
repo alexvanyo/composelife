@@ -4,8 +4,7 @@ plugins {
 }
 
 android {
-    compileSdk = 30
-    buildToolsVersion = "30.0.3"
+    compileSdk = 31
 
     lint {
         isWarningsAsErrors = true
@@ -15,7 +14,7 @@ android {
     defaultConfig {
         applicationId = "com.alexvanyo.composelife"
         minSdk = 21
-        targetSdk = 30
+        targetSdk = 31
         versionCode = 1
         versionName = "1.0"
 
