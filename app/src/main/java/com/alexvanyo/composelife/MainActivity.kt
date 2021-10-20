@@ -6,8 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import kotlinx.coroutines.delay
