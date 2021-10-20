@@ -5,8 +5,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import kotlinx.coroutines.delay
 
@@ -15,19 +17,24 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ComposeLifeTheme {
-                val cellState by produceState(
-                    initialValue = gosperGliderGun
-                ) {
+                val gameOfLifeState = remember {
+                    MutableGameOfLifeStateImpl(
+                        cellState = gosperGliderGun
+                    )
+                }
+
+                LaunchedEffect(gameOfLifeState) {
                     while (true) {
                         delay(1000)
-                        value = NaiveGameOfLifeAlgorithm.computeNextGeneration(value)
+                        gameOfLifeState.cellState =
+                            NaiveGameOfLifeAlgorithm.computeNextGeneration(gameOfLifeState.cellState)
                     }
                 }
 
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
                     CellUniverse(
-                        cellState = cellState
+                        gameOfLifeState = gameOfLifeState
                     )
                 }
             }

@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 fun InteractableCell(
     modifier: Modifier,
     isAlive: Boolean,
-    onClick: () -> Unit,
+    onClick: (Boolean) -> Unit,
 ) {
     val cellColor = if (isAlive) {
         Color(0xFFFFFFFF)
@@ -33,7 +33,7 @@ fun InteractableCell(
             disabledContentColor = cellColor,
         ),
         contentPadding = PaddingValues(0.dp),
-        onClick = onClick
+        onClick = { onClick(!isAlive) }
     ) {}
 }
 
