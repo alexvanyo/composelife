@@ -50,7 +50,10 @@ fun NonInteractableCells(
     }
 }
 
-@Preview
+@Preview(
+    widthDp = 300,
+    heightDp = 300
+)
 @Composable
 fun NonInteractableCellsPreview() {
     NonInteractableCells(
