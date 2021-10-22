@@ -1,6 +1,7 @@
 package com.alexvanyo.composelife
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -10,42 +11,43 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toOffset
 
 @Composable
 fun NonInteractableCells(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,
-    numColumns: Int,
-    numRows: Int,
-    columnIndexOffset: Int,
-    rowIndexOffset: Int,
+    cellWindow: IntRect,
+    modifier: Modifier = Modifier,
 ) {
     val scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() }
 
+    val numColumns = cellWindow.width + 1
+    val numRows = cellWindow.height + 1
+
     Canvas(
-        modifier = Modifier
-            .size(
+        modifier = modifier
+            .requiredSize(
                 scaledCellDpSize * numColumns,
                 scaledCellDpSize * numRows
             )
     ) {
-        repeat(numRows) { rowIndex ->
-            repeat(numColumns) { columnIndex ->
-                val topLeft = Offset(columnIndex * scaledCellPixelSize, rowIndex * scaledCellPixelSize)
-                val color =
-                    if ((columnIndex - columnIndexOffset) to (rowIndex - rowIndexOffset) in gameOfLifeState.cellState) {
-                        Color.White
-                    } else {
-                        Color.Black
-                    }
-
-                drawRect(
-                    color = color,
-                    topLeft = topLeft,
-                    size = Size(scaledCellPixelSize, scaledCellPixelSize)
-                )
+        cellWindow.containedPoints().forEach { cell ->
+            val windowOffset = (cell - cellWindow.topLeft).toOffset() * scaledCellPixelSize
+            val color = if (cell in gameOfLifeState.cellState) {
+                Color.White
+            } else {
+                Color.Black
             }
+
+            drawRect(
+                color = color,
+                topLeft = windowOffset,
+                size = Size(scaledCellPixelSize, scaledCellPixelSize)
+            )
         }
     }
 }
@@ -57,7 +59,7 @@ fun NonInteractableCells(
 @Composable
 fun NonInteractableCellsPreview() {
     NonInteractableCells(
-        gameOfLifeState = ImmutableGameOfLifeState(
+        gameOfLifeState = GameOfLifeState(
             setOf(
                 0 to 0,
                 0 to 2,
@@ -71,9 +73,9 @@ fun NonInteractableCellsPreview() {
             )
         ),
         scaledCellDpSize = 32.dp,
-        numColumns = 10,
-        numRows = 10,
-        columnIndexOffset = 0,
-        rowIndexOffset = 0
+        cellWindow = IntRect(
+            IntOffset(0, 0),
+            IntOffset(9, 9)
+        )
     )
 }

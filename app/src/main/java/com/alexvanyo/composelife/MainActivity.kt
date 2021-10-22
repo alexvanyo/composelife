@@ -16,7 +16,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ComposeLifeTheme {
                 val gameOfLifeState = remember {
-                    MutableGameOfLifeStateImpl(
+                    MutableGameOfLifeState(
                         cellState = gosperGliderGun
                     )
                 }
