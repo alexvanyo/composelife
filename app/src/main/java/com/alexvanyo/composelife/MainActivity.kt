@@ -8,7 +8,9 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,8 +26,10 @@ class MainActivity : ComponentActivity() {
                 LaunchedEffect(gameOfLifeState) {
                     while (true) {
                         delay(1000)
-                        gameOfLifeState.cellState =
-                            NaiveGameOfLifeAlgorithm.computeNextGeneration(gameOfLifeState.cellState)
+                        withContext(Dispatchers.Default) {
+                            gameOfLifeState.cellState =
+                                NaiveGameOfLifeAlgorithm.computeNextGeneration(gameOfLifeState.cellState)
+                        }
                     }
                 }
 

@@ -44,6 +44,8 @@ fun CellUniverse(
         val fracOffset = offset - intOffset.toOffset()
         val fracPixelOffset = fracOffset * scaledCellPixelSize
 
+        // Calculate the number of columns and rows necessary to cover the entire viewport.
+        // Ensure that the number of rows and number of columns is odd, so that the offset is the center cell
         val numColumns = ceil(constraints.maxWidth / scaledCellPixelSize / 2).toInt() * 2 + 1
         val numRows = ceil(constraints.maxHeight / scaledCellPixelSize / 2).toInt() * 2 + 1
 
