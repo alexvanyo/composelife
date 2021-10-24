@@ -36,7 +36,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
-        //freeCompilerArgs = listOf("-Werror")
+        freeCompilerArgs = listOf("-Werror")
     }
     buildFeatures {
         compose = true
@@ -47,14 +47,14 @@ android {
 }
 
 dependencies {
+    implementation(libs.accompanist.insets)
+    implementation(libs.accompanist.systemuicontroller)
     implementation(libs.androidx.activityCompose)
-    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.compose.material)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.uiTooling)
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle)
-    implementation(libs.google.material)
 
     testImplementation(libs.junit4)
 

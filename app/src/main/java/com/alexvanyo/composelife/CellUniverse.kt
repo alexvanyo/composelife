@@ -1,9 +1,16 @@
 package com.alexvanyo.composelife
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.google.accompanist.insets.statusBarsHeight
 
 @Composable
 fun CellUniverse(
@@ -11,15 +18,26 @@ fun CellUniverse(
 ) {
     val cellWindowState = rememberCellWindowState()
 
-    CellWindow(
-        gameOfLifeState = gameOfLifeState,
-        cellWindowState = cellWindowState
-    )
+    Box {
+        CellWindow(
+            gameOfLifeState = gameOfLifeState,
+            cellWindowState = cellWindowState
+        )
 
-    Text(
-        text = "Offset: ${cellWindowState.offset}",
-        color = Color.White,
-    )
+        Surface(color = Color(0f, 0f, 0f, 0.3f)) {
+            Column {
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .statusBarsHeight()
+                )
+
+                Text(
+                    text = "Offset: ${cellWindowState.offset}",
+                )
+            }
+        }
+    }
 }
 
 @Preview(

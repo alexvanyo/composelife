@@ -1,17 +1,17 @@
 [versions]
+accompanist = "0.20.0"
 androidxActivity = "1.3.0"
-androidxAppcompat = "1.3.1"
 androidxCore = "1.6.0"
 androidxEspresso = "3.4.0"
 androidxLifecycle = "2.3.1"
 androidxTest = "1.1.3"
 compose = "1.0.4"
-googleMaterial = "1.3.0"
 junit4 = "4.13.2"
 
 [libraries]
+accompanist-insets = { group = "com.google.accompanist", name = "accompanist-insets", version.ref = "accompanist" }
+accompanist-systemuicontroller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist" }
 androidx-activityCompose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
-androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppcompat" }
 androidx-compose-material = { group = "androidx.compose.material", name = "material", version.ref = "compose" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose" }
 androidx-compose-uiTooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "compose" }
@@ -20,5 +20,4 @@ androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "and
 androidx-espresso = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxEspresso" }
 androidx-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
 androidx-test = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTest" }
-google-material = { group = "com.google.android.material", name = "material", version.ref = "googleMaterial" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }

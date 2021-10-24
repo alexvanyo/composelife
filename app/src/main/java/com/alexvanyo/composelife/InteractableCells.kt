@@ -1,5 +1,6 @@
 package com.alexvanyo.composelife
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -11,6 +12,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import kotlin.math.roundToInt
 
 @Composable
@@ -64,30 +66,40 @@ fun InteractableCells(
 }
 
 @Preview(
+    name = "Interactable cells light mode",
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
     widthDp = 300,
-    heightDp = 300,
+    heightDp = 300
+)
+@Preview(
+    name = "Interactable cells dark mode",
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    widthDp = 300,
+    heightDp = 300
 )
 @Composable
 fun InteractableCellsPreview() {
-    InteractableCells(
-        gameOfLifeState = MutableGameOfLifeState(
-            setOf(
-                0 to 0,
-                0 to 2,
-                0 to 4,
-                2 to 0,
-                2 to 2,
-                2 to 4,
-                4 to 0,
-                4 to 2,
-                4 to 4,
+    ComposeLifeTheme {
+        InteractableCells(
+            gameOfLifeState = MutableGameOfLifeState(
+                setOf(
+                    0 to 0,
+                    0 to 2,
+                    0 to 4,
+                    2 to 0,
+                    2 to 2,
+                    2 to 4,
+                    4 to 0,
+                    4 to 2,
+                    4 to 4,
+                )
+            ),
+            scaledCellDpSize = 32.dp,
+            cellWindow = IntRect(
+                IntOffset(0, 0),
+                IntOffset(9, 9)
             )
-        ),
-        scaledCellDpSize = 32.dp,
-        cellWindow = IntRect(
-            IntOffset(0, 0),
-            IntOffset(9, 9)
         )
-    )
+    }
 }
 

@@ -1,13 +1,13 @@
 package com.alexvanyo.composelife
 
+import android.content.res.Configuration.UI_MODE_NIGHT_NO
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.size
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
+import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 
 @Composable
 fun NonInteractableCells(
@@ -28,6 +29,9 @@ fun NonInteractableCells(
     val numColumns = cellWindow.width + 1
     val numRows = cellWindow.height + 1
 
+    val aliveColor = MaterialTheme.colors.onBackground
+    val deadColor = MaterialTheme.colors.background
+
     Canvas(
         modifier = modifier
             .requiredSize(
@@ -38,9 +42,9 @@ fun NonInteractableCells(
         cellWindow.containedPoints().forEach { cell ->
             val windowOffset = (cell - cellWindow.topLeft).toOffset() * scaledCellPixelSize
             val color = if (cell in gameOfLifeState.cellState) {
-                Color.White
+                aliveColor
             } else {
-                Color.Black
+                deadColor
             }
 
             drawRect(
@@ -53,29 +57,39 @@ fun NonInteractableCells(
 }
 
 @Preview(
+    name = "Non interactable cells light mode",
+    uiMode = UI_MODE_NIGHT_NO,
+    widthDp = 300,
+    heightDp = 300
+)
+@Preview(
+    name = "Non interactable cells dark mode",
+    uiMode = UI_MODE_NIGHT_YES,
     widthDp = 300,
     heightDp = 300
 )
 @Composable
 fun NonInteractableCellsPreview() {
-    NonInteractableCells(
-        gameOfLifeState = GameOfLifeState(
-            setOf(
-                0 to 0,
-                0 to 2,
-                0 to 4,
-                2 to 0,
-                2 to 2,
-                2 to 4,
-                4 to 0,
-                4 to 2,
-                4 to 4,
+    ComposeLifeTheme {
+        NonInteractableCells(
+            gameOfLifeState = GameOfLifeState(
+                setOf(
+                    0 to 0,
+                    0 to 2,
+                    0 to 4,
+                    2 to 0,
+                    2 to 2,
+                    2 to 4,
+                    4 to 0,
+                    4 to 2,
+                    4 to 4,
+                )
+            ),
+            scaledCellDpSize = 32.dp,
+            cellWindow = IntRect(
+                IntOffset(0, 0),
+                IntOffset(9, 9)
             )
-        ),
-        scaledCellDpSize = 32.dp,
-        cellWindow = IntRect(
-            IntOffset(0, 0),
-            IntOffset(9, 9)
         )
-    )
+    }
 }

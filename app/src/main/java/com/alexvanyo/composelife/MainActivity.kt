@@ -6,8 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
+import androidx.core.view.WindowCompat
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
+import com.google.accompanist.insets.ProvideWindowInsets
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -15,29 +20,44 @@ import kotlinx.coroutines.withContext
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
             ComposeLifeTheme {
-                val gameOfLifeState = remember {
-                    MutableGameOfLifeState(
-                        cellState = gosperGliderGun
-                    )
-                }
+                ProvideWindowInsets {
+                    val useDarkIcons = MaterialTheme.colors.isLight
+                    val systemUiController = rememberSystemUiController()
 
-                LaunchedEffect(gameOfLifeState) {
-                    while (true) {
-                        delay(1000)
-                        withContext(Dispatchers.Default) {
-                            gameOfLifeState.cellState =
-                                NaiveGameOfLifeAlgorithm.computeNextGeneration(gameOfLifeState.cellState)
+                    SideEffect {
+                        systemUiController.setSystemBarsColor(
+                            color = Color.Transparent,
+                            darkIcons = useDarkIcons
+                        )
+                    }
+
+                    val gameOfLifeState = remember {
+                        MutableGameOfLifeState(
+                            cellState = gosperGliderGun
+                        )
+                    }
+
+                    LaunchedEffect(gameOfLifeState) {
+                        while (true) {
+                            delay(1000)
+                            withContext(Dispatchers.Default) {
+                                gameOfLifeState.cellState =
+                                    NaiveGameOfLifeAlgorithm.computeNextGeneration(gameOfLifeState.cellState)
+                            }
                         }
                     }
-                }
 
-                // A surface container using the 'background' color from the theme
-                Surface(color = MaterialTheme.colors.background) {
-                    CellUniverse(
-                        gameOfLifeState = gameOfLifeState
-                    )
+                    // A surface container using the 'background' color from the theme
+                    Surface(color = MaterialTheme.colors.background) {
+                        CellUniverse(
+                            gameOfLifeState = gameOfLifeState
+                        )
+                    }
                 }
             }
         }
