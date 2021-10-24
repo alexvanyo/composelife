@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife
+package com.alexvanyo.composelife.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -24,6 +24,9 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
+import com.alexvanyo.composelife.MutableGameOfLifeState
+import com.alexvanyo.composelife.ceilToOdd
+import com.alexvanyo.composelife.detectTransformGestures
 import kotlin.math.ceil
 import kotlin.math.floor
 

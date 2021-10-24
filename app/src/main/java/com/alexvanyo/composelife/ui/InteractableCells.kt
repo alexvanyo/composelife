@@ -1,9 +1,10 @@
-package com.alexvanyo.composelife
+package com.alexvanyo.composelife.ui
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
@@ -12,6 +13,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.MutableGameOfLifeState
+import com.alexvanyo.composelife.containedPoints
+import com.alexvanyo.composelife.setIndividualCellState
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import kotlin.math.roundToInt
 
@@ -35,14 +39,16 @@ fun InteractableCells(
             ),
         content = {
             cellWindow.containedPoints().forEach { cell ->
-                InteractableCell(
-                    modifier = Modifier
-                        .size(scaledCellDpSize),
-                    isAlive = cell in gameOfLifeState.cellState,
-                    onClick = {
-                        gameOfLifeState.setIndividualCellState(cell, it)
-                    }
-                )
+                key(cell) {
+                    InteractableCell(
+                        modifier = Modifier
+                            .size(scaledCellDpSize),
+                        isAlive = cell in gameOfLifeState.cellState,
+                        onValueChange = { isAlive ->
+                            gameOfLifeState.setIndividualCellState(cell, isAlive)
+                        }
+                    )
+                }
             }
         },
         measurePolicy = { measurables, constraints ->
