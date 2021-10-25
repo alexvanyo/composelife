@@ -1,7 +1,9 @@
 package com.alexvanyo.composelife
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
+import kotlin.math.floor
 
 /**
  * Returns all [IntOffset]s that are contained in the [IntRect].
@@ -37,3 +39,8 @@ private val neighborOffsets = listOf(
     IntOffset(0, 1),
     IntOffset(1, 1)
 )
+
+/**
+ * Floors an [Offset] into an [IntOffset], taking the [floor] of both coordinates.
+ */
+fun floor(offset: Offset): IntOffset = IntOffset(floor(offset.x).toInt(), floor(offset.y).toInt())

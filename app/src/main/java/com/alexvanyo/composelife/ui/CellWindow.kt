@@ -24,11 +24,14 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
+import com.alexvanyo.composelife.GameOfLifeState
 import com.alexvanyo.composelife.MutableGameOfLifeState
 import com.alexvanyo.composelife.ceilToOdd
 import com.alexvanyo.composelife.detectTransformGestures
+import com.alexvanyo.composelife.floor
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 import kotlin.math.ceil
-import kotlin.math.floor
 
 @Composable
 fun rememberCellWindowState(
@@ -131,11 +134,67 @@ private class CellWindowStateImpl(
     }
 }
 
+private sealed interface CellWindowUiState {
+
+    val gameOfLifeState: GameOfLifeState
+
+    class ImmutableState(
+        override val gameOfLifeState: GameOfLifeState
+    ) : CellWindowUiState
+
+    class MutableState(
+        override val gameOfLifeState: MutableGameOfLifeState,
+        val isInteractable: (isGesturing: Boolean, scaledCellDpSize: Dp) -> Boolean
+    ) : CellWindowUiState
+}
+
+/**
+ * A cell window that displays the given [gameOfLifeState] in an immutable fashion.
+ */
 @Composable
-fun CellWindow(
-    gameOfLifeState: MutableGameOfLifeState,
+fun ImmutableCellWindow(
+    gameOfLifeState: GameOfLifeState,
     cellWindowState: CellWindowState = rememberCellWindowState(),
-    cellDpSize: Dp = 32.dp
+    cellDpSize: Dp = 32.dp,
+) {
+    CellWindowImpl(
+        cellWindowUiState = CellWindowUiState.ImmutableState(
+            gameOfLifeState = gameOfLifeState
+        ),
+        cellWindowState = cellWindowState,
+        cellDpSize = cellDpSize
+    )
+}
+
+/**
+ * A cell window that displays the given [gameOfLifeState] in an mutable fashion.
+ *
+ * If [isInteractable] returns true, the
+ */
+@Composable
+fun MutableCellWindow(
+    gameOfLifeState: MutableGameOfLifeState,
+    isInteractable: (isGesturing: Boolean, scaledCellDpSize: Dp) -> Boolean = { isGesturing, scaledCellDpSize ->
+        !isGesturing && scaledCellDpSize >= 32.dp
+    },
+    cellWindowState: CellWindowState = rememberCellWindowState(),
+    cellDpSize: Dp = 32.dp,
+) {
+    CellWindowImpl(
+        cellWindowUiState = CellWindowUiState.MutableState(
+            gameOfLifeState = gameOfLifeState,
+            isInteractable = isInteractable
+        ),
+        cellWindowState = cellWindowState,
+        cellDpSize = cellDpSize
+    )
+}
+
+@Composable
+private fun CellWindowImpl(
+    cellWindowUiState: CellWindowUiState,
+    cellWindowState: CellWindowState,
+    cellDpSize: Dp,
 ) {
     var isGesturing by remember { mutableStateOf(false) }
 
@@ -145,7 +204,8 @@ fun CellWindow(
     val scaledCellPixelSize = cellPixelSize * cellWindowState.scale
 
     BoxWithConstraints {
-        val intOffset = IntOffset(floor(cellWindowState.offset.x).toInt(), floor(cellWindowState.offset.y).toInt())
+        // Convert the window state offset into integer and fractional parts
+        val intOffset = floor(cellWindowState.offset)
         val fracOffset = cellWindowState.offset - intOffset.toOffset()
         val fracPixelOffset = fracOffset * scaledCellPixelSize
 
@@ -154,10 +214,12 @@ fun CellWindow(
         val numColumns = ceil(constraints.maxWidth / scaledCellPixelSize).toInt().ceilToOdd()
         val numRows = ceil(constraints.maxHeight / scaledCellPixelSize).toInt().ceilToOdd()
 
-        val centeringIntOffset = IntOffset(-numColumns / 2, -numRows / 2)
+        // Compute the offset from the main offset to the top left corner, in cell coordinates
+        val topLeftOffset = IntOffset(-numColumns / 2, -numRows / 2)
 
+        // Compute the cell window, describing all of the cells that will be drawn
         val cellWindow = IntRect(
-            intOffset + centeringIntOffset,
+            intOffset + topLeftOffset,
             IntSize(
                 numColumns,
                 numRows
@@ -166,13 +228,21 @@ fun CellWindow(
 
         val onGestureState = rememberUpdatedState { centroid: Offset, pan: Offset, zoom: Float, _: Float ->
             val oldScale = cellWindowState.scale
+
+            // Compute the offset from the centroid to the underlying offset, in cell coordinates
+            val centroidOffset = centroid / scaledCellPixelSize + topLeftOffset.toOffset()
+
+            // Compute the offset update due to panning
+            val panDiff = pan / scaledCellPixelSize
+
+            // Update the scale
             cellWindowState.scale = oldScale * zoom
 
-            val centroidOffset = centroid / scaledCellPixelSize + centeringIntOffset.toOffset()
-
-            val panDiff = pan / scaledCellPixelSize
+            // Compute offset update due to zooming. We adjust the offset by the distance it moved relative to the
+            // centroid, which allows the centroid to be the point that remains fixed while zooming.
             val zoomDiff = centroidOffset * (cellWindowState.scale / oldScale - 1)
 
+            // Update the offset
             cellWindowState.offset += zoomDiff - panDiff
         }
 
@@ -192,19 +262,39 @@ fun CellWindow(
                     )
                 }
         ) {
-            if (isGesturing || scaledCellDpSize < 32.dp) {
-                NonInteractableCells(
-                    gameOfLifeState = gameOfLifeState,
+            if (
+                cellWindowUiState.isInteractable(
+                    isGesturing = isGesturing,
+                    scaledCellDpSize = scaledCellDpSize
+                )
+            ) {
+                InteractableCells(
+                    gameOfLifeState = cellWindowUiState.gameOfLifeState,
                     scaledCellDpSize = scaledCellDpSize,
                     cellWindow = cellWindow,
                 )
             } else {
-                InteractableCells(
-                    gameOfLifeState = gameOfLifeState,
+                NonInteractableCells(
+                    gameOfLifeState = cellWindowUiState.gameOfLifeState,
                     scaledCellDpSize = scaledCellDpSize,
                     cellWindow = cellWindow,
                 )
             }
         }
+    }
+}
+
+@OptIn(ExperimentalContracts::class)
+private fun CellWindowUiState.isInteractable(
+    isGesturing: Boolean,
+    scaledCellDpSize: Dp,
+): Boolean {
+    contract { returns(true) implies (this@isInteractable is CellWindowUiState.MutableState) }
+    return when (this) {
+        is CellWindowUiState.ImmutableState -> false
+        is CellWindowUiState.MutableState -> isInteractable(
+            isGesturing,
+            scaledCellDpSize
+        )
     }
 }
