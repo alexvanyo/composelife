@@ -27,7 +27,7 @@ fun Pair<Int, Int>.toIntOffset() = IntOffset(first, second)
 /**
  * Returns the 8 diagonal and orthogonal neighbors to the [IntOffset].
  */
-fun IntOffset.getNeighbors(): List<IntOffset> = neighborOffsets.map { it + this }
+fun IntOffset.getNeighbors(): Set<IntOffset> = neighborOffsets.map { it + this }.toSet()
 
 private val neighborOffsets = listOf(
     IntOffset(-1, -1),

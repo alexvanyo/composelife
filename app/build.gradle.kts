@@ -57,9 +57,17 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle)
 
-    testImplementation(libs.junit4)
+    testImplementation(libs.junit5.jupiter)
 
+    androidTestImplementation(libs.junit4)
+    androidTestImplementation(libs.junit5.vintageEngine)
     androidTestImplementation(libs.androidx.compose.uiTestJunit4)
     androidTestImplementation(libs.androidx.espresso)
     androidTestImplementation(libs.androidx.test)
+}
+
+tasks {
+    withType<Test> {
+        useJUnitPlatform()
+    }
 }
