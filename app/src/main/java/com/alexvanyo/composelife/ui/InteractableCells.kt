@@ -13,9 +13,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
-import com.alexvanyo.composelife.MutableGameOfLifeState
-import com.alexvanyo.composelife.containedPoints
-import com.alexvanyo.composelife.setIndividualCellState
+import com.alexvanyo.composelife.data.model.MutableGameOfLifeState
+import com.alexvanyo.composelife.util.containedPoints
+import com.alexvanyo.composelife.data.model.setIndividualCellState
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import kotlin.math.roundToInt
 

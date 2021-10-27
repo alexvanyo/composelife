@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.alexvanyo.composelife.MutableGameOfLifeState
+import com.alexvanyo.composelife.data.model.MutableGameOfLifeState
 import com.google.accompanist.insets.statusBarsHeight
 
 @Composable

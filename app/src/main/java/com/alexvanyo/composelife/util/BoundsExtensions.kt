@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife
+package com.alexvanyo.composelife.util
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset

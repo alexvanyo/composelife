@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife
+package com.alexvanyo.composelife.ui.util
 
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculateCentroid

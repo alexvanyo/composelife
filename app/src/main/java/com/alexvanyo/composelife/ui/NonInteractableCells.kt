@@ -15,8 +15,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
-import com.alexvanyo.composelife.GameOfLifeState
-import com.alexvanyo.composelife.containedPoints
+import com.alexvanyo.composelife.data.model.GameOfLifeState
+import com.alexvanyo.composelife.util.containedPoints
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 
 @Composable

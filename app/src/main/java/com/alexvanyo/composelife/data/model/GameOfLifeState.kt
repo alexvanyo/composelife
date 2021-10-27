@@ -1,9 +1,10 @@
-package com.alexvanyo.composelife
+package com.alexvanyo.composelife.data.model
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.IntOffset
+import com.alexvanyo.composelife.util.toIntOffset
 
 typealias CellState = Set<IntOffset>
 

@@ -7,8 +7,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import com.alexvanyo.composelife.MutableGameOfLifeState
-import com.alexvanyo.composelife.NaiveGameOfLifeAlgorithm
+import com.alexvanyo.composelife.data.model.MutableGameOfLifeState
+import com.alexvanyo.composelife.data.NaiveGameOfLifeAlgorithm
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -37,9 +37,9 @@ fun ComposeLifeApp() {
             }
 
             LaunchedEffect(gameOfLifeState) {
-                while (true) {
-                    delay(1000)
-                    withContext(Dispatchers.Default) {
+                withContext(Dispatchers.Default) {
+                    while (true) {
+                        delay(1)
                         gameOfLifeState.cellState =
                             NaiveGameOfLifeAlgorithm.computeNextGeneration(gameOfLifeState.cellState)
                     }

@@ -24,11 +24,11 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
-import com.alexvanyo.composelife.GameOfLifeState
-import com.alexvanyo.composelife.MutableGameOfLifeState
-import com.alexvanyo.composelife.ceilToOdd
-import com.alexvanyo.composelife.detectTransformGestures
-import com.alexvanyo.composelife.floor
+import com.alexvanyo.composelife.data.model.GameOfLifeState
+import com.alexvanyo.composelife.data.model.MutableGameOfLifeState
+import com.alexvanyo.composelife.util.ceilToOdd
+import com.alexvanyo.composelife.ui.util.detectTransformGestures
+import com.alexvanyo.composelife.util.floor
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.math.ceil

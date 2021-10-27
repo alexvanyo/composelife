@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife
+package com.alexvanyo.composelife.util
 
 /**
  * Rounds this [Int] up the the nearest odd integer.
