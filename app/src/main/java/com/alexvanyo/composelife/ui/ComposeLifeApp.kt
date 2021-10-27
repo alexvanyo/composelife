@@ -3,18 +3,16 @@ package com.alexvanyo.composelife.ui
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
-import com.alexvanyo.composelife.data.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.data.NaiveGameOfLifeAlgorithm
+import com.alexvanyo.composelife.data.TemporalGameOfLifeState
+import com.alexvanyo.composelife.data.model.toCellState
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 
 @Composable
 fun ComposeLifeApp() {
@@ -30,20 +28,15 @@ fun ComposeLifeApp() {
                 )
             }
 
-            val gameOfLifeState = remember {
-                MutableGameOfLifeState(
-                    cellState = gosperGliderGun
-                )
-            }
+            val coroutineScope = rememberCoroutineScope()
 
-            LaunchedEffect(gameOfLifeState) {
-                withContext(Dispatchers.Default) {
-                    while (true) {
-                        delay(1)
-                        gameOfLifeState.cellState =
-                            NaiveGameOfLifeAlgorithm.computeNextGeneration(gameOfLifeState.cellState)
-                    }
-                }
+            val gameOfLifeState = remember(coroutineScope) {
+                TemporalGameOfLifeState(
+                    coroutineScope = coroutineScope,
+                    gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm,
+                    cellState = gosperGliderGun.toCellState(),
+                    generationsPerStep = 10,
+                )
             }
 
             // A surface container using the 'background' color from the theme

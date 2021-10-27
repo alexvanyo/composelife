@@ -18,6 +18,7 @@ import com.alexvanyo.composelife.data.model.GameOfLifeState
 import com.alexvanyo.composelife.data.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.util.containedPoints
 import com.alexvanyo.composelife.data.model.setIndividualCellState
+import com.alexvanyo.composelife.data.model.toCellState
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import kotlin.math.roundToInt
 
@@ -105,7 +106,7 @@ fun InteractableCellsPreview() {
                     4 to 0,
                     4 to 2,
                     4 to 4,
-                )
+                ).toCellState()
             ),
             scaledCellDpSize = 32.dp,
             cellWindow = IntRect(

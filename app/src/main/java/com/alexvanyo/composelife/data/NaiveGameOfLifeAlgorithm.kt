@@ -1,11 +1,25 @@
 package com.alexvanyo.composelife.data
 
+import androidx.annotation.IntRange
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.data.model.CellState
 import com.alexvanyo.composelife.util.getNeighbors
 
 object NaiveGameOfLifeAlgorithm : GameOfLifeAlgorithm {
-    override fun computeNextGeneration(cellState: CellState): CellState =
+    override tailrec fun computeGenerationWithStep(
+        cellState: CellState,
+        @IntRange(from = 0) step: Int
+    ): CellState =
+        if (step == 0) {
+            cellState
+        } else {
+            computeGenerationWithStep(
+                cellState = computeNextGeneration(cellState),
+                step = step - 1
+            )
+        }
+
+    private fun computeNextGeneration(cellState: CellState): CellState =
         cellState
             // Get all neighbors of current living cells
             .flatMap(IntOffset::getNeighbors)

@@ -8,6 +8,10 @@ import com.alexvanyo.composelife.util.toIntOffset
 
 typealias CellState = Set<IntOffset>
 
+fun emptyCellState(): CellState = emptySet()
+
+fun Set<Pair<Int, Int>>.toCellState(): CellState = map(Pair<Int, Int>::toIntOffset).toSet()
+
 interface GameOfLifeState {
     val cellState: CellState
 }
@@ -18,19 +22,11 @@ private class ImmutableGameOfLifeState(
 
 fun GameOfLifeState(cellState: CellState): GameOfLifeState = ImmutableGameOfLifeState(cellState)
 
-@JvmName("GameOfLifeStatePairs")
-fun GameOfLifeState(cellState: Set<Pair<Int, Int>>): GameOfLifeState =
-    GameOfLifeState(cellState.map(Pair<Int, Int>::toIntOffset).toSet())
-
 interface MutableGameOfLifeState : GameOfLifeState {
     override var cellState: CellState
 }
 
 fun MutableGameOfLifeState(cellState: CellState): MutableGameOfLifeState = MutableGameOfLifeStateImpl(cellState)
-
-@JvmName("MutableGameOfLifeStatePairs")
-fun MutableGameOfLifeState(cellState: Set<Pair<Int, Int>>): MutableGameOfLifeState =
-    MutableGameOfLifeState(cellState.map(Pair<Int, Int>::toIntOffset).toSet())
 
 private class MutableGameOfLifeStateImpl(
     cellState: CellState

@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import com.alexvanyo.composelife.data.model.GameOfLifeState
+import com.alexvanyo.composelife.data.model.toCellState
 import com.alexvanyo.composelife.util.containedPoints
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 
@@ -91,7 +92,7 @@ fun NonInteractableCellsPreview() {
                     4 to 0,
                     4 to 2,
                     4 to 4,
-                )
+                ).toCellState()
             ),
             scaledCellDpSize = 32.dp,
             cellWindow = IntRect(
