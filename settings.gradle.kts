@@ -8,5 +8,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Compose Life"
+rootProject.name = "ComposeLife"
 include(":app")

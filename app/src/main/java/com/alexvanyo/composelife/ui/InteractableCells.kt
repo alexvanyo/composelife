@@ -1,6 +1,7 @@
 package com.alexvanyo.composelife.ui
 
 import android.content.res.Configuration
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -13,12 +14,18 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.data.model.GameOfLifeState
 import com.alexvanyo.composelife.data.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.util.containedPoints
 import com.alexvanyo.composelife.data.model.setIndividualCellState
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import kotlin.math.roundToInt
 
+/**
+ * A fixed size composable that displays a specific [cellWindow] into the given [GameOfLifeState].
+ *
+ * The [GameOfLifeState] is interactable, so each cell is displayed by a unique [InteractableCell].
+ */
 @Composable
 fun InteractableCells(
     gameOfLifeState: MutableGameOfLifeState,

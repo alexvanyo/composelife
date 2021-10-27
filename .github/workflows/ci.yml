@@ -39,3 +39,6 @@ jobs:
 
       - name: Run checks
         run: ./gradlew check
+
+      - name: Run device checks
+        run: ./gradlew allDevicesCheck --no-parallel

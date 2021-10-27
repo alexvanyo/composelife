@@ -19,6 +19,12 @@ import com.alexvanyo.composelife.data.model.GameOfLifeState
 import com.alexvanyo.composelife.util.containedPoints
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 
+/**
+ * A fixed size composable that displays a specific [cellWindow] into the given [GameOfLifeState].
+ *
+ * The [GameOfLifeState] is not interactable, so for efficiency the cell window is represented
+ * by a single [Canvas], where each cell is drawn individually.
+ */
 @Composable
 fun NonInteractableCells(
     gameOfLifeState: GameOfLifeState,
