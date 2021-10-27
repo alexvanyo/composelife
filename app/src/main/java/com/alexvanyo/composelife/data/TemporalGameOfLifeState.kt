@@ -7,12 +7,9 @@ import androidx.compose.runtime.snapshotFlow
 import com.alexvanyo.composelife.data.model.CellState
 import com.alexvanyo.composelife.data.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.data.model.emptyCellState
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
@@ -94,7 +91,7 @@ private class TemporalGameOfLifeStateImpl(
         if (isRunning) {
             {
                 coroutineScope {
-                    delay(Duration.Companion.seconds(1) / targetStepsPerSecond)
+                    delay(Duration.seconds(1) / targetStepsPerSecond)
                     withContext(Dispatchers.Default) {
                         gameOfLifeAlgorithm.computeGenerationWithStep(cellState, generationsPerStep)
                     }
