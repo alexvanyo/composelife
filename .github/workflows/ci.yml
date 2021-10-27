@@ -38,7 +38,7 @@ jobs:
           java-version: ${{ matrix.java-version }}
 
       - name: Run checks
-        run: ./gradlew check
+        run: ./gradlew check --stacktrace
 
   android-test:
     needs: build
@@ -71,4 +71,4 @@ jobs:
           java-version: ${{ matrix.java-version }}
 
       - name: Run device checks
-        run: ./gradlew allDevicesCheck --no-parallel
+        run: ./gradlew allDevicesCheck --no-parallel --stacktrace
