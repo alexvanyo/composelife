@@ -71,4 +71,4 @@ jobs:
           java-version: ${{ matrix.java-version }}
 
       - name: Run device checks
-        run: ./gradlew allDevicesCheck --no-parallel --stacktrace
+        run: ./gradlew pixel2api29Check pixel2api30Check pixel3xlapi29Check pixel3xlapi30Check --no-parallel --stacktrace
