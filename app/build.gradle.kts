@@ -99,6 +99,7 @@ dependencies {
     implementation(libs.androidx.compose.uiTooling)
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle)
+    implementation(libs.jetbrains.kotlinx.datetime)
 
     debugImplementation(libs.square.leakCanary)
 

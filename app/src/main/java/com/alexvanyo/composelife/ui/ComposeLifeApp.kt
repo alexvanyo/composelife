@@ -35,7 +35,6 @@ fun ComposeLifeApp() {
                     coroutineScope = coroutineScope,
                     gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm,
                     cellState = gosperGliderGun.toCellState(),
-                    generationsPerStep = 10,
                 )
             }
 

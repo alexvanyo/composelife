@@ -5,6 +5,12 @@ import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.data.model.CellState
 import com.alexvanyo.composelife.util.getNeighbors
 
+/**
+ * The basic, naive implementation of the [GameOfLifeAlgorithm].
+ *
+ * Each generation is computed in turn, and each of the possible cells that could be alive in the next generation
+ * is checked individually.
+ */
 object NaiveGameOfLifeAlgorithm : GameOfLifeAlgorithm {
     override tailrec fun computeGenerationWithStep(
         cellState: CellState,

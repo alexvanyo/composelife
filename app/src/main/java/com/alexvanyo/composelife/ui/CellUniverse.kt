@@ -9,14 +9,12 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
-import com.alexvanyo.composelife.data.model.MutableGameOfLifeState
-import com.alexvanyo.composelife.data.model.toCellState
+import com.alexvanyo.composelife.data.TemporalGameOfLifeState
 import com.google.accompanist.insets.statusBarsHeight
 
 @Composable
 fun CellUniverse(
-    gameOfLifeState: MutableGameOfLifeState
+    gameOfLifeState: TemporalGameOfLifeState
 ) {
     val cellWindowState = rememberCellWindowState()
 
@@ -35,32 +33,19 @@ fun CellUniverse(
                 )
 
                 Text(
-                    text = "Offset: ${cellWindowState.offset}",
+                    text = "Offset: ${cellWindowState.offset}, Scale: ${cellWindowState.scale}",
+                )
+
+                val evolutionStatus = gameOfLifeState.status
+
+                Text(
+                    text = when (evolutionStatus) {
+                        TemporalGameOfLifeState.EvolutionStatus.Paused -> "Paused"
+                        is TemporalGameOfLifeState.EvolutionStatus.Running ->
+                            "GPS: ${evolutionStatus.averageGenerationsPerSecond}"
+                    }
                 )
             }
         }
     }
-}
-
-@Preview(
-    widthDp = 1000,
-    heightDp = 1000,
-)
-@Composable
-fun CellUniversePreview() {
-    CellUniverse(
-        gameOfLifeState = MutableGameOfLifeState(
-            setOf(
-                0 to 0,
-                0 to 2,
-                0 to 4,
-                2 to 0,
-                2 to 2,
-                2 to 4,
-                4 to 0,
-                4 to 2,
-                4 to 4,
-            ).toCellState()
-        )
-    )
 }
