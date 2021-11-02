@@ -100,6 +100,8 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle)
 
+    debugImplementation(libs.square.leakCanary)
+
     testImplementation(libs.junit5.jupiter)
 
     androidTestImplementation(libs.junit4)

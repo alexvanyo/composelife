@@ -9,6 +9,7 @@ androidxTest = "1.1.3"
 compose = "1.0.4"
 junit4 = "4.13.2"
 junit5 = "5.8.1"
+leakCanary = "2.7"
 
 [libraries]
 accompanist-insets = { group = "com.google.accompanist", name = "accompanist-insets", version.ref = "accompanist" }
@@ -23,6 +24,7 @@ androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "and
 androidx-espresso = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxEspresso" }
 androidx-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
 androidx-test = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTest" }
+square-leakCanary = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakCanary" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 junit5-jupiter = { group = "org.junit.jupiter", name="junit-jupiter", version.ref = "junit5" }
 junit5-vintageEngine = { group = "org.junit.vintage", name="junit-vintage-engine", version.ref = "junit5" }
