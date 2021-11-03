@@ -102,6 +102,7 @@ dependencies {
     implementation(libs.jetbrains.kotlinx.datetime)
 
     debugImplementation(libs.square.leakCanary)
+    debugImplementation(libs.androidx.compose.uiTestManifest)
 
     testImplementation(libs.junit5.jupiter)
 
