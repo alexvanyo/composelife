@@ -19,6 +19,7 @@ jobs:
         sdk:
           - 21
           - 30
+          - 31
 
     steps:
       - name: Checkout
