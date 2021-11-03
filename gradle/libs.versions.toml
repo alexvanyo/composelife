@@ -11,6 +11,7 @@ kotlinxDatetime = "0.3.1"
 junit4 = "4.13.2"
 junit5 = "5.8.1"
 leakCanary = "2.7"
+robolectric = "4.6.1"
 
 [libraries]
 accompanist-insets = { group = "com.google.accompanist", name = "accompanist-insets", version.ref = "accompanist" }
@@ -21,13 +22,13 @@ androidx-compose-material = { group = "androidx.compose.material", name = "mater
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose" }
 androidx-compose-uiTooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "compose" }
 androidx-compose-uiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "compose" }
-androidx-compose-uiTestManifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "compose" }
 androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
 androidx-espresso = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxEspresso" }
 androidx-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
 androidx-test = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTest" }
-square-leakCanary = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakCanary" }
 jetbrains-kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 junit5-jupiter = { group = "org.junit.jupiter", name="junit-jupiter", version.ref = "junit5" }
 junit5-vintageEngine = { group = "org.junit.vintage", name="junit-vintage-engine", version.ref = "junit5" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+square-leakCanary = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakCanary" }

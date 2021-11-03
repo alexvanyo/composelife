@@ -27,6 +27,10 @@ android {
     }
 
     testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+
         val deviceNames = listOf("Pixel 2", "Pixel 3 XL")
         val apiLevels = listOf(29, 30)
 
@@ -53,6 +57,17 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+    }
+
+    sourceSets {
+        val sharedTestDir = "src/sharedTest/kotlin"
+        getByName("test") {
+            java.srcDir(sharedTestDir)
+            resources.srcDir("src/sharedTest/resources")
+        }
+        getByName("androidTest") {
+            java.srcDir(sharedTestDir)
         }
     }
 
@@ -102,9 +117,11 @@ dependencies {
     implementation(libs.jetbrains.kotlinx.datetime)
 
     debugImplementation(libs.square.leakCanary)
-    debugImplementation(libs.androidx.compose.uiTestManifest)
 
     testImplementation(libs.junit5.jupiter)
+    testRuntimeOnly(libs.junit5.vintageEngine)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.compose.uiTestJunit4)
 
     androidTestImplementation(libs.junit4)
     androidTestRuntimeOnly(libs.junit5.vintageEngine)
