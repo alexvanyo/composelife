@@ -4,6 +4,8 @@ import androidx.annotation.IntRange
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.data.model.CellState
 import com.alexvanyo.composelife.util.getNeighbors
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * The basic, naive implementation of the [GameOfLifeAlgorithm].
@@ -12,14 +14,25 @@ import com.alexvanyo.composelife.util.getNeighbors
  * is checked individually.
  */
 object NaiveGameOfLifeAlgorithm : GameOfLifeAlgorithm {
-    override tailrec fun computeGenerationWithStep(
+    override suspend fun computeGenerationWithStep(
+        cellState: CellState,
+        @IntRange(from = 0) step: Int
+    ): CellState =
+        withContext(Dispatchers.Default) {
+            computeGenerationWithStepImpl(
+                cellState = cellState,
+                step = step
+            )
+        }
+
+    private tailrec fun computeGenerationWithStepImpl(
         cellState: CellState,
         @IntRange(from = 0) step: Int
     ): CellState =
         if (step == 0) {
             cellState
         } else {
-            computeGenerationWithStep(
+            computeGenerationWithStepImpl(
                 cellState = computeNextGeneration(cellState),
                 step = step - 1
             )

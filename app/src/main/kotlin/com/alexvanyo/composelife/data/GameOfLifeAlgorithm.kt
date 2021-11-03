@@ -2,6 +2,10 @@ package com.alexvanyo.composelife.data
 
 import androidx.annotation.IntRange
 import com.alexvanyo.composelife.data.model.CellState
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.isActive
 
 /**
  * An implementation of the Game of Life algorithm.
@@ -13,15 +17,29 @@ interface GameOfLifeAlgorithm {
      * A [step] of `0` indicates that no generations should be be calculated, and the given [CellState] should be equal
      * to the returned [CellState].
      */
-    fun computeGenerationWithStep(
+    suspend fun computeGenerationWithStep(
         cellState: CellState,
         @IntRange(from = 0) step: Int
     ): CellState
+
+    fun computeGenerationsWithStep(
+        originalCellState: CellState,
+        @IntRange(from = 0) step: Int
+    ): Flow<CellState> = flow {
+        var cellState = originalCellState
+        while (currentCoroutineContext().isActive) {
+            cellState = computeGenerationWithStep(
+                cellState = cellState,
+                step = step
+            )
+            emit(cellState)
+        }
+    }
 }
 
 /**
  * A helper function to compute one generation.
  */
-fun GameOfLifeAlgorithm.computeNextGeneration(
+suspend fun GameOfLifeAlgorithm.computeNextGeneration(
     cellState: CellState
 ): CellState = computeGenerationWithStep(cellState = cellState, step = 1)
