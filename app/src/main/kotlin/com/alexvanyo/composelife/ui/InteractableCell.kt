@@ -22,7 +22,7 @@ import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
  *
  * This cell has no inherent size, which must be specified via [modifier].
  *
- * The cell is alive if [isAlive] is true, and [onClick] will be called when the living state should be toggled.
+ * The cell is alive if [isAlive] is true, and [onValueChange] will be called when the living state should be toggled.
  */
 @Composable
 fun InteractableCell(

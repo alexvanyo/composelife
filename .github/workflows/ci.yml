@@ -66,11 +66,6 @@ jobs:
       matrix:
         java-version:
           - 11
-        device:
-          - pixel2api29
-          - pixel2api30
-          - pixel3xlapi29
-          - pixel3xlapi30
 
     steps:
       - name: Checkout
@@ -93,4 +88,8 @@ jobs:
           java-version: ${{ matrix.java-version }}
 
       - name: Run device checks
-        run: ./gradlew ${{ matrix.device }}Check --stacktrace
+        run: |
+          ./gradlew pixel2api29Check --stacktrace
+          ./gradlew pixel2api30Check --stacktrace
+          ./gradlew pixel3xlapi29Check --stacktrace
+          ./gradlew pixel3xlapi30Check --stacktrace
