@@ -16,6 +16,9 @@ jobs:
       matrix:
         java-version:
           - 11
+        sdk:
+          - 21
+          - 30
 
     steps:
       - name: Checkout
@@ -36,6 +39,11 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java-version }}
+
+      - name: Create robolectric.properties
+        run: |
+          mkdir app/src/sharedTest/resources/com/alexvanyo/composelife
+          echo sdk=${{ matrix.sdk }} > app/src/sharedTest/resources/com/alexvanyo/composelife/robolectric.properties
 
       - name: Run checks
         run: ./gradlew check --stacktrace
