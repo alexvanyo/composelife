@@ -19,7 +19,7 @@ jobs:
         sdk:
           - 21
           - 30
-          - 31
+          # - 31 Enable once Robolectric supports API 31
 
     steps:
       - name: Checkout
@@ -41,7 +41,7 @@ jobs:
         with:
           java-version: ${{ matrix.java-version }}
 
-      - name: Create robolectric.properties
+      - name: Create CI robolectric.properties
         run: |
           mkdir app/src/sharedTest/resources/com/alexvanyo/composelife
           echo sdk=${{ matrix.sdk }} > app/src/sharedTest/resources/com/alexvanyo/composelife/robolectric.properties
