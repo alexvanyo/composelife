@@ -3,7 +3,10 @@ import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 plugins {
     id("com.android.application")
     kotlin("android")
+    jacoco
 }
+
+val jacocoTestReport = tasks.register("jacocoTestReport")
 
 android {
     compileSdk = 31
@@ -101,6 +104,43 @@ android {
             )
         )
     }
+
+    applicationVariants.all(closureOf<com.android.build.gradle.api.ApplicationVariant> {
+        val testTaskName = "test${this@closureOf.name.capitalize()}UnitTest"
+
+        val excludes = listOf(
+            // Android
+            "**/R.class",
+            "**/R\$*.class",
+            "**/BuildConfig.*",
+            "**/Manifest*.*"
+        )
+
+        val reportTask = tasks.register("jacoco${testTaskName.capitalize()}Report", JacocoReport::class) {
+            dependsOn(testTaskName)
+
+            reports {
+                xml.required.set(true)
+                html.required.set(true)
+            }
+
+            classDirectories.setFrom(
+                files(
+                    fileTree(this@closureOf.javaCompileProvider.get().destinationDirectory) {
+                        exclude(excludes)
+                    },
+                    fileTree("$buildDir/tmp/kotlin-classes/${this@closureOf.name}") {
+                        exclude(excludes)
+                    }
+                )
+            )
+
+            sourceDirectories.setFrom(this@closureOf.sourceSets.flatMap { it.javaDirectories + it.kotlinDirectories })
+            executionData.setFrom(file("$buildDir/jacoco/$testTaskName.exec"))
+        }
+
+        jacocoTestReport.get().dependsOn(reportTask)
+    })
 }
 
 dependencies {
@@ -112,6 +152,7 @@ dependencies {
     implementation(libs.androidx.compose.material)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.uiTooling)
+    implementation(libs.androidx.compose.uiTestManifest)
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle)
     implementation(libs.jetbrains.kotlinx.datetime)
@@ -133,5 +174,10 @@ dependencies {
 tasks {
     withType<Test> {
         useJUnitPlatform()
+
+        configure<JacocoTaskExtension> {
+            isIncludeNoLocationClasses = true
+            excludes = listOf("jdk.internal.*")
+        }
     }
 }
