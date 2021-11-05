@@ -57,6 +57,18 @@ jobs:
       - name: Run checks
         run: ./gradlew check --stacktrace
 
+      - name: Generate code coverage
+        if: matrix.sdk == '30'
+        run: ./gradlew jacocoTestReport --stacktrace
+
+      - name: Upload coverage to Codecov
+        if: matrix.sdk == '30'
+        uses: codecov/codecov-action@v2
+        with:
+          directory: ./app/build/reports/jacoco
+          fail_ci_if_error: true
+          files: ./jacocoTestDebugUnitTestReport.xml,./jacocoTestReleaseUnitTestReport.xml
+
   android-test:
     needs: build
     runs-on: macos-latest # for hardware acceleration
