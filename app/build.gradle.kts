@@ -143,6 +143,10 @@ android {
     })
 }
 
+jacoco {
+    toolVersion = "0.8.7"
+}
+
 dependencies {
     coreLibraryDesugaring(libs.android.desugarJdkLibs)
 
