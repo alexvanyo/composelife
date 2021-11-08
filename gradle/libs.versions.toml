@@ -1,12 +1,14 @@
 [versions]
 accompanist = "0.21.2-beta"
 androidDesugarJdkLibs = "1.1.5"
+androidGradlePlugin = "7.2.0-alpha03"
 androidxActivity = "1.4.0"
 androidxCore = "1.7.0"
 androidxEspresso = "3.4.0"
 androidxLifecycle = "2.3.1"
 androidxTest = "1.1.3"
 compose = "1.1.0-beta02"
+kotlin = "1.5.31"
 kotlinxDatetime = "0.3.1"
 junit4 = "4.13.2"
 junit5 = "5.8.1"
@@ -16,7 +18,8 @@ robolectric = "4.6.1"
 [libraries]
 accompanist-insets = { group = "com.google.accompanist", name = "accompanist-insets", version.ref = "accompanist" }
 accompanist-systemuicontroller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist" }
-android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref ="androidDesugarJdkLibs" }
+android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "androidDesugarJdkLibs" }
+android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
 androidx-activityCompose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
 androidx-compose-material = { group = "androidx.compose.material", name = "material", version.ref = "compose" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose" }
