@@ -125,4 +125,3 @@ fun InteractableCellsPreview() {
         )
     }
 }
-

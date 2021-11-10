@@ -100,7 +100,7 @@ private class CellWindowStateImpl(
     override var scaleRange: ClosedRange<Float>
         get() = _scaleRange.value
         set(value) {
-            require(!scaleRange.isEmpty())  { "scaleRange cannot be empty" }
+            require(!scaleRange.isEmpty()) { "scaleRange cannot be empty" }
             _scaleRange.value = value
             // Set scale, to coerce the value to the new range (if necessary)
             scale = scale
@@ -190,6 +190,7 @@ fun MutableCellWindow(
     )
 }
 
+@Suppress("LongMethod")
 @Composable
 private fun CellWindowImpl(
     cellWindowUiState: CellWindowUiState,

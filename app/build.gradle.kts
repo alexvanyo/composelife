@@ -4,6 +4,7 @@ plugins {
     id("com.android.application")
     kotlin("android")
     jacoco
+    id("io.gitlab.arturbosch.detekt")
 }
 
 val jacocoTestReport = tasks.register("jacocoTestReport")
@@ -144,7 +145,16 @@ jacoco {
     toolVersion = libs.versions.jacoco.get()
 }
 
+detekt {
+    buildUponDefaultConfig = true
+    allRules = true
+    autoCorrect = System.getenv("CI") != "true"
+    config.setFrom("$rootDir/config/detekt.yml")
+}
+
 dependencies {
+    detektPlugins(libs.detekt.formatting)
+
     coreLibraryDesugaring(libs.android.desugarJdkLibs)
 
     implementation(libs.accompanist.insets)
@@ -173,6 +183,10 @@ dependencies {
 }
 
 tasks {
+    withType<io.gitlab.arturbosch.detekt.Detekt> {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+
     withType<Test> {
         useJUnitPlatform()
 
@@ -189,4 +203,6 @@ tasks {
         // Automatically output Robolectric logs to stdout (for ease of debugging in Android Studio)
         systemProperty("robolectric.logging", "stdout")
     }
+
+    getByName("check").dependsOn("detektMain")
 }
