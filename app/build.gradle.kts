@@ -144,7 +144,7 @@ android {
 }
 
 jacoco {
-    toolVersion = "0.8.7"
+    toolVersion = libs.versions.jacoco.get()
 }
 
 dependencies {
@@ -184,6 +184,7 @@ tasks {
             excludes = listOf("jdk.internal.*")
         }
 
+        // Automatically output Robolectric logs to stdout (for ease of debugging in Android Studio)
         systemProperty("robolectric.logging", "stdout")
     }
 }
