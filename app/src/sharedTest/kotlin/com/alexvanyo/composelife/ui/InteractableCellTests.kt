@@ -2,9 +2,8 @@ package com.alexvanyo.composelife.ui
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -26,14 +25,14 @@ class InteractableCellTests {
         composeTestRule.setContent {
             InteractableCell(
                 modifier = Modifier
-                    .size(32.dp)
-                    .testTag("cell"),
+                    .size(32.dp),
                 isAlive = true,
+                contentDescription = "test cell",
                 onValueChange = { onValueChangeResult = it }
             )
         }
 
-        composeTestRule.onNodeWithTag("cell").performClick()
+        composeTestRule.onNodeWithContentDescription("test cell").performClick()
 
         assertEquals(false, onValueChangeResult)
     }
@@ -45,14 +44,14 @@ class InteractableCellTests {
         composeTestRule.setContent {
             InteractableCell(
                 modifier = Modifier
-                    .size(32.dp)
-                    .testTag("cell"),
+                    .size(32.dp),
                 isAlive = false,
+                contentDescription = "test cell",
                 onValueChange = { onValueChangeResult = it }
             )
         }
 
-        composeTestRule.onNodeWithTag("cell").performClick()
+        composeTestRule.onNodeWithContentDescription("test cell").performClick()
 
         assertEquals(true, onValueChangeResult)
     }
