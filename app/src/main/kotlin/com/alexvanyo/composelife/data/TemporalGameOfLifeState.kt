@@ -163,8 +163,10 @@ private class TemporalGameOfLifeStateImpl(
                         }
                         averageGenerationsPerSecond =
                             completedGenerationTracker.sumOf { it.computedGenerations }.toDouble() /
-                                    (completedGenerationTracker.first().endTime -
-                                            completedGenerationTracker.last().startTime).toDouble(DurationUnit.SECONDS)
+                            (
+                                completedGenerationTracker.first().endTime -
+                                    completedGenerationTracker.last().startTime
+                                ).toDouble(DurationUnit.SECONDS)
                     }
                 }
             }

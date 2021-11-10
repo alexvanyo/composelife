@@ -1,3 +1,9 @@
+naming:
+  FunctionNaming:
+    active: false # TODO: https://github.com/detekt/detekt/issues/4230
+    ignoreAnnotated:
+      - "Composable"
+
 style:
   ForbiddenComment:
     active: true
@@ -6,3 +12,6 @@ style:
       - 'STOPSHIP:'
   MagicNumber:
     active: false
+  UnusedPrivateClass:
+    ignoreAnnotated:
+      - "ExcludeFromJacocoGeneratedReport"
