@@ -74,6 +74,7 @@ interface TemporalGameOfLifeState : MutableGameOfLifeState {
     }
 }
 
+@Suppress("LongParameterList")
 fun TemporalGameOfLifeState(
     coroutineScope: CoroutineScope,
     gameOfLifeAlgorithm: GameOfLifeAlgorithm,

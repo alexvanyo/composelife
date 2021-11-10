@@ -19,6 +19,7 @@ import kotlin.math.abs
  * A modified copy of [PointerInputScope.detectTransformGestures] that also provides callbacks when each gesture
  * has begun and ended.
  */
+@Suppress("ComplexMethod")
 suspend fun PointerInputScope.detectTransformGestures(
     panZoomLock: Boolean = false,
     onGestureStart: () -> Unit = {},

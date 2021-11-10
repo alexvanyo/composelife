@@ -86,4 +86,3 @@ private val gosperGliderGun = setOf(
     13 to 9,
     14 to 9,
 )
-

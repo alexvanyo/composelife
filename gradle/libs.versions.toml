@@ -8,6 +8,7 @@ androidxEspresso = "3.4.0"
 androidxLifecycle = "2.4.0"
 androidxTest = "1.1.3"
 compose = "1.1.0-beta02"
+detekt = "1.18.1"
 kotlin = "1.5.31"
 kotlinxDatetime = "0.3.1"
 jacoco = "0.8.7"
@@ -31,9 +32,13 @@ androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "and
 androidx-espresso = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxEspresso" }
 androidx-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
 androidx-test = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTest" }
+detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt"}
 jetbrains-kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 junit5-jupiter = { group = "org.junit.jupiter", name="junit-jupiter", version.ref = "junit5" }
 junit5-vintageEngine = { group = "org.junit.vintage", name="junit-vintage-engine", version.ref = "junit5" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 square-leakCanary = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakCanary" }
+
+[plugins]
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
