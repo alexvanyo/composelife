@@ -7,12 +7,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Switch
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
@@ -28,6 +32,7 @@ import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 fun InteractableCell(
     modifier: Modifier,
     isAlive: Boolean,
+    contentDescription: String,
     onValueChange: (isAlive: Boolean) -> Unit,
 ) {
     val cellColor = if (isAlive) {
@@ -44,11 +49,15 @@ fun InteractableCell(
     Box(
         modifier = modifier
             .background(cellColor)
-            .clickable(
-                role = Role.Switch,
-                onClick = { onValueChange(!isAlive) },
+            .semantics {
+                this.contentDescription = contentDescription
+            }
+            .toggleable(
+                value = isAlive,
+                interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple(color = rippleColor),
-                interactionSource = remember { MutableInteractionSource() }
+                role = Role.Switch,
+                onValueChange = onValueChange,
             )
     )
 }
@@ -67,6 +76,7 @@ fun AliveCellPreview() {
         InteractableCell(
             modifier = Modifier.size(50.dp),
             isAlive = true,
+            contentDescription = "test cell",
             onValueChange = {}
         )
     }
@@ -86,6 +96,7 @@ fun DeadCellPreview() {
         InteractableCell(
             modifier = Modifier.size(50.dp),
             isAlive = false,
+            contentDescription = "test cell",
             onValueChange = {}
         )
     }

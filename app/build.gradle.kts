@@ -183,5 +183,7 @@ tasks {
             isIncludeNoLocationClasses = true
             excludes = listOf("jdk.internal.*")
         }
+
+        systemProperty("robolectric.logging", "stdout")
     }
 }

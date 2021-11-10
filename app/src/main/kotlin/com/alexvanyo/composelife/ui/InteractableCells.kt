@@ -1,7 +1,6 @@
 package com.alexvanyo.composelife.ui
 
 import android.content.res.Configuration
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -9,11 +8,13 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.R
 import com.alexvanyo.composelife.data.model.GameOfLifeState
 import com.alexvanyo.composelife.data.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.util.containedPoints
@@ -52,8 +53,16 @@ fun InteractableCells(
                         modifier = Modifier
                             .size(scaledCellDpSize),
                         isAlive = cell in gameOfLifeState.cellState,
+                        contentDescription = stringResource(
+                            R.string.cell_content_description,
+                            cell.x,
+                            cell.y
+                        ),
                         onValueChange = { isAlive ->
-                            gameOfLifeState.setIndividualCellState(cell, isAlive)
+                            gameOfLifeState.setIndividualCellState(
+                                cellCoordinate = cell,
+                                isAlive = isAlive
+                            )
                         }
                     )
                 }

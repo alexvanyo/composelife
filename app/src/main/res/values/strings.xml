@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Compose Life</string>
+    <string name="cell_content_description">%1$d, %2$d</string>
 </resources>
