@@ -105,42 +105,39 @@ android {
         )
     }
 
-    applicationVariants.all(closureOf<com.android.build.gradle.api.ApplicationVariant> {
-        val testTaskName = "test${this@closureOf.name.capitalize()}UnitTest"
+    androidComponents {
+        onVariants { applicationVariant ->
+            val testTaskName = "test${applicationVariant.name.capitalize()}UnitTest"
 
-        val excludes = listOf(
-            // Android
-            "**/R.class",
-            "**/R\$*.class",
-            "**/BuildConfig.*",
-            "**/Manifest*.*"
-        )
+            val excludes = listOf(
+                // Android
+                "**/R.class",
+                "**/R\$*.class",
+                "**/BuildConfig.*",
+                "**/Manifest*.*"
+            )
 
-        val reportTask = tasks.register("jacoco${testTaskName.capitalize()}Report", JacocoReport::class) {
-            dependsOn(testTaskName)
+            val reportTask = tasks.register("jacoco${testTaskName.capitalize()}Report", JacocoReport::class) {
+                dependsOn(testTaskName)
 
-            reports {
-                xml.required.set(true)
-                html.required.set(true)
-            }
+                reports {
+                    xml.required.set(true)
+                    html.required.set(true)
+                }
 
-            classDirectories.setFrom(
-                files(
-                    fileTree(this@closureOf.javaCompileProvider.get().destinationDirectory) {
-                        exclude(excludes)
-                    },
-                    fileTree("$buildDir/tmp/kotlin-classes/${this@closureOf.name}") {
+                classDirectories.setFrom(
+                    fileTree("$buildDir/tmp/kotlin-classes/${applicationVariant.name}") {
                         exclude(excludes)
                     }
                 )
-            )
 
-            sourceDirectories.setFrom(this@closureOf.sourceSets.flatMap { it.javaDirectories + it.kotlinDirectories })
-            executionData.setFrom(file("$buildDir/jacoco/$testTaskName.exec"))
+                sourceDirectories.setFrom(files("$projectDir/src/main/java", "$projectDir/src/main/kotlin"))
+                executionData.setFrom(file("$buildDir/jacoco/$testTaskName.exec"))
+            }
+
+            jacocoTestReport.get().dependsOn(reportTask)
         }
-
-        jacocoTestReport.get().dependsOn(reportTask)
-    })
+    }
 }
 
 jacoco {
@@ -180,7 +177,12 @@ tasks {
         useJUnitPlatform()
 
         configure<JacocoTaskExtension> {
+            // Required for JaCoCo + Robolectric
+            // https://github.com/robolectric/robolectric/issues/2230
             isIncludeNoLocationClasses = true
+
+            // Required for JDK 11 with the above
+            // https://github.com/gradle/gradle/issues/5184#issuecomment-391982009
             excludes = listOf("jdk.internal.*")
         }
 
