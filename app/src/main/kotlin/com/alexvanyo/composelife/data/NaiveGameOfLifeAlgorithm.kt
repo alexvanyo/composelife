@@ -4,7 +4,7 @@ import androidx.annotation.IntRange
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.data.model.CellState
 import com.alexvanyo.composelife.util.getNeighbors
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
 /**
@@ -13,12 +13,14 @@ import kotlinx.coroutines.withContext
  * Each generation is computed in turn, and each of the possible cells that could be alive in the next generation
  * is checked individually.
  */
-object NaiveGameOfLifeAlgorithm : GameOfLifeAlgorithm {
+class NaiveGameOfLifeAlgorithm(
+    private val backgroundDispatcher: CoroutineDispatcher
+) : GameOfLifeAlgorithm {
     override suspend fun computeGenerationWithStep(
         cellState: CellState,
         @IntRange(from = 0) step: Int
     ): CellState =
-        withContext(Dispatchers.Default) {
+        withContext(backgroundDispatcher) {
             computeGenerationWithStepImpl(
                 cellState = cellState,
                 step = step

@@ -13,6 +13,7 @@ import com.alexvanyo.composelife.data.model.toCellState
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.Dispatchers
 
 @Composable
 fun ComposeLifeApp() {
@@ -33,7 +34,7 @@ fun ComposeLifeApp() {
             val gameOfLifeState = remember(coroutineScope) {
                 TemporalGameOfLifeState(
                     coroutineScope = coroutineScope,
-                    gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm,
+                    gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(Dispatchers.Default),
                     cellState = gosperGliderGun.toCellState(),
                 )
             }

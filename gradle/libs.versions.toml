@@ -11,11 +11,13 @@ compose = "1.1.0-beta02"
 detekt = "1.19.0-RC1"
 kotlin = "1.5.31"
 kotlinxDatetime = "0.3.1"
+ksp = "1.5.31-1.0.1"
 jacoco = "0.8.7"
 junit4 = "4.13.2"
 junit5 = "5.8.1"
 leakCanary = "2.7"
 robolectric = "4.7.1"
+sealedEnum = "0.4.0"
 
 [libraries]
 accompanist-insets = { group = "com.google.accompanist", name = "accompanist-insets", version.ref = "accompanist" }
@@ -38,7 +40,10 @@ junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 junit5-jupiter = { group = "org.junit.jupiter", name="junit-jupiter", version.ref = "junit5" }
 junit5-vintageEngine = { group = "org.junit.vintage", name="junit-vintage-engine", version.ref = "junit5" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+sealedEnum-ksp = { group = "com.github.livefront.sealed-enum", name = "ksp", version.ref = "sealedEnum" }
+sealedEnum-runtime = { group = "com.github.livefront.sealed-enum", name = "runtime", version.ref = "sealedEnum" }
 square-leakCanary = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakCanary" }
 
 [plugins]
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
