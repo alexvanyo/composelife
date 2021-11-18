@@ -69,7 +69,7 @@ jobs:
           fail_ci_if_error: true
           files: jacocoTestDebugUnitTestReport/jacocoTestDebugUnitTestReport.xml,jacocoTestReleaseUnitTestReport/jacocoTestReleaseUnitTestReport.xml
 
-  android-test:
+  android-test-gmd:
     needs: build
     runs-on: macos-latest # for hardware acceleration
 
@@ -105,3 +105,63 @@ jobs:
           ./gradlew pixel2api30Check --stacktrace
           ./gradlew pixel3xlapi29Check --stacktrace
           ./gradlew pixel3xlapi30Check --stacktrace
+
+  android-test-aer:
+    needs: build
+    runs-on: macos-latest # for hardware acceleration
+
+    strategy:
+      fail-fast: false
+      matrix:
+        java-version:
+          - 11
+        api-level:
+          - 31
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Cache Gradle Files
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/buildSrc/**/*.kt') }}
+          restore-keys: |
+            v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-
+
+      - name: Cache AVD
+        uses: actions/cache@v2
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: v1-${{ runner.os }}-avd-${{ matrix.java-version }}-${{ matrix.api-level }}
+
+      - name: Configure JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java-version }}
+
+      - name: Create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          arch: x86_64
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: echo "Generated AVD snapshot for caching."
+
+      - name: run tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          arch: x86_64
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: ./gradlew connectedCheck --stacktrace
