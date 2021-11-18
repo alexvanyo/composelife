@@ -11,40 +11,30 @@ object EmptyPattern : GameOfLifeTestPattern(
 
 object BlockPattern : GameOfLifeTestPattern(
     patternName = "Block",
-    seedCellState = setOf(
-        1 to 1,
-        1 to 2,
-        2 to 1,
-        2 to 2
-    ).toCellState(),
-    cellStates = List(50) {
-        setOf(
-            1 to 1,
-            1 to 2,
-            2 to 1,
-            2 to 2
-        ).toCellState()
+    """
+    |XX
+    |XX
+    """.toCellState(),
+    List(50) {
+        """
+        |XX
+        |XX
+        """.toCellState()
     }
 )
 
 object BeeHivePattern : GameOfLifeTestPattern(
     patternName = "Bee-hive",
-    seedCellState = setOf(
-        -1 to -1,
-        0 to -2,
-        1 to -2,
-        2 to -1,
-        0 to 0,
-        1 to 0
-    ).toCellState(),
-    cellStates = List(50) {
-        setOf(
-            -1 to -1,
-            0 to -2,
-            1 to -2,
-            2 to -1,
-            0 to 0,
-            1 to 0
-        ).toCellState()
+    """
+    | XX
+    |X  X
+    | XX
+    """.toCellState(),
+    List(50) {
+        """
+        | XX
+        |X  X
+        | XX
+        """.toCellState()
     }
 )
