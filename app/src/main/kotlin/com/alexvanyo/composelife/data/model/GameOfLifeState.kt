@@ -12,6 +12,17 @@ fun emptyCellState(): CellState = emptySet()
 
 fun Set<Pair<Int, Int>>.toCellState(): CellState = map(Pair<Int, Int>::toIntOffset).toSet()
 
+fun String.toCellState(topLeftOffset: IntOffset = IntOffset.Zero): CellState =
+    trimMargin()
+        .split("\n")
+        .flatMapIndexed { rowIndex, line ->
+            line
+                .withIndex()
+                .filter { (_, c) -> c != ' ' }
+                .map { (columnIndex, _) -> IntOffset(rowIndex, columnIndex) + topLeftOffset }
+        }
+        .toSet()
+
 interface GameOfLifeState {
     val cellState: CellState
 }
