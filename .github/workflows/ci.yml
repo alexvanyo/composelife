@@ -27,7 +27,7 @@ jobs:
           - 28
           - 29
           - 30
-          # - 31 Enable once Robolectric supports API 31
+          - 31
 
     steps:
       - name: Checkout
@@ -58,11 +58,11 @@ jobs:
         run: ./gradlew check --stacktrace
 
       - name: Generate code coverage
-        if: matrix.sdk == '30'
+        if: matrix.sdk == '31'
         run: ./gradlew jacocoTestReport --stacktrace
 
       - name: Upload coverage to Codecov
-        if: matrix.sdk == '30'
+        if: matrix.sdk == '31'
         uses: codecov/codecov-action@v2
         with:
           directory: app/build/reports/jacoco
