@@ -19,7 +19,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.util.ExcludeFromJacocoGeneratedReport
 
 /**
  * An individual cell that is interactable.
@@ -62,46 +61,42 @@ fun InteractableCell(
     )
 }
 
-@ExcludeFromJacocoGeneratedReport
-private class InteractableCellPreviews {
-
-    @Preview(
-        name = "Alive cell light mode",
-        uiMode = UI_MODE_NIGHT_NO
-    )
-    @Preview(
-        name = "Alive cell dark mode",
-        uiMode = UI_MODE_NIGHT_YES
-    )
-    @Composable
-    fun AliveCellPreview() {
-        ComposeLifeTheme {
-            InteractableCell(
-                modifier = Modifier.size(50.dp),
-                isAlive = true,
-                contentDescription = "test cell",
-                onValueChange = {}
-            )
-        }
+@Preview(
+    name = "Alive cell light mode",
+    uiMode = UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Alive cell dark mode",
+    uiMode = UI_MODE_NIGHT_YES
+)
+@Composable
+fun AliveCellPreview() {
+    ComposeLifeTheme {
+        InteractableCell(
+            modifier = Modifier.size(50.dp),
+            isAlive = true,
+            contentDescription = "test cell",
+            onValueChange = {}
+        )
     }
+}
 
-    @Preview(
-        name = "Dead cell light mode",
-        uiMode = UI_MODE_NIGHT_NO
-    )
-    @Preview(
-        name = "Dead cell dark mode",
-        uiMode = UI_MODE_NIGHT_YES
-    )
-    @Composable
-    fun DeadCellPreview() {
-        ComposeLifeTheme {
-            InteractableCell(
-                modifier = Modifier.size(50.dp),
-                isAlive = false,
-                contentDescription = "test cell",
-                onValueChange = {}
-            )
-        }
+@Preview(
+    name = "Dead cell light mode",
+    uiMode = UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Dead cell dark mode",
+    uiMode = UI_MODE_NIGHT_YES
+)
+@Composable
+fun DeadCellPreview() {
+    ComposeLifeTheme {
+        InteractableCell(
+            modifier = Modifier.size(50.dp),
+            isAlive = false,
+            contentDescription = "test cell",
+            onValueChange = {}
+        )
     }
 }
