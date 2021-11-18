@@ -15,7 +15,7 @@ jacoco = "0.8.7"
 junit4 = "4.13.2"
 junit5 = "5.8.1"
 leakCanary = "2.7"
-robolectric = "4.7"
+robolectric = "4.7.1"
 
 [libraries]
 accompanist-insets = { group = "com.google.accompanist", name = "accompanist-insets", version.ref = "accompanist" }
