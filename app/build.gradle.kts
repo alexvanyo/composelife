@@ -5,6 +5,7 @@ plugins {
     kotlin("android")
     jacoco
     id("io.gitlab.arturbosch.detekt")
+    alias(libs.plugins.ksp)
 }
 
 val jacocoTestReport = tasks.register("jacocoTestReport")
@@ -138,6 +139,17 @@ android {
 
             jacocoTestReport.get().dependsOn(reportTask)
         }
+
+        onVariants { applicationVariant ->
+            sourceSets {
+                getByName(applicationVariant.name) {
+                    java.srcDir(File("build/generated/ksp/${applicationVariant.name}/kotlin"))
+                }
+                getByName("test${applicationVariant.name.capitalize()}") {
+                    java.srcDir(File("build/generated/ksp/${applicationVariant.name}UnitTest/kotlin"))
+                }
+            }
+        }
     }
 }
 
@@ -167,9 +179,12 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle)
     implementation(libs.jetbrains.kotlinx.datetime)
+    implementation(libs.sealedEnum.runtime)
+    ksp(libs.sealedEnum.ksp)
 
     debugImplementation(libs.square.leakCanary)
 
+    kspTest(libs.sealedEnum.ksp)
     testImplementation(libs.junit5.jupiter)
     testRuntimeOnly(libs.junit5.vintageEngine)
     testImplementation(libs.robolectric)
