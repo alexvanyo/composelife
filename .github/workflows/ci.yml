@@ -118,6 +118,7 @@ jobs:
         java-version:
           - 11
         api-level:
+          - 21
           - 31
 
     steps:
