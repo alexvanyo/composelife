@@ -173,6 +173,7 @@ dependencies {
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.androidx.activityCompose)
     implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.compose.materialIconsExtended)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.uiTooling)
     implementation(libs.androidx.compose.uiTestManifest)
