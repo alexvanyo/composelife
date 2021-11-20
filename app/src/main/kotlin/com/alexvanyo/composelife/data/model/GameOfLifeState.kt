@@ -19,7 +19,7 @@ fun String.toCellState(topLeftOffset: IntOffset = IntOffset.Zero): CellState =
             line
                 .withIndex()
                 .filter { (_, c) -> c != ' ' }
-                .map { (columnIndex, _) -> IntOffset(rowIndex, columnIndex) + topLeftOffset }
+                .map { (columnIndex, _) -> IntOffset(columnIndex, rowIndex) + topLeftOffset }
         }
         .toSet()
 

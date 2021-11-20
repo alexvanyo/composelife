@@ -6,7 +6,7 @@ import com.alexvanyo.composelife.data.model.toCellState
 object SingleCellPattern : GameOfLifeTestPattern(
     patternName = "Single cell",
     """
-    |🟨
+    |X
     """.toCellState(),
     List(50) { emptyCellState() }
 )
