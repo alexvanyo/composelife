@@ -49,7 +49,7 @@ fun ImmutableCellWindow(
 /**
  * A cell window that displays the given [gameOfLifeState] in an mutable fashion.
  *
- * If [isInteractable] returns true, the
+ * The cells will be interactable if and only if [isInteractable] returns true.
  */
 @Composable
 fun MutableCellWindow(
