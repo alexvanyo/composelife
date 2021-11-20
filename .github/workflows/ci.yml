@@ -96,7 +96,7 @@ jobs:
             v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-
 
       - name: Configure JDK
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
           java-version: ${{ matrix.java-version }}
 
@@ -144,7 +144,7 @@ jobs:
           key: v1-${{ runner.os }}-avd-${{ matrix.java-version }}-${{ matrix.api-level }}
 
       - name: Configure JDK
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
           java-version: ${{ matrix.java-version }}
 
