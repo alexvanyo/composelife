@@ -149,9 +149,9 @@ private class TemporalGameOfLifeStateImpl(
     override var cellState: CellState
         get() = computedCellState
         set(value) {
-            seedId = UUID.randomUUID()
             seedCellState = value
-            computedCellState = value
+            seedId = UUID.randomUUID()
+            computedCellState = seedCellState
         }
 
     override var generationsPerStep: Int by mutableStateOf(generationsPerStep)
@@ -173,7 +173,15 @@ private class TemporalGameOfLifeStateImpl(
 
     var computedCellState by mutableStateOf(seedCellState)
 
-    var isRunning: Boolean by mutableStateOf(isRunning)
+    private var _isRunning: Boolean by mutableStateOf(isRunning)
+
+    var isRunning: Boolean
+        get() = _isRunning
+        set(value) {
+            _isRunning = value
+            seedId = UUID.randomUUID()
+            seedCellState = computedCellState
+        }
 
     private val averageGenerationsPerSecond: Double
         get() =

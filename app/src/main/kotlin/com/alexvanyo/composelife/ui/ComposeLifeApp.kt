@@ -32,15 +32,16 @@ fun ComposeLifeApp() {
                 cellState = gosperGliderGun
             )
 
-            rememberTemporalGameOfLifeStateMutator(
+            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(Dispatchers.Default)
             )
 
             // A surface container using the 'background' color from the theme
             Surface(color = MaterialTheme.colors.background) {
-                CellUniverse(
-                    gameOfLifeState = temporalGameOfLifeState
+                InteractiveCellUniverse(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    temporalGameOfLifeStateMutator = temporalGameOfLifeStateMutator
                 )
             }
         }
