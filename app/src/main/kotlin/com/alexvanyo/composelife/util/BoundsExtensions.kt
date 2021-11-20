@@ -25,6 +25,11 @@ fun IntRect.containedPoints(): List<IntOffset> =
 fun Pair<Int, Int>.toIntOffset() = IntOffset(first, second)
 
 /**
+ * Converts an [IntOffset] to a pair of [Int].
+ */
+fun IntOffset.toPair() = x to y
+
+/**
  * Returns the 8 diagonal and orthogonal neighbors to the [IntOffset].
  */
 fun IntOffset.getNeighbors(): Set<IntOffset> = neighborOffsets.map { it + this }.toSet()

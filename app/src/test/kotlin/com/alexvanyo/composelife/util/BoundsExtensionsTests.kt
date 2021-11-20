@@ -55,6 +55,18 @@ class BoundsExtensionsTests {
     }
 
     @Nested
+    inner class IntOffsetToPairTests {
+
+        @Test
+        fun `pair to int offset is correct`() {
+            assertEquals(
+                11 to 13,
+                IntOffset(11, 13).toPair(),
+            )
+        }
+    }
+
+    @Nested
     inner class GetNeighborsTests {
 
         @Test
