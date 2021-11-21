@@ -16,7 +16,7 @@ jacoco = "0.8.7"
 junit4 = "4.13.2"
 junit5 = "5.8.1"
 leakCanary = "2.7"
-robolectric = "4.7.1"
+robolectric = "4.7.2"
 sealedEnum = "0.4.0"
 
 [libraries]
