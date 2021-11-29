@@ -3,6 +3,7 @@ package com.alexvanyo.composelife.data
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -27,12 +28,14 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import java.util.UUID
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
@@ -61,6 +64,16 @@ sealed interface TemporalGameOfLifeState : MutableGameOfLifeState {
     var targetStepsPerSecond: Double
 
     /**
+     * Pauses or resumes execution of temporal evolution.
+     */
+    fun setIsRunning(isRunning: Boolean)
+
+    /**
+     * Evolves the cell state using the given [GameOfLifeAlgorithm] automatically through time
+     */
+    suspend fun evolve(gameOfLifeAlgorithm: GameOfLifeAlgorithm, clock: Clock)
+
+    /**
      * A description of the current status of evolution.
      */
     sealed interface EvolutionStatus {
@@ -86,21 +99,30 @@ sealed interface TemporalGameOfLifeState : MutableGameOfLifeState {
     }
 }
 
-/**
- * A mutator for a [TemporalGameOfLifeState].
- *
- * If a [TemporalGameOfLifeStateMutator] is attached to a [TemporalGameOfLifeState], then the [TemporalGameOfLifeState]
- * will automatically advance (if running) with no user input.
- *
- * To accomplish this, the [TemporalGameOfLifeStateMutator] will need to exist in some [CoroutineScope] that performs
- * computation.
- */
-interface TemporalGameOfLifeStateMutator {
+private class GameOfLifeGenealogy(
+    private val seedCellState: CellState,
+    private val generationsPerStep: Int,
+) {
+    var computedCellState by mutableStateOf(seedCellState)
+        private set
 
-    /**
-     * Pauses or resumes execution of temporal evolution.
-     */
-    fun setIsRunning(isRunning: Boolean)
+    suspend fun evolve(
+        gameOfLifeAlgorithm: GameOfLifeAlgorithm,
+        stepTicker: Flow<Unit>,
+        onNewCellState: (generationsPerStep: Int) -> Unit
+    ) {
+        gameOfLifeAlgorithm
+            .computeGenerationsWithStep(
+                originalCellState = seedCellState,
+                step = generationsPerStep
+            )
+            .buffer()
+            .zip(stepTicker) { newCellState, _ -> newCellState }
+            .collect { cellState ->
+                computedCellState = cellState
+                onNewCellState(generationsPerStep)
+            }
+    }
 }
 
 @Composable
@@ -146,14 +168,19 @@ private class TemporalGameOfLifeStateImpl(
 ) : TemporalGameOfLifeState {
 
     override var cellState: CellState
-        get() = computedCellState
+        get() = cellStateGenealogy.computedCellState
         set(value) {
             seedCellState = value
-            seedId = UUID.randomUUID()
-            computedCellState = seedCellState
         }
 
-    override var generationsPerStep: Int by mutableStateOf(generationsPerStep)
+    private var _generationsPerStep: Int by mutableStateOf(generationsPerStep)
+
+    override var generationsPerStep
+        get() = _generationsPerStep
+        set(value) {
+            seedCellState = cellState
+            _generationsPerStep = value
+        }
 
     override var targetStepsPerSecond: Double by mutableStateOf(targetStepsPerSecond)
 
@@ -166,34 +193,84 @@ private class TemporalGameOfLifeStateImpl(
             TemporalGameOfLifeState.EvolutionStatus.Paused
         }
 
-    var seedId: UUID by mutableStateOf(UUID.randomUUID())
-
     var seedCellState by mutableStateOf(seedCellState)
 
-    var computedCellState by mutableStateOf(seedCellState)
+    val cellStateGenealogy by derivedStateOf {
+        GameOfLifeGenealogy(
+            seedCellState = this.seedCellState,
+            generationsPerStep = this.generationsPerStep,
+        )
+    }
 
-    var isRunning by mutableStateOf(isRunning)
+    private var isRunning by mutableStateOf(isRunning)
+
+    override fun setIsRunning(isRunning: Boolean) {
+        this.isRunning = isRunning
+    }
+
+    override suspend fun evolve(gameOfLifeAlgorithm: GameOfLifeAlgorithm, clock: Clock) {
+        val lastTickFlow = MutableSharedFlow<Instant>(replay = 1)
+
+        val stepTicker = snapshotFlow {
+            isRunning to targetStepsPerSecond
+        }
+            .flatMapLatest { (isRunning, targetStepsPerSecond) ->
+                if (isRunning) {
+                    lastTickFlow.tryEmit(clock.now())
+                    lastTickFlow.map { lastTick ->
+                        val targetDelay = 1.seconds / targetStepsPerSecond
+                        val remainingDelay = (targetDelay - (clock.now() - lastTick)).coerceAtLeast(Duration.ZERO)
+                        delay(remainingDelay)
+                    }
+                } else {
+                    emptyFlow()
+                }
+            }
+            .buffer(0)
+
+        snapshotFlow { cellStateGenealogy }
+            .collectLatest { cellStateGenealogy ->
+                completedGenerationTracker.add(
+                    ComputationRecord(
+                        computedGenerations = 0,
+                        computedTime = clock.now()
+                    )
+                )
+                cellStateGenealogy.evolve(gameOfLifeAlgorithm, stepTicker) { generationsPerStep ->
+                    val lastTick = clock.now()
+                    lastTickFlow.tryEmit(lastTick)
+                    completedGenerationTracker.add(
+                        ComputationRecord(
+                            computedGenerations = generationsPerStep,
+                            computedTime = lastTick
+                        )
+                    )
+                    while (completedGenerationTracker.size > 10) {
+                        completedGenerationTracker.removeFirst()
+                    }
+                }
+            }
+    }
 
     private val averageGenerationsPerSecond: Double
         get() =
-            if (completedGenerationTracker.size == 0) {
+            if (completedGenerationTracker.size < 2) {
                 0.0
             } else {
-                completedGenerationTracker.sumOf { it.computedGenerations }.toDouble() /
-                    (
-                        completedGenerationTracker.last().endTime -
-                            completedGenerationTracker.first().startTime
-                        ).toDouble(DurationUnit.SECONDS)
+                val totalComputedGenerations = completedGenerationTracker.drop(1).sumOf { it.computedGenerations }
+                val duration = completedGenerationTracker.last().computedTime -
+                    completedGenerationTracker.first().computedTime
+                totalComputedGenerations / duration.toDouble(DurationUnit.SECONDS)
             }
 
-    val completedGenerationTracker: MutableList<CellComputationResult> = mutableStateListOf()
+    val completedGenerationTracker: MutableList<ComputationRecord> = mutableStateListOf()
 
     companion object {
         val Saver: Saver<TemporalGameOfLifeState, *> = listSaver(
             { temporalGameOfLifeState ->
                 when (temporalGameOfLifeState) { is TemporalGameOfLifeStateImpl -> Unit }
                 listOf(
-                    temporalGameOfLifeState.computedCellState.map(IntOffset::toPair),
+                    temporalGameOfLifeState.cellState.aliveCells.map(IntOffset::toPair),
                     temporalGameOfLifeState.isRunning,
                     temporalGameOfLifeState.generationsPerStep,
                     temporalGameOfLifeState.targetStepsPerSecond
@@ -212,122 +289,36 @@ private class TemporalGameOfLifeStateImpl(
     }
 }
 
-private data class CellComputationResult(
-    val cellState: CellState,
+private data class ComputationRecord(
     val computedGenerations: Int,
-    val startTime: Instant,
-    val endTime: Instant
+    val computedTime: Instant
 )
 
 @Composable
 fun rememberTemporalGameOfLifeStateMutator(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     gameOfLifeAlgorithm: GameOfLifeAlgorithm,
-    coroutineScope: CoroutineScope = rememberCoroutineScope()
-): TemporalGameOfLifeStateMutator {
-    when (temporalGameOfLifeState) { is TemporalGameOfLifeStateImpl -> Unit }
-
-    return remember(gameOfLifeAlgorithm, coroutineScope) {
-        TemporalGameOfLifeStateMutatorImpl(
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    clock: Clock = Clock.System,
+): TemporalGameOfLifeStateMutator =
+    remember(gameOfLifeAlgorithm, coroutineScope) {
+        TemporalGameOfLifeStateMutator(
             coroutineScope = coroutineScope,
+            clock = clock,
             gameOfLifeAlgorithm = gameOfLifeAlgorithm,
             temporalGameOfLifeState = temporalGameOfLifeState
         )
     }
-}
 
-@OptIn(ExperimentalCoroutinesApi::class)
-private class TemporalGameOfLifeStateMutatorImpl(
+class TemporalGameOfLifeStateMutator(
     coroutineScope: CoroutineScope,
+    private val clock: Clock,
     private val gameOfLifeAlgorithm: GameOfLifeAlgorithm,
-    private val temporalGameOfLifeState: TemporalGameOfLifeStateImpl
-) : TemporalGameOfLifeStateMutator {
-
-    private class UpdateCellStateDependencies(
-        private val seedId: UUID,
-        private val seedCellState: CellState,
-        private val isRunning: Boolean,
-        private val generationsPerStep: Int,
-        private val targetStepsPerSecond: Double
-    )
-
+    private val temporalGameOfLifeState: TemporalGameOfLifeState
+) {
     init {
         coroutineScope.launch {
-            snapshotFlow {
-                // Read all dependencies that should invalidate our current getCellUpdates
-                // We don't use these values directly, since we are about to race canceling previous updates
-                UpdateCellStateDependencies(
-                    seedId = temporalGameOfLifeState.seedId,
-                    seedCellState = temporalGameOfLifeState.seedCellState,
-                    isRunning = temporalGameOfLifeState.isRunning,
-                    generationsPerStep = temporalGameOfLifeState.generationsPerStep,
-                    targetStepsPerSecond = temporalGameOfLifeState.targetStepsPerSecond
-                )
-            }
-                // Invalidate any previous cell updates, and crucially only one collectLatest block can run at a time.
-                .collectLatest { updateCellState() }
+            temporalGameOfLifeState.evolve(gameOfLifeAlgorithm, clock)
         }
-    }
-
-    override fun setIsRunning(isRunning: Boolean) {
-        temporalGameOfLifeState.isRunning = isRunning
-    }
-
-    private suspend fun updateCellState() {
-        if (temporalGameOfLifeState.isRunning) {
-            // At this point, computedCellState cannot be changed by a previous getCellUpdates
-            getCellUpdates(
-                seedCellState = temporalGameOfLifeState.computedCellState,
-                generationsPerStep = temporalGameOfLifeState.generationsPerStep,
-                targetStepsPerSecond = temporalGameOfLifeState.targetStepsPerSecond
-            )
-                .collect { cellComputationResult ->
-                    // Update in a loopback manner with each cell computation result
-                    temporalGameOfLifeState.computedCellState = cellComputationResult.cellState
-                    temporalGameOfLifeState.completedGenerationTracker.add(cellComputationResult)
-                    while (temporalGameOfLifeState.completedGenerationTracker.size > 10) {
-                        temporalGameOfLifeState.completedGenerationTracker.removeFirst()
-                    }
-                }
-        } else {
-            temporalGameOfLifeState.completedGenerationTracker.clear()
-        }
-    }
-
-    @OptIn(ExperimentalTime::class)
-    private fun getCellUpdates(
-        seedCellState: CellState,
-        @IntRange(from = 1)
-        generationsPerStep: Int,
-        @FloatRange(from = 0.0, fromInclusive = false)
-        targetStepsPerSecond: Double
-    ): Flow<CellComputationResult> {
-        val tickFlow = MutableSharedFlow<Unit>(replay = 1)
-        tickFlow.tryEmit(Unit)
-
-        return gameOfLifeAlgorithm
-            .computeGenerationsWithStep(
-                originalCellState = seedCellState,
-                step = generationsPerStep
-            )
-            .buffer()
-            .zip(
-                tickFlow
-                    .map {
-                        val startTime = Clock.System.now()
-                        delay(1.seconds / targetStepsPerSecond)
-                        startTime
-                    }
-            ) { newCellState, startTime ->
-                val endTime = Clock.System.now()
-                tickFlow.tryEmit(Unit)
-
-                CellComputationResult(
-                    cellState = newCellState,
-                    computedGenerations = generationsPerStep,
-                    startTime = startTime,
-                    endTime = endTime
-                )
-            }
     }
 }

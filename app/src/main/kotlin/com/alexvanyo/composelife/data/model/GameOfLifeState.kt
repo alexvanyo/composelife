@@ -1,16 +1,18 @@
 package com.alexvanyo.composelife.data.model
 
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.util.toIntOffset
 
-typealias CellState = Set<IntOffset>
+@Stable
+data class CellState(val aliveCells: Set<IntOffset>)
 
-fun emptyCellState(): CellState = emptySet()
+fun emptyCellState(): CellState = CellState(emptySet())
 
-fun Set<Pair<Int, Int>>.toCellState(): CellState = map(Pair<Int, Int>::toIntOffset).toSet()
+fun Set<Pair<Int, Int>>.toCellState(): CellState = CellState(map(Pair<Int, Int>::toIntOffset).toSet())
 
 fun String.toCellState(topLeftOffset: IntOffset = IntOffset.Zero): CellState =
     trimMargin()
@@ -22,6 +24,7 @@ fun String.toCellState(topLeftOffset: IntOffset = IntOffset.Zero): CellState =
                 .map { (columnIndex, _) -> IntOffset(columnIndex, rowIndex) + topLeftOffset }
         }
         .toSet()
+        .let(::CellState)
 
 interface GameOfLifeState {
     val cellState: CellState
@@ -47,8 +50,8 @@ private class MutableGameOfLifeStateImpl(
 
 fun MutableGameOfLifeState.setIndividualCellState(cellCoordinate: IntOffset, isAlive: Boolean) {
     cellState = if (isAlive) {
-        cellState + cellCoordinate
+        CellState(cellState.aliveCells + cellCoordinate)
     } else {
-        cellState - cellCoordinate
+        CellState(cellState.aliveCells - cellCoordinate)
     }
 }
