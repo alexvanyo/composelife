@@ -42,15 +42,17 @@ class NaiveGameOfLifeAlgorithm(
 
     private fun computeNextGeneration(cellState: CellState): CellState =
         cellState
+            .aliveCells
             // Get all neighbors of current living cells
             .flatMap(IntOffset::getNeighbors)
             .toSet()
             // Union those with all living cells, to get all cells that could be alive next round
-            .union(cellState)
+            .union(cellState.aliveCells)
             // Filter to the living cells, based on the neighbor count from the previous generation
             .filter { cell ->
-                val neighborCount = cellState.intersect(cell.getNeighbors()).count()
-                neighborCount == 3 || (neighborCount == 2 && cell in cellState)
+                val neighborCount = cellState.aliveCells.intersect(cell.getNeighbors()).count()
+                neighborCount == 3 || (neighborCount == 2 && cell in cellState.aliveCells)
             }
             .toSet()
+            .let(::CellState)
 }

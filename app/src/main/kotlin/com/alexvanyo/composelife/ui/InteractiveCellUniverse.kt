@@ -20,7 +20,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.R
 import com.alexvanyo.composelife.data.TemporalGameOfLifeState
-import com.alexvanyo.composelife.data.TemporalGameOfLifeStateMutator
 import com.google.accompanist.insets.navigationBarsHeight
 import com.google.accompanist.insets.statusBarsHeight
 
@@ -28,7 +27,6 @@ import com.google.accompanist.insets.statusBarsHeight
 @Composable
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
-    temporalGameOfLifeStateMutator: TemporalGameOfLifeStateMutator
 ) {
     val cellWindowState = rememberCellWindowState()
 
@@ -74,7 +72,7 @@ fun InteractiveCellUniverse(
 
                 IconToggleButton(
                     checked = isRunning,
-                    onCheckedChange = temporalGameOfLifeStateMutator::setIsRunning,
+                    onCheckedChange = temporalGameOfLifeState::setIsRunning,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)

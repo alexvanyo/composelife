@@ -52,7 +52,7 @@ fun InteractableCells(
                     InteractableCell(
                         modifier = Modifier
                             .size(scaledCellDpSize),
-                        isAlive = cell in gameOfLifeState.cellState,
+                        isAlive = cell in gameOfLifeState.cellState.aliveCells,
                         contentDescription = stringResource(
                             R.string.cell_content_description,
                             cell.x,

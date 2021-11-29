@@ -50,7 +50,7 @@ fun NonInteractableCells(
     ) {
         cellWindow.containedPoints().forEach { cell ->
             val windowOffset = (cell - cellWindow.topLeft).toOffset() * scaledCellPixelSize
-            val color = if (cell in gameOfLifeState.cellState) {
+            val color = if (cell in gameOfLifeState.cellState.aliveCells) {
                 aliveColor
             } else {
                 deadColor
