@@ -35,7 +35,7 @@ androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "and
 androidx-espresso = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxEspresso" }
 androidx-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
 androidx-test = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTest" }
-detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt"}
+detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt"}
 jetbrains-kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 junit5-jupiter = { group = "org.junit.jupiter", name="junit-jupiter", version.ref = "junit5" }
