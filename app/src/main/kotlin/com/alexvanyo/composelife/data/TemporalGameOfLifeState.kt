@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import java.util.UUID
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
 
@@ -315,7 +315,7 @@ private class TemporalGameOfLifeStateMutatorImpl(
                 tickFlow
                     .map {
                         val startTime = Clock.System.now()
-                        delay(Duration.seconds(1) / targetStepsPerSecond)
+                        delay(1.seconds / targetStepsPerSecond)
                         startTime
                     }
             ) { newCellState, startTime ->

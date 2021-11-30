@@ -6,6 +6,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven(url = "https://androidx.dev/snapshots/builds/7952994/artifacts/repository")
         maven(url = "https://jitpack.io")
     }
 }
