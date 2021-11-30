@@ -19,6 +19,7 @@ junit5 = "5.8.2"
 leakCanary = "2.7"
 robolectric = "4.7.2"
 sealedEnum = "0.4.0"
+turbine = "0.7.0"
 
 [libraries]
 accompanist-insets = { group = "com.google.accompanist", name = "accompanist-insets", version.ref = "accompanist" }
@@ -48,6 +49,7 @@ robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "
 sealedEnum-ksp = { group = "com.github.livefront.sealed-enum", name = "ksp", version.ref = "sealedEnum" }
 sealedEnum-runtime = { group = "com.github.livefront.sealed-enum", name = "runtime", version.ref = "sealedEnum" }
 square-leakCanary = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakCanary" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 
 [plugins]
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
