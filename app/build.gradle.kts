@@ -180,6 +180,8 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle)
     implementation(libs.jetbrains.kotlinx.datetime)
+    implementation(libs.jetbrains.kotlinx.coroutines.android)
+    implementation(libs.jetbrains.kotlinx.coroutines.core)
     implementation(libs.sealedEnum.runtime)
     ksp(libs.sealedEnum.ksp)
 
@@ -190,6 +192,7 @@ dependencies {
     testRuntimeOnly(libs.junit5.vintageEngine)
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.compose.uiTestJunit4)
+    testImplementation(libs.jetbrains.kotlinx.coroutines.test)
 
     androidTestImplementation(libs.junit4)
     androidTestRuntimeOnly(libs.junit5.vintageEngine)

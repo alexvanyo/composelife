@@ -1,11 +1,11 @@
 package com.alexvanyo.composelife.data
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.ParameterizedTest
@@ -17,13 +17,9 @@ import java.util.stream.Stream
 @OptIn(ExperimentalCoroutinesApi::class)
 class GameOfLifeAlgorithmTests {
 
-    private val testCoroutineDispatcher = TestCoroutineDispatcher()
-
-    private val testCoroutineScope = TestCoroutineScope(testCoroutineDispatcher)
-
     class GameOfLifeAlgorithmFactory(
         val algorithmName: String,
-        val factory: (testCoroutineDispatcher: TestCoroutineDispatcher) -> GameOfLifeAlgorithm
+        val factory: (coroutineDispatcher: CoroutineDispatcher) -> GameOfLifeAlgorithm
     ) {
         override fun toString(): String = algorithmName
     }
@@ -56,75 +52,67 @@ class GameOfLifeAlgorithmTests {
 
     @ParameterizedTest(name = "{displayName}: {0}")
     @ArgumentsSource(GameOfLifeAlgorithmTestProvider::class)
-    fun `one generation step flow`(args: GameOfLifeAlgorithmTestArguments) {
-        testCoroutineScope.runBlockingTest {
-            val algorithm = args.algorithmFactory.factory(testCoroutineDispatcher)
+    fun `one generation step flow`(args: GameOfLifeAlgorithmTestArguments) = runTest {
+        val algorithm = args.algorithmFactory.factory(StandardTestDispatcher(testScheduler))
 
-            assertEquals(
-                args.testPattern.cellStates,
-                algorithm.computeGenerationsWithStep(
-                    originalCellState = args.testPattern.seedCellState,
-                    step = 1
-                )
-                    .take(args.testPattern.cellStates.size)
-                    .toList()
+        assertEquals(
+            args.testPattern.cellStates,
+            algorithm.computeGenerationsWithStep(
+                originalCellState = args.testPattern.seedCellState,
+                step = 1
             )
-        }
+                .take(args.testPattern.cellStates.size)
+                .toList()
+        )
     }
 
     @ParameterizedTest(name = "{displayName}: {0}")
     @ArgumentsSource(GameOfLifeAlgorithmTestProvider::class)
-    fun `two generation step flow`(args: GameOfLifeAlgorithmTestArguments) {
-        testCoroutineScope.runBlockingTest {
-            val algorithm = args.algorithmFactory.factory(testCoroutineDispatcher)
+    fun `two generation step flow`(args: GameOfLifeAlgorithmTestArguments) = runTest {
+        val algorithm = args.algorithmFactory.factory(StandardTestDispatcher(testScheduler))
 
-            assertEquals(
-                args.testPattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 },
-                algorithm.computeGenerationsWithStep(
-                    originalCellState = args.testPattern.seedCellState,
-                    step = 2
-                )
-                    .take(args.testPattern.cellStates.size / 2)
-                    .toList()
+        assertEquals(
+            args.testPattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 },
+            algorithm.computeGenerationsWithStep(
+                originalCellState = args.testPattern.seedCellState,
+                step = 2
             )
-        }
+                .take(args.testPattern.cellStates.size / 2)
+                .toList()
+        )
     }
 
     @ParameterizedTest(name = "{displayName}: {0}")
     @ArgumentsSource(GameOfLifeAlgorithmTestProvider::class)
-    fun `subsequent one generation step`(args: GameOfLifeAlgorithmTestArguments) {
-        testCoroutineScope.runBlockingTest {
-            val algorithm = args.algorithmFactory.factory(testCoroutineDispatcher)
+    fun `subsequent one generation step`(args: GameOfLifeAlgorithmTestArguments) = runTest {
+        val algorithm = args.algorithmFactory.factory(StandardTestDispatcher(testScheduler))
 
-            val actualCellStates = (1..args.testPattern.cellStates.size)
-                .scan(args.testPattern.seedCellState) { previousCellState, _ ->
-                    algorithm.computeNextGeneration(previousCellState)
-                }
-                .drop(1)
+        val actualCellStates = (1..args.testPattern.cellStates.size)
+            .scan(args.testPattern.seedCellState) { previousCellState, _ ->
+                algorithm.computeNextGeneration(previousCellState)
+            }
+            .drop(1)
 
-            assertEquals(
-                args.testPattern.cellStates,
-                actualCellStates
-            )
-        }
+        assertEquals(
+            args.testPattern.cellStates,
+            actualCellStates
+        )
     }
 
     @ParameterizedTest(name = "{displayName}: {0}")
     @ArgumentsSource(GameOfLifeAlgorithmTestProvider::class)
-    fun `subsequent two generation step`(args: GameOfLifeAlgorithmTestArguments) {
-        testCoroutineScope.runBlockingTest {
-            val algorithm = args.algorithmFactory.factory(testCoroutineDispatcher)
+    fun `subsequent two generation step`(args: GameOfLifeAlgorithmTestArguments) = runTest {
+        val algorithm = args.algorithmFactory.factory(StandardTestDispatcher(testScheduler))
 
-            val actualCellStates = (1..args.testPattern.cellStates.size / 2)
-                .scan(args.testPattern.seedCellState) { previousCellState, _ ->
-                    algorithm.computeGenerationWithStep(previousCellState, 2)
-                }
-                .drop(1)
+        val actualCellStates = (1..args.testPattern.cellStates.size / 2)
+            .scan(args.testPattern.seedCellState) { previousCellState, _ ->
+                algorithm.computeGenerationWithStep(previousCellState, 2)
+            }
+            .drop(1)
 
-            assertEquals(
-                args.testPattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 },
-                actualCellStates
-            )
-        }
+        assertEquals(
+            args.testPattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 },
+            actualCellStates
+        )
     }
 }
