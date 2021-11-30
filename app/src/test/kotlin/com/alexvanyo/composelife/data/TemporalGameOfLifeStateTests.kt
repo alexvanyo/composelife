@@ -4,15 +4,13 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import app.cash.turbine.test
 import com.alexvanyo.composelife.data.model.emptyCellState
+import com.alexvanyo.composelife.testutil.schedulerClock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -63,7 +61,7 @@ class TemporalGameOfLifeStateTests {
                 val mutatorJob = launch {
                     TemporalGameOfLifeStateMutator(
                         coroutineScope = this,
-                        clock = clock,
+                        clock = schedulerClock,
                         gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
                             StandardTestDispatcher(testScheduler)
                         ),
@@ -107,7 +105,7 @@ class TemporalGameOfLifeStateTests {
                 val mutatorJob = launch {
                     TemporalGameOfLifeStateMutator(
                         coroutineScope = this,
-                        clock = clock,
+                        clock = schedulerClock,
                         gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
                             StandardTestDispatcher(testScheduler)
                         ),
@@ -193,7 +191,7 @@ class TemporalGameOfLifeStateTests {
                 val mutatorJob = launch {
                     TemporalGameOfLifeStateMutator(
                         coroutineScope = this,
-                        clock = clock,
+                        clock = schedulerClock,
                         gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
                             StandardTestDispatcher(testScheduler)
                         ),
@@ -284,7 +282,7 @@ class TemporalGameOfLifeStateTests {
                 val mutatorJob = launch {
                     TemporalGameOfLifeStateMutator(
                         coroutineScope = this,
-                        clock = clock,
+                        clock = schedulerClock,
                         gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
                             StandardTestDispatcher(testScheduler)
                         ),
@@ -336,9 +334,4 @@ class TemporalGameOfLifeStateTests {
                 mutatorJob.cancel()
             }
     }
-}
-
-@OptIn(ExperimentalCoroutinesApi::class)
-val TestScope.clock get(): Clock = object : Clock {
-    override fun now(): Instant = Instant.fromEpochMilliseconds(testScheduler.currentTime)
 }
