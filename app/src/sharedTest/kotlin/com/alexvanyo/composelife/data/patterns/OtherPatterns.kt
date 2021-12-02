@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife.data
+package com.alexvanyo.composelife.data.patterns
 
 import com.alexvanyo.composelife.data.model.emptyCellState
 import com.alexvanyo.composelife.data.model.toCellState

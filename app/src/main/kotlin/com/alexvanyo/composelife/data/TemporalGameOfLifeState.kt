@@ -159,12 +159,12 @@ fun TemporalGameOfLifeState(
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
 private class TemporalGameOfLifeStateImpl(
-    seedCellState: CellState = TemporalGameOfLifeState.defaultCellState,
-    isRunning: Boolean = TemporalGameOfLifeState.defaultIsRunning,
+    seedCellState: CellState,
+    isRunning: Boolean,
     @IntRange(from = 1)
-    generationsPerStep: Int = TemporalGameOfLifeState.defaultGenerationsPerStep,
+    generationsPerStep: Int,
     @FloatRange(from = 0.0, fromInclusive = false)
-    targetStepsPerSecond: Double = TemporalGameOfLifeState.defaultTargetStepsPerSecond
+    targetStepsPerSecond: Double
 ) : TemporalGameOfLifeState {
 
     override var cellState: CellState

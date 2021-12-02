@@ -4,6 +4,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import app.cash.turbine.test
 import com.alexvanyo.composelife.data.model.emptyCellState
+import com.alexvanyo.composelife.data.patterns.SingleCellPattern
+import com.alexvanyo.composelife.data.patterns.SixLongLinePattern
 import com.alexvanyo.composelife.testutil.schedulerClock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -263,6 +265,97 @@ class TemporalGameOfLifeStateTests {
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 assertEquals(SixLongLinePattern.cellStates[6], awaitItem())
+
+                mutatorJob.cancel()
+            }
+    }
+
+    @Test
+    fun `target steps evolution is correct`() = runTest {
+        val gameOfLifeState = TemporalGameOfLifeState(
+            cellState = SixLongLinePattern.seedCellState,
+            isRunning = true
+        )
+
+        snapshotFlow {
+            gameOfLifeState.cellState
+        }
+            .test {
+                val mutatorJob = launch {
+                    TemporalGameOfLifeStateMutator(
+                        coroutineScope = this,
+                        clock = schedulerClock,
+                        gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
+                            StandardTestDispatcher(testScheduler)
+                        ),
+                        temporalGameOfLifeState = gameOfLifeState
+                    )
+                }
+
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                assertEquals(SixLongLinePattern.seedCellState, awaitItem())
+
+                advanceTimeBy(8)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                expectNoEvents()
+
+                advanceTimeBy(8)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                assertEquals(SixLongLinePattern.cellStates[0], awaitItem())
+
+                advanceTimeBy(8)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                expectNoEvents()
+
+                gameOfLifeState.targetStepsPerSecond = 10.0
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                expectNoEvents()
+
+                advanceTimeBy(50)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                expectNoEvents()
+
+                advanceTimeBy(50)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                assertEquals(SixLongLinePattern.cellStates[1], awaitItem())
+
+                advanceTimeBy(50)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                expectNoEvents()
+
+                gameOfLifeState.targetStepsPerSecond = 1.0
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                expectNoEvents()
+
+                advanceTimeBy(500)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                expectNoEvents()
+
+                advanceTimeBy(500)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                assertEquals(SixLongLinePattern.cellStates[2], awaitItem())
 
                 mutatorJob.cancel()
             }
