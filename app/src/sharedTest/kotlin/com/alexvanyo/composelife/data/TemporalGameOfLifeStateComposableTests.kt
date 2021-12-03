@@ -6,7 +6,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.data.patterns.PondPattern
 import com.alexvanyo.composelife.data.patterns.SixLongLinePattern
-import com.alexvanyo.composelife.testutil.schedulerClock
+import com.alexvanyo.composelife.testutil.dateTimeClock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -60,8 +60,10 @@ class TemporalGameOfLifeStateComposableTests {
             cellState = SixLongLinePattern.seedCellState,
             isRunning = true,
             generationsPerStep = 1,
-            targetStepsPerSecond = 10.0
+            targetStepsPerSecond = 60.0
         )
+
+        composeTestRule.mainClock.autoAdvance = false
 
         composeTestRule.setContent {
             rememberTemporalGameOfLifeStateMutator(
@@ -69,11 +71,11 @@ class TemporalGameOfLifeStateComposableTests {
                 gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
                     backgroundDispatcher = dispatcher
                 ),
-                clock = schedulerClock
+                clock = composeTestRule.mainClock.dateTimeClock
             )
         }
 
-        composeTestRule.waitForIdle()
+        composeTestRule.awaitIdle()
 
         assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
         assertEquals(
@@ -84,18 +86,15 @@ class TemporalGameOfLifeStateComposableTests {
         )
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
-            testScheduler.advanceTimeBy(100)
-            composeTestRule.mainClock.advanceTimeBy(milliseconds = 100, ignoreFrameDuration = true)
+            composeTestRule.mainClock.advanceTimeBy(16)
             testScheduler.runCurrent()
             composeTestRule.awaitIdle()
 
             assertEquals(expectedCellState, temporalGameOfLifeState.cellState)
-            assertEquals(
-                TemporalGameOfLifeState.EvolutionStatus.Running(
-                    averageGenerationsPerSecond = 10.0
-                ),
-                temporalGameOfLifeState.status
-            )
+            temporalGameOfLifeState.status.let { status ->
+                check(status is TemporalGameOfLifeState.EvolutionStatus.Running)
+                assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+            }
         }
     }
 }
