@@ -7,10 +7,76 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.getValue
+import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.registering
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
+
+private val coverageExclusions = listOf(
+    // Android
+    "**/R.class",
+    "**/R\$*.class",
+    "**/BuildConfig.*",
+    "**/Manifest*.*",
+
+    // SealedEnum
+    "**/*SealedEnum*"
+)
+
+fun Project.configureJacocoMerge() {
+    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+
+    jacoco {
+        toolVersion = libs.findVersion("jacoco").get().toString()
+    }
+
+    val variants = listOf("debug", "release")
+
+    val variantJacocoTestReports = variants.map { variant ->
+        tasks.register("jacocoTest${variant.capitalize()}UnitTestReport", JacocoReport::class) {
+            dependsOn(subprojects.mapNotNull { it.tasks.findByName("jacocoTestReport") })
+
+            classDirectories.setFrom(
+                files(
+                    subprojects
+                        .map {
+                            fileTree("${it.buildDir}/tmp/kotlin-classes/$variant") {
+                                exclude(coverageExclusions)
+                            }
+                        }
+                )
+            )
+            sourceDirectories.setFrom(
+                files(
+                    subprojects
+                        .flatMap {
+                            listOf(
+                                it.projectDir.resolve("src/main/java"),
+                                it.projectDir.resolve("src/main/kotlin"),
+                            )
+                        }
+                )
+            )
+            executionData.setFrom(
+                subprojects.filter { it.tasks.findByName("jacocoTestReport") != null }.map {
+                    file("${it.buildDir}/jacoco/test${variant.capitalize()}UnitTest.exec")
+                }
+            )
+
+            reports {
+                html.required.set(true)
+                xml.required.set(true)
+            }
+        }
+    }
+
+    tasks.register("jacocoTestReport") {
+        dependsOn(variantJacocoTestReports)
+    }
+}
 
 fun Project.configureJacoco(
     androidComponentsExtension: AndroidComponentsExtension<*, *, *>,
@@ -22,14 +88,6 @@ fun Project.configureJacoco(
     androidComponentsExtension.onVariants { variant ->
         val testTaskName = "test${variant.name.capitalize()}UnitTest"
 
-        val excludes = listOf(
-            // Android
-            "**/R.class",
-            "**/R\$*.class",
-            "**/BuildConfig.*",
-            "**/Manifest*.*"
-        )
-
         val reportTask = tasks.register("jacoco${testTaskName.capitalize()}Report", JacocoReport::class) {
             dependsOn(testTaskName)
 
@@ -40,7 +98,7 @@ fun Project.configureJacoco(
 
             classDirectories.setFrom(
                 fileTree("$buildDir/tmp/kotlin-classes/${variant.name}") {
-                    exclude(excludes)
+                    exclude(coverageExclusions)
                 }
             )
 
