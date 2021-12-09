@@ -10,6 +10,10 @@ import com.alexvanyo.composelife.util.toIntOffset
 @Stable
 data class CellState(val aliveCells: Set<IntOffset>)
 
+fun CellState.union(other: CellState) = CellState(aliveCells.union(other.aliveCells))
+
+fun CellState.offsetBy(offset: IntOffset) = CellState(aliveCells.map { it + offset }.toSet())
+
 fun emptyCellState(): CellState = CellState(emptySet())
 
 fun Set<Pair<Int, Int>>.toCellState(): CellState = CellState(map(Pair<Int, Int>::toIntOffset).toSet())

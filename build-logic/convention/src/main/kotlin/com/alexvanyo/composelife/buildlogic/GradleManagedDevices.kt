@@ -34,6 +34,6 @@ fun Project.configureGradleManagedDevices(
 private fun String.toLowerCaseAsciiOnly(): String =
     buildString {
         for (c in this@toLowerCaseAsciiOnly) {
-            append(if (c in 'a'..'z') c.toLowerCase() else c)
+            append(if (c in 'A'..'Z') c.toLowerCase() else c)
         }
     }
