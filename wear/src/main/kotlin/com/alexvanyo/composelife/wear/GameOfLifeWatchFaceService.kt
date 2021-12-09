@@ -2,6 +2,7 @@ package com.alexvanyo.composelife.wear
 
 import android.util.Log
 import android.view.SurfaceHolder
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
@@ -69,6 +70,7 @@ class GameOfLifeWatchFaceService : WatchFaceService() {
         ) { isVisible, isAmbient, isBeingTapped ->
             Log.d("vanyo", "combine: $isVisible, $isAmbient, $isBeingTapped")
             temporalGameOfLifeState.setIsRunning(isVisible == true && isAmbient == false && !isBeingTapped)
+            Snapshot.sendApplyNotifications()
         }
             .launchIn(scope)
 
