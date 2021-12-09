@@ -1,7 +1,7 @@
 import com.alexvanyo.composelife.buildlogic.configureTesting
 
 plugins {
-    id("com.android.application")
+    id("com.android.library")
 }
 
 android {

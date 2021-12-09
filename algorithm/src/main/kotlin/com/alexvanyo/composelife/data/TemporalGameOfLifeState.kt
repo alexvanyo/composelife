@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import java.util.UUID
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
@@ -44,6 +45,11 @@ import kotlin.time.ExperimentalTime
  * A [MutableGameOfLifeState] that can change based on the passage of time, naturally evolving by generations.
  */
 sealed interface TemporalGameOfLifeState : MutableGameOfLifeState {
+
+    /**
+     * The seed cell state that is starting the current genealogy.
+     */
+    val seedCellState: CellState
 
     /**
      * The current status of temporal evolution.
@@ -193,9 +199,19 @@ private class TemporalGameOfLifeStateImpl(
             TemporalGameOfLifeState.EvolutionStatus.Paused
         }
 
-    var seedCellState by mutableStateOf(seedCellState)
+    private var seedId by mutableStateOf(UUID.randomUUID())
+
+    private var _seedCellState by mutableStateOf(seedCellState)
+
+    override var seedCellState
+        get() = _seedCellState
+        set(value) {
+            _seedCellState = value
+            seedId = UUID.randomUUID()
+        }
 
     val cellStateGenealogy by derivedStateOf {
+        this.seedId
         GameOfLifeGenealogy(
             seedCellState = this.seedCellState,
             generationsPerStep = this.generationsPerStep,

@@ -9,9 +9,9 @@ plugins {
 
 android {
     defaultConfig {
-        applicationId = "com.alexvanyo.composelife"
-        minSdk = 21
-        targetSdk = 31
+        applicationId = "com.alexvanyo.composelife.wear"
+        minSdk = 26
+        targetSdk = 30
         versionCode = 1
         versionName = "1.0"
     }
@@ -20,16 +20,11 @@ android {
 dependencies {
     implementation(projects.algorithm)
 
-    implementation(libs.accompanist.insets)
-    implementation(libs.accompanist.systemuicontroller)
-    implementation(libs.androidx.activityCompose)
-    implementation(libs.androidx.compose.material)
-    implementation(libs.androidx.compose.materialIconsExtended)
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.uiTooling)
-    implementation(libs.androidx.compose.uiTestManifest)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle)
+    implementation(libs.androidx.wear.watchface)
     implementation(libs.jetbrains.kotlinx.datetime)
     implementation(libs.jetbrains.kotlinx.coroutines.android)
     implementation(libs.jetbrains.kotlinx.coroutines.core)
