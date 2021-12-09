@@ -2,10 +2,18 @@ complexity:
   LongMethod:
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
 
+formatting:
+  Indentation:
+    excludes: ['**/generated/**']
+  NoConsecutiveBlankLines:
+    excludes: ['**/generated/**']
+
 naming:
   FunctionNaming:
     ignoreAnnotated:
       - "Composable"
+  MatchingDeclarationName:
+    excludes: ['**/generated/**']
 
 style:
   ForbiddenComment:

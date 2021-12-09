@@ -5,8 +5,6 @@ plugins {
     kotlin("android")
 }
 
-val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-
 android {
     configureKotlinAndroid(this)
 
@@ -31,17 +29,9 @@ android {
         }
     }
 
-    compileOptions {
-        isCoreLibraryDesugaringEnabled = true
-    }
-
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
         allWarningsAsErrors = true
         freeCompilerArgs = freeCompilerArgs + listOf("-Xopt-in=kotlin.RequiresOptIn")
     }
-}
-
-dependencies {
-    coreLibraryDesugaring(libs.findDependency("android.desugarJdkLibs").get())
 }

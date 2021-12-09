@@ -26,4 +26,5 @@ dependencyResolutionManagement {
 rootProject.name = "ComposeLife"
 include(":algorithm")
 include(":app")
+include(":patterns")
 include(":wear")
