@@ -60,6 +60,8 @@ jobs:
 
       - name: Create CI robolectric.properties
         run: |
+          mkdir algorithm/src/sharedTest/resources/com/alexvanyo/composelife
+          echo sdk=${{ matrix.sdk }} > algorithm/src/sharedTest/resources/com/alexvanyo/composelife/robolectric.properties
           mkdir app/src/sharedTest/resources/com/alexvanyo/composelife
           echo sdk=${{ matrix.sdk }} > app/src/sharedTest/resources/com/alexvanyo/composelife/robolectric.properties
 
