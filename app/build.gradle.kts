@@ -45,10 +45,12 @@ dependencies {
     testImplementation(libs.androidx.compose.uiTestJunit4)
     testImplementation(libs.jetbrains.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
+    testImplementation(projects.patterns)
 
     androidTestImplementation(libs.junit4)
     androidTestRuntimeOnly(libs.junit5.vintageEngine)
     androidTestImplementation(libs.androidx.compose.uiTestJunit4)
     androidTestImplementation(libs.androidx.espresso)
     androidTestImplementation(libs.androidx.test)
+    androidTestImplementation(projects.patterns)
 }

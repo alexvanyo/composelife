@@ -5,8 +5,6 @@ plugins {
     kotlin("android")
 }
 
-val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-
 android {
     configureKotlinAndroid(this)
 
