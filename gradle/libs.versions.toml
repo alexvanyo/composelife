@@ -38,6 +38,7 @@ androidx-espresso = { group = "androidx.test.espresso", name = "espresso-core", 
 androidx-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
 androidx-test = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTest" }
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt"}
+detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt"}
 jetbrains-kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 junit5-jupiter = { group = "org.junit.jupiter", name="junit-jupiter", version.ref = "junit5" }
@@ -45,6 +46,7 @@ junit5-vintageEngine = { group = "org.junit.vintage", name="junit-vintage-engine
 jetbrains-kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 jetbrains-kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 jetbrains-kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 sealedEnum-ksp = { group = "com.github.livefront.sealed-enum", name = "ksp", version.ref = "sealedEnum" }
 sealedEnum-runtime = { group = "com.github.livefront.sealed-enum", name = "runtime", version.ref = "sealedEnum" }

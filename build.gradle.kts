@@ -1,7 +1,3 @@
-plugins {
-    alias(libs.plugins.detekt)
-}
-
 buildscript {
     repositories {
         google()
