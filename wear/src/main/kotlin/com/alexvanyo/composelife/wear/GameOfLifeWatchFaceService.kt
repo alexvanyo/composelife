@@ -34,7 +34,7 @@ class GameOfLifeWatchFaceService : WatchFaceService() {
     private val temporalGameOfLifeState = TemporalGameOfLifeState(
         cellState = emptyCellState(),
         isRunning = false,
-        targetStepsPerSecond = 5.0
+        targetStepsPerSecond = 60.0
     )
 
     private val isBeingTappedState = MutableStateFlow(false)
@@ -59,6 +59,7 @@ class GameOfLifeWatchFaceService : WatchFaceService() {
             .onEach {
                 if (it == true) {
                     temporalGameOfLifeState.cellState = temporalGameOfLifeState.seedCellState
+                    Snapshot.sendApplyNotifications()
                 }
             }
             .launchIn(scope)
