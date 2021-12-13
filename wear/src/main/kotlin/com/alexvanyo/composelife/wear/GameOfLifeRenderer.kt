@@ -42,7 +42,7 @@ class GameOfLifeRenderer(
     currentUserStyleRepository = currentUserStyleRepository,
     watchState = watchState,
     canvasType = CanvasType.HARDWARE,
-    interactiveDrawModeUpdateDelayMillis = 100L
+    interactiveDrawModeUpdateDelayMillis = 16L
 ) {
     private val density = Density(context = context)
 
@@ -58,7 +58,7 @@ class GameOfLifeRenderer(
         val localTime = zonedDateTime.toLocalTime()
 
         if (previousLocalTime.hour != localTime.hour || previousLocalTime.minute != localTime.minute) {
-            temporalGameOfLifeState.cellState = createTimeCellState(localTime, use24HourFormat)
+            temporalGameOfLifeState.cellState = createTimeCellState(createTimeDigits(localTime, use24HourFormat))
         }
 
         val cellSize = bounds.width().toFloat() / cellWindow.width
@@ -68,16 +68,13 @@ class GameOfLifeRenderer(
         val cellState = temporalGameOfLifeState.cellState
 
         CanvasDrawScope().draw(density, LayoutDirection.Ltr, Canvas(c = canvas), bounds.toComposeRect().size) {
-            cellWindow.containedPoints().forEach { cell ->
+            drawRect(color = Color.Black)
+
+            cellWindow.containedPoints().intersect(cellState.aliveCells).forEach { cell ->
                 val windowOffset = (cell - cellWindow.topLeft).toOffset() * cellSize
-                val color = if (cell in cellState.aliveCells) {
-                    Color.White
-                } else {
-                    Color.Black
-                }
 
                 drawRect(
-                    color = color,
+                    color = Color.White,
                     topLeft = windowOffset,
                     size = Size(cellSize, cellSize)
                 )
@@ -96,30 +93,11 @@ class GameOfLifeRenderer(
     }
 }
 
-private fun createTimeCellState(localTime: LocalTime, use24HourFormat: Boolean): CellState {
-    val clockHour = localTime.hour.rem(12)
-    val displayHour = if (use24HourFormat) {
-        localTime.hour
-    } else if (clockHour == 0) {
-        12
-    } else {
-        clockHour
-    }
-
-    val hourTensPlace = displayHour / 10
-    val firstDigit = if (hourTensPlace == 0 && !use24HourFormat) {
-        GameOfLifeSegmentChar.Blank
-    } else {
-        GameOfLifeSegmentChar.fromChar(hourTensPlace)
-    }
-    val secondDigit = GameOfLifeSegmentChar.fromChar(displayHour.rem(10))
-    val thirdDigit = GameOfLifeSegmentChar.fromChar(localTime.minute / 10)
-    val fourthDigit = GameOfLifeSegmentChar.fromChar(localTime.minute.rem(10))
-
-    val timeCellState = firstDigit.cellState
-        .union(secondDigit.cellState.offsetBy(IntOffset(19, 0)))
-        .union(thirdDigit.cellState.offsetBy(IntOffset(40, 0)))
-        .union(fourthDigit.cellState.offsetBy(IntOffset(59, 0)))
+private fun createTimeCellState(timeDigits: TimeDigits): CellState {
+    val timeCellState = timeDigits.firstDigit.cellState
+        .union(timeDigits.secondDigit.cellState.offsetBy(IntOffset(19, 0)))
+        .union(timeDigits.thirdDigit.cellState.offsetBy(IntOffset(40, 0)))
+        .union(timeDigits.fourthDigit.cellState.offsetBy(IntOffset(59, 0)))
         .union(
             """
                 |XX
@@ -144,6 +122,41 @@ private fun createTimeCellState(localTime: LocalTime, use24HourFormat: Boolean):
 
     return timeCellState.union(randomPoints)
 }
+
+fun createTimeDigits(localTime: LocalTime, use24HourFormat: Boolean): TimeDigits {
+    val clockHour = localTime.hour.rem(12)
+    val displayHour = if (use24HourFormat) {
+        localTime.hour
+    } else if (clockHour == 0) {
+        12
+    } else {
+        clockHour
+    }
+
+    val hourTensPlace = displayHour / 10
+    val firstDigit = if (hourTensPlace == 0 && !use24HourFormat) {
+        GameOfLifeSegmentChar.Blank
+    } else {
+        GameOfLifeSegmentChar.fromChar(hourTensPlace)
+    }
+    val secondDigit = GameOfLifeSegmentChar.fromChar(displayHour.rem(10))
+    val thirdDigit = GameOfLifeSegmentChar.fromChar(localTime.minute / 10)
+    val fourthDigit = GameOfLifeSegmentChar.fromChar(localTime.minute.rem(10))
+
+    return TimeDigits(
+        firstDigit = firstDigit,
+        secondDigit = secondDigit,
+        thirdDigit = thirdDigit,
+        fourthDigit = fourthDigit
+    )
+}
+
+data class TimeDigits(
+    val firstDigit: GameOfLifeSegmentChar,
+    val secondDigit: GameOfLifeSegmentChar,
+    val thirdDigit: GameOfLifeSegmentChar,
+    val fourthDigit: GameOfLifeSegmentChar,
+)
 
 sealed class GameOfLifeSegmentChar(
     val cellState: CellState
