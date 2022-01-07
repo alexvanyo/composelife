@@ -112,10 +112,10 @@ jobs:
 
       - name: Run device checks
         run: |
-          ./gradlew pixel2api29Check --stacktrace
-          ./gradlew pixel2api30Check --stacktrace
-          ./gradlew pixel3xlapi29Check --stacktrace
-          ./gradlew pixel3xlapi30Check --stacktrace
+          ./gradlew pixel2api29Check --no-parallel --stacktrace
+          ./gradlew pixel2api30Check --no-parallel --stacktrace
+          ./gradlew pixel3xlapi29Check --no-parallel --stacktrace
+          ./gradlew pixel3xlapi30Check --no-parallel --stacktrace
 
   android-test-aer:
     needs: build
