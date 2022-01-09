@@ -36,7 +36,8 @@ class GameOfLifeAlgorithmTests {
     class GameOfLifeAlgorithmTestProvider : ArgumentsProvider {
         override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {
             val algorithmFactories = listOf(
-                GameOfLifeAlgorithmFactory("Naive Algorithm") { NaiveGameOfLifeAlgorithm(it) }
+                GameOfLifeAlgorithmFactory("Naive Algorithm") { NaiveGameOfLifeAlgorithm(it) },
+                GameOfLifeAlgorithmFactory("HashLife Algorithm") { HashLifeAlgorithm(it) }
             )
 
             return algorithmFactories.flatMap { algorithmFactory ->

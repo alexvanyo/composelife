@@ -7,6 +7,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
@@ -109,7 +110,12 @@ private class GameOfLifeGenealogy(
     private val seedCellState: CellState,
     private val generationsPerStep: Int,
 ) {
-    var computedCellState by mutableStateOf(seedCellState)
+    /**
+     * The current, computed [CellState] to render.
+     *
+     * Use [referentialEqualityPolicy] here to avoid costly comparisons as the cell state changes.
+     */
+    var computedCellState by mutableStateOf(seedCellState, policy = referentialEqualityPolicy())
         private set
 
     suspend fun evolve(

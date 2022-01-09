@@ -42,7 +42,7 @@ class GameOfLifeRenderer(
     currentUserStyleRepository = currentUserStyleRepository,
     watchState = watchState,
     canvasType = CanvasType.HARDWARE,
-    interactiveDrawModeUpdateDelayMillis = 16L
+    interactiveDrawModeUpdateDelayMillis = 200L
 ) {
     private val density = Density(context = context)
 

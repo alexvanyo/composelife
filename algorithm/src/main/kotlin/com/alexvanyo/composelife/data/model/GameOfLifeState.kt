@@ -8,7 +8,22 @@ import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.util.toIntOffset
 
 @Stable
-data class CellState(val aliveCells: Set<IntOffset>)
+interface CellState {
+    val aliveCells: Set<IntOffset>
+}
+
+private data class CellStateImpl(override val aliveCells: Set<IntOffset>) : CellState {
+    override fun equals(other: Any?): Boolean =
+        if (other !is CellState) {
+            false
+        } else {
+            aliveCells == other.aliveCells
+        }
+
+    override fun hashCode(): Int = aliveCells.hashCode()
+}
+
+fun CellState(aliveCells: Set<IntOffset>): CellState = CellStateImpl(aliveCells)
 
 fun CellState.union(other: CellState) = CellState(aliveCells.union(other.aliveCells))
 
