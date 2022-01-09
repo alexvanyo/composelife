@@ -5,7 +5,7 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
-import com.alexvanyo.composelife.data.NaiveGameOfLifeAlgorithm
+import com.alexvanyo.composelife.data.HashLifeAlgorithm
 import com.alexvanyo.composelife.data.model.toCellState
 import com.alexvanyo.composelife.data.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.data.rememberTemporalGameOfLifeStateMutator
@@ -34,7 +34,7 @@ fun ComposeLifeApp() {
 
             rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(Dispatchers.Default)
+                gameOfLifeAlgorithm = HashLifeAlgorithm(Dispatchers.Default)
             )
 
             // A surface container using the 'background' color from the theme
