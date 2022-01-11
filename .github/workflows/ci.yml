@@ -104,6 +104,9 @@ jobs:
           restore-keys: |
             v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-
 
+      - name: Remove .NET for extra disk space
+        run: sudo rm -rf /usr/share/dotnet # will release about 20GB if you don't need .NET
+
       - name: Configure JDK
         uses: actions/setup-java@v2
         with:
@@ -112,6 +115,7 @@ jobs:
 
       - name: Run device checks
         run: |
+          ./gradlew cleanManagedDevices --no-parallel
           ./gradlew pixel2api29Check --no-parallel --stacktrace
           ./gradlew pixel2api30Check --no-parallel --stacktrace
           ./gradlew pixel3xlapi29Check --no-parallel --stacktrace

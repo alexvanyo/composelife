@@ -1,6 +1,5 @@
 plugins {
     id("com.alexvanyo.composelife.android.application")
-    id("com.alexvanyo.composelife.android.application.gradlemanageddevices")
     id("com.alexvanyo.composelife.android.application.jacoco")
     id("com.alexvanyo.composelife.android.application.ksp")
     id("com.alexvanyo.composelife.android.application.testing")
