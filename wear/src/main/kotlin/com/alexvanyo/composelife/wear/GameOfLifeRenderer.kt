@@ -109,17 +109,25 @@ private fun createTimeCellState(timeDigits: TimeDigits): CellState {
         .offsetBy(IntOffset(14, 38))
 
     val randomPoints = CellState(
-        IntRect(
-            IntOffset(40, 10),
-            IntSize(19, 19)
-        )
-            .containedPoints()
-            .filter { Random.nextFloat() < 0.2 }
-            .toSet()
+        randomPointPool.filter { Random.nextFloat() < 0.2 }.toSet()
     )
 
     return timeCellState.union(randomPoints)
 }
+
+val randomPointPool =
+    IntRect(
+        IntOffset(20, 10),
+        IntOffset(80, 25)
+    )
+        .containedPoints()
+        .union(
+            IntRect(
+                IntOffset(20, 75),
+                IntOffset(80, 90)
+            )
+                .containedPoints()
+        )
 
 fun createTimeDigits(localTime: LocalTime, use24HourFormat: Boolean): TimeDigits {
     val clockHour = localTime.hour.rem(12)
