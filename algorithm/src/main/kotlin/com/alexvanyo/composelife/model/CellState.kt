@@ -14,6 +14,17 @@ abstract class CellState {
      */
     abstract val aliveCells: Set<IntOffset>
 
+    open fun union(other: CellState) = CellState(aliveCells.union(other.aliveCells))
+
+    open fun offsetBy(offset: IntOffset) = CellState(aliveCells.map { it + offset }.toSet())
+
+    open fun withCell(offset: IntOffset, isAlive: Boolean): CellState =
+        if (isAlive) {
+            CellState(aliveCells + offset)
+        } else {
+            CellState(aliveCells - offset)
+        }
+
     override fun equals(other: Any?): Boolean =
         if (other !is CellState) {
             false
@@ -26,10 +37,6 @@ abstract class CellState {
 }
 
 fun CellState(aliveCells: Set<IntOffset>): CellState = CellStateImpl(aliveCells)
-
-fun CellState.union(other: CellState) = CellState(aliveCells.union(other.aliveCells))
-
-fun CellState.offsetBy(offset: IntOffset) = CellState(aliveCells.map { it + offset }.toSet())
 
 fun emptyCellState(): CellState = CellState(emptySet())
 

@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.R
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
-import com.alexvanyo.composelife.model.setIndividualCellState
+import com.alexvanyo.composelife.model.setCellState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.util.containedPoints
@@ -59,7 +59,7 @@ fun InteractableCells(
                             cell.y
                         ),
                         onValueChange = { isAlive ->
-                            gameOfLifeState.setIndividualCellState(
+                            gameOfLifeState.setCellState(
                                 cellCoordinate = cell,
                                 isAlive = isAlive
                             )

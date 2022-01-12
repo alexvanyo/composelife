@@ -12,14 +12,41 @@ import kotlin.math.log2
 class HashLifeAlgorithm(
     private val backgroundDispatcher: CoroutineDispatcher,
 ) : GameOfLifeAlgorithm {
+
+    /**
+     * The map containing the "canonical" [MacroCell.CellNode]s. This ensures that there is exactly one instance of
+     * each equivalent [MacroCell.CellNode] (which makes comparing [MacroCell.CellNode]s possible with just reference
+     * checking).
+     *
+     * TODO: Prune this map as needed.
+     */
     private val canonicalCellMap = mutableMapOf<MacroCell.CellNode, MacroCell.CellNode>()
 
+    /**
+     * The memoization map for [MacroCell.CellNode.computeNextGeneration].
+     *
+     * TODO: Prune this map as needed.
+     */
     private val cellMap = mutableMapOf<MacroCell.CellNode, MacroCell.CellNode>()
 
+    /**
+     * The memoization map for [MacroCell.size].
+     *
+     * TODO: Prune this map as needed.
+     */
     private val cellSizeMap = mutableMapOf<MacroCell.CellNode, Int>()
 
+    /**
+     * Computes the next generation for the given [MacroCell.CellNode].
+     *
+     * For simplicity, this function will return a [MacroCell.CellNode] that is half as big, centered on this node.
+     * (in other words, a [MacroCell.CellNode] with a decremented level).
+     *
+     * This function is memoized by [cellMap].
+     */
     @Suppress("LongMethod", "ComplexMethod")
     private fun MacroCell.CellNode.computeNextGeneration(): MacroCell.CellNode {
+        require(level >= 2)
         val alreadyComputed = cellMap[this]
         if (alreadyComputed != null) return alreadyComputed
 
@@ -235,8 +262,11 @@ class HashLifeAlgorithm(
             )
         }
 
-    @Suppress("LongMethod", "ComplexMethod")
-    private fun computeNextGeneration(cellState: HashLifeCellState): HashLifeCellState {
+    /**
+     * Returns the [HashLifeCellState] corresponding to the next generation.
+     */
+    @Suppress("ComplexMethod")
+    private tailrec fun computeNextGeneration(cellState: HashLifeCellState): HashLifeCellState {
         val node = cellState.macroCell as MacroCell.CellNode
 
         if (node.level > 3) {
@@ -277,6 +307,25 @@ class HashLifeAlgorithm(
                 )
             }
         }
+
+        // If our primary macro cell would be too small or the resulting macro cell wouldn't be the correct result
+        // (due to an expanding pattern), expand the main macro cell and compute.
+        return computeNextGeneration(cellState.expandCentered())
+    }
+
+    private fun MacroCell.size(): Int =
+        when (this) {
+            MacroCell.Cell.AliveCell -> 1
+            MacroCell.Cell.DeadCell -> 0
+            is MacroCell.CellNode -> {
+                cellSizeMap.getOrPut(this) {
+                    nw.size() + ne.size() + sw.size() + se.size()
+                }
+            }
+        }
+
+    private fun HashLifeCellState.expandCentered(): HashLifeCellState {
+        val node = macroCell as MacroCell.CellNode
 
         val sameLevelEmptyCell = createEmptyMacroCell(node.level)
         val smallerLevelEmptyCell = createEmptyMacroCell(node.level - 1)
@@ -328,24 +377,13 @@ class HashLifeAlgorithm(
             ).makeCanonical()
         )
 
-        val offsetDiff = 1 shl (node.level - 1)
+        val offsetDiff = 3 * (1 shl (node.level - 1))
 
         return HashLifeCellState(
-            offset = cellState.offset + IntOffset(-offsetDiff, -offsetDiff),
-            macroCell = cell.computeNextGeneration()
+            offset = offset + IntOffset(-offsetDiff, -offsetDiff),
+            macroCell = cell
         )
     }
-
-    private fun MacroCell.size(): Int =
-        when (this) {
-            MacroCell.Cell.AliveCell -> 1
-            MacroCell.Cell.DeadCell -> 0
-            is MacroCell.CellNode -> {
-                cellSizeMap.getOrPut(this) {
-                    nw.size() + ne.size() + sw.size() + se.size()
-                }
-            }
-        }
 
     private fun CellState.toHashLifeCellState(): HashLifeCellState {
         if (this is HashLifeCellState) return this
@@ -361,8 +399,8 @@ class HashLifeAlgorithm(
             maxOf(
                 log2((maxX - minX).toDouble()),
                 log2((maxY - minY).toDouble())
-            ).coerceAtLeast(3.0)
-        ).toInt()
+            )
+        ).toInt().coerceAtLeast(3)
 
         val offset = IntOffset(minX, minY)
         val macroCell = createMacroCell(
@@ -407,6 +445,108 @@ class HashLifeAlgorithm(
             ).makeCanonical()
         }
 
+    private fun MacroCell.withCell(target: IntOffset, isAlive: Boolean): MacroCell =
+        when (this) {
+            MacroCell.Cell.AliveCell,
+            MacroCell.Cell.DeadCell -> {
+                require(target == IntOffset.Zero)
+                if (isAlive) {
+                    MacroCell.Cell.AliveCell
+                } else {
+                    MacroCell.Cell.DeadCell
+                }
+            }
+            is MacroCell.CellNode -> {
+                val offsetDiff = 1 shl (level - 1)
+                val isNorth = target.y < offsetDiff
+                val isWest = target.x < offsetDiff
+                if (isNorth) {
+                    if (isWest) {
+                        MacroCell.CellNode(
+                            nw = nw.withCell(target, isAlive),
+                            ne = ne,
+                            sw = sw,
+                            se = se
+                        ).makeCanonical()
+                    } else {
+                        MacroCell.CellNode(
+                            nw = nw,
+                            ne = ne.withCell(target + IntOffset(-offsetDiff, 0), isAlive),
+                            sw = sw,
+                            se = se
+                        ).makeCanonical()
+                    }
+                } else {
+                    if (isWest) {
+                        MacroCell.CellNode(
+                            nw = nw,
+                            ne = ne,
+                            sw = sw.withCell(target + IntOffset(0, -offsetDiff), isAlive),
+                            se = se
+                        ).makeCanonical()
+                    } else {
+                        MacroCell.CellNode(
+                            nw = nw,
+                            ne = ne,
+                            sw = sw,
+                            se = se.withCell(target + IntOffset(-offsetDiff, -offsetDiff), isAlive)
+                        ).makeCanonical()
+                    }
+                }
+            }
+        }
+
+    private fun MacroCell.iterator(
+        offset: IntOffset,
+    ): Iterator<IntOffset> = iterator {
+        when (this@iterator) {
+            MacroCell.Cell.AliveCell -> yield(offset)
+            MacroCell.Cell.DeadCell -> Unit
+            is MacroCell.CellNode -> {
+                val offsetDiff = 1 shl (level - 1)
+                yieldAll(nw.iterator(offset))
+                yieldAll(ne.iterator(offset + IntOffset(offsetDiff, 0)))
+                yieldAll(sw.iterator(offset + IntOffset(0, offsetDiff)))
+                yieldAll(se.iterator(offset + IntOffset(offsetDiff, offsetDiff)))
+            }
+        }
+    }
+
+    @Suppress("NestedBlockDepth")
+    private fun MacroCell.contains(target: IntOffset): Boolean =
+        when (this) {
+            MacroCell.Cell.AliveCell -> {
+                require(target == IntOffset.Zero)
+                true
+            }
+            MacroCell.Cell.DeadCell -> {
+                require(target == IntOffset.Zero)
+                false
+            }
+            is MacroCell.CellNode -> {
+                if (size() == 0) {
+                    false
+                } else {
+                    val offsetDiff = 1 shl (level - 1)
+                    val isNorth = target.y < offsetDiff
+                    val isWest = target.x < offsetDiff
+                    if (isNorth) {
+                        if (isWest) {
+                            nw.contains(target)
+                        } else {
+                            ne.contains(target + IntOffset(-offsetDiff, 0))
+                        }
+                    } else {
+                        if (isWest) {
+                            sw.contains(target + IntOffset(0, -offsetDiff))
+                        } else {
+                            se.contains(target + IntOffset(-offsetDiff, -offsetDiff))
+                        }
+                    }
+                }
+            }
+        }
+
     private fun MacroCell.CellNode.makeCanonical(): MacroCell.CellNode =
         canonicalCellMap.getOrPut(this) { this }
 
@@ -414,6 +554,11 @@ class HashLifeAlgorithm(
         val offset: IntOffset,
         val macroCell: MacroCell,
     ) : CellState() {
+        init {
+            // Check the invariant for the macroCell
+            check(macroCell.level >= 3)
+        }
+
         override val aliveCells: Set<IntOffset> = object : Set<IntOffset> {
             override val size: Int by lazy {
                 macroCell.size()
@@ -434,6 +579,32 @@ class HashLifeAlgorithm(
             override fun isEmpty(): Boolean = size == 0
 
             override fun iterator(): Iterator<IntOffset> = macroCell.iterator(offset)
+        }
+
+        override fun offsetBy(offset: IntOffset) = HashLifeCellState(
+            offset = this.offset + offset,
+            macroCell = macroCell
+        )
+
+        override fun withCell(offset: IntOffset, isAlive: Boolean): CellState {
+            var hashLifeCellState = this
+
+            var target: IntOffset
+
+            while (
+                run {
+                    target = offset - hashLifeCellState.offset
+                    val size = 1 shl hashLifeCellState.macroCell.level
+                    target.x !in 0 until size || target.y !in 0 until size
+                }
+            ) {
+                hashLifeCellState = hashLifeCellState.expandCentered()
+            }
+
+            return HashLifeCellState(
+                offset = hashLifeCellState.offset,
+                macroCell = hashLifeCellState.macroCell.withCell(target, isAlive)
+            )
         }
 
         override fun toString(): String = "HashLifeCellState(${aliveCells.toSet()})"
@@ -494,49 +665,3 @@ private sealed class MacroCell {
             }
     }
 }
-
-private fun MacroCell.iterator(
-    offset: IntOffset,
-): Iterator<IntOffset> = iterator {
-    when (this@iterator) {
-        MacroCell.Cell.AliveCell -> yield(offset)
-        MacroCell.Cell.DeadCell -> Unit
-        is MacroCell.CellNode -> {
-            val offsetDiff = 1 shl (level - 1)
-            yieldAll(nw.iterator(offset))
-            yieldAll(ne.iterator(offset + IntOffset(offsetDiff, 0)))
-            yieldAll(sw.iterator(offset + IntOffset(0, offsetDiff)))
-            yieldAll(se.iterator(offset + IntOffset(offsetDiff, offsetDiff)))
-        }
-    }
-}
-
-private fun MacroCell.contains(target: IntOffset): Boolean =
-    when (this) {
-        MacroCell.Cell.AliveCell -> {
-            require(target == IntOffset.Zero)
-            true
-        }
-        MacroCell.Cell.DeadCell -> {
-            require(target == IntOffset.Zero)
-            false
-        }
-        is MacroCell.CellNode -> {
-            val offsetDiff = 1 shl (level - 1)
-            val isNorth = target.y < offsetDiff
-            val isWest = target.x < offsetDiff
-            if (isNorth) {
-                if (isWest) {
-                    nw.contains(target)
-                } else {
-                    ne.contains(target + IntOffset(-offsetDiff, 0))
-                }
-            } else {
-                if (isWest) {
-                    sw.contains(target + IntOffset(0, -offsetDiff))
-                } else {
-                    se.contains(target + IntOffset(-offsetDiff, -offsetDiff))
-                }
-            }
-        }
-    }
