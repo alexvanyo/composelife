@@ -19,8 +19,8 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
-import com.alexvanyo.composelife.data.model.GameOfLifeState
-import com.alexvanyo.composelife.data.model.MutableGameOfLifeState
+import com.alexvanyo.composelife.model.GameOfLifeState
+import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.ui.util.detectTransformGestures
 import com.alexvanyo.composelife.util.ceilToOdd
 import com.alexvanyo.composelife.util.floor

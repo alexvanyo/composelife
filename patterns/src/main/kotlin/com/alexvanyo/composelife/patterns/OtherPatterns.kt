@@ -1,7 +1,7 @@
-package com.alexvanyo.composelife.data.patterns
+package com.alexvanyo.composelife.patterns
 
-import com.alexvanyo.composelife.data.model.emptyCellState
-import com.alexvanyo.composelife.data.model.toCellState
+import com.alexvanyo.composelife.model.emptyCellState
+import com.alexvanyo.composelife.model.toCellState
 
 object SingleCellPattern : GameOfLifeTestPattern(
     patternName = "Single cell",

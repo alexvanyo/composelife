@@ -5,10 +5,10 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
-import com.alexvanyo.composelife.data.HashLifeAlgorithm
-import com.alexvanyo.composelife.data.model.toCellState
-import com.alexvanyo.composelife.data.rememberTemporalGameOfLifeState
-import com.alexvanyo.composelife.data.rememberTemporalGameOfLifeStateMutator
+import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
+import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
+import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
+import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController

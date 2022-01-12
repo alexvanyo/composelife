@@ -1,7 +1,7 @@
-package com.alexvanyo.composelife.data
+package com.alexvanyo.composelife.algorithm
 
 import androidx.annotation.IntRange
-import com.alexvanyo.composelife.data.model.CellState
+import com.alexvanyo.composelife.model.CellState
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

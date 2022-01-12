@@ -13,9 +13,9 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import com.alexvanyo.composelife.data.HashLifeAlgorithm
-import com.alexvanyo.composelife.data.TemporalGameOfLifeState
-import com.alexvanyo.composelife.data.model.emptyCellState
+import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
+import com.alexvanyo.composelife.model.TemporalGameOfLifeState
+import com.alexvanyo.composelife.model.emptyCellState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
