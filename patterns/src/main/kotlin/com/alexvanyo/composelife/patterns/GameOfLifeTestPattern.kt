@@ -1,6 +1,6 @@
-package com.alexvanyo.composelife.data.patterns
+package com.alexvanyo.composelife.patterns
 
-import com.alexvanyo.composelife.data.model.CellState
+import com.alexvanyo.composelife.model.CellState
 import com.livefront.sealedenum.GenSealedEnum
 
 sealed class GameOfLifeTestPattern(

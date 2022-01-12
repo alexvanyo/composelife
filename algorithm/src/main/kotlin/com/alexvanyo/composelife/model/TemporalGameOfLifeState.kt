@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife.data
+package com.alexvanyo.composelife.model
 
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
@@ -16,10 +16,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.unit.IntOffset
-import com.alexvanyo.composelife.data.model.CellState
-import com.alexvanyo.composelife.data.model.MutableGameOfLifeState
-import com.alexvanyo.composelife.data.model.emptyCellState
-import com.alexvanyo.composelife.data.model.toCellState
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.util.toPair
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -27,7 +24,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest

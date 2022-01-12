@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.R
-import com.alexvanyo.composelife.data.TemporalGameOfLifeState
+import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.google.accompanist.insets.navigationBarsHeight
 import com.google.accompanist.insets.statusBarsHeight
 

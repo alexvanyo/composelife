@@ -1,11 +1,12 @@
-package com.alexvanyo.composelife.data
+package com.alexvanyo.composelife.model
 
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.alexvanyo.composelife.data.patterns.PondPattern
-import com.alexvanyo.composelife.data.patterns.SixLongLinePattern
+import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
+import com.alexvanyo.composelife.patterns.PondPattern
+import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import com.alexvanyo.composelife.testutil.dateTimeClock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -68,7 +69,7 @@ class TemporalGameOfLifeStateComposableTests {
         composeTestRule.setContent {
             rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
+                gameOfLifeAlgorithm = HashLifeAlgorithm(
                     backgroundDispatcher = dispatcher
                 ),
                 clock = composeTestRule.mainClock.dateTimeClock

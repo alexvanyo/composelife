@@ -1,7 +1,7 @@
-package com.alexvanyo.composelife.data
+package com.alexvanyo.composelife.algorithm
 
-import com.alexvanyo.composelife.data.patterns.GameOfLifeTestPattern
-import com.alexvanyo.composelife.data.patterns.values
+import com.alexvanyo.composelife.patterns.GameOfLifeTestPattern
+import com.alexvanyo.composelife.patterns.values
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.take

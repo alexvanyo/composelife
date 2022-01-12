@@ -1,8 +1,8 @@
-package com.alexvanyo.composelife.data
+package com.alexvanyo.composelife.algorithm
 
 import androidx.annotation.IntRange
 import androidx.compose.ui.unit.IntOffset
-import com.alexvanyo.composelife.data.model.CellState
+import com.alexvanyo.composelife.model.CellState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlin.math.ceil
@@ -413,7 +413,7 @@ class HashLifeAlgorithm(
     private inner class HashLifeCellState(
         val offset: IntOffset,
         val macroCell: MacroCell,
-    ) : CellState {
+    ) : CellState() {
         override val aliveCells: Set<IntOffset> = object : Set<IntOffset> {
             override val size: Int by lazy {
                 macroCell.size()
@@ -437,14 +437,6 @@ class HashLifeAlgorithm(
         }
 
         override fun toString(): String = "HashLifeCellState(${aliveCells.toSet()})"
-
-        override fun equals(other: Any?): Boolean =
-            when (other) {
-                !is CellState -> false
-                else -> aliveCells.containsAll(other.aliveCells) && other.aliveCells.containsAll(aliveCells)
-            }
-
-        override fun hashCode(): Int = aliveCells.toSet().hashCode()
     }
 }
 

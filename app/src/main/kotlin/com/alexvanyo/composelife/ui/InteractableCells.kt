@@ -15,10 +15,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.R
-import com.alexvanyo.composelife.data.model.GameOfLifeState
-import com.alexvanyo.composelife.data.model.MutableGameOfLifeState
-import com.alexvanyo.composelife.data.model.setIndividualCellState
-import com.alexvanyo.composelife.data.model.toCellState
+import com.alexvanyo.composelife.model.GameOfLifeState
+import com.alexvanyo.composelife.model.MutableGameOfLifeState
+import com.alexvanyo.composelife.model.setIndividualCellState
+import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.util.containedPoints
 import kotlin.math.roundToInt

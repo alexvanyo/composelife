@@ -1,11 +1,11 @@
-package com.alexvanyo.composelife.data
+package com.alexvanyo.composelife.model
 
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import app.cash.turbine.test
-import com.alexvanyo.composelife.data.model.emptyCellState
-import com.alexvanyo.composelife.data.patterns.SingleCellPattern
-import com.alexvanyo.composelife.data.patterns.SixLongLinePattern
+import com.alexvanyo.composelife.algorithm.NaiveGameOfLifeAlgorithm
+import com.alexvanyo.composelife.patterns.SingleCellPattern
+import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import com.alexvanyo.composelife.testutil.schedulerClock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
