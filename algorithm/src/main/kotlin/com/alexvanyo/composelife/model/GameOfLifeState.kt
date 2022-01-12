@@ -27,10 +27,6 @@ private class MutableGameOfLifeStateImpl(
     override var cellState by mutableStateOf(cellState)
 }
 
-fun MutableGameOfLifeState.setIndividualCellState(cellCoordinate: IntOffset, isAlive: Boolean) {
-    cellState = if (isAlive) {
-        CellState(cellState.aliveCells + cellCoordinate)
-    } else {
-        CellState(cellState.aliveCells - cellCoordinate)
-    }
+fun MutableGameOfLifeState.setCellState(cellCoordinate: IntOffset, isAlive: Boolean) {
+    cellState = cellState.withCell(cellCoordinate, isAlive)
 }
