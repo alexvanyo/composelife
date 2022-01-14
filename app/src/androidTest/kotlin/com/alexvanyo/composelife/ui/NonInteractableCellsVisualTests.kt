@@ -1,10 +1,9 @@
 package com.alexvanyo.composelife.ui
+
+import android.os.Build
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.PixelMap
-import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -15,20 +14,23 @@ import androidx.compose.ui.unit.IntSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
+import com.alexvanyo.composelife.testutil.assertPixels
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
-import org.junit.Assert.assertEquals
+import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class NonInteractableCellTests {
+class NonInteractableCellsVisualTests {
 
     @get:Rule
     val composeTestRule = createComposeRule()
 
     @Test
     fun non_interactable_cells_draws_correctly_dark_mode() {
+        assumeTrue(Build.VERSION.SDK_INT >= 26)
+
         val cellState = setOf(
             0 to 0,
             2 to 0,
@@ -80,6 +82,8 @@ class NonInteractableCellTests {
 
     @Test
     fun non_interactable_cells_draws_correctly_light_mode() {
+        assumeTrue(Build.VERSION.SDK_INT >= 26)
+
         val cellState = setOf(
             0 to 0,
             2 to 0,
@@ -128,39 +132,4 @@ class NonInteractableCellTests {
             }
         }
     }
-}
-
-private fun ImageBitmap.assertPixels(
-    expectedSize: IntSize? = null,
-    expectedColorProvider: (position: IntOffset) -> Color?
-) {
-    if (expectedSize != null) {
-        assertEquals(
-            expectedSize,
-            IntSize(width, height)
-        )
-    }
-
-    val pixelMap = toPixelMap()
-    (0 until width).forEach { x ->
-        (0 until height).forEach { y ->
-            val expectedColor = expectedColorProvider(IntOffset(x, y))
-            if (expectedColor != null) {
-                pixelMap.assertPixelColor(expectedColor, x, y)
-            }
-        }
-    }
-}
-
-private fun PixelMap.assertPixelColor(
-    expected: Color,
-    x: Int,
-    y: Int
-) {
-    val color = this[x, y]
-    val errorString = "Pixel($x, $y) was expected to be $expected, but was $color"
-    assertEquals(errorString, expected.red, color.red, 0.02f)
-    assertEquals(errorString, expected.green, color.green, 0.02f)
-    assertEquals(errorString, expected.blue, color.blue, 0.02f)
-    assertEquals(errorString, expected.alpha, color.alpha, 0.02f)
 }
