@@ -17,5 +17,11 @@ fun Project.configureKsp(
                 java.srcDir(file("build/generated/ksp/${applicationVariant.name}UnitTest/kotlin"))
             }
         }
+
+        // TODO: Add explicit dependency to avoid "execution optimizations have been disabled to ensure correctness"
+        afterEvaluate {
+            tasks.getByName("lintAnalyze${applicationVariant.name.capitalize()}")
+                .dependsOn("ksp${applicationVariant.name.capitalize()}UnitTestKotlin")
+        }
     }
 }
