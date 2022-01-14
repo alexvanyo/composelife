@@ -4,7 +4,6 @@ import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
@@ -38,8 +37,8 @@ fun NonInteractableCells(
     val numColumns = cellWindow.width + 1
     val numRows = cellWindow.height + 1
 
-    val aliveColor = MaterialTheme.colors.onBackground
-    val deadColor = MaterialTheme.colors.background
+    val aliveColor = ComposeLifeTheme.aliveCellColor
+    val deadColor = ComposeLifeTheme.deadCellColor
 
     Canvas(
         modifier = modifier

@@ -7,7 +7,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -34,14 +33,14 @@ fun InteractableCell(
     onValueChange: (isAlive: Boolean) -> Unit,
 ) {
     val cellColor = if (isAlive) {
-        MaterialTheme.colors.onBackground
+        ComposeLifeTheme.aliveCellColor
     } else {
-        MaterialTheme.colors.background
+        ComposeLifeTheme.deadCellColor
     }
     val rippleColor = if (isAlive) {
-        MaterialTheme.colors.background
+        ComposeLifeTheme.deadCellColor
     } else {
-        MaterialTheme.colors.onBackground
+        ComposeLifeTheme.aliveCellColor
     }
 
     Box(
