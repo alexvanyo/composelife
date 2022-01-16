@@ -34,6 +34,7 @@ import kotlin.math.ceil
 @Composable
 fun ImmutableCellWindow(
     gameOfLifeState: GameOfLifeState,
+    modifier: Modifier = Modifier,
     cellWindowState: CellWindowState = rememberCellWindowState(),
     cellDpSize: Dp = 32.dp,
 ) {
@@ -42,7 +43,8 @@ fun ImmutableCellWindow(
             gameOfLifeState = gameOfLifeState
         ),
         cellWindowState = cellWindowState,
-        cellDpSize = cellDpSize
+        cellDpSize = cellDpSize,
+        modifier = modifier
     )
 }
 
@@ -54,8 +56,9 @@ fun ImmutableCellWindow(
 @Composable
 fun MutableCellWindow(
     gameOfLifeState: MutableGameOfLifeState,
+    modifier: Modifier = Modifier,
     isInteractable: (isGesturing: Boolean, scaledCellDpSize: Dp) -> Boolean = { isGesturing, scaledCellDpSize ->
-        !isGesturing && scaledCellDpSize >= 32.dp
+        !isGesturing && scaledCellDpSize >= cellDpSize
     },
     cellWindowState: CellWindowState = rememberCellWindowState(),
     cellDpSize: Dp = 32.dp,
@@ -66,7 +69,8 @@ fun MutableCellWindow(
             isInteractable = isInteractable
         ),
         cellWindowState = cellWindowState,
-        cellDpSize = cellDpSize
+        cellDpSize = cellDpSize,
+        modifier = modifier
     )
 }
 
@@ -76,6 +80,7 @@ private fun CellWindowImpl(
     cellWindowUiState: CellWindowUiState,
     cellWindowState: CellWindowState,
     cellDpSize: Dp,
+    modifier: Modifier,
 ) {
     var isGesturing by remember { mutableStateOf(false) }
 
@@ -84,7 +89,7 @@ private fun CellWindowImpl(
     val cellPixelSize = with(LocalDensity.current) { cellDpSize.toPx() }
     val scaledCellPixelSize = cellPixelSize * cellWindowState.scale
 
-    BoxWithConstraints {
+    BoxWithConstraints(modifier = modifier) {
         // Convert the window state offset into integer and fractional parts
         val intOffset = floor(cellWindowState.offset)
         val fracOffset = cellWindowState.offset - intOffset.toOffset()
@@ -107,7 +112,7 @@ private fun CellWindowImpl(
             )
         )
 
-        val onGestureState = rememberUpdatedState { centroid: Offset, pan: Offset, zoom: Float, _: Float ->
+        val currentOnGesture by rememberUpdatedState { centroid: Offset, pan: Offset, zoom: Float, _: Float ->
             val oldScale = cellWindowState.scale
 
             // Compute the offset from the centroid to the underlying offset, in cell coordinates
@@ -138,7 +143,7 @@ private fun CellWindowImpl(
                         onGestureStart = { isGesturing = true },
                         onGestureEnd = { isGesturing = false },
                         onGesture = { centroid: Offset, pan: Offset, zoom: Float, rotation: Float ->
-                            onGestureState.value(centroid, pan, zoom, rotation)
+                            currentOnGesture(centroid, pan, zoom, rotation)
                         }
                     )
                 }
@@ -170,12 +175,12 @@ private sealed interface CellWindowUiState {
     val gameOfLifeState: GameOfLifeState
 
     class ImmutableState(
-        override val gameOfLifeState: GameOfLifeState
+        override val gameOfLifeState: GameOfLifeState,
     ) : CellWindowUiState
 
     class MutableState(
         override val gameOfLifeState: MutableGameOfLifeState,
-        val isInteractable: (isGesturing: Boolean, scaledCellDpSize: Dp) -> Boolean
+        val isInteractable: (isGesturing: Boolean, scaledCellDpSize: Dp) -> Boolean,
     ) : CellWindowUiState
 }
 
