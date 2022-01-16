@@ -27,10 +27,11 @@ import com.google.accompanist.insets.statusBarsHeight
 @Composable
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
+    modifier: Modifier = Modifier,
 ) {
     val cellWindowState = rememberCellWindowState()
 
-    Box {
+    Box(modifier = modifier) {
         MutableCellWindow(
             gameOfLifeState = temporalGameOfLifeState,
             cellWindowState = cellWindowState
