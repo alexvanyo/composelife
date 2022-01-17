@@ -1,17 +1,14 @@
 package com.alexvanyo.composelife.buildlogic
 
 import com.android.build.api.variant.AndroidComponentsExtension
-import gradle.kotlin.dsl.accessors._8b47a6ef95ddcaac7e13ad0c8c686e81.jacoco
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.getValue
-import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.kotlin.dsl.register
-import org.gradle.kotlin.dsl.registering
 import org.gradle.kotlin.dsl.withType
+import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
 
@@ -27,11 +24,7 @@ private val coverageExclusions = listOf(
 )
 
 fun Project.configureJacocoMerge() {
-    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-
-    jacoco {
-        toolVersion = libs.findVersion("jacoco").get().toString()
-    }
+    configureJacocoVersion()
 
     val variants = listOf("debug", "release")
 
@@ -81,7 +74,7 @@ fun Project.configureJacocoMerge() {
 fun Project.configureJacoco(
     androidComponentsExtension: AndroidComponentsExtension<*, *, *>,
 ) {
-    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+    configureJacocoVersion()
 
     val jacocoTestReport = tasks.create("jacocoTestReport")
 
@@ -109,10 +102,6 @@ fun Project.configureJacoco(
         jacocoTestReport.dependsOn(reportTask)
     }
 
-    jacoco {
-        toolVersion = libs.findVersion("jacoco").get().toString()
-    }
-
     this.tasks.apply {
         withType<Test> {
             configure<JacocoTaskExtension> {
@@ -125,5 +114,13 @@ fun Project.configureJacoco(
                 excludes = listOf("jdk.internal.*")
             }
         }
+    }
+}
+
+fun Project.configureJacocoVersion() {
+    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+
+    configure<JacocoPluginExtension> {
+        toolVersion = libs.findVersion("jacoco").get().toString()
     }
 }

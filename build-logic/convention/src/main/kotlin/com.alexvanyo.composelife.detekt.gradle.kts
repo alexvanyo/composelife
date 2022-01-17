@@ -12,7 +12,7 @@ detekt {
 }
 
 dependencies {
-    detektPlugins(libs.findDependency("detekt.formatting").get())
+    detektPlugins(libs.findLibrary("detekt.formatting").get())
 }
 
 tasks {
