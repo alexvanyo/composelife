@@ -5,12 +5,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.Density
@@ -22,7 +21,7 @@ import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.Ignore
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -105,7 +104,6 @@ class CellWindowTests {
             .assertIsOn()
     }
 
-    @Ignore("TODO: Fix on CI")
     @Test
     @OptIn(ExperimentalCoroutinesApi::class)
     fun cells_are_displayed_correctly_after_scrolling() = runTest {
@@ -123,6 +121,8 @@ class CellWindowTests {
             ).toCellState()
         )
 
+        val cellWindowState = CellWindowState()
+
         lateinit var density: Density
 
         composeTestRule.setContent {
@@ -130,27 +130,13 @@ class CellWindowTests {
 
             MutableCellWindow(
                 gameOfLifeState = mutableGameOfLifeState,
-                cellWindowState = rememberCellWindowState(
-                    offset = Offset(-0.5f, -0.5f)
-                ),
+                cellWindowState = cellWindowState,
                 cellDpSize = 30.dp,
-                modifier = Modifier.size(150.dp).testTag("cellWindow")
+                modifier = Modifier.size(150.dp)
             )
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, -2, -2)
-            )
-            .assertExists()
-
-        composeTestRule
-            .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 4, 4)
-            )
-            .assertDoesNotExist()
-
-        composeTestRule.onNodeWithTag("cellWindow").performTouchInput {
+        composeTestRule.onRoot().performTouchInput {
             with(density) {
                 swipe(
                     Offset(135.dp.toPx(), 135.dp.toPx()),
@@ -159,18 +145,10 @@ class CellWindowTests {
             }
         }
 
+        composeTestRule.mainClock.advanceTimeBy(1000)
         composeTestRule.awaitIdle()
 
-        composeTestRule
-            .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, -2, -2)
-            )
-            .assertDoesNotExist()
-
-        composeTestRule
-            .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 4, 4)
-            )
-            .assertExists()
+        assertTrue(cellWindowState.offset.x > 3f)
+        assertTrue(cellWindowState.offset.y > 3f)
     }
 }
