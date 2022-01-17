@@ -1,7 +1,6 @@
 package com.alexvanyo.composelife.buildlogic
 
 import com.android.build.api.dsl.CommonExtension
-import gradle.kotlin.dsl.accessors._73ff8fab69e9dd87bad6b8a155a0213f.coreLibraryDesugaring
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
@@ -43,6 +42,6 @@ fun Project.configureKotlinAndroid(
     }
 
     dependencies {
-        coreLibraryDesugaring(libs.findDependency("android.desugarJdkLibs").get())
+        add("coreLibraryDesugaring", libs.findLibrary("android.desugarJdkLibs").get())
     }
 }
