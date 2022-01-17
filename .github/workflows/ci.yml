@@ -165,11 +165,29 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: echo "Generated AVD snapshot for caching."
 
-      - name: run tests
+      - name: Run tests
+        id: tests
         uses: reactivecircus/android-emulator-runner@v2
+        continue-on-error: true # Allow uploading logs on failure
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: ./gradlew connectedCheck --stacktrace
+          script: |
+            adb logcat -c                               # clear logs
+            touch emulator.log                          # create log file
+            chmod 777 emulator.log                      # allow writing to log file
+            adb logcat >> emulator.log &                # output logs to the log file
+            ./gradlew connectedCheck --stacktrace       # run the tests
+
+      - name: Upload failing test logs
+        if: steps.tests.outcome != 'success'
+        uses: actions/upload-artifact@v2
+        with:
+          name: aer-${{ matrix.api-level }}-logs
+          path: emulator.log
+
+      - name: Raise error on test failure
+        if: steps.tests.outcome != 'success'
+        run: exit 1
