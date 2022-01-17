@@ -182,10 +182,9 @@ jobs:
             ./gradlew connectedCheck --stacktrace       # run the tests
 
       - name: Upload failing test logs
-        if: steps.tests.outcome != 'success'
         uses: actions/upload-artifact@v2
         with:
-          name: aer-${{ matrix.api-level }}-logs
+          name: android-test-aer-${{ matrix.api-level }}-logs
           path: emulator.log
 
       - name: Raise error on test failure

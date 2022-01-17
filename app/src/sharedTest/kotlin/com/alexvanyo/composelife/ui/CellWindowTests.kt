@@ -1,6 +1,7 @@
 package com.alexvanyo.composelife.ui
 
 import android.app.Application
+import android.util.Log
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -147,6 +148,8 @@ class CellWindowTests {
 
         composeTestRule.mainClock.advanceTimeBy(1000)
         composeTestRule.awaitIdle()
+
+        Log.d("vanyo","${cellWindowState.offset.x}, ${cellWindowState.offset.y}")
 
         assertTrue(cellWindowState.offset.x > 3f)
         assertTrue(cellWindowState.offset.y > 3f)
