@@ -78,9 +78,7 @@ jobs:
         with:
           directory: build/reports/jacoco
           fail_ci_if_error: true
-          files: |
-            jacocoTestDebugUnitTestReport/jacocoTestDebugUnitTestReport.xml,\
-            jacocoTestReleaseUnitTestReport/jacocoTestReleaseUnitTestReport.xml,\
+          files: jacocoTestDebugUnitTestReport/jacocoTestDebugUnitTestReport.xml,jacocoTestReleaseUnitTestReport/jacocoTestReleaseUnitTestReport.xml
 
   android-test-gmd:
     needs: build
