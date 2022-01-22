@@ -13,7 +13,7 @@ fun Project.configureKotlinAndroid(
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
     commonExtension.apply {
-        compileSdk = 31
+        compileSdk = 32
 
         lint {
             warningsAsErrors = true

@@ -11,7 +11,7 @@ android {
     defaultConfig {
         applicationId = "com.alexvanyo.composelife"
         minSdk = 21
-        targetSdk = 31
+        targetSdk = 32
         versionCode = 1
         versionName = "1.0"
     }
