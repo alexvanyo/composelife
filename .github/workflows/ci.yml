@@ -131,9 +131,9 @@ jobs:
         run: |
           if ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch') }}
           then
-            echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"api-level\":[\"21\",\"22\",\"23\",\"24\",\"25\",\"26\",\"27\",\"28\",\"29\",\"30\",\"31\"]}"
+            echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"api-level\":[\"21\",\"22\",\"23\",\"24\",\"25\",\"26\",\"27\",\"28\",\"29\",\"30\",\"31\",\"32\"]}"
           else
-            echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"api-level\":[\"21\",\"31\"]}"
+            echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"api-level\":[\"21\",\"32\"]}"
           fi
 
   android-test-aer:
