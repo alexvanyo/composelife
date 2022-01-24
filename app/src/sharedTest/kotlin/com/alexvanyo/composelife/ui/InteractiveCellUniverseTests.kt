@@ -56,7 +56,7 @@ class InteractiveCellUniverseTests {
 
             InteractiveCellUniverse(
                 temporalGameOfLifeState = temporalGameOfLifeState,
-                modifier = Modifier.size(320.dp)
+                modifier = Modifier.size(480.dp)
             )
         }
 

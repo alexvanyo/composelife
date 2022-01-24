@@ -1,21 +1,21 @@
 package com.alexvanyo.composelife.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.IconToggleButton
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.R
@@ -39,63 +39,69 @@ fun InteractiveCellUniverse(
 
         val evolutionStatus = temporalGameOfLifeState.status
 
-        Surface(color = Color(0f, 0f, 0f, 0.3f)) {
-            Column {
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .statusBarsHeight()
-                )
-
-                Text(
-                    text = "Offset: ${cellWindowState.offset}, Scale: ${cellWindowState.scale}",
-                )
-
-                Text(
-                    text = when (evolutionStatus) {
-                        TemporalGameOfLifeState.EvolutionStatus.Paused -> "Paused"
-                        is TemporalGameOfLifeState.EvolutionStatus.Running ->
-                            "GPS: ${evolutionStatus.averageGenerationsPerSecond}"
-                    }
-                )
-            }
-        }
-
-        Surface(
-            color = Color(0f, 0f, 0f, 0.3f),
-            modifier = Modifier.align(Alignment.BottomCenter)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column {
-                val isRunning = when (evolutionStatus) {
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsHeight()
+            )
+
+            CellUniverseInfoCard(
+                cellWindowState = cellWindowState,
+                evolutionStatus = evolutionStatus,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(8.dp)
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            CellUniverseActionCard(
+                isRunning = when (evolutionStatus) {
                     TemporalGameOfLifeState.EvolutionStatus.Paused -> false
                     is TemporalGameOfLifeState.EvolutionStatus.Running -> true
-                }
+                },
+                setIsRunning = temporalGameOfLifeState::setIsRunning,
+                modifier = Modifier.padding(8.dp)
+            )
 
-                IconToggleButton(
-                    checked = isRunning,
-                    onCheckedChange = temporalGameOfLifeState::setIsRunning,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Icon(
-                        imageVector = if (isRunning) {
-                            Icons.Filled.Pause
-                        } else {
-                            Icons.Filled.PlayArrow
-                        },
-                        contentDescription = if (isRunning) {
-                            stringResource(id = R.string.pause)
-                        } else {
-                            stringResource(id = R.string.play)
-                        }
-                    )
-                }
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsHeight()
+            )
+        }
+    }
+}
 
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .navigationBarsHeight()
+@Composable
+fun CellUniverseActionCard(
+    isRunning: Boolean,
+    setIsRunning: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Card(modifier = modifier) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(8.dp),
+        ) {
+            IconToggleButton(
+                checked = isRunning,
+                onCheckedChange = setIsRunning,
+            ) {
+                Icon(
+                    imageVector = if (isRunning) {
+                        Icons.Filled.Pause
+                    } else {
+                        Icons.Filled.PlayArrow
+                    },
+                    contentDescription = if (isRunning) {
+                        stringResource(id = R.string.pause)
+                    } else {
+                        stringResource(id = R.string.play)
+                    }
                 )
             }
         }
