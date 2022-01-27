@@ -157,7 +157,7 @@ jobs:
 
       - name: Create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@62d97062b095e445dcfcd6fd4c6af5aac43be0d9
+        uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
@@ -167,7 +167,7 @@ jobs:
 
       - name: Run tests
         id: tests
-        uses: reactivecircus/android-emulator-runner@62d97062b095e445dcfcd6fd4c6af5aac43be0d9
+        uses: reactivecircus/android-emulator-runner@v2
         continue-on-error: true # Allow uploading logs on failure
         with:
           api-level: ${{ matrix.api-level }}
