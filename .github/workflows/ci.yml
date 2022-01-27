@@ -147,7 +147,7 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: v1-${{ runner.os }}-avd-${{ matrix.java-version }}-${{ matrix.api-level }}
+          key: v2-${{ runner.os }}-avd-${{ matrix.java-version }}-${{ matrix.api-level }}
 
       - name: Configure JDK
         uses: actions/setup-java@v2
