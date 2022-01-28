@@ -2,7 +2,7 @@
 accompanist = "0.24.1-alpha"
 androidDesugarJdkLibs = "1.1.5"
 androidGradlePlugin = "7.2.0-beta01"
-androidxActivity = "1.4.0"
+androidxActivity = "1.5.0-alpha01"
 androidxCore = "1.8.0-alpha03"
 androidxEspresso = "3.5.0-alpha03"
 androidxLifecycle = "2.5.0-alpha01"
