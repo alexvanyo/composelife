@@ -5,6 +5,7 @@ plugins {
     id("com.alexvanyo.composelife.android.application.ksp")
     id("com.alexvanyo.composelife.android.application.testing")
     id("com.alexvanyo.composelife.detekt")
+    kotlin("kapt")
 }
 
 android {
@@ -29,12 +30,15 @@ dependencies {
     implementation(libs.androidx.compose.uiTooling)
     implementation(libs.androidx.compose.uiTestManifest)
     implementation(libs.androidx.core)
+    implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.lifecycle)
     implementation(libs.jetbrains.kotlinx.datetime)
     implementation(libs.jetbrains.kotlinx.coroutines.android)
     implementation(libs.jetbrains.kotlinx.coroutines.core)
     implementation(libs.sealedEnum.runtime)
     ksp(libs.sealedEnum.ksp)
+    implementation(libs.dagger.hilt.runtime)
+    kapt(libs.dagger.hilt.compiler)
 
     debugImplementation(libs.square.leakCanary)
 
@@ -43,6 +47,7 @@ dependencies {
     testRuntimeOnly(libs.junit5.vintageEngine)
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.compose.uiTestJunit4)
+    testImplementation(libs.androidx.espresso)
     testImplementation(libs.jetbrains.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
     testImplementation(projects.testutil)
@@ -53,4 +58,8 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso)
     androidTestImplementation(libs.androidx.test)
     androidTestImplementation(projects.testutil)
+}
+
+kapt {
+    correctErrorTypes = true
 }

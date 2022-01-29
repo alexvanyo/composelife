@@ -5,6 +5,7 @@ plugins {
     id("com.alexvanyo.composelife.android.library.ksp")
     id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
+    kotlin("kapt")
 }
 
 android {
@@ -23,12 +24,15 @@ dependencies {
     implementation(libs.jetbrains.kotlinx.coroutines.core)
     implementation(libs.sealedEnum.runtime)
     ksp(libs.sealedEnum.ksp)
+    implementation(libs.dagger.hilt.runtime)
+    kapt(libs.dagger.hilt.compiler)
 
     kspTest(libs.sealedEnum.ksp)
     testImplementation(libs.junit5.jupiter)
     testRuntimeOnly(libs.junit5.vintageEngine)
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.compose.uiTestJunit4)
+    testImplementation(libs.androidx.espresso)
     testImplementation(libs.jetbrains.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
     testImplementation(projects.testutil)

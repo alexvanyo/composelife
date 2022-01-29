@@ -12,11 +12,11 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.emptyCellState
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,8 +25,13 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import javax.inject.Inject
 
-class GameOfLifeWatchFaceService : WatchFaceService() {
+@AndroidEntryPoint(WatchFaceService::class)
+class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
+
+    @Inject
+    lateinit var gameOfLifeAlgorithm: GameOfLifeAlgorithm
 
     private val scope = CoroutineScope(SupervisorJob() + AndroidUiDispatcher.Main)
 
@@ -42,7 +47,7 @@ class GameOfLifeWatchFaceService : WatchFaceService() {
         super.onCreate()
         scope.launch {
             temporalGameOfLifeState.evolve(
-                gameOfLifeAlgorithm = HashLifeAlgorithm(Dispatchers.Default),
+                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
                 clock = Clock.System
             )
         }

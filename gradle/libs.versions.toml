@@ -5,10 +5,12 @@ androidGradlePlugin = "7.2.0-beta01"
 androidxActivity = "1.5.0-alpha01"
 androidxCore = "1.8.0-alpha03"
 androidxEspresso = "3.5.0-alpha03"
+androidxHilt = "1.0.0"
 androidxLifecycle = "2.5.0-alpha01"
 androidxTest = "1.1.4-alpha03"
 androidxWearWatchface = "1.1.0-alpha02"
 compose = "1.2.0-alpha02"
+dagger = "2.40.5"
 detekt = "1.19.0"
 kotlin = "1.6.10"
 kotlinxCoroutines = "1.6.0"
@@ -38,9 +40,12 @@ androidx-compose-uiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test
 androidx-compose-uiTestManifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "compose" }
 androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
 androidx-espresso = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxEspresso" }
+androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHilt" }
 androidx-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
 androidx-test = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTest" }
 androidx-wear-watchface = { group = "androidx.wear.watchface", name = "watchface", version.ref = "androidxWearWatchface" }
+dagger-hilt-runtime = { group = "com.google.dagger", name = "hilt-android", version.ref = "dagger" }
+dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "dagger" }
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt"}
 detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt"}
 jetbrains-kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }

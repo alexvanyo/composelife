@@ -6,6 +6,7 @@ import app.cash.turbine.test
 import com.alexvanyo.composelife.algorithm.NaiveGameOfLifeAlgorithm
 import com.alexvanyo.composelife.patterns.SingleCellPattern
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
+import com.alexvanyo.composelife.testutil.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.testutil.schedulerClock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -65,7 +66,7 @@ class TemporalGameOfLifeStateTests {
                         coroutineScope = this,
                         clock = schedulerClock,
                         gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
-                            StandardTestDispatcher(testScheduler)
+                            TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
                         ),
                         temporalGameOfLifeState = gameOfLifeState
                     )
@@ -109,7 +110,7 @@ class TemporalGameOfLifeStateTests {
                         coroutineScope = this,
                         clock = schedulerClock,
                         gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
-                            StandardTestDispatcher(testScheduler)
+                            TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
                         ),
                         temporalGameOfLifeState = gameOfLifeState
                     )
@@ -195,7 +196,7 @@ class TemporalGameOfLifeStateTests {
                         coroutineScope = this,
                         clock = schedulerClock,
                         gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
-                            StandardTestDispatcher(testScheduler)
+                            TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
                         ),
                         temporalGameOfLifeState = gameOfLifeState
                     )
@@ -286,7 +287,7 @@ class TemporalGameOfLifeStateTests {
                         coroutineScope = this,
                         clock = schedulerClock,
                         gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
-                            StandardTestDispatcher(testScheduler)
+                            TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
                         ),
                         temporalGameOfLifeState = gameOfLifeState
                     )
@@ -377,7 +378,7 @@ class TemporalGameOfLifeStateTests {
                         coroutineScope = this,
                         clock = schedulerClock,
                         gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
-                            StandardTestDispatcher(testScheduler)
+                            TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
                         ),
                         temporalGameOfLifeState = gameOfLifeState
                     )

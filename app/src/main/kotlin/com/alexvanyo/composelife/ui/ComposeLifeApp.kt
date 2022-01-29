@@ -5,14 +5,17 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
-import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import kotlinx.coroutines.Dispatchers
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 @Composable
 fun ComposeLifeApp() {
@@ -32,9 +35,11 @@ fun ComposeLifeApp() {
                 cellState = gosperGliderGun
             )
 
+            val viewModel = hiltViewModel<ComposeLifeAppViewModel>()
+
             rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = HashLifeAlgorithm(Dispatchers.Default)
+                gameOfLifeAlgorithm = viewModel.gameOfLifeAlgorithm
             )
 
             // A surface container using the 'background' color from the theme
@@ -47,14 +52,19 @@ fun ComposeLifeApp() {
     }
 }
 
+@HiltViewModel
+class ComposeLifeAppViewModel @Inject constructor(
+    val gameOfLifeAlgorithm: GameOfLifeAlgorithm
+) : ViewModel()
+
 private val gosperGliderGun = """
-    |                        X
-    |                      X X
-    |            XX      XX            XX
-    |           X   X    XX            XX
-    |XX        X     X   XX
-    |XX        X   X XX    X X
-    |          X     X       X
-    |           X   X
-    |            XX
+    |........................O...........
+    |......................O.O...........
+    |............OO......OO............OO
+    |...........O...O....OO............OO
+    |OO........O.....O...OO..............
+    |OO........O...O.OO....O.O...........
+    |..........O.....O.......O...........
+    |...........O...O....................
+    |............OO......................
 """.toCellState()

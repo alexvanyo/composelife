@@ -1,8 +1,9 @@
 package com.alexvanyo.composelife.algorithm
 
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.patterns.GameOfLifeTestPattern
 import com.alexvanyo.composelife.patterns.values
-import kotlinx.coroutines.CoroutineDispatcher
+import com.alexvanyo.composelife.testutil.TestComposeLifeDispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -21,7 +22,7 @@ class GameOfLifeAlgorithmTests {
 
     class GameOfLifeAlgorithmFactory(
         val algorithmName: String,
-        val factory: (coroutineDispatcher: CoroutineDispatcher) -> GameOfLifeAlgorithm
+        val factory: (dispatchers: ComposeLifeDispatchers) -> GameOfLifeAlgorithm
     ) {
         override fun toString(): String = algorithmName
     }
@@ -56,7 +57,7 @@ class GameOfLifeAlgorithmTests {
     @ParameterizedTest(name = "{displayName}: {0}")
     @ArgumentsSource(GameOfLifeAlgorithmTestProvider::class)
     fun `one generation step flow`(args: GameOfLifeAlgorithmTestArguments) = runTest {
-        val algorithm = args.algorithmFactory.factory(StandardTestDispatcher(testScheduler))
+        val algorithm = args.algorithmFactory.factory(TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler)))
 
         assertEquals(
             args.testPattern.cellStates,
@@ -72,7 +73,7 @@ class GameOfLifeAlgorithmTests {
     @ParameterizedTest(name = "{displayName}: {0}")
     @ArgumentsSource(GameOfLifeAlgorithmTestProvider::class)
     fun `two generation step flow`(args: GameOfLifeAlgorithmTestArguments) = runTest {
-        val algorithm = args.algorithmFactory.factory(StandardTestDispatcher(testScheduler))
+        val algorithm = args.algorithmFactory.factory(TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler)))
 
         assertEquals(
             args.testPattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 },
@@ -88,7 +89,7 @@ class GameOfLifeAlgorithmTests {
     @ParameterizedTest(name = "{displayName}: {0}")
     @ArgumentsSource(GameOfLifeAlgorithmTestProvider::class)
     fun `subsequent one generation step`(args: GameOfLifeAlgorithmTestArguments) = runTest {
-        val algorithm = args.algorithmFactory.factory(StandardTestDispatcher(testScheduler))
+        val algorithm = args.algorithmFactory.factory(TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler)))
 
         val actualCellStates = (1..args.testPattern.cellStates.size)
             .scan(args.testPattern.seedCellState) { previousCellState, _ ->
@@ -105,7 +106,7 @@ class GameOfLifeAlgorithmTests {
     @ParameterizedTest(name = "{displayName}: {0}")
     @ArgumentsSource(GameOfLifeAlgorithmTestProvider::class)
     fun `subsequent two generation step`(args: GameOfLifeAlgorithmTestArguments) = runTest {
-        val algorithm = args.algorithmFactory.factory(StandardTestDispatcher(testScheduler))
+        val algorithm = args.algorithmFactory.factory(TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler)))
 
         val actualCellStates = (1..args.testPattern.cellStates.size / 2)
             .scan(args.testPattern.seedCellState) { previousCellState, _ ->
