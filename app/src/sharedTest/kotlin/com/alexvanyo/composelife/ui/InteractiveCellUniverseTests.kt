@@ -18,6 +18,7 @@ import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
+import com.alexvanyo.composelife.testutil.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.testutil.dateTimeClock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -37,7 +38,7 @@ class InteractiveCellUniverseTests {
     @Test
     @OptIn(ExperimentalCoroutinesApi::class)
     fun six_long_line_evolves_correctly() = runTest {
-        val dispatcher = StandardTestDispatcher(testScheduler)
+        val dispatchers = TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
 
         composeTestRule.mainClock.autoAdvance = false
 
@@ -49,7 +50,7 @@ class InteractiveCellUniverseTests {
             rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = HashLifeAlgorithm(
-                    backgroundDispatcher = dispatcher
+                    dispatchers = dispatchers
                 ),
                 clock = composeTestRule.mainClock.dateTimeClock
             )

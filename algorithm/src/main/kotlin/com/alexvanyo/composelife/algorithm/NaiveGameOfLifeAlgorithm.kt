@@ -2,10 +2,11 @@ package com.alexvanyo.composelife.algorithm
 
 import androidx.annotation.IntRange
 import androidx.compose.ui.unit.IntOffset
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.util.getNeighbors
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 /**
  * The basic, naive implementation of the [GameOfLifeAlgorithm].
@@ -13,14 +14,14 @@ import kotlinx.coroutines.withContext
  * Each generation is computed in turn, and each of the possible cells that could be alive in the next generation
  * is checked individually.
  */
-class NaiveGameOfLifeAlgorithm(
-    private val backgroundDispatcher: CoroutineDispatcher
+class NaiveGameOfLifeAlgorithm @Inject constructor(
+    private val dispatchers: ComposeLifeDispatchers,
 ) : GameOfLifeAlgorithm {
     override suspend fun computeGenerationWithStep(
         cellState: CellState,
-        @IntRange(from = 0) step: Int
+        @IntRange(from = 0) step: Int,
     ): CellState =
-        withContext(backgroundDispatcher) {
+        withContext(dispatchers.Default) {
             computeGenerationWithStepImpl(
                 cellState = cellState,
                 step = step
@@ -29,7 +30,7 @@ class NaiveGameOfLifeAlgorithm(
 
     private tailrec fun computeGenerationWithStepImpl(
         cellState: CellState,
-        @IntRange(from = 0) step: Int
+        @IntRange(from = 0) step: Int,
     ): CellState =
         if (step == 0) {
             cellState

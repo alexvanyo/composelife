@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
 import com.alexvanyo.composelife.patterns.PondPattern
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
+import com.alexvanyo.composelife.testutil.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.testutil.dateTimeClock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -55,7 +56,7 @@ class TemporalGameOfLifeStateComposableTests {
 
     @Test
     fun state_is_advanced_correctly() = runTest {
-        val dispatcher = StandardTestDispatcher(testScheduler)
+        val dispatchers = TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
 
         val temporalGameOfLifeState = TemporalGameOfLifeState(
             cellState = SixLongLinePattern.seedCellState,
@@ -70,7 +71,7 @@ class TemporalGameOfLifeStateComposableTests {
             rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = HashLifeAlgorithm(
-                    backgroundDispatcher = dispatcher
+                    dispatchers = dispatchers
                 ),
                 clock = composeTestRule.mainClock.dateTimeClock
             )

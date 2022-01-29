@@ -2,15 +2,16 @@ package com.alexvanyo.composelife.algorithm
 
 import androidx.annotation.IntRange
 import androidx.compose.ui.unit.IntOffset
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.CellState
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 import kotlin.math.ceil
 import kotlin.math.log2
 
 @Suppress("TooManyFunctions")
-class HashLifeAlgorithm(
-    private val backgroundDispatcher: CoroutineDispatcher,
+class HashLifeAlgorithm @Inject constructor(
+    private val dispatchers: ComposeLifeDispatchers,
 ) : GameOfLifeAlgorithm {
 
     /**
@@ -242,7 +243,7 @@ class HashLifeAlgorithm(
         cellState: CellState,
         @IntRange(from = 0) step: Int,
     ): CellState =
-        withContext(backgroundDispatcher) {
+        withContext(dispatchers.Default) {
             computeGenerationWithStepImpl(
                 cellState = cellState.toHashLifeCellState(),
                 step = step

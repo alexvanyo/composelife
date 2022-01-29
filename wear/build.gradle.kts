@@ -4,6 +4,7 @@ plugins {
     id("com.alexvanyo.composelife.android.application.ksp")
     id("com.alexvanyo.composelife.android.application.testing")
     id("com.alexvanyo.composelife.detekt")
+    kotlin("kapt")
 }
 
 android {
@@ -13,6 +14,10 @@ android {
         targetSdk = 30
         versionCode = 1
         versionName = "1.0"
+    }
+
+    lint {
+        disable += setOf("JvmStaticProvidesInObjectDetector", "FieldSiteTargetOnQualifierAnnotation", "ModuleCompanionObjects", "ModuleCompanionObjectsNotInModuleParent")
     }
 }
 
@@ -29,6 +34,8 @@ dependencies {
     implementation(libs.jetbrains.kotlinx.coroutines.core)
     implementation(libs.sealedEnum.runtime)
     ksp(libs.sealedEnum.ksp)
+    implementation(libs.dagger.hilt.runtime)
+    kapt(libs.dagger.hilt.compiler)
 
     debugImplementation(libs.square.leakCanary)
 
@@ -45,4 +52,8 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.uiTestJunit4)
     androidTestImplementation(libs.androidx.espresso)
     androidTestImplementation(libs.androidx.test)
+}
+
+kapt {
+    correctErrorTypes = true
 }
