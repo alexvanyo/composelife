@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="unexpected_blank_line">Unexpected blank line at line %1$d</string>
+    <string name="unexpected_short_line">Line %1$d is unexpectedly short</string>
+    <string name="unexpected_character" tools:ignore="PluralsCandidate">Unexpected character on line %1$d, offset %2$d interpreted as on</string>
+</resources>

@@ -42,23 +42,33 @@ fun emptyCellState(): CellState = CellState(emptySet())
 
 fun Set<Pair<Int, Int>>.toCellState(): CellState = CellState(map(Pair<Int, Int>::toIntOffset).toSet())
 
-fun String.toCellState(topLeftOffset: IntOffset = IntOffset.Zero): CellState =
-    trimMargin()
+fun String.toCellState(
+    topLeftOffset: IntOffset = IntOffset.Zero,
+    cellStateSerializer: CellStateSerializer = PlaintextCellStateSerializer(),
+    throwOnWarnings: Boolean = true,
+): CellState {
+    val deserializationResult = trimMargin()
         .split("\n")
-        .flatMapIndexed { rowIndex, line ->
-            line
-                .withIndex()
-                .filter { (_, c) -> c != ' ' }
-                .map { (columnIndex, _) -> IntOffset(columnIndex, rowIndex) + topLeftOffset }
+        .asSequence()
+        .run(cellStateSerializer::deserializeToCellState)
+
+    return when (deserializationResult) {
+        is CellStateSerializer.DeserializationResult.Successful -> {
+            if (throwOnWarnings && deserializationResult.warnings.isNotEmpty()) {
+                throw IllegalStateException("Warnings when parsing cell state!")
+            }
+            deserializationResult.cellState.offsetBy(topLeftOffset)
         }
-        .toSet()
-        .let(::CellState)
+        is CellStateSerializer.DeserializationResult.Unsuccessful ->
+            throw IllegalStateException("Could not parse cell state!")
+    }
+}
 
 /**
  * A simple implementation of [CellState] backed by a normal [Set].
  */
 private class CellStateImpl(
-    override val aliveCells: Set<IntOffset>
+    override val aliveCells: Set<IntOffset>,
 ) : CellState() {
     override fun toString(): String = "CellStateImpl(${aliveCells.toSet()})"
 }

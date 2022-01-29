@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="no_arg_string">Zero</string>
+    <string name="one_arg_string">One: (%1$s)</string>
+    <string name="two_arg_string">Two: (%1$s) (%2$s)</string>
+    <string name="three_arg_string">Three: (%1$s) (%2$s) (%3$s)</string>
+</resources>

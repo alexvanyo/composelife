@@ -25,35 +25,35 @@ object EmptyPattern : StillLifePattern(
 object BlockPattern : StillLifePattern(
     patternName = "Block",
     """
-    |XX
-    |XX
+    |OO
+    |OO
     """.toCellState(),
 )
 
 object TubPattern : StillLifePattern(
     patternName = "Tub",
     """
-    | X
-    |X X
-    | X
+    |.O.
+    |O.O
+    |.O.
     """.toCellState(),
 )
 
 object BeeHivePattern : StillLifePattern(
     patternName = "Bee-hive",
     """
-    | XX
-    |X  X
-    | XX
+    |.OO.
+    |O..O
+    |.OO.
     """.toCellState(),
 )
 
 object PondPattern : StillLifePattern(
     patternName = "Pond",
     """
-    | XX
-    |X  X
-    |X  X
-    | XX
+    |.OO.
+    |O..O
+    |O..O
+    |.OO.
     """.toCellState(),
 )

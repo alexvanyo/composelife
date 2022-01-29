@@ -5,22 +5,22 @@ import com.alexvanyo.composelife.model.toCellState
 object BlinkerPattern : GameOfLifeTestPattern(
     patternName = "Blinker",
     """
-    |
-    |XXX
-    |
+    |...
+    |OOO
+    |...
     """.toCellState(),
     List(50) {
         if (it.rem(2) == 0) {
             """
-            | X
-            | X
-            | X
+            |.O.
+            |.O.
+            |.O.
             """.toCellState()
         } else {
             """
-            |
-            |XXX
-            |
+            |...
+            |OOO
+            |...
             """.toCellState()
         }
     }
@@ -29,25 +29,25 @@ object BlinkerPattern : GameOfLifeTestPattern(
 object ToadPattern : GameOfLifeTestPattern(
     patternName = "Toad",
     """
-    | XX
-    |X
-    |   X
-    | XX
+    |.OO.
+    |O...
+    |...O
+    |.OO.
     """.toCellState(),
     List(50) {
         if (it.rem(2) == 0) {
             """
-            | X
-            | XX
-            | XX
-            |  X
+            |.O..
+            |.OO.
+            |.OO.
+            |..O.
             """.toCellState()
         } else {
             """
-            | XX
-            |X
-            |   X
-            | XX
+            |.OO.
+            |O...
+            |...O
+            |.OO.
             """.toCellState()
         }
     }
@@ -56,25 +56,25 @@ object ToadPattern : GameOfLifeTestPattern(
 object BeaconPattern : GameOfLifeTestPattern(
     patternName = "Beacon",
     """
-    |XX
-    |X
-    |   X
-    |  XX
+    |OO..
+    |O...
+    |...O
+    |..OO
     """.toCellState(),
     List(50) {
         if (it.rem(2) == 0) {
             """
-            |XX
-            |XX
-            |  XX
-            |  XX
+            |OO..
+            |OO..
+            |..OO
+            |..OO
             """.toCellState()
         } else {
             """
-            |XX
-            |X
-            |   X
-            |  XX
+            |OO..
+            |O...
+            |...O
+            |..OO
             """.toCellState()
         }
     }
