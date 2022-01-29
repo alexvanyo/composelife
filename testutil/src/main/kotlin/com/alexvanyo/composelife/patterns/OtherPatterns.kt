@@ -6,7 +6,7 @@ import com.alexvanyo.composelife.model.toCellState
 object SingleCellPattern : GameOfLifeTestPattern(
     patternName = "Single cell",
     """
-    |X
+    |O
     """.toCellState(),
     List(50) { emptyCellState() }
 )
@@ -14,89 +14,89 @@ object SingleCellPattern : GameOfLifeTestPattern(
 object SixLongLinePattern : GameOfLifeTestPattern(
     patternName = "Six long line",
     """
-    |
-    |
-    |  XXXXXX
-    |
-    |
+    |........
+    |........
+    |..OOOOOO
+    |........
+    |........
     """.toCellState(),
     listOf(
         """
-        |
-        |   XXXX
-        |   XXXX
-        |   XXXX
-        |
+        |.......
+        |...OOOO
+        |...OOOO
+        |...OOOO
+        |.......
         """.toCellState(),
         """
-        |    XX
-        |   X  X
-        |  X    X
-        |   X  X
-        |    XX
+        |....OO..
+        |...O..O.
+        |..O....O
+        |...O..O.
+        |....OO..
         """.toCellState(),
         """
-        |    XX
-        |   XXXX
-        |  XX  XX
-        |   XXXX
-        |    XX
+        |....OO..
+        |...OOOO.
+        |..OO..OO
+        |...OOOO.
+        |....OO..
         """.toCellState(),
         """
-        |   X  X
-        |  X    X
-        |  X    X
-        |  X    X
-        |   X  X
+        |...O..O.
+        |..O....O
+        |..O....O
+        |..O....O
+        |...O..O.
         """.toCellState(),
         """
-        |
-        |  XX  XX
-        | XXX  XXX
-        |  XX  XX
-        |
+        |.........
+        |..OO..OO.
+        |.OOO..OOO
+        |..OO..OO.
+        |.........
         """.toCellState(),
         """
-        |
-        | X X  X X
-        | X  XX  X
-        | X X  X X
-        |
+        |.........
+        |.O.O..O.O
+        |.O..OO..O
+        |.O.O..O.O
+        |.........
         """.toCellState(),
         """
-        |
-        |  X XX X
-        |XX XXXX XX
-        |  X XX X
-        |
+        |..........
+        |..O.OO.O..
+        |OO.OOOO.OO
+        |..O.OO.O..
+        |..........
         """.toCellState(),
         """
-        |
-        | XX    XX
-        | X      X
-        | XX    XX
-        |
+        |.........
+        |.OO....OO
+        |.O......O
+        |.OO....OO
+        |.........
         """.toCellState(),
         """
-        |
-        | XX    XX
-        |X        X
-        | XX    XX
-        |
+        |..........
+        |.OO....OO.
+        |O........O
+        |.OO....OO.
+        |..........
         """.toCellState(),
         """
-        |
-        | X      X
-        |X        X
-        | X      X
-        |
+        |..........
+        |.O......O.
+        |O........O
+        |.O......O.
+        |..........
         """.toCellState(),
         """
-        |
-        |
-        |XX      XX
-        |
-        |
+        |..........
+        |..........
+        |OO......OO
+        |..........
+        |..........
         """.toCellState()
     ) + List(50) { emptyCellState() }
 )
