@@ -70,15 +70,14 @@ jobs:
           done
 
       - name: Run checks
-        if: matrix.sdk != '32' # TODO: Enable once Robolectric adds support
         run: ./gradlew check --stacktrace
 
       - name: Generate code coverage
-        if: matrix.sdk == '31'
+        if: matrix.sdk == '32'
         run: ./gradlew jacocoTestReport --stacktrace
 
       - name: Upload coverage to Codecov
-        if: matrix.sdk == '31'
+        if: matrix.sdk == '32'
         uses: codecov/codecov-action@v2
         with:
           directory: build/reports/jacoco
