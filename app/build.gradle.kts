@@ -19,10 +19,15 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
+
+    lint {
+        disable += setOf("JvmStaticProvidesInObjectDetector", "FieldSiteTargetOnQualifierAnnotation", "ModuleCompanionObjects", "ModuleCompanionObjectsNotInModuleParent")
+    }
 }
 
 dependencies {
     implementation(projects.algorithm)
+    implementation(projects.dispatchers)
 
     implementation(libs.accompanist.insets)
     implementation(libs.accompanist.systemuicontroller)
@@ -49,8 +54,13 @@ dependencies {
     sharedTestImplementation(libs.androidx.test.espresso)
     sharedTestImplementation(libs.androidx.test.junit)
     sharedTestImplementation(projects.testutil)
+    sharedTestImplementation(projects.dispatchersTest)
     sharedTestImplementation(libs.jetbrains.kotlinx.coroutines.test)
     sharedTestImplementation(libs.turbine)
+
+    kaptTest(libs.dagger.hilt.compiler)
+
+    kaptAndroidTest(libs.dagger.hilt.compiler)
 }
 
 kapt {
