@@ -1,5 +1,8 @@
+import com.alexvanyo.composelife.buildlogic.sharedTestImplementation
+
 plugins {
     id("com.alexvanyo.composelife.android.library")
+    id("com.alexvanyo.composelife.android.library.compose")
     id("com.alexvanyo.composelife.android.library.gradlemanageddevices")
     id("com.alexvanyo.composelife.android.library.jacoco")
     id("com.alexvanyo.composelife.android.library.testing")
@@ -17,14 +20,6 @@ dependencies {
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.compose.uiTestManifest)
 
-    testImplementation(libs.junit5.jupiter)
-    testRuntimeOnly(libs.junit5.vintageEngine)
-    testImplementation(libs.robolectric)
-    testImplementation(libs.androidx.compose.uiTestJunit4)
-
-    androidTestImplementation(libs.junit4)
-    androidTestRuntimeOnly(libs.junit5.vintageEngine)
-    androidTestImplementation(libs.androidx.compose.uiTestJunit4)
-    androidTestImplementation(libs.androidx.espresso)
-    androidTestImplementation(libs.androidx.test)
+    sharedTestImplementation(libs.androidx.test.espresso)
+    sharedTestImplementation(libs.androidx.compose.uiTestJunit4)
 }

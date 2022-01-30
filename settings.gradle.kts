@@ -25,6 +25,9 @@ dependencyResolutionManagement {
 rootProject.name = "ComposeLife"
 include(":algorithm")
 include(":app")
+include(":hilt-test")
 include(":parameterizedstring")
+include(":preferences")
+include(":preferences-test")
 include(":testutil")
 include(":wear")

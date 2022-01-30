@@ -20,7 +20,10 @@ private val coverageExclusions = listOf(
     "**/Manifest*.*",
 
     // SealedEnum
-    "**/*SealedEnum*"
+    "**/*SealedEnum*",
+
+    // protobuf
+    "**/proto/*"
 )
 
 fun Project.configureJacocoMerge() {

@@ -1,6 +1,5 @@
 package com.alexvanyo.composelife.model
 
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -25,26 +24,26 @@ class TemporalGameOfLifeStateComposableTests {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun state_is_instance_state_saved_correctly() {
+    fun state_is_instance_state_saved_correctly() = runTest {
         val stateRestorationTester = StateRestorationTester(composeTestRule)
 
-        // Extract the state from composition just for testing
-        var extractedState: TemporalGameOfLifeState? = null
+        // Extract the state from composition for testing
+        var extractedState: TemporalGameOfLifeState?
 
         stateRestorationTester.setContent {
-            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
+            extractedState = rememberTemporalGameOfLifeState(
                 cellState = PondPattern.seedCellState,
                 isRunning = false,
                 generationsPerStep = 5,
                 targetStepsPerSecond = 30.0
             )
-
-            SideEffect {
-                extractedState = temporalGameOfLifeState
-            }
         }
 
+        composeTestRule.awaitIdle()
+        extractedState = null
+
         stateRestorationTester.emulateSavedInstanceStateRestore()
+        composeTestRule.awaitIdle()
 
         val restoredState = requireNotNull(extractedState)
 

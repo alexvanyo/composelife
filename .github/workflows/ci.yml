@@ -60,10 +60,12 @@ jobs:
 
       - name: Create CI robolectric.properties
         run: |
-          mkdir algorithm/src/sharedTest/resources/com/alexvanyo/composelife
-          echo sdk=${{ matrix.sdk }} > algorithm/src/sharedTest/resources/com/alexvanyo/composelife/robolectric.properties
-          mkdir app/src/sharedTest/resources/com/alexvanyo/composelife
-          echo sdk=${{ matrix.sdk }} > app/src/sharedTest/resources/com/alexvanyo/composelife/robolectric.properties
+          robolectric_projects=($(find . -regex ".*/src/sharedTest/resources/com/alexvanyo/robolectric.properties" | grep -oP '\./(.*?)/'))
+          for project in "${robolectric_projects[@]}"
+          do
+               mkdir "$project"src/sharedTest/resources/com/alexvanyo/composelife
+               echo sdk=${{ matrix.sdk }} > "$project"src/sharedTest/resources/com/alexvanyo/composelife/robolectric.properties
+          done
 
       - name: Run checks
         run: ./gradlew check --stacktrace

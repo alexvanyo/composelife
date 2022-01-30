@@ -3,8 +3,14 @@ package com.alexvanyo.composelife.algorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.patterns.GameOfLifeTestPattern
 import com.alexvanyo.composelife.patterns.values
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.preferences.proto.Algorithm
 import com.alexvanyo.composelife.testutil.TestComposeLifeDispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -38,7 +44,25 @@ class GameOfLifeAlgorithmTests {
         override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {
             val algorithmFactories = listOf(
                 GameOfLifeAlgorithmFactory("Naive Algorithm") { NaiveGameOfLifeAlgorithm(it) },
-                GameOfLifeAlgorithmFactory("HashLife Algorithm") { HashLifeAlgorithm(it) }
+                GameOfLifeAlgorithmFactory("HashLife Algorithm") { HashLifeAlgorithm(it) },
+                GameOfLifeAlgorithmFactory("Configurable Algorithm") {
+                    ConfigurableGameOfLifeAlgorithm(
+                        preferences = object : ComposeLifePreferences {
+                            override val algorithmChoice: Flow<Algorithm> = flow {
+                                while (true) {
+                                    emit(Algorithm.HASHLIFE)
+                                    delay(10)
+                                    emit(Algorithm.NAIVE)
+                                    delay(10)
+                                }
+                            }
+
+                            override suspend fun setAlgorithmChoice(algorithm: Algorithm) = Unit
+                        },
+                        naiveGameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(it),
+                        hashLifeAlgorithm = HashLifeAlgorithm(it)
+                    )
+                }
             )
 
             return algorithmFactories.flatMap { algorithmFactory ->
@@ -65,6 +89,10 @@ class GameOfLifeAlgorithmTests {
                 originalCellState = args.testPattern.seedCellState,
                 step = 1
             )
+                .onEach {
+                    testScheduler.advanceTimeBy(10)
+                    testScheduler.runCurrent()
+                }
                 .take(args.testPattern.cellStates.size)
                 .toList()
         )
@@ -81,6 +109,10 @@ class GameOfLifeAlgorithmTests {
                 originalCellState = args.testPattern.seedCellState,
                 step = 2
             )
+                .onEach {
+                    testScheduler.advanceTimeBy(10)
+                    testScheduler.runCurrent()
+                }
                 .take(args.testPattern.cellStates.size / 2)
                 .toList()
         )

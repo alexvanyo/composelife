@@ -1,5 +1,8 @@
+import com.alexvanyo.composelife.buildlogic.sharedTestImplementation
+
 plugins {
     id("com.alexvanyo.composelife.android.library")
+    id("com.alexvanyo.composelife.android.library.compose")
     id("com.alexvanyo.composelife.android.library.gradlemanageddevices")
     id("com.alexvanyo.composelife.android.library.jacoco")
     id("com.alexvanyo.composelife.android.library.ksp")
@@ -15,7 +18,8 @@ android {
 }
 
 dependencies {
-    implementation(projects.parameterizedstring)
+    api(projects.parameterizedstring)
+    api(projects.preferences)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.compose.uiTestManifest)
@@ -27,20 +31,9 @@ dependencies {
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 
-    kspTest(libs.sealedEnum.ksp)
-    testImplementation(libs.junit5.jupiter)
-    testRuntimeOnly(libs.junit5.vintageEngine)
-    testImplementation(libs.robolectric)
-    testImplementation(libs.androidx.compose.uiTestJunit4)
-    testImplementation(libs.androidx.espresso)
-    testImplementation(libs.jetbrains.kotlinx.coroutines.test)
-    testImplementation(libs.turbine)
-    testImplementation(projects.testutil)
-
-    androidTestImplementation(libs.junit4)
-    androidTestRuntimeOnly(libs.junit5.vintageEngine)
-    androidTestImplementation(libs.androidx.compose.uiTestJunit4)
-    androidTestImplementation(libs.androidx.espresso)
-    androidTestImplementation(libs.androidx.test)
-    androidTestImplementation(projects.testutil)
+    sharedTestImplementation(libs.jetbrains.kotlinx.coroutines.test)
+    sharedTestImplementation(libs.turbine)
+    sharedTestImplementation(libs.androidx.compose.uiTestJunit4)
+    sharedTestImplementation(libs.androidx.test.espresso)
+    sharedTestImplementation(projects.testutil)
 }
