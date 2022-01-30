@@ -39,6 +39,7 @@ jobs:
           - 29
           - 30
           - 31
+          - 32
 
     steps:
       - name: Checkout
@@ -68,6 +69,7 @@ jobs:
           done
 
       - name: Run checks
+        if: matrix.sdk != '32'
         run: ./gradlew check --stacktrace
 
       - name: Generate code coverage
