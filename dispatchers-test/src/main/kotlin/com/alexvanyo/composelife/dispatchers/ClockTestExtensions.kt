@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife.testutil
+package com.alexvanyo.composelife.dispatchers
 
 import androidx.compose.ui.test.MainTestClock
 import kotlinx.coroutines.ExperimentalCoroutinesApi

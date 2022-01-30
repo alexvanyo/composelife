@@ -4,10 +4,10 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import app.cash.turbine.test
 import com.alexvanyo.composelife.algorithm.NaiveGameOfLifeAlgorithm
+import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
+import com.alexvanyo.composelife.dispatchers.schedulerClock
 import com.alexvanyo.composelife.patterns.SingleCellPattern
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
-import com.alexvanyo.composelife.testutil.TestComposeLifeDispatchers
-import com.alexvanyo.composelife.testutil.schedulerClock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher

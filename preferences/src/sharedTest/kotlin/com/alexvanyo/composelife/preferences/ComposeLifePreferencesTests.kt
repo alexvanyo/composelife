@@ -5,8 +5,13 @@ import app.cash.turbine.test
 import com.alexvanyo.composelife.preferences.proto.Algorithm
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -25,14 +30,22 @@ class ComposeLifePreferencesTests {
     @Inject
     lateinit var composeLifePreferences: ComposeLifePreferences
 
+    @Inject
+    lateinit var testDispatcher: TestDispatcher
+
     @Before
     fun setup() {
         hiltAndroidRule.inject()
+        Dispatchers.setMain(testDispatcher)
     }
 
-    // TODO: Replace with runTest
+    @After
+    fun teardown() {
+        Dispatchers.resetMain()
+    }
+
     @Test
-    fun default_value_is_unknown() = runBlocking {
+    fun default_value_is_unknown() = runTest {
         composeLifePreferences.algorithmChoice.test {
             assertEquals(Algorithm.UNKNOWN, awaitItem())
 

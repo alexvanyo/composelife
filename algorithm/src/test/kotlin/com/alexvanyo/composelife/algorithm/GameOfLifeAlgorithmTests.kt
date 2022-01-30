@@ -1,11 +1,11 @@
 package com.alexvanyo.composelife.algorithm
 
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.patterns.GameOfLifeTestPattern
 import com.alexvanyo.composelife.patterns.values
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.proto.Algorithm
-import com.alexvanyo.composelife.testutil.TestComposeLifeDispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow

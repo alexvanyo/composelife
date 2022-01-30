@@ -15,11 +15,16 @@ android {
     defaultConfig {
         minSdk = 21
     }
+
+    lint {
+        disable += setOf("JvmStaticProvidesInObjectDetector", "FieldSiteTargetOnQualifierAnnotation", "ModuleCompanionObjects", "ModuleCompanionObjectsNotInModuleParent")
+    }
 }
 
 dependencies {
     api(projects.parameterizedstring)
     api(projects.preferences)
+    api(projects.dispatchers)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.compose.uiTestManifest)
@@ -31,9 +36,14 @@ dependencies {
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 
+    sharedTestImplementation(projects.dispatchersTest)
     sharedTestImplementation(libs.jetbrains.kotlinx.coroutines.test)
     sharedTestImplementation(libs.turbine)
     sharedTestImplementation(libs.androidx.compose.uiTestJunit4)
     sharedTestImplementation(libs.androidx.test.espresso)
     sharedTestImplementation(projects.testutil)
+
+    kaptTest(libs.dagger.hilt.compiler)
+
+    kaptAndroidTest(libs.dagger.hilt.compiler)
 }
