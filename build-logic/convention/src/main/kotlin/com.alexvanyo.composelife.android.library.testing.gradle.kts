@@ -7,3 +7,9 @@ plugins {
 android {
     configureTesting(this)
 }
+
+fun DependencyHandlerScope.sharedTestImplementation(dependencyNotation: Any) {
+    testImplementation(dependencyNotation)
+
+    androidTestImplementation(dependencyNotation)
+}

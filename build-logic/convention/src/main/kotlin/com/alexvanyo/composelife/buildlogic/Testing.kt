@@ -2,6 +2,10 @@ package com.alexvanyo.composelife.buildlogic
 
 import com.android.build.gradle.TestedExtension
 import org.gradle.api.Project
+import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.kotlin.dsl.DependencyHandlerScope
+import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 
 fun Project.configureTesting(
@@ -9,7 +13,7 @@ fun Project.configureTesting(
 ) {
     testedExtension.apply {
         defaultConfig {
-            testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            testInstrumentationRunner = "com.alexvanyo.composelife.HiltTestRunner"
         }
 
         testOptions {
@@ -46,6 +50,19 @@ fun Project.configureTesting(
         }
     }
 
+    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+
+    dependencies {
+        add("testImplementation", libs.findLibrary("junit5.jupiter").get())
+        add("testRuntimeOnly", libs.findLibrary("junit5.vintageEngine").get())
+        add("testImplementation", libs.findLibrary("robolectric").get())
+
+        add("androidTestImplementation", libs.findLibrary("junit4").get())
+        add("androidTestRuntimeOnly", libs.findLibrary("junit5.vintageEngine").get())
+
+        sharedTestImplementation(project(":hilt-test"))
+    }
+
     this.tasks.apply {
         withType<org.gradle.api.tasks.testing.Test> {
             useJUnitPlatform()
@@ -54,4 +71,10 @@ fun Project.configureTesting(
             systemProperty("robolectric.logging", "stdout")
         }
     }
+}
+
+fun DependencyHandlerScope.sharedTestImplementation(dependencyNotation: Any) {
+    add("testImplementation", dependencyNotation)
+
+    add("androidTestImplementation", dependencyNotation)
 }

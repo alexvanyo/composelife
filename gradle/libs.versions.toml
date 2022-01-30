@@ -4,10 +4,12 @@ androidDesugarJdkLibs = "1.1.5"
 androidGradlePlugin = "7.2.0-beta01"
 androidxActivity = "1.5.0-alpha01"
 androidxCore = "1.8.0-alpha03"
-androidxEspresso = "3.5.0-alpha03"
+androidxDataStore = "1.0.0"
 androidxHilt = "1.0.0"
 androidxLifecycle = "2.5.0-alpha01"
-androidxTest = "1.1.4-alpha03"
+androidxTest = "1.4.1-alpha03"
+androidxTestEspresso = "3.5.0-alpha03"
+androidxTestExt = "1.1.4-alpha03"
 androidxWearWatchface = "1.1.0-alpha02"
 compose = "1.2.0-alpha02"
 dagger = "2.40.5"
@@ -20,6 +22,8 @@ jacoco = "0.8.7"
 junit4 = "4.13.2"
 junit5 = "5.8.2"
 leakCanary = "2.8.1"
+protobuf = "3.19.4"
+protobufPlugin = "0.8.18"
 robolectric = "4.7.3"
 sealedEnum = "0.4.0"
 turbine = "0.7.0"
@@ -39,13 +43,16 @@ androidx-compose-uiTooling = { group = "androidx.compose.ui", name = "ui-tooling
 androidx-compose-uiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "compose" }
 androidx-compose-uiTestManifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "compose" }
 androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
-androidx-espresso = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxEspresso" }
+androidx-dataStore = { group = "androidx.datastore", name = "datastore", version.ref = "androidxDataStore" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHilt" }
 androidx-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
-androidx-test = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTest" }
+androidx-test-espresso = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxTestEspresso" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTest" }
+androidx-test-junit = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "androidxTestExt" }
 androidx-wear-watchface = { group = "androidx.wear.watchface", name = "watchface", version.ref = "androidxWearWatchface" }
-dagger-hilt-runtime = { group = "com.google.dagger", name = "hilt-android", version.ref = "dagger" }
 dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "dagger" }
+dagger-hilt-runtime = { group = "com.google.dagger", name = "hilt-android", version.ref = "dagger" }
+dagger-hilt-test = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "dagger" }
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt"}
 detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt"}
 jetbrains-kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
@@ -56,6 +63,8 @@ jetbrains-kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name =
 jetbrains-kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 jetbrains-kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+protobuf-protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "protobuf" }
+protobuf-runtime = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobuf" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 sealedEnum-ksp = { group = "com.github.livefront.sealed-enum", name = "ksp", version.ref = "sealedEnum" }
 sealedEnum-runtime = { group = "com.github.livefront.sealed-enum", name = "runtime", version.ref = "sealedEnum" }
@@ -65,3 +74,4 @@ turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine
 [plugins]
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }

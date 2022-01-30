@@ -31,14 +31,6 @@ fun Project.configureKotlinAndroid(
             targetCompatibility = JavaVersion.VERSION_1_8
             isCoreLibraryDesugaringEnabled = true
         }
-
-        buildFeatures {
-            compose = true
-        }
-
-        composeOptions {
-            kotlinCompilerExtensionVersion = libs.findVersion("compose").get().toString()
-        }
     }
 
     dependencies {
