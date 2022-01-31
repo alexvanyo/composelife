@@ -1,3 +1,4 @@
+import com.alexvanyo.composelife.buildlogic.kaptSharedTest
 import com.alexvanyo.composelife.buildlogic.sharedTestImplementation
 
 plugins {
@@ -27,8 +28,5 @@ dependencies {
     kapt(libs.dagger.hilt.compiler)
 
     sharedTestImplementation(libs.androidx.test.junit)
-
-    kaptTest(libs.dagger.hilt.compiler)
-
-    kaptAndroidTest(libs.dagger.hilt.compiler)
+    kaptSharedTest(libs.dagger.hilt.compiler)
 }

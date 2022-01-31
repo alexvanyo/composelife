@@ -73,8 +73,18 @@ fun Project.configureTesting(
     }
 }
 
+/**
+ * Adds the given dependency to both `testImplementation` and `androidTestImplementation`.
+ */
 fun DependencyHandlerScope.sharedTestImplementation(dependencyNotation: Any) {
     add("testImplementation", dependencyNotation)
-
     add("androidTestImplementation", dependencyNotation)
+}
+
+/**
+ * Adds the given dependency to both `kaptTest` and `kaptAndroidTest`.
+ */
+fun DependencyHandlerScope.kaptSharedTest(dependencyNotation: Any) {
+    add("kaptTest", dependencyNotation)
+    add("kaptAndroidTest", dependencyNotation)
 }
