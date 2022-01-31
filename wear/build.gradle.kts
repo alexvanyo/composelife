@@ -32,9 +32,9 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle)
     implementation(libs.androidx.wear.watchface)
-    implementation(libs.jetbrains.kotlinx.datetime)
-    implementation(libs.jetbrains.kotlinx.coroutines.android)
-    implementation(libs.jetbrains.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.datetime)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.core)
     implementation(libs.sealedEnum.runtime)
     ksp(libs.sealedEnum.ksp)
     implementation(libs.dagger.hilt.runtime)
@@ -44,7 +44,7 @@ dependencies {
 
     sharedTestImplementation(libs.androidx.compose.uiTestJunit4)
     sharedTestImplementation(libs.androidx.test.espresso)
-    sharedTestImplementation(libs.jetbrains.kotlinx.coroutines.test)
+    sharedTestImplementation(libs.kotlinx.coroutines.test)
     sharedTestImplementation(libs.turbine)
 }
 

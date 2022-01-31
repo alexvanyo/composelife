@@ -11,8 +11,8 @@ android {
 }
 
 dependencies {
-    implementation(libs.jetbrains.kotlinx.coroutines.android)
-    implementation(libs.jetbrains.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.core)
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 }
