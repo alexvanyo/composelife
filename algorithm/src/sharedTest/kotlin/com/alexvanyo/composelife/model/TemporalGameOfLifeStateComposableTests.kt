@@ -4,24 +4,53 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.dispatchers.dateTimeClock
 import com.alexvanyo.composelife.patterns.PondPattern
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
-import com.alexvanyo.composelife.testutil.TestComposeLifeDispatchers
-import com.alexvanyo.composelife.testutil.dateTimeClock
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class TemporalGameOfLifeStateComposableTests {
 
     @get:Rule
+    val hiltAndroidRule = HiltAndroidRule(this)
+
+    @get:Rule
     val composeTestRule = createComposeRule()
+
+    @Inject
+    lateinit var testDispatcher: TestDispatcher
+
+    @Inject
+    lateinit var dispatchers: ComposeLifeDispatchers
+
+    @Before
+    fun setup() {
+        hiltAndroidRule.inject()
+        Dispatchers.setMain(testDispatcher)
+    }
+
+    @After
+    fun teardown() {
+        Dispatchers.resetMain()
+    }
 
     @Test
     fun state_is_instance_state_saved_correctly() = runTest {
@@ -55,8 +84,6 @@ class TemporalGameOfLifeStateComposableTests {
 
     @Test
     fun state_is_advanced_correctly() = runTest {
-        val dispatchers = TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
-
         val temporalGameOfLifeState = TemporalGameOfLifeState(
             cellState = SixLongLinePattern.seedCellState,
             isRunning = true,

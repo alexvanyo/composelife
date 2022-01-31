@@ -4,8 +4,11 @@ import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.Serializer
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.preferences.proto.Preferences
 import com.google.protobuf.InvalidProtocolBufferException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -19,6 +22,7 @@ annotation class PreferencesProto
 @Singleton
 class PreferencesDataStore @Inject constructor(
     @PreferencesProto file: File,
+    dispatchers: ComposeLifeDispatchers
 ) : DataStore<Preferences> by DataStoreFactory.create(
     serializer = object : Serializer<Preferences> {
         override val defaultValue: Preferences = Preferences.getDefaultInstance()
@@ -35,5 +39,6 @@ class PreferencesDataStore @Inject constructor(
         override suspend fun writeTo(t: Preferences, output: OutputStream) =
             t.writeTo(output)
     },
+    scope = CoroutineScope(dispatchers.IO + SupervisorJob()),
     produceFile = { file }
 )

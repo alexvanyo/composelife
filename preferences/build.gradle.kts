@@ -22,14 +22,16 @@ android {
 }
 
 dependencies {
+    api(projects.dispatchers)
     api(libs.protobuf.runtime)
     api(libs.jetbrains.kotlinx.coroutines.core)
     api(libs.jetbrains.kotlinx.coroutines.android)
-    implementation(libs.androidx.dataStore)
+    api(libs.androidx.dataStore)
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 
     sharedTestImplementation(projects.preferencesTest)
+    sharedTestImplementation(projects.dispatchersTest)
     sharedTestImplementation(libs.androidx.test.junit)
     sharedTestImplementation(libs.androidx.test.runner)
     sharedTestImplementation(libs.jetbrains.kotlinx.coroutines.test)
