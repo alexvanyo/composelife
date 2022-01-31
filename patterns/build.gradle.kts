@@ -13,9 +13,6 @@ android {
 dependencies {
     implementation(projects.algorithm)
     implementation(libs.androidx.compose.foundation)
-    implementation(libs.androidx.compose.uiTestJunit4)
     implementation(libs.sealedEnum.runtime)
-    implementation(libs.jetbrains.kotlinx.coroutines.test)
-    implementation(libs.jetbrains.kotlinx.datetime)
     ksp(libs.sealedEnum.ksp)
 }

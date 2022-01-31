@@ -51,11 +51,12 @@ dependencies {
 
     debugImplementation(libs.square.leakCanary)
 
+    sharedTestImplementation(projects.dispatchersTest)
+    sharedTestImplementation(projects.patterns)
+    sharedTestImplementation(projects.screenshotTest)
     sharedTestImplementation(libs.androidx.compose.uiTestJunit4)
     sharedTestImplementation(libs.androidx.test.espresso)
     sharedTestImplementation(libs.androidx.test.junit)
-    sharedTestImplementation(projects.testutil)
-    sharedTestImplementation(projects.dispatchersTest)
     sharedTestImplementation(libs.jetbrains.kotlinx.coroutines.test)
     sharedTestImplementation(libs.turbine)
     kaptSharedTest(libs.dagger.hilt.compiler)

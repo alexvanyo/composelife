@@ -36,18 +36,6 @@ fun Project.configureTesting(
                 res.srcDir(sharedResDir)
             }
         }
-
-        // Workaround for https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-debug/README.md#build-failures-due-to-duplicate-resource-files
-        packagingOptions {
-            resources.excludes.addAll(
-                listOf(
-                    "/META-INF/AL2.0",
-                    "/META-INF/LGPL2.1",
-                    "/META-INF/LICENSE.md",
-                    "/META-INF/LICENSE-notice.md"
-                )
-            )
-        }
     }
 
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
