@@ -52,4 +52,17 @@ class ComposeLifePreferencesTests {
             cancel()
         }
     }
+
+    @Test
+    fun setting_value_updates_value() = runTest {
+        composeLifePreferences.algorithmChoice.test {
+            assertEquals(Algorithm.UNKNOWN, awaitItem())
+
+            composeLifePreferences.setAlgorithmChoice(Algorithm.HASHLIFE)
+
+            assertEquals(Algorithm.HASHLIFE, awaitItem())
+
+            cancel()
+        }
+    }
 }
