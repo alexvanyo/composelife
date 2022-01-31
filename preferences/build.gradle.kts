@@ -1,3 +1,4 @@
+import com.alexvanyo.composelife.buildlogic.kaptSharedTest
 import com.alexvanyo.composelife.buildlogic.sharedTestImplementation
 import com.google.protobuf.gradle.protobuf
 
@@ -36,10 +37,7 @@ dependencies {
     sharedTestImplementation(libs.androidx.test.runner)
     sharedTestImplementation(libs.jetbrains.kotlinx.coroutines.test)
     sharedTestImplementation(libs.turbine)
-
-    kaptTest(libs.dagger.hilt.compiler)
-
-    kaptAndroidTest(libs.dagger.hilt.compiler)
+    kaptSharedTest(libs.dagger.hilt.compiler)
 }
 
 protobuf {
