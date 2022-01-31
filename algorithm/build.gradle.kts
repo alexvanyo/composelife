@@ -38,10 +38,10 @@ dependencies {
     kapt(libs.dagger.hilt.compiler)
 
     sharedTestImplementation(projects.dispatchersTest)
-    sharedTestImplementation(libs.jetbrains.kotlinx.coroutines.test)
-    sharedTestImplementation(libs.turbine)
+    sharedTestImplementation(projects.patterns)
     sharedTestImplementation(libs.androidx.compose.uiTestJunit4)
     sharedTestImplementation(libs.androidx.test.espresso)
-    sharedTestImplementation(projects.testutil)
+    sharedTestImplementation(libs.jetbrains.kotlinx.coroutines.test)
+    sharedTestImplementation(libs.turbine)
     kaptSharedTest(libs.dagger.hilt.compiler)
 }
