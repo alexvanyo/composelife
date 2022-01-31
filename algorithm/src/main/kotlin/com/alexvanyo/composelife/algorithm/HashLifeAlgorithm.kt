@@ -4,7 +4,12 @@ import androidx.annotation.IntRange
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.CellState
+import com.google.common.base.Ticker
+import com.google.common.cache.CacheBuilder
+import com.google.common.cache.CacheLoader
+import com.google.common.cache.LoadingCache
 import kotlinx.coroutines.withContext
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.ceil
 import kotlin.math.log2
@@ -15,27 +20,50 @@ class HashLifeAlgorithm @Inject constructor(
 ) : GameOfLifeAlgorithm {
 
     /**
+     * The current number of computed generations.
+     *
+     * Note this does not have any direct relation to the current generation count of a specific genealogy, since
+     * this same instance can be used to compute multiple genealogies.
+     *
+     * This value is used to prune the caches of [canonicalCellMap] and [cellMap].
+     */
+    private var computedGenerations = 0L
+
+    /**
+     * An implementation of [Ticker] backed by [computedGenerations].
+     *
+     * This is a slight misuse of the [Ticker] API, since [computedGenerations] has no relation to nanoseconds.
+     * However, we can use this to expire entries after a set number of generations.
+     */
+    private val computedGenerationTicker = object : Ticker() {
+        override fun read(): Long = computedGenerations
+    }
+
+    /**
      * The map containing the "canonical" [MacroCell.CellNode]s. This ensures that there is exactly one instance of
      * each equivalent [MacroCell.CellNode] (which makes comparing [MacroCell.CellNode]s possible with just reference
      * checking).
-     *
-     * TODO: Prune this map as needed.
      */
-    private val canonicalCellMap = mutableMapOf<MacroCell.CellNode, MacroCell.CellNode>()
+    private val canonicalCellMap: LoadingCache<MacroCell.CellNode, MacroCell.CellNode> = CacheBuilder.newBuilder()
+        .ticker(computedGenerationTicker)
+        .expireAfterAccess(256, TimeUnit.NANOSECONDS)
+        .build(
+            object : CacheLoader<MacroCell.CellNode, MacroCell.CellNode>() {
+                override fun load(key: MacroCell.CellNode): MacroCell.CellNode = key.makeCanonical(false)
+            }
+        )
 
     /**
      * The memoization map for [MacroCell.CellNode.computeNextGeneration].
-     *
-     * TODO: Prune this map as needed.
      */
-    private val cellMap = mutableMapOf<MacroCell.CellNode, MacroCell.CellNode>()
-
-    /**
-     * The memoization map for [MacroCell.size].
-     *
-     * TODO: Prune this map as needed.
-     */
-    private val cellSizeMap = mutableMapOf<MacroCell.CellNode, Int>()
+    private val cellMap: LoadingCache<MacroCell.CellNode, MacroCell.CellNode> = CacheBuilder.newBuilder()
+        .ticker(computedGenerationTicker)
+        .expireAfterAccess(256, TimeUnit.NANOSECONDS)
+        .build(
+            object : CacheLoader<MacroCell.CellNode, MacroCell.CellNode>() {
+                override fun load(key: MacroCell.CellNode): MacroCell.CellNode = key.computeNextGeneration(false)
+            }
+        )
 
     /**
      * Computes the next generation for the given [MacroCell.CellNode].
@@ -46,10 +74,11 @@ class HashLifeAlgorithm @Inject constructor(
      * This function is memoized by [cellMap].
      */
     @Suppress("LongMethod", "ComplexMethod")
-    private fun MacroCell.CellNode.computeNextGeneration(): MacroCell.CellNode {
+    private fun MacroCell.CellNode.computeNextGeneration(useMap: Boolean = true): MacroCell.CellNode {
         require(level >= 2)
-        val alreadyComputed = cellMap[this]
-        if (alreadyComputed != null) return alreadyComputed
+        if (useMap) {
+            return cellMap[this]
+        }
 
         nw as MacroCell.CellNode
         ne as MacroCell.CellNode
@@ -179,7 +208,6 @@ class HashLifeAlgorithm @Inject constructor(
             ).makeCanonical()
         }
 
-        cellMap[this] = computed
         return computed
     }
 
@@ -257,8 +285,10 @@ class HashLifeAlgorithm @Inject constructor(
         if (step == 0) {
             cellState
         } else {
+            val nextGeneration = computeNextGeneration(cellState)
+            computedGenerations++
             computeGenerationWithStepImpl(
-                cellState = computeNextGeneration(cellState),
+                cellState = nextGeneration,
                 step = step - 1
             )
         }
@@ -293,18 +323,18 @@ class HashLifeAlgorithm @Inject constructor(
             node.se.se as MacroCell.CellNode
 
             @Suppress("ComplexCondition")
-            if (node.nw.nw.size() == 0 && node.nw.ne.size() == 0 && node.nw.ne.size() == 0 &&
-                node.nw.se.nw.size() == 0 && node.nw.se.ne.size() == 0 && node.nw.se.sw.size() == 0 &&
-                node.ne.nw.size() == 0 && node.ne.ne.size() == 0 && node.ne.se.size() == 0 &&
-                node.ne.sw.nw.size() == 0 && node.ne.sw.ne.size() == 0 && node.ne.sw.se.size() == 0 &&
-                node.sw.nw.size() == 0 && node.sw.sw.size() == 0 && node.sw.se.size() == 0 &&
-                node.sw.ne.nw.size() == 0 && node.sw.ne.sw.size() == 0 && node.sw.ne.se.size() == 0 &&
-                node.se.ne.size() == 0 && node.se.sw.size() == 0 && node.se.se.size() == 0 &&
-                node.se.nw.ne.size() == 0 && node.se.nw.sw.size() == 0 && node.se.nw.se.size() == 0
+            if (node.nw.nw.size == 0 && node.nw.ne.size == 0 && node.nw.ne.size == 0 &&
+                node.nw.se.nw.size == 0 && node.nw.se.ne.size == 0 && node.nw.se.sw.size == 0 &&
+                node.ne.nw.size == 0 && node.ne.ne.size == 0 && node.ne.se.size == 0 &&
+                node.ne.sw.nw.size == 0 && node.ne.sw.ne.size == 0 && node.ne.sw.se.size == 0 &&
+                node.sw.nw.size == 0 && node.sw.sw.size == 0 && node.sw.se.size == 0 &&
+                node.sw.ne.nw.size == 0 && node.sw.ne.sw.size == 0 && node.sw.ne.se.size == 0 &&
+                node.se.ne.size == 0 && node.se.sw.size == 0 && node.se.se.size == 0 &&
+                node.se.nw.ne.size == 0 && node.se.nw.sw.size == 0 && node.se.nw.se.size == 0
             ) {
                 return HashLifeCellState(
                     offset = cellState.offset + IntOffset(1 shl (node.level - 2), 1 shl (node.level - 2)),
-                    macroCell = cellState.macroCell.computeNextGeneration()
+                    macroCell = cellState.macroCell.makeCanonical().computeNextGeneration()
                 )
             }
         }
@@ -313,17 +343,6 @@ class HashLifeAlgorithm @Inject constructor(
         // (due to an expanding pattern), expand the main macro cell and compute.
         return computeNextGeneration(cellState.expandCentered())
     }
-
-    private fun MacroCell.size(): Int =
-        when (this) {
-            MacroCell.Cell.AliveCell -> 1
-            MacroCell.Cell.DeadCell -> 0
-            is MacroCell.CellNode -> {
-                cellSizeMap.getOrPut(this) {
-                    nw.size() + ne.size() + sw.size() + se.size()
-                }
-            }
-        }
 
     private fun HashLifeCellState.expandCentered(): HashLifeCellState {
         val node = macroCell as MacroCell.CellNode
@@ -341,8 +360,8 @@ class HashLifeAlgorithm @Inject constructor(
                     ne = smallerLevelEmptyCell,
                     sw = smallerLevelEmptyCell,
                     se = node.nw
-                ).makeCanonical()
-            ).makeCanonical(),
+                )
+            ),
             ne = MacroCell.CellNode(
                 nw = sameLevelEmptyCell,
                 ne = sameLevelEmptyCell,
@@ -351,9 +370,9 @@ class HashLifeAlgorithm @Inject constructor(
                     ne = smallerLevelEmptyCell,
                     sw = node.ne,
                     se = smallerLevelEmptyCell
-                ).makeCanonical(),
+                ),
                 se = sameLevelEmptyCell
-            ).makeCanonical(),
+            ),
             sw = MacroCell.CellNode(
                 nw = sameLevelEmptyCell,
                 ne = MacroCell.CellNode(
@@ -361,22 +380,22 @@ class HashLifeAlgorithm @Inject constructor(
                     ne = node.sw,
                     sw = smallerLevelEmptyCell,
                     se = smallerLevelEmptyCell
-                ).makeCanonical(),
+                ),
                 sw = sameLevelEmptyCell,
                 se = sameLevelEmptyCell
-            ).makeCanonical(),
+            ),
             se = MacroCell.CellNode(
                 nw = MacroCell.CellNode(
                     nw = node.se,
                     ne = smallerLevelEmptyCell,
                     sw = smallerLevelEmptyCell,
                     se = smallerLevelEmptyCell
-                ).makeCanonical(),
+                ),
                 ne = sameLevelEmptyCell,
                 sw = sameLevelEmptyCell,
                 se = sameLevelEmptyCell
-            ).makeCanonical()
-        )
+            )
+        ).makeCanonical()
 
         val offsetDiff = 3 * (1 shl (node.level - 1))
 
@@ -426,8 +445,8 @@ class HashLifeAlgorithm @Inject constructor(
                 smallerEmptyMacroCell,
                 smallerEmptyMacroCell,
                 smallerEmptyMacroCell
-            ).makeCanonical()
-        }
+            )
+        }.makeCanonical()
 
     private fun createMacroCell(cellState: CellState, offset: IntOffset, level: Int): MacroCell =
         if (level == 0) {
@@ -443,8 +462,8 @@ class HashLifeAlgorithm @Inject constructor(
                 createMacroCell(cellState, offset + IntOffset(offsetDiff, 0), level - 1),
                 createMacroCell(cellState, offset + IntOffset(0, offsetDiff), level - 1),
                 createMacroCell(cellState, offset + IntOffset(offsetDiff, offsetDiff), level - 1),
-            ).makeCanonical()
-        }
+            )
+        }.makeCanonical()
 
     private fun MacroCell.withCell(target: IntOffset, isAlive: Boolean): MacroCell =
         when (this) {
@@ -468,14 +487,14 @@ class HashLifeAlgorithm @Inject constructor(
                             ne = ne,
                             sw = sw,
                             se = se
-                        ).makeCanonical()
+                        )
                     } else {
                         MacroCell.CellNode(
                             nw = nw,
                             ne = ne.withCell(target + IntOffset(-offsetDiff, 0), isAlive),
                             sw = sw,
                             se = se
-                        ).makeCanonical()
+                        )
                     }
                 } else {
                     if (isWest) {
@@ -484,18 +503,18 @@ class HashLifeAlgorithm @Inject constructor(
                             ne = ne,
                             sw = sw.withCell(target + IntOffset(0, -offsetDiff), isAlive),
                             se = se
-                        ).makeCanonical()
+                        )
                     } else {
                         MacroCell.CellNode(
                             nw = nw,
                             ne = ne,
                             sw = sw,
                             se = se.withCell(target + IntOffset(-offsetDiff, -offsetDiff), isAlive)
-                        ).makeCanonical()
+                        )
                     }
                 }
             }
-        }
+        }.makeCanonical()
 
     private fun MacroCell.iterator(
         offset: IntOffset,
@@ -525,7 +544,7 @@ class HashLifeAlgorithm @Inject constructor(
                 false
             }
             is MacroCell.CellNode -> {
-                if (size() == 0) {
+                if (size == 0) {
                     false
                 } else {
                     val offsetDiff = 1 shl (level - 1)
@@ -548,8 +567,23 @@ class HashLifeAlgorithm @Inject constructor(
             }
         }
 
-    private fun MacroCell.CellNode.makeCanonical(): MacroCell.CellNode =
-        canonicalCellMap.getOrPut(this) { this }
+    private fun MacroCell.makeCanonical(useMap: Boolean = true): MacroCell =
+        when (this) {
+            is MacroCell.Cell -> this
+            is MacroCell.CellNode -> makeCanonical(useMap)
+        }
+
+    private fun MacroCell.CellNode.makeCanonical(useMap: Boolean = true): MacroCell.CellNode =
+        if (useMap) {
+            canonicalCellMap[this]
+        } else {
+            MacroCell.CellNode(
+                nw = nw.makeCanonical(),
+                ne = ne.makeCanonical(),
+                sw = sw.makeCanonical(),
+                se = se.makeCanonical()
+            )
+        }
 
     private inner class HashLifeCellState(
         val offset: IntOffset,
@@ -561,9 +595,7 @@ class HashLifeAlgorithm @Inject constructor(
         }
 
         override val aliveCells: Set<IntOffset> = object : Set<IntOffset> {
-            override val size: Int by lazy {
-                macroCell.size()
-            }
+            override val size: Int = macroCell.size
 
             override fun contains(element: IntOffset): Boolean {
                 val target = element - offset
@@ -616,6 +648,8 @@ private sealed class MacroCell {
 
     abstract val level: Int
 
+    abstract val size: Int
+
     sealed class Cell : MacroCell() {
 
         override val level = 0
@@ -624,10 +658,14 @@ private sealed class MacroCell {
 
         object AliveCell : Cell() {
             override val isAlive = true
+
+            override val size: Int = 1
         }
 
         object DeadCell : Cell() {
             override val isAlive = false
+
+            override val size: Int = 0
         }
     }
 
@@ -639,7 +677,9 @@ private sealed class MacroCell {
     ) : MacroCell() {
         override val level = nw.level + 1
 
-        val hashCode by lazy {
+        override val size = nw.size + ne.size + sw.size + se.size
+
+        val hashCode = run {
             var hash = level
             hash *= 31
             hash += nw.hashCode()

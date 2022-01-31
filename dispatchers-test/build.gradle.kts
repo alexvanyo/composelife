@@ -13,8 +13,8 @@ android {
 dependencies {
     api(projects.dispatchers)
     api(libs.androidx.compose.uiTestJunit4)
-    api(libs.jetbrains.kotlinx.coroutines.test)
-    api(libs.jetbrains.kotlinx.datetime)
+    api(libs.kotlinx.coroutines.test)
+    api(libs.kotlinx.datetime)
     api(libs.dagger.hilt.runtime)
     api(libs.dagger.hilt.test)
     api(libs.androidx.test.junit)
