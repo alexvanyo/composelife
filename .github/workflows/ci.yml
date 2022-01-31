@@ -179,11 +179,12 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: |
-            adb logcat -c                               # clear logs
-            touch emulator.log                          # create log file
-            chmod 777 emulator.log                      # allow writing to log file
-            adb logcat >> emulator.log &                # output logs to the log file
-            ./gradlew connectedCheck --stacktrace       # run the tests
+            adb logcat -c                                                              # clear logs
+            touch emulator.log                                                         # create log file
+            chmod 777 emulator.log                                                     # allow writing to log file
+            adb logcat >> emulator.log &                                               # output logs to the log file
+             # run the tests, with one retry attempt
+            (echo "==== Attempt 1 ====" && ./gradlew connectedCheck --stacktrace) || (echo "==== Attempt 2 ====" && ./gradlew connectedCheck --stacktrace) || (echo "==== Both attempts failed ====" && exit 1)
 
       - name: Upload failing test logs
         uses: actions/upload-artifact@v2
