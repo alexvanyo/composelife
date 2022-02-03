@@ -3,6 +3,7 @@ package com.alexvanyo.composelife.preferences
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
 import com.alexvanyo.composelife.preferences.proto.Algorithm
+import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +26,13 @@ import javax.inject.Inject
 class ComposeLifePreferencesTests {
 
     @get:Rule
+    val preferencesRule = PreferencesRule()
+    
+    @get:Rule
     val hiltAndroidRule = HiltAndroidRule(this)
+
+    @BindValue
+    val fileProvider = preferencesRule.fileProvider
 
     @Inject
     lateinit var composeLifePreferences: ComposeLifePreferences

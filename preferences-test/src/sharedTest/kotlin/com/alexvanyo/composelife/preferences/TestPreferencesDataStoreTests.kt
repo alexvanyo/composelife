@@ -3,6 +3,7 @@ package com.alexvanyo.composelife.preferences
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Assert.assertTrue
@@ -16,10 +17,17 @@ import javax.inject.Inject
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class TestPreferencesDataStoreTests {
+
+    private val context = ApplicationProvider.getApplicationContext<Application>()
+
+    @get:Rule
+    val preferencesRule = PreferencesRule()
+
     @get:Rule
     val hiltAndroidRule = HiltAndroidRule(this)
 
-    private val context = ApplicationProvider.getApplicationContext<Application>()
+    @BindValue
+    val fileProvider: FileProvider = preferencesRule.fileProvider
 
     @Inject
     @PreferencesProto
