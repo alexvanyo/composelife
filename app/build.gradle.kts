@@ -8,6 +8,7 @@ plugins {
     id("com.alexvanyo.composelife.android.application.jacoco")
     id("com.alexvanyo.composelife.android.application.ksp")
     id("com.alexvanyo.composelife.android.application.testing")
+    id("com.alexvanyo.composelife.arrowanalysis")
     id("com.alexvanyo.composelife.detekt")
     kotlin("kapt")
 }

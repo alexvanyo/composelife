@@ -6,6 +6,7 @@ plugins {
     id("com.alexvanyo.composelife.android.library.gradlemanageddevices")
     id("com.alexvanyo.composelife.android.library.jacoco")
     id("com.alexvanyo.composelife.android.library.testing")
+    id("com.alexvanyo.composelife.arrowanalysis")
     id("com.alexvanyo.composelife.detekt")
 }
 

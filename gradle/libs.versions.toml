@@ -11,6 +11,7 @@ androidxTest = "1.4.1-alpha03"
 androidxTestEspresso = "3.5.0-alpha03"
 androidxTestExt = "1.1.4-alpha03"
 androidxWearWatchface = "1.1.0-alpha02"
+arrowAnalysis = "2.0"
 compose = "1.2.0-alpha02"
 dagger = "2.40.5"
 detekt = "1.19.0"
@@ -50,6 +51,7 @@ androidx-test-espresso = { group = "androidx.test.espresso", name = "espresso-co
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTest" }
 androidx-test-junit = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "androidxTestExt" }
 androidx-wear-watchface = { group = "androidx.wear.watchface", name = "watchface", version.ref = "androidxWearWatchface" }
+arrow-analysis-gradlePlugin = { group = "io.arrow-kt.analysis.kotlin", name = "io.arrow-kt.analysis.kotlin.gradle.plugin", version.ref = "arrowAnalysis" }
 dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "dagger" }
 dagger-hilt-runtime = { group = "com.google.dagger", name = "hilt-android", version.ref = "dagger" }
 dagger-hilt-test = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "dagger" }

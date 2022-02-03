@@ -1,5 +1,6 @@
 plugins {
     id("com.alexvanyo.composelife.android.library")
+    id("com.alexvanyo.composelife.arrowanalysis")
     id("com.alexvanyo.composelife.detekt")
     kotlin("kapt")
 }

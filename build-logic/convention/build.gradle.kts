@@ -12,6 +12,7 @@ java {
 dependencies {
     implementation(libs.android.gradlePlugin)
     implementation(kotlin("gradle-plugin", libs.versions.kotlin.get()))
+    implementation(libs.arrow.analysis.gradlePlugin)
     implementation(libs.detekt.gradlePlugin)
     implementation(libs.ksp.gradlePlugin)
 }
