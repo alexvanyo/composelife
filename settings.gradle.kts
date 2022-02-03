@@ -14,6 +14,11 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven(url = "https://storage.googleapis.com/r8-releases/raw") {
+            content {
+                includeModule("com.android.tools", "r8")
+            }
+        }
         maven(url = "https://jitpack.io") {
             content {
                 includeGroup("com.github.livefront.sealed-enum")

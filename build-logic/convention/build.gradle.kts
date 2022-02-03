@@ -13,5 +13,6 @@ dependencies {
     implementation(libs.android.gradlePlugin)
     implementation(kotlin("gradle-plugin", libs.versions.kotlin.get()))
     implementation(libs.detekt.gradlePlugin)
+    implementation(libs.keeper.gradlePlugin)
     implementation(libs.ksp.gradlePlugin)
 }
