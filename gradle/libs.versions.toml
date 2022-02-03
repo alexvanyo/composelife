@@ -14,6 +14,7 @@ androidxTestExt = "1.1.4-alpha03"
 androidxWearWatchface = "1.1.0-alpha02"
 dagger = "2.40.5"
 detekt = "1.19.0"
+keeper = "0.12.0"
 kotlin = "1.6.10"
 kotlinxCoroutines = "1.6.0"
 kotlinxDatetime = "0.3.2"
@@ -62,6 +63,7 @@ junit5-vintageEngine = { group = "org.junit.vintage", name="junit-vintage-engine
 jetbrains-kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 jetbrains-kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 jetbrains-kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+keeper-gradlePlugin = { group = "com.slack.keeper", name = "keeper", version.ref = "keeper" }
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 protobuf-protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "protobuf" }
 protobuf-runtime = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobuf" }
@@ -72,6 +74,4 @@ square-leakCanary = { group = "com.squareup.leakcanary", name = "leakcanary-andr
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 
 [plugins]
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
