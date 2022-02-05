@@ -6,6 +6,8 @@ plugins {
     id("com.slack.keeper")
 }
 
+val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+
 android {
     defaultConfig {
         testBuildType = "staging"
@@ -17,6 +19,10 @@ android {
                 builder.optInToKeeper()
             }
         }
+    }
+
+    dependencies {
+        keeperR8(libs.findLibrary("android.r8").get())
     }
 
     configureTesting(this)
