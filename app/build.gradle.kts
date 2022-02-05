@@ -36,7 +36,7 @@ dependencies {
     implementation(libs.androidx.compose.material)
     implementation(libs.androidx.compose.materialIconsExtended)
     implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.uiTooling)
+    implementation(libs.androidx.compose.uiToolingPreview)
     implementation(libs.androidx.compose.uiTestManifest)
     implementation(libs.androidx.core)
     implementation(libs.androidx.hilt.navigation.compose)
@@ -49,6 +49,7 @@ dependencies {
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 
+    debugImplementation(libs.androidx.compose.uiTooling)
     debugImplementation(libs.square.leakCanary)
 
     sharedTestImplementation(projects.dispatchersTest)

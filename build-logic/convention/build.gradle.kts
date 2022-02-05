@@ -10,6 +10,7 @@ java {
 }
 
 dependencies {
+    implementation(libs.android.r8)
     implementation(libs.android.gradlePlugin)
     implementation(kotlin("gradle-plugin", libs.versions.kotlin.get()))
     implementation(libs.detekt.gradlePlugin)
