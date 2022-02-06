@@ -12,7 +12,6 @@ import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
-import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -20,34 +19,32 @@ import javax.inject.Inject
 @Composable
 fun ComposeLifeApp() {
     ComposeLifeTheme {
-        ProvideWindowInsets {
-            val useDarkIcons = MaterialTheme.colors.isLight
-            val systemUiController = rememberSystemUiController()
+        val useDarkIcons = MaterialTheme.colors.isLight
+        val systemUiController = rememberSystemUiController()
 
-            SideEffect {
-                systemUiController.setSystemBarsColor(
-                    color = Color.Transparent,
-                    darkIcons = useDarkIcons
-                )
-            }
-
-            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                cellState = gosperGliderGun
+        SideEffect {
+            systemUiController.setSystemBarsColor(
+                color = Color.Transparent,
+                darkIcons = useDarkIcons
             )
+        }
 
-            val viewModel = hiltViewModel<ComposeLifeAppViewModel>()
+        val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
+            cellState = gosperGliderGun
+        )
 
-            rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = viewModel.gameOfLifeAlgorithm
+        val viewModel = hiltViewModel<ComposeLifeAppViewModel>()
+
+        rememberTemporalGameOfLifeStateMutator(
+            temporalGameOfLifeState = temporalGameOfLifeState,
+            gameOfLifeAlgorithm = viewModel.gameOfLifeAlgorithm
+        )
+
+        // A surface container using the 'background' color from the theme
+        Surface(color = MaterialTheme.colors.background) {
+            InteractiveCellUniverse(
+                temporalGameOfLifeState = temporalGameOfLifeState
             )
-
-            // A surface container using the 'background' color from the theme
-            Surface(color = MaterialTheme.colors.background) {
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = temporalGameOfLifeState
-                )
-            }
         }
     }
 }
