@@ -22,6 +22,10 @@ jobs:
     needs: validate-wrapper
     runs-on: ubuntu-latest
 
+    concurrency:
+      group: ci-build-${{ github.event_name }}-${{ github.ref }}-${{ matrix.java-version }}-${{ matrix.sdk }}
+      cancel-in-progress: true
+
     strategy:
       fail-fast: false
       matrix:
@@ -88,6 +92,10 @@ jobs:
     needs: build
     runs-on: macos-latest # for hardware acceleration
 
+    concurrency:
+      group: ci-android-test-gmd-${{ github.event_name }}-${{ github.ref }}-${{ matrix.java-version }}
+      cancel-in-progress: true
+
     strategy:
       fail-fast: false
       matrix:
@@ -123,6 +131,10 @@ jobs:
   android-test-aer:
     needs: build
     runs-on: macos-latest # for hardware acceleration
+
+    concurrency:
+      group: ci-android-test-aer-${{ github.event_name }}-${{ github.ref }}-${{ matrix.java-version }}-${{ matrix.api-level }}
+      cancel-in-progress: true
 
     strategy:
       fail-fast: false
