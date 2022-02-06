@@ -49,7 +49,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
-          key: v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/buildSrc/**/*.kt') }}
+          key: v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/build-logic/convention/**/*.kt') }}
           restore-keys: |
             v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-
 
@@ -102,7 +102,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
-          key: v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/buildSrc/**/*.kt') }}
+          key: v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/build-logic/convention/**/*.kt') }}
           restore-keys: |
             v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-
 
@@ -140,7 +140,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
-          key: v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/buildSrc/**/*.kt') }}
+          key: v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/build-logic/convention/**/*.kt') }}
           restore-keys: |
             v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-
 
