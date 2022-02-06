@@ -24,6 +24,10 @@ jobs:
     needs: validate-wrapper
     runs-on: ubuntu-latest
 
+    concurrency:
+      group: ci-build-${{ github.event_name }}-${{ github.ref }}-${{ matrix.java-version }}-${{ matrix.sdk }}
+      cancel-in-progress: true
+
     strategy:
       fail-fast: false
       matrix:
@@ -71,7 +75,7 @@ jobs:
           done
 
       - name: Run checks
-        if: matrix.sdk != '32'
+        if: matrix.sdk != '32' # TODO: Enable once Robolectric adds support
         run: ./gradlew check --stacktrace
 
       - name: Generate code coverage
@@ -89,6 +93,10 @@ jobs:
   android-test-gmd:
     needs: build
     runs-on: macos-latest # for hardware acceleration
+
+    concurrency:
+      group: ci-android-test-gmd-${{ github.event_name }}-${{ github.ref }}-${{ matrix.java-version }}
+      cancel-in-progress: true
 
     strategy:
       fail-fast: false
@@ -115,6 +123,7 @@ jobs:
           java-version: ${{ matrix.java-version }}
 
       - name: Run device checks
+        if: ${{ false }} # TODO: Enable once GMD support Github Actions
         run: |
           ./gradlew pixel2api29Check --no-parallel --stacktrace
           ./gradlew pixel2api30Check --no-parallel --stacktrace
@@ -140,6 +149,10 @@ jobs:
   android-test-aer:
     needs: android-test-aer-cfg
     runs-on: macos-latest # for hardware acceleration
+
+    concurrency:
+      group: ci-android-test-aer-${{ github.event_name }}-${{ github.ref }}-${{ matrix.java-version }}-${{ matrix.api-level }}
+      cancel-in-progress: true
 
     strategy:
       fail-fast: false
