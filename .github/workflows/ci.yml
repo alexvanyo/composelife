@@ -69,7 +69,7 @@ jobs:
           done
 
       - name: Run checks
-        if: matrix.sdk != '32'
+        if: matrix.sdk != '32' # TODO: Enable once Robolectric adds support
         run: ./gradlew check --stacktrace
 
       - name: Generate code coverage
@@ -113,6 +113,7 @@ jobs:
           java-version: ${{ matrix.java-version }}
 
       - name: Run device checks
+        if: ${{ false }} # TODO: Enable once GMD support Github Actions
         run: |
           ./gradlew pixel2api29Check --no-parallel --stacktrace
           ./gradlew pixel2api30Check --no-parallel --stacktrace
