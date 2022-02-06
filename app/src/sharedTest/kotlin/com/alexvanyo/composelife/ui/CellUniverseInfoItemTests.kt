@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertIsToggleable
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -49,11 +50,14 @@ class CellUniverseInfoItemTests {
             }
         }
 
-        composeTestRule.onNode(isToggleable()).assertIsOn().performClick()
+        composeTestRule.onNodeWithText("Test")
+            .assertIsToggleable()
+            .assertIsOn()
+            .performClick()
 
         assertFalse(cellUniverseInfoItemState.isChecked)
 
-        composeTestRule.onNode(isToggleable()).assertIsOff()
+        composeTestRule.onNodeWithText("Test").assertIsOff()
     }
 
     @Test
@@ -69,11 +73,14 @@ class CellUniverseInfoItemTests {
             }
         }
 
-        composeTestRule.onNode(isToggleable()).assertIsOff().performClick()
+        composeTestRule.onNodeWithText("Test")
+            .assertIsToggleable()
+            .assertIsOff()
+            .performClick()
 
         assertTrue(cellUniverseInfoItemState.isChecked)
 
-        composeTestRule.onNode(isToggleable()).assertIsOn()
+        composeTestRule.onNodeWithText("Test").assertIsOn()
     }
 
     @Test
@@ -124,11 +131,15 @@ class CellUniverseInfoItemTests {
             }
         }
 
-        composeTestRule.onNode(isToggleable()).assertIsOn().performClick()
-        composeTestRule.onNode(isToggleable()).assertIsOff()
+        composeTestRule.onNodeWithText("Test")
+            .assertIsToggleable()
+            .assertIsOn()
+            .performClick()
+
+        composeTestRule.onNodeWithText("Test").assertIsOff()
 
         stateRestorationTester.emulateSavedInstanceStateRestore()
 
-        composeTestRule.onNode(isToggleable()).assertIsOff()
+        composeTestRule.onNodeWithText("Test").assertIsOff()
     }
 }
