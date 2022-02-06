@@ -176,7 +176,7 @@ fun CellUniverseInfoCard(
                     Column(
                         modifier = Modifier
                             .weight(1f)
-                            .padding(8.dp),
+                            .padding(vertical = 8.dp),
                     ) {
                         cellUniverseInfoCardContent.cellUniverseInfoItemContents
                             .forEach { cellUniverseInfoItemContent ->

@@ -1,7 +1,20 @@
 package com.alexvanyo.composelife.ui
 
+import android.app.Application
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertIsToggleable
+import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.alexvanyo.composelife.R
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -11,6 +24,8 @@ class CellUniverseInfoCardTests {
 
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    private val applicationContext = ApplicationProvider.getApplicationContext<Application>()
 
     @Test
     fun collapsed_preview() {
@@ -31,5 +46,133 @@ class CellUniverseInfoCardTests {
         composeTestRule.setContent {
             CellUniverseInfoCardExpandedPreview()
         }
+    }
+
+    @Test
+    fun card_is_collapsed_by_default() {
+        composeTestRule.setContent {
+            CellUniverseInfoCard(
+                cellUniverseInfoCardContent = CellUniverseInfoCardContent(
+                    rememberCellUniverseInfoCardState(),
+                    cellUniverseInfoItemContents = listOf(
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState()
+                        ) { "First" },
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState()
+                        ) { "Second" },
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState()
+                        ) { "Third" }
+                    )
+                )
+            )
+        }
+
+        composeTestRule.onNodeWithContentDescription(applicationContext.getString(R.string.expand))
+            .assertIsDisplayed()
+            .assertHasClickAction()
+            .assertIsEnabled()
+
+        composeTestRule.onNodeWithContentDescription(applicationContext.getString(R.string.collapse))
+            .assertDoesNotExist()
+    }
+
+    @Test
+    fun card_becomes_expanded_when_expand_button_is_clicked() {
+        composeTestRule.setContent {
+            CellUniverseInfoCard(
+                cellUniverseInfoCardContent = CellUniverseInfoCardContent(
+                    rememberCellUniverseInfoCardState(),
+                    cellUniverseInfoItemContents = listOf(
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState()
+                        ) { "First" },
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState()
+                        ) { "Second" },
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState()
+                        ) { "Third" }
+                    )
+                )
+            )
+        }
+
+        composeTestRule.onNodeWithContentDescription(applicationContext.getString(R.string.expand))
+            .performClick()
+
+        composeTestRule.onNodeWithContentDescription(applicationContext.getString(R.string.collapse))
+            .assertIsDisplayed()
+            .assertHasClickAction()
+            .assertIsEnabled()
+
+        composeTestRule.onNodeWithContentDescription(applicationContext.getString(R.string.expand))
+            .assertDoesNotExist()
+    }
+
+    @Test
+    fun card_hides_checkboxes_when_collapsed() {
+        composeTestRule.setContent {
+            CellUniverseInfoCard(
+                cellUniverseInfoCardContent = CellUniverseInfoCardContent(
+                    rememberCellUniverseInfoCardState(isExpanded = false),
+                    cellUniverseInfoItemContents = listOf(
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState()
+                        ) { "First" },
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState()
+                        ) { "Second" },
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState()
+                        ) { "Third" }
+                    )
+                )
+            )
+        }
+
+        composeTestRule.onNodeWithText("First")
+            .assert(isToggleable().not())
+
+        composeTestRule.onNodeWithText("Second")
+            .assert(isToggleable().not())
+
+        composeTestRule.onNodeWithText("Third")
+            .assert(isToggleable().not())
+    }
+
+    @Test
+    fun card_show_checkboxes_when_expanded() {
+        composeTestRule.setContent {
+            CellUniverseInfoCard(
+                cellUniverseInfoCardContent = CellUniverseInfoCardContent(
+                    rememberCellUniverseInfoCardState(isExpanded = true),
+                    cellUniverseInfoItemContents = listOf(
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState()
+                        ) { "First" },
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState()
+                        ) { "Second" },
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState()
+                        ) { "Third" }
+                    )
+                )
+            )
+        }
+
+        composeTestRule.onNodeWithText("First")
+            .assertIsToggleable()
+            .assertIsOn()
+
+        composeTestRule.onNodeWithText("Second")
+            .assertIsToggleable()
+            .assertIsOn()
+
+        composeTestRule.onNodeWithText("Third")
+            .assertIsToggleable()
+            .assertIsOn()
     }
 }

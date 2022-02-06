@@ -17,24 +17,32 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.with
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.triStateToggleable
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Text
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
@@ -88,7 +96,24 @@ fun ColumnScope.InfoItem(
         exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.CenterVertically),
         modifier = modifier
     ) {
-        Box {
+        Box(
+            modifier = if (isEditing) {
+                Modifier.triStateToggleable(
+                    state = ToggleableState(cellUniverseInfoItemContent.isChecked),
+                    onClick = {
+                        cellUniverseInfoItemContent.isChecked = !cellUniverseInfoItemContent.isChecked
+                    },
+                    enabled = true,
+                    role = Role.Checkbox,
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = rememberRipple()
+                )
+            } else {
+                Modifier
+            }
+                .semantics(mergeDescendants = true) {}
+                .padding(horizontal = 8.dp)
+        ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -140,7 +165,7 @@ fun ColumnScope.InfoItem(
                 if (targetIsEditing) {
                     Checkbox(
                         checked = cellUniverseInfoItemContent.isChecked,
-                        onCheckedChange = { cellUniverseInfoItemContent.isChecked = it },
+                        onCheckedChange = null,
                         modifier = Modifier.size(48.dp)
                     )
                 } else {
