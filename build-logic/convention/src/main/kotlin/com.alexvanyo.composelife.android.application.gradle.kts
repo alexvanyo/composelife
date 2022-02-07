@@ -28,11 +28,18 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
 
+        // Create a build type for the purposes of testing a minified build (like release is)
         create("staging") {
-            initWith(getByName("release"))
-            matchingFallbacks.add("release")
-            signingConfig = signingConfigs.getByName("debug")
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro", "staging-proguard-rules.pro")
+            isMinifyEnabled = true // minify like a release build
+            isShrinkResources = true // shrink resources like a release build
+            matchingFallbacks.add("release") // fallback to release for dependencies
+            signingConfig = signingConfigs.getByName("debug") // sign with debug for testing
+            // Use the normal proguard rules, as well as some additional staging ones just for tests (when needed)
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+                "staging-proguard-rules.pro"
+            )
         }
     }
 
