@@ -30,7 +30,6 @@ dependencies {
     implementation(projects.algorithm)
     implementation(projects.dispatchers)
 
-    implementation(libs.accompanist.insets)
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.androidx.activityCompose)
     implementation(libs.androidx.compose.material)

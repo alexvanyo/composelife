@@ -4,7 +4,7 @@ androidDesugarJdkLibs = "1.1.5"
 androidGradlePlugin = "7.3.0-alpha01"
 androidR8 = "3.1.34"
 androidxActivity = "1.5.0-alpha01"
-androidxCompose = "1.2.0-alpha02"
+androidxCompose = "1.2.0-SNAPSHOT"
 androidxCore = "1.8.0-alpha03"
 androidxDataStore = "1.0.0"
 androidxHilt = "1.0.0"
@@ -31,7 +31,6 @@ sealedEnum = "0.4.0"
 turbine = "0.7.0"
 
 [libraries]
-accompanist-insets = { group = "com.google.accompanist", name = "accompanist-insets", version.ref = "accompanist" }
 accompanist-systemuicontroller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist" }
 android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "androidDesugarJdkLibs" }
 android-r8 = { group = "com.android.tools", name = "r8", version.ref = "androidR8" }
