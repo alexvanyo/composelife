@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.IconToggleButton
@@ -20,8 +20,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.R
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
-import com.google.accompanist.insets.navigationBarsHeight
-import com.google.accompanist.insets.statusBarsHeight
 
 @Suppress("LongMethod")
 @Composable
@@ -40,14 +38,9 @@ fun InteractiveCellUniverse(
         val evolutionStatus = temporalGameOfLifeState.status
 
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.systemBarsPadding()
         ) {
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsHeight()
-            )
-
             CellUniverseInfoCard(
                 cellWindowState = cellWindowState,
                 evolutionStatus = evolutionStatus,
@@ -65,12 +58,6 @@ fun InteractiveCellUniverse(
                 },
                 setIsRunning = temporalGameOfLifeState::setIsRunning,
                 modifier = Modifier.padding(8.dp)
-            )
-
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .navigationBarsHeight()
             )
         }
     }
