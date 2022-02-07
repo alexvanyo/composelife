@@ -85,19 +85,33 @@ jobs:
           fail_ci_if_error: true
           files: jacocoTestDebugUnitTestReport/jacocoTestDebugUnitTestReport.xml,jacocoTestReleaseUnitTestReport/jacocoTestReleaseUnitTestReport.xml
 
-  android-test-gmd:
+  android-test-gmd-cfg:
     needs: build
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+
+    steps:
+      - id: set-matrix
+        run: |
+          if ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch') }}
+          then
+            echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"device\":[\"pixel2\",\"pixel3xl\"],\"api-level\":[\"29\",\"30\"]}"
+          else
+            echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"device\":[\"pixel2\",\"pixel3xl\"],\"api-level\":[\"29\",\"30\"]}"
+          fi
+
+  android-test-gmd:
+    needs: android-test-gmd-cfg
     runs-on: macos-latest # for hardware acceleration
 
     concurrency:
-      group: ci-android-test-gmd-${{ github.event_name }}-${{ github.ref }}-${{ matrix.java-version }}
+      group: ci-android-test-gmd-${{ github.event_name }}-${{ github.ref }}-${{ matrix.java-version }}-${{ matrix.device }}-${{ matrix.api-level }}
       cancel-in-progress: true
 
     strategy:
       fail-fast: false
-      matrix:
-        java-version:
-          - 11
+      matrix: ${{ fromJson(needs.android-test-gmd-cfg.outputs.matrix) }}
 
     steps:
       - name: Checkout
@@ -113,12 +127,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Run device checks
-        if: ${{ false }} # TODO: Enable once GMD support Github Actions
-        run: |
-          ./gradlew pixel2api29Check --no-parallel --stacktrace
-          ./gradlew pixel2api30Check --no-parallel --stacktrace
-          ./gradlew pixel3xlapi29Check --no-parallel --stacktrace
-          ./gradlew pixel3xlapi30Check --no-parallel --stacktrace
+        run: ./gradlew ${{ matrix.device }}api${{ matrix.api-level }}Check --no-parallel --stacktrace -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect"
 
   android-test-aer-cfg:
     needs: build
