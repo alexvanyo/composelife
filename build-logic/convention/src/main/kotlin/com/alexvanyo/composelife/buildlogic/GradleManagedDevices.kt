@@ -21,29 +21,50 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.invoke
 
+private data class GradleManagedDeviceConfig(
+    val deviceName: String,
+    val apiLevel: Int,
+    val systemImageSource: String,
+)
+
 fun Project.configureGradleManagedDevices(
     testedExtension: TestedExtension,
 ) {
-    testedExtension.testOptions {
+    testedExtension.testOptions.managedDevices.devices {
         val deviceNames = listOf("Pixel 2", "Pixel 3 XL")
         val apiLevels = listOf(29, 30)
+        val systemImageSources = listOf("google", "google-atd")
 
-        devices {
-            deviceNames.forEach { deviceName ->
-                apiLevels.forEach { apiLevel ->
-                    create<com.android.build.api.dsl.ManagedVirtualDevice>(
-                        "${deviceName}api$apiLevel"
-                            .toLowerCaseAsciiOnly()
-                            .replace(" ", "")
-                    ) {
-                        this.device = deviceName
-                        this.apiLevel = apiLevel
-                        this.systemImageSource = "google"
-                        this.abi = "x86"
-                    }
+        deviceNames.flatMap { deviceName ->
+            apiLevels.flatMap { apiLevel ->
+                systemImageSources.map { systemImageSource ->
+                    GradleManagedDeviceConfig(
+                        deviceName = deviceName,
+                        apiLevel = apiLevel,
+                        systemImageSource = systemImageSource,
+                    )
                 }
             }
         }
+            .filterNot {
+                it.systemImageSource == "google-atd" && it.apiLevel != 30
+            }
+            .forEach { config ->
+                create<com.android.build.api.dsl.ManagedVirtualDevice>(
+                    buildString {
+                        append(if (config.systemImageSource.contains("atd")) "atd" else "")
+                        append(config.deviceName)
+                        append("api")
+                        append(config.apiLevel)
+                    }
+                        .toLowerCaseAsciiOnly()
+                        .replace(" ", "")
+                ) {
+                    this.device = config.deviceName
+                    this.apiLevel = config.apiLevel
+                    this.systemImageSource = config.systemImageSource
+                }
+            }
     }
 }
 
