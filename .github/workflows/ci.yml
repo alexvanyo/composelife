@@ -205,7 +205,6 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: |
-            adb logcat -c                                                              # clear logs
             touch emulator.log                                                         # create log file
             chmod 777 emulator.log                                                     # allow writing to log file
             adb logcat >> emulator.log &                                               # output logs to the log file
