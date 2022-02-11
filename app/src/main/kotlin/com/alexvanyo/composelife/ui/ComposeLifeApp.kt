@@ -1,7 +1,6 @@
 package com.alexvanyo.composelife.ui
 
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
@@ -19,7 +18,7 @@ import javax.inject.Inject
 @Composable
 fun ComposeLifeApp() {
     ComposeLifeTheme {
-        val useDarkIcons = MaterialTheme.colors.isLight
+        val useDarkIcons = ComposeLifeTheme.isLight
         val systemUiController = rememberSystemUiController()
 
         SideEffect {
@@ -41,7 +40,7 @@ fun ComposeLifeApp() {
         )
 
         // A surface container using the 'background' color from the theme
-        Surface(color = MaterialTheme.colors.background) {
+        Surface {
             InteractiveCellUniverse(
                 temporalGameOfLifeState = temporalGameOfLifeState
             )

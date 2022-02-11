@@ -27,6 +27,8 @@ class InteractableCellVisualTests {
     fun alive_interactable_cell_draws_correctly_dark_mode() {
         assumeTrue(Build.VERSION.SDK_INT >= 26)
 
+        var aliveCellColor: Color? = null
+
         composeTestRule.setContent {
             ComposeLifeTheme(darkTheme = true) {
                 InteractableCell(
@@ -35,13 +37,15 @@ class InteractableCellVisualTests {
                     onValueChange = {},
                     modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() })
                 )
+
+                aliveCellColor = ComposeLifeTheme.aliveCellColor
             }
         }
 
         composeTestRule.onRoot().captureToImage().assertPixels(
             IntSize(10, 10)
         ) {
-            Color.White
+            aliveCellColor!!
         }
     }
 
@@ -49,6 +53,8 @@ class InteractableCellVisualTests {
     fun alive_interactable_cell_draws_correctly_light_mode() {
         assumeTrue(Build.VERSION.SDK_INT >= 26)
 
+        var aliveCellColor: Color? = null
+
         composeTestRule.setContent {
             ComposeLifeTheme(darkTheme = false) {
                 InteractableCell(
@@ -57,19 +63,23 @@ class InteractableCellVisualTests {
                     onValueChange = {},
                     modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() })
                 )
+
+                aliveCellColor = ComposeLifeTheme.aliveCellColor
             }
         }
 
         composeTestRule.onRoot().captureToImage().assertPixels(
             IntSize(10, 10)
         ) {
-            Color.Black
+            aliveCellColor
         }
     }
 
     @Test
     fun dead_interactable_cell_draws_correctly_dark_mode() {
         assumeTrue(Build.VERSION.SDK_INT >= 26)
+
+        var deadCellColor: Color? = null
 
         composeTestRule.setContent {
             ComposeLifeTheme(darkTheme = true) {
@@ -80,18 +90,22 @@ class InteractableCellVisualTests {
                     modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() })
                 )
             }
+
+            deadCellColor = ComposeLifeTheme.deadCellColor
         }
 
         composeTestRule.onRoot().captureToImage().assertPixels(
             IntSize(10, 10)
         ) {
-            Color.Black
+            deadCellColor
         }
     }
 
     @Test
     fun dead_interactable_cell_draws_correctly_light_mode() {
         assumeTrue(Build.VERSION.SDK_INT >= 26)
+
+        var deadCellColor: Color? = null
 
         composeTestRule.setContent {
             ComposeLifeTheme(darkTheme = false) {
@@ -101,13 +115,15 @@ class InteractableCellVisualTests {
                     onValueChange = {},
                     modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() })
                 )
+
+                deadCellColor = ComposeLifeTheme.deadCellColor
             }
         }
 
         composeTestRule.onRoot().captureToImage().assertPixels(
             IntSize(10, 10)
         ) {
-            Color.White
+            deadCellColor
         }
     }
 }
