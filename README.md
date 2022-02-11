@@ -11,9 +11,10 @@ This project is a personal sandbox of sorts, experimenting with the latest libra
 
 - Written in [Kotlin](https://kotlinlang.org/)
 - UI written in [Jetpack Compose](https://developer.android.com/jetpack/compose)
+- Dependency injection using [Hilt](https://dagger.dev/hilt/)
 - Fully functional CI system with Github Actions with:
   - JVM tests
-  - Robolectric tests
+  - [Robolectric](http://robolectric.org/) tests
   - Integration tests (minification with the help of [Keeper](https://slackhq.github.io/keeper/))
   - Linting, with android/lint and [detekt](https://detekt.dev/)
   - Code coverage with Jacoco (reporting done with [Codecov](https://about.codecov.io/)
