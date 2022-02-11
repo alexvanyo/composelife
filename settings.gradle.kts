@@ -19,7 +19,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven(url = "https://androidx.dev/snapshots/builds/8150831/artifacts/repository")
         maven(url = "https://storage.googleapis.com/r8-releases/raw") {
             content {
                 includeModule("com.android.tools", "r8")
