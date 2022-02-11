@@ -43,6 +43,9 @@ class NonInteractableCellsVisualTests {
             4 to 4
         ).toCellState()
 
+        var aliveCellColor: Color? = null
+        var deadCellColor: Color? = null
+
         composeTestRule.setContent {
             ComposeLifeTheme(darkTheme = true) {
                 NonInteractableCells(
@@ -66,6 +69,9 @@ class NonInteractableCellsVisualTests {
                     ),
                     modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() })
                 )
+
+                aliveCellColor = ComposeLifeTheme.aliveCellColor
+                deadCellColor = ComposeLifeTheme.deadCellColor
             }
         }
 
@@ -73,9 +79,9 @@ class NonInteractableCellsVisualTests {
             IntSize(10, 10)
         ) {
             if (it in cellState.aliveCells) {
-                Color.White
+                aliveCellColor!!
             } else {
-                Color.Black
+                deadCellColor!!
             }
         }
     }
@@ -95,6 +101,9 @@ class NonInteractableCellsVisualTests {
             2 to 4,
             4 to 4
         ).toCellState()
+
+        var aliveCellColor: Color? = null
+        var deadCellColor: Color? = null
 
         composeTestRule.setContent {
             ComposeLifeTheme(darkTheme = false) {
@@ -119,6 +128,9 @@ class NonInteractableCellsVisualTests {
                     ),
                     modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() })
                 )
+
+                aliveCellColor = ComposeLifeTheme.aliveCellColor
+                deadCellColor = ComposeLifeTheme.deadCellColor
             }
         }
 
@@ -126,9 +138,9 @@ class NonInteractableCellsVisualTests {
             IntSize(10, 10)
         ) {
             if (it in cellState.aliveCells) {
-                Color.Black
+                aliveCellColor!!
             } else {
-                Color.White
+                deadCellColor!!
             }
         }
     }

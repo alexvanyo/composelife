@@ -1,52 +1,72 @@
 package com.alexvanyo.composelife.ui.theme
 
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.ui.graphics.Color
-
-private val DarkColorPalette = darkColors()
-
-private val LightColorPalette = lightColors()
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun ComposeLifeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colors = if (darkTheme) {
-        DarkColorPalette
-    } else {
-        LightColorPalette
-    }
-
     MaterialTheme(
-        colors = colors,
-        typography = Typography,
-        shapes = Shapes,
+        colorScheme = ComposeLifeTheme.colorScheme(darkTheme),
+        typography = Typography(),
         content = content
     )
 }
 
 object ComposeLifeTheme {
+
+    @Composable
+    @ReadOnlyComposable
+    fun colorScheme(darkTheme: Boolean = isSystemInDarkTheme()) =
+        if (darkTheme) {
+            lightColorScheme
+        } else {
+            darkColorScheme
+        }
+
+    val lightColorScheme
+        @Composable
+        @ReadOnlyComposable
+        get() =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                dynamicLightColorScheme(LocalContext.current)
+            } else {
+                lightColorScheme()
+            }
+
+    val darkColorScheme
+        @Composable
+        @ReadOnlyComposable
+        get() =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                dynamicDarkColorScheme(LocalContext.current)
+            } else {
+                darkColorScheme()
+            }
+
+    val isLight
+        @Composable
+        @ReadOnlyComposable
+        get() = MaterialTheme.colorScheme.surface == lightColorScheme.surface
+
     val aliveCellColor
         @Composable
         @ReadOnlyComposable
-        get() = if (MaterialTheme.colors.isLight) {
-            Color.Black
-        } else {
-            Color.White
-        }
+        get() = MaterialTheme.colorScheme.onSurface
 
     val deadCellColor
         @Composable
         @ReadOnlyComposable
-        get() = if (MaterialTheme.colors.isLight) {
-            Color.White
-        } else {
-            Color.Black
-        }
+        get() = MaterialTheme.colorScheme.surface
 }
