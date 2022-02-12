@@ -25,8 +25,8 @@ android {
 dependencies {
     api(projects.dispatchers)
     api(libs.protobuf.runtime)
-    api(libs.jetbrains.kotlinx.coroutines.core)
-    api(libs.jetbrains.kotlinx.coroutines.android)
+    api(libs.kotlinx.coroutines.core)
+    api(libs.kotlinx.coroutines.android)
     api(libs.androidx.dataStore)
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
@@ -35,7 +35,7 @@ dependencies {
     sharedTestImplementation(projects.dispatchersTest)
     sharedTestImplementation(libs.androidx.test.junit)
     sharedTestImplementation(libs.androidx.test.runner)
-    sharedTestImplementation(libs.jetbrains.kotlinx.coroutines.test)
+    sharedTestImplementation(libs.kotlinx.coroutines.test)
     sharedTestImplementation(libs.turbine)
     kaptSharedTest(libs.dagger.hilt.compiler)
 }
