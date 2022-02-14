@@ -1,13 +1,13 @@
 package com.alexvanyo.composelife.ui
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -20,8 +20,6 @@ import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.setCellState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.util.containedPoints
-import kotlin.math.roundToInt
 
 /**
  * A fixed size composable that displays a specific [cellWindow] into the given [GameOfLifeState].
@@ -35,57 +33,39 @@ fun InteractableCells(
     cellWindow: IntRect,
     modifier: Modifier = Modifier
 ) {
-    val scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() }
-
-    val numColumns = cellWindow.width + 1
-    val numRows = cellWindow.height + 1
-
-    Layout(
-        modifier = modifier
+    Column(
+        modifier
             .requiredSize(
-                scaledCellDpSize * numColumns,
-                scaledCellDpSize * numRows,
-            ),
-        content = {
-            cellWindow.containedPoints().forEach { cell ->
-                key(cell) {
-                    InteractableCell(
-                        modifier = Modifier
-                            .size(scaledCellDpSize),
-                        isAlive = cell in gameOfLifeState.cellState.aliveCells,
-                        contentDescription = stringResource(
-                            R.string.cell_content_description,
-                            cell.x,
-                            cell.y
-                        ),
-                        onValueChange = { isAlive ->
-                            gameOfLifeState.setCellState(
-                                cellCoordinate = cell,
-                                isAlive = isAlive
-                            )
-                        }
-                    )
-                }
-            }
-        },
-        measurePolicy = { measurables, constraints ->
-            val placeables = measurables.map { it.measure(constraints) }
-
-            layout(
-                (numColumns * scaledCellPixelSize).roundToInt(),
-                (numRows * scaledCellPixelSize).roundToInt(),
-            ) {
-                placeables.mapIndexed { index, placeable ->
-                    val rowIndex = index / numColumns
-                    val columnIndex = index % numColumns
-                    placeable.place(
-                        (columnIndex * scaledCellPixelSize).roundToInt(),
-                        (rowIndex * scaledCellPixelSize).roundToInt()
-                    )
+                scaledCellDpSize * (cellWindow.width + 1),
+                scaledCellDpSize * (cellWindow.height + 1),
+            )
+    ) {
+        (cellWindow.top..cellWindow.bottom).forEach { row ->
+            Row {
+                (cellWindow.left..cellWindow.right).forEach { column ->
+                    val cell = IntOffset(column, row)
+                    key(cell) {
+                        InteractableCell(
+                            modifier = Modifier
+                                .size(scaledCellDpSize),
+                            isAlive = cell in gameOfLifeState.cellState.aliveCells,
+                            contentDescription = stringResource(
+                                R.string.cell_content_description,
+                                cell.x,
+                                cell.y
+                            ),
+                            onValueChange = { isAlive ->
+                                gameOfLifeState.setCellState(
+                                    cellCoordinate = cell,
+                                    isAlive = isAlive
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }
-    )
+    }
 }
 
 @Preview(
