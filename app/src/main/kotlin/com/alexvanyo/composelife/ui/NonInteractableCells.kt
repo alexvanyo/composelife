@@ -34,32 +34,28 @@ fun NonInteractableCells(
 ) {
     val scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() }
 
-    val numColumns = cellWindow.width + 1
-    val numRows = cellWindow.height + 1
-
     val aliveColor = ComposeLifeTheme.aliveCellColor
     val deadColor = ComposeLifeTheme.deadCellColor
 
     Canvas(
         modifier = modifier
             .requiredSize(
-                scaledCellDpSize * numColumns,
-                scaledCellDpSize * numRows
+                scaledCellDpSize * (cellWindow.width + 1),
+                scaledCellDpSize * (cellWindow.height + 1)
             )
     ) {
-        cellWindow.containedPoints().forEach { cell ->
-            val windowOffset = (cell - cellWindow.topLeft).toOffset() * scaledCellPixelSize
-            val color = if (cell in gameOfLifeState.cellState.aliveCells) {
-                aliveColor
-            } else {
-                deadColor
-            }
+        drawRect(
+            color = deadColor,
+        )
 
-            drawRect(
-                color = color,
-                topLeft = windowOffset,
-                size = Size(scaledCellPixelSize, scaledCellPixelSize)
-            )
+        cellWindow.containedPoints().forEach { cell ->
+            if (cell in gameOfLifeState.cellState.aliveCells) {
+                drawRect(
+                    color = aliveColor,
+                    topLeft = (cell - cellWindow.topLeft).toOffset() * scaledCellPixelSize,
+                    size = Size(scaledCellPixelSize, scaledCellPixelSize)
+                )
+            }
         }
     }
 }
