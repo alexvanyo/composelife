@@ -1,5 +1,6 @@
 package com.alexvanyo.composelife.ui
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.Composable
@@ -13,6 +14,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -21,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
+import com.alexvanyo.composelife.model.toCellState
+import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.detectTransformGestures
 import com.alexvanyo.composelife.util.floor
 import kotlin.contracts.ExperimentalContracts
@@ -209,5 +213,63 @@ private fun CellWindowUiState.isInteractable(
     return when (this) {
         is CellWindowUiState.ImmutableState -> false
         is CellWindowUiState.MutableState -> isInteractable(isGesturing, scale)
+    }
+}
+
+@Preview(
+    name = "Immutable cell window light mode",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Immutable cell window dark mode",
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun ImmutableCellWindowPreview() {
+    ComposeLifeTheme {
+        ImmutableCellWindow(
+            gameOfLifeState = GameOfLifeState(
+                setOf(
+                    0 to 0,
+                    0 to 2,
+                    0 to 4,
+                    2 to 0,
+                    2 to 2,
+                    2 to 4,
+                    4 to 0,
+                    4 to 2,
+                    4 to 4,
+                ).toCellState()
+            )
+        )
+    }
+}
+
+@Preview(
+    name = "Mutable cell window light mode",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Mutable cell window dark mode",
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun MutableCellWindowPreview() {
+    ComposeLifeTheme {
+        MutableCellWindow(
+            gameOfLifeState = MutableGameOfLifeState(
+                setOf(
+                    0 to 0,
+                    0 to 2,
+                    0 to 4,
+                    2 to 0,
+                    2 to 2,
+                    2 to 4,
+                    4 to 0,
+                    4 to 2,
+                    4 to 4,
+                ).toCellState()
+            )
+        )
     }
 }
