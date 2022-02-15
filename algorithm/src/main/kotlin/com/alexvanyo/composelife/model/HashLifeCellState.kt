@@ -5,7 +5,11 @@ import com.alexvanyo.composelife.model.MacroCell.CellNode
 import kotlin.math.ceil
 import kotlin.math.log2
 
+/**
+ * Converts the given [CellState] into the equivalent [HashLifeCellState].
+ */
 fun CellState.toHashLifeCellState(): HashLifeCellState {
+    // Short-circuit if we already are
     if (this is HashLifeCellState) return this
 
     val xValues = aliveCells.map { it.x }
@@ -108,15 +112,8 @@ class HashLifeCellState(
     override val aliveCells: Set<IntOffset> = object : Set<IntOffset> {
         override val size: Int = macroCell.size
 
-        override fun contains(element: IntOffset): Boolean {
-            val target = element - offset
-            val size = 1 shl macroCell.level
-            return if (target.x in 0 until size && target.y in 0 until size) {
-                macroCell.contains(target)
-            } else {
-                false
-            }
-        }
+        override fun contains(element: IntOffset): Boolean =
+            macroCell.contains(element - offset)
 
         override fun containsAll(elements: Collection<IntOffset>): Boolean = elements.all { contains(it) }
 

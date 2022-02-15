@@ -1,5 +1,6 @@
 package com.alexvanyo.composelife.model
 
+import androidx.annotation.IntRange
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.model.MacroCell.Cell
 import com.alexvanyo.composelife.model.MacroCell.Cell.AliveCell
@@ -88,8 +89,16 @@ sealed interface MacroCell {
     }
 }
 
-fun MacroCell.withCell(target: IntOffset, isAlive: Boolean): MacroCell =
-    when (this) {
+/**
+ * Returns this [MacroCell] with the modification of setting the cell at the given [target] offset to [isAlive],
+ * where [IntOffset.Zero] refers to the upper left cell of the [MacroCell].
+ *
+ * This function will return a [MacroCell] with the same level. Therefore, [target] must refer to a valid cell
+ * contained by this [MacroCell].
+ */
+fun MacroCell.withCell(target: IntOffset, isAlive: Boolean): MacroCell {
+    require(target.x in 0 until (1 shl level) && target.y in 0 until (1 shl level))
+    return when (this) {
         AliveCell, DeadCell -> {
             require(target == IntOffset.Zero)
             if (isAlive) {
@@ -137,7 +146,11 @@ fun MacroCell.withCell(target: IntOffset, isAlive: Boolean): MacroCell =
             }
         }
     }
+}
 
+/**
+ * Creates a [MacroCell] with the given [level] as a window looking into [CellState] at [offset].
+ */
 fun createMacroCell(cellState: CellState, offset: IntOffset, level: Int): MacroCell =
     if (level == 0) {
         if (offset in cellState.aliveCells) {
@@ -155,8 +168,14 @@ fun createMacroCell(cellState: CellState, offset: IntOffset, level: Int): MacroC
         )
     }
 
-fun createEmptyMacroCell(level: Int): MacroCell =
-    if (level == 0) {
+/**
+ * Creates an empty [MacroCell] with the given [level].
+ *
+ * The returned [MacroCell] has [MacroCell.size] `0` (in other words, it is entirely dead).
+ */
+fun createEmptyMacroCell(@IntRange(from = 0) level: Int): MacroCell {
+    require(level >= 0)
+    return if (level == 0) {
         DeadCell
     } else {
         val smallerEmptyMacroCell = createEmptyMacroCell(level - 1)
@@ -167,7 +186,12 @@ fun createEmptyMacroCell(level: Int): MacroCell =
             smallerEmptyMacroCell
         )
     }
+}
 
+/**
+ * Returns an [Iterator] of [IntOffset] for every alive cell represented by this [MacroCell],
+ * with the given upper left corner [offset].
+ */
 fun MacroCell.iterator(
     offset: IntOffset,
 ): Iterator<IntOffset> = iterator {
@@ -186,35 +210,38 @@ fun MacroCell.iterator(
     }
 }
 
+/**
+ * Returns true if the given [MacroCell] contains an alive cell with the given [target] offset, where
+ * [IntOffset.Zero] refers to the upper-left corner of the [MacroCell].
+ *
+ * This runs in O(level) time.
+ */
 @Suppress("NestedBlockDepth")
-fun MacroCell.contains(target: IntOffset): Boolean =
-    when (this) {
-        AliveCell -> {
-            require(target == IntOffset.Zero)
-            true
-        }
-        DeadCell -> {
-            require(target == IntOffset.Zero)
-            false
-        }
-        is CellNode -> {
-            if (size == 0) {
-                false
-            } else {
-                val offsetDiff = 1 shl (level - 1)
-                val isNorth = target.y < offsetDiff
-                val isWest = target.x < offsetDiff
-                if (isNorth) {
-                    if (isWest) {
-                        nw.contains(target)
-                    } else {
-                        ne.contains(target + IntOffset(-offsetDiff, 0))
-                    }
+tailrec fun MacroCell.contains(target: IntOffset): Boolean =
+    if (target.x !in 0 until (1 shl level) || target.y !in 0 until (1 shl level)) {
+        false
+    } else {
+        when (this) {
+            is Cell -> isAlive
+            is CellNode -> {
+                if (size == 0) {
+                    false
                 } else {
-                    if (isWest) {
-                        sw.contains(target + IntOffset(0, -offsetDiff))
+                    val offsetDiff = 1 shl (level - 1)
+                    val isNorth = target.y < offsetDiff
+                    val isWest = target.x < offsetDiff
+                    if (isNorth) {
+                        if (isWest) {
+                            nw.contains(target)
+                        } else {
+                            ne.contains(target + IntOffset(-offsetDiff, 0))
+                        }
                     } else {
-                        se.contains(target + IntOffset(-offsetDiff, -offsetDiff))
+                        if (isWest) {
+                            sw.contains(target + IntOffset(0, -offsetDiff))
+                        } else {
+                            se.contains(target + IntOffset(-offsetDiff, -offsetDiff))
+                        }
                     }
                 }
             }
