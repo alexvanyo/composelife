@@ -47,7 +47,7 @@ class PlaintextCellStateSerializer : CellStateSerializer {
         val points = mutableSetOf<IntOffset>()
 
         var expectedRowLength: Int? = null
-        var longestRowIndex: Int? = null
+        var longestLineIndex: Int? = null
 
         var lineIndex = 0
         var rowIndex = 0
@@ -69,11 +69,13 @@ class PlaintextCellStateSerializer : CellStateSerializer {
                 else -> {
                     if (expectedRowLength == null) {
                         expectedRowLength = line.length
-                        longestRowIndex = rowIndex
+                        longestLineIndex = lineIndex
                     } else if (line.length > expectedRowLength) {
-                        warnings.add(ParameterizedString(R.string.unexpected_short_line, longestRowIndex!! + 1))
+                        warnings.add(ParameterizedString(R.string.unexpected_short_line, longestLineIndex!! + 1))
                         expectedRowLength = line.length
-                        longestRowIndex = rowIndex
+                        longestLineIndex = lineIndex
+                    } else if (line.length < expectedRowLength) {
+                        warnings.add(ParameterizedString(R.string.unexpected_short_line, lineIndex + 1))
                     }
 
                     points.addAll(
@@ -86,6 +88,7 @@ class PlaintextCellStateSerializer : CellStateSerializer {
                                         warnings.add(
                                             ParameterizedString(
                                                 R.string.unexpected_character,
+                                                c,
                                                 lineIndex + 1,
                                                 columnIndex + 1
                                             )
