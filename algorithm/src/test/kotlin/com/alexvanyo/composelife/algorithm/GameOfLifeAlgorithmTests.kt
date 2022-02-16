@@ -28,14 +28,14 @@ class GameOfLifeAlgorithmTests {
 
     class GameOfLifeAlgorithmFactory(
         val algorithmName: String,
-        val factory: (dispatchers: ComposeLifeDispatchers) -> GameOfLifeAlgorithm
+        val factory: (dispatchers: ComposeLifeDispatchers) -> GameOfLifeAlgorithm,
     ) {
         override fun toString(): String = algorithmName
     }
 
     class GameOfLifeAlgorithmTestArguments(
         val algorithmFactory: GameOfLifeAlgorithmFactory,
-        val testPattern: GameOfLifeTestPattern
+        val testPattern: GameOfLifeTestPattern,
     ) {
         override fun toString(): String = "algo: ${algorithmFactory.algorithmName}, pattern: ${testPattern.patternName}"
     }

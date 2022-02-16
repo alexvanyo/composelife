@@ -10,7 +10,7 @@ interface GameOfLifeState {
 }
 
 private class ImmutableGameOfLifeState(
-    override val cellState: CellState
+    override val cellState: CellState,
 ) : GameOfLifeState
 
 fun GameOfLifeState(cellState: CellState): GameOfLifeState = ImmutableGameOfLifeState(cellState)
@@ -22,7 +22,7 @@ interface MutableGameOfLifeState : GameOfLifeState {
 fun MutableGameOfLifeState(cellState: CellState): MutableGameOfLifeState = MutableGameOfLifeStateImpl(cellState)
 
 private class MutableGameOfLifeStateImpl(
-    cellState: CellState
+    cellState: CellState,
 ) : MutableGameOfLifeState {
     override var cellState by mutableStateOf(cellState)
 }

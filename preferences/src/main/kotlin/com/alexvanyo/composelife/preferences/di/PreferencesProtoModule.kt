@@ -18,7 +18,7 @@ interface PreferencesProtoModule {
         @Provides
         @PreferencesProto
         fun providesDataStoreFile(
-            @ApplicationContext context: Context
+            @ApplicationContext context: Context,
         ): File = context.dataStoreFile("preferences.pb")
     }
 }

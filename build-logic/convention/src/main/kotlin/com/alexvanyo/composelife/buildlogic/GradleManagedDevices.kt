@@ -6,7 +6,7 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.invoke
 
 fun Project.configureGradleManagedDevices(
-    testedExtension: TestedExtension
+    testedExtension: TestedExtension,
 ) {
     testedExtension.testOptions {
         val deviceNames = listOf("Pixel 2", "Pixel 3 XL")
