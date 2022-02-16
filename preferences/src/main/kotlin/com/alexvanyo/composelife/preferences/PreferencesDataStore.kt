@@ -22,7 +22,7 @@ annotation class PreferencesProto
 @Singleton
 class PreferencesDataStore @Inject constructor(
     @PreferencesProto file: File,
-    dispatchers: ComposeLifeDispatchers
+    dispatchers: ComposeLifeDispatchers,
 ) : DataStore<Preferences> by DataStoreFactory.create(
     serializer = object : Serializer<Preferences> {
         override val defaultValue: Preferences = Preferences.getDefaultInstance()

@@ -15,7 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 @Composable
 fun ComposeLifeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     MaterialTheme(
         colorScheme = ComposeLifeTheme.colorScheme(darkTheme),

@@ -5,20 +5,23 @@
 
 **This is not an official Google product**
 
-composelife is a work-in-progress [Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) simulator Android app.
+composelife is a
+work-in-progress [Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) simulator
+Android app.
 
-This project is a personal sandbox of sorts, experimenting with the latest libraries and tools. These include:
+This project is a personal sandbox of sorts, experimenting with the latest libraries and tools.
+These include:
 
 - Written in [Kotlin](https://kotlinlang.org/)
 - UI written in [Jetpack Compose](https://developer.android.com/jetpack/compose)
 - Dependency injection using [Hilt](https://dagger.dev/hilt/)
 - Fully functional CI system with Github Actions with:
-  - JVM tests
-  - [Robolectric](http://robolectric.org/) tests
-  - Integration tests (minification with the help of [Keeper](https://slackhq.github.io/keeper/))
-  - Linting, with android/lint and [detekt](https://detekt.dev/)
-  - Code coverage with Jacoco (reporting done with [Codecov](https://about.codecov.io/)
-  - Automatic dependency updates with [Renovate](https://docs.renovatebot.com/)
+    - JVM tests
+    - [Robolectric](http://robolectric.org/) tests
+    - Integration tests (minification with the help of [Keeper](https://slackhq.github.io/keeper/))
+    - Linting, with android/lint and [detekt](https://detekt.dev/)
+    - Code coverage with Jacoco (reporting done with [Codecov](https://about.codecov.io/)
+    - Automatic dependency updates with [Renovate](https://docs.renovatebot.com/)
 
 ## Setup
 

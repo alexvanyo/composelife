@@ -24,7 +24,7 @@ suspend fun PointerInputScope.detectTransformGestures(
     panZoomLock: Boolean = false,
     onGestureStart: () -> Unit = {},
     onGestureEnd: () -> Unit = {},
-    onGesture: (centroid: Offset, pan: Offset, zoom: Float, rotation: Float) -> Unit
+    onGesture: (centroid: Offset, pan: Offset, zoom: Float, rotation: Float) -> Unit,
 ) {
     forEachGesture {
         awaitPointerEventScope {

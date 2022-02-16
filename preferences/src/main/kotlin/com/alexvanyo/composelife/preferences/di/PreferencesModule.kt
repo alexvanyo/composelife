@@ -13,6 +13,6 @@ interface PreferencesModule {
 
     @Binds
     fun bindsComposeLifePreferences(
-        defaultComposeLifePreferences: DefaultComposeLifePreferences
+        defaultComposeLifePreferences: DefaultComposeLifePreferences,
     ): ComposeLifePreferences
 }

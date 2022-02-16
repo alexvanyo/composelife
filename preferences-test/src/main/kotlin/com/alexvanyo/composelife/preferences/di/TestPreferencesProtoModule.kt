@@ -18,7 +18,7 @@ interface TestPreferencesProtoModule {
         @Provides
         @PreferencesProto
         fun providesDataStoreFile(
-            fileProvider: FileProvider
+            fileProvider: FileProvider,
         ): File = fileProvider.get()
     }
 }

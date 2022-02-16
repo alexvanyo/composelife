@@ -1,14 +1,14 @@
 complexity:
   LongMethod:
-    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
+    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
 
 formatting:
   Indentation:
-    excludes: ['**/generated/**']
+    excludes: [ '**/generated/**' ]
   NoConsecutiveBlankLines:
-    excludes: ['**/generated/**']
+    excludes: [ '**/generated/**' ]
   NoLineBreakBeforeAssignment:
-    excludes: ['**/generated/**']
+    excludes: [ '**/generated/**' ]
 
 naming:
   ClassNaming:
@@ -17,9 +17,9 @@ naming:
     ignoreAnnotated:
       - "Composable"
   MatchingDeclarationName:
-    excludes: ['**/generated/**']
+    excludes: [ '**/generated/**' ]
   TopLevelPropertyNaming:
-    excludes: ['**/generated/**']
+    excludes: [ '**/generated/**' ]
 
 style:
   ForbiddenComment:

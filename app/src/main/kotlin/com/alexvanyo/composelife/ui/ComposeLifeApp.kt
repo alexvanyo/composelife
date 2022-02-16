@@ -50,7 +50,7 @@ fun ComposeLifeApp() {
 
 @HiltViewModel
 class ComposeLifeAppViewModel @Inject constructor(
-    val gameOfLifeAlgorithm: GameOfLifeAlgorithm
+    val gameOfLifeAlgorithm: GameOfLifeAlgorithm,
 ) : ViewModel()
 
 private val gosperGliderGun = """

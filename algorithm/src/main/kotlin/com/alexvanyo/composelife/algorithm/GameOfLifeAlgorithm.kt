@@ -19,12 +19,12 @@ interface GameOfLifeAlgorithm {
      */
     suspend fun computeGenerationWithStep(
         cellState: CellState,
-        @IntRange(from = 0) step: Int
+        @IntRange(from = 0) step: Int,
     ): CellState
 
     fun computeGenerationsWithStep(
         originalCellState: CellState,
-        @IntRange(from = 0) step: Int
+        @IntRange(from = 0) step: Int,
     ): Flow<CellState> = flow {
         var cellState = originalCellState
         while (currentCoroutineContext().isActive) {
@@ -41,5 +41,5 @@ interface GameOfLifeAlgorithm {
  * A helper function to compute one generation.
  */
 suspend fun GameOfLifeAlgorithm.computeNextGeneration(
-    cellState: CellState
+    cellState: CellState,
 ): CellState = computeGenerationWithStep(cellState = cellState, step = 1)

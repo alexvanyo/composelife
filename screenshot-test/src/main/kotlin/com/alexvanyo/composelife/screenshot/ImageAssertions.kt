@@ -10,7 +10,7 @@ import org.junit.Assert.assertEquals
 
 fun ImageBitmap.assertPixels(
     expectedSize: IntSize? = null,
-    expectedColorProvider: (position: IntOffset) -> Color?
+    expectedColorProvider: (position: IntOffset) -> Color?,
 ) {
     if (expectedSize != null) {
         assertEquals(
@@ -33,7 +33,7 @@ fun ImageBitmap.assertPixels(
 private fun PixelMap.assertPixelColor(
     expected: Color,
     x: Int,
-    y: Int
+    y: Int,
 ) {
     val color = this[x, y]
     val errorString = "Pixel($x, $y) was expected to be $expected, but was $color"

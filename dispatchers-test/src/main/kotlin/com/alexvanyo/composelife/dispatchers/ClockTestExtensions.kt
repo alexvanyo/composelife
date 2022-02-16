@@ -13,15 +13,17 @@ import kotlinx.datetime.Instant
  * In other words, the returned [Instant] will always be [TestCoroutineScheduler.currentTime].
  */
 @OptIn(ExperimentalCoroutinesApi::class)
-val TestScope.schedulerClock get(): Clock = object : Clock {
-    override fun now(): Instant = Instant.fromEpochMilliseconds(testScheduler.currentTime)
-}
+val TestScope.schedulerClock
+    get(): Clock = object : Clock {
+        override fun now(): Instant = Instant.fromEpochMilliseconds(testScheduler.currentTime)
+    }
 
 /**
  * Returns a [Clock] that is synced with the [MainTestClock].
  *
  * In other words, the returned [Instant] will always be [MainTestClock.currentTime].
  */
-val MainTestClock.dateTimeClock get(): Clock = object : Clock {
-    override fun now(): Instant = Instant.fromEpochMilliseconds(currentTime)
-}
+val MainTestClock.dateTimeClock
+    get(): Clock = object : Clock {
+        override fun now(): Instant = Instant.fromEpochMilliseconds(currentTime)
+    }
