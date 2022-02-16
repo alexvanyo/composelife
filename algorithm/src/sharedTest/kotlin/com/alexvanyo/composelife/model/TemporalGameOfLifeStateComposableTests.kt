@@ -91,14 +91,16 @@ class TemporalGameOfLifeStateComposableTests {
             targetStepsPerSecond = 60.0
         )
 
+        val hashLifeAlgorithm = HashLifeAlgorithm(
+            dispatchers = dispatchers
+        )
+
         composeTestRule.mainClock.autoAdvance = false
 
         composeTestRule.setContent {
             rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = HashLifeAlgorithm(
-                    dispatchers = dispatchers
-                ),
+                gameOfLifeAlgorithm = hashLifeAlgorithm,
                 clock = composeTestRule.mainClock.dateTimeClock
             )
         }
@@ -123,6 +125,47 @@ class TemporalGameOfLifeStateComposableTests {
                 check(status is TemporalGameOfLifeState.EvolutionStatus.Running)
                 assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
             }
+        }
+    }
+
+    @Test
+    fun state_is_advanced_correctly_with_step() = runTest {
+        val temporalGameOfLifeState = TemporalGameOfLifeState(
+            cellState = SixLongLinePattern.seedCellState,
+            isRunning = false,
+            generationsPerStep = 1,
+            targetStepsPerSecond = 60.0
+        )
+
+        val hashLifeAlgorithm = HashLifeAlgorithm(
+            dispatchers = dispatchers
+        )
+
+        composeTestRule.mainClock.autoAdvance = false
+
+        composeTestRule.setContent {
+            rememberTemporalGameOfLifeStateMutator(
+                temporalGameOfLifeState = temporalGameOfLifeState,
+                gameOfLifeAlgorithm = hashLifeAlgorithm,
+                clock = composeTestRule.mainClock.dateTimeClock
+            )
+        }
+
+        composeTestRule.awaitIdle()
+
+        assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
+        assertEquals(
+            TemporalGameOfLifeState.EvolutionStatus.Paused,
+            temporalGameOfLifeState.status
+        )
+
+        SixLongLinePattern.cellStates.forEach { expectedCellState ->
+            temporalGameOfLifeState.step()
+            testScheduler.runCurrent()
+            composeTestRule.awaitIdle()
+
+            assertEquals(expectedCellState, temporalGameOfLifeState.cellState)
+            assertEquals(TemporalGameOfLifeState.EvolutionStatus.Paused, temporalGameOfLifeState.status)
         }
     }
 }
