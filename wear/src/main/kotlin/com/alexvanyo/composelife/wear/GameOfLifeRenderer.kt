@@ -34,7 +34,7 @@ class GameOfLifeRenderer(
     surfaceHolder: SurfaceHolder,
     currentUserStyleRepository: CurrentUserStyleRepository,
     private val watchState: WatchState,
-    private val temporalGameOfLifeState: TemporalGameOfLifeState
+    private val temporalGameOfLifeState: TemporalGameOfLifeState,
 ) : Renderer.CanvasRenderer(
     surfaceHolder = surfaceHolder,
     currentUserStyleRepository = currentUserStyleRepository,
@@ -165,7 +165,7 @@ data class TimeDigits(
 )
 
 sealed class GameOfLifeSegmentChar(
-    val cellState: CellState
+    val cellState: CellState,
 ) {
     object Zero : GameOfLifeSegmentChar(segA.union(segB).union(segC).union(segD).union(segE).union(segF))
     object One : GameOfLifeSegmentChar(segB.union(segC))

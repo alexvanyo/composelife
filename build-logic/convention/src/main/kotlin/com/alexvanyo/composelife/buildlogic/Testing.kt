@@ -9,7 +9,7 @@ import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 
 fun Project.configureTesting(
-    testedExtension: TestedExtension
+    testedExtension: TestedExtension,
 ) {
     testedExtension.apply {
         defaultConfig {

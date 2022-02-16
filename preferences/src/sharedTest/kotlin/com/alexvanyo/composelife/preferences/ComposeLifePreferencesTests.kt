@@ -27,7 +27,7 @@ class ComposeLifePreferencesTests {
 
     @get:Rule
     val preferencesRule = PreferencesRule()
-    
+
     @get:Rule
     val hiltAndroidRule = HiltAndroidRule(this)
 

@@ -15,14 +15,14 @@ import androidx.compose.ui.platform.LocalContext
  */
 data class ParameterizedString(
     @StringRes val stringRes: Int,
-    val args: List<Any>
+    val args: List<Any>,
 ) {
     /**
      * A convenience varargs constructor.
      */
     constructor(
         @StringRes stringRes: Int,
-        vararg args: Any
+        vararg args: Any,
     ) : this(
         stringRes = stringRes,
         args = args.toList()

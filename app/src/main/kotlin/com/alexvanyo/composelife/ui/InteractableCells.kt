@@ -31,7 +31,7 @@ fun InteractableCells(
     gameOfLifeState: MutableGameOfLifeState,
     scaledCellDpSize: Dp,
     cellWindow: IntRect,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier

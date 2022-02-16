@@ -14,11 +14,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Validate Gradle Wrapper
-      uses: gradle/wrapper-validation-action@v1
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
 
   build:
     needs: validate-wrapper

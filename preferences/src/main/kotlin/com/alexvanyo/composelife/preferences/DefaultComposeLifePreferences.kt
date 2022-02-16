@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class DefaultComposeLifePreferences @Inject constructor(
-    private val dataStore: PreferencesDataStore
+    private val dataStore: PreferencesDataStore,
 ) : ComposeLifePreferences {
     override val algorithmChoice: Flow<Algorithm> =
         dataStore.data.map(Preferences::getAlgorithm)

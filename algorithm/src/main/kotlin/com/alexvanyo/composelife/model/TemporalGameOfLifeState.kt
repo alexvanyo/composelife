@@ -90,7 +90,7 @@ sealed interface TemporalGameOfLifeState : MutableGameOfLifeState {
          * Temporal evolution is running, with the given [averageGenerationsPerSecond].
          */
         data class Running(
-            val averageGenerationsPerSecond: Double
+            val averageGenerationsPerSecond: Double,
         ) : EvolutionStatus
     }
 
@@ -117,7 +117,7 @@ private class GameOfLifeGenealogy(
     suspend fun evolve(
         gameOfLifeAlgorithm: GameOfLifeAlgorithm,
         stepTicker: Flow<Unit>,
-        onNewCellState: (generationsPerStep: Int) -> Unit
+        onNewCellState: (generationsPerStep: Int) -> Unit,
     ) {
         gameOfLifeAlgorithm
             .computeGenerationsWithStep(
@@ -140,7 +140,7 @@ fun rememberTemporalGameOfLifeState(
     @IntRange(from = 1)
     generationsPerStep: Int = TemporalGameOfLifeState.defaultGenerationsPerStep,
     @FloatRange(from = 0.0, fromInclusive = false)
-    targetStepsPerSecond: Double = TemporalGameOfLifeState.defaultTargetStepsPerSecond
+    targetStepsPerSecond: Double = TemporalGameOfLifeState.defaultTargetStepsPerSecond,
 ): TemporalGameOfLifeState =
     rememberSaveable(saver = TemporalGameOfLifeStateImpl.Saver) {
         TemporalGameOfLifeState(
@@ -157,7 +157,7 @@ fun TemporalGameOfLifeState(
     @IntRange(from = 1)
     generationsPerStep: Int = TemporalGameOfLifeState.defaultGenerationsPerStep,
     @FloatRange(from = 0.0, fromInclusive = false)
-    targetStepsPerSecond: Double = TemporalGameOfLifeState.defaultTargetStepsPerSecond
+    targetStepsPerSecond: Double = TemporalGameOfLifeState.defaultTargetStepsPerSecond,
 ): TemporalGameOfLifeState = TemporalGameOfLifeStateImpl(
     seedCellState = cellState,
     isRunning = isRunning,
@@ -172,7 +172,7 @@ private class TemporalGameOfLifeStateImpl(
     @IntRange(from = 1)
     generationsPerStep: Int,
     @FloatRange(from = 0.0, fromInclusive = false)
-    targetStepsPerSecond: Double
+    targetStepsPerSecond: Double,
 ) : TemporalGameOfLifeState {
 
     override var cellState: CellState
@@ -286,7 +286,9 @@ private class TemporalGameOfLifeStateImpl(
     companion object {
         val Saver: Saver<TemporalGameOfLifeState, *> = listSaver(
             { temporalGameOfLifeState ->
-                when (temporalGameOfLifeState) { is TemporalGameOfLifeStateImpl -> Unit }
+                when (temporalGameOfLifeState) {
+                    is TemporalGameOfLifeStateImpl -> Unit
+                }
                 listOf(
                     temporalGameOfLifeState.cellState.aliveCells.map(IntOffset::toPair),
                     temporalGameOfLifeState.isRunning,
@@ -309,7 +311,7 @@ private class TemporalGameOfLifeStateImpl(
 
 private data class ComputationRecord(
     val computedGenerations: Int,
-    val computedTime: Instant
+    val computedTime: Instant,
 )
 
 @Composable
@@ -332,7 +334,7 @@ class TemporalGameOfLifeStateMutator(
     coroutineScope: CoroutineScope,
     private val clock: Clock,
     private val gameOfLifeAlgorithm: GameOfLifeAlgorithm,
-    private val temporalGameOfLifeState: TemporalGameOfLifeState
+    private val temporalGameOfLifeState: TemporalGameOfLifeState,
 ) {
     init {
         coroutineScope.launch {

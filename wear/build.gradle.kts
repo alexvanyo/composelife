@@ -20,7 +20,12 @@ android {
     }
 
     lint {
-        disable += setOf("JvmStaticProvidesInObjectDetector", "FieldSiteTargetOnQualifierAnnotation", "ModuleCompanionObjects", "ModuleCompanionObjectsNotInModuleParent")
+        disable += setOf(
+            "JvmStaticProvidesInObjectDetector",
+            "FieldSiteTargetOnQualifierAnnotation",
+            "ModuleCompanionObjects",
+            "ModuleCompanionObjectsNotInModuleParent",
+        )
     }
 }
 

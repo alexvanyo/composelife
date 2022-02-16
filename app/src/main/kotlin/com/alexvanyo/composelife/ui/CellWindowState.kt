@@ -46,7 +46,7 @@ interface CellWindowState {
 fun rememberCellWindowState(
     offset: Offset = CellWindowState.defaultOffset,
     scale: Float = CellWindowState.defaultScale,
-    scaleRange: ClosedRange<Float> = CellWindowState.defaultScaleRange
+    scaleRange: ClosedRange<Float> = CellWindowState.defaultScaleRange,
 ): CellWindowState =
     rememberSaveable(saver = CellWindowStateImpl.Saver) {
         CellWindowState(
@@ -59,7 +59,7 @@ fun rememberCellWindowState(
 fun CellWindowState(
     offset: Offset = CellWindowState.defaultOffset,
     scale: Float = CellWindowState.defaultScale,
-    scaleRange: ClosedRange<Float> = CellWindowState.defaultScaleRange
+    scaleRange: ClosedRange<Float> = CellWindowState.defaultScaleRange,
 ): CellWindowState = CellWindowStateImpl(
     offset = offset,
     scale = scale,
@@ -69,7 +69,7 @@ fun CellWindowState(
 private class CellWindowStateImpl(
     offset: Offset = Offset.Zero,
     scale: Float = 1f,
-    scaleRange: ClosedRange<Float> = 0.1f..3f
+    scaleRange: ClosedRange<Float> = 0.1f..3f,
 ) : CellWindowState {
     override var offset: Offset by mutableStateOf(offset)
 
