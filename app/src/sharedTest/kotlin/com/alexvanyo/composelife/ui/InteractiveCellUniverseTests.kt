@@ -41,6 +41,10 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
 
     @Test
     fun six_long_line_evolves_correctly() = runTest {
+        val hashLifeAlgorithm = HashLifeAlgorithm(
+            dispatchers = dispatchers
+        )
+
         composeTestRule.mainClock.autoAdvance = false
 
         composeTestRule.setContent {
@@ -50,9 +54,7 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
 
             rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = HashLifeAlgorithm(
-                    dispatchers = dispatchers
-                ),
+                gameOfLifeAlgorithm = hashLifeAlgorithm,
                 clock = composeTestRule.mainClock.dateTimeClock
             )
 
@@ -88,6 +90,69 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
             composeTestRule.mainClock.advanceTimeBy(1_000_000 - 16)
+            testScheduler.runCurrent()
+            composeTestRule.awaitIdle()
+            composeTestRule.mainClock.advanceTimeBy(16)
+            composeTestRule.awaitIdle()
+
+            expectedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
+                composeTestRule
+                    .onNodeWithContentDescription(
+                        context.getString(R.string.cell_content_description, cell.x, cell.y)
+                    )
+                    .assertIsOn()
+            }
+        }
+    }
+
+    @Test
+    fun six_long_line_evolves_correctly_with_step() = runTest {
+        val hashLifeAlgorithm = HashLifeAlgorithm(
+            dispatchers = dispatchers
+        )
+
+        composeTestRule.mainClock.autoAdvance = false
+
+        composeTestRule.setContent {
+            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
+                targetStepsPerSecond = 0.001
+            )
+
+            rememberTemporalGameOfLifeStateMutator(
+                temporalGameOfLifeState = temporalGameOfLifeState,
+                gameOfLifeAlgorithm = hashLifeAlgorithm,
+                clock = composeTestRule.mainClock.dateTimeClock
+            )
+
+            InteractiveCellUniverse(
+                temporalGameOfLifeState = temporalGameOfLifeState,
+                modifier = Modifier.size(480.dp)
+            )
+        }
+
+        composeTestRule.awaitIdle()
+
+        composeTestRule
+            .onNodeWithContentDescription(context.getString(R.string.pause))
+            .performClick()
+
+        composeTestRule.awaitIdle()
+
+        SixLongLinePattern.seedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
+            composeTestRule
+                .onNodeWithContentDescription(
+                    context.getString(R.string.cell_content_description, cell.x, cell.y)
+                )
+                .performTouchInput { click(topLeft) }
+        }
+
+        composeTestRule.awaitIdle()
+
+        SixLongLinePattern.cellStates.forEach { expectedCellState ->
+            composeTestRule
+                .onNodeWithContentDescription(context.getString(R.string.step))
+                .performClick()
+
             testScheduler.runCurrent()
             composeTestRule.awaitIdle()
             composeTestRule.mainClock.advanceTimeByFrame()
