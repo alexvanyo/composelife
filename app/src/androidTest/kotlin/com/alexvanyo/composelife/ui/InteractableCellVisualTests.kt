@@ -89,9 +89,9 @@ class InteractableCellVisualTests {
                     onValueChange = {},
                     modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() })
                 )
-            }
 
-            deadCellColor = ComposeLifeTheme.deadCellColor
+                deadCellColor = ComposeLifeTheme.deadCellColor
+            }
         }
 
         composeTestRule.onRoot().captureToImage().assertPixels(
