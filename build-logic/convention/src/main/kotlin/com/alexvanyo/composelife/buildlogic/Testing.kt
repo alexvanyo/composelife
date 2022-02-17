@@ -6,6 +6,7 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.DependencyHandlerScope
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.kotlin
 import org.gradle.kotlin.dsl.withType
 
 fun Project.configureTesting(
@@ -48,6 +49,7 @@ fun Project.configureTesting(
         add("androidTestImplementation", libs.findLibrary("junit4").get())
         add("androidTestRuntimeOnly", libs.findLibrary("junit5.vintageEngine").get())
 
+        sharedTestImplementation(kotlin("test"))
         sharedTestImplementation(project(":hilt-test"))
     }
 

@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.testutil.assertPixels
+import com.alexvanyo.composelife.screenshot.assertPixels
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import org.junit.Assume.assumeTrue
 import org.junit.Rule

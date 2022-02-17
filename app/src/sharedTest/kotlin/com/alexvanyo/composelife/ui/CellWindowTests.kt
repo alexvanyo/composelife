@@ -21,7 +21,7 @@ import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertTrue
+import kotlin.test.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

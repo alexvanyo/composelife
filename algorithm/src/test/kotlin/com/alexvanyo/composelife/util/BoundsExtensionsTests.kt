@@ -3,9 +3,9 @@ package com.alexvanyo.composelife.util
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 
 class BoundsExtensionsTests {
 

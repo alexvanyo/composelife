@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife.testutil
+package com.alexvanyo.composelife.screenshot
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import org.junit.Assert.assertEquals
+import kotlin.test.assertEquals
 
 fun ImageBitmap.assertPixels(
     expectedSize: IntSize? = null,
@@ -37,8 +37,8 @@ private fun PixelMap.assertPixelColor(
 ) {
     val color = this[x, y]
     val errorString = "Pixel($x, $y) was expected to be $expected, but was $color"
-    assertEquals(errorString, expected.red, color.red, 0.02f)
-    assertEquals(errorString, expected.green, color.green, 0.02f)
-    assertEquals(errorString, expected.blue, color.blue, 0.02f)
-    assertEquals(errorString, expected.alpha, color.alpha, 0.02f)
+    assertEquals(expected.red, color.red, 0.02f, errorString,)
+    assertEquals(expected.green, color.green, 0.02f, errorString)
+    assertEquals(expected.blue, color.blue, 0.02f, errorString)
+    assertEquals(expected.alpha, color.alpha, 0.02f, errorString)
 }

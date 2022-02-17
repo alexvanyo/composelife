@@ -2,8 +2,8 @@ package com.alexvanyo.composelife.model
 
 import com.alexvanyo.composelife.algorithm.R
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 
 class PlaintextCellStateSerializerTests {
 

@@ -12,4 +12,5 @@ android {
 dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.uiTestJunit4)
+    implementation(kotlin("test"))
 }
