@@ -4,6 +4,7 @@
     <string name="cell_content_description">%1$d, %2$d</string>
     <string name="play">Play</string>
     <string name="pause">Pause</string>
+    <string name="step">Step</string>
     <string name="expand">Expand</string>
     <string name="collapse">Collapse</string>
     <string name="offset">Offset: x = %1$.1f, y = %2$.1f</string>
