@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.model.toCellState
@@ -36,7 +37,8 @@ fun ComposeLifeApp() {
 
         rememberTemporalGameOfLifeStateMutator(
             temporalGameOfLifeState = temporalGameOfLifeState,
-            gameOfLifeAlgorithm = viewModel.gameOfLifeAlgorithm
+            gameOfLifeAlgorithm = viewModel.gameOfLifeAlgorithm,
+            dispatchers = viewModel.dispatchers
         )
 
         // A surface container using the 'background' color from the theme
@@ -51,6 +53,7 @@ fun ComposeLifeApp() {
 @HiltViewModel
 class ComposeLifeAppViewModel @Inject constructor(
     val gameOfLifeAlgorithm: GameOfLifeAlgorithm,
+    val dispatchers: ComposeLifeDispatchers,
 ) : ViewModel()
 
 private val gosperGliderGun = """

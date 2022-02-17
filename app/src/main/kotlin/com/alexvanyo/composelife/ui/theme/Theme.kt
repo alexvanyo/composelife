@@ -30,16 +30,16 @@ object ComposeLifeTheme {
     @ReadOnlyComposable
     fun colorScheme(darkTheme: Boolean = isSystemInDarkTheme()) =
         if (darkTheme) {
-            lightColorScheme
-        } else {
             darkColorScheme
+        } else {
+            lightColorScheme
         }
 
     val lightColorScheme
         @Composable
         @ReadOnlyComposable
         get() =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (useDynamicColorScheme()) {
                 dynamicLightColorScheme(LocalContext.current)
             } else {
                 lightColorScheme()
@@ -49,7 +49,7 @@ object ComposeLifeTheme {
         @Composable
         @ReadOnlyComposable
         get() =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (useDynamicColorScheme()) {
                 dynamicDarkColorScheme(LocalContext.current)
             } else {
                 darkColorScheme()
@@ -70,3 +70,6 @@ object ComposeLifeTheme {
         @ReadOnlyComposable
         get() = MaterialTheme.colorScheme.surface
 }
+
+private fun useDynamicColorScheme() =
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S

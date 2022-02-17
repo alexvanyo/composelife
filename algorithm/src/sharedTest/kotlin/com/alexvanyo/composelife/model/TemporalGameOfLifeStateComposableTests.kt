@@ -5,18 +5,16 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.dispatchers.dateTimeClock
+import com.alexvanyo.composelife.dispatchers.clock
 import com.alexvanyo.composelife.patterns.PondPattern
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestDispatcher
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -45,12 +43,6 @@ class TemporalGameOfLifeStateComposableTests {
     @Before
     fun setup() {
         hiltAndroidRule.inject()
-        Dispatchers.setMain(testDispatcher)
-    }
-
-    @After
-    fun teardown() {
-        Dispatchers.resetMain()
     }
 
     @Test
@@ -96,17 +88,14 @@ class TemporalGameOfLifeStateComposableTests {
             dispatchers = dispatchers
         )
 
-        composeTestRule.mainClock.autoAdvance = false
-
         composeTestRule.setContent {
             rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = hashLifeAlgorithm,
-                clock = composeTestRule.mainClock.dateTimeClock
+                clock = testDispatcher.scheduler.clock,
+                dispatchers = dispatchers,
             )
         }
-
-        composeTestRule.awaitIdle()
 
         assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
         assertEquals(
@@ -117,8 +106,8 @@ class TemporalGameOfLifeStateComposableTests {
         )
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
-            composeTestRule.mainClock.advanceTimeBy(16)
-            testScheduler.runCurrent()
+            testDispatcher.scheduler.advanceTimeBy(16)
+            testDispatcher.scheduler.runCurrent()
             composeTestRule.awaitIdle()
 
             assertEquals(expectedCellState, temporalGameOfLifeState.cellState)
@@ -142,13 +131,12 @@ class TemporalGameOfLifeStateComposableTests {
             dispatchers = dispatchers
         )
 
-        composeTestRule.mainClock.autoAdvance = false
-
         composeTestRule.setContent {
             rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = hashLifeAlgorithm,
-                clock = composeTestRule.mainClock.dateTimeClock
+                clock = testDispatcher.scheduler.clock,
+                dispatchers = dispatchers,
             )
         }
 
@@ -161,8 +149,8 @@ class TemporalGameOfLifeStateComposableTests {
         )
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
-            temporalGameOfLifeState.step()
-            testScheduler.runCurrent()
+            launch(start = CoroutineStart.UNDISPATCHED) { temporalGameOfLifeState.step() }
+            testDispatcher.scheduler.runCurrent()
             composeTestRule.awaitIdle()
 
             assertEquals(expectedCellState, temporalGameOfLifeState.cellState)

@@ -5,6 +5,8 @@
     <string name="play">Play</string>
     <string name="pause">Pause</string>
     <string name="step">Step</string>
+    <string name="target_steps_per_second">Target steps per second: %1$.2f</string>
+    <string name="generations_per_step">Generations per step: %1$d</string>
     <string name="expand">Expand</string>
     <string name="collapse">Collapse</string>
     <string name="offset">Offset: x = %1$.1f, y = %2$.1f</string>

@@ -5,7 +5,6 @@ import androidx.annotation.IntRange
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
@@ -17,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.util.toPair
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import java.util.UUID
@@ -86,7 +87,7 @@ sealed interface TemporalGameOfLifeState : MutableGameOfLifeState {
     /**
      * Evolves the cell state using the given [GameOfLifeAlgorithm] automatically through time
      */
-    suspend fun evolve(gameOfLifeAlgorithm: GameOfLifeAlgorithm, clock: Clock)
+    suspend fun evolve(gameOfLifeAlgorithm: GameOfLifeAlgorithm, clock: Clock, dispatchers: ComposeLifeDispatchers)
 
     /**
      * A description of the current status of evolution.
@@ -252,17 +253,23 @@ private class TemporalGameOfLifeStateImpl(
         stepManualTicker.send(Unit)
     }
 
-    override suspend fun evolve(gameOfLifeAlgorithm: GameOfLifeAlgorithm, clock: Clock) {
-        evolveMutex.withLock {
-            try {
-                // coroutineScope to ensure all child coroutines finish
-                coroutineScope {
-                    evolveImpl(gameOfLifeAlgorithm, clock)
+    override suspend fun evolve(
+        gameOfLifeAlgorithm: GameOfLifeAlgorithm,
+        clock: Clock,
+        dispatchers: ComposeLifeDispatchers
+    ) {
+        withContext(dispatchers.Default) {
+            evolveMutex.withLock {
+                try {
+                    // coroutineScope to ensure all child coroutines finish
+                    coroutineScope {
+                        evolveImpl(gameOfLifeAlgorithm, clock)
+                    }
+                } finally {
+                    // Update the seedCellState with the current cell state to ensure that the next evolve picks up at
+                    // the correct spot
+                    seedCellState = cellState
                 }
-            } finally {
-                // Update the seedCellState with the current cell state to ensure that the next evolve picks up at the
-                // correct spot
-                seedCellState = cellState
             }
         }
     }
@@ -299,27 +306,21 @@ private class TemporalGameOfLifeStateImpl(
 
         snapshotFlow { cellStateGenealogy }
             .collectLatest { cellStateGenealogy ->
-                completedGenerationTracker.add(
-                    ComputationRecord(
-                        computedGenerations = 0,
-                        computedTime = clock.now()
-                    )
+                completedGenerationTracker = completedGenerationTracker + ComputationRecord(
+                    computedGenerations = 0,
+                    computedTime = clock.now()
                 )
                 cellStateGenealogy.evolve(gameOfLifeAlgorithm, stepTicker) { generationsPerStep ->
                     val lastTick = clock.now()
                     lastTickFlow.tryEmit(lastTick)
-                    completedGenerationTracker.apply {
-                        add(
-                            ComputationRecord(
-                                computedGenerations = generationsPerStep,
-                                computedTime = lastTick
-                            )
-                        )
-                        // Remove entries that are more than a second old to get a running average from the last second
-                        while (last().computedTime - first().computedTime > 1.seconds) {
-                            removeFirst()
-                        }
-                    }
+                    val newRecord = ComputationRecord(
+                        computedGenerations = generationsPerStep,
+                        computedTime = lastTick
+                    )
+
+                    // Remove entries that are more than a second old to get a running average from the last second
+                    completedGenerationTracker = (completedGenerationTracker + newRecord)
+                        .dropWhile { lastTick - it.computedTime > 1.seconds }
                 }
             }
     }
@@ -340,7 +341,7 @@ private class TemporalGameOfLifeStateImpl(
                 totalComputedGenerations / duration.toDouble(DurationUnit.SECONDS)
             }
 
-    private val completedGenerationTracker: MutableList<ComputationRecord> = mutableStateListOf()
+    private var completedGenerationTracker: List<ComputationRecord> by mutableStateOf(emptyList())
 
     companion object {
         val Saver: Saver<TemporalGameOfLifeState, *> = listSaver(
@@ -376,6 +377,7 @@ private data class ComputationRecord(
 @Composable
 fun rememberTemporalGameOfLifeStateMutator(
     temporalGameOfLifeState: TemporalGameOfLifeState,
+    dispatchers: ComposeLifeDispatchers,
     gameOfLifeAlgorithm: GameOfLifeAlgorithm,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     clock: Clock = Clock.System,
@@ -383,21 +385,23 @@ fun rememberTemporalGameOfLifeStateMutator(
     remember(gameOfLifeAlgorithm, coroutineScope) {
         TemporalGameOfLifeStateMutator(
             coroutineScope = coroutineScope,
-            clock = clock,
             gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+            clock = clock,
+            dispatchers = dispatchers,
             temporalGameOfLifeState = temporalGameOfLifeState
         )
     }
 
 class TemporalGameOfLifeStateMutator(
     coroutineScope: CoroutineScope,
-    private val clock: Clock,
     private val gameOfLifeAlgorithm: GameOfLifeAlgorithm,
+    private val clock: Clock,
+    private val dispatchers: ComposeLifeDispatchers,
     private val temporalGameOfLifeState: TemporalGameOfLifeState,
 ) {
     init {
         coroutineScope.launch {
-            temporalGameOfLifeState.evolve(gameOfLifeAlgorithm, clock)
+            temporalGameOfLifeState.evolve(gameOfLifeAlgorithm, clock, dispatchers)
         }
     }
 }
