@@ -17,12 +17,13 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import javax.inject.Inject
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -122,7 +123,7 @@ class TemporalGameOfLifeStateComposableTests {
 
             assertEquals(expectedCellState, temporalGameOfLifeState.cellState)
             temporalGameOfLifeState.status.let { status ->
-                check(status is TemporalGameOfLifeState.EvolutionStatus.Running)
+                assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                 assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
             }
         }

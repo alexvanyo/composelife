@@ -27,5 +27,12 @@ style:
     values:
       - 'FIXME:'
       - 'STOPSHIP:'
+  ForbiddenImport:
+    active: true
+    imports:
+      - 'org.junit.jupiter.api.Assertions.*'
+      - 'org.junit.jupiter.api.fail'
+      - 'org.junit.jupiter.api.assert*'
+      - 'org.junit.Assert.*'
   MagicNumber:
     active: false

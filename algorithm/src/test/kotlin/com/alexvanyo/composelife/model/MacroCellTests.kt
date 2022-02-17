@@ -1,12 +1,12 @@
 package com.alexvanyo.composelife.model
 
 import androidx.compose.ui.unit.IntOffset
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class MacroCellTests {
 
@@ -81,7 +81,7 @@ class MacroCellTests {
 
         @Test
         fun `create empty macro cell at negative level throws`() {
-            assertThrows<IllegalArgumentException> {
+            assertFailsWith<IllegalArgumentException> {
                 createEmptyMacroCell(-1)
             }
         }
