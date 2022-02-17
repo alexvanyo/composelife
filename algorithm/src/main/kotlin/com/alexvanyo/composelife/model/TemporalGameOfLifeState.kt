@@ -21,6 +21,7 @@ import com.alexvanyo.composelife.util.toPair
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -33,6 +34,8 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import java.util.UUID
@@ -223,7 +226,7 @@ private class TemporalGameOfLifeStateImpl(
             seedId = UUID.randomUUID()
         }
 
-    val cellStateGenealogy by derivedStateOf {
+    private val cellStateGenealogy by derivedStateOf {
         // Update the genealogy if the seed id changes
         // This ensures that setting the same seed state again will restart at that point, even if the current state
         // has evolved well beyond the seed state.
@@ -238,6 +241,8 @@ private class TemporalGameOfLifeStateImpl(
 
     private val stepManualTicker = Channel<Unit>(Channel.RENDEZVOUS)
 
+    private val evolveMutex = Mutex()
+
     override fun setIsRunning(isRunning: Boolean) {
         this.isRunning = isRunning
     }
@@ -247,8 +252,26 @@ private class TemporalGameOfLifeStateImpl(
         stepManualTicker.send(Unit)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun evolve(gameOfLifeAlgorithm: GameOfLifeAlgorithm, clock: Clock) {
+        evolveMutex.withLock {
+            try {
+                // coroutineScope to ensure all child coroutines finish
+                coroutineScope {
+                    evolveImpl(gameOfLifeAlgorithm, clock)
+                }
+            } finally {
+                // Update the seedCellState with the current cell state to ensure that the next evolve picks up at the
+                // correct spot
+                seedCellState = cellState
+            }
+        }
+    }
+
+    /**
+     * The implementation of [evolve] guarded by [evolveMutex].
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend fun evolveImpl(gameOfLifeAlgorithm: GameOfLifeAlgorithm, clock: Clock) {
         val lastTickFlow = MutableSharedFlow<Instant>(replay = 1)
 
         val stepTimeTicker = snapshotFlow {

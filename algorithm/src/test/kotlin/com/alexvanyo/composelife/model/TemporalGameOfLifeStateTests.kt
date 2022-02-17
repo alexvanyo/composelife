@@ -428,4 +428,119 @@ class TemporalGameOfLifeStateTests {
                 mutatorJob.cancel()
             }
     }
+
+    @Test
+    fun `multiple evolutions are correct`() = runTest {
+        val gameOfLifeState = TemporalGameOfLifeState(
+            cellState = SixLongLinePattern.seedCellState,
+            isRunning = true
+        )
+
+        snapshotFlow {
+            gameOfLifeState.cellState
+        }
+            .test {
+                val mutatorJob1 = launch {
+                    TemporalGameOfLifeStateMutator(
+                        coroutineScope = this,
+                        clock = schedulerClock,
+                        gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
+                            TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
+                        ),
+                        temporalGameOfLifeState = gameOfLifeState
+                    )
+                }
+
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                assertEquals(SixLongLinePattern.seedCellState, awaitItem())
+
+                advanceTimeBy(8)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                expectNoEvents()
+
+                advanceTimeBy(8)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                assertEquals(SixLongLinePattern.cellStates[0], awaitItem())
+
+                val mutatorJob2 = launch {
+                    TemporalGameOfLifeStateMutator(
+                        coroutineScope = this,
+                        clock = schedulerClock,
+                        gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
+                            TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
+                        ),
+                        temporalGameOfLifeState = gameOfLifeState
+                    )
+                }
+
+                advanceTimeBy(8)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                expectNoEvents()
+
+                advanceTimeBy(8)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                assertEquals(SixLongLinePattern.cellStates[1], awaitItem())
+
+                advanceTimeBy(8)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                expectNoEvents()
+
+                advanceTimeBy(8)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                assertEquals(SixLongLinePattern.cellStates[2], awaitItem())
+
+                advanceTimeBy(8)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                expectNoEvents()
+
+                mutatorJob1.cancel()
+
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                expectNoEvents()
+
+                advanceTimeBy(8)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                expectNoEvents()
+
+                advanceTimeBy(8)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                assertEquals(SixLongLinePattern.cellStates[3], awaitItem())
+
+                advanceTimeBy(8)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                expectNoEvents()
+
+                advanceTimeBy(8)
+                runCurrent()
+                Snapshot.sendApplyNotifications()
+                runCurrent()
+                assertEquals(SixLongLinePattern.cellStates[4], awaitItem())
+
+                mutatorJob2.cancel()
+            }
+    }
 }
