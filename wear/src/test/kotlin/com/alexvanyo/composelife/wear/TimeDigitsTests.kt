@@ -1,6 +1,5 @@
 package com.alexvanyo.composelife.wear
 
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -10,6 +9,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.stream.Stream
+import kotlin.test.assertEquals
 
 class TimeDigitsTests {
 
