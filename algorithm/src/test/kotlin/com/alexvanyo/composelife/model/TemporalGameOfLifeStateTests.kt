@@ -62,12 +62,12 @@ class TemporalGameOfLifeStateTests {
         }
             .test {
                 val mutatorJob = launch {
+                    val dispatchers = TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
                     TemporalGameOfLifeStateMutator(
                         coroutineScope = this,
+                        gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
                         clock = schedulerClock,
-                        gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
-                            TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
-                        ),
+                        dispatchers = dispatchers,
                         temporalGameOfLifeState = gameOfLifeState
                     )
                 }
@@ -106,12 +106,12 @@ class TemporalGameOfLifeStateTests {
         }
             .test {
                 val mutatorJob = launch {
+                    val dispatchers = TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
                     TemporalGameOfLifeStateMutator(
                         coroutineScope = this,
+                        gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
                         clock = schedulerClock,
-                        gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
-                            TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
-                        ),
+                        dispatchers = dispatchers,
                         temporalGameOfLifeState = gameOfLifeState
                     )
                 }
@@ -192,12 +192,12 @@ class TemporalGameOfLifeStateTests {
         }
             .test {
                 val mutatorJob = launch {
+                    val dispatchers = TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
                     TemporalGameOfLifeStateMutator(
                         coroutineScope = this,
+                        gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
                         clock = schedulerClock,
-                        gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
-                            TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
-                        ),
+                        dispatchers = dispatchers,
                         temporalGameOfLifeState = gameOfLifeState
                     )
                 }
@@ -283,12 +283,12 @@ class TemporalGameOfLifeStateTests {
         }
             .test {
                 val mutatorJob = launch {
+                    val dispatchers = TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
                     TemporalGameOfLifeStateMutator(
                         coroutineScope = this,
+                        gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
                         clock = schedulerClock,
-                        gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
-                            TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
-                        ),
+                        dispatchers = dispatchers,
                         temporalGameOfLifeState = gameOfLifeState
                     )
                 }
@@ -374,12 +374,12 @@ class TemporalGameOfLifeStateTests {
         }
             .test {
                 val mutatorJob = launch {
+                    val dispatchers = TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
                     TemporalGameOfLifeStateMutator(
                         coroutineScope = this,
+                        gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
                         clock = schedulerClock,
-                        gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
-                            TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
-                        ),
+                        dispatchers = dispatchers,
                         temporalGameOfLifeState = gameOfLifeState
                     )
                 }
@@ -441,12 +441,12 @@ class TemporalGameOfLifeStateTests {
         }
             .test {
                 val mutatorJob1 = launch {
+                    val dispatchers = TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
                     TemporalGameOfLifeStateMutator(
                         coroutineScope = this,
+                        gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
                         clock = schedulerClock,
-                        gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
-                            TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
-                        ),
+                        dispatchers = dispatchers,
                         temporalGameOfLifeState = gameOfLifeState
                     )
                 }
@@ -469,12 +469,12 @@ class TemporalGameOfLifeStateTests {
                 assertEquals(SixLongLinePattern.cellStates[0], awaitItem())
 
                 val mutatorJob2 = launch {
+                    val dispatchers = TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
                     TemporalGameOfLifeStateMutator(
                         coroutineScope = this,
+                        gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
                         clock = schedulerClock,
-                        gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(
-                            TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
-                        ),
+                        dispatchers = dispatchers,
                         temporalGameOfLifeState = gameOfLifeState
                     )
                 }

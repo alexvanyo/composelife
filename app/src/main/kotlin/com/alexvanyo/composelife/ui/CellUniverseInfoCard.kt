@@ -172,6 +172,7 @@ fun CellUniverseInfoCard(
         ) { showColumn ->
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 if (showColumn) {
                     Column(

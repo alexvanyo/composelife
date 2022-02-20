@@ -13,6 +13,7 @@ import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.emptyCellState
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,6 +34,9 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
     @Inject
     lateinit var gameOfLifeAlgorithm: GameOfLifeAlgorithm
 
+    @Inject
+    lateinit var dispatchers: ComposeLifeDispatchers
+
     private val scope = CoroutineScope(SupervisorJob() + AndroidUiDispatcher.Main)
 
     private val temporalGameOfLifeState = TemporalGameOfLifeState(
@@ -48,7 +52,8 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
         scope.launch {
             temporalGameOfLifeState.evolve(
                 gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = Clock.System
+                clock = Clock.System,
+                dispatchers = dispatchers,
             )
         }
     }
