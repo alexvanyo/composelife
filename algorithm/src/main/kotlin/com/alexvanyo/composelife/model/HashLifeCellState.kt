@@ -115,7 +115,8 @@ class HashLifeCellState(
         override fun contains(element: IntOffset): Boolean =
             macroCell.contains(element - offset)
 
-        override fun containsAll(elements: Collection<IntOffset>): Boolean = elements.all { contains(it) }
+        override fun containsAll(elements: Collection<IntOffset>): Boolean =
+            macroCell.containsAll(elements.map { it - offset })
 
         override fun isEmpty(): Boolean = size == 0
 
