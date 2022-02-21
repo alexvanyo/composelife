@@ -35,6 +35,13 @@ class CellUniverseInfoCardTests {
     }
 
     @Test
+    fun collapsed_single_selection_preview() {
+        composeTestRule.setContent {
+            CellUniverseInfoCardCollapsedSingleSelectionPreview()
+        }
+    }
+
+    @Test
     fun fully_collapsed_preview() {
         composeTestRule.setContent {
             CellUniverseInfoCardFullyCollapsedPreview()
@@ -116,7 +123,7 @@ class CellUniverseInfoCardTests {
         composeTestRule.setContent {
             CellUniverseInfoCard(
                 cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                    rememberCellUniverseInfoCardState(isExpanded = false),
+                    rememberCellUniverseInfoCardState(initialIsExpanded = false),
                     cellUniverseInfoItemContents = listOf(
                         CellUniverseInfoItemContent(
                             rememberCellUniverseInfoItemState()
@@ -147,7 +154,7 @@ class CellUniverseInfoCardTests {
         composeTestRule.setContent {
             CellUniverseInfoCard(
                 cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                    rememberCellUniverseInfoCardState(isExpanded = true),
+                    rememberCellUniverseInfoCardState(initialIsExpanded = true),
                     cellUniverseInfoItemContents = listOf(
                         CellUniverseInfoItemContent(
                             rememberCellUniverseInfoItemState()
