@@ -113,28 +113,13 @@ fun MacroCell.withCell(target: IntOffset, isAlive: Boolean): MacroCell {
             val isWest = target.x < offsetDiff
             if (isNorth) {
                 if (isWest) {
-                    CellNode(
-                        nw = nw.withCell(target, isAlive),
-                        ne = ne,
-                        sw = sw,
-                        se = se
-                    )
+                    CellNode(nw = nw.withCell(target, isAlive), ne = ne, sw = sw, se = se)
                 } else {
-                    CellNode(
-                        nw = nw,
-                        ne = ne.withCell(target + IntOffset(-offsetDiff, 0), isAlive),
-                        sw = sw,
-                        se = se
-                    )
+                    CellNode(nw = nw, ne = ne.withCell(target + IntOffset(-offsetDiff, 0), isAlive), sw = sw, se = se)
                 }
             } else {
                 if (isWest) {
-                    CellNode(
-                        nw = nw,
-                        ne = ne,
-                        sw = sw.withCell(target + IntOffset(0, -offsetDiff), isAlive),
-                        se = se
-                    )
+                    CellNode(nw = nw, ne = ne, sw = sw.withCell(target + IntOffset(0, -offsetDiff), isAlive), se = se)
                 } else {
                     CellNode(
                         nw = nw,
@@ -151,22 +136,21 @@ fun MacroCell.withCell(target: IntOffset, isAlive: Boolean): MacroCell {
 /**
  * Creates a [MacroCell] with the given [level] as a window looking into [CellState] at [offset].
  */
-fun createMacroCell(cellState: CellState, offset: IntOffset, level: Int): MacroCell =
-    if (level == 0) {
-        if (offset in cellState.aliveCells) {
-            AliveCell
-        } else {
-            DeadCell
-        }
+fun createMacroCell(cellState: CellState, offset: IntOffset, level: Int): MacroCell = if (level == 0) {
+    if (offset in cellState.aliveCells) {
+        AliveCell
     } else {
-        val offsetDiff = 1 shl (level - 1)
-        CellNode(
-            createMacroCell(cellState, offset, level - 1),
-            createMacroCell(cellState, offset + IntOffset(offsetDiff, 0), level - 1),
-            createMacroCell(cellState, offset + IntOffset(0, offsetDiff), level - 1),
-            createMacroCell(cellState, offset + IntOffset(offsetDiff, offsetDiff), level - 1),
-        )
+        DeadCell
     }
+} else {
+    val offsetDiff = 1 shl (level - 1)
+    CellNode(
+        createMacroCell(cellState, offset, level - 1),
+        createMacroCell(cellState, offset + IntOffset(offsetDiff, 0), level - 1),
+        createMacroCell(cellState, offset + IntOffset(0, offsetDiff), level - 1),
+        createMacroCell(cellState, offset + IntOffset(offsetDiff, offsetDiff), level - 1),
+    )
+}
 
 /**
  * Creates an empty [MacroCell] with the given [level].
@@ -179,12 +163,7 @@ fun createEmptyMacroCell(@IntRange(from = 0) level: Int): MacroCell {
         DeadCell
     } else {
         val smallerEmptyMacroCell = createEmptyMacroCell(level - 1)
-        CellNode(
-            smallerEmptyMacroCell,
-            smallerEmptyMacroCell,
-            smallerEmptyMacroCell,
-            smallerEmptyMacroCell
-        )
+        CellNode(smallerEmptyMacroCell, smallerEmptyMacroCell, smallerEmptyMacroCell, smallerEmptyMacroCell)
     }
 }
 
@@ -247,3 +226,52 @@ tailrec fun MacroCell.contains(target: IntOffset): Boolean =
             }
         }
     }
+
+/**
+ * An optimized version of [contains] for a collection of [targets].
+ *
+ * This runs in O(targets.size * level) time.
+ */
+@Suppress("ReturnCount")
+fun MacroCell.containsAll(targets: Collection<IntOffset>): Boolean {
+    // Fast path: vacuously true
+    if (targets.isEmpty()) return true
+
+    // Fast path: if our size is less than the total number of targets, we can't possibly contain all
+    if (size < targets.size) return false
+
+    // Invariant: if size was zero, but size < targets.size, then targets.size == 0, so we also should have returned
+    check(size > 0)
+
+    // We can't contain targets outside of the representation
+    if (targets.any { target -> target.x !in 0 until (1 shl level) || target.y !in 0 until (1 shl level) })
+        return false
+
+    return when (this) {
+        AliveCell -> {
+            check(targets.size == 1)
+            check(targets.first() == IntOffset.Zero)
+            true
+        }
+        DeadCell -> {
+            throw AssertionError("Dead cell must have a size equal to 0!")
+        }
+        is CellNode -> {
+            val offsetDiff = 1 shl (level - 1)
+            val (northTargets, southTargets) = targets.partition { target ->
+                target.y < offsetDiff
+            }
+            val (northWestTargets, northEastTargets) = northTargets.partition { target ->
+                target.x < offsetDiff
+            }
+            val (southWestTargets, southEastTargets) = southTargets.partition { target ->
+                target.x < offsetDiff
+            }
+            // Recurse on subtrees
+            nw.containsAll(northWestTargets) &&
+                ne.containsAll(northEastTargets.map { it + IntOffset(-offsetDiff, 0) }) &&
+                sw.containsAll(southWestTargets.map { it + IntOffset(0, -offsetDiff) }) &&
+                se.containsAll(southEastTargets.map { it + IntOffset(-offsetDiff, -offsetDiff) })
+        }
+    }
+}
