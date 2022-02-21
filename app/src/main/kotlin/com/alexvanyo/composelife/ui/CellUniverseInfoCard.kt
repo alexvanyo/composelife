@@ -10,6 +10,7 @@ import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -24,8 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -37,32 +36,40 @@ import com.alexvanyo.composelife.R
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 
-class CellUniverseInfoCardState(
-    isExpanded: Boolean = defaultIsExpanded,
-) {
-    var isExpanded by mutableStateOf(isExpanded)
+/**
+ * The persistable state describing the [CellUniverseInfoCard].
+ */
+interface CellUniverseInfoCardState {
+
+    /**
+     * `true` if the card is expanded.
+     */
+    var isExpanded: Boolean
 
     companion object {
         const val defaultIsExpanded: Boolean = false
-
-        val Saver: Saver<CellUniverseInfoCardState, *> = listSaver(
-            { cellUniverseInfoCardState ->
-                listOf(cellUniverseInfoCardState.isExpanded)
-            },
-            { list ->
-                CellUniverseInfoCardState(list[0])
-            }
-        )
     }
 }
 
+/**
+ * Remembers the a default implementation of [CellUniverseInfoCardState].
+ */
 @Composable
 fun rememberCellUniverseInfoCardState(
-    isExpanded: Boolean = CellUniverseInfoCardState.defaultIsExpanded,
-): CellUniverseInfoCardState =
-    rememberSaveable(saver = CellUniverseInfoCardState.Saver) {
-        CellUniverseInfoCardState(isExpanded = isExpanded)
+    initialIsExpanded: Boolean = CellUniverseInfoCardState.defaultIsExpanded,
+): CellUniverseInfoCardState {
+    var isExpanded by rememberSaveable { mutableStateOf(initialIsExpanded) }
+
+    return remember {
+        object : CellUniverseInfoCardState {
+            override var isExpanded: Boolean
+                get() = isExpanded
+                set(value) {
+                    isExpanded = value
+                }
+        }
     }
+}
 
 class CellUniverseInfoCardContent(
     private val cellUniverseInfoCardState: CellUniverseInfoCardState,
@@ -86,6 +93,7 @@ fun CellUniverseInfoCard(
     cellWindowState: CellWindowState,
     evolutionStatus: TemporalGameOfLifeState.EvolutionStatus,
     modifier: Modifier = Modifier,
+    infoCardState: CellUniverseInfoCardState = rememberCellUniverseInfoCardState(),
 ) {
     val currentEvolutionStatus by rememberUpdatedState(newValue = evolutionStatus)
 
@@ -120,6 +128,7 @@ fun CellUniverseInfoCard(
                 }
             }
         ),
+        infoCardState = infoCardState,
         modifier = modifier
     )
 }
@@ -129,6 +138,7 @@ fun CellUniverseInfoCard(
 fun CellUniverseInfoCard(
     infoItemTexts: List<@Composable (isEditing: Boolean) -> String>,
     modifier: Modifier = Modifier,
+    infoCardState: CellUniverseInfoCardState = rememberCellUniverseInfoCardState(),
 ) {
     val infoItemContents = infoItemTexts.map { text ->
         val infoItemState = rememberCellUniverseInfoItemState()
@@ -140,7 +150,6 @@ fun CellUniverseInfoCard(
         }
     }
 
-    val infoCardState = rememberCellUniverseInfoCardState()
     val infoCardContent = remember(infoItemContents, infoCardState) {
         CellUniverseInfoCardContent(
             cellUniverseInfoCardState = infoCardState,
@@ -172,12 +181,14 @@ fun CellUniverseInfoCard(
         ) { showColumn ->
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top,
             ) {
                 if (showColumn) {
                     Column(
+                        verticalArrangement = Arrangement.Center,
                         modifier = Modifier
                             .weight(1f)
+                            .heightIn(min = 48.dp)
                             .padding(vertical = 8.dp),
                     ) {
                         cellUniverseInfoCardContent.cellUniverseInfoItemContents
@@ -225,13 +236,43 @@ fun CellUniverseInfoCardCollapsedPreview() {
     ComposeLifeTheme {
         CellUniverseInfoCard(
             cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                rememberCellUniverseInfoCardState(isExpanded = false),
+                rememberCellUniverseInfoCardState(initialIsExpanded = false),
                 cellUniverseInfoItemContents = listOf(
                     CellUniverseInfoItemContent(
                         rememberCellUniverseInfoItemState(isChecked = true)
                     ) { "First" },
                     CellUniverseInfoItemContent(
                         rememberCellUniverseInfoItemState(isChecked = true)
+                    ) { "Second" },
+                    CellUniverseInfoItemContent(
+                        rememberCellUniverseInfoItemState(isChecked = true)
+                    ) { "Third" }
+                )
+            )
+        )
+    }
+}
+
+@Preview(
+    name = "Collapsed single selection light mode",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Collapsed single selection dark mode",
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun CellUniverseInfoCardCollapsedSingleSelectionPreview() {
+    ComposeLifeTheme {
+        CellUniverseInfoCard(
+            cellUniverseInfoCardContent = CellUniverseInfoCardContent(
+                rememberCellUniverseInfoCardState(initialIsExpanded = false),
+                cellUniverseInfoItemContents = listOf(
+                    CellUniverseInfoItemContent(
+                        rememberCellUniverseInfoItemState(isChecked = false)
+                    ) { "First" },
+                    CellUniverseInfoItemContent(
+                        rememberCellUniverseInfoItemState(isChecked = false)
                     ) { "Second" },
                     CellUniverseInfoItemContent(
                         rememberCellUniverseInfoItemState(isChecked = true)
@@ -255,7 +296,7 @@ fun CellUniverseInfoCardFullyCollapsedPreview() {
     ComposeLifeTheme {
         CellUniverseInfoCard(
             cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                rememberCellUniverseInfoCardState(isExpanded = false),
+                rememberCellUniverseInfoCardState(initialIsExpanded = false),
                 cellUniverseInfoItemContents = listOf(
                     CellUniverseInfoItemContent(
                         rememberCellUniverseInfoItemState(isChecked = false)
@@ -285,7 +326,7 @@ fun CellUniverseInfoCardExpandedPreview() {
     ComposeLifeTheme {
         CellUniverseInfoCard(
             cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                rememberCellUniverseInfoCardState(isExpanded = true),
+                rememberCellUniverseInfoCardState(initialIsExpanded = true),
                 cellUniverseInfoItemContents = listOf(
                     CellUniverseInfoItemContent(
                         rememberCellUniverseInfoItemState()
