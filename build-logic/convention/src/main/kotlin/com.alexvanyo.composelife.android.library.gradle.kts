@@ -9,6 +9,7 @@ android {
     configureKotlinAndroid(this)
 
     defaultConfig {
+        targetSdk = 32
         consumerProguardFiles("consumer-rules.pro")
     }
 
