@@ -15,6 +15,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.R
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
+import com.alexvanyo.composelife.preferences.CurrentShape
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,6 +55,10 @@ class InteractableCellsTests {
         composeTestRule.setContent {
             InteractableCells(
                 gameOfLifeState = mutableGameOfLifeState,
+                shape = CurrentShape.RoundRectangle(
+                    sizeFraction = 1f,
+                    cornerFraction = 0f
+                ),
                 scaledCellDpSize = 10.dp,
                 cellWindow = IntRect(
                     IntOffset(0, 0),
@@ -160,6 +165,10 @@ class InteractableCellsTests {
         composeTestRule.setContent {
             InteractableCells(
                 gameOfLifeState = mutableGameOfLifeState,
+                shape = CurrentShape.RoundRectangle(
+                    sizeFraction = 1f,
+                    cornerFraction = 0f
+                ),
                 scaledCellDpSize = 10.dp,
                 cellWindow = IntRect(
                     IntOffset(0, 0),

@@ -17,14 +17,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Settings
@@ -45,9 +47,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.SaverScope
-import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -58,13 +57,12 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.R
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
-import com.alexvanyo.composelife.ui.navigation.Backstack
-import com.alexvanyo.composelife.ui.navigation.BackstackEntry
-import com.alexvanyo.composelife.ui.navigation.backstackBackHandler
-import com.alexvanyo.composelife.ui.navigation.navigate
-import com.alexvanyo.composelife.ui.navigation.popUpTo
-import com.alexvanyo.composelife.ui.navigation.rememberBackstack
-import com.livefront.sealedenum.GenSealedEnum
+import com.alexvanyo.composelife.navigation.Backstack
+import com.alexvanyo.composelife.navigation.BackstackEntry
+import com.alexvanyo.composelife.navigation.backstackBackHandler
+import com.alexvanyo.composelife.navigation.navigate
+import com.alexvanyo.composelife.navigation.popUpTo
+import com.alexvanyo.composelife.navigation.rememberBackstack
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.log2
@@ -104,7 +102,7 @@ interface CellUniverseActionCardState {
 @Composable
 fun rememberCellUniverseActionCardState(
     initialIsExpanded: Boolean = CellUniverseActionCardState.defaultIsExpanded,
-    initialBackstack: List<BackstackEntry<ActionCardNavigation>> = listOf(BackstackEntry(ActionCardNavigation.Speed))
+    initialBackstack: Backstack<ActionCardNavigation> = listOf(BackstackEntry(ActionCardNavigation.Speed))
 ): CellUniverseActionCardState {
     var isExpanded by rememberSaveable { mutableStateOf(initialIsExpanded) }
 
@@ -130,18 +128,24 @@ fun rememberCellUniverseActionCardState(
             }
 
             override fun onEditClicked() {
-                popUpToSpeed()
-                backstack.navigate(ActionCardNavigation.Edit)
+                if (backstack.last().value !is ActionCardNavigation.Edit) {
+                    popUpToSpeed()
+                    backstack.navigate(ActionCardNavigation.Edit)
+                }
             }
 
             override fun onPaletteClicked() {
-                popUpToSpeed()
-                backstack.navigate(ActionCardNavigation.Palette)
+                if (backstack.last().value !is ActionCardNavigation.Palette) {
+                    popUpToSpeed()
+                    backstack.navigate(ActionCardNavigation.Palette)
+                }
             }
 
             override fun onSettingsClicked() {
-                popUpToSpeed()
-                backstack.navigate(ActionCardNavigation.Settings)
+                if (backstack.last().value !is ActionCardNavigation.Settings) {
+                    popUpToSpeed()
+                    backstack.navigate(ActionCardNavigation.Settings)
+                }
             }
 
             private fun popUpToSpeed() {
@@ -245,7 +249,7 @@ fun CellUniverseActionCard(
                                     setGenerationsPerStep = setGenerationsPerStep
                                 )
                                 ActionCardNavigation.Edit -> Unit
-                                ActionCardNavigation.Palette -> Unit
+                                ActionCardNavigation.Palette -> PaletteScreen()
                                 ActionCardNavigation.Settings -> Unit
                             }
                         }
@@ -260,31 +264,7 @@ fun CellUniverseActionCard(
     }
 }
 
-@Composable
-fun SpeedScreen(
-    targetStepsPerSecond: Double,
-    setTargetStepsPerSecond: (Double) -> Unit,
-    generationsPerStep: Int,
-    setGenerationsPerStep: (Int) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier.verticalScroll(rememberScrollState())
-    ) {
-        TargetStepsPerSecondControl(
-            targetStepsPerSecond = targetStepsPerSecond,
-            setTargetStepsPerSecond = setTargetStepsPerSecond,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-
-        GenerationsPerStepControl(
-            generationsPerStep = generationsPerStep,
-            setGenerationsPerStep = setGenerationsPerStep,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-    }
-}
-
+@Suppress("LongMethod")
 @Composable
 fun ActionCardNavigationBar(
     actionCardState: CellUniverseActionCardState,
@@ -298,12 +278,22 @@ fun ActionCardNavigationBar(
             indicatorColor = MaterialTheme.colorScheme.tertiaryContainer
         )
 
+        val speedSelected = actionCardState.backstack.last().value == ActionCardNavigation.Speed
+        val editSelected = actionCardState.backstack.last().value == ActionCardNavigation.Edit
+        val paletteSelected = actionCardState.backstack.last().value == ActionCardNavigation.Palette
+        val settingsSelected = actionCardState.backstack.last().value == ActionCardNavigation.Settings
+
         NavigationBarItem(
-            selected = actionCardState.backstack.last().value == ActionCardNavigation.Speed,
+            selected = speedSelected,
             onClick = actionCardState::onSpeedClicked,
             icon = {
                 Icon(
-                    Icons.Outlined.Speed, contentDescription = ""
+                    if (speedSelected) {
+                        Icons.Filled.Speed
+                    } else {
+                        Icons.Outlined.Speed
+                    },
+                    contentDescription = ""
                 )
             },
             label = {
@@ -312,10 +302,17 @@ fun ActionCardNavigationBar(
             colors = navigationItemColors,
         )
         NavigationBarItem(
-            selected = actionCardState.backstack.last().value == ActionCardNavigation.Edit,
+            selected = editSelected,
             onClick = actionCardState::onEditClicked,
             icon = {
-                Icon(Icons.Outlined.Edit, contentDescription = "")
+                Icon(
+                    if (editSelected) {
+                        Icons.Filled.Edit
+                    } else {
+                        Icons.Outlined.Edit
+                    },
+                    contentDescription = ""
+                )
             },
             label = {
                 Text(text = stringResource(id = R.string.edit))
@@ -326,7 +323,14 @@ fun ActionCardNavigationBar(
             selected = actionCardState.backstack.last().value == ActionCardNavigation.Palette,
             onClick = actionCardState::onPaletteClicked,
             icon = {
-                Icon(Icons.Outlined.Palette, contentDescription = "")
+                Icon(
+                    if (paletteSelected) {
+                        Icons.Filled.Palette
+                    } else {
+                        Icons.Outlined.Palette
+                    },
+                    contentDescription = ""
+                )
             },
             label = {
                 Text(text = stringResource(id = R.string.palette))
@@ -334,108 +338,23 @@ fun ActionCardNavigationBar(
             colors = navigationItemColors,
         )
         NavigationBarItem(
-            selected = actionCardState.backstack.last().value == ActionCardNavigation.Settings,
+            selected = settingsSelected,
             onClick = actionCardState::onSettingsClicked,
             icon = {
-                Icon(Icons.Outlined.Settings, contentDescription = "")
+                Icon(
+                    if (settingsSelected) {
+                        Icons.Filled.Settings
+                    } else {
+                        Icons.Outlined.Settings
+                    },
+                    contentDescription = ""
+                )
             },
             label = {
                 Text(text = stringResource(id = R.string.settings))
             },
             colors = navigationItemColors,
         )
-    }
-}
-
-sealed interface ActionCardNavigation {
-    val type: ActionCardNavigationType<ActionCardNavigation>
-
-    object Speed : ActionCardNavigation {
-        override val type = ActionCardNavigationType.Speed
-    }
-
-    object Edit : ActionCardNavigation {
-        override val type = ActionCardNavigationType.Edit
-    }
-
-    object Palette : ActionCardNavigation {
-        override val type = ActionCardNavigationType.Palette
-    }
-
-    object Settings : ActionCardNavigation {
-        override val type = ActionCardNavigationType.Settings
-    }
-
-    companion object {
-        val Saver: Saver<ActionCardNavigation, Any> = listSaver(
-            save = { actionCardNavigation ->
-                listOf(
-                    with(ActionCardNavigationType.Saver) { save(actionCardNavigation.type) },
-                    save(actionCardNavigation = actionCardNavigation)
-                )
-            },
-            restore = { list ->
-                val type = ActionCardNavigationType.Saver.restore(list[0] as Int)!!
-                type.saver.restore(list[1]!!)
-            }
-        )
-    }
-}
-
-fun SaverScope.save(actionCardNavigation: ActionCardNavigation): Any? =
-    when (actionCardNavigation) {
-        is ActionCardNavigation.Speed -> with(actionCardNavigation.type.saver) { save(actionCardNavigation) }
-        is ActionCardNavigation.Edit -> with(actionCardNavigation.type.saver) { save(actionCardNavigation) }
-        is ActionCardNavigation.Palette -> with(actionCardNavigation.type.saver) { save(actionCardNavigation) }
-        is ActionCardNavigation.Settings -> with(actionCardNavigation.type.saver) { save(actionCardNavigation) }
-    }
-
-/**
- * The type for each [ActionCardNavigation].
- *
- * These classes must be objects, since they need to statically be able to save and restore concrete
- * [ActionCardNavigation] types.
- */
-sealed interface ActionCardNavigationType<out T : ActionCardNavigation> {
-    val saver: Saver<out T, Any>
-
-    object Speed : ActionCardNavigationType<ActionCardNavigation.Speed> {
-        override val saver: Saver<ActionCardNavigation.Speed, Any> = Saver(
-            save = { 0 },
-            restore = { ActionCardNavigation.Speed }
-        )
-    }
-
-    object Edit : ActionCardNavigationType<ActionCardNavigation.Edit> {
-        override val saver: Saver<ActionCardNavigation.Edit, Any> = Saver(
-            save = { 0 },
-            restore = { ActionCardNavigation.Edit }
-        )
-    }
-
-    object Palette : ActionCardNavigationType<ActionCardNavigation.Palette> {
-        override val saver: Saver<ActionCardNavigation.Palette, Any> = Saver(
-            save = { 0 },
-            restore = { ActionCardNavigation.Palette }
-        )
-    }
-
-    object Settings : ActionCardNavigationType<ActionCardNavigation.Settings> {
-        override val saver: Saver<ActionCardNavigation.Settings, Any> = Saver(
-            save = { 0 },
-            restore = { ActionCardNavigation.Settings }
-        )
-    }
-
-    @GenSealedEnum
-    companion object {
-        val Saver: Saver<ActionCardNavigationType<*>, Int> = object : Saver<ActionCardNavigationType<*>, Int> {
-            override fun restore(value: Int): ActionCardNavigationType<*> =
-                ActionCardNavigationTypeSealedEnum.values[value]
-
-            override fun SaverScope.save(value: ActionCardNavigationType<*>): Int =
-                value.ordinal
-        }
     }
 }
 

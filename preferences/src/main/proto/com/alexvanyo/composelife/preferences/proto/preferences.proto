@@ -1,14 +1,19 @@
 syntax = "proto3";
 
+import "com/alexvanyo/composelife/preferences/proto/current_shape_type.proto";
+import "com/alexvanyo/composelife/preferences/proto/shapes.proto";
+
 option java_package = "com.alexvanyo.composelife.preferences.proto";
 option java_multiple_files = true;
 
-message Preferences {
-  Algorithm algorithm = 1;
+message PreferencesProto {
+  AlgorithmProto algorithm = 1;
+  CurrentShapeTypeProto current_shape_type = 2;
+  RoundRectangleProto round_rectangle = 3;
 }
 
-enum Algorithm {
-  UNKNOWN = 0;
+enum AlgorithmProto {
+  ALGORITHM_UNKNOWN = 0;
   DEFAULT = 1;
   NAIVE = 2;
   HASHLIFE = 3;

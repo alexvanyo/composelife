@@ -6,13 +6,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlin.test.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
 import javax.inject.Inject
+import kotlin.test.assertTrue
 
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
@@ -30,7 +30,7 @@ class TestPreferencesDataStoreTests {
     val fileProvider: FileProvider = preferencesRule.fileProvider
 
     @Inject
-    @PreferencesProto
+    @PreferencesProtoFile
     lateinit var file: File
 
     @Before

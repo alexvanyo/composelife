@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
+import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.screenshot.assertPixels
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import org.junit.Assume.assumeTrue
@@ -63,6 +64,10 @@ class NonInteractableCellsVisualTests {
                         ).toCellState()
                     ),
                     scaledCellDpSize = with(LocalDensity.current) { 1.toDp() },
+                    shape = CurrentShape.RoundRectangle(
+                        sizeFraction = 1f,
+                        cornerFraction = 0f
+                    ),
                     cellWindow = IntRect(
                         IntOffset(0, 0),
                         IntOffset(9, 9)
@@ -122,6 +127,10 @@ class NonInteractableCellsVisualTests {
                         ).toCellState()
                     ),
                     scaledCellDpSize = with(LocalDensity.current) { 1.toDp() },
+                    shape = CurrentShape.RoundRectangle(
+                        sizeFraction = 1f,
+                        cornerFraction = 0f
+                    ),
                     cellWindow = IntRect(
                         IntOffset(0, 0),
                         IntOffset(9, 9)

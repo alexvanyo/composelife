@@ -19,6 +19,7 @@ import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.setCellState
 import com.alexvanyo.composelife.model.toCellState
+import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 
 /**
@@ -29,6 +30,7 @@ import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 @Composable
 fun InteractableCells(
     gameOfLifeState: MutableGameOfLifeState,
+    shape: CurrentShape,
     scaledCellDpSize: Dp,
     cellWindow: IntRect,
     modifier: Modifier = Modifier,
@@ -49,6 +51,7 @@ fun InteractableCells(
                             modifier = Modifier
                                 .size(scaledCellDpSize),
                             isAlive = cell in gameOfLifeState.cellState.aliveCells,
+                            shape = shape,
                             contentDescription = stringResource(
                                 R.string.cell_content_description,
                                 cell.x,
@@ -96,6 +99,10 @@ fun InteractableCellsPreview() {
                     4 to 2,
                     4 to 4,
                 ).toCellState()
+            ),
+            shape = CurrentShape.RoundRectangle(
+                sizeFraction = 1f,
+                cornerFraction = 0f
             ),
             scaledCellDpSize = 32.dp,
             cellWindow = IntRect(

@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option java_package = "com.alexvanyo.composelife.preferences.proto";
+option java_multiple_files = true;
+
+enum CurrentShapeTypeProto {
+  CURRENT_SHAPE_TYPE_UNKNOWN = 0;
+  ROUND_RECTANGLE = 1;
+}

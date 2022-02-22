@@ -8,7 +8,7 @@ import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.filterToOne
 import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -19,6 +19,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.R
+import com.alexvanyo.composelife.TestActivity
 import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.clock
@@ -26,11 +27,9 @@ import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import com.alexvanyo.composelife.test.BaseAndroidTest
-import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
-import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import javax.inject.Inject
@@ -39,11 +38,8 @@ import javax.inject.Inject
 @HiltAndroidTest
 class InteractiveCellUniverseTests : BaseAndroidTest() {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
-
-    @BindValue
-    val fileProvider = preferencesRule.fileProvider
+    @get:Rule(order = 1)
+    val composeTestRule = createAndroidComposeRule<TestActivity>()
 
     @Inject
     lateinit var testDispatcher: TestDispatcher
@@ -52,7 +48,7 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
     lateinit var dispatchers: ComposeLifeDispatchers
 
     @Test
-    fun six_long_line_evolves_correctly() = runTest {
+    fun six_long_line_evolves_correctly() = runAppTest {
         val hashLifeAlgorithm = HashLifeAlgorithm(
             dispatchers = dispatchers
         )
@@ -71,7 +67,8 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
 
             InteractiveCellUniverse(
                 temporalGameOfLifeState = temporalGameOfLifeState,
-                modifier = Modifier.size(480.dp)
+                modifier = Modifier.size(480.dp),
+                preferences = preferences,
             )
         }
 
@@ -107,7 +104,7 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
     }
 
     @Test
-    fun six_long_line_evolves_correctly_after_slowing_down() = runTest {
+    fun six_long_line_evolves_correctly_after_slowing_down() = runAppTest {
         val hashLifeAlgorithm = HashLifeAlgorithm(
             dispatchers = dispatchers
         )
@@ -126,7 +123,8 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
 
             InteractiveCellUniverse(
                 temporalGameOfLifeState = temporalGameOfLifeState,
-                modifier = Modifier.size(480.dp)
+                modifier = Modifier.size(480.dp),
+                preferences = preferences,
             )
         }
 
@@ -174,7 +172,7 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
     }
 
     @Test
-    fun six_long_line_evolves_correctly_with_step() = runTest {
+    fun six_long_line_evolves_correctly_with_step() = runAppTest {
         val hashLifeAlgorithm = HashLifeAlgorithm(
             dispatchers = dispatchers
         )
@@ -193,7 +191,8 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
 
             InteractiveCellUniverse(
                 temporalGameOfLifeState = temporalGameOfLifeState,
-                modifier = Modifier.size(480.dp)
+                modifier = Modifier.size(480.dp),
+                preferences = preferences,
             )
         }
 
@@ -228,7 +227,7 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
     }
 
     @Test
-    fun six_long_line_evolves_correctly_with_double_step() = runTest {
+    fun six_long_line_evolves_correctly_with_double_step() = runAppTest {
         val hashLifeAlgorithm = HashLifeAlgorithm(
             dispatchers = dispatchers
         )
@@ -247,7 +246,8 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
 
             InteractiveCellUniverse(
                 temporalGameOfLifeState = temporalGameOfLifeState,
-                modifier = Modifier.size(480.dp)
+                modifier = Modifier.size(480.dp),
+                preferences = preferences,
             )
         }
 

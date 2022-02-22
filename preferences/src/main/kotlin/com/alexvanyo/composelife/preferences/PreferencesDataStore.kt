@@ -5,7 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.Serializer
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.preferences.proto.Preferences
+import com.alexvanyo.composelife.preferences.proto.PreferencesProto
 import com.google.protobuf.InvalidProtocolBufferException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -17,26 +17,26 @@ import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Qualifier
-annotation class PreferencesProto
+annotation class PreferencesProtoFile
 
 @Singleton
 class PreferencesDataStore @Inject constructor(
-    @PreferencesProto file: File,
+    @PreferencesProtoFile file: File,
     dispatchers: ComposeLifeDispatchers,
-) : DataStore<Preferences> by DataStoreFactory.create(
-    serializer = object : Serializer<Preferences> {
-        override val defaultValue: Preferences = Preferences.getDefaultInstance()
+) : DataStore<PreferencesProto> by DataStoreFactory.create(
+    serializer = object : Serializer<PreferencesProto> {
+        override val defaultValue: PreferencesProto = PreferencesProto.getDefaultInstance()
 
-        override suspend fun readFrom(input: InputStream): Preferences =
+        override suspend fun readFrom(input: InputStream): PreferencesProto =
             try {
                 @Suppress("BlockingMethodInNonBlockingContext")
-                Preferences.parseFrom(input)
+                PreferencesProto.parseFrom(input)
             } catch (exception: InvalidProtocolBufferException) {
                 throw CorruptionException("Cannot read proto.", exception)
             }
 
         @Suppress("BlockingMethodInNonBlockingContext")
-        override suspend fun writeTo(t: Preferences, output: OutputStream) =
+        override suspend fun writeTo(t: PreferencesProto, output: OutputStream) =
             t.writeTo(output)
     },
     scope = CoroutineScope(dispatchers.IO + SupervisorJob()),

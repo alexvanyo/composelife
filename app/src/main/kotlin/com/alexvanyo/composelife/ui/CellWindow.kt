@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.toOffset
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
+import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.detectTransformGestures
 import com.alexvanyo.composelife.util.floor
@@ -43,9 +44,11 @@ object CellWindow {
 /**
  * A cell window that displays the given [gameOfLifeState] in an immutable fashion.
  */
+@Suppress("LongParameterList")
 @Composable
 fun ImmutableCellWindow(
     gameOfLifeState: GameOfLifeState,
+    shape: CurrentShape,
     modifier: Modifier = Modifier,
     cellWindowState: CellWindowState = rememberCellWindowState(),
     cellDpSize: Dp = CellWindow.defaultCellDpSize,
@@ -56,6 +59,7 @@ fun ImmutableCellWindow(
             gameOfLifeState = gameOfLifeState
         ),
         cellWindowState = cellWindowState,
+        shape = shape,
         cellDpSize = cellDpSize,
         centerOffset = centerOffset,
         modifier = modifier
@@ -71,6 +75,7 @@ fun ImmutableCellWindow(
 @Composable
 fun MutableCellWindow(
     gameOfLifeState: MutableGameOfLifeState,
+    shape: CurrentShape,
     modifier: Modifier = Modifier,
     isInteractable: (isGesturing: Boolean, scale: Float) -> Boolean = CellWindow.defaultIsInteractable,
     cellWindowState: CellWindowState = rememberCellWindowState(),
@@ -83,17 +88,19 @@ fun MutableCellWindow(
             isInteractable = isInteractable
         ),
         cellWindowState = cellWindowState,
+        shape = shape,
         cellDpSize = cellDpSize,
         centerOffset = centerOffset,
         modifier = modifier
     )
 }
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "LongParameterList")
 @Composable
 private fun CellWindowImpl(
     cellWindowUiState: CellWindowUiState,
     cellWindowState: CellWindowState,
+    shape: CurrentShape,
     cellDpSize: Dp,
     modifier: Modifier,
     centerOffset: Offset,
@@ -178,12 +185,14 @@ private fun CellWindowImpl(
                     gameOfLifeState = cellWindowUiState.gameOfLifeState,
                     scaledCellDpSize = scaledCellDpSize,
                     cellWindow = cellWindow,
+                    shape = shape,
                 )
             } else {
                 NonInteractableCells(
                     gameOfLifeState = cellWindowUiState.gameOfLifeState,
                     scaledCellDpSize = scaledCellDpSize,
                     cellWindow = cellWindow,
+                    shape = shape,
                 )
             }
         }
@@ -240,7 +249,11 @@ fun ImmutableCellWindowPreview() {
                     4 to 2,
                     4 to 4,
                 ).toCellState()
-            )
+            ),
+            shape = CurrentShape.RoundRectangle(
+                sizeFraction = 1f,
+                cornerFraction = 0f
+            ),
         )
     }
 }
@@ -269,7 +282,11 @@ fun MutableCellWindowPreview() {
                     4 to 2,
                     4 to 4,
                 ).toCellState()
-            )
+            ),
+            shape = CurrentShape.RoundRectangle(
+                sizeFraction = 1f,
+                cornerFraction = 0f
+            ),
         )
     }
 }

@@ -104,7 +104,9 @@ fun InteractiveCellUniverseOverlay(
                 modifier = Modifier
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
-                    .animatePlacement()
+                    .animatePlacement(
+                        alignment = Alignment.TopCenter
+                    )
                     .layoutId(CellUniverseInfoCard)
             ) {
                 CellUniverseInfoCard(
@@ -122,7 +124,9 @@ fun InteractiveCellUniverseOverlay(
                 modifier = Modifier
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
-                    .animatePlacement()
+                    .animatePlacement(
+                        alignment = Alignment.BottomCenter
+                    )
                     .layoutId(CellUniverseActionCard)
             ) {
                 CellUniverseActionCard(
