@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife.ui.navigation
+package com.alexvanyo.composelife.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable

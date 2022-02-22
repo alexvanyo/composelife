@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option java_package = "com.alexvanyo.composelife.preferences.proto";
+option java_multiple_files = true;
+
+message RoundRectangleProto {
+  float size_fraction = 1;
+  float corner_fraction = 2;
+}

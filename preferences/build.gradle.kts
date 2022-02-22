@@ -29,12 +29,14 @@ android {
 
 dependencies {
     api(projects.dispatchers)
+    api(projects.resourcestate)
     api(libs.protobuf.runtime) {
         // TODO: https://github.com/protocolbuffers/protobuf/issues/9517
         exclude("org.jetbrains.kotlin", "kotlin-test")
     }
     api(libs.kotlinx.coroutines.core)
     api(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.compose.runtime)
     api(libs.androidx.dataStore)
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)

@@ -34,6 +34,9 @@ android {
 dependencies {
     implementation(projects.algorithm)
     implementation(projects.dispatchers)
+    implementation(projects.hiltTestActivity)
+    implementation(projects.navigation)
+    implementation(projects.resourcestate)
 
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.androidx.activityCompose)

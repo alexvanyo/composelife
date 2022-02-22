@@ -1,10 +1,16 @@
 package com.alexvanyo.composelife.preferences
 
-import com.alexvanyo.composelife.preferences.proto.Algorithm
-import kotlinx.coroutines.flow.Flow
+import com.alexvanyo.composelife.preferences.CurrentShape.RoundRectangle
+import com.alexvanyo.composelife.resourcestate.ResourceState
 
 interface ComposeLifePreferences {
-    val algorithmChoice: Flow<Algorithm>
+    val algorithmChoiceState: ResourceState<AlgorithmType>
 
-    suspend fun setAlgorithmChoice(algorithm: Algorithm)
+    val currentShapeState: ResourceState<CurrentShape>
+
+    suspend fun setAlgorithmChoice(algorithm: AlgorithmType)
+
+    suspend fun setCurrentShapeType(currentShapeType: CurrentShapeType)
+
+    suspend fun setRoundRectangleConfig(update: (RoundRectangle) -> RoundRectangle)
 }

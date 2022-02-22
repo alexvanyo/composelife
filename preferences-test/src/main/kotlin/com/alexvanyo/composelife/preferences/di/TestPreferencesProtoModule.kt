@@ -1,7 +1,7 @@
 package com.alexvanyo.composelife.preferences.di
 
 import com.alexvanyo.composelife.preferences.FileProvider
-import com.alexvanyo.composelife.preferences.PreferencesProto
+import com.alexvanyo.composelife.preferences.PreferencesProtoFile
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.components.SingletonComponent
@@ -16,7 +16,7 @@ import java.io.File
 interface TestPreferencesProtoModule {
     companion object {
         @Provides
-        @PreferencesProto
+        @PreferencesProtoFile
         fun providesDataStoreFile(
             fileProvider: FileProvider,
         ): File = fileProvider.get()

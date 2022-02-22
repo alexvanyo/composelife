@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.filterToOne
 import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -12,17 +12,16 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.espresso.Espresso
 import com.alexvanyo.composelife.R
+import com.alexvanyo.composelife.TestActivity
 import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.clock
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.test.BaseAndroidTest
-import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
-import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import javax.inject.Inject
@@ -31,11 +30,8 @@ import javax.inject.Inject
 @HiltAndroidTest
 class InteractiveCellUniverseInstrumentationTests : BaseAndroidTest() {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
-
-    @BindValue
-    val fileProvider = preferencesRule.fileProvider
+    @get:Rule(order = 1)
+    val composeTestRule = createAndroidComposeRule<TestActivity>()
 
     @Inject
     lateinit var testDispatcher: TestDispatcher
@@ -44,7 +40,7 @@ class InteractiveCellUniverseInstrumentationTests : BaseAndroidTest() {
     lateinit var dispatchers: ComposeLifeDispatchers
 
     @Test
-    fun info_card_closes_upon_back_press() = runTest {
+    fun info_card_closes_upon_back_press() = runAppTest {
         val hashLifeAlgorithm = HashLifeAlgorithm(
             dispatchers = dispatchers
         )
@@ -82,7 +78,7 @@ class InteractiveCellUniverseInstrumentationTests : BaseAndroidTest() {
     }
 
     @Test
-    fun action_card_closes_upon_back_press() = runTest {
+    fun action_card_closes_upon_back_press() = runAppTest {
         val hashLifeAlgorithm = HashLifeAlgorithm(
             dispatchers = dispatchers
         )

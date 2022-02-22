@@ -1,8 +1,12 @@
 package com.alexvanyo.composelife.algorithm
 
+import androidx.compose.runtime.snapshotFlow
 import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
-import com.alexvanyo.composelife.preferences.proto.Algorithm
+import com.alexvanyo.composelife.resourcestate.firstSuccess
+import com.alexvanyo.composelife.resourcestate.map
+import com.alexvanyo.composelife.resourcestate.successes
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -10,7 +14,6 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.isActive
@@ -18,20 +21,20 @@ import kotlinx.coroutines.selects.select
 import javax.inject.Inject
 
 class ConfigurableGameOfLifeAlgorithm @Inject constructor(
-    preferences: ComposeLifePreferences,
+    private val preferences: ComposeLifePreferences,
     private val naiveGameOfLifeAlgorithm: NaiveGameOfLifeAlgorithm,
     private val hashLifeAlgorithm: HashLifeAlgorithm,
 ) : GameOfLifeAlgorithm {
 
-    private val currentAlgorithm = preferences.algorithmChoice.map {
-        when (it) {
-            Algorithm.UNKNOWN, Algorithm.DEFAULT, Algorithm.HASHLIFE, Algorithm.UNRECOGNIZED -> hashLifeAlgorithm
-            Algorithm.NAIVE -> naiveGameOfLifeAlgorithm
+    private val currentAlgorithm get() = preferences.algorithmChoiceState.map { algorithmType ->
+        when (algorithmType) {
+            AlgorithmType.NaiveAlgorithm -> naiveGameOfLifeAlgorithm
+            AlgorithmType.HashLifeAlgorithm -> hashLifeAlgorithm
         }
     }
 
     override suspend fun computeGenerationWithStep(cellState: CellState, step: Int): CellState =
-        currentAlgorithm.first().computeGenerationWithStep(
+        snapshotFlow { currentAlgorithm }.firstSuccess().value.computeGenerationWithStep(
             cellState = cellState,
             step = step
         )
@@ -40,7 +43,9 @@ class ConfigurableGameOfLifeAlgorithm @Inject constructor(
     override fun computeGenerationsWithStep(originalCellState: CellState, step: Int): Flow<CellState> =
         channelFlow {
             // Start listening to algorithm changes
-            val algorithmChannel = currentAlgorithm
+            val algorithmChannel = snapshotFlow { currentAlgorithm }
+                .successes()
+                .map { it.value }
                 .buffer(Channel.CONFLATED) // We only care about the current algorithm
                 .produceIn(this)
 

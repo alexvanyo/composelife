@@ -2,7 +2,7 @@ package com.alexvanyo.composelife.preferences.di
 
 import android.content.Context
 import androidx.datastore.dataStoreFile
-import com.alexvanyo.composelife.preferences.PreferencesProto
+import com.alexvanyo.composelife.preferences.PreferencesProtoFile
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,7 +16,7 @@ interface PreferencesProtoModule {
 
     companion object {
         @Provides
-        @PreferencesProto
+        @PreferencesProtoFile
         fun providesDataStoreFile(
             @ApplicationContext context: Context,
         ): File = context.dataStoreFile("preferences.pb")

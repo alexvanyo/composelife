@@ -19,7 +19,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven(url = "https://androidx.dev/snapshots/builds/8192674/artifacts/repository")
         maven(url = "https://storage.googleapis.com/r8-releases/raw") {
             content {
                 includeModule("com.android.tools", "r8")
@@ -39,9 +38,12 @@ include(":app")
 include(":dispatchers")
 include(":dispatchers-test")
 include(":hilt-test")
+include(":hilt-test-activity")
+include(":navigation")
 include(":parameterizedstring")
 include(":patterns")
 include(":preferences")
 include(":preferences-test")
+include(":resourcestate")
 include(":screenshot-test")
 include(":wear")
