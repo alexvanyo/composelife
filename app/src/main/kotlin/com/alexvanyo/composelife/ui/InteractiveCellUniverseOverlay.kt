@@ -43,35 +43,40 @@ fun InteractiveCellUniverseOverlay(
 ) {
     var isActionCardTopCard by rememberSaveable { mutableStateOf(true) }
 
-    var infoCardExpanded by rememberSaveable { mutableStateOf(false) }
-    val infoCardState = remember {
-        object : CellUniverseInfoCardState {
+    val delegateInfoCardState = rememberCellUniverseInfoCardState()
+    val delegateActionCardState = rememberCellUniverseActionCardState()
+
+    val infoCardState = remember(delegateInfoCardState) {
+        object : CellUniverseInfoCardState by delegateInfoCardState {
             override var isExpanded: Boolean
-                get() = infoCardExpanded
+                get() = delegateInfoCardState.isExpanded
                 set(value) {
-                    infoCardExpanded = value
+                    delegateInfoCardState.isExpanded = value
                     if (value) {
+                        isActionCardTopCard = false
+                    } else if (delegateActionCardState.isExpanded) {
+                        isActionCardTopCard = true
+                    }
+                }
+        }
+    }
+    val actionCardState = remember(delegateActionCardState) {
+        object : CellUniverseActionCardState by delegateActionCardState {
+            override var isExpanded: Boolean
+                get() = delegateActionCardState.isExpanded
+                set(value) {
+                    delegateActionCardState.isExpanded = value
+                    isActionCardTopCard = value || !infoCardState.isExpanded
+                    if (value) {
+                        isActionCardTopCard = true
+                    } else if (delegateInfoCardState.isExpanded) {
                         isActionCardTopCard = false
                     }
                 }
         }
     }
 
-    var actionCardExpanded by rememberSaveable { mutableStateOf(false) }
-    val actionCardState = remember {
-        object : CellUniverseActionCardState {
-            override var isExpanded: Boolean
-                get() = actionCardExpanded
-                set(value) {
-                    actionCardExpanded = value
-                    if (value) {
-                        isActionCardTopCard = true
-                    }
-                }
-        }
-    }
-
-    if (infoCardExpanded || actionCardExpanded) {
+    if (infoCardState.isExpanded || actionCardState.isExpanded) {
         BackHandler {
             if (isActionCardTopCard && actionCardState.isExpanded) {
                 actionCardState.isExpanded = false
@@ -121,6 +126,7 @@ fun InteractiveCellUniverseOverlay(
                     .layoutId(CellUniverseActionCard)
             ) {
                 CellUniverseActionCard(
+                    isTopCard = isActionCardTopCard,
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     actionCardState = actionCardState,
                     modifier = Modifier
