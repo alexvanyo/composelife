@@ -14,4 +14,8 @@
     <string name="paused">Paused</string>
     <string name="generations_per_second_short">GPS: %1$.2f</string>
     <string name="generations_per_second_long">Generations per second: %1$.2f</string>
+    <string name="speed">Speed</string>
+    <string name="edit">Edit</string>
+    <string name="palette">Palette</string>
+    <string name="settings">Settings</string>
 </resources>
