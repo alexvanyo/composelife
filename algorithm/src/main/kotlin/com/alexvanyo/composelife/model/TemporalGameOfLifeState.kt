@@ -41,6 +41,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import java.util.UUID
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
@@ -318,9 +319,10 @@ private class TemporalGameOfLifeStateImpl(
                         computedTime = lastTick
                     )
 
-                    // Remove entries that are more than a second old to get a running average from the last second
+                    // Remove entries that are more than about a second old to get a running average from the last
+                    // second
                     completedGenerationTracker = (completedGenerationTracker + newRecord)
-                        .dropWhile { lastTick - it.computedTime > 1.seconds }
+                        .dropWhile { lastTick - it.computedTime > 1010.milliseconds }
                 }
             }
     }
