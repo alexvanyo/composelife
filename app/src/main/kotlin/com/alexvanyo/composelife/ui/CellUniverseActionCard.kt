@@ -1,3 +1,5 @@
+@file:Suppress("MatchingDeclarationName")
+
 package com.alexvanyo.composelife.ui
 
 import androidx.compose.animation.AnimatedContent
@@ -32,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -49,10 +52,46 @@ import kotlin.math.log2
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
+/**
+ * The persistable state describing the [CellUniverseActionCard].
+ */
+interface CellUniverseActionCardState {
+
+    /**
+     * `true` if the card is expanded.
+     */
+    var isExpanded: Boolean
+
+    companion object {
+        const val defaultIsExpanded: Boolean = false
+    }
+}
+
+/**
+ * Remembers the a default implementation of [CellUniverseActionCardState].
+ */
+@Composable
+fun rememberCellUniverseActionCardState(
+    initialIsExpanded: Boolean = CellUniverseActionCardState.defaultIsExpanded,
+): CellUniverseActionCardState {
+    var isExpanded by rememberSaveable { mutableStateOf(initialIsExpanded) }
+
+    return remember {
+        object : CellUniverseActionCardState {
+            override var isExpanded: Boolean
+                get() = isExpanded
+                set(value) {
+                    isExpanded = value
+                }
+        }
+    }
+}
+
 @Composable
 fun CellUniverseActionCard(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     modifier: Modifier = Modifier,
+    actionCardState: CellUniverseActionCardState = rememberCellUniverseActionCardState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ) {
     CellUniverseActionCard(
@@ -70,6 +109,7 @@ fun CellUniverseActionCard(
         setTargetStepsPerSecond = { temporalGameOfLifeState.targetStepsPerSecond = it },
         generationsPerStep = temporalGameOfLifeState.generationsPerStep,
         setGenerationsPerStep = { temporalGameOfLifeState.generationsPerStep = it },
+        actionCardState = actionCardState,
         modifier = modifier,
     )
 }
@@ -86,10 +126,9 @@ fun CellUniverseActionCard(
     generationsPerStep: Int,
     setGenerationsPerStep: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    actionCardState: CellUniverseActionCardState = rememberCellUniverseActionCardState(),
 ) {
     Card(modifier = modifier) {
-        var isExpanded by rememberSaveable { mutableStateOf(false) }
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(horizontal = 8.dp)
@@ -98,19 +137,19 @@ fun CellUniverseActionCard(
                 isRunning = isRunning,
                 setIsRunning = setIsRunning,
                 onStep = onStep,
-                isExpanded = isExpanded,
-                setIsExpanded = { isExpanded = it }
+                isExpanded = actionCardState.isExpanded,
+                setIsExpanded = { actionCardState.isExpanded = it }
             )
 
             AnimatedContent(
-                targetState = isExpanded,
+                targetState = actionCardState.isExpanded,
                 transitionSpec = {
                     fadeIn(animationSpec = tween(220, delayMillis = 90)) with
                         fadeOut(animationSpec = tween(90))
                 },
                 contentAlignment = Alignment.BottomCenter,
-            ) { targetIsExpanded ->
-                if (targetIsExpanded) {
+            ) { isExpanded ->
+                if (isExpanded) {
                     Column(
                         modifier = Modifier
                             .padding(top = 8.dp)
