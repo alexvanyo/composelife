@@ -260,9 +260,12 @@ class ResourceStateTests {
             }
 
             assertIs<ResourceState.Failure<String>>(result)
+            val throwable = result.throwable
 
-            assertEquals(exception1, result.throwable)
-            assertEquals(listOf(exception2), result.throwable.suppressedExceptions)
+            assertIs<CompositeException>(throwable)
+            assertEquals("2 exceptions occurred.", throwable.message)
+            assertEquals(exception1, throwable.cause)
+            assertEquals(listOf(exception1, exception2), throwable.exceptions)
         }
 
         @Test
@@ -280,7 +283,7 @@ class ResourceStateTests {
         }
 
         @Test
-        fun `success and loading results in failure`() = runTest {
+        fun `success and loading results in loading`() = runTest {
             assertEquals(
                 ResourceState.Loading,
                 combine(
@@ -315,6 +318,450 @@ class ResourceStateTests {
                     ResourceState.Success("b")
                 ) { a: String, b: String ->
                     a + b
+                }
+            )
+        }
+
+        @Test
+        fun `loading, loading and loading results in loading`() = runTest {
+            assertEquals(
+                ResourceState.Loading,
+                combine(
+                    ResourceState.Loading,
+                    ResourceState.Loading,
+                    ResourceState.Loading
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `loading, loading and failure results in failure`() = runTest {
+            val exception = Exception()
+            assertEquals(
+                ResourceState.Failure(exception),
+                combine(
+                    ResourceState.Loading,
+                    ResourceState.Loading,
+                    ResourceState.Failure(exception)
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `loading, loading and success results in loading`() = runTest {
+            assertEquals(
+                ResourceState.Loading,
+                combine(
+                    ResourceState.Loading,
+                    ResourceState.Loading,
+                    ResourceState.Success("c")
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `loading, failure and loading results in failure`() = runTest {
+            val exception = Exception()
+            assertEquals(
+                ResourceState.Failure(exception),
+                combine(
+                    ResourceState.Loading,
+                    ResourceState.Failure(exception),
+                    ResourceState.Loading
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `loading, failure and failure results in failure`() = runTest {
+            val exception1 = Exception()
+            val exception2 = Exception()
+            val result = combine(
+                ResourceState.Loading,
+                ResourceState.Failure(exception1),
+                ResourceState.Failure(exception2)
+            ) { a: String, b: String, c: String ->
+                a + b + c
+            }
+
+            assertIs<ResourceState.Failure<String>>(result)
+            val throwable = result.throwable
+
+            assertIs<CompositeException>(throwable)
+            assertEquals("2 exceptions occurred.", throwable.message)
+            assertEquals(exception1, throwable.cause)
+            assertEquals(listOf(exception1, exception2), throwable.exceptions)
+        }
+
+        @Test
+        fun `loading, failure and success results in failure`() = runTest {
+            val exception = Exception()
+            assertEquals(
+                ResourceState.Failure(exception),
+                combine(
+                    ResourceState.Loading,
+                    ResourceState.Failure(exception),
+                    ResourceState.Success("c")
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `loading, success and loading results in loading`() = runTest {
+            assertEquals(
+                ResourceState.Loading,
+                combine(
+                    ResourceState.Loading,
+                    ResourceState.Success("b"),
+                    ResourceState.Loading
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `loading, success and failure results in failure`() = runTest {
+            val exception = Exception()
+            assertEquals(
+                ResourceState.Failure(exception),
+                combine(
+                    ResourceState.Loading,
+                    ResourceState.Success("b"),
+                    ResourceState.Failure(exception)
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `loading, success and success results in loading`() = runTest {
+            assertEquals(
+                ResourceState.Loading,
+                combine(
+                    ResourceState.Loading,
+                    ResourceState.Success("b"),
+                    ResourceState.Success("c")
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `failure, loading and loading results in failure`() = runTest {
+            val exception = Exception()
+
+            assertEquals(
+                ResourceState.Failure(exception),
+                combine(
+                    ResourceState.Failure(exception),
+                    ResourceState.Loading,
+                    ResourceState.Loading
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `failure, loading and failure results in failure`() = runTest {
+            val exception1 = Exception()
+            val exception2 = Exception()
+            val result = combine(
+                ResourceState.Failure(exception1),
+                ResourceState.Loading,
+                ResourceState.Failure(exception2),
+            ) { a: String, b: String, c: String ->
+                a + b + c
+            }
+
+            assertIs<ResourceState.Failure<String>>(result)
+            assertIs<ResourceState.Failure<String>>(result)
+            val throwable = result.throwable
+
+            assertIs<CompositeException>(throwable)
+            assertEquals("2 exceptions occurred.", throwable.message)
+            assertEquals(exception1, throwable.cause)
+            assertEquals(listOf(exception1, exception2), throwable.exceptions)
+        }
+
+        @Test
+        fun `failure, loading and success results in failure`() = runTest {
+            val exception = Exception()
+
+            assertEquals(
+                ResourceState.Failure(exception),
+                combine(
+                    ResourceState.Failure(exception),
+                    ResourceState.Loading,
+                    ResourceState.Success("c")
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `failure, failure and loading results in failure`() = runTest {
+            val exception1 = Exception()
+            val exception2 = Exception()
+            val result = combine(
+                ResourceState.Failure(exception1),
+                ResourceState.Failure(exception2),
+                ResourceState.Loading,
+            ) { a: String, b: String, c: String ->
+                a + b + c
+            }
+
+            assertIs<ResourceState.Failure<String>>(result)
+            assertIs<ResourceState.Failure<String>>(result)
+            val throwable = result.throwable
+
+            assertIs<CompositeException>(throwable)
+            assertEquals("2 exceptions occurred.", throwable.message)
+            assertEquals(exception1, throwable.cause)
+            assertEquals(listOf(exception1, exception2), throwable.exceptions)
+        }
+
+        @Test
+        fun `failure, failure and failure results in failure`() = runTest {
+            val exception1 = Exception()
+            val exception2 = Exception()
+            val exception3 = Exception()
+            val result = combine(
+                ResourceState.Failure(exception1),
+                ResourceState.Failure(exception2),
+                ResourceState.Failure(exception3)
+            ) { a: String, b: String, c: String ->
+                a + b + c
+            }
+
+            assertIs<ResourceState.Failure<String>>(result)
+            val throwable = result.throwable
+
+            assertIs<CompositeException>(throwable)
+            assertEquals("3 exceptions occurred.", throwable.message)
+            assertEquals(exception1, throwable.cause)
+            assertEquals(listOf(exception1, exception2, exception3), throwable.exceptions)
+        }
+
+        @Test
+        fun `failure, failure and success results in failure`() = runTest {
+            val exception1 = Exception()
+            val exception2 = Exception()
+            val result = combine(
+                ResourceState.Failure(exception1),
+                ResourceState.Failure(exception2),
+                ResourceState.Success("c"),
+            ) { a: String, b: String, c: String ->
+                a + b + c
+            }
+
+            assertIs<ResourceState.Failure<String>>(result)
+            val throwable = result.throwable
+
+            assertIs<CompositeException>(throwable)
+            assertEquals("2 exceptions occurred.", throwable.message)
+            assertEquals(exception1, throwable.cause)
+            assertEquals(listOf(exception1, exception2), throwable.exceptions)
+        }
+
+        @Test
+        fun `failure, success and loading results in failure`() = runTest {
+            val exception = Exception()
+            assertEquals(
+                ResourceState.Failure(exception),
+                combine(
+                    ResourceState.Failure(exception),
+                    ResourceState.Success("b"),
+                    ResourceState.Loading
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `failure, success and failure results in failure`() = runTest {
+            val exception1 = Exception()
+            val exception2 = Exception()
+            val result = combine(
+                ResourceState.Failure(exception1),
+                ResourceState.Success("b"),
+                ResourceState.Failure(exception2)
+            ) { a: String, b: String, c: String ->
+                a + b + c
+            }
+
+            assertIs<ResourceState.Failure<String>>(result)
+            val throwable = result.throwable
+
+            assertIs<CompositeException>(throwable)
+            assertEquals("2 exceptions occurred.", throwable.message)
+            assertEquals(exception1, throwable.cause)
+            assertEquals(listOf(exception1, exception2), throwable.exceptions)
+        }
+
+        @Test
+        fun `failure, success and success results in success`() = runTest {
+            val exception = Exception()
+            assertEquals(
+                ResourceState.Failure(exception),
+                combine(
+                    ResourceState.Failure(exception),
+                    ResourceState.Success("b"),
+                    ResourceState.Success("c")
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `success, loading and loading results in loading`() = runTest {
+            assertEquals(
+                ResourceState.Loading,
+                combine(
+                    ResourceState.Success("a"),
+                    ResourceState.Loading,
+                    ResourceState.Loading
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `success, loading and failure results in failure`() = runTest {
+            val exception = Exception()
+            assertEquals(
+                ResourceState.Failure(exception),
+                combine(
+                    ResourceState.Success("a"),
+                    ResourceState.Loading,
+                    ResourceState.Failure(exception)
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `success, loading and success results in loading`() = runTest {
+            assertEquals(
+                ResourceState.Loading,
+                combine(
+                    ResourceState.Success("a"),
+                    ResourceState.Loading,
+                    ResourceState.Success("c")
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `success, failure and loading results in failure`() = runTest {
+            val exception = Exception()
+            assertEquals(
+                ResourceState.Failure(exception),
+                combine(
+                    ResourceState.Success("a"),
+                    ResourceState.Failure(exception),
+                    ResourceState.Loading
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `success, failure and failure results in failure`() = runTest {
+            val exception1 = Exception()
+            val exception2 = Exception()
+            val result = combine(
+                ResourceState.Success("a"),
+                ResourceState.Failure(exception1),
+                ResourceState.Failure(exception2)
+            ) { a: String, b: String, c: String ->
+                a + b + c
+            }
+
+            assertIs<ResourceState.Failure<String>>(result)
+            val throwable = result.throwable
+
+            assertIs<CompositeException>(throwable)
+            assertEquals("2 exceptions occurred.", throwable.message)
+            assertEquals(exception1, throwable.cause)
+            assertEquals(listOf(exception1, exception2), throwable.exceptions)
+        }
+
+        @Test
+        fun `success, failure and success results in failure`() = runTest {
+            val exception = Exception()
+            assertEquals(
+                ResourceState.Failure(exception),
+                combine(
+                    ResourceState.Success("a"),
+                    ResourceState.Failure(exception),
+                    ResourceState.Success("c"),
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `success, success and loading results in loading`() = runTest {
+            assertEquals(
+                ResourceState.Loading,
+                combine(
+                    ResourceState.Success("a"),
+                    ResourceState.Success("b"),
+                    ResourceState.Loading
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `success, success and failure results in failure`() = runTest {
+            val exception = Exception()
+            assertEquals(
+                ResourceState.Failure(exception),
+                combine(
+                    ResourceState.Success("a"),
+                    ResourceState.Success("b"),
+                    ResourceState.Failure(exception)
+                ) { a: String, b: String, c: String ->
+                    a + b + c
+                }
+            )
+        }
+
+        @Test
+        fun `success, success and success results in success`() = runTest {
+            assertEquals(
+                ResourceState.Success("abc"),
+                combine(
+                    ResourceState.Success("a"),
+                    ResourceState.Success("b"),
+                    ResourceState.Success("c"),
+                ) { a: String, b: String, c: String ->
+                    a + b + c
                 }
             )
         }
