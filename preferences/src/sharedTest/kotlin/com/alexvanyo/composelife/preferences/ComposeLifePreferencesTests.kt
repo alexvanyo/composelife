@@ -1,24 +1,24 @@
 package com.alexvanyo.composelife.preferences
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import app.cash.turbine.test
-import com.alexvanyo.composelife.preferences.proto.Algorithm
+import com.alexvanyo.composelife.resourcestate.ResourceState
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
-import kotlin.test.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import javax.inject.Inject
+import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -35,7 +35,7 @@ class ComposeLifePreferencesTests {
     val fileProvider = preferencesRule.fileProvider
 
     @Inject
-    lateinit var composeLifePreferences: ComposeLifePreferences
+    lateinit var composeLifePreferences: DefaultComposeLifePreferences
 
     @Inject
     lateinit var testDispatcher: TestDispatcher
@@ -52,24 +52,31 @@ class ComposeLifePreferencesTests {
     }
 
     @Test
-    fun default_value_is_unknown() = runTest {
-        composeLifePreferences.algorithmChoice.test {
-            assertEquals(Algorithm.UNKNOWN, awaitItem())
+    fun default_value_is_hashlife() = runTest {
+        assertEquals(ResourceState.Loading, composeLifePreferences.algorithmChoiceState)
 
-            cancel()
-        }
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(AlgorithmType.HashLifeAlgorithm),
+            composeLifePreferences.algorithmChoiceState
+        )
     }
 
     @Test
-    fun setting_value_updates_value() = runTest {
-        composeLifePreferences.algorithmChoice.test {
-            assertEquals(Algorithm.UNKNOWN, awaitItem())
+    fun setting_algorithm_choice_updates_value() = runTest {
+        assertEquals(ResourceState.Loading, composeLifePreferences.algorithmChoiceState)
 
-            composeLifePreferences.setAlgorithmChoice(Algorithm.HASHLIFE)
+        advanceUntilIdle()
 
-            assertEquals(Algorithm.HASHLIFE, awaitItem())
+        assertEquals(
+            ResourceState.Success(AlgorithmType.HashLifeAlgorithm),
+            composeLifePreferences.algorithmChoiceState
+        )
 
-            cancel()
-        }
+        composeLifePreferences.setAlgorithmChoice(AlgorithmType.NaiveAlgorithm)
+        advanceUntilIdle()
+
+        assertEquals(ResourceState.Success(AlgorithmType.NaiveAlgorithm), composeLifePreferences.algorithmChoiceState)
     }
 }

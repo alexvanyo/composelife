@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife.ui.navigation
+package com.alexvanyo.composelife.navigation
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
@@ -30,7 +30,7 @@ import java.util.UUID
  * cleared when the keys are observed to no longer be in the backstack.
  *
  * If the state should be kept anyway for a destination not on the backstack (say, for animation or to support
- * multiple backstacks) pass thpse ids in [idsToKeep] and the state won't be cleared.
+ * multiple backstacks) pass those ids in [idsToKeep] and the state won't be cleared.
  *
  * Note that [backstack] must not be empty. If it would be, avoid calling this composable.
  */

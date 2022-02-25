@@ -4,16 +4,18 @@ import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.patterns.GameOfLifeTestPattern
 import com.alexvanyo.composelife.patterns.values
-import com.alexvanyo.composelife.preferences.ComposeLifePreferences
-import com.alexvanyo.composelife.preferences.proto.Algorithm
+import com.alexvanyo.composelife.preferences.AlgorithmType
+import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.ParameterizedTest
@@ -28,7 +30,7 @@ class GameOfLifeAlgorithmTests {
 
     class GameOfLifeAlgorithmFactory(
         val algorithmName: String,
-        val factory: (dispatchers: ComposeLifeDispatchers) -> GameOfLifeAlgorithm,
+        val factory: TestScope.(dispatchers: ComposeLifeDispatchers) -> Pair<GameOfLifeAlgorithm, Job>,
     ) {
         override fun toString(): String = algorithmName
     }
@@ -43,25 +45,31 @@ class GameOfLifeAlgorithmTests {
     class GameOfLifeAlgorithmTestProvider : ArgumentsProvider {
         override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {
             val algorithmFactories = listOf(
-                GameOfLifeAlgorithmFactory("Naive Algorithm") { NaiveGameOfLifeAlgorithm(it) },
-                GameOfLifeAlgorithmFactory("HashLife Algorithm") { HashLifeAlgorithm(it) },
+                GameOfLifeAlgorithmFactory("Naive Algorithm") {
+                    NaiveGameOfLifeAlgorithm(it) to Job().apply { complete() }
+                },
+                GameOfLifeAlgorithmFactory("HashLife Algorithm") {
+                    HashLifeAlgorithm(it) to Job().apply { complete() }
+                },
                 GameOfLifeAlgorithmFactory("Configurable Algorithm") {
-                    ConfigurableGameOfLifeAlgorithm(
-                        preferences = object : ComposeLifePreferences {
-                            override val algorithmChoice: Flow<Algorithm> = flow {
-                                while (true) {
-                                    emit(Algorithm.HASHLIFE)
-                                    delay(10)
-                                    emit(Algorithm.NAIVE)
-                                    delay(10)
-                                }
-                            }
+                    val preferences = TestComposeLifePreferences()
 
-                            override suspend fun setAlgorithmChoice(algorithm: Algorithm) = Unit
-                        },
+                    val job = launch {
+                        while (true) {
+                            preferences.setAlgorithmChoice(AlgorithmType.HashLifeAlgorithm)
+                            delay(10)
+                            preferences.setAlgorithmChoice(AlgorithmType.NaiveAlgorithm)
+                            delay(10)
+                        }
+                    }
+
+                    runCurrent()
+
+                    ConfigurableGameOfLifeAlgorithm(
+                        preferences = preferences,
                         naiveGameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(it),
                         hashLifeAlgorithm = HashLifeAlgorithm(it)
-                    )
+                    ) to job
                 }
             )
 
@@ -81,7 +89,12 @@ class GameOfLifeAlgorithmTests {
     @ParameterizedTest(name = "{displayName}: {0}")
     @ArgumentsSource(GameOfLifeAlgorithmTestProvider::class)
     fun `one generation step flow`(args: GameOfLifeAlgorithmTestArguments) = runTest {
-        val algorithm = args.algorithmFactory.factory(TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler)))
+        val (algorithm, job) = args.algorithmFactory.factory(
+            this,
+            TestComposeLifeDispatchers(
+                StandardTestDispatcher(testScheduler)
+            )
+        )
 
         assertEquals(
             args.testPattern.cellStates,
@@ -96,12 +109,19 @@ class GameOfLifeAlgorithmTests {
                 .take(args.testPattern.cellStates.size)
                 .toList()
         )
+
+        job.cancel()
     }
 
     @ParameterizedTest(name = "{displayName}: {0}")
     @ArgumentsSource(GameOfLifeAlgorithmTestProvider::class)
     fun `two generation step flow`(args: GameOfLifeAlgorithmTestArguments) = runTest {
-        val algorithm = args.algorithmFactory.factory(TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler)))
+        val (algorithm, job) = args.algorithmFactory.factory(
+            this,
+            TestComposeLifeDispatchers(
+                StandardTestDispatcher(testScheduler)
+            )
+        )
 
         assertEquals(
             args.testPattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 },
@@ -116,12 +136,19 @@ class GameOfLifeAlgorithmTests {
                 .take(args.testPattern.cellStates.size / 2)
                 .toList()
         )
+
+        job.cancel()
     }
 
     @ParameterizedTest(name = "{displayName}: {0}")
     @ArgumentsSource(GameOfLifeAlgorithmTestProvider::class)
     fun `subsequent one generation step`(args: GameOfLifeAlgorithmTestArguments) = runTest {
-        val algorithm = args.algorithmFactory.factory(TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler)))
+        val (algorithm, job) = args.algorithmFactory.factory(
+            this,
+            TestComposeLifeDispatchers(
+                StandardTestDispatcher(testScheduler)
+            )
+        )
 
         val actualCellStates = (1..args.testPattern.cellStates.size)
             .scan(args.testPattern.seedCellState) { previousCellState, _ ->
@@ -133,12 +160,19 @@ class GameOfLifeAlgorithmTests {
             args.testPattern.cellStates,
             actualCellStates
         )
+
+        job.cancel()
     }
 
     @ParameterizedTest(name = "{displayName}: {0}")
     @ArgumentsSource(GameOfLifeAlgorithmTestProvider::class)
     fun `subsequent two generation step`(args: GameOfLifeAlgorithmTestArguments) = runTest {
-        val algorithm = args.algorithmFactory.factory(TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler)))
+        val (algorithm, job) = args.algorithmFactory.factory(
+            this,
+            TestComposeLifeDispatchers(
+                StandardTestDispatcher(testScheduler)
+            )
+        )
 
         val actualCellStates = (1..args.testPattern.cellStates.size / 2)
             .scan(args.testPattern.seedCellState) { previousCellState, _ ->
@@ -150,5 +184,7 @@ class GameOfLifeAlgorithmTests {
             args.testPattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 },
             actualCellStates
         )
+
+        job.cancel()
     }
 }

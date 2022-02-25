@@ -29,6 +29,7 @@ dependencies {
     api(projects.preferences)
     api(libs.dagger.hilt.runtime)
     api(libs.dagger.hilt.test)
+    implementation(libs.androidx.compose.runtime)
     api(libs.androidx.test.junit)
     kapt(libs.dagger.hilt.compiler)
 

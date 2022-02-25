@@ -12,11 +12,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.round
 import kotlinx.coroutines.launch
@@ -26,16 +28,18 @@ import kotlinx.coroutines.launch
  */
 @OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.animatePlacement(
-    animationSpec: AnimationSpec<IntOffset> = spring(stiffness = Spring.StiffnessMedium)
+    animationSpec: AnimationSpec<IntOffset> = spring(stiffness = Spring.StiffnessMedium),
+    alignment: Alignment = Alignment.Center
 ): Modifier = composed {
     val scope = rememberCoroutineScope()
     var targetOffset by remember { mutableStateOf(IntOffset.Zero) }
     var animatable by remember {
         mutableStateOf<Animatable<IntOffset, AnimationVector2D>?>(null)
     }
+    val layoutDirection = LocalLayoutDirection.current
     this.onPlaced {
-        // Calculate the position in the parent layout
-        targetOffset = it.positionInParent().round()
+        // Calculate the alignment's position in the parent layout
+        targetOffset = it.positionInParent().round() + alignment.align(it.size, it.size * 2, layoutDirection)
     }.offset {
         // Animate to the new target offset when alignment changes.
         val anim = animatable ?: Animatable(targetOffset, IntOffset.VectorConverter)

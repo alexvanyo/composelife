@@ -19,12 +19,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.R
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
+import com.alexvanyo.composelife.preferences.CurrentShape
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import kotlin.test.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class CellWindowTests {
@@ -67,6 +68,10 @@ class CellWindowTests {
         composeTestRule.setContent {
             MutableCellWindow(
                 gameOfLifeState = mutableGameOfLifeState,
+                shape = CurrentShape.RoundRectangle(
+                    sizeFraction = 1f,
+                    cornerFraction = 0f
+                ),
                 cellWindowState = rememberCellWindowState(
                     offset = Offset(-0.5f, -0.5f)
                 ),
@@ -144,6 +149,10 @@ class CellWindowTests {
 
             MutableCellWindow(
                 gameOfLifeState = mutableGameOfLifeState,
+                shape = CurrentShape.RoundRectangle(
+                    sizeFraction = 1f,
+                    cornerFraction = 0f
+                ),
                 cellWindowState = cellWindowState,
                 cellDpSize = 30.dp,
                 modifier = Modifier.size(150.dp)
