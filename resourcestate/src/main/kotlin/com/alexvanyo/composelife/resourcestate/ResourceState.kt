@@ -44,7 +44,7 @@ fun <T : Any> Flow<ResourceState<T>>.successes(): Flow<Success<T>> =
         }
     }
 
-suspend fun <T : Any> Flow<ResourceState<T>>.firstSuccess(): ResourceState.Success<T> =
+suspend fun <T : Any> Flow<ResourceState<T>>.firstSuccess(): Success<T> =
     successes().first()
 
 inline fun <T : Any, R : Any> ResourceState<T>.map(transform: (T) -> R): ResourceState<R> = when (this) {
