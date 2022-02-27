@@ -2,20 +2,17 @@
 
 package com.alexvanyo.composelife.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.with
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -40,7 +37,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -51,23 +47,23 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.R
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
-import com.alexvanyo.composelife.navigation.Backstack
 import com.alexvanyo.composelife.navigation.BackstackEntry
-import com.alexvanyo.composelife.navigation.backstackBackHandler
+import com.alexvanyo.composelife.navigation.BackstackState
+import com.alexvanyo.composelife.navigation.NavigationHost
+import com.alexvanyo.composelife.navigation.canNavigateBack
+import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.navigate
+import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.popUpTo
-import com.alexvanyo.composelife.navigation.rememberBackstack
+import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
+import com.alexvanyo.composelife.navigation.withExpectedActor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlin.math.log2
-import kotlin.math.pow
-import kotlin.math.roundToInt
+import java.util.UUID
 
 /**
  * The persistable state describing the [CellUniverseActionCard].
@@ -79,17 +75,19 @@ interface CellUniverseActionCardState {
      */
     var isExpanded: Boolean
 
-    val backstack: Backstack<ActionCardNavigation>
+    val navigationState: BackstackState<ActionCardNavigation>
 
-    val backstackBackHandler: @Composable (enabled: Boolean) -> Unit
+    val canNavigateBack: Boolean
 
-    fun onSpeedClicked()
+    fun onSpeedClicked(actorBackstackEntryId: UUID? = null)
 
-    fun onEditClicked()
+    fun onEditClicked(actorBackstackEntryId: UUID? = null)
 
-    fun onPaletteClicked()
+    fun onPaletteClicked(actorBackstackEntryId: UUID? = null)
 
-    fun onSettingsClicked()
+    fun onSettingsClicked(actorBackstackEntryId: UUID? = null)
+
+    fun onBackPressed(actorBackstackEntryId: UUID? = null)
 
     companion object {
         const val defaultIsExpanded: Boolean = false
@@ -102,54 +100,69 @@ interface CellUniverseActionCardState {
 @Composable
 fun rememberCellUniverseActionCardState(
     initialIsExpanded: Boolean = CellUniverseActionCardState.defaultIsExpanded,
-    initialBackstack: Backstack<ActionCardNavigation> = listOf(BackstackEntry(ActionCardNavigation.Speed))
+    initialBackstackEntries: List<BackstackEntry<ActionCardNavigation>> = listOf(
+        BackstackEntry(
+            value = ActionCardNavigation.Speed,
+            previous = null
+        )
+    )
 ): CellUniverseActionCardState {
-    var isExpanded by rememberSaveable { mutableStateOf(initialIsExpanded) }
+    val isExpanded = rememberSaveable { mutableStateOf(initialIsExpanded) }
 
-    val backstack = rememberBackstack(
-        initialBackstack = initialBackstack,
+    val navController = rememberMutableBackstackNavigationController(
+        initialBackstackEntries = initialBackstackEntries,
         saver = ActionCardNavigation.Saver
     )
 
     return remember {
         object : CellUniverseActionCardState {
-            override var isExpanded: Boolean
-                get() = isExpanded
-                set(value) {
-                    isExpanded = value
-                }
+            override var isExpanded: Boolean by isExpanded
 
-            override val backstack: List<BackstackEntry<ActionCardNavigation>> = backstack
+            override val navigationState get() = navController
 
-            override val backstackBackHandler get() = backstack.backstackBackHandler
+            override val canNavigateBack: Boolean get() = navController.canNavigateBack
 
-            override fun onSpeedClicked() {
-                popUpToSpeed()
-            }
-
-            override fun onEditClicked() {
-                if (backstack.last().value !is ActionCardNavigation.Edit) {
+            override fun onSpeedClicked(actorBackstackEntryId: UUID?) {
+                navController.withExpectedActor(actorBackstackEntryId) {
                     popUpToSpeed()
-                    backstack.navigate(ActionCardNavigation.Edit)
                 }
             }
 
-            override fun onPaletteClicked() {
-                if (backstack.last().value !is ActionCardNavigation.Palette) {
-                    popUpToSpeed()
-                    backstack.navigate(ActionCardNavigation.Palette)
+            override fun onEditClicked(actorBackstackEntryId: UUID?) {
+                navController.withExpectedActor(actorBackstackEntryId) {
+                    if (currentEntry.value !is ActionCardNavigation.Edit) {
+                        popUpToSpeed()
+                        navController.navigate(ActionCardNavigation.Edit)
+                    }
                 }
             }
 
-            override fun onSettingsClicked() {
-                if (backstack.last().value !is ActionCardNavigation.Settings) {
-                    popUpToSpeed()
-                    backstack.navigate(ActionCardNavigation.Settings)
+            override fun onPaletteClicked(actorBackstackEntryId: UUID?) {
+                navController.withExpectedActor(actorBackstackEntryId) {
+                    if (currentEntry.value !is ActionCardNavigation.Palette) {
+                        popUpToSpeed()
+                        navController.navigate(ActionCardNavigation.Palette)
+                    }
+                }
+            }
+
+            override fun onSettingsClicked(actorBackstackEntryId: UUID?) {
+                navController.withExpectedActor(actorBackstackEntryId) {
+                    if (currentEntry.value !is ActionCardNavigation.Settings) {
+                        popUpToSpeed()
+                        navController.navigate(ActionCardNavigation.Settings)
+                    }
+                }
+            }
+
+            override fun onBackPressed(actorBackstackEntryId: UUID?) {
+                navController.withExpectedActor(actorBackstackEntryId) {
+                    navController.popBackstack()
                 }
             }
 
             private fun popUpToSpeed() {
-                backstack.popUpTo(
+                navController.popUpTo(
                     predicate = { value: ActionCardNavigation ->
                         when (value) {
                             ActionCardNavigation.Speed -> true
@@ -229,19 +242,23 @@ fun CellUniverseActionCard(
                 contentAlignment = Alignment.BottomCenter,
             ) { isExpanded ->
                 if (isExpanded) {
-                    actionCardState.backstackBackHandler(isTopCard)
+                    if (actionCardState.canNavigateBack) {
+                        BackHandler(enabled = isTopCard) {
+                            actionCardState.onBackPressed(actionCardState.navigationState.currentEntryId)
+                        }
+                    }
 
                     Column(
                         modifier = Modifier.padding(top = 8.dp)
                     ) {
-                        Backstack(
-                            backstack = actionCardState.backstack,
+                        NavigationHost(
+                            navigationState = actionCardState.navigationState,
                             transitionSpec = {
                                 fadeIn(animationSpec = tween(220, delayMillis = 90)) with
                                     fadeOut(animationSpec = tween(90))
                             }
                         ) { entry ->
-                            when (entry) {
+                            when (entry.value) {
                                 ActionCardNavigation.Speed -> SpeedScreen(
                                     targetStepsPerSecond = targetStepsPerSecond,
                                     setTargetStepsPerSecond = setTargetStepsPerSecond,
@@ -278,10 +295,14 @@ fun ActionCardNavigationBar(
             indicatorColor = MaterialTheme.colorScheme.tertiaryContainer
         )
 
-        val speedSelected = actionCardState.backstack.last().value == ActionCardNavigation.Speed
-        val editSelected = actionCardState.backstack.last().value == ActionCardNavigation.Edit
-        val paletteSelected = actionCardState.backstack.last().value == ActionCardNavigation.Palette
-        val settingsSelected = actionCardState.backstack.last().value == ActionCardNavigation.Settings
+        val speedSelected =
+            actionCardState.navigationState.currentEntry.value == ActionCardNavigation.Speed
+        val editSelected =
+            actionCardState.navigationState.currentEntry.value == ActionCardNavigation.Edit
+        val paletteSelected =
+            actionCardState.navigationState.currentEntry.value == ActionCardNavigation.Palette
+        val settingsSelected =
+            actionCardState.navigationState.currentEntry.value == ActionCardNavigation.Settings
 
         NavigationBarItem(
             selected = speedSelected,
@@ -320,7 +341,7 @@ fun ActionCardNavigationBar(
             colors = navigationItemColors,
         )
         NavigationBarItem(
-            selected = actionCardState.backstack.last().value == ActionCardNavigation.Palette,
+            selected = paletteSelected,
             onClick = actionCardState::onPaletteClicked,
             icon = {
                 Icon(
@@ -420,83 +441,5 @@ private fun ActionControlRow(
         }
 
         Spacer(modifier = Modifier.weight(1f, fill = false))
-    }
-}
-
-@Composable
-fun TargetStepsPerSecondControl(
-    targetStepsPerSecond: Double,
-    setTargetStepsPerSecond: (Double) -> Unit,
-    modifier: Modifier = Modifier,
-    minTargetStepsPerSecondPowerOfTwo: Int = 0,
-    maxTargetStepsPerSecondPowerOfTwo: Int = 8
-) {
-    Column(modifier = modifier.semantics(mergeDescendants = true) {}) {
-        Text(
-            stringResource(id = R.string.target_steps_per_second, targetStepsPerSecond),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Box(
-            contentAlignment = Alignment.Center
-        ) {
-            Slider(
-                value = log2(targetStepsPerSecond).toFloat(),
-                valueRange = minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat(),
-                onValueChange = {
-                    setTargetStepsPerSecond(2.0.pow(it.toDouble()))
-                }
-            )
-
-            val tickColor = MaterialTheme.colorScheme.onSurfaceVariant
-
-            Canvas(
-                modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .fillMaxWidth()
-                    .height(24.dp)
-            ) {
-                val offsets = (minTargetStepsPerSecondPowerOfTwo..maxTargetStepsPerSecondPowerOfTwo).map {
-                    (2f.pow(it) - 2f.pow(minTargetStepsPerSecondPowerOfTwo)) /
-                        (2f.pow(maxTargetStepsPerSecondPowerOfTwo) - 2f.pow(minTargetStepsPerSecondPowerOfTwo))
-                }
-
-                offsets.forEach { xOffset ->
-                    drawLine(
-                        tickColor,
-                        Offset(size.width * xOffset, 0f),
-                        Offset(size.width * xOffset, size.height)
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun GenerationsPerStepControl(
-    generationsPerStep: Int,
-    setGenerationsPerStep: (Int) -> Unit,
-    modifier: Modifier = Modifier,
-    minTargetStepsPerSecondPowerOfTwo: Int = 0,
-    maxTargetStepsPerSecondPowerOfTwo: Int = 8
-) {
-    Column(modifier.semantics(mergeDescendants = true) {}) {
-        Text(
-            stringResource(id = R.string.generations_per_step, generationsPerStep),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Slider(
-            value = log2(generationsPerStep.toFloat()),
-            valueRange = minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat(),
-            steps = maxTargetStepsPerSecondPowerOfTwo - minTargetStepsPerSecondPowerOfTwo - 1,
-            onValueChange = {
-                setGenerationsPerStep(2.0.pow(it.toDouble()).roundToInt())
-            },
-            onValueChangeFinished = {
-                setGenerationsPerStep(2.0.pow(log2(generationsPerStep.toDouble()).roundToInt()).roundToInt())
-            }
-        )
     }
 }
