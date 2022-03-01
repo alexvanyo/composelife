@@ -88,7 +88,7 @@ fun <T> MutableBackstackNavigationController<T>.popUpTo(
     inclusive: Boolean = false,
 ) {
     currentEntryId = entryMap.popUpTo(
-        topOfBackstackId = currentEntryId,
+        currentEntryId = currentEntryId,
         entryPredicate = entryPredicate,
         inclusive = inclusive
     )
@@ -122,7 +122,7 @@ fun <T> MutableBackstackNavigationController<T>.navigate(
     id: UUID = UUID.randomUUID(),
 ) {
     currentEntryId = entryMap.navigate(
-        topOfBackstackId = currentEntryId,
+        currentEntryId = currentEntryId,
         valueFactory = valueFactory,
         id = id
     )
@@ -138,6 +138,6 @@ fun <T> MutableBackstackNavigationController<T>.navigate(
 
 fun <T> MutableBackstackNavigationController<T>.popBackstack() {
     currentEntryId = entryMap.popBackstack(
-        topOfBackstackId = currentEntryId,
+        currentEntryId = currentEntryId,
     )
 }
