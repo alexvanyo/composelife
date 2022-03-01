@@ -28,7 +28,7 @@ android {
 }
 
 dependencies {
-    api(projects.parameterizedstring)
+    api(projects.parameterizedString)
     api(projects.preferences)
     api(projects.dispatchers)
     implementation(libs.androidx.compose.foundation)

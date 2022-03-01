@@ -36,7 +36,7 @@ dependencies {
     implementation(projects.dispatchers)
     implementation(projects.hiltTestActivity)
     implementation(projects.navigation)
-    implementation(projects.resourcestate)
+    implementation(projects.resourceState)
 
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.androidx.activityCompose)
