@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +35,7 @@ import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.In
 import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.InsetsTypes.TopInsets
 import com.alexvanyo.composelife.ui.util.animatePlacement
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongMethod", "ComplexMethod")
 @Composable
 fun InteractiveCellUniverseOverlay(

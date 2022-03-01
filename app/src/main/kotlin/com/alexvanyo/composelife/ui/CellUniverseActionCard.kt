@@ -75,6 +75,8 @@ interface CellUniverseActionCardState {
      */
     var isExpanded: Boolean
 
+    val isFullscreen: Boolean
+
     val navigationState: BackstackState<ActionCardNavigation>
 
     val canNavigateBack: Boolean
@@ -121,6 +123,14 @@ fun rememberCellUniverseActionCardState(
             override val navigationState get() = navController
 
             override val canNavigateBack: Boolean get() = navController.canNavigateBack
+
+            override val isFullscreen: Boolean get() =
+                this.isExpanded && when (navigationState.currentEntry.value) {
+                    ActionCardNavigation.Speed,
+                    ActionCardNavigation.Edit,
+                    ActionCardNavigation.Palette -> false
+                    ActionCardNavigation.Settings -> true
+                }
 
             override fun onSpeedClicked(actorBackstackEntryId: UUID?) {
                 navController.withExpectedActor(actorBackstackEntryId) {
@@ -270,6 +280,8 @@ fun CellUniverseActionCard(
                                 ActionCardNavigation.Settings -> Unit
                             }
                         }
+
+                        Spacer(modifier = Modifier.weight(1f, fill = actionCardState.isFullscreen))
 
                         ActionCardNavigationBar(
                             actionCardState = actionCardState
