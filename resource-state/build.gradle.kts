@@ -11,6 +11,7 @@ plugins {
 
 android {
     defaultConfig {
+        namespace = "com.alexvanyo.composelife.resourcestate"
         minSdk = 21
     }
 }
