@@ -10,7 +10,7 @@ val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 android {
     defaultConfig {
-        testBuildType = "staging"
+        testBuildType = findProperty("com.alexvanyo.composelife.testBuildType") as String? ?: "staging"
     }
 
     androidComponents {
