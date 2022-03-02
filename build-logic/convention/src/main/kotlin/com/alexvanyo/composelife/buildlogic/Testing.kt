@@ -24,17 +24,23 @@ fun Project.configureTesting(
         }
 
         sourceSets {
+            val useSharedTest = findProperty("com.alexvanyo.composelife.useSharedTest")
+
             // Setup a shared test directory for instrumentation tests and Robolectric tests
             val sharedTestDir = "src/sharedTest/kotlin"
             val sharedResDir = "src/sharedTest/res"
-            getByName("test") {
-                java.srcDir(sharedTestDir)
-                res.srcDir(sharedResDir)
-                resources.srcDir("src/sharedTest/resources")
+            if (useSharedTest != "android") {
+                getByName("test") {
+                    java.srcDir(sharedTestDir)
+                    res.srcDir(sharedResDir)
+                    resources.srcDir("src/sharedTest/resources")
+                }
             }
-            getByName("androidTest") {
-                java.srcDir(sharedTestDir)
-                res.srcDir(sharedResDir)
+            if (useSharedTest != "robolectric") {
+                getByName("androidTest") {
+                    java.srcDir(sharedTestDir)
+                    res.srcDir(sharedResDir)
+                }
             }
         }
     }
