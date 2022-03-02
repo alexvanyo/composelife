@@ -5,6 +5,7 @@ plugins {
 
 android {
     defaultConfig {
+        namespace = "com.alexvanyo.composelife.screenshottest"
         minSdk = 21
     }
 }

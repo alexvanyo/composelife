@@ -6,6 +6,7 @@ plugins {
 
 android {
     defaultConfig {
+        namespace = "com.alexvanyo.composelife.dispatcherstest"
         minSdk = 21
     }
 }
