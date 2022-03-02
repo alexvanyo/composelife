@@ -14,6 +14,7 @@ plugins {
 
 android {
     defaultConfig {
+        namespace = "com.alexvanyo.composelife"
         applicationId = "com.alexvanyo.composelife"
         minSdk = 21
         targetSdk = 32
