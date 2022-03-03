@@ -12,7 +12,6 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.alexvanyo.composelife.R
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.CurrentShape

@@ -1,6 +1,6 @@
 package com.alexvanyo.composelife.ui
 
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
@@ -17,8 +17,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
-import com.alexvanyo.composelife.R
 import com.alexvanyo.composelife.TestActivity
 import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
@@ -67,7 +65,7 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
 
             InteractiveCellUniverse(
                 temporalGameOfLifeState = temporalGameOfLifeState,
-                modifier = Modifier.size(480.dp),
+                modifier = Modifier.fillMaxSize(),
                 preferences = preferences,
             )
         }
@@ -123,7 +121,7 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
 
             InteractiveCellUniverse(
                 temporalGameOfLifeState = temporalGameOfLifeState,
-                modifier = Modifier.size(480.dp),
+                modifier = Modifier.fillMaxSize(),
                 preferences = preferences,
             )
         }
@@ -191,7 +189,7 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
 
             InteractiveCellUniverse(
                 temporalGameOfLifeState = temporalGameOfLifeState,
-                modifier = Modifier.size(480.dp),
+                modifier = Modifier.fillMaxSize(),
                 preferences = preferences,
             )
         }
@@ -246,7 +244,7 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
 
             InteractiveCellUniverse(
                 temporalGameOfLifeState = temporalGameOfLifeState,
-                modifier = Modifier.size(480.dp),
+                modifier = Modifier.fillMaxSize(),
                 preferences = preferences,
             )
         }

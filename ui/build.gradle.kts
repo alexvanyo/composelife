@@ -2,23 +2,20 @@ import com.alexvanyo.composelife.buildlogic.kaptSharedTest
 import com.alexvanyo.composelife.buildlogic.sharedTestImplementation
 
 plugins {
-    id("com.alexvanyo.composelife.android.application")
-    id("com.alexvanyo.composelife.android.application.compose")
-    id("com.alexvanyo.composelife.android.application.gradlemanageddevices")
-    id("com.alexvanyo.composelife.android.application.jacoco")
-    id("com.alexvanyo.composelife.android.application.testing")
+    id("com.alexvanyo.composelife.android.library")
+    id("com.alexvanyo.composelife.android.library.compose")
+    id("com.alexvanyo.composelife.android.library.gradlemanageddevices")
+    id("com.alexvanyo.composelife.android.library.jacoco")
+    id("com.alexvanyo.composelife.android.library.ksp")
+    id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
     kotlin("kapt")
 }
 
 android {
     defaultConfig {
-        namespace = "com.alexvanyo.composelife"
-        applicationId = "com.alexvanyo.composelife"
+        namespace = "com.alexvanyo.composelife.ui"
         minSdk = 21
-        targetSdk = 32
-        versionCode = 1
-        versionName = "1.0"
     }
 
     lint {
@@ -32,10 +29,26 @@ android {
 }
 
 dependencies {
-    implementation(projects.ui)
+    api(projects.algorithm)
+    api(projects.dispatchers)
+    implementation(projects.hiltTestActivity)
+    implementation(projects.navigation)
+    implementation(projects.resourceState)
 
-    implementation(libs.androidx.activityCompose)
+    implementation(libs.accompanist.systemuicontroller)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.materialIconsExtended)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.uiToolingPreview)
+    implementation(libs.androidx.compose.uiTestManifest)
     implementation(libs.androidx.core)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.lifecycle)
+    implementation(libs.kotlinx.datetime)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.sealedEnum.runtime)
+    ksp(libs.sealedEnum.ksp)
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 

@@ -11,7 +11,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.espresso.Espresso
-import com.alexvanyo.composelife.R
+import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.TestActivity
 import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
