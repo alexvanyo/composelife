@@ -1,6 +1,7 @@
 package com.alexvanyo.composelife.ui.theme
 
 import android.os.Build
+import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
@@ -71,5 +72,6 @@ object ComposeLifeTheme {
         get() = MaterialTheme.colorScheme.surface
 }
 
+@ChecksSdkIntAtLeast(api = Build.VERSION_CODES.S)
 private fun useDynamicColorScheme() =
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.S

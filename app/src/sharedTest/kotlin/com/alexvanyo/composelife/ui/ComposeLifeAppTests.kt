@@ -3,6 +3,7 @@ package com.alexvanyo.composelife.ui
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
+import com.alexvanyo.composelife.MainActivity
 import com.alexvanyo.composelife.R
 import com.alexvanyo.composelife.test.BaseAndroidTest
 import dagger.hilt.android.testing.HiltAndroidTest

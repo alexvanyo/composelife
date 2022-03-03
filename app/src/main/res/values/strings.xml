@@ -1,23 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="app_name">Compose Life</string>
-    <string name="cell_content_description">%1$d, %2$d</string>
-    <string name="play">Play</string>
-    <string name="pause">Pause</string>
-    <string name="step">Step</string>
-    <string name="target_steps_per_second">Target steps per second: %1$.2f</string>
-    <string name="generations_per_step">Generations per step: %1$d</string>
-    <string name="expand">Expand</string>
-    <string name="collapse">Collapse</string>
-    <string name="offset">Offset: x = %1$.1f, y = %2$.1f</string>
-    <string name="scale">Scale: %1$.2f</string>
-    <string name="paused">Paused</string>
-    <string name="generations_per_second_short">GPS: %1$.2f</string>
-    <string name="generations_per_second_long">Generations per second: %1$.2f</string>
-    <string name="speed">Speed</string>
-    <string name="edit">Edit</string>
-    <string name="palette">Palette</string>
-    <string name="settings">Settings</string>
-    <string name="retry">Retry</string>
-    <string name="round_rectangle">Round Rectangle</string>
 </resources>
