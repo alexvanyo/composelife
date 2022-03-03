@@ -31,7 +31,7 @@ class InteractableCellTests {
     @Test
     fun dead_cell_preview() {
         composeTestRule.setContent {
-            AliveCellPreview()
+            DeadCellPreview()
         }
     }
 
