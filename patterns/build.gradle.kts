@@ -22,7 +22,6 @@ plugins {
 
 android {
     defaultConfig {
-        namespace = "com.alexvanyo.composelife.patterns"
         minSdk = 21
     }
 }

@@ -28,7 +28,6 @@ plugins {
 
 android {
     defaultConfig {
-        namespace = "com.alexvanyo.composelife.preferencestest"
         minSdk = 21
     }
 
