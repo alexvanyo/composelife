@@ -14,7 +14,7 @@
         <activity-alias
             android:name="Launcher"
             android:exported="true"
-            android:targetActivity=".ui.MainActivity">
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,7 +24,7 @@
         </activity-alias>
 
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".MainActivity"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
             android:exported="false" />
     </application>
