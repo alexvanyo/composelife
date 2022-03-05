@@ -10,12 +10,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import java.util.UUID
 
+/**
+ * A mutable [BackstackState] that can be modified by changing the [entryMap] and the [currentEntryId].
+ *
+ * A canonical [MutableBackstackNavigationController] representing a simple backstack can be created with
+ * [rememberMutableBackstackNavigationController].
+ */
 interface MutableBackstackNavigationController<T> : BackstackState<T> {
     override val entryMap: MutableBackstackMap<T>
 
     override var currentEntryId: UUID
 }
 
+/**
+ * `true` if [popBackstack] is possible.
+ */
 val <T> MutableBackstackNavigationController<T>.canNavigateBack
     get() = currentEntry.previous != null
 
@@ -83,6 +92,15 @@ fun <T> MutableBackstackNavigationController<T>.withExpectedActor(
         false
     }
 
+/**
+ * A navigation action that pops the backstack until the [entryPredicate] is `true` for some  entry, starting at the
+ * current entry.
+ *
+ * If [inclusive] is true, then the entry that satisfies the [entryPredicate] will also be popped.
+ *
+ * Note that the action must be valid. If there is no entry that matches the [entryPredicate] an exception will be
+ * thrown.
+ */
 fun <T> MutableBackstackNavigationController<T>.popUpTo(
     entryPredicate: (BackstackEntry<T>) -> Boolean,
     inclusive: Boolean = false,
@@ -94,6 +112,11 @@ fun <T> MutableBackstackNavigationController<T>.popUpTo(
     )
 }
 
+/**
+ * A navigation action that pops the backstack to the entry with the given [id], starting at the current entry.
+ *
+ * If [inclusive] is true, then the entry with the given [id] will also be popped.
+ */
 fun <T> MutableBackstackNavigationController<T>.popUpTo(
     id: UUID,
     inclusive: Boolean = false,
@@ -105,6 +128,12 @@ fun <T> MutableBackstackNavigationController<T>.popUpTo(
     )
 }
 
+/**
+ * A navigation action that pops the backstack until the [predicate] is `true` for some entry's value, starting at the
+ * current entry.
+ *
+ * If [inclusive] is true, then the entry that satisfies the [predicate] will also be popped.
+ */
 @JvmName("popUpToValue")
 fun <T> MutableBackstackNavigationController<T>.popUpTo(
     predicate: (T) -> Boolean,
@@ -117,6 +146,9 @@ fun <T> MutableBackstackNavigationController<T>.popUpTo(
     )
 }
 
+/**
+ * A navigation action which adds the destination.
+ */
 fun <T> MutableBackstackNavigationController<T>.navigate(
     valueFactory: (previous: BackstackEntry<T>) -> T,
     id: UUID = UUID.randomUUID(),
@@ -128,6 +160,9 @@ fun <T> MutableBackstackNavigationController<T>.navigate(
     )
 }
 
+/**
+ * A navigation action which adds the destination.
+ */
 fun <T> MutableBackstackNavigationController<T>.navigate(
     value: T,
     id: UUID = UUID.randomUUID(),
@@ -136,6 +171,9 @@ fun <T> MutableBackstackNavigationController<T>.navigate(
     id = id,
 )
 
+/**
+ * A navigation action which removes the last destination.
+ */
 fun <T> MutableBackstackNavigationController<T>.popBackstack() {
     currentEntryId = entryMap.popBackstack(
         currentEntryId = currentEntryId,
