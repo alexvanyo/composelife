@@ -31,10 +31,7 @@ android {
 dependencies {
     api(projects.dispatchers)
     api(projects.resourceState)
-    api(libs.protobuf.runtime) {
-        // TODO: https://github.com/protocolbuffers/protobuf/issues/9517
-        exclude("org.jetbrains.kotlin", "kotlin-test")
-    }
+    api(libs.protobuf.runtime)
     api(libs.kotlinx.coroutines.core)
     api(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.compose.runtime)
