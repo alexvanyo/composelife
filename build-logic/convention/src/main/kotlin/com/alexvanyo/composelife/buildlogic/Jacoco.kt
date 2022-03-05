@@ -105,17 +105,15 @@ fun Project.configureJacoco(
         jacocoTestReport.dependsOn(reportTask)
     }
 
-    this.tasks.apply {
-        withType<Test> {
-            configure<JacocoTaskExtension> {
-                // Required for JaCoCo + Robolectric
-                // https://github.com/robolectric/robolectric/issues/2230
-                isIncludeNoLocationClasses = true
+    tasks.withType<Test>().configureEach {
+        configure<JacocoTaskExtension> {
+            // Required for JaCoCo + Robolectric
+            // https://github.com/robolectric/robolectric/issues/2230
+            isIncludeNoLocationClasses = true
 
-                // Required for JDK 11 with the above
-                // https://github.com/gradle/gradle/issues/5184#issuecomment-391982009
-                excludes = listOf("jdk.internal.*")
-            }
+            // Required for JDK 11 with the above
+            // https://github.com/gradle/gradle/issues/5184#issuecomment-391982009
+            excludes = listOf("jdk.internal.*")
         }
     }
 }
