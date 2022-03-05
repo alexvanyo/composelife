@@ -1,6 +1,7 @@
 package com.alexvanyo.composelife.buildlogic
 
 import com.android.build.gradle.TestedExtension
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.DependencyHandlerScope
@@ -12,6 +13,8 @@ import org.gradle.kotlin.dsl.withType
 fun Project.configureTesting(
     testedExtension: TestedExtension,
 ) {
+    val useSharedTest = findProperty("com.alexvanyo.composelife.useSharedTest")
+
     testedExtension.apply {
         defaultConfig {
             testInstrumentationRunner = "com.alexvanyo.composelife.HiltTestRunner"
@@ -23,9 +26,8 @@ fun Project.configureTesting(
             }
         }
 
-        sourceSets {
-            val useSharedTest = findProperty("com.alexvanyo.composelife.useSharedTest")
 
+        sourceSets {
             // Setup a shared test directory for instrumentation tests and Robolectric tests
             val sharedTestDir = "src/sharedTest/kotlin"
             val sharedResDir = "src/sharedTest/res"
@@ -40,6 +42,16 @@ fun Project.configureTesting(
                 getByName("androidTest") {
                     java.srcDir(sharedTestDir)
                     res.srcDir(sharedResDir)
+                }
+            }
+        }
+
+        if (useSharedTest == "robolectric") {
+            testVariants.all {
+                connectedInstrumentTestProvider.configure {
+                    doFirst {
+                        throw GradleException("useSharedTest is configured to only run robolectric tests!")
+                    }
                 }
             }
         }
@@ -59,12 +71,16 @@ fun Project.configureTesting(
         sharedTestImplementation(project(":hilt-test"))
     }
 
-    this.tasks.apply {
-        withType<org.gradle.api.tasks.testing.Test> {
-            useJUnitPlatform()
+    tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
+        useJUnitPlatform()
 
-            // Automatically output Robolectric logs to stdout (for ease of debugging in Android Studio)
-            systemProperty("robolectric.logging", "stdout")
+        // Automatically output Robolectric logs to stdout (for ease of debugging in Android Studio)
+        systemProperty("robolectric.logging", "stdout")
+
+        if (useSharedTest == "android" && this.name.contains("Unit")) {
+            doFirst {
+                throw GradleException("useSharedTest is configured to only run android tests!")
+            }
         }
     }
 }
