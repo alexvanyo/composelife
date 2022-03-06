@@ -4,16 +4,21 @@ package com.alexvanyo.composelife.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
@@ -47,6 +52,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
@@ -74,10 +83,19 @@ interface CellUniverseActionCardState {
      */
     var isExpanded: Boolean
 
+    /**
+     * `true` if the card is fullscreen.
+     */
     val isFullscreen: Boolean
 
+    /**
+     * The navigation state of the card.
+     */
     val navigationState: BackstackState<ActionCardNavigation>
 
+    /**
+     * `true` if the card can navigate back.
+     */
     val canNavigateBack: Boolean
 
     fun onSpeedClicked(actorBackstackEntryId: UUID? = null)
@@ -186,11 +204,14 @@ fun rememberCellUniverseActionCardState(
     }
 }
 
+@Suppress("LongParameterList")
 @Composable
 fun CellUniverseActionCard(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     isTopCard: Boolean,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    shape: Shape = RoundedCornerShape(12.0.dp),
     actionCardState: CellUniverseActionCardState = rememberCellUniverseActionCardState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ) {
@@ -210,12 +231,14 @@ fun CellUniverseActionCard(
         setTargetStepsPerSecond = { temporalGameOfLifeState.targetStepsPerSecond = it },
         generationsPerStep = temporalGameOfLifeState.generationsPerStep,
         setGenerationsPerStep = { temporalGameOfLifeState.generationsPerStep = it },
+        contentPadding = contentPadding,
+        shape = shape,
         actionCardState = actionCardState,
         modifier = modifier,
     )
 }
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "LongMethod")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun CellUniverseActionCard(
@@ -228,19 +251,33 @@ fun CellUniverseActionCard(
     generationsPerStep: Int,
     setGenerationsPerStep: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    shape: Shape = RoundedCornerShape(12.0.dp),
     actionCardState: CellUniverseActionCardState = rememberCellUniverseActionCardState(),
 ) {
-    Card(modifier = modifier) {
+    Card(
+        shape = shape,
+        modifier = modifier
+    ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(contentPadding)
         ) {
-            ActionControlRow(
-                isRunning = isRunning,
-                setIsRunning = setIsRunning,
-                onStep = onStep,
-                isExpanded = actionCardState.isExpanded,
-                setIsExpanded = { actionCardState.isExpanded = it },
-            )
+            AnimatedVisibility(visible = !actionCardState.isFullscreen) {
+                ActionControlRow(
+                    isRunning = isRunning,
+                    setIsRunning = setIsRunning,
+                    onStep = onStep,
+                    isExpanded = actionCardState.isExpanded,
+                    setIsExpanded = { actionCardState.isExpanded = it },
+                )
+            }
+
+            if (actionCardState.isExpanded && actionCardState.canNavigateBack) {
+                BackHandler(enabled = isTopCard) {
+                    actionCardState.onBackPressed(actionCardState.navigationState.currentEntryId)
+                }
+            }
 
             AnimatedContent(
                 targetState = actionCardState.isExpanded,
@@ -251,45 +288,87 @@ fun CellUniverseActionCard(
                 contentAlignment = Alignment.BottomCenter,
             ) { isExpanded ->
                 if (isExpanded) {
-                    if (actionCardState.canNavigateBack) {
-                        BackHandler(enabled = isTopCard) {
-                            actionCardState.onBackPressed(actionCardState.navigationState.currentEntryId)
-                        }
-                    }
+                    Layout(
+                        content = {
+                            ActionCardNavigationBar(
+                                actionCardState = actionCardState,
+                                modifier = Modifier.layoutId(ActionCardDestinationLayoutTypes.BottomBar)
+                            )
 
-                    Column(
-                        modifier = Modifier.padding(top = 8.dp)
-                    ) {
-                        NavigationHost(
-                            navigationState = actionCardState.navigationState,
-                            transitionSpec = {
-                                fadeIn(animationSpec = tween(220, delayMillis = 90)) with
-                                    fadeOut(animationSpec = tween(90))
+                            NavigationHost(
+                                navigationState = actionCardState.navigationState,
+                                transitionSpec = {
+                                    fadeIn(animationSpec = tween(220, delayMillis = 90)) with
+                                        fadeOut(animationSpec = tween(90))
+                                },
+                                contentAlignment = Alignment.BottomCenter,
+                                modifier = Modifier
+                                    .layoutId(ActionCardDestinationLayoutTypes.NavHost)
+                                    .animateContentSize()
+                            ) { entry ->
+                                when (entry.value) {
+                                    ActionCardNavigation.Speed -> SpeedScreen(
+                                        targetStepsPerSecond = targetStepsPerSecond,
+                                        setTargetStepsPerSecond = setTargetStepsPerSecond,
+                                        generationsPerStep = generationsPerStep,
+                                        setGenerationsPerStep = setGenerationsPerStep,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    ActionCardNavigation.Edit -> Spacer(modifier = Modifier.fillMaxWidth())
+                                    ActionCardNavigation.Palette -> PaletteScreen(
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    ActionCardNavigation.Settings -> {
+                                        Column(
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Spacer(Modifier.weight(1f))
+                                        }
+                                    }
+                                }
                             }
-                        ) { entry ->
-                            when (entry.value) {
-                                ActionCardNavigation.Speed -> SpeedScreen(
-                                    targetStepsPerSecond = targetStepsPerSecond,
-                                    setTargetStepsPerSecond = setTargetStepsPerSecond,
-                                    generationsPerStep = generationsPerStep,
-                                    setGenerationsPerStep = setGenerationsPerStep
+                        },
+                        measurePolicy = { measurables, constraints ->
+                            lateinit var bottomBarMeasurable: Measurable
+                            lateinit var navHostMeasurable: Measurable
+
+                            measurables.forEach {
+                                when (it.layoutId as ActionCardDestinationLayoutTypes) {
+                                    ActionCardDestinationLayoutTypes.BottomBar -> bottomBarMeasurable = it
+                                    ActionCardDestinationLayoutTypes.NavHost -> navHostMeasurable = it
+                                }
+                            }
+
+                            val bottomBarIntrinsicHeight = bottomBarMeasurable.minIntrinsicHeight(constraints.maxWidth)
+
+                            val bottomBarPlaceable = bottomBarMeasurable.measure(
+                                constraints.copy(
+                                    maxHeight = bottomBarIntrinsicHeight
                                 )
-                                ActionCardNavigation.Edit -> Unit
-                                ActionCardNavigation.Palette -> PaletteScreen()
-                                ActionCardNavigation.Settings -> Unit
+                            )
+
+                            val navHostPlaceable = navHostMeasurable.measure(
+                                constraints.copy(
+                                    maxHeight = constraints.maxHeight - bottomBarPlaceable.height
+                                )
+                            )
+
+                            layout(constraints.maxWidth, bottomBarPlaceable.height + navHostPlaceable.height) {
+                                navHostPlaceable.place(0, 0)
+                                bottomBarPlaceable.place(0, navHostPlaceable.height)
                             }
-                        }
-
-                        Spacer(modifier = Modifier.weight(1f, fill = actionCardState.isFullscreen))
-
-                        ActionCardNavigationBar(
-                            actionCardState = actionCardState
-                        )
-                    }
+                        },
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
             }
         }
     }
+}
+
+private sealed interface ActionCardDestinationLayoutTypes {
+    object BottomBar : ActionCardDestinationLayoutTypes
+    object NavHost : ActionCardDestinationLayoutTypes
 }
 
 @Suppress("LongMethod")

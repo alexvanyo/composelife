@@ -1,18 +1,23 @@
 package com.alexvanyo.composelife.ui
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.consumedWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.windowInsetsTopHeight
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,18 +29,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
-import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.CardTypes
-import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.CardTypes.CellUniverseActionCard
-import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.CardTypes.CellUniverseInfoCard
-import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.InsetsTypes
-import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.InsetsTypes.BottomInsets
-import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.InsetsTypes.TopInsets
+import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.BottomInsets
+import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseActionCard
+import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseInfoCard
+import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.TopInsets
 import com.alexvanyo.composelife.ui.util.animatePlacement
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Suppress("LongMethod", "ComplexMethod")
 @Composable
 fun InteractiveCellUniverseOverlay(
@@ -55,9 +59,8 @@ fun InteractiveCellUniverseOverlay(
                 set(value) {
                     delegateInfoCardState.isExpanded = value
                     if (value) {
+                        delegateActionCardState.isExpanded = false
                         isActionCardTopCard = false
-                    } else if (delegateActionCardState.isExpanded) {
-                        isActionCardTopCard = true
                     }
                 }
         }
@@ -68,19 +71,19 @@ fun InteractiveCellUniverseOverlay(
                 get() = delegateActionCardState.isExpanded
                 set(value) {
                     delegateActionCardState.isExpanded = value
-                    isActionCardTopCard = value || !infoCardState.isExpanded
                     if (value) {
+                        delegateInfoCardState.isExpanded = false
                         isActionCardTopCard = true
-                    } else if (delegateInfoCardState.isExpanded) {
-                        isActionCardTopCard = false
                     }
                 }
         }
     }
 
     if (infoCardState.isExpanded || actionCardState.isExpanded) {
+        check(!(infoCardState.isExpanded && actionCardState.isExpanded))
+
         BackHandler {
-            if (isActionCardTopCard && actionCardState.isExpanded) {
+            if (actionCardState.isExpanded) {
                 actionCardState.isExpanded = false
             } else {
                 check(infoCardState.isExpanded)
@@ -105,7 +108,7 @@ fun InteractiveCellUniverseOverlay(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+                    .windowInsetsPadding(WindowInsets.safeDrawing)
                     .animatePlacement(
                         alignment = Alignment.TopCenter
                     )
@@ -122,10 +125,93 @@ fun InteractiveCellUniverseOverlay(
                 )
             }
 
+            val windowInsets = WindowInsets.safeDrawing
+            val windowInsetsPaddingValues = windowInsets.asPaddingValues()
+
+            val outerPaddingStart by animateDpAsState(
+                targetValue = if (actionCardState.isFullscreen) {
+                    0.dp
+                } else {
+                    8.dp + windowInsetsPaddingValues.calculateStartPadding(LocalLayoutDirection.current)
+                }
+            )
+            val outerPaddingTop by animateDpAsState(
+                targetValue = if (actionCardState.isFullscreen) {
+                    0.dp
+                } else {
+                    8.dp + windowInsetsPaddingValues.calculateTopPadding()
+                }
+            )
+            val outerPaddingEnd by animateDpAsState(
+                targetValue = if (actionCardState.isFullscreen) {
+                    0.dp
+                } else {
+                    8.dp + windowInsetsPaddingValues.calculateEndPadding(LocalLayoutDirection.current)
+                }
+            )
+            val outerPaddingBottom by animateDpAsState(
+                targetValue = if (actionCardState.isFullscreen) {
+                    0.dp
+                } else {
+                    8.dp + windowInsetsPaddingValues.calculateBottomPadding()
+                }
+            )
+
+            val outerPadding = PaddingValues(
+                start = outerPaddingStart,
+                top = outerPaddingTop,
+                end = outerPaddingEnd,
+                bottom = outerPaddingBottom
+            )
+
+            val contentPaddingStart by animateDpAsState(
+                targetValue = if (actionCardState.isFullscreen) {
+                    windowInsetsPaddingValues.calculateStartPadding(LocalLayoutDirection.current)
+                } else {
+                    0.dp
+                }
+            )
+            val contentPaddingTop by animateDpAsState(
+                targetValue = if (actionCardState.isFullscreen) {
+                    windowInsetsPaddingValues.calculateTopPadding()
+                } else {
+                    0.dp
+                }
+            )
+            val contentPaddingEnd by animateDpAsState(
+                targetValue = if (actionCardState.isFullscreen) {
+                    windowInsetsPaddingValues.calculateEndPadding(LocalLayoutDirection.current)
+                } else {
+                    0.dp
+                }
+            )
+            val contentPaddingBottom by animateDpAsState(
+                targetValue = if (actionCardState.isFullscreen) {
+                    windowInsetsPaddingValues.calculateBottomPadding()
+                } else {
+                    0.dp
+                }
+            )
+
+            val contentPadding = PaddingValues(
+                start = contentPaddingStart,
+                top = contentPaddingTop,
+                end = contentPaddingEnd,
+                bottom = contentPaddingBottom
+            )
+
+            val cornerSize by animateDpAsState(
+                targetValue = if (actionCardState.isFullscreen) {
+                    0.dp
+                } else {
+                    12.dp
+                }
+            )
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+                    .consumedWindowInsets(windowInsets)
                     .animatePlacement(
                         alignment = Alignment.BottomCenter
                     )
@@ -135,9 +221,11 @@ fun InteractiveCellUniverseOverlay(
                     isTopCard = isActionCardTopCard,
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     actionCardState = actionCardState,
+                    contentPadding = contentPadding,
+                    shape = RoundedCornerShape(cornerSize),
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .padding(8.dp)
+                        .padding(outerPadding)
                         .testTag("CellUniverseActionCard")
                 )
             }
@@ -149,26 +237,13 @@ fun InteractiveCellUniverseOverlay(
             lateinit var actionCardPlaceable: Placeable
 
             measurables.forEach { measurable ->
+                val placeable = measurable.measure(constraints)
+
                 when (measurable.layoutId as InteractiveCellUniverseOverlayLayoutTypes) {
-                    is InsetsTypes -> {
-                        val placeable = measurable.measure(constraints)
-                        when (measurable.layoutId) {
-                            TopInsets -> topInsetsPlaceable = placeable
-                            BottomInsets -> bottomInsetsPlaceable = placeable
-                        }
-                    }
-                    is CardTypes -> {
-                        val placeable = measurable.measure(
-                            constraints.copy(
-                                maxHeight = constraints.maxHeight -
-                                    topInsetsPlaceable.measuredHeight - bottomInsetsPlaceable.measuredHeight
-                            )
-                        )
-                        when (measurable.layoutId) {
-                            CellUniverseInfoCard -> infoCardPlaceable = placeable
-                            CellUniverseActionCard -> actionCardPlaceable = placeable
-                        }
-                    }
+                    TopInsets -> topInsetsPlaceable = placeable
+                    BottomInsets -> bottomInsetsPlaceable = placeable
+                    CellUniverseInfoCard -> infoCardPlaceable = placeable
+                    CellUniverseActionCard -> actionCardPlaceable = placeable
                 }
             }
 
@@ -178,25 +253,23 @@ fun InteractiveCellUniverseOverlay(
 
                 // If we can fit both cards, place them both on screen.
                 // Otherwise, place the top-card (as determined by
-                if (topInsetsPlaceable.height + infoCardPlaceable.measuredHeight +
-                    actionCardPlaceable.measuredHeight + bottomInsetsPlaceable.height <= constraints.maxHeight
+                if (infoCardPlaceable.measuredHeight + actionCardPlaceable.measuredHeight -
+                    topInsetsPlaceable.height - bottomInsetsPlaceable.height <= constraints.maxHeight
                 ) {
-                    infoCardPlaceable.place(0, topInsetsPlaceable.measuredHeight)
+                    infoCardPlaceable.place(0, 0)
                     actionCardPlaceable.place(
                         0,
-                        constraints.maxHeight -
-                            bottomInsetsPlaceable.measuredHeight - actionCardPlaceable.measuredHeight
+                        constraints.maxHeight - actionCardPlaceable.measuredHeight
                     )
                 } else if (isActionCardTopCard) {
-                    infoCardPlaceable.place(0, -infoCardPlaceable.measuredHeight)
+                    infoCardPlaceable.place(0, bottomInsetsPlaceable.height - infoCardPlaceable.measuredHeight)
                     actionCardPlaceable.place(
                         0,
-                        constraints.maxHeight -
-                            actionCardPlaceable.measuredHeight - bottomInsetsPlaceable.measuredHeight
+                        constraints.maxHeight - actionCardPlaceable.measuredHeight
                     )
                 } else {
-                    infoCardPlaceable.place(0, topInsetsPlaceable.measuredHeight)
-                    actionCardPlaceable.place(0, constraints.maxHeight)
+                    infoCardPlaceable.place(0, 0)
+                    actionCardPlaceable.place(0, constraints.maxHeight - topInsetsPlaceable.height)
                 }
             }
         },
@@ -205,12 +278,8 @@ fun InteractiveCellUniverseOverlay(
 }
 
 private sealed interface InteractiveCellUniverseOverlayLayoutTypes {
-    sealed interface InsetsTypes : InteractiveCellUniverseOverlayLayoutTypes {
-        object TopInsets : InsetsTypes
-        object BottomInsets : InsetsTypes
-    }
-    sealed interface CardTypes : InteractiveCellUniverseOverlayLayoutTypes {
-        object CellUniverseInfoCard : CardTypes
-        object CellUniverseActionCard : CardTypes
-    }
+    object TopInsets : InteractiveCellUniverseOverlayLayoutTypes
+    object BottomInsets : InteractiveCellUniverseOverlayLayoutTypes
+    object CellUniverseInfoCard : InteractiveCellUniverseOverlayLayoutTypes
+    object CellUniverseActionCard : InteractiveCellUniverseOverlayLayoutTypes
 }
