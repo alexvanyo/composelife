@@ -30,7 +30,9 @@ import kotlinx.coroutines.launch
 
 @Suppress("LongMethod")
 @Composable
-fun PaletteScreen() {
+fun PaletteScreen(
+    modifier: Modifier = Modifier
+) {
     var retryCount by remember { mutableStateOf(0) }
 
     val preferences = hiltViewModel<ComposeLifePreferencesEntryPoint>().composeLifePreferences
@@ -38,7 +40,7 @@ fun PaletteScreen() {
     val currentShapeState = preferences.currentShapeState
 
     Column(
-        modifier = Modifier.padding(horizontal = 16.dp)
+        modifier = modifier.padding(horizontal = 16.dp)
     ) {
         when (currentShapeState) {
             ResourceState.Loading -> {

@@ -19,6 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.runtime.snapshots.StateObject
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import java.util.UUID
 
@@ -41,6 +42,7 @@ fun <T : NavigationEntry> NavigationHost(
             scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)) with
             fadeOut(animationSpec = tween(90))
     },
+    contentAlignment: Alignment = Alignment.TopStart,
     content: @Composable (T) -> Unit,
 ) {
     val stateHolder = rememberSaveableStateHolder()
@@ -58,6 +60,7 @@ fun <T : NavigationEntry> NavigationHost(
     AnimatedContent(
         targetState = navigationState.entryMap.getValue(navigationState.currentEntryId),
         transitionSpec = transitionSpec,
+        contentAlignment = contentAlignment,
         modifier = modifier,
     ) { entry ->
         key(entry.id) {
