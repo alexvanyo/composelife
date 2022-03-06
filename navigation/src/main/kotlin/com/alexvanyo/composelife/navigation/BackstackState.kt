@@ -8,15 +8,21 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import java.util.UUID
 
+/**
+ * A [NavigationState] representing a backstack of [BackstackEntry]s.
+ */
 interface BackstackState<T> : NavigationState<BackstackEntry<T>> {
     override val entryMap: BackstackMap<T>
 }
 
-val <T> BackstackState<T>.currentEntry
-    get() = entryMap.getValue(currentEntryId)
-
+/**
+ * A mutable entry map of [BackstackEntry] of type [T].
+ */
 typealias MutableBackstackMap<T> = MutableMap<UUID, BackstackEntry<T>>
 
+/**
+ * An entry map of [BackstackEntry] of type [T].
+ */
 typealias BackstackMap<T> = Map<UUID, BackstackEntry<T>>
 
 /**
