@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife.ui
+package com.alexvanyo.composelife.ui.action
 
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.SaverScope
@@ -30,10 +30,10 @@ sealed interface ActionCardNavigation {
                 listOf(
                     with(ActionCardNavigationType.Saver) { save(actionCardNavigation.type) },
                     when (actionCardNavigation) {
-                        is Speed -> with(actionCardNavigation.type.saver) { save(actionCardNavigation) }
-                        is Edit -> with(actionCardNavigation.type.saver) { save(actionCardNavigation) }
-                        is Palette -> with(actionCardNavigation.type.saver) { save(actionCardNavigation) }
-                        is Settings -> with(actionCardNavigation.type.saver) { save(actionCardNavigation) }
+                        is Speed -> with(ActionCardNavigationType.Speed.saver) { save(actionCardNavigation) }
+                        is Edit -> with(ActionCardNavigationType.Edit.saver) { save(actionCardNavigation) }
+                        is Palette -> with(ActionCardNavigationType.Palette.saver) { save(actionCardNavigation) }
+                        is Settings -> with(ActionCardNavigationType.Settings.saver) { save(actionCardNavigation) }
                     }
                 )
             },

@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife.ui
+package com.alexvanyo.composelife.ui.cells
 
 import android.os.Build
 import androidx.compose.foundation.background

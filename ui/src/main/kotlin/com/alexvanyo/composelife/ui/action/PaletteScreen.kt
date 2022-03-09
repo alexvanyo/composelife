@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife.ui
+package com.alexvanyo.composelife.ui.action
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
@@ -37,6 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
 import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.entrypoints.ComposeLifePreferencesEntryPoint
 import kotlinx.coroutines.launch
 
