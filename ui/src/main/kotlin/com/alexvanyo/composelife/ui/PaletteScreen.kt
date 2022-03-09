@@ -1,16 +1,28 @@
 package com.alexvanyo.composelife.ui
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -31,7 +43,8 @@ import kotlinx.coroutines.launch
 @Suppress("LongMethod")
 @Composable
 fun PaletteScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(),
 ) {
     var retryCount by remember { mutableStateOf(0) }
 
@@ -40,7 +53,9 @@ fun PaletteScreen(
     val currentShapeState = preferences.currentShapeState
 
     Column(
-        modifier = modifier.padding(horizontal = 16.dp)
+        modifier = modifier
+            .verticalScroll(scrollState)
+            .padding(horizontal = 16.dp)
     ) {
         when (currentShapeState) {
             ResourceState.Loading -> {
@@ -57,19 +72,41 @@ fun PaletteScreen(
 
                 var isShowingDropdownMenu by remember { mutableStateOf(false) }
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            isShowingDropdownMenu = true
-                        }
-                ) {
-                    Text(
-                        text = stringResource(
+                Box {
+                    OutlinedTextField(
+                        value = stringResource(
                             id = when (currentShape) {
                                 is CurrentShape.RoundRectangle -> R.string.round_rectangle
                             }
-                        )
+                        ),
+                        onValueChange = {},
+                        enabled = false,
+                        readOnly = true,
+                        label = {
+                            Text(text = stringResource(R.string.shape))
+                        },
+                        trailingIcon = {
+                            Icon(
+                                if (isShowingDropdownMenu) {
+                                    Icons.Default.ArrowDropUp
+                                } else {
+                                    Icons.Default.ArrowDropDown
+                                },
+                                contentDescription = null
+                            )
+                        },
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                            disabledBorderColor = MaterialTheme.colorScheme.outline,
+                            disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                isShowingDropdownMenu = true
+                            }
                     )
 
                     DropdownMenu(
@@ -88,6 +125,8 @@ fun PaletteScreen(
                     }
                 }
 
+                Spacer(modifier = Modifier.height(16.dp))
+
                 when (currentShape) {
                     is CurrentShape.RoundRectangle -> {
                         var sizeFraction by remember { mutableStateOf(currentShape.sizeFraction) }
@@ -102,10 +141,20 @@ fun PaletteScreen(
                             }
                         }
 
+                        Text(
+                            stringResource(id = R.string.size_fraction, sizeFraction),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
                         Slider(
                             value = sizeFraction,
                             valueRange = 0.1f..1f,
                             onValueChange = { sizeFraction = it },
+                        )
+
+                        Text(
+                            stringResource(id = R.string.corner_fraction, cornerFraction),
+                            modifier = Modifier.fillMaxWidth()
                         )
 
                         Slider(

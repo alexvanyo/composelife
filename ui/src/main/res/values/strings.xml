@@ -16,7 +16,10 @@
     <string name="speed">Speed</string>
     <string name="edit">Edit</string>
     <string name="palette">Palette</string>
+    <string name="corner_fraction">Corner fraction: %1$.2f</string>
+    <string name="size_fraction">Size fraction: %1$.2f</string>
     <string name="settings">Settings</string>
     <string name="retry">Retry</string>
+    <string name="shape">Shape</string>
     <string name="round_rectangle">Round Rectangle</string>
 </resources>
