@@ -7,6 +7,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -18,11 +19,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -34,6 +36,7 @@ import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,10 +44,10 @@ import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -69,6 +72,7 @@ import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.popUpTo
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
+import com.alexvanyo.composelife.ui.util.canScrollDown
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -257,7 +261,11 @@ fun CellUniverseActionCard(
 ) {
     Card(
         shape = shape,
-        modifier = modifier
+        containerColor = MaterialTheme.colorScheme.surface,
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 1.dp
+        ),
+        modifier = modifier,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -288,10 +296,22 @@ fun CellUniverseActionCard(
                 contentAlignment = Alignment.BottomCenter,
             ) { isExpanded ->
                 if (isExpanded) {
+                    val contentScrollStateMap =
+                        actionCardState.navigationState.entryMap.mapValues { (entryId, _) ->
+                            key(entryId) {
+                                rememberScrollState()
+                            }
+                        }
+
                     Layout(
                         content = {
+                            val currentScrollState = contentScrollStateMap.getValue(
+                                actionCardState.navigationState.currentEntryId
+                            )
+
                             ActionCardNavigationBar(
                                 actionCardState = actionCardState,
+                                isElevated = currentScrollState.canScrollDown,
                                 modifier = Modifier.layoutId(ActionCardDestinationLayoutTypes.BottomBar)
                             )
 
@@ -306,16 +326,23 @@ fun CellUniverseActionCard(
                                     .layoutId(ActionCardDestinationLayoutTypes.NavHost)
                                     .animateContentSize()
                             ) { entry ->
+                                // Cache the scroll state based for the target entry id.
+                                // This value won't change normally, but it will ensure we keep using the old state
+                                // while being removed from the backstack
+                                val scrollState = remember { contentScrollStateMap.getValue(entry.id) }
+
                                 when (entry.value) {
                                     ActionCardNavigation.Speed -> SpeedScreen(
                                         targetStepsPerSecond = targetStepsPerSecond,
                                         setTargetStepsPerSecond = setTargetStepsPerSecond,
                                         generationsPerStep = generationsPerStep,
                                         setGenerationsPerStep = setGenerationsPerStep,
+                                        scrollState = scrollState,
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                     ActionCardNavigation.Edit -> Spacer(modifier = Modifier.fillMaxWidth())
                                     ActionCardNavigation.Palette -> PaletteScreen(
+                                        scrollState = scrollState,
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                     ActionCardNavigation.Settings -> {
@@ -375,16 +402,15 @@ private sealed interface ActionCardDestinationLayoutTypes {
 @Composable
 fun ActionCardNavigationBar(
     actionCardState: CellUniverseActionCardState,
+    isElevated: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        modifier = modifier,
-    ) {
-        val navigationItemColors = NavigationBarItemDefaults.colors(
-            indicatorColor = MaterialTheme.colorScheme.tertiaryContainer
-        )
+    val elevation by animateDpAsState(targetValue = if (isElevated) 3.dp else 0.dp)
 
+    NavigationBar(
+        modifier = modifier,
+        tonalElevation = elevation
+    ) {
         val speedSelected =
             actionCardState.navigationState.currentEntry.value == ActionCardNavigation.Speed
         val editSelected =
@@ -410,7 +436,6 @@ fun ActionCardNavigationBar(
             label = {
                 Text(text = stringResource(id = R.string.speed))
             },
-            colors = navigationItemColors,
         )
         NavigationBarItem(
             selected = editSelected,
@@ -428,7 +453,6 @@ fun ActionCardNavigationBar(
             label = {
                 Text(text = stringResource(id = R.string.edit))
             },
-            colors = navigationItemColors,
         )
         NavigationBarItem(
             selected = paletteSelected,
@@ -446,7 +470,6 @@ fun ActionCardNavigationBar(
             label = {
                 Text(text = stringResource(id = R.string.palette))
             },
-            colors = navigationItemColors,
         )
         NavigationBarItem(
             selected = settingsSelected,
@@ -464,7 +487,6 @@ fun ActionCardNavigationBar(
             label = {
                 Text(text = stringResource(id = R.string.settings))
             },
-            colors = navigationItemColors,
         )
     }
 }
@@ -518,9 +540,9 @@ private fun ActionControlRow(
         ) {
             Icon(
                 imageVector = if (isExpanded) {
-                    Icons.Filled.ArrowDropDown
+                    Icons.Filled.ExpandMore
                 } else {
-                    Icons.Filled.ArrowDropUp
+                    Icons.Filled.ExpandLess
                 },
                 contentDescription = if (isExpanded) {
                     stringResource(id = R.string.collapse)
