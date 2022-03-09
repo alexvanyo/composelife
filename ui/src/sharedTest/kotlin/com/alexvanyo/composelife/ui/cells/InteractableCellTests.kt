@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife.ui
+package com.alexvanyo.composelife.ui.cells
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier

@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife.ui
+package com.alexvanyo.composelife.ui.action
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ScrollState
@@ -19,6 +19,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.ui.R
 import kotlin.math.log2
 import kotlin.math.pow
 import kotlin.math.roundToInt
