@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife.ui
+package com.alexvanyo.composelife.ui.cells
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
@@ -19,6 +19,7 @@ import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.setCellState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.CurrentShape
+import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 
 /**

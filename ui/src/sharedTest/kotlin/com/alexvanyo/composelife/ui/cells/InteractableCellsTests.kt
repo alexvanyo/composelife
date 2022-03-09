@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife.ui
+package com.alexvanyo.composelife.ui.cells
 
 import android.app.Application
 import androidx.compose.ui.test.assertIsOff
@@ -15,6 +15,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.CurrentShape
+import com.alexvanyo.composelife.ui.R
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

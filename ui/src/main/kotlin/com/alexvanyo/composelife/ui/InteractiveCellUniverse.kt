@@ -9,6 +9,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.ui.cells.CellWindowState
+import com.alexvanyo.composelife.ui.cells.MutableCellWindow
+import com.alexvanyo.composelife.ui.cells.rememberCellWindowState
 import com.alexvanyo.composelife.ui.entrypoints.ComposeLifePreferencesEntryPoint
 
 /**

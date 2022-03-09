@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife.ui
+package com.alexvanyo.composelife.ui.info
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
