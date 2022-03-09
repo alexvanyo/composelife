@@ -1,6 +1,7 @@
 package com.alexvanyo.composelife.ui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +23,7 @@ import kotlin.math.log2
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
+@Suppress("LongParameterList")
 @Composable
 fun SpeedScreen(
     targetStepsPerSecond: Double,
@@ -29,9 +31,10 @@ fun SpeedScreen(
     generationsPerStep: Int,
     setGenerationsPerStep: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(),
 ) {
     Column(
-        modifier = modifier.verticalScroll(rememberScrollState())
+        modifier = modifier.verticalScroll(scrollState)
     ) {
         TargetStepsPerSecondControl(
             targetStepsPerSecond = targetStepsPerSecond,

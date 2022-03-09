@@ -15,12 +15,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -134,7 +136,6 @@ fun CellUniverseInfoCard(
     )
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CellUniverseInfoCard(
     infoItemTexts: List<@Composable (isEditing: Boolean) -> String>,
@@ -170,7 +171,13 @@ fun CellUniverseInfoCard(
     cellUniverseInfoCardContent: CellUniverseInfoCardContent,
     modifier: Modifier = Modifier,
 ) {
-    Card(modifier = modifier) {
+    Card(
+        modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.surface,
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 1.dp
+        )
+    ) {
         AnimatedContent(
             targetState = cellUniverseInfoCardContent.showColumn,
             transitionSpec = {
@@ -203,25 +210,38 @@ fun CellUniverseInfoCard(
                     }
                 }
 
-                IconToggleButton(
-                    checked = cellUniverseInfoCardContent.isExpanded,
-                    onCheckedChange = { cellUniverseInfoCardContent.isExpanded = it },
-                ) {
-                    Icon(
-                        imageVector = if (cellUniverseInfoCardContent.isExpanded) {
-                            Icons.Filled.ArrowDropUp
-                        } else {
-                            Icons.Filled.ArrowDropDown
-                        },
-                        contentDescription = if (cellUniverseInfoCardContent.isExpanded) {
-                            stringResource(id = R.string.collapse)
-                        } else {
-                            stringResource(id = R.string.expand)
-                        }
-                    )
-                }
+                CellUniverseInfoExpandButton(
+                    isExpanded = cellUniverseInfoCardContent.isExpanded,
+                    setIsExpanded = { cellUniverseInfoCardContent.isExpanded = it },
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun CellUniverseInfoExpandButton(
+    isExpanded: Boolean,
+    setIsExpanded: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    IconToggleButton(
+        checked = isExpanded,
+        onCheckedChange = setIsExpanded,
+        modifier = modifier,
+    ) {
+        Icon(
+            imageVector = if (isExpanded) {
+                Icons.Filled.ExpandLess
+            } else {
+                Icons.Filled.ExpandMore
+            },
+            contentDescription = if (isExpanded) {
+                stringResource(id = R.string.collapse)
+            } else {
+                stringResource(id = R.string.expand)
+            }
+        )
     }
 }
 
