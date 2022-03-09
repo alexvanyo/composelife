@@ -51,19 +51,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Cache Gradle Files
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/build-logic/convention/**/*.kt') }}
-          restore-keys: |
-            v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-
-
       - name: Configure JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: ${{ matrix.java-version }}
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
 
       - name: Create CI robolectric.properties
         run: |
@@ -108,19 +103,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Cache Gradle Files
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/build-logic/convention/**/*.kt') }}
-          restore-keys: |
-            v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-
-
       - name: Configure JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: ${{ matrix.java-version }}
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
 
       - name: Run device checks
         if: ${{ false }} # TODO: Enable once GMD support Github Actions
@@ -162,14 +152,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Cache Gradle Files
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/build-logic/convention/**/*.kt') }}
-          restore-keys: |
-            v1-${{ runner.os }}-gradle-${{ matrix.java-version }}-
-
       - name: Cache AVD
         uses: actions/cache@v2
         id: avd-cache
@@ -184,6 +166,9 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: ${{ matrix.java-version }}
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
 
       - name: Create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
