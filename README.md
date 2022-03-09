@@ -20,7 +20,7 @@ These include:
     - [Robolectric](http://robolectric.org/) tests
     - Integration tests (minification with the help of [Keeper](https://slackhq.github.io/keeper/))
     - Linting, with android/lint and [detekt](https://detekt.dev/)
-    - Code coverage with Jacoco (reporting done with [Codecov](https://about.codecov.io/)
+    - Code coverage with Jacoco (reporting done with [Codecov](https://about.codecov.io/))
     - Automatic dependency updates with [Renovate](https://docs.renovatebot.com/)
 
 ## Setup
@@ -32,7 +32,7 @@ Clone the project, and build! (no API keys or other setup necessary)
 ## License
 
 ```
-Copyright 2022 Google LLC
+Copyright 2022 The Android Open Source Project
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
