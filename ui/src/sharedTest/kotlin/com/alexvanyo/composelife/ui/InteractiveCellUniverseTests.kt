@@ -89,7 +89,7 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
             testDispatcher.scheduler.advanceTimeBy(16)
             testDispatcher.scheduler.runCurrent()
-            composeTestRule.awaitIdle()
+            composeTestRule.waitForIdle()
 
             expectedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
                 composeTestRule
@@ -157,7 +157,7 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
             testDispatcher.scheduler.advanceTimeBy(1000)
             testDispatcher.scheduler.runCurrent()
-            composeTestRule.awaitIdle()
+            composeTestRule.waitForIdle()
 
             expectedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
                 composeTestRule
@@ -212,7 +212,7 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
                 .performClick()
 
             testDispatcher.scheduler.runCurrent()
-            composeTestRule.awaitIdle()
+            composeTestRule.waitForIdle()
 
             expectedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
                 composeTestRule
@@ -279,7 +279,7 @@ class InteractiveCellUniverseTests : BaseAndroidTest() {
                 .performClick()
 
             testDispatcher.scheduler.runCurrent()
-            composeTestRule.awaitIdle()
+            composeTestRule.waitForIdle()
 
             expectedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
                 composeTestRule

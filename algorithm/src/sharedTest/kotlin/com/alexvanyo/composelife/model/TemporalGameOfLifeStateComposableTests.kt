@@ -61,11 +61,11 @@ class TemporalGameOfLifeStateComposableTests {
             )
         }
 
-        composeTestRule.awaitIdle()
+        composeTestRule.waitForIdle()
         extractedState = null
 
         stateRestorationTester.emulateSavedInstanceStateRestore()
-        composeTestRule.awaitIdle()
+        composeTestRule.waitForIdle()
 
         val restoredState = requireNotNull(extractedState)
 
@@ -108,7 +108,7 @@ class TemporalGameOfLifeStateComposableTests {
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
             testDispatcher.scheduler.advanceTimeBy(16)
             testDispatcher.scheduler.runCurrent()
-            composeTestRule.awaitIdle()
+            composeTestRule.waitForIdle()
 
             assertEquals(expectedCellState, temporalGameOfLifeState.cellState)
             temporalGameOfLifeState.status.let { status ->
@@ -140,7 +140,7 @@ class TemporalGameOfLifeStateComposableTests {
             )
         }
 
-        composeTestRule.awaitIdle()
+        composeTestRule.waitForIdle()
 
         assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
         assertEquals(
@@ -151,7 +151,7 @@ class TemporalGameOfLifeStateComposableTests {
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
             launch(start = CoroutineStart.UNDISPATCHED) { temporalGameOfLifeState.step() }
             testDispatcher.scheduler.runCurrent()
-            composeTestRule.awaitIdle()
+            composeTestRule.waitForIdle()
 
             assertEquals(expectedCellState, temporalGameOfLifeState.cellState)
             assertEquals(TemporalGameOfLifeState.EvolutionStatus.Paused, temporalGameOfLifeState.status)
