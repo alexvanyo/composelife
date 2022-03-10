@@ -34,19 +34,19 @@ class ResourceStateComposableTests {
             currentState = state
         }
 
-        composeTestRule.awaitIdle()
+        composeTestRule.waitForIdle()
 
         assertEquals(ResourceState.Loading, currentState)
 
         channel.send("a")
-        composeTestRule.awaitIdle()
+        composeTestRule.waitForIdle()
 
         assertEquals(ResourceState.Success("a"), currentState)
 
         val exception = Exception()
         channel.close(exception)
 
-        composeTestRule.awaitIdle()
+        composeTestRule.waitForIdle()
 
         assertEquals(ResourceState.Failure(exception), currentState)
     }

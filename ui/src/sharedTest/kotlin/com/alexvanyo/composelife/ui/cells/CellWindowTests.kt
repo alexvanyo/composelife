@@ -169,7 +169,7 @@ class CellWindowTests {
         }
 
         composeTestRule.mainClock.advanceTimeBy(1000)
-        composeTestRule.awaitIdle()
+        composeTestRule.waitForIdle()
 
         assertTrue(cellWindowState.offset.x > 3f)
         assertTrue(cellWindowState.offset.y > 3f)

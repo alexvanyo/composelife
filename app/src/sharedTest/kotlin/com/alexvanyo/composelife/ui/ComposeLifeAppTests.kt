@@ -22,7 +22,7 @@ class ComposeLifeAppTests : BaseAndroidTest() {
     fun app_does_not_crash() = runAppTest {
         composeTestRule.onNodeWithContentDescription(context.getString(R.string.pause)).performClick()
 
-        composeTestRule.awaitIdle()
+        composeTestRule.waitForIdle()
     }
 
     @Test
@@ -31,6 +31,6 @@ class ComposeLifeAppTests : BaseAndroidTest() {
 
         composeTestRule.activityRule.scenario.recreate()
 
-        composeTestRule.awaitIdle()
+        composeTestRule.waitForIdle()
     }
 }
