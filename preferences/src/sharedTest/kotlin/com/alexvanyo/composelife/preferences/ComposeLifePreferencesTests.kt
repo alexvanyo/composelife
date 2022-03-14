@@ -1,13 +1,15 @@
 package com.alexvanyo.composelife.preferences
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -22,6 +24,7 @@ import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
+@UninstallModules(TestDispatcherModule::class)
 @RunWith(AndroidJUnit4::class)
 class ComposeLifePreferencesTests {
 
@@ -37,13 +40,12 @@ class ComposeLifePreferencesTests {
     @Inject
     lateinit var composeLifePreferences: DefaultComposeLifePreferences
 
-    @Inject
-    lateinit var testDispatcher: TestDispatcher
+    @BindValue
+    val testDispatcher = StandardTestDispatcher().also(Dispatchers::setMain)
 
     @Before
     fun setup() {
         hiltAndroidRule.inject()
-        Dispatchers.setMain(testDispatcher)
     }
 
     @After
