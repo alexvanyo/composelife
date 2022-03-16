@@ -4,34 +4,28 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.filterToOne
 import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.espresso.Espresso
-import com.alexvanyo.composelife.ui.R
-import com.alexvanyo.composelife.TestActivity
 import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.clock
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
-import com.alexvanyo.composelife.test.BaseAndroidTest
+import com.alexvanyo.composelife.test.BaseHiltTest
+import com.alexvanyo.composelife.test.TestActivity
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
-import org.junit.Rule
 import org.junit.Test
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
-class InteractiveCellUniverseInstrumentationTests : BaseAndroidTest() {
-
-    @get:Rule(order = 1)
-    val composeTestRule = createAndroidComposeRule<TestActivity>()
+class InteractiveCellUniverseInstrumentationTests : BaseHiltTest<TestActivity>(TestActivity::class.java) {
 
     @Inject
     lateinit var testDispatcher: TestDispatcher
