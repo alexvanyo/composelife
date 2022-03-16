@@ -1,6 +1,8 @@
 package com.alexvanyo.composelife.test
 
 import android.content.Context
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.CurrentShape
@@ -18,11 +20,15 @@ import org.junit.runner.RunWith
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("UnnecessaryAbstractClass")
 @RunWith(AndroidJUnit4::class)
-abstract class BaseAndroidTest {
+abstract class BaseHiltTest<T : ComponentActivity>(clazz: Class<T>) {
 
     @get:Rule(order = 0)
     val hiltAndroidRule = HiltAndroidRule(this)
+
+    @get:Rule(order = 1)
+    val composeTestRule = createAndroidComposeRule(clazz)
 
     @Inject
     lateinit var preferences: TestComposeLifePreferences
@@ -37,20 +43,19 @@ abstract class BaseAndroidTest {
     }
 
     fun runAppTest(
+        preferencesInitializer: suspend TestComposeLifePreferences.() -> Unit = {
+            setAlgorithmChoice(AlgorithmType.HashLifeAlgorithm)
+            setCurrentShapeType(CurrentShapeType.RoundRectangle)
+            setRoundRectangleConfig(
+                CurrentShape.RoundRectangle(
+                    sizeFraction = 1f,
+                    cornerFraction = 0f
+                )
+            )
+        },
         testBody: suspend TestScope.() -> Unit
     ): TestResult = runTest {
-        initPreferences()
+        preferencesInitializer(preferences)
         testBody()
-    }
-
-    private suspend fun initPreferences() {
-        preferences.setAlgorithmChoice(AlgorithmType.HashLifeAlgorithm)
-        preferences.setCurrentShapeType(CurrentShapeType.RoundRectangle)
-        preferences.setRoundRectangleConfig(
-            CurrentShape.RoundRectangle(
-                sizeFraction = 1f,
-                cornerFraction = 0f
-            )
-        )
     }
 }

@@ -1,4 +1,4 @@
-package com.alexvanyo.composelife
+package com.alexvanyo.composelife.test
 
 import android.app.Application
 import android.content.Context
