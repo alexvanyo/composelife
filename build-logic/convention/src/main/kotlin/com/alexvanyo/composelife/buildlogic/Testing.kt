@@ -17,7 +17,7 @@ fun Project.configureTesting(
 
     testedExtension.apply {
         defaultConfig {
-            testInstrumentationRunner = "com.alexvanyo.composelife.HiltTestRunner"
+            testInstrumentationRunner = "com.alexvanyo.composelife.test.HiltTestRunner"
         }
 
         testOptions {
