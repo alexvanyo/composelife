@@ -38,51 +38,42 @@ class DefaultComposeLifePreferences @Inject constructor(
     private val dataStore: PreferencesDataStore,
     dispatchers: ComposeLifeDispatchers,
 ) : ComposeLifePreferences {
+    private val scope = CoroutineScope(dispatchers.Main + SupervisorJob())
 
-    private val lazyObserver by lazy {
-        object {
-            private val scope = CoroutineScope(dispatchers.Main + SupervisorJob())
+    override var algorithmChoiceState: ResourceState<AlgorithmType> by mutableStateOf(ResourceState.Loading)
+        private set
 
-            var algorithmChoiceState: ResourceState<AlgorithmType> by mutableStateOf(ResourceState.Loading)
-                private set
+    override var currentShapeState: ResourceState<CurrentShape> by mutableStateOf(ResourceState.Loading)
+        private set
 
-            var currentShapeState: ResourceState<CurrentShape> by mutableStateOf(ResourceState.Loading)
-                private set
-
-            init {
-                dataStore.data
-                    .onEach { preferencesProto ->
-                        algorithmChoiceState = ResourceState.Success(
-                            when (preferencesProto.algorithm!!) {
-                                AlgorithmProto.ALGORITHM_UNKNOWN,
-                                AlgorithmProto.DEFAULT,
-                                AlgorithmProto.HASHLIFE,
-                                AlgorithmProto.UNRECOGNIZED
-                                -> AlgorithmType.HashLifeAlgorithm
-                                AlgorithmProto.NAIVE -> AlgorithmType.NaiveAlgorithm
-                            }
-                        )
-
-                        currentShapeState = ResourceState.Success(
-                            when (preferencesProto.currentShapeType!!) {
-                                CurrentShapeTypeProto.CURRENT_SHAPE_TYPE_UNKNOWN,
-                                CurrentShapeTypeProto.UNRECOGNIZED -> defaultRoundRectangle
-                                CurrentShapeTypeProto.ROUND_RECTANGLE -> preferencesProto.roundRectangle.toResolved()
-                            }
-                        )
+    init {
+        dataStore.data
+            .onEach { preferencesProto ->
+                algorithmChoiceState = ResourceState.Success(
+                    when (preferencesProto.algorithm!!) {
+                        AlgorithmProto.ALGORITHM_UNKNOWN,
+                        AlgorithmProto.DEFAULT,
+                        AlgorithmProto.HASHLIFE,
+                        AlgorithmProto.UNRECOGNIZED
+                        -> AlgorithmType.HashLifeAlgorithm
+                        AlgorithmProto.NAIVE -> AlgorithmType.NaiveAlgorithm
                     }
-                    .catch {
-                        algorithmChoiceState = ResourceState.Failure(it)
-                        currentShapeState = ResourceState.Failure(it)
+                )
+
+                currentShapeState = ResourceState.Success(
+                    when (preferencesProto.currentShapeType!!) {
+                        CurrentShapeTypeProto.CURRENT_SHAPE_TYPE_UNKNOWN,
+                        CurrentShapeTypeProto.UNRECOGNIZED -> defaultRoundRectangle
+                        CurrentShapeTypeProto.ROUND_RECTANGLE -> preferencesProto.roundRectangle.toResolved()
                     }
-                    .launchIn(scope)
+                )
             }
-        }
+            .catch {
+                algorithmChoiceState = ResourceState.Failure(it)
+                currentShapeState = ResourceState.Failure(it)
+            }
+            .launchIn(scope)
     }
-
-    override val algorithmChoiceState: ResourceState<AlgorithmType> get() = lazyObserver.algorithmChoiceState
-
-    override val currentShapeState: ResourceState<CurrentShape> get() = lazyObserver.currentShapeState
 
     override suspend fun setAlgorithmChoice(algorithm: AlgorithmType) {
         dataStore.updateData { preferencesProto ->
