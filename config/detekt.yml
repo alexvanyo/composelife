@@ -1,6 +1,11 @@
+comments:
+  AbsentOrWrongFileLicense:
+    active: true
+    excludes: [ '**/generated/**' ]
+
 complexity:
   LongMethod:
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    excludes: [ '**/test/**', '**/androidTest/**', '**/sharedTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
 
 formatting:
   Indentation:
@@ -16,6 +21,7 @@ naming:
   FunctionNaming:
     ignoreAnnotated:
       - "Composable"
+    excludes: [ '**/test/**', '**/androidTest/**', '**/sharedTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
   MatchingDeclarationName:
     excludes: [ '**/generated/**' ]
   TopLevelPropertyNaming:
