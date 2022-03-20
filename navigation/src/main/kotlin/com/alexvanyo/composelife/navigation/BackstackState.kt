@@ -94,6 +94,7 @@ fun <T> rememberBackstackMap(
                         val previousId = (entryList[2] as String?)?.let(UUID::fromString)
                         val previous = previousId?.let { restoreEntry(previousId) }
                         val saver = backstackValueSaverFactory.create(previous)
+                        @Suppress("UnsafeCallOnNullableType")
                         BackstackEntry(
                             id = id,
                             previous = previous,

@@ -83,6 +83,7 @@ fun rememberCellUniverseInfoCardState(
 
     return remember {
         object : CellUniverseInfoCardState {
+            @Suppress("VarCouldBeVal")
             override var isExpanded: Boolean
                 get() = isExpanded
                 set(value) {

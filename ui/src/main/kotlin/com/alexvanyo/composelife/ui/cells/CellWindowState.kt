@@ -82,6 +82,7 @@ fun CellWindowState(
     scaleRange = scaleRange
 )
 
+@Suppress("VarCouldBeVal")
 private class CellWindowStateImpl(
     offset: Offset = Offset.Zero,
     scale: Float = 1f,
