@@ -78,6 +78,7 @@ fun <T> rememberMutableBackstackNavigationController(
     return remember {
         object : MutableBackstackNavigationController<T> {
             override val entryMap: MutableBackstackMap<T> get() = backstackMap
+            @Suppress("VarCouldBeVal")
             override var currentEntryId: UUID
                 get() = currentBackstackEntryId
                 set(value) {
