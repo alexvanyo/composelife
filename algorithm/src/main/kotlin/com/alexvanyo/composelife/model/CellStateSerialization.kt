@@ -87,6 +87,8 @@ class PlaintextCellStateSerializer : CellStateSerializer {
                         expectedRowLength = line.length
                         longestLineIndex = lineIndex
                     } else if (line.length > expectedRowLength) {
+                        // Guaranteed non-null since expectedRowLength is non-null
+                        @Suppress("UnsafeCallOnNullableType")
                         warnings.add(ParameterizedString(R.string.unexpected_short_line, longestLineIndex!! + 1))
                         expectedRowLength = line.length
                         longestLineIndex = lineIndex
