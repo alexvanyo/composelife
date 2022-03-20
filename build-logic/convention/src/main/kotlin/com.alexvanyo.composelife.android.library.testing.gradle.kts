@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import com.alexvanyo.composelife.buildlogic.configureAndroidTesting
 import com.alexvanyo.composelife.buildlogic.configureTesting
 
 plugins {
@@ -22,6 +23,7 @@ plugins {
 
 android {
     configureTesting(this)
+    configureAndroidTesting(this)
 }
 
 fun DependencyHandlerScope.sharedTestImplementation(dependencyNotation: Any) {
