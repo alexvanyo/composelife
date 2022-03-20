@@ -95,6 +95,7 @@ fun rememberCellUniverseActionCardState(
 
     return remember {
         object : CellUniverseActionCardState {
+            @Suppress("VarCouldBeVal")
             override var isExpanded: Boolean by isExpanded
 
             override val navigationState get() = navController

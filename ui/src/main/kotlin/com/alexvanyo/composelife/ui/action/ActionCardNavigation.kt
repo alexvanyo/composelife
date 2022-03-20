@@ -41,6 +41,7 @@ sealed interface ActionCardNavigation {
     }
 
     companion object {
+        @Suppress("UnsafeCallOnNullableType")
         val Saver: Saver<ActionCardNavigation, Any> = listSaver(
             save = { actionCardNavigation ->
                 listOf(
