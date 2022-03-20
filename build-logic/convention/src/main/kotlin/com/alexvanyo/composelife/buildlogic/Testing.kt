@@ -29,19 +29,40 @@ import org.gradle.kotlin.dsl.withType
 fun Project.configureTesting(
     testedExtension: TestedExtension,
 ) {
+    testedExtension.apply {
+        testOptions {
+            unitTests {
+                isIncludeAndroidResources = true
+            }
+        }
+    }
+
+    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+
+    dependencies {
+        add("testImplementation", libs.findLibrary("junit5.jupiter").get())
+        add("testRuntimeOnly", libs.findLibrary("junit5.vintageEngine").get())
+
+        add("androidTestImplementation", libs.findLibrary("junit4").get())
+        add("androidTestRuntimeOnly", libs.findLibrary("junit5.vintageEngine").get())
+
+        sharedTestImplementation(kotlin("test"))
+    }
+
+    tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
+        useJUnitPlatform()
+    }
+}
+
+fun Project.configureAndroidTesting(
+    testedExtension: TestedExtension,
+) {
     val useSharedTest = findProperty("com.alexvanyo.composelife.useSharedTest")
 
     testedExtension.apply {
         defaultConfig {
             testInstrumentationRunner = "com.alexvanyo.composelife.test.HiltTestRunner"
         }
-
-        testOptions {
-            unitTests {
-                isIncludeAndroidResources = true
-            }
-        }
-
 
         sourceSets {
             // Setup a shared test directory for instrumentation tests and Robolectric tests
@@ -76,20 +97,11 @@ fun Project.configureTesting(
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
     dependencies {
-        add("testImplementation", libs.findLibrary("junit5.jupiter").get())
-        add("testRuntimeOnly", libs.findLibrary("junit5.vintageEngine").get())
         add("testImplementation", libs.findLibrary("robolectric").get())
-
-        add("androidTestImplementation", libs.findLibrary("junit4").get())
-        add("androidTestRuntimeOnly", libs.findLibrary("junit5.vintageEngine").get())
-
-        sharedTestImplementation(kotlin("test"))
         sharedTestImplementation(project(":hilt-test"))
     }
 
     tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
-        useJUnitPlatform()
-
         // Automatically output Robolectric logs to stdout (for ease of debugging in Android Studio)
         systemProperty("robolectric.logging", "stdout")
 

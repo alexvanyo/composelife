@@ -14,20 +14,28 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.configureAndroidTesting
-import com.alexvanyo.composelife.buildlogic.configureTesting
+package com.alexvanyo.composelife.ui.cells
 
-plugins {
-    id("com.android.library")
-}
+import androidx.compose.foundation.layout.Box
+import app.cash.paparazzi.DeviceConfig
+import app.cash.paparazzi.Paparazzi
+import org.junit.Rule
+import org.junit.Test
 
-android {
-    configureTesting(this)
-    configureAndroidTesting(this)
-}
+class NonInteractableCellsTests {
 
-fun DependencyHandlerScope.sharedTestImplementation(dependencyNotation: Any) {
-    testImplementation(dependencyNotation)
+    @get:Rule
+    val paparazzi = Paparazzi(
+        deviceConfig = DeviceConfig.NEXUS_5.copy(softButtons = false),
+        maxPercentDifference = 0.0,
+    )
 
-    androidTestImplementation(dependencyNotation)
+    @Test
+    fun non_interactable_cells_preview() {
+        paparazzi.snapshot {
+            Box {
+                NonInteractableCellsPreview()
+            }
+        }
+    }
 }

@@ -14,20 +14,25 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.configureAndroidTesting
 import com.alexvanyo.composelife.buildlogic.configureTesting
 
 plugins {
     id("com.android.library")
+    id("app.cash.paparazzi")
 }
+
+val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 android {
     configureTesting(this)
-    configureAndroidTesting(this)
 }
 
-fun DependencyHandlerScope.sharedTestImplementation(dependencyNotation: Any) {
-    testImplementation(dependencyNotation)
+dependencies {
+    add("testImplementation", libs.findLibrary("paparazzi.runtime").get())
+    // Ensure we use the jre version of guava, since layoutlib requires it
+    add("testImplementation", libs.findLibrary("guava.jre").get())
+}
 
-    androidTestImplementation(dependencyNotation)
+tasks.getByName("check") {
+    dependsOn("verifyPaparazziDebug")
 }

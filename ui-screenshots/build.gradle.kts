@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.configureAndroidTesting
-import com.alexvanyo.composelife.buildlogic.configureTesting
-
 plugins {
-    id("com.android.library")
+    id("com.alexvanyo.composelife.android.library")
+    id("com.alexvanyo.composelife.android.library.compose")
+    id("com.alexvanyo.composelife.android.library.jacoco")
+    id("com.alexvanyo.composelife.android.library.paparazzi")
+    id("com.alexvanyo.composelife.detekt")
 }
 
 android {
-    configureTesting(this)
-    configureAndroidTesting(this)
+    defaultConfig {
+        minSdk = 21
+    }
 }
 
-fun DependencyHandlerScope.sharedTestImplementation(dependencyNotation: Any) {
-    testImplementation(dependencyNotation)
-
-    androidTestImplementation(dependencyNotation)
+dependencies {
+    implementation(projects.ui)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.ui)
 }
