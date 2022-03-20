@@ -32,4 +32,5 @@ dependencies {
     implementation(libs.detekt.gradlePlugin)
     implementation(libs.keeper.gradlePlugin)
     implementation(libs.ksp.gradlePlugin)
+    implementation(libs.paparazzi.gradlePlugin)
 }

@@ -27,6 +27,11 @@ pluginManagement {
             }
         }
         gradlePluginPortal()
+        maven(url = "https://oss.sonatype.org/content/repositories/snapshots/") {
+            content {
+                includeGroup("app.cash.paparazzi")
+            }
+        }
     }
 }
 
@@ -44,6 +49,11 @@ dependencyResolutionManagement {
         maven(url = "https://jitpack.io") {
             content {
                 includeGroup("com.github.livefront.sealed-enum")
+            }
+        }
+        maven(url = "https://oss.sonatype.org/content/repositories/snapshots/") {
+            content {
+                includeGroup("app.cash.paparazzi")
             }
         }
     }
@@ -64,4 +74,5 @@ include(":preferences-test")
 include(":resource-state")
 include(":screenshot-test")
 include(":ui")
+include(":ui-screenshots")
 include(":wear")

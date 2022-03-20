@@ -16,7 +16,8 @@ androidxTestExt = "1.1.4-alpha04"
 androidxWearWatchface = "1.1.0-alpha04"
 dagger = "2.41"
 detekt = "1.19.0"
-guava = "31.1-android"
+guavaAndroid = "31.1-android"
+guavaJre = "31.1-jre"
 keeper = "0.12.0"
 kotlin = "1.6.10"
 kotlinxCoroutines = "1.6.0"
@@ -26,6 +27,7 @@ jacoco = "0.8.7"
 junit4 = "4.13.2"
 junit5 = "5.8.2"
 leakCanary = "2.8.1"
+paparazzi = "1.0.0-SNAPSHOT"
 protobuf = "3.20.0-rc-1"
 protobufPlugin = "0.8.18"
 robolectric = "4.7.3"
@@ -60,7 +62,8 @@ dagger-hilt-runtime = { group = "com.google.dagger", name = "hilt-android", vers
 dagger-hilt-test = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "dagger" }
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
 detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
-guava-android = { group = "com.google.guava", name = "guava", version.ref = "guava" }
+guava-android = { group = "com.google.guava", name = "guava", version.ref = "guavaAndroid" }
+guava-jre = { group = "com.google.guava", name = "guava", version.ref = "guavaJre" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 junit5-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit5" }
 junit5-vintageEngine = { group = "org.junit.vintage", name = "junit-vintage-engine", version.ref = "junit5" }
@@ -70,6 +73,8 @@ kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+paparazzi-gradlePlugin = { group = "app.cash.paparazzi", name = "paparazzi-gradle-plugin", version.ref = "paparazzi" }
+paparazzi-runtime = { group = "app.cash.paparazzi", name = "paparazzi", version.ref = "paparazzi" }
 protobuf-protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "protobuf" }
 protobuf-runtime = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobuf" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
