@@ -22,7 +22,6 @@ plugins {
 
 android {
     defaultConfig {
-        namespace = "com.alexvanyo.composelife.hilttest"
         minSdk = 21
     }
 }
