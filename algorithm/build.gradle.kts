@@ -32,15 +32,6 @@ android {
     defaultConfig {
         minSdk = 21
     }
-
-    lint {
-        disable += setOf(
-            "JvmStaticProvidesInObjectDetector",
-            "FieldSiteTargetOnQualifierAnnotation",
-            "ModuleCompanionObjects",
-            "ModuleCompanionObjectsNotInModuleParent",
-        )
-    }
 }
 
 dependencies {
