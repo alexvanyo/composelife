@@ -28,11 +28,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -86,7 +86,6 @@ fun CellUniverseActionCard(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     isTopCard: Boolean,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
     shape: Shape = RoundedCornerShape(12.0.dp),
     actionCardState: CellUniverseActionCardState = rememberCellUniverseActionCardState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
@@ -107,7 +106,6 @@ fun CellUniverseActionCard(
         setTargetStepsPerSecond = { temporalGameOfLifeState.targetStepsPerSecond = it },
         generationsPerStep = temporalGameOfLifeState.generationsPerStep,
         setGenerationsPerStep = { temporalGameOfLifeState.generationsPerStep = it },
-        contentPadding = contentPadding,
         shape = shape,
         actionCardState = actionCardState,
         modifier = modifier,
@@ -127,7 +125,6 @@ fun CellUniverseActionCard(
     generationsPerStep: Int,
     setGenerationsPerStep: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
     shape: Shape = RoundedCornerShape(12.0.dp),
     actionCardState: CellUniverseActionCardState = rememberCellUniverseActionCardState(),
 ) {
@@ -141,7 +138,7 @@ fun CellUniverseActionCard(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(contentPadding)
+            modifier = Modifier.safeDrawingPadding()
         ) {
             AnimatedVisibility(visible = !actionCardState.isFullscreen) {
                 ActionControlRow(
