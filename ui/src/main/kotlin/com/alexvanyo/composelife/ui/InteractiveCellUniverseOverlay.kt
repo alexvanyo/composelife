@@ -47,6 +47,8 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.BottomInsets
@@ -179,6 +181,15 @@ fun InteractiveCellUniverseOverlay(
                     8.dp + windowInsetsPaddingValues.calculateBottomPadding()
                 }
             )
+            val outerPaddingLeft: Dp
+            val outerPaddingRight: Dp
+            if (LocalLayoutDirection.current == LayoutDirection.Ltr) {
+                outerPaddingLeft = outerPaddingStart
+                outerPaddingRight = outerPaddingEnd
+            } else {
+                outerPaddingLeft = outerPaddingEnd
+                outerPaddingRight = outerPaddingStart
+            }
 
             val outerPadding = PaddingValues(
                 start = outerPaddingStart,
@@ -186,41 +197,11 @@ fun InteractiveCellUniverseOverlay(
                 end = outerPaddingEnd,
                 bottom = outerPaddingBottom
             )
-
-            val contentPaddingStart by animateDpAsState(
-                targetValue = if (actionCardState.isFullscreen) {
-                    windowInsetsPaddingValues.calculateStartPadding(LocalLayoutDirection.current)
-                } else {
-                    0.dp
-                }
-            )
-            val contentPaddingTop by animateDpAsState(
-                targetValue = if (actionCardState.isFullscreen) {
-                    windowInsetsPaddingValues.calculateTopPadding()
-                } else {
-                    0.dp
-                }
-            )
-            val contentPaddingEnd by animateDpAsState(
-                targetValue = if (actionCardState.isFullscreen) {
-                    windowInsetsPaddingValues.calculateEndPadding(LocalLayoutDirection.current)
-                } else {
-                    0.dp
-                }
-            )
-            val contentPaddingBottom by animateDpAsState(
-                targetValue = if (actionCardState.isFullscreen) {
-                    windowInsetsPaddingValues.calculateBottomPadding()
-                } else {
-                    0.dp
-                }
-            )
-
-            val contentPadding = PaddingValues(
-                start = contentPaddingStart,
-                top = contentPaddingTop,
-                end = contentPaddingEnd,
-                bottom = contentPaddingBottom
+            val consumedWindowInsets = WindowInsets(
+                left = outerPaddingLeft,
+                top = outerPaddingTop,
+                right = outerPaddingRight,
+                bottom = outerPaddingBottom
             )
 
             val cornerSize by animateDpAsState(
@@ -234,7 +215,7 @@ fun InteractiveCellUniverseOverlay(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .consumedWindowInsets(windowInsets)
+                    .consumedWindowInsets(consumedWindowInsets)
                     .animatePlacement(
                         alignment = Alignment.BottomCenter
                     )
@@ -244,7 +225,6 @@ fun InteractiveCellUniverseOverlay(
                     isTopCard = isActionCardTopCard,
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     actionCardState = actionCardState,
-                    contentPadding = contentPadding,
                     shape = RoundedCornerShape(cornerSize),
                     modifier = Modifier
                         .align(Alignment.Center)
@@ -275,7 +255,8 @@ fun InteractiveCellUniverseOverlay(
                 bottomInsetsPlaceable.place(0, constraints.maxHeight - bottomInsetsPlaceable.measuredHeight)
 
                 // If we can fit both cards, place them both on screen.
-                // Otherwise, place the top-card (as determined by
+                // Otherwise, place the top-card (as determined by isActionCardTopCard) only aligned to the correct
+                // side of the screen, and align the hidden card just off-screen.
                 if (infoCardPlaceable.measuredHeight + actionCardPlaceable.measuredHeight -
                     topInsetsPlaceable.height - bottomInsetsPlaceable.height <= constraints.maxHeight
                 ) {
