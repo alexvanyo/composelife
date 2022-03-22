@@ -32,8 +32,8 @@ fun Project.configureGradleManagedDevices(
 ) {
     testedExtension.testOptions.managedDevices.devices {
         val deviceNames = listOf("Pixel 2", "Pixel 3 XL")
-        val apiLevels = listOf(29, 30)
-        val systemImageSources = listOf("google", "google-atd")
+        val apiLevels = listOf(27, 28, 29, 30, 31)
+        val systemImageSources = listOf("aosp", "aosp-atd")
 
         deviceNames.flatMap { deviceName ->
             apiLevels.flatMap { apiLevel ->
@@ -47,7 +47,7 @@ fun Project.configureGradleManagedDevices(
             }
         }
             .filterNot {
-                it.systemImageSource == "google-atd" && it.apiLevel != 30
+                it.systemImageSource.contains("atd") && it.apiLevel != 30
             }
             .forEach { config ->
                 create<com.android.build.api.dsl.ManagedVirtualDevice>(
