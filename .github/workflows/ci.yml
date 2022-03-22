@@ -95,9 +95,9 @@ jobs:
         run: |
           if ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch') }}
           then
-            echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"device\":[\"pixel2\",\"pixel3xl\"],\"api-level\":[\"29\",\"30\"]}"
+            echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"device\":[\"pixel2\",\"pixel3xl\"],\"api-level\":[\"27\",\"28\",\"29\",\"30\",\"31\"]}"
           else
-            echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"device\":[\"pixel2\",\"pixel3xl\"],\"api-level\":[\"29\",\"30\"]}"
+            echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"device\":[\"pixel2\"],\"api-level\":[\"31\"]}"
           fi
 
   android-test-gmd:
@@ -115,6 +115,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Cache AVD
+        uses: actions/cache@v3
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/gradle/*
+          key: v1-${{ runner.os }}-gmd-${{ matrix.java-version }}-${{ matrix.device }}-${{ matrix.api-level }}
 
       - name: Configure JDK
         uses: actions/setup-java@v3
@@ -141,7 +149,7 @@ jobs:
           then
             echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"api-level\":[\"21\",\"22\",\"23\",\"24\",\"25\",\"26\",\"27\",\"28\",\"29\",\"30\",\"31\",\"32\"]}"
           else
-            echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"api-level\":[\"21\",\"32\"]}"
+            echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"api-level\":[\"21\"]}"
           fi
 
   android-test-aer:
