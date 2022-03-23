@@ -14,28 +14,15 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.cells
+package com.alexvanyo.composelife.ui.util
 
-import androidx.compose.foundation.layout.Box
-import app.cash.paparazzi.DeviceConfig
-import app.cash.paparazzi.Paparazzi
-import org.junit.Rule
-import org.junit.Test
+import androidx.annotation.FloatRange
 
-class InteractableCellsTests {
-
-    @get:Rule
-    val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.NEXUS_5.copy(softButtons = false),
-        maxPercentDifference = 0.0,
-    )
-
-    @Test
-    fun interactable_cells_preview() {
-        paparazzi.snapshot {
-            Box {
-                InteractableCellsPreview()
-            }
-        }
-    }
-}
+/**
+ * Linearly interpolate between two values
+ */
+fun lerp(
+    startValue: Float,
+    endValue: Float,
+    @FloatRange(from = 0.0, to = 1.0) fraction: Float
+): Float = startValue + fraction * (endValue - startValue)

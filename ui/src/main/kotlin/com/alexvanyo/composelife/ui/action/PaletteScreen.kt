@@ -36,7 +36,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -54,6 +53,7 @@ import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.R
+import com.alexvanyo.composelife.ui.component.LabeledSlider
 import com.alexvanyo.composelife.ui.entrypoints.ComposeLifePreferencesEntryPoint
 import kotlinx.coroutines.launch
 
@@ -158,26 +158,18 @@ fun PaletteScreen(
                             }
                         }
 
-                        Text(
-                            stringResource(id = R.string.size_fraction, sizeFraction),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        Slider(
+                        LabeledSlider(
+                            label = stringResource(id = R.string.size_fraction, sizeFraction),
                             value = sizeFraction,
-                            valueRange = 0.1f..1f,
                             onValueChange = { sizeFraction = it },
+                            valueRange = 0.1f..1f,
                         )
 
-                        Text(
-                            stringResource(id = R.string.corner_fraction, cornerFraction),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        Slider(
+                        LabeledSlider(
+                            label = stringResource(id = R.string.corner_fraction, cornerFraction),
                             value = cornerFraction,
-                            valueRange = 0f..0.5f,
                             onValueChange = { cornerFraction = it },
+                            valueRange = 0f..0.5f,
                         )
                     }
                 }

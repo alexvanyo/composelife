@@ -22,7 +22,7 @@ import app.cash.paparazzi.Paparazzi
 import org.junit.Rule
 import org.junit.Test
 
-class NonInteractableCellsTests {
+class InteractableCellSnapshotTests {
 
     @get:Rule
     val paparazzi = Paparazzi(
@@ -31,10 +31,19 @@ class NonInteractableCellsTests {
     )
 
     @Test
-    fun non_interactable_cells_preview() {
+    fun alive_cell_preview() {
         paparazzi.snapshot {
             Box {
-                NonInteractableCellsPreview()
+                AliveCellPreview()
+            }
+        }
+    }
+
+    @Test
+    fun dead_cell_preview() {
+        paparazzi.snapshot {
+            Box {
+                DeadCellPreview()
             }
         }
     }

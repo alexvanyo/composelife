@@ -19,7 +19,6 @@ package com.alexvanyo.composelife.ui
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.filterToOne
@@ -27,7 +26,6 @@ import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
@@ -156,9 +154,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.target_steps_per_second, 60.0))
-            .onChildren()
-            .filterToOne(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))
+            .onNodeWithContentDescription(context.getString(R.string.target_steps_per_second, 60.0))
             .performSemanticsAction(SemanticsActions.SetProgress) { it(0f) }
 
         composeTestRule
@@ -279,9 +275,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.generations_per_step, 1))
-            .onChildren()
-            .filterToOne(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))
+            .onNodeWithContentDescription(context.getString(R.string.generations_per_step, 1))
             .performSemanticsAction(SemanticsActions.SetProgress) { it(1f) }
 
         SixLongLinePattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 }.forEach { expectedCellState ->

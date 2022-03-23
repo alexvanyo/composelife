@@ -16,26 +16,25 @@
 
 package com.alexvanyo.composelife.ui.action
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.ui.R
+import com.alexvanyo.composelife.ui.component.LabeledSlider
+import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import kotlin.math.log2
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -75,30 +74,19 @@ fun TargetStepsPerSecondControl(
     minTargetStepsPerSecondPowerOfTwo: Int = 0,
     maxTargetStepsPerSecondPowerOfTwo: Int = 8
 ) {
-    Column(modifier = modifier.semantics(mergeDescendants = true) {}) {
-        Text(
-            stringResource(id = R.string.target_steps_per_second, targetStepsPerSecond),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Box(
-            contentAlignment = Alignment.Center
-        ) {
-            Slider(
-                value = log2(targetStepsPerSecond).toFloat(),
-                valueRange = minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat(),
-                onValueChange = {
-                    setTargetStepsPerSecond(2.0.pow(it.toDouble()))
-                }
-            )
-
+    LabeledSlider(
+        label = stringResource(id = R.string.target_steps_per_second, targetStepsPerSecond),
+        value = log2(targetStepsPerSecond).toFloat(),
+        onValueChange = {
+            setTargetStepsPerSecond(2.0.pow(it.toDouble()))
+        },
+        valueRange = minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat(),
+        modifier = modifier,
+        sliderOverlay = {
             val tickColor = MaterialTheme.colorScheme.onSurfaceVariant
 
             Canvas(
-                modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .fillMaxWidth()
-                    .height(24.dp)
+                modifier = Modifier.fillMaxSize()
             ) {
                 val offsets = (minTargetStepsPerSecondPowerOfTwo..maxTargetStepsPerSecondPowerOfTwo).map {
                     (2f.pow(it) - 2f.pow(minTargetStepsPerSecondPowerOfTwo)) /
@@ -114,7 +102,7 @@ fun TargetStepsPerSecondControl(
                 }
             }
         }
-    }
+    )
 }
 
 @Composable
@@ -125,22 +113,39 @@ fun GenerationsPerStepControl(
     minTargetStepsPerSecondPowerOfTwo: Int = 0,
     maxTargetStepsPerSecondPowerOfTwo: Int = 8
 ) {
-    Column(modifier.semantics(mergeDescendants = true) {}) {
-        Text(
-            stringResource(id = R.string.generations_per_step, generationsPerStep),
-            modifier = Modifier.fillMaxWidth()
-        )
+    LabeledSlider(
+        label = stringResource(id = R.string.generations_per_step, generationsPerStep),
+        value = log2(generationsPerStep.toFloat()),
+        valueRange = minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat(),
+        steps = maxTargetStepsPerSecondPowerOfTwo - minTargetStepsPerSecondPowerOfTwo - 1,
+        onValueChange = {
+            setGenerationsPerStep(2.0.pow(it.toDouble()).roundToInt())
+        },
+        onValueChangeFinished = {
+            setGenerationsPerStep(2.0.pow(log2(generationsPerStep.toDouble()).roundToInt()).roundToInt())
+        },
+        modifier = modifier,
+    )
+}
 
-        Slider(
-            value = log2(generationsPerStep.toFloat()),
-            valueRange = minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat(),
-            steps = maxTargetStepsPerSecondPowerOfTwo - minTargetStepsPerSecondPowerOfTwo - 1,
-            onValueChange = {
-                setGenerationsPerStep(2.0.pow(it.toDouble()).roundToInt())
-            },
-            onValueChangeFinished = {
-                setGenerationsPerStep(2.0.pow(log2(generationsPerStep.toDouble()).roundToInt()).roundToInt())
-            }
-        )
+@Preview(
+    name = "Light mode",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Dark mode",
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun SpeedScreenPreview() {
+    ComposeLifeTheme {
+        Surface {
+            SpeedScreen(
+                targetStepsPerSecond = 60.0,
+                setTargetStepsPerSecond = {},
+                generationsPerStep = 1,
+                setGenerationsPerStep = {}
+            )
+        }
     }
 }
