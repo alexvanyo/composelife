@@ -67,8 +67,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -76,7 +74,9 @@ import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.NavigationHost
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.ui.R
+import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.canScrollDown
+import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -173,6 +173,7 @@ fun CellUniverseActionCard(
                         }
 
                     Layout(
+                        layoutIdTypes = ActionCardDestinationLayoutTypes.sealedEnum,
                         content = {
                             val currentScrollState = contentScrollStateMap.getValue(
                                 actionCardState.navigationState.currentEntryId
@@ -225,15 +226,8 @@ fun CellUniverseActionCard(
                             }
                         },
                         measurePolicy = { measurables, constraints ->
-                            lateinit var bottomBarMeasurable: Measurable
-                            lateinit var navHostMeasurable: Measurable
-
-                            measurables.forEach {
-                                when (it.layoutId as ActionCardDestinationLayoutTypes) {
-                                    ActionCardDestinationLayoutTypes.BottomBar -> bottomBarMeasurable = it
-                                    ActionCardDestinationLayoutTypes.NavHost -> navHostMeasurable = it
-                                }
-                            }
+                            val bottomBarMeasurable = measurables.getValue(ActionCardDestinationLayoutTypes.BottomBar)
+                            val navHostMeasurable = measurables.getValue(ActionCardDestinationLayoutTypes.NavHost)
 
                             val bottomBarIntrinsicHeight = bottomBarMeasurable.minIntrinsicHeight(constraints.maxWidth)
 
@@ -262,9 +256,12 @@ fun CellUniverseActionCard(
     }
 }
 
-private sealed interface ActionCardDestinationLayoutTypes {
+internal sealed interface ActionCardDestinationLayoutTypes {
     object BottomBar : ActionCardDestinationLayoutTypes
     object NavHost : ActionCardDestinationLayoutTypes
+
+    @GenSealedEnum
+    companion object
 }
 
 @Suppress("LongMethod")
