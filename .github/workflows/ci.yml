@@ -134,7 +134,10 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Run device checks
-        run: ./gradlew ${{ matrix.device }}api${{ matrix.api-level }}Check --no-parallel --stacktrace -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect"
+        run: |
+          # run the tests, with one retry attempt
+          run_tests () { ./gradlew ${{ matrix.device }}api${{ matrix.api-level }}Check --no-parallel --stacktrace -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect"; }
+          (echo "==== Attempt 1 ====" && run_tests) || (echo "==== Attempt 2 ====" && run_tests) || (echo "==== Both attempts failed ====" && exit 1)
 
   android-test-aer-cfg:
     needs: build
@@ -209,8 +212,8 @@ jobs:
             touch emulator.log                                                         # create log file
             chmod 777 emulator.log                                                     # allow writing to log file
             adb logcat >> emulator.log &                                               # output logs to the log file
-             # run the tests, with one retry attempt
-            (echo "==== Attempt 1 ====" && ./gradlew connectedCheck --stacktrace) || (echo "==== Attempt 2 ====" && ./gradlew connectedCheck --stacktrace) || (echo "==== Both attempts failed ====" && exit 1)
+            # run the tests, with one retry attempt
+            run_tests () { ./gradlew connectedCheck --stacktrace; }; (echo "==== Attempt 1 ====" && run_tests) || (echo "==== Attempt 2 ====" && run_tests) || (echo "==== Both attempts failed ====" && exit 1)
 
       - name: Upload failing test logs
         uses: actions/upload-artifact@v3
