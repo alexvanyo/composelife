@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.cells
+package com.alexvanyo.composelife.ui.action
 
 import androidx.compose.foundation.layout.Box
 import app.cash.paparazzi.DeviceConfig
@@ -22,7 +22,7 @@ import app.cash.paparazzi.Paparazzi
 import org.junit.Rule
 import org.junit.Test
 
-class InteractableCellTests {
+class SpeedScreenSnapshotTests {
 
     @get:Rule
     val paparazzi = Paparazzi(
@@ -31,19 +31,10 @@ class InteractableCellTests {
     )
 
     @Test
-    fun alive_cell_preview() {
+    fun speed_screen_preview() {
         paparazzi.snapshot {
             Box {
-                AliveCellPreview()
-            }
-        }
-    }
-
-    @Test
-    fun dead_cell_preview() {
-        paparazzi.snapshot {
-            Box {
-                DeadCellPreview()
+                SpeedScreenPreview()
             }
         }
     }
