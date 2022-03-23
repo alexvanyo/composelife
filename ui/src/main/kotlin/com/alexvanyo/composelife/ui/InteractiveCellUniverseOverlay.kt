@@ -42,8 +42,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -62,7 +60,9 @@ import com.alexvanyo.composelife.ui.cells.CellWindowState
 import com.alexvanyo.composelife.ui.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.info.CellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.info.rememberCellUniverseInfoCardState
+import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.animatePlacement
+import com.livefront.sealedenum.GenSealedEnum
 
 @OptIn(ExperimentalLayoutApi::class)
 @Suppress("LongMethod", "ComplexMethod")
@@ -118,6 +118,7 @@ fun InteractiveCellUniverseOverlay(
     }
 
     Layout(
+        layoutIdTypes = InteractiveCellUniverseOverlayLayoutTypes.sealedEnum,
         content = {
             Spacer(
                 modifier = Modifier
@@ -234,21 +235,11 @@ fun InteractiveCellUniverseOverlay(
             }
         },
         measurePolicy = { measurables, constraints ->
-            lateinit var topInsetsPlaceable: Placeable
-            lateinit var bottomInsetsPlaceable: Placeable
-            lateinit var infoCardPlaceable: Placeable
-            lateinit var actionCardPlaceable: Placeable
-
-            measurables.forEach { measurable ->
-                val placeable = measurable.measure(constraints)
-
-                when (measurable.layoutId as InteractiveCellUniverseOverlayLayoutTypes) {
-                    TopInsets -> topInsetsPlaceable = placeable
-                    BottomInsets -> bottomInsetsPlaceable = placeable
-                    CellUniverseInfoCard -> infoCardPlaceable = placeable
-                    CellUniverseActionCard -> actionCardPlaceable = placeable
-                }
-            }
+            val placeables = measurables.mapValues { (_, measurable) -> measurable.measure(constraints) }
+            val topInsetsPlaceable = placeables.getValue(TopInsets)
+            val bottomInsetsPlaceable = placeables.getValue(BottomInsets)
+            val infoCardPlaceable = placeables.getValue(CellUniverseInfoCard)
+            val actionCardPlaceable = placeables.getValue(CellUniverseActionCard)
 
             layout(constraints.maxWidth, constraints.maxHeight) {
                 topInsetsPlaceable.place(0, 0)
@@ -281,9 +272,12 @@ fun InteractiveCellUniverseOverlay(
     )
 }
 
-private sealed interface InteractiveCellUniverseOverlayLayoutTypes {
+internal sealed interface InteractiveCellUniverseOverlayLayoutTypes {
     object TopInsets : InteractiveCellUniverseOverlayLayoutTypes
     object BottomInsets : InteractiveCellUniverseOverlayLayoutTypes
     object CellUniverseInfoCard : InteractiveCellUniverseOverlayLayoutTypes
     object CellUniverseActionCard : InteractiveCellUniverseOverlayLayoutTypes
+
+    @GenSealedEnum
+    companion object
 }
