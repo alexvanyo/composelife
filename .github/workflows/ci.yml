@@ -85,7 +85,7 @@ jobs:
           files: jacocoTestDebugUnitTestReport/jacocoTestDebugUnitTestReport.xml,jacocoTestReleaseUnitTestReport/jacocoTestReleaseUnitTestReport.xml
 
   android-test-gmd-cfg:
-    needs: build
+    needs: validate-wrapper
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -140,7 +140,7 @@ jobs:
           (echo "==== Attempt 1 ====" && run_tests) || (echo "==== Attempt 2 ====" && run_tests) || (echo "==== Both attempts failed ====" && exit 1)
 
   android-test-aer-cfg:
-    needs: build
+    needs: validate-wrapper
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
