@@ -80,6 +80,8 @@ class InteractiveCellUniverseInstrumentationTests : BaseHiltTest<TestActivity>(T
             .filterToOne(hasContentDescription(context.getString(R.string.expand)))
             .performClick()
 
+        composeTestRule.waitForIdle()
+
         Espresso.pressBack()
 
         composeTestRule
@@ -117,6 +119,8 @@ class InteractiveCellUniverseInstrumentationTests : BaseHiltTest<TestActivity>(T
             .onChildren()
             .filterToOne(hasContentDescription(context.getString(R.string.expand)))
             .performClick()
+
+        composeTestRule.waitForIdle()
 
         Espresso.pressBack()
 
