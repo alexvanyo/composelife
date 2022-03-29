@@ -95,9 +95,9 @@ jobs:
         run: |
           if ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch') }}
           then
-            echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"device\":[\"pixel2\",\"pixel3xl\"],\"api-level\":[\"27\",\"28\",\"29\",\"30\",\"31\"]}"
+            echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"device\":[\"pixel2\",\"pixel3xl\"],\"api-level\":[\"27\",\"28\",\"29\",\"30\",\"31\"]},\"include\":[{\"java-version\":\"11\",\"device\":\"atdpixel2\",\"api-level\":\"30\"}]}"
           else
-            echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"device\":[\"pixel2\"],\"api-level\":[\"31\"]}"
+            echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"device\":[\"pixel2\"],\"api-level\":[\"31\"],\"include\":[{\"java-version\":\"11\",\"device\":\"atdpixel2\",\"api-level\":\"30\"}]}"
           fi
 
   android-test-gmd:
