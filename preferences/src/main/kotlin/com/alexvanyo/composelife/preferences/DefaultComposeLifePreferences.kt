@@ -54,18 +54,18 @@ class DefaultComposeLifePreferences @Inject constructor(
                         AlgorithmProto.ALGORITHM_UNKNOWN,
                         AlgorithmProto.DEFAULT,
                         AlgorithmProto.HASHLIFE,
-                        AlgorithmProto.UNRECOGNIZED
+                        AlgorithmProto.UNRECOGNIZED,
                         -> AlgorithmType.HashLifeAlgorithm
                         AlgorithmProto.NAIVE -> AlgorithmType.NaiveAlgorithm
-                    }
+                    },
                 )
 
                 currentShapeState = ResourceState.Success(
                     when (preferencesProto.currentShapeType!!) {
                         CurrentShapeTypeProto.CURRENT_SHAPE_TYPE_UNKNOWN,
-                        CurrentShapeTypeProto.UNRECOGNIZED -> defaultRoundRectangle
+                        CurrentShapeTypeProto.UNRECOGNIZED, -> defaultRoundRectangle
                         CurrentShapeTypeProto.ROUND_RECTANGLE -> preferencesProto.roundRectangle.toResolved()
-                    }
+                    },
                 )
             }
             .catch {
@@ -101,7 +101,7 @@ class DefaultComposeLifePreferences @Inject constructor(
             preferencesProto.copy {
                 when (currentShapeType) {
                     CurrentShapeTypeProto.CURRENT_SHAPE_TYPE_UNKNOWN,
-                    CurrentShapeTypeProto.UNRECOGNIZED -> {
+                    CurrentShapeTypeProto.UNRECOGNIZED, -> {
                         currentShapeType = CurrentShapeTypeProto.ROUND_RECTANGLE
                         roundRectangle = defaultRoundRectangle.toProto()
                     }
@@ -116,7 +116,7 @@ class DefaultComposeLifePreferences @Inject constructor(
 private val defaultRoundRectangle
     get() = RoundRectangle(
         sizeFraction = 1f,
-        cornerFraction = 0f
+        cornerFraction = 0f,
     )
 
 private fun RoundRectangleProto.toResolved(): RoundRectangle =

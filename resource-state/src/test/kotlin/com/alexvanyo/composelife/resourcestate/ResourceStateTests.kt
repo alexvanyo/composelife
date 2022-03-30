@@ -120,7 +120,7 @@ class ResourceStateTests {
                     emit(ResourceState.Loading)
                     emit(ResourceState.Failure(Exception()))
                     emit(ResourceState.Success("c"))
-                }.firstSuccess()
+                }.firstSuccess(),
             )
         }
     }
@@ -183,7 +183,7 @@ class ResourceStateTests {
             val resourceState: ResourceState<Char> = ResourceState.Loading
             assertEquals(
                 ResourceState.Loading,
-                resourceState.flatMap { getResourceState() }
+                resourceState.flatMap { getResourceState() },
             )
         }
 
@@ -193,7 +193,7 @@ class ResourceStateTests {
             val resourceState: ResourceState<Char> = ResourceState.Failure(exception)
             assertEquals(
                 ResourceState.Failure(exception),
-                resourceState.flatMap { getResourceState() }
+                resourceState.flatMap { getResourceState() },
             )
         }
 
@@ -202,7 +202,7 @@ class ResourceStateTests {
             val resourceState: ResourceState<Char> = ResourceState.Success('a')
             assertEquals(
                 ResourceState.Success(42),
-                resourceState.flatMap { getResourceState() }
+                resourceState.flatMap { getResourceState() },
             )
         }
     }
@@ -216,10 +216,10 @@ class ResourceStateTests {
                 ResourceState.Loading,
                 combine(
                     ResourceState.Loading,
-                    ResourceState.Loading
+                    ResourceState.Loading,
                 ) { a: String, b: String ->
                     a + b
-                }
+                },
             )
         }
 
@@ -230,10 +230,10 @@ class ResourceStateTests {
                 ResourceState.Failure(exception),
                 combine(
                     ResourceState.Loading,
-                    ResourceState.Failure(exception)
+                    ResourceState.Failure(exception),
                 ) { a: String, b: String ->
                     a + b
-                }
+                },
             )
         }
 
@@ -243,10 +243,10 @@ class ResourceStateTests {
                 ResourceState.Loading,
                 combine(
                     ResourceState.Loading,
-                    ResourceState.Success("b")
+                    ResourceState.Success("b"),
                 ) { a: String, b: String ->
                     a + b
-                }
+                },
             )
         }
 
@@ -257,10 +257,10 @@ class ResourceStateTests {
                 ResourceState.Failure(exception),
                 combine(
                     ResourceState.Failure(exception),
-                    ResourceState.Loading
+                    ResourceState.Loading,
                 ) { a: String, b: String ->
                     a + b
-                }
+                },
             )
         }
 
@@ -270,7 +270,7 @@ class ResourceStateTests {
             val exception2 = Exception()
             val result = combine(
                 ResourceState.Failure(exception1),
-                ResourceState.Failure(exception2)
+                ResourceState.Failure(exception2),
             ) { a: String, b: String ->
                 a + b
             }
@@ -291,10 +291,10 @@ class ResourceStateTests {
                 ResourceState.Failure(exception),
                 combine(
                     ResourceState.Failure(exception),
-                    ResourceState.Success("b")
+                    ResourceState.Success("b"),
                 ) { a: String, b: String ->
                     a + b
-                }
+                },
             )
         }
 
@@ -304,10 +304,10 @@ class ResourceStateTests {
                 ResourceState.Loading,
                 combine(
                     ResourceState.Success("a"),
-                    ResourceState.Loading
+                    ResourceState.Loading,
                 ) { a: String, b: String ->
                     a + b
-                }
+                },
             )
         }
 
@@ -318,10 +318,10 @@ class ResourceStateTests {
                 ResourceState.Failure(exception),
                 combine(
                     ResourceState.Success("a"),
-                    ResourceState.Failure(exception)
+                    ResourceState.Failure(exception),
                 ) { a: String, b: String ->
                     a + b
-                }
+                },
             )
         }
 
@@ -331,10 +331,10 @@ class ResourceStateTests {
                 ResourceState.Success("ab"),
                 combine(
                     ResourceState.Success("a"),
-                    ResourceState.Success("b")
+                    ResourceState.Success("b"),
                 ) { a: String, b: String ->
                     a + b
-                }
+                },
             )
         }
 
@@ -345,10 +345,10 @@ class ResourceStateTests {
                 combine(
                     ResourceState.Loading,
                     ResourceState.Loading,
-                    ResourceState.Loading
+                    ResourceState.Loading,
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -360,10 +360,10 @@ class ResourceStateTests {
                 combine(
                     ResourceState.Loading,
                     ResourceState.Loading,
-                    ResourceState.Failure(exception)
+                    ResourceState.Failure(exception),
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -374,10 +374,10 @@ class ResourceStateTests {
                 combine(
                     ResourceState.Loading,
                     ResourceState.Loading,
-                    ResourceState.Success("c")
+                    ResourceState.Success("c"),
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -389,10 +389,10 @@ class ResourceStateTests {
                 combine(
                     ResourceState.Loading,
                     ResourceState.Failure(exception),
-                    ResourceState.Loading
+                    ResourceState.Loading,
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -403,7 +403,7 @@ class ResourceStateTests {
             val result = combine(
                 ResourceState.Loading,
                 ResourceState.Failure(exception1),
-                ResourceState.Failure(exception2)
+                ResourceState.Failure(exception2),
             ) { a: String, b: String, c: String ->
                 a + b + c
             }
@@ -425,10 +425,10 @@ class ResourceStateTests {
                 combine(
                     ResourceState.Loading,
                     ResourceState.Failure(exception),
-                    ResourceState.Success("c")
+                    ResourceState.Success("c"),
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -439,10 +439,10 @@ class ResourceStateTests {
                 combine(
                     ResourceState.Loading,
                     ResourceState.Success("b"),
-                    ResourceState.Loading
+                    ResourceState.Loading,
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -454,10 +454,10 @@ class ResourceStateTests {
                 combine(
                     ResourceState.Loading,
                     ResourceState.Success("b"),
-                    ResourceState.Failure(exception)
+                    ResourceState.Failure(exception),
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -468,10 +468,10 @@ class ResourceStateTests {
                 combine(
                     ResourceState.Loading,
                     ResourceState.Success("b"),
-                    ResourceState.Success("c")
+                    ResourceState.Success("c"),
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -484,10 +484,10 @@ class ResourceStateTests {
                 combine(
                     ResourceState.Failure(exception),
                     ResourceState.Loading,
-                    ResourceState.Loading
+                    ResourceState.Loading,
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -522,10 +522,10 @@ class ResourceStateTests {
                 combine(
                     ResourceState.Failure(exception),
                     ResourceState.Loading,
-                    ResourceState.Success("c")
+                    ResourceState.Success("c"),
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -559,7 +559,7 @@ class ResourceStateTests {
             val result = combine(
                 ResourceState.Failure(exception1),
                 ResourceState.Failure(exception2),
-                ResourceState.Failure(exception3)
+                ResourceState.Failure(exception3),
             ) { a: String, b: String, c: String ->
                 a + b + c
             }
@@ -602,10 +602,10 @@ class ResourceStateTests {
                 combine(
                     ResourceState.Failure(exception),
                     ResourceState.Success("b"),
-                    ResourceState.Loading
+                    ResourceState.Loading,
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -616,7 +616,7 @@ class ResourceStateTests {
             val result = combine(
                 ResourceState.Failure(exception1),
                 ResourceState.Success("b"),
-                ResourceState.Failure(exception2)
+                ResourceState.Failure(exception2),
             ) { a: String, b: String, c: String ->
                 a + b + c
             }
@@ -638,10 +638,10 @@ class ResourceStateTests {
                 combine(
                     ResourceState.Failure(exception),
                     ResourceState.Success("b"),
-                    ResourceState.Success("c")
+                    ResourceState.Success("c"),
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -652,10 +652,10 @@ class ResourceStateTests {
                 combine(
                     ResourceState.Success("a"),
                     ResourceState.Loading,
-                    ResourceState.Loading
+                    ResourceState.Loading,
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -667,10 +667,10 @@ class ResourceStateTests {
                 combine(
                     ResourceState.Success("a"),
                     ResourceState.Loading,
-                    ResourceState.Failure(exception)
+                    ResourceState.Failure(exception),
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -681,10 +681,10 @@ class ResourceStateTests {
                 combine(
                     ResourceState.Success("a"),
                     ResourceState.Loading,
-                    ResourceState.Success("c")
+                    ResourceState.Success("c"),
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -696,10 +696,10 @@ class ResourceStateTests {
                 combine(
                     ResourceState.Success("a"),
                     ResourceState.Failure(exception),
-                    ResourceState.Loading
+                    ResourceState.Loading,
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -710,7 +710,7 @@ class ResourceStateTests {
             val result = combine(
                 ResourceState.Success("a"),
                 ResourceState.Failure(exception1),
-                ResourceState.Failure(exception2)
+                ResourceState.Failure(exception2),
             ) { a: String, b: String, c: String ->
                 a + b + c
             }
@@ -735,7 +735,7 @@ class ResourceStateTests {
                     ResourceState.Success("c"),
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -746,10 +746,10 @@ class ResourceStateTests {
                 combine(
                     ResourceState.Success("a"),
                     ResourceState.Success("b"),
-                    ResourceState.Loading
+                    ResourceState.Loading,
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -761,10 +761,10 @@ class ResourceStateTests {
                 combine(
                     ResourceState.Success("a"),
                     ResourceState.Success("b"),
-                    ResourceState.Failure(exception)
+                    ResourceState.Failure(exception),
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
 
@@ -778,7 +778,7 @@ class ResourceStateTests {
                     ResourceState.Success("c"),
                 ) { a: String, b: String, c: String ->
                     a + b + c
-                }
+                },
             )
         }
     }

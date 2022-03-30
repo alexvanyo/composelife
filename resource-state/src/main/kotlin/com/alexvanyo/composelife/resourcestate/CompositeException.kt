@@ -23,10 +23,10 @@ package com.alexvanyo.composelife.resourcestate
  * contain one exception (prefer to just throw that instead.
  */
 class CompositeException(
-    val exceptions: List<Throwable>
+    val exceptions: List<Throwable>,
 ) : RuntimeException() {
     constructor(
-        vararg exceptions: Throwable
+        vararg exceptions: Throwable,
     ) : this(exceptions.toList())
 
     init {

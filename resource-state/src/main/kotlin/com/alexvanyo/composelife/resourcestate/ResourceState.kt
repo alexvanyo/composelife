@@ -45,14 +45,14 @@ sealed interface ResourceState<out T : Any> {
      * The resource is successfully loaded, with the given [value].
      */
     data class Success<T : Any>(
-        val value: T
+        val value: T,
     ) : ResourceState<T>
 
     /**
      * Loading the resource failed with the given [throwable].
      */
     data class Failure<T : Any>(
-        val throwable: Throwable
+        val throwable: Throwable,
     ) : ResourceState<T>
 }
 
@@ -103,7 +103,7 @@ inline fun <T : Any, R : Any> ResourceState<T>.map(transform: (T) -> R): Resourc
  * [Loading] and [Failure]s are simply returned with the proper type.
  */
 inline fun <T : Any, R : Any> ResourceState<T>.flatMap(
-    transform: (T) -> ResourceState<R>
+    transform: (T) -> ResourceState<R>,
 ): ResourceState<R> = when (this) {
     Loading -> Loading
     is Success -> transform(value)
@@ -122,7 +122,7 @@ inline fun <T : Any, R : Any> ResourceState<T>.flatMap(
 inline fun <T1 : Any, T2 : Any, R : Any> combine(
     resourceState1: ResourceState<T1>,
     resourceState2: ResourceState<T2>,
-    transform: (a: T1, b: T2) -> R
+    transform: (a: T1, b: T2) -> R,
 ): ResourceState<R> = combine(
     resourceState1,
     resourceState2,
@@ -144,7 +144,7 @@ inline fun <T1 : Any, T2 : Any, T3 : Any, R : Any> combine(
     resourceState1: ResourceState<T1>,
     resourceState2: ResourceState<T2>,
     resourceState3: ResourceState<T3>,
-    transform: (a: T1, b: T2, c: T3) -> R
+    transform: (a: T1, b: T2, c: T3) -> R,
 ): ResourceState<R> = combine(
     resourceState1,
     resourceState2,
@@ -165,7 +165,7 @@ inline fun <T1 : Any, T2 : Any, T3 : Any, R : Any> combine(
  */
 inline fun <R : Any> combine(
     vararg resourceStates: ResourceState<*>,
-    transform: (args: List<Any>) -> R
+    transform: (args: List<Any>) -> R,
 ): ResourceState<R> {
     val loading = resourceStates.filterIsInstance<Loading>()
     val failures = resourceStates.filterIsInstance<Failure<*>>()
@@ -177,14 +177,14 @@ inline fun <R : Any> combine(
                     failures.first().throwable
                 } else {
                     CompositeException(failures.map { it.throwable })
-                }
+                },
             )
         }
         loading.isNotEmpty() -> Loading
         else -> {
             check(resourceStates.size == successes.size)
             Success(
-                transform(successes.map { it.value })
+                transform(successes.map { it.value }),
             )
         }
     }

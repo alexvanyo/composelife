@@ -122,9 +122,9 @@ private class CellWindowStateImpl(
                 CellWindowStateImpl(
                     offset = Offset(it[0], it[1]),
                     scale = it[2],
-                    scaleRange = it[3]..it[4]
+                    scaleRange = it[3]..it[4],
                 )
-            }
+            },
         )
     }
 }

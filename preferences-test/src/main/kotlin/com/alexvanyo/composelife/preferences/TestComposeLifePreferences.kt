@@ -38,7 +38,7 @@ class TestComposeLifePreferences @Inject constructor() : ComposeLifePreferences 
     override val currentShapeState: ResourceState<CurrentShape> get() =
         combine(
             currentShapeType,
-            roundRectangleConfig
+            roundRectangleConfig,
         ) { currentShapeType, roundRectangleConfig ->
             when (currentShapeType) {
                 CurrentShapeType.RoundRectangle -> roundRectangleConfig

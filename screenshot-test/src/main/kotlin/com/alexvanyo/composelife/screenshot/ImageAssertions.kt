@@ -31,7 +31,7 @@ fun ImageBitmap.assertPixels(
     if (expectedSize != null) {
         assertEquals(
             expectedSize,
-            IntSize(width, height)
+            IntSize(width, height),
         )
     }
 
@@ -53,7 +53,7 @@ private fun PixelMap.assertPixelColor(
 ) {
     val color = this[x, y]
     val errorString = "Pixel($x, $y) was expected to be $expected, but was $color"
-    assertEquals(expected.red, color.red, 0.02f, errorString,)
+    assertEquals(expected.red, color.red, 0.02f, errorString)
     assertEquals(expected.green, color.green, 0.02f, errorString)
     assertEquals(expected.blue, color.blue, 0.02f, errorString)
     assertEquals(expected.alpha, color.alpha, 0.02f, errorString)
