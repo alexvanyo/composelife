@@ -56,7 +56,7 @@ class GameOfLifeRenderer(
     currentUserStyleRepository = currentUserStyleRepository,
     watchState = watchState,
     canvasType = CanvasType.HARDWARE,
-    interactiveDrawModeUpdateDelayMillis = 200L
+    interactiveDrawModeUpdateDelayMillis = 200L,
 ) {
     private val density = Density(context = context)
 
@@ -90,7 +90,7 @@ class GameOfLifeRenderer(
                 drawRect(
                     color = Color.White,
                     topLeft = windowOffset,
-                    size = Size(cellSize, cellSize)
+                    size = Size(cellSize, cellSize),
                 )
             }
         }
@@ -120,12 +120,12 @@ private fun createTimeCellState(timeDigits: TimeDigits): CellState {
                 |..
                 |OO
                 |OO
-            """.toCellState(IntOffset(35, 9))
+            """.toCellState(IntOffset(35, 9)),
         )
         .offsetBy(IntOffset(14, 38))
 
     val randomPoints = CellState(
-        randomPointPool.filter { Random.nextFloat() < 0.2 }.toSet()
+        randomPointPool.filter { Random.nextFloat() < 0.2 }.toSet(),
     )
 
     return timeCellState.union(randomPoints)
@@ -134,15 +134,15 @@ private fun createTimeCellState(timeDigits: TimeDigits): CellState {
 val randomPointPool =
     IntRect(
         IntOffset(20, 10),
-        IntOffset(80, 25)
+        IntOffset(80, 25),
     )
         .containedPoints()
         .union(
             IntRect(
                 IntOffset(20, 75),
-                IntOffset(80, 90)
+                IntOffset(80, 90),
             )
-                .containedPoints()
+                .containedPoints(),
         )
 
 fun createTimeDigits(localTime: LocalTime, use24HourFormat: Boolean): TimeDigits {
@@ -169,7 +169,7 @@ fun createTimeDigits(localTime: LocalTime, use24HourFormat: Boolean): TimeDigits
         firstDigit = firstDigit,
         secondDigit = secondDigit,
         thirdDigit = thirdDigit,
-        fourthDigit = fourthDigit
+        fourthDigit = fourthDigit,
     )
 }
 

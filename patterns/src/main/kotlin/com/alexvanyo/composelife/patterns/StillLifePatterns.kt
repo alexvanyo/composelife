@@ -26,7 +26,7 @@ sealed class StillLifePattern(
 ) : GameOfLifeTestPattern(
     patternName = patternName,
     seedCellState = cellState,
-    cellStates = List(stillLifeTestGenerations) { cellState }
+    cellStates = List(stillLifeTestGenerations) { cellState },
 ) {
     companion object {
         const val stillLifeTestGenerations = 50

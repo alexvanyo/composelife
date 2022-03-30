@@ -39,7 +39,7 @@ object BlinkerPattern : GameOfLifeTestPattern(
             |...
             """.toCellState()
         }
-    }
+    },
 )
 
 object ToadPattern : GameOfLifeTestPattern(
@@ -66,7 +66,7 @@ object ToadPattern : GameOfLifeTestPattern(
             |.OO.
             """.toCellState()
         }
-    }
+    },
 )
 
 object BeaconPattern : GameOfLifeTestPattern(
@@ -93,5 +93,5 @@ object BeaconPattern : GameOfLifeTestPattern(
             |..OO
             """.toCellState()
         }
-    }
+    },
 )

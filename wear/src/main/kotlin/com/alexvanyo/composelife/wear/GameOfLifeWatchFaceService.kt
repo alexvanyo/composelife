@@ -58,7 +58,7 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
     private val temporalGameOfLifeState = TemporalGameOfLifeState(
         cellState = emptyCellState(),
         isRunning = false,
-        targetStepsPerSecond = 5.0
+        targetStepsPerSecond = 5.0,
     )
 
     private val isBeingTappedState = MutableStateFlow(false)
@@ -92,7 +92,7 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
         combine(
             watchState.isVisible,
             watchState.isAmbient,
-            isBeingTappedState
+            isBeingTappedState,
         ) { isVisible, isAmbient, isBeingTapped ->
             temporalGameOfLifeState.setIsRunning(isVisible == true && isAmbient == false && !isBeingTapped)
             Snapshot.sendApplyNotifications()
@@ -107,7 +107,7 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
                 currentUserStyleRepository = currentUserStyleRepository,
                 watchState = watchState,
                 temporalGameOfLifeState = temporalGameOfLifeState,
-            )
+            ),
         ).apply {
             setTapListener(
                 object : WatchFace.TapListener {
@@ -122,7 +122,7 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
                             }
                         }
                     }
-                }
+                },
             )
         }
     }
