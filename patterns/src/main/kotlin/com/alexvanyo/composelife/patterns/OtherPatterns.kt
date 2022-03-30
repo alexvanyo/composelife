@@ -24,7 +24,7 @@ object SingleCellPattern : GameOfLifeTestPattern(
     """
     |O
     """.toCellState(),
-    List(50) { emptyCellState() }
+    List(50) { emptyCellState() },
 )
 
 object SixLongLinePattern : GameOfLifeTestPattern(
@@ -113,6 +113,6 @@ object SixLongLinePattern : GameOfLifeTestPattern(
         |OO......OO
         |..........
         |..........
-        """.toCellState()
-    ) + List(50) { emptyCellState() }
+        """.toCellState(),
+    ) + List(50) { emptyCellState() },
 )

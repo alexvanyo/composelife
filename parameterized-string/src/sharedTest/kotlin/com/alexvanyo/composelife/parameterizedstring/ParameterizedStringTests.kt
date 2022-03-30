@@ -39,7 +39,7 @@ class ParameterizedStringTests {
     fun zero_arg_string_is_correct() {
         assertEquals(
             "Zero",
-            applicationContext.getParameterizedString(ParameterizedString(R.string.no_arg_string))
+            applicationContext.getParameterizedString(ParameterizedString(R.string.no_arg_string)),
         )
     }
 
@@ -47,7 +47,7 @@ class ParameterizedStringTests {
     fun one_arg_string_is_correct() {
         assertEquals(
             "One: (a)",
-            applicationContext.getParameterizedString(ParameterizedString(R.string.one_arg_string, "a"))
+            applicationContext.getParameterizedString(ParameterizedString(R.string.one_arg_string, "a")),
         )
     }
 
@@ -55,7 +55,7 @@ class ParameterizedStringTests {
     fun two_arg_string_is_correct() {
         assertEquals(
             "Two: (a) (b)",
-            applicationContext.getParameterizedString(ParameterizedString(R.string.two_arg_string, "a", "b"))
+            applicationContext.getParameterizedString(ParameterizedString(R.string.two_arg_string, "a", "b")),
         )
     }
 
@@ -63,7 +63,7 @@ class ParameterizedStringTests {
     fun three_arg_string_is_correct() {
         assertEquals(
             "Three: (a) (b) (c)",
-            applicationContext.getParameterizedString(ParameterizedString(R.string.three_arg_string, "a", "b", "c"))
+            applicationContext.getParameterizedString(ParameterizedString(R.string.three_arg_string, "a", "b", "c")),
         )
     }
 
@@ -81,14 +81,14 @@ class ParameterizedStringTests {
                     R.string.two_arg_string,
                     ParameterizedString(
                         R.string.one_arg_string,
-                        "a"
+                        "a",
                     ),
                     ParameterizedString(
                         R.string.one_arg_string,
-                        "b"
-                    )
-                )
-            )
+                        "b",
+                    ),
+                ),
+            ),
         )
     }
 
@@ -102,14 +102,14 @@ class ParameterizedStringTests {
                     ParameterizedString(
                         R.string.two_arg_string,
                         "a",
-                        "b"
+                        "b",
                     ),
                     ParameterizedString(
                         R.string.one_arg_string,
                         ParameterizedString(
                             R.string.one_arg_string,
-                            "c"
-                        )
+                            "c",
+                        ),
                     ),
                     ParameterizedString(
                         R.string.one_arg_string,
@@ -117,12 +117,12 @@ class ParameterizedStringTests {
                             R.string.one_arg_string,
                             ParameterizedString(
                                 R.string.one_arg_string,
-                                "d"
-                            )
-                        )
-                    )
-                )
-            )
+                                "d",
+                            ),
+                        ),
+                    ),
+                ),
+            ),
         )
     }
 
@@ -137,14 +137,14 @@ class ParameterizedStringTests {
                     ParameterizedString(
                         R.string.two_arg_string,
                         "a",
-                        "b"
+                        "b",
                     ),
                     ParameterizedString(
                         R.string.one_arg_string,
                         ParameterizedString(
                             R.string.one_arg_string,
-                            "c"
-                        )
+                            "c",
+                        ),
                     ),
                     ParameterizedString(
                         R.string.one_arg_string,
@@ -152,17 +152,17 @@ class ParameterizedStringTests {
                             R.string.one_arg_string,
                             ParameterizedString(
                                 R.string.one_arg_string,
-                                "d"
-                            )
-                        )
-                    )
-                )
+                                "d",
+                            ),
+                        ),
+                    ),
+                ),
             )
         }
 
         assertEquals(
             "Three: (Two: (a) (b)) (One: (One: (c))) (One: (One: (One: (d))))",
-            string
+            string,
         )
     }
 }

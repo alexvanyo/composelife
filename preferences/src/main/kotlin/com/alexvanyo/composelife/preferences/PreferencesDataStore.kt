@@ -56,5 +56,5 @@ class PreferencesDataStore @Inject constructor(
             t.writeTo(output)
     },
     scope = CoroutineScope(dispatchers.IO + SupervisorJob()),
-    produceFile = { file }
+    produceFile = { file },
 )

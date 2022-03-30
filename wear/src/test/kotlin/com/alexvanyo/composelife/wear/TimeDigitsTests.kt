@@ -49,8 +49,8 @@ class TimeDigitsTests {
                         val ascendingOrderTime = localTime.format(
                             DateTimeFormatter.ofPattern(
                                 if (use24HourFormat) "HHmm" else "hmm",
-                                Locale.ROOT
-                            )
+                                Locale.ROOT,
+                            ),
                         )
                             .map { it.digitToInt().let(GameOfLifeSegmentChar.Companion::fromChar) }
                             .reversed()
@@ -65,7 +65,7 @@ class TimeDigitsTests {
                         TimeDigitsTestArguments(
                             expectedTimeDigits = expectedTimeDigits,
                             localTime = localTime,
-                            use24HourFormat = use24HourFormat
+                            use24HourFormat = use24HourFormat,
                         )
                     }
                 }
@@ -78,7 +78,7 @@ class TimeDigitsTests {
     fun `time digits are correct`(args: TimeDigitsTestArguments) {
         assertEquals(
             args.expectedTimeDigits,
-            createTimeDigits(args.localTime, args.use24HourFormat)
+            createTimeDigits(args.localTime, args.use24HourFormat),
         )
     }
 }

@@ -41,7 +41,7 @@ data class ParameterizedString(
         vararg args: Any,
     ) : this(
         stringRes = stringRes,
-        args = args.toList()
+        args = args.toList(),
     )
 }
 
@@ -65,7 +65,7 @@ fun Resources.getParameterizedString(parameterizedString: ParameterizedString): 
     @Suppress("SpreadOperator")
     return getString(
         parameterizedString.stringRes,
-        *resolvedArgs
+        *resolvedArgs,
     )
 }
 
