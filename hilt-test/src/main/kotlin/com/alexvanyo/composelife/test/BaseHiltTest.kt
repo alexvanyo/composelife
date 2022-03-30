@@ -65,11 +65,11 @@ abstract class BaseHiltTest<T : ComponentActivity>(clazz: Class<T>) {
             setRoundRectangleConfig(
                 CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
-                    cornerFraction = 0f
-                )
+                    cornerFraction = 0f,
+                ),
             )
         },
-        testBody: suspend TestScope.() -> Unit
+        testBody: suspend TestScope.() -> Unit,
     ): TestResult = runTest {
         preferencesInitializer(preferences)
         testBody()

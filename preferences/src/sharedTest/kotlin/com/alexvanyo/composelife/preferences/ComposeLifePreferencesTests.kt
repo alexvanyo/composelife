@@ -77,7 +77,7 @@ class ComposeLifePreferencesTests {
 
         assertEquals(
             ResourceState.Success(AlgorithmType.HashLifeAlgorithm),
-            composeLifePreferences.algorithmChoiceState
+            composeLifePreferences.algorithmChoiceState,
         )
     }
 
@@ -89,7 +89,7 @@ class ComposeLifePreferencesTests {
 
         assertEquals(
             ResourceState.Success(AlgorithmType.HashLifeAlgorithm),
-            composeLifePreferences.algorithmChoiceState
+            composeLifePreferences.algorithmChoiceState,
         )
 
         composeLifePreferences.setAlgorithmChoice(AlgorithmType.NaiveAlgorithm)
