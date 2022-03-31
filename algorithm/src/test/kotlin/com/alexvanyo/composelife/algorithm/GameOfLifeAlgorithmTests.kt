@@ -84,16 +84,16 @@ class GameOfLifeAlgorithmTests {
                     ConfigurableGameOfLifeAlgorithm(
                         preferences = preferences,
                         naiveGameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(it),
-                        hashLifeAlgorithm = HashLifeAlgorithm(it)
+                        hashLifeAlgorithm = HashLifeAlgorithm(it),
                     ) to job
-                }
+                },
             )
 
             return algorithmFactories.flatMap { algorithmFactory ->
                 GameOfLifeTestPattern.values.map { testPattern ->
                     GameOfLifeAlgorithmTestArguments(
                         algorithmFactory = algorithmFactory,
-                        testPattern = testPattern
+                        testPattern = testPattern,
                     )
                 }
             }
@@ -108,22 +108,22 @@ class GameOfLifeAlgorithmTests {
         val (algorithm, job) = args.algorithmFactory.factory(
             this,
             TestComposeLifeDispatchers(
-                StandardTestDispatcher(testScheduler)
-            )
+                StandardTestDispatcher(testScheduler),
+            ),
         )
 
         assertEquals(
             args.testPattern.cellStates,
             algorithm.computeGenerationsWithStep(
                 originalCellState = args.testPattern.seedCellState,
-                step = 1
+                step = 1,
             )
                 .onEach {
                     testScheduler.advanceTimeBy(10)
                     testScheduler.runCurrent()
                 }
                 .take(args.testPattern.cellStates.size)
-                .toList()
+                .toList(),
         )
 
         job.cancel()
@@ -135,22 +135,22 @@ class GameOfLifeAlgorithmTests {
         val (algorithm, job) = args.algorithmFactory.factory(
             this,
             TestComposeLifeDispatchers(
-                StandardTestDispatcher(testScheduler)
-            )
+                StandardTestDispatcher(testScheduler),
+            ),
         )
 
         assertEquals(
             args.testPattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 },
             algorithm.computeGenerationsWithStep(
                 originalCellState = args.testPattern.seedCellState,
-                step = 2
+                step = 2,
             )
                 .onEach {
                     testScheduler.advanceTimeBy(10)
                     testScheduler.runCurrent()
                 }
                 .take(args.testPattern.cellStates.size / 2)
-                .toList()
+                .toList(),
         )
 
         job.cancel()
@@ -162,8 +162,8 @@ class GameOfLifeAlgorithmTests {
         val (algorithm, job) = args.algorithmFactory.factory(
             this,
             TestComposeLifeDispatchers(
-                StandardTestDispatcher(testScheduler)
-            )
+                StandardTestDispatcher(testScheduler),
+            ),
         )
 
         val actualCellStates = (1..args.testPattern.cellStates.size)
@@ -174,7 +174,7 @@ class GameOfLifeAlgorithmTests {
 
         assertEquals(
             args.testPattern.cellStates,
-            actualCellStates
+            actualCellStates,
         )
 
         job.cancel()
@@ -186,8 +186,8 @@ class GameOfLifeAlgorithmTests {
         val (algorithm, job) = args.algorithmFactory.factory(
             this,
             TestComposeLifeDispatchers(
-                StandardTestDispatcher(testScheduler)
-            )
+                StandardTestDispatcher(testScheduler),
+            ),
         )
 
         val actualCellStates = (1..args.testPattern.cellStates.size / 2)
@@ -198,7 +198,7 @@ class GameOfLifeAlgorithmTests {
 
         assertEquals(
             args.testPattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 },
-            actualCellStates
+            actualCellStates,
         )
 
         job.cancel()

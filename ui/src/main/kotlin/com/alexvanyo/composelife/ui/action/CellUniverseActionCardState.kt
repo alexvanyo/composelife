@@ -82,15 +82,15 @@ fun rememberCellUniverseActionCardState(
     initialBackstackEntries: List<BackstackEntry<ActionCardNavigation>> = listOf(
         BackstackEntry(
             value = ActionCardNavigation.Speed,
-            previous = null
-        )
-    )
+            previous = null,
+        ),
+    ),
 ): CellUniverseActionCardState {
     val isExpanded = rememberSaveable { mutableStateOf(initialIsExpanded) }
 
     val navController = rememberMutableBackstackNavigationController(
         initialBackstackEntries = initialBackstackEntries,
-        saver = ActionCardNavigation.Saver
+        saver = ActionCardNavigation.Saver,
     )
 
     return remember {
@@ -106,7 +106,8 @@ fun rememberCellUniverseActionCardState(
                 this.isExpanded && when (navigationState.currentEntry.value) {
                     ActionCardNavigation.Speed,
                     ActionCardNavigation.Edit,
-                    ActionCardNavigation.Palette -> false
+                    ActionCardNavigation.Palette,
+                    -> false
                     ActionCardNavigation.Settings -> true
                 }
 
@@ -156,9 +157,10 @@ fun rememberCellUniverseActionCardState(
                             ActionCardNavigation.Speed -> true
                             ActionCardNavigation.Edit,
                             ActionCardNavigation.Palette,
-                            ActionCardNavigation.Settings -> false
+                            ActionCardNavigation.Settings,
+                            -> false
                         }
-                    }
+                    },
                 )
             }
         }

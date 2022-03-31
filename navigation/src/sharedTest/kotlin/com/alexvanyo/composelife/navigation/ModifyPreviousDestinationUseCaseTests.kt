@@ -36,7 +36,7 @@ import org.junit.runner.RunWith
 
 private class TestScreenState(
     private val previous: TestScreenState?,
-    initialCount: Int = 0
+    initialCount: Int = 0,
 ) {
     var count by mutableStateOf(initialCount)
         private set
@@ -59,9 +59,9 @@ private class TestScreenState(
                 restore = {
                     TestScreenState(
                         previous = previous?.value,
-                        initialCount = it as Int
+                        initialCount = it as Int,
                     )
-                }
+                },
             )
     }
 }
@@ -80,16 +80,16 @@ class ModifyPreviousDestinationUseCaseTests {
                 initialBackstackEntries = listOf(
                     BackstackEntry(
                         TestScreenState(
-                            previous = null
+                            previous = null,
                         ),
-                        previous = null
-                    )
+                        previous = null,
+                    ),
                 ),
-                backstackValueSaverFactory = TestScreenState.Companion
+                backstackValueSaverFactory = TestScreenState.Companion,
             )
 
             NavigationHost(
-                navigationState = navController
+                navigationState = navController,
             ) { entry ->
                 Column {
                     BasicText("count: ${entry.value.count}")
@@ -97,14 +97,14 @@ class ModifyPreviousDestinationUseCaseTests {
                         "increment current",
                         Modifier.clickable {
                             entry.value.increment()
-                        }
+                        },
                     )
                     if (entry.value.canIncrementPrevious) {
                         BasicText(
                             "increment previous",
                             Modifier.clickable {
                                 entry.value.incrementPrevious()
-                            }
+                            },
                         )
                     }
                     if (navController.canNavigateBack) {
@@ -114,7 +114,7 @@ class ModifyPreviousDestinationUseCaseTests {
                                 navController.withExpectedActor(entry.id) {
                                     navController.popBackstack()
                                 }
-                            }
+                            },
                         )
                     }
                     BasicText(
@@ -126,10 +126,10 @@ class ModifyPreviousDestinationUseCaseTests {
                                         TestScreenState(
                                             previous = it.value,
                                         )
-                                    }
+                                    },
                                 )
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -166,16 +166,16 @@ class ModifyPreviousDestinationUseCaseTests {
                 initialBackstackEntries = listOf(
                     BackstackEntry(
                         TestScreenState(
-                            previous = null
+                            previous = null,
                         ),
-                        previous = null
-                    )
+                        previous = null,
+                    ),
                 ),
-                backstackValueSaverFactory = TestScreenState.Companion
+                backstackValueSaverFactory = TestScreenState.Companion,
             )
 
             NavigationHost(
-                navigationState = navController
+                navigationState = navController,
             ) { entry ->
                 Column {
                     BasicText("count: ${entry.value.count}")
@@ -183,14 +183,14 @@ class ModifyPreviousDestinationUseCaseTests {
                         "increment current",
                         Modifier.clickable {
                             entry.value.increment()
-                        }
+                        },
                     )
                     if (entry.value.canIncrementPrevious) {
                         BasicText(
                             "increment previous",
                             Modifier.clickable {
                                 entry.value.incrementPrevious()
-                            }
+                            },
                         )
                     }
                     if (navController.canNavigateBack) {
@@ -200,7 +200,7 @@ class ModifyPreviousDestinationUseCaseTests {
                                 navController.withExpectedActor(entry.id) {
                                     navController.popBackstack()
                                 }
-                            }
+                            },
                         )
                     }
                     BasicText(
@@ -212,10 +212,10 @@ class ModifyPreviousDestinationUseCaseTests {
                                         TestScreenState(
                                             previous = it.value,
                                         )
-                                    }
+                                    },
                                 )
                             }
-                        }
+                        },
                     )
                 }
             }

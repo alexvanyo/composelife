@@ -39,7 +39,7 @@ fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     modifier: Modifier = Modifier,
     cellWindowState: CellWindowState = rememberCellWindowState(),
-    preferences: ComposeLifePreferences = hiltViewModel<ComposeLifePreferencesEntryPoint>().composeLifePreferences
+    preferences: ComposeLifePreferences = hiltViewModel<ComposeLifePreferencesEntryPoint>().composeLifePreferences,
 ) {
     val currentShapeState = preferences.currentShapeState
 
@@ -56,14 +56,14 @@ fun InteractiveCellUniverse(
                 MutableCellWindow(
                     gameOfLifeState = temporalGameOfLifeState,
                     cellWindowState = cellWindowState,
-                    shape = currentShapeState.value
+                    shape = currentShapeState.value,
                 )
             }
         }
 
         InteractiveCellUniverseOverlay(
             temporalGameOfLifeState = temporalGameOfLifeState,
-            cellWindowState = cellWindowState
+            cellWindowState = cellWindowState,
         )
     }
 }

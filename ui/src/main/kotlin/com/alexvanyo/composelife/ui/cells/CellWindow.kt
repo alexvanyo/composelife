@@ -72,13 +72,13 @@ fun ImmutableCellWindow(
 ) {
     CellWindowImpl(
         cellWindowUiState = CellWindowUiState.ImmutableState(
-            gameOfLifeState = gameOfLifeState
+            gameOfLifeState = gameOfLifeState,
         ),
         cellWindowState = cellWindowState,
         shape = shape,
         cellDpSize = cellDpSize,
         centerOffset = centerOffset,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -101,13 +101,13 @@ fun MutableCellWindow(
     CellWindowImpl(
         cellWindowUiState = CellWindowUiState.MutableState(
             gameOfLifeState = gameOfLifeState,
-            isInteractable = isInteractable
+            isInteractable = isInteractable,
         ),
         cellWindowState = cellWindowState,
         shape = shape,
         cellDpSize = cellDpSize,
         centerOffset = centerOffset,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -151,8 +151,8 @@ private fun CellWindowImpl(
             intOffset + topLeftOffset,
             IntSize(
                 columnsToLeft + 1 + columnsToRight,
-                rowsToTop + 1 + rowsToBottom
-            )
+                rowsToTop + 1 + rowsToBottom,
+            ),
         )
 
         val currentOnGesture by rememberUpdatedState { centroid: Offset, pan: Offset, zoom: Float, _: Float ->
@@ -187,14 +187,14 @@ private fun CellWindowImpl(
                         onGestureEnd = { isGesturing = false },
                         onGesture = { centroid: Offset, pan: Offset, zoom: Float, rotation: Float ->
                             currentOnGesture(centroid, pan, zoom, rotation)
-                        }
+                        },
                     )
-                }
+                },
         ) {
             if (
                 cellWindowUiState.isInteractable(
                     isGesturing = isGesturing,
-                    scale = cellWindowState.scale
+                    scale = cellWindowState.scale,
                 )
             ) {
                 InteractableCells(
@@ -243,11 +243,11 @@ private fun CellWindowUiState.isInteractable(
 
 @Preview(
     name = "Immutable cell window light mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Preview(
     name = "Immutable cell window dark mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
 fun ImmutableCellWindowPreview() {
@@ -264,11 +264,11 @@ fun ImmutableCellWindowPreview() {
                     4 to 0,
                     4 to 2,
                     4 to 4,
-                ).toCellState()
+                ).toCellState(),
             ),
             shape = CurrentShape.RoundRectangle(
                 sizeFraction = 1f,
-                cornerFraction = 0f
+                cornerFraction = 0f,
             ),
         )
     }
@@ -276,11 +276,11 @@ fun ImmutableCellWindowPreview() {
 
 @Preview(
     name = "Mutable cell window light mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Preview(
     name = "Mutable cell window dark mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
 fun MutableCellWindowPreview() {
@@ -297,11 +297,11 @@ fun MutableCellWindowPreview() {
                     4 to 0,
                     4 to 2,
                     4 to 4,
-                ).toCellState()
+                ).toCellState(),
             ),
             shape = CurrentShape.RoundRectangle(
                 sizeFraction = 1f,
-                cornerFraction = 0f
+                cornerFraction = 0f,
             ),
         )
     }

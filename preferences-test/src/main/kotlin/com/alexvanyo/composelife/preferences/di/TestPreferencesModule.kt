@@ -26,7 +26,7 @@ import dagger.hilt.testing.TestInstallIn
 @Module
 @TestInstallIn(
     components = [SingletonComponent::class],
-    replaces = [PreferencesModule::class]
+    replaces = [PreferencesModule::class],
 )
 interface TestPreferencesModule {
 

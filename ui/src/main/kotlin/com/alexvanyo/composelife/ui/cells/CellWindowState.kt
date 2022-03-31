@@ -68,7 +68,7 @@ fun rememberCellWindowState(
         CellWindowState(
             offset = offset,
             scale = scale,
-            scaleRange = scaleRange
+            scaleRange = scaleRange,
         )
     }
 
@@ -79,7 +79,7 @@ fun CellWindowState(
 ): CellWindowState = CellWindowStateImpl(
     offset = offset,
     scale = scale,
-    scaleRange = scaleRange
+    scaleRange = scaleRange,
 )
 
 @Suppress("VarCouldBeVal")

@@ -45,7 +45,7 @@ class MultipleMutableBackstackNavigationController(
     private val firstNavController: MutableBackstackNavigationController<String>,
     private val secondNavController: MutableBackstackNavigationController<String>,
     private val thirdNavController: MutableBackstackNavigationController<String>,
-    initialSelectedBackstack: BackstackType = BackstackType.First
+    initialSelectedBackstack: BackstackType = BackstackType.First,
 ) : BackstackState<String> {
 
     var currentBackstack by mutableStateOf(initialSelectedBackstack)
@@ -109,9 +109,9 @@ class MultipleMutableBackstackNavigationController(
                         firstNavController = firstNavController,
                         secondNavController = secondNavController,
                         thirdNavController = thirdNavController,
-                        initialSelectedBackstack = it as BackstackType
+                        initialSelectedBackstack = it as BackstackType,
                     )
-                }
+                },
             )
     }
 }
@@ -130,43 +130,43 @@ class MultipleBackstackUseCaseTests {
                 initialBackstackEntries = listOf(
                     BackstackEntry(
                         "first 1",
-                        previous = null
-                    )
-                )
+                        previous = null,
+                    ),
+                ),
             )
             val secondNavController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
                         "second 1",
-                        previous = null
-                    )
-                )
+                        previous = null,
+                    ),
+                ),
             )
             val thirdNavController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
                         "third 1",
-                        previous = null
-                    )
-                )
+                        previous = null,
+                    ),
+                ),
             )
 
             val navController = rememberSaveable(
                 saver = MultipleMutableBackstackNavigationController.saver(
                     firstNavController,
                     secondNavController,
-                    thirdNavController
-                )
+                    thirdNavController,
+                ),
             ) {
                 MultipleMutableBackstackNavigationController(
                     firstNavController = firstNavController,
                     secondNavController = secondNavController,
-                    thirdNavController = thirdNavController
+                    thirdNavController = thirdNavController,
                 )
             }
 
             NavigationHost(
-                navigationState = navController
+                navigationState = navController,
             ) { entry ->
                 var count by rememberSaveable { mutableStateOf(0) }
 
@@ -176,33 +176,33 @@ class MultipleBackstackUseCaseTests {
                         "increment",
                         Modifier.clickable {
                             count++
-                        }
+                        },
                     )
                     if (navController.canNavigateBack) {
                         BasicText(
                             "navigate back",
                             Modifier.clickable {
                                 navController.popBackstack()
-                            }
+                            },
                         )
                     }
                     BasicText(
                         "navigate to first",
                         Modifier.clickable {
                             navController.onFirstClicked()
-                        }
+                        },
                     )
                     BasicText(
                         "navigate to second",
                         Modifier.clickable {
                             navController.onSecondClicked()
-                        }
+                        },
                     )
                     BasicText(
                         "navigate to third",
                         Modifier.clickable {
                             navController.onThirdClicked()
-                        }
+                        },
                     )
                 }
             }

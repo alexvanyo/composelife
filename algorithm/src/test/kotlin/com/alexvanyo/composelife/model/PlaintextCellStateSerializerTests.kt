@@ -39,7 +39,7 @@ class PlaintextCellStateSerializerTests {
                     4 to 2,
                     0 to 4,
                     2 to 4,
-                    4 to 4
+                    4 to 4,
                 ).toCellState(),
             ),
             serializer.deserializeToCellState(
@@ -51,8 +51,8 @@ class PlaintextCellStateSerializerTests {
                 |O.O.O.
                 |......
                 |
-                """.trimMargin().lineSequence()
-            )
+                """.trimMargin().lineSequence(),
+            ),
         )
     }
 
@@ -70,7 +70,7 @@ class PlaintextCellStateSerializerTests {
                     4 to 2,
                     0 to 4,
                     2 to 4,
-                    4 to 4
+                    4 to 4,
                 ).toCellState(),
             ),
             serializer.deserializeToCellState(
@@ -86,8 +86,8 @@ class PlaintextCellStateSerializerTests {
                 |......
                 |! comment 4
                 |
-                """.trimMargin().lineSequence()
-            )
+                """.trimMargin().lineSequence(),
+            ),
         )
     }
 
@@ -120,7 +120,7 @@ class PlaintextCellStateSerializerTests {
                     4 to 2,
                     0 to 4,
                     2 to 4,
-                    4 to 4
+                    4 to 4,
                 ).toCellState(),
             ),
             serializer.deserializeToCellState(
@@ -137,8 +137,8 @@ class PlaintextCellStateSerializerTests {
                 |......
                 |! comment 4
                 |
-                """.trimMargin().lineSequence()
-            )
+                """.trimMargin().lineSequence(),
+            ),
         )
     }
 
@@ -163,9 +163,9 @@ class PlaintextCellStateSerializerTests {
                     4 to 2,
                     0 to 4,
                     2 to 4,
-                    4 to 4
-                ).toCellState()
-            ).joinToString("")
+                    4 to 4,
+                ).toCellState(),
+            ).joinToString(""),
         )
     }
 }

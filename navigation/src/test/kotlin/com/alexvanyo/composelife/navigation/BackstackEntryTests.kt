@@ -35,7 +35,7 @@ class BackstackEntryTests {
     fun `entry 1 iterable is correct`() {
         assertEquals(
             listOf(entry1),
-            entry1.iterator().asSequence().toList()
+            entry1.iterator().asSequence().toList(),
         )
     }
 
@@ -43,7 +43,7 @@ class BackstackEntryTests {
     fun `entry 2 iterable is correct`() {
         assertEquals(
             listOf(entry2, entry1),
-            entry2.iterator().asSequence().toList()
+            entry2.iterator().asSequence().toList(),
         )
     }
 
@@ -51,7 +51,7 @@ class BackstackEntryTests {
     fun `entry 3 iterable is correct`() {
         assertEquals(
             listOf(entry3, entry2, entry1),
-            entry3.iterator().asSequence().toList()
+            entry3.iterator().asSequence().toList(),
         )
     }
 
@@ -59,7 +59,7 @@ class BackstackEntryTests {
     fun `entry 4 iterable is correct`() {
         assertEquals(
             listOf(entry4, entry3, entry2, entry1),
-            entry4.iterator().asSequence().toList()
+            entry4.iterator().asSequence().toList(),
         )
     }
 }

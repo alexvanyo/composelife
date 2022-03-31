@@ -57,12 +57,12 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
     @Test
     fun six_long_line_evolves_correctly() = runAppTest {
         val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers
+            dispatchers = dispatchers,
         )
 
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                targetStepsPerSecond = 60.0
+                targetStepsPerSecond = 60.0,
             )
 
             rememberTemporalGameOfLifeStateMutator(
@@ -86,7 +86,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
         SixLongLinePattern.seedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
             composeTestRule
                 .onNodeWithContentDescription(
-                    context.getString(R.string.cell_content_description, cell.x, cell.y)
+                    context.getString(R.string.cell_content_description, cell.x, cell.y),
                 )
                 .performTouchInput { click(topLeft) }
         }
@@ -103,7 +103,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             expectedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
                 composeTestRule
                     .onNodeWithContentDescription(
-                        context.getString(R.string.cell_content_description, cell.x, cell.y)
+                        context.getString(R.string.cell_content_description, cell.x, cell.y),
                     )
                     .assertIsOn()
             }
@@ -113,12 +113,12 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
     @Test
     fun six_long_line_evolves_correctly_after_slowing_down() = runAppTest {
         val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers
+            dispatchers = dispatchers,
         )
 
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                targetStepsPerSecond = 60.0
+                targetStepsPerSecond = 60.0,
             )
 
             rememberTemporalGameOfLifeStateMutator(
@@ -142,7 +142,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
         SixLongLinePattern.seedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
             composeTestRule
                 .onNodeWithContentDescription(
-                    context.getString(R.string.cell_content_description, cell.x, cell.y)
+                    context.getString(R.string.cell_content_description, cell.x, cell.y),
                 )
                 .performTouchInput { click(topLeft) }
         }
@@ -169,7 +169,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             expectedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
                 composeTestRule
                     .onNodeWithContentDescription(
-                        context.getString(R.string.cell_content_description, cell.x, cell.y)
+                        context.getString(R.string.cell_content_description, cell.x, cell.y),
                     )
                     .assertIsOn()
             }
@@ -179,12 +179,12 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
     @Test
     fun six_long_line_evolves_correctly_with_step() = runAppTest {
         val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers
+            dispatchers = dispatchers,
         )
 
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                targetStepsPerSecond = 0.001
+                targetStepsPerSecond = 0.001,
             )
 
             rememberTemporalGameOfLifeStateMutator(
@@ -208,7 +208,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
         SixLongLinePattern.seedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
             composeTestRule
                 .onNodeWithContentDescription(
-                    context.getString(R.string.cell_content_description, cell.x, cell.y)
+                    context.getString(R.string.cell_content_description, cell.x, cell.y),
                 )
                 .performTouchInput { click(topLeft) }
         }
@@ -224,7 +224,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             expectedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
                 composeTestRule
                     .onNodeWithContentDescription(
-                        context.getString(R.string.cell_content_description, cell.x, cell.y)
+                        context.getString(R.string.cell_content_description, cell.x, cell.y),
                     )
                     .assertIsOn()
             }
@@ -234,12 +234,12 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
     @Test
     fun six_long_line_evolves_correctly_with_double_step() = runAppTest {
         val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers
+            dispatchers = dispatchers,
         )
 
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                targetStepsPerSecond = 0.001
+                targetStepsPerSecond = 0.001,
             )
 
             rememberTemporalGameOfLifeStateMutator(
@@ -263,7 +263,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
         SixLongLinePattern.seedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
             composeTestRule
                 .onNodeWithContentDescription(
-                    context.getString(R.string.cell_content_description, cell.x, cell.y)
+                    context.getString(R.string.cell_content_description, cell.x, cell.y),
                 )
                 .performTouchInput { click(topLeft) }
         }
@@ -289,7 +289,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             expectedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
                 composeTestRule
                     .onNodeWithContentDescription(
-                        context.getString(R.string.cell_content_description, cell.x, cell.y)
+                        context.getString(R.string.cell_content_description, cell.x, cell.y),
                     )
                     .assertIsOn()
             }

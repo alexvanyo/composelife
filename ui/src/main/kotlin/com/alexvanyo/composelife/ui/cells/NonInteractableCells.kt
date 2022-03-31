@@ -61,8 +61,8 @@ fun NonInteractableCells(
         modifier = modifier
             .requiredSize(
                 scaledCellDpSize * (cellWindow.width + 1),
-                scaledCellDpSize * (cellWindow.height + 1)
-            )
+                scaledCellDpSize * (cellWindow.height + 1),
+            ),
     ) {
         drawRect(
             color = deadColor,
@@ -81,8 +81,8 @@ fun NonInteractableCells(
                                 ),
                             size = Size(scaledCellPixelSize, scaledCellPixelSize) * shape.sizeFraction,
                             cornerRadius = CornerRadius(
-                                scaledCellPixelSize * shape.sizeFraction * shape.cornerFraction
-                            )
+                                scaledCellPixelSize * shape.sizeFraction * shape.cornerFraction,
+                            ),
                         )
                     }
                 }
@@ -95,13 +95,13 @@ fun NonInteractableCells(
     name = "Non interactable cells light mode",
     uiMode = UI_MODE_NIGHT_NO,
     widthDp = 300,
-    heightDp = 300
+    heightDp = 300,
 )
 @Preview(
     name = "Non interactable cells dark mode",
     uiMode = UI_MODE_NIGHT_YES,
     widthDp = 300,
-    heightDp = 300
+    heightDp = 300,
 )
 @Composable
 fun NonInteractableCellsPreview() {
@@ -118,17 +118,17 @@ fun NonInteractableCellsPreview() {
                     4 to 0,
                     4 to 2,
                     4 to 4,
-                ).toCellState()
+                ).toCellState(),
             ),
             scaledCellDpSize = 32.dp,
             shape = CurrentShape.RoundRectangle(
                 sizeFraction = 1f,
-                cornerFraction = 0f
+                cornerFraction = 0f,
             ),
             cellWindow = IntRect(
                 IntOffset(0, 0),
-                IntOffset(9, 9)
-            )
+                IntOffset(9, 9),
+            ),
         )
     }
 }

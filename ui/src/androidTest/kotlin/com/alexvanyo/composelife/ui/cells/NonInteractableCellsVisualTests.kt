@@ -57,7 +57,7 @@ class NonInteractableCellsVisualTests {
             4 to 2,
             0 to 4,
             2 to 4,
-            4 to 4
+            4 to 4,
         ).toCellState()
 
         var aliveCellColor: Color? = null
@@ -76,19 +76,19 @@ class NonInteractableCellsVisualTests {
                             4 to 2,
                             0 to 4,
                             2 to 4,
-                            4 to 4
-                        ).toCellState()
+                            4 to 4,
+                        ).toCellState(),
                     ),
                     scaledCellDpSize = with(LocalDensity.current) { 1.toDp() },
                     shape = CurrentShape.RoundRectangle(
                         sizeFraction = 1f,
-                        cornerFraction = 0f
+                        cornerFraction = 0f,
                     ),
                     cellWindow = IntRect(
                         IntOffset(0, 0),
-                        IntOffset(9, 9)
+                        IntOffset(9, 9),
                     ),
-                    modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() })
+                    modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() }),
                 )
 
                 aliveCellColor = ComposeLifeTheme.aliveCellColor
@@ -97,7 +97,7 @@ class NonInteractableCellsVisualTests {
         }
 
         composeTestRule.onRoot().captureToImage().assertPixels(
-            IntSize(10, 10)
+            IntSize(10, 10),
         ) {
             if (it in cellState.aliveCells) {
                 aliveCellColor!!
@@ -120,7 +120,7 @@ class NonInteractableCellsVisualTests {
             4 to 2,
             0 to 4,
             2 to 4,
-            4 to 4
+            4 to 4,
         ).toCellState()
 
         var aliveCellColor: Color? = null
@@ -139,19 +139,19 @@ class NonInteractableCellsVisualTests {
                             4 to 2,
                             0 to 4,
                             2 to 4,
-                            4 to 4
-                        ).toCellState()
+                            4 to 4,
+                        ).toCellState(),
                     ),
                     scaledCellDpSize = with(LocalDensity.current) { 1.toDp() },
                     shape = CurrentShape.RoundRectangle(
                         sizeFraction = 1f,
-                        cornerFraction = 0f
+                        cornerFraction = 0f,
                     ),
                     cellWindow = IntRect(
                         IntOffset(0, 0),
-                        IntOffset(9, 9)
+                        IntOffset(9, 9),
                     ),
-                    modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() })
+                    modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() }),
                 )
 
                 aliveCellColor = ComposeLifeTheme.aliveCellColor
@@ -160,7 +160,7 @@ class NonInteractableCellsVisualTests {
         }
 
         composeTestRule.onRoot().captureToImage().assertPixels(
-            IntSize(10, 10)
+            IntSize(10, 10),
         ) {
             if (it in cellState.aliveCells) {
                 aliveCellColor!!

@@ -72,7 +72,7 @@ fun <T> rememberBackstackMap(
                     listOf(
                         with(saver) { save(entry.value) },
                         entry.id.toString(),
-                        entry.previous?.id?.toString()
+                        entry.previous?.id?.toString(),
                     )
                 }
             },
@@ -98,15 +98,15 @@ fun <T> rememberBackstackMap(
                         BackstackEntry(
                             id = id,
                             previous = previous,
-                            value = saver.restore(entryList[0]!!)!!
+                            value = saver.restore(entryList[0]!!)!!,
                         )
                     }
 
                 savedEntries.keys.forEach(::restoreEntry)
 
                 map
-            }
-        )
+            },
+        ),
     ) {
         mutableStateMapOf<UUID, BackstackEntry<T>>().apply {
             putAll(initialBackstackEntries.associateBy { it.id })

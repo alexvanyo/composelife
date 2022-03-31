@@ -61,13 +61,13 @@ class SpeedScreenTests {
                 targetStepsPerSecond = targetStepsPerSecond,
                 setTargetStepsPerSecond = { targetStepsPerSecond = it },
                 generationsPerStep = generationsPerStep,
-                setGenerationsPerStep = { generationsPerStep = it }
+                setGenerationsPerStep = { generationsPerStep = it },
             )
         }
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.target_steps_per_second, 60.0)
+                applicationContext.getString(R.string.target_steps_per_second, 60.0),
             )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = log2(60f), range = 0f..8f)))
     }
@@ -82,13 +82,13 @@ class SpeedScreenTests {
                 targetStepsPerSecond = targetStepsPerSecond,
                 setTargetStepsPerSecond = { targetStepsPerSecond = it },
                 generationsPerStep = generationsPerStep,
-                setGenerationsPerStep = { generationsPerStep = it }
+                setGenerationsPerStep = { generationsPerStep = it },
             )
         }
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.target_steps_per_second, 60.0)
+                applicationContext.getString(R.string.target_steps_per_second, 60.0),
             )
             .performSemanticsAction(SemanticsActions.SetProgress) {
                 it(8f)
@@ -96,7 +96,7 @@ class SpeedScreenTests {
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.target_steps_per_second, 256.0)
+                applicationContext.getString(R.string.target_steps_per_second, 256.0),
             )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f)))
     }
@@ -111,13 +111,13 @@ class SpeedScreenTests {
                 targetStepsPerSecond = targetStepsPerSecond,
                 setTargetStepsPerSecond = { targetStepsPerSecond = it },
                 generationsPerStep = generationsPerStep,
-                setGenerationsPerStep = { generationsPerStep = it }
+                setGenerationsPerStep = { generationsPerStep = it },
             )
         }
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.generations_per_step, 1)
+                applicationContext.getString(R.string.generations_per_step, 1),
             )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0f, range = 0f..8f, steps = 7)))
     }
@@ -132,13 +132,13 @@ class SpeedScreenTests {
                 targetStepsPerSecond = targetStepsPerSecond,
                 setTargetStepsPerSecond = { targetStepsPerSecond = it },
                 generationsPerStep = generationsPerStep,
-                setGenerationsPerStep = { generationsPerStep = it }
+                setGenerationsPerStep = { generationsPerStep = it },
             )
         }
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.generations_per_step, 1)
+                applicationContext.getString(R.string.generations_per_step, 1),
             )
             .performSemanticsAction(SemanticsActions.SetProgress) {
                 it(8f)
@@ -146,7 +146,7 @@ class SpeedScreenTests {
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.generations_per_step, 256)
+                applicationContext.getString(R.string.generations_per_step, 256),
             )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f, steps = 7)))
     }

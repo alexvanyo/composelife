@@ -46,7 +46,7 @@ interface GameOfLifeAlgorithm {
         while (currentCoroutineContext().isActive) {
             cellState = computeGenerationWithStep(
                 cellState = cellState,
-                step = step
+                step = step,
             )
             emit(cellState)
         }

@@ -50,29 +50,29 @@ class BackstackStateTests {
                 val entry1 = BackstackEntry(
                     value = "a",
                     previous = null,
-                    id = id1
+                    id = id1,
                 )
                 val entry2 = BackstackEntry(
                     value = "b",
                     previous = entry1,
-                    id = id2
+                    id = id2,
                 )
                 val entry3 = BackstackEntry(
                     value = "c",
                     previous = entry2,
-                    id = id3
+                    id = id3,
                 )
                 val entry4 = BackstackEntry(
                     value = "d",
                     previous = entry3,
-                    id = id4
+                    id = id4,
                 )
 
                 listOf(entry1, entry2, entry3, entry4)
             }
 
             backstackMap = rememberBackstackMap(
-                initialBackstackEntries = initialBackstackEntries
+                initialBackstackEntries = initialBackstackEntries,
             )
         }
 
@@ -100,34 +100,34 @@ class BackstackStateTests {
                 val entry1 = BackstackEntry(
                     value = TestEntryType(
                         value = "a",
-                        previous = null
+                        previous = null,
                     ),
                     previous = null,
-                    id = id1
+                    id = id1,
                 )
                 val entry2 = BackstackEntry(
                     value = TestEntryType(
                         value = "b",
-                        previous = entry1.value
+                        previous = entry1.value,
                     ),
                     previous = entry1,
-                    id = id2
+                    id = id2,
                 )
                 val entry3 = BackstackEntry(
                     value = TestEntryType(
                         value = "c",
-                        previous = entry2.value
+                        previous = entry2.value,
                     ),
                     previous = entry2,
-                    id = id3
+                    id = id3,
                 )
                 val entry4 = BackstackEntry(
                     value = TestEntryType(
                         value = "d",
-                        previous = entry3.value
+                        previous = entry3.value,
                     ),
                     previous = entry3,
-                    id = id4
+                    id = id4,
                 )
 
                 listOf(entry1, entry2, entry3, entry4)
@@ -141,11 +141,11 @@ class BackstackStateTests {
                         restore = {
                             TestEntryType(
                                 value = it as String,
-                                previous = entry?.value
+                                previous = entry?.value,
                             )
-                        }
+                        },
                     )
-                }
+                },
             )
         }
 
@@ -165,7 +165,7 @@ class BackstackStateTests {
 
 class TestEntryType(
     val value: String,
-    val previous: TestEntryType?
+    val previous: TestEntryType?,
 ) {
     val fullValue: String get() = previous?.fullValue.orEmpty() + value
 }

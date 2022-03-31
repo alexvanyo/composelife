@@ -74,7 +74,7 @@ class HashLifeAlgorithm @Inject constructor(
                     object : CacheLoader<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode>() {
                         override fun load(key: Equivalence.Wrapper<MacroCell.CellNode>): MacroCell.CellNode =
                             key.get().makeCanonical(false)
-                    }
+                    },
                 )
 
     /**
@@ -88,7 +88,7 @@ class HashLifeAlgorithm @Inject constructor(
                 object : CacheLoader<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode>() {
                     override fun load(key: Equivalence.Wrapper<MacroCell.CellNode>): MacroCell.CellNode =
                         key.get().computeNextGeneration(false)
-                }
+                },
             )
 
     private fun MacroCell.makeCanonical(useMap: Boolean = true): MacroCell =
@@ -114,14 +114,14 @@ class HashLifeAlgorithm @Inject constructor(
                     nw = smallerEmptyCellNode,
                     ne = smallerEmptyCellNode,
                     sw = smallerEmptyCellNode,
-                    se = smallerEmptyCellNode
+                    se = smallerEmptyCellNode,
                 )
             } else {
                 MacroCell.CellNode(
                     nw = nw.makeCanonical(),
                     ne = ne.makeCanonical(),
                     sw = sw.makeCanonical(),
-                    se = se.makeCanonical()
+                    se = se.makeCanonical(),
                 )
             }
 
@@ -188,7 +188,7 @@ class HashLifeAlgorithm @Inject constructor(
                 ne.sw.isAlive,
                 sw.nw.isAlive,
                 sw.ne.isAlive,
-                se.nw.isAlive
+                se.nw.isAlive,
             ).count { it }
             val newNw = when (nw.se) {
                 MacroCell.Cell.AliveCell -> if (nwCount in 2..3) MacroCell.Cell.AliveCell else MacroCell.Cell.DeadCell
@@ -203,7 +203,7 @@ class HashLifeAlgorithm @Inject constructor(
                 ne.se.isAlive,
                 sw.ne.isAlive,
                 se.nw.isAlive,
-                se.ne.isAlive
+                se.ne.isAlive,
             ).count { it }
             val newNe = when (ne.sw) {
                 MacroCell.Cell.AliveCell -> if (neCount in 2..3) MacroCell.Cell.AliveCell else MacroCell.Cell.DeadCell
@@ -218,7 +218,7 @@ class HashLifeAlgorithm @Inject constructor(
                 se.nw.isAlive,
                 sw.sw.isAlive,
                 sw.se.isAlive,
-                se.sw.isAlive
+                se.sw.isAlive,
             ).count { it }
             val newSw = when (sw.ne) {
                 MacroCell.Cell.AliveCell -> if (swCount in 2..3) MacroCell.Cell.AliveCell else MacroCell.Cell.DeadCell
@@ -233,7 +233,7 @@ class HashLifeAlgorithm @Inject constructor(
                 se.ne.isAlive,
                 sw.se.isAlive,
                 se.sw.isAlive,
-                se.se.isAlive
+                se.se.isAlive,
             ).count { it }
             val newSe = when (se.nw) {
                 MacroCell.Cell.AliveCell -> if (seCount in 2..3) MacroCell.Cell.AliveCell else MacroCell.Cell.DeadCell
@@ -244,7 +244,7 @@ class HashLifeAlgorithm @Inject constructor(
                 nw = newNw,
                 ne = newNe,
                 sw = newSw,
-                se = newSe
+                se = newSe,
             )
         } else {
             val n00 = centeredSubnode(nw)
@@ -262,25 +262,25 @@ class HashLifeAlgorithm @Inject constructor(
                     nw = n00,
                     ne = n01,
                     sw = n10,
-                    se = n11
+                    se = n11,
                 ).computeNextGeneration(),
                 ne = MacroCell.CellNode(
                     nw = n01,
                     ne = n02,
                     sw = n11,
-                    se = n12
+                    se = n12,
                 ).computeNextGeneration(),
                 sw = MacroCell.CellNode(
                     nw = n10,
                     ne = n11,
                     sw = n20,
-                    se = n21
+                    se = n21,
                 ).computeNextGeneration(),
                 se = MacroCell.CellNode(
                     nw = n11,
                     ne = n12,
                     sw = n21,
-                    se = n22
+                    se = n22,
                 ).computeNextGeneration(),
             )
         }.makeCanonical()
@@ -293,7 +293,7 @@ class HashLifeAlgorithm @Inject constructor(
         withContext(dispatchers.Default) {
             computeGenerationWithStepImpl(
                 cellState = cellState.toHashLifeCellState(),
-                step = step
+                step = step,
             )
         }
 
@@ -308,7 +308,7 @@ class HashLifeAlgorithm @Inject constructor(
             computedGenerations++
             computeGenerationWithStepImpl(
                 cellState = nextGeneration,
-                step = step - 1
+                step = step - 1,
             )
         }
 
@@ -353,7 +353,7 @@ class HashLifeAlgorithm @Inject constructor(
             ) {
                 return HashLifeCellState(
                     offset = cellState.offset + IntOffset(1 shl (node.level - 2), 1 shl (node.level - 2)),
-                    macroCell = cellState.macroCell.computeNextGeneration()
+                    macroCell = cellState.macroCell.computeNextGeneration(),
                 )
             }
         }
@@ -374,7 +374,7 @@ private fun centeredSubnode(node: MacroCell.CellNode): MacroCell.CellNode {
         nw = node.nw.se,
         ne = node.ne.sw,
         sw = node.sw.ne,
-        se = node.se.nw
+        se = node.se.nw,
     )
 }
 
@@ -389,7 +389,7 @@ private fun centeredHorizontal(w: MacroCell.CellNode, e: MacroCell.CellNode): Ma
         nw = w.ne.se,
         ne = e.nw.sw,
         sw = w.se.ne,
-        se = e.sw.nw
+        se = e.sw.nw,
     )
 }
 
@@ -404,7 +404,7 @@ private fun centeredVertical(n: MacroCell.CellNode, s: MacroCell.CellNode): Macr
         nw = n.sw.se,
         ne = n.se.sw,
         sw = s.nw.ne,
-        se = s.ne.nw
+        se = s.ne.nw,
     )
 }
 
@@ -422,7 +422,7 @@ private fun centeredSubSubnode(node: MacroCell.CellNode): MacroCell.CellNode {
         nw = node.nw.se.se,
         ne = node.ne.sw.sw,
         sw = node.sw.ne.ne,
-        se = node.se.nw.nw
+        se = node.se.nw.nw,
     )
 }
 

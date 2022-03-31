@@ -23,5 +23,5 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ComposeLifePreferencesEntryPoint @Inject constructor(
-    val composeLifePreferences: ComposeLifePreferences
+    val composeLifePreferences: ComposeLifePreferences,
 ) : ViewModel()

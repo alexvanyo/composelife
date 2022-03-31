@@ -69,8 +69,8 @@ fun <T : NavigationEntry> NavigationHost(
                 mutableStateSetOf<UUID>().apply {
                     addAll(it.map(UUID::fromString))
                 }
-            }
-        )
+            },
+        ),
     ) { mutableStateSetOf<UUID>() }
 
     AnimatedContent(

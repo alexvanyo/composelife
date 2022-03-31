@@ -32,7 +32,7 @@ class BoundsExtensionsTests {
         fun `empty IntRect returns single point`() {
             assertEquals(
                 listOf(IntOffset(2, 2)),
-                IntRect(IntOffset(2, 2), 0).containedPoints()
+                IntRect(IntOffset(2, 2), 0).containedPoints(),
             )
         }
 
@@ -48,12 +48,12 @@ class BoundsExtensionsTests {
                     IntOffset(4, 12),
                     IntOffset(2, 13),
                     IntOffset(3, 13),
-                    IntOffset(4, 13)
+                    IntOffset(4, 13),
                 ),
                 IntRect(
                     IntOffset(2, 11),
-                    IntOffset(4, 13)
-                ).containedPoints()
+                    IntOffset(4, 13),
+                ).containedPoints(),
             )
         }
     }
@@ -65,7 +65,7 @@ class BoundsExtensionsTests {
         fun `pair to int offset is correct`() {
             assertEquals(
                 IntOffset(11, 13),
-                (11 to 13).toIntOffset()
+                (11 to 13).toIntOffset(),
             )
         }
     }
@@ -96,9 +96,9 @@ class BoundsExtensionsTests {
                     IntOffset(-2, -6),
                     IntOffset(-4, -5),
                     IntOffset(-3, -5),
-                    IntOffset(-2, -5)
+                    IntOffset(-2, -5),
                 ),
-                IntOffset(-3, -6).getNeighbors()
+                IntOffset(-3, -6).getNeighbors(),
             )
         }
     }
@@ -110,7 +110,7 @@ class BoundsExtensionsTests {
         fun `floor positive offset is correct`() {
             assertEquals(
                 IntOffset(7, 9),
-                floor(Offset(7.2f, 9.9f))
+                floor(Offset(7.2f, 9.9f)),
             )
         }
 
@@ -118,7 +118,7 @@ class BoundsExtensionsTests {
         fun `floor negative offset is correct`() {
             assertEquals(
                 IntOffset(-20, -7),
-                floor(Offset(-19.3f, -6.8f))
+                floor(Offset(-19.3f, -6.8f)),
             )
         }
     }

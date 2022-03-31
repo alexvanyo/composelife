@@ -53,13 +53,13 @@ class InteractableCellVisualTests {
                     isAlive = true,
                     shape = CurrentShape.RoundRectangle(
                         sizeFraction = 1f,
-                        cornerFraction = 0f
+                        cornerFraction = 0f,
                     ),
                     contentDescription = "",
                     onValueChange = {},
                     modifier = Modifier
                         .size(with(LocalDensity.current) { 10.toDp() })
-                        .background(ComposeLifeTheme.deadCellColor)
+                        .background(ComposeLifeTheme.deadCellColor),
                 )
 
                 aliveCellColor = ComposeLifeTheme.aliveCellColor
@@ -67,7 +67,7 @@ class InteractableCellVisualTests {
         }
 
         composeTestRule.onRoot().captureToImage().assertPixels(
-            IntSize(10, 10)
+            IntSize(10, 10),
         ) {
             aliveCellColor!!
         }
@@ -85,13 +85,13 @@ class InteractableCellVisualTests {
                     isAlive = true,
                     shape = CurrentShape.RoundRectangle(
                         sizeFraction = 1f,
-                        cornerFraction = 0f
+                        cornerFraction = 0f,
                     ),
                     contentDescription = "",
                     onValueChange = {},
                     modifier = Modifier
                         .size(with(LocalDensity.current) { 10.toDp() })
-                        .background(ComposeLifeTheme.deadCellColor)
+                        .background(ComposeLifeTheme.deadCellColor),
                 )
 
                 aliveCellColor = ComposeLifeTheme.aliveCellColor
@@ -99,7 +99,7 @@ class InteractableCellVisualTests {
         }
 
         composeTestRule.onRoot().captureToImage().assertPixels(
-            IntSize(10, 10)
+            IntSize(10, 10),
         ) {
             aliveCellColor
         }
@@ -117,13 +117,13 @@ class InteractableCellVisualTests {
                     isAlive = false,
                     shape = CurrentShape.RoundRectangle(
                         sizeFraction = 1f,
-                        cornerFraction = 0f
+                        cornerFraction = 0f,
                     ),
                     contentDescription = "",
                     onValueChange = {},
                     modifier = Modifier
                         .size(with(LocalDensity.current) { 10.toDp() })
-                        .background(ComposeLifeTheme.deadCellColor)
+                        .background(ComposeLifeTheme.deadCellColor),
                 )
 
                 deadCellColor = ComposeLifeTheme.deadCellColor
@@ -131,7 +131,7 @@ class InteractableCellVisualTests {
         }
 
         composeTestRule.onRoot().captureToImage().assertPixels(
-            IntSize(10, 10)
+            IntSize(10, 10),
         ) {
             deadCellColor
         }
@@ -149,13 +149,13 @@ class InteractableCellVisualTests {
                     isAlive = false,
                     shape = CurrentShape.RoundRectangle(
                         sizeFraction = 1f,
-                        cornerFraction = 0f
+                        cornerFraction = 0f,
                     ),
                     contentDescription = "",
                     onValueChange = {},
                     modifier = Modifier
                         .size(with(LocalDensity.current) { 10.toDp() })
-                        .background(ComposeLifeTheme.deadCellColor)
+                        .background(ComposeLifeTheme.deadCellColor),
                 )
 
                 deadCellColor = ComposeLifeTheme.deadCellColor
@@ -163,7 +163,7 @@ class InteractableCellVisualTests {
         }
 
         composeTestRule.onRoot().captureToImage().assertPixels(
-            IntSize(10, 10)
+            IntSize(10, 10),
         ) {
             deadCellColor
         }

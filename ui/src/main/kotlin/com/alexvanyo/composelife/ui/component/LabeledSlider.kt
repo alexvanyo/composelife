@@ -57,7 +57,7 @@ fun LabeledSlider(
     labelSlot: @Composable () -> Unit = {
         Text(text = label, Modifier.fillMaxWidth())
     },
-    sliderOverlay: @Composable () -> Unit = {}
+    sliderOverlay: @Composable () -> Unit = {},
 ) {
     val tickFractions = remember(steps) {
         stepsToTickFractions(steps)
@@ -80,7 +80,7 @@ fun LabeledSlider(
                                 lerp(
                                     valueRange.start,
                                     valueRange.endInclusive,
-                                    it
+                                    it,
                                 )
                             }
                             .minByOrNull { abs(it - newValue) } ?: newValue
@@ -96,7 +96,7 @@ fun LabeledSlider(
                         true
                     }
                 }
-            }
+            },
     ) {
         labelSlot()
 
@@ -118,7 +118,7 @@ fun LabeledSlider(
                 modifier = Modifier
                     .padding(horizontal = 10.dp)
                     .fillMaxWidth()
-                    .height(24.dp)
+                    .height(24.dp),
             ) {
                 sliderOverlay()
             }

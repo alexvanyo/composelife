@@ -56,7 +56,7 @@ fun InteractableCells(
             .requiredSize(
                 scaledCellDpSize * (cellWindow.width + 1),
                 scaledCellDpSize * (cellWindow.height + 1),
-            )
+            ),
     ) {
         (cellWindow.top..cellWindow.bottom).forEach { row ->
             Row {
@@ -71,14 +71,14 @@ fun InteractableCells(
                             contentDescription = stringResource(
                                 R.string.cell_content_description,
                                 cell.x,
-                                cell.y
+                                cell.y,
                             ),
                             onValueChange = { isAlive ->
                                 gameOfLifeState.setCellState(
                                     cellCoordinate = cell,
-                                    isAlive = isAlive
+                                    isAlive = isAlive,
                                 )
-                            }
+                            },
                         )
                     }
                 }
@@ -91,13 +91,13 @@ fun InteractableCells(
     name = "Interactable cells light mode",
     uiMode = Configuration.UI_MODE_NIGHT_NO,
     widthDp = 300,
-    heightDp = 300
+    heightDp = 300,
 )
 @Preview(
     name = "Interactable cells dark mode",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
     widthDp = 300,
-    heightDp = 300
+    heightDp = 300,
 )
 @Composable
 fun InteractableCellsPreview() {
@@ -114,17 +114,17 @@ fun InteractableCellsPreview() {
                     4 to 0,
                     4 to 2,
                     4 to 4,
-                ).toCellState()
+                ).toCellState(),
             ),
             shape = CurrentShape.RoundRectangle(
                 sizeFraction = 1f,
-                cornerFraction = 0f
+                cornerFraction = 0f,
             ),
             scaledCellDpSize = 32.dp,
             cellWindow = IntRect(
                 IntOffset(0, 0),
-                IntOffset(9, 9)
-            )
+                IntOffset(9, 9),
+            ),
         )
     }
 }
