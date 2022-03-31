@@ -50,7 +50,7 @@ class NavigationHostTests {
         val entry = BackstackEntry(
             value = "a",
             previous = null,
-            id = id
+            id = id,
         )
 
         val navigationState = object : NavigationState<BackstackEntry<String>> {
@@ -60,7 +60,7 @@ class NavigationHostTests {
 
         composeTestRule.setContent {
             NavigationHost(
-                navigationState = navigationState
+                navigationState = navigationState,
             ) { entry ->
                 BasicText("value: ${entry.value}, id: ${entry.id}")
             }
@@ -76,12 +76,12 @@ class NavigationHostTests {
         val entry1 = BackstackEntry(
             value = "a",
             previous = null,
-            id = id1
+            id = id1,
         )
         val entry2 = BackstackEntry(
             value = "b",
             previous = entry1,
-            id = id2
+            id = id2,
         )
 
         val navigationState = object : BackstackState<String> {
@@ -94,7 +94,7 @@ class NavigationHostTests {
 
         composeTestRule.setContent {
             NavigationHost(
-                navigationState = navigationState
+                navigationState = navigationState,
             ) { entry ->
                 BasicText("value: ${entry.value}, id: ${entry.id}")
             }
@@ -110,12 +110,12 @@ class NavigationHostTests {
         val entry1 = BackstackEntry(
             value = "a",
             previous = null,
-            id = id1
+            id = id1,
         )
         val entry2 = BackstackEntry(
             value = "b",
             previous = null,
-            id = id2
+            id = id2,
         )
 
         val backstackMap = mutableStateMapOf<UUID, BackstackEntry<String>>(
@@ -165,12 +165,12 @@ class NavigationHostTests {
         val entry1 = BackstackEntry(
             value = "a",
             previous = null,
-            id = id1
+            id = id1,
         )
         val entry2 = BackstackEntry(
             value = "b",
             previous = null,
-            id = id2
+            id = id2,
         )
 
         val backstackMap = mutableStateMapOf<UUID, BackstackEntry<String>>(
@@ -224,12 +224,12 @@ class NavigationHostTests {
         val entry1 = BackstackEntry(
             value = "a",
             previous = null,
-            id = id1
+            id = id1,
         )
         val entry2 = BackstackEntry(
             value = "b",
             previous = null,
-            id = id2
+            id = id2,
         )
 
         val backstackMap = mutableStateMapOf<UUID, BackstackEntry<String>>(

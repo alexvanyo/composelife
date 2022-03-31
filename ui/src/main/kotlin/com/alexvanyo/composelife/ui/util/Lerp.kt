@@ -24,5 +24,5 @@ import androidx.annotation.FloatRange
 fun lerp(
     startValue: Float,
     endValue: Float,
-    @FloatRange(from = 0.0, to = 1.0) fraction: Float
+    @FloatRange(from = 0.0, to = 1.0) fraction: Float,
 ): Float = startValue + fraction * (endValue - startValue)

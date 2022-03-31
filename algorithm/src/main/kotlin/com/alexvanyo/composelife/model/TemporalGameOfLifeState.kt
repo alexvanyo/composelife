@@ -152,7 +152,7 @@ private class GameOfLifeGenealogy(
         gameOfLifeAlgorithm
             .computeGenerationsWithStep(
                 originalCellState = seedCellState,
-                step = generationsPerStep
+                step = generationsPerStep,
             )
             .buffer()
             .zip(stepTicker) { newCellState, _ -> newCellState }
@@ -177,7 +177,7 @@ fun rememberTemporalGameOfLifeState(
             cellState = cellState,
             isRunning = isRunning,
             generationsPerStep = generationsPerStep,
-            targetStepsPerSecond = targetStepsPerSecond
+            targetStepsPerSecond = targetStepsPerSecond,
         )
     }
 
@@ -192,7 +192,7 @@ fun TemporalGameOfLifeState(
     seedCellState = cellState,
     isRunning = isRunning,
     generationsPerStep = generationsPerStep,
-    targetStepsPerSecond = targetStepsPerSecond
+    targetStepsPerSecond = targetStepsPerSecond,
 )
 
 private class TemporalGameOfLifeStateImpl(
@@ -227,7 +227,7 @@ private class TemporalGameOfLifeStateImpl(
     override val status: TemporalGameOfLifeState.EvolutionStatus
         get() = if (isRunning) {
             TemporalGameOfLifeState.EvolutionStatus.Running(
-                averageGenerationsPerSecond = averageGenerationsPerSecond
+                averageGenerationsPerSecond = averageGenerationsPerSecond,
             )
         } else {
             TemporalGameOfLifeState.EvolutionStatus.Paused
@@ -273,7 +273,7 @@ private class TemporalGameOfLifeStateImpl(
     override suspend fun evolve(
         gameOfLifeAlgorithm: GameOfLifeAlgorithm,
         clock: Clock,
-        dispatchers: ComposeLifeDispatchers
+        dispatchers: ComposeLifeDispatchers,
     ) {
         withContext(dispatchers.Default) {
             evolveMutex.withLock {
@@ -317,7 +317,7 @@ private class TemporalGameOfLifeStateImpl(
 
         val stepTicker = merge(
             stepTimeTicker,
-            stepManualTicker.receiveAsFlow()
+            stepManualTicker.receiveAsFlow(),
         )
             .buffer(0) // No buffer, so the ticks are only consumed upon a cell state being computed
 
@@ -325,14 +325,14 @@ private class TemporalGameOfLifeStateImpl(
             .collectLatest { cellStateGenealogy ->
                 completedGenerationTracker = completedGenerationTracker + ComputationRecord(
                     computedGenerations = 0,
-                    computedTime = clock.now()
+                    computedTime = clock.now(),
                 )
                 cellStateGenealogy.evolve(gameOfLifeAlgorithm, stepTicker) { generationsPerStep ->
                     val lastTick = clock.now()
                     lastTickFlow.tryEmit(lastTick)
                     val newRecord = ComputationRecord(
                         computedGenerations = generationsPerStep,
-                        computedTime = lastTick
+                        computedTime = lastTick,
                     )
 
                     // Remove entries that are more than about a second old to get a running average from the last
@@ -371,7 +371,7 @@ private class TemporalGameOfLifeStateImpl(
                     temporalGameOfLifeState.cellState.aliveCells.map(IntOffset::toPair),
                     temporalGameOfLifeState.isRunning,
                     temporalGameOfLifeState.generationsPerStep,
-                    temporalGameOfLifeState.targetStepsPerSecond
+                    temporalGameOfLifeState.targetStepsPerSecond,
                 )
             },
             { list ->
@@ -380,9 +380,9 @@ private class TemporalGameOfLifeStateImpl(
                     seedCellState = (list[0] as List<Pair<Int, Int>>).toSet().toCellState(),
                     isRunning = list[1] as Boolean,
                     generationsPerStep = list[2] as Int,
-                    targetStepsPerSecond = list[3] as Double
+                    targetStepsPerSecond = list[3] as Double,
                 )
-            }
+            },
         )
     }
 }
@@ -406,7 +406,7 @@ fun rememberTemporalGameOfLifeStateMutator(
             gameOfLifeAlgorithm = gameOfLifeAlgorithm,
             clock = clock,
             dispatchers = dispatchers,
-            temporalGameOfLifeState = temporalGameOfLifeState
+            temporalGameOfLifeState = temporalGameOfLifeState,
         )
     }
 

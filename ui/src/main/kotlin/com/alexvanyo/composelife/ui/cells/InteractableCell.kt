@@ -71,7 +71,7 @@ fun InteractableCell(
                 indication = rememberRipple(color = rippleColor),
                 role = Role.Switch,
                 onValueChange = onValueChange,
-            )
+            ),
     ) {
         if (isAlive) {
             when (shape) {
@@ -84,8 +84,8 @@ fun InteractableCell(
                         ),
                         size = size * shape.sizeFraction,
                         cornerRadius = CornerRadius(
-                            size.width * shape.sizeFraction * shape.cornerFraction
-                        )
+                            size.width * shape.sizeFraction * shape.cornerFraction,
+                        ),
                     )
                 }
             }
@@ -95,11 +95,11 @@ fun InteractableCell(
 
 @Preview(
     name = "Alive cell light mode",
-    uiMode = UI_MODE_NIGHT_NO
+    uiMode = UI_MODE_NIGHT_NO,
 )
 @Preview(
     name = "Alive cell dark mode",
-    uiMode = UI_MODE_NIGHT_YES
+    uiMode = UI_MODE_NIGHT_YES,
 )
 @Composable
 fun AliveCellPreview() {
@@ -109,21 +109,21 @@ fun AliveCellPreview() {
             isAlive = true,
             shape = CurrentShape.RoundRectangle(
                 sizeFraction = 1f,
-                cornerFraction = 0f
+                cornerFraction = 0f,
             ),
             contentDescription = "test cell",
-            onValueChange = {}
+            onValueChange = {},
         )
     }
 }
 
 @Preview(
     name = "Dead cell light mode",
-    uiMode = UI_MODE_NIGHT_NO
+    uiMode = UI_MODE_NIGHT_NO,
 )
 @Preview(
     name = "Dead cell dark mode",
-    uiMode = UI_MODE_NIGHT_YES
+    uiMode = UI_MODE_NIGHT_YES,
 )
 @Composable
 fun DeadCellPreview() {
@@ -133,10 +133,10 @@ fun DeadCellPreview() {
             isAlive = false,
             shape = CurrentShape.RoundRectangle(
                 sizeFraction = 1f,
-                cornerFraction = 0f
+                cornerFraction = 0f,
             ),
             contentDescription = "test cell",
-            onValueChange = {}
+            onValueChange = {},
         )
     }
 }

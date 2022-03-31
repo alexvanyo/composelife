@@ -44,7 +44,7 @@ class MutableBackstackNavigationControllerTests {
         assertFailsWith<IllegalArgumentException> {
             composeTestRule.setContent {
                 rememberMutableBackstackNavigationController<String>(
-                    initialBackstackEntries = emptyList()
+                    initialBackstackEntries = emptyList(),
                 )
             }
         }
@@ -60,9 +60,9 @@ class MutableBackstackNavigationControllerTests {
                     BackstackEntry(
                         value = "a",
                         previous = null,
-                        id = id1
-                    )
-                )
+                        id = id1,
+                    ),
+                ),
             )
         }
 
@@ -82,15 +82,15 @@ class MutableBackstackNavigationControllerTests {
                     BackstackEntry(
                         value = "a",
                         previous = null,
-                        id = id1
-                    )
-                )
+                        id = id1,
+                    ),
+                ),
             )
         }
 
         navController.navigate(
             value = "b",
-            id = id2
+            id = id2,
         )
 
         assertEquals(id2, navController.currentEntryId)
@@ -109,9 +109,9 @@ class MutableBackstackNavigationControllerTests {
                     BackstackEntry(
                         value = "a",
                         previous = null,
-                        id = id1
-                    )
-                )
+                        id = id1,
+                    ),
+                ),
             )
         }
 
@@ -137,15 +137,15 @@ class MutableBackstackNavigationControllerTests {
                     BackstackEntry(
                         value = "a",
                         previous = null,
-                        id = id1
-                    )
-                )
+                        id = id1,
+                    ),
+                ),
             )
         }
 
         navController.navigate(
             valueFactory = { it.value + "2" },
-            id = id2
+            id = id2,
         )
 
         assertEquals(id2, navController.currentEntryId)
@@ -164,9 +164,9 @@ class MutableBackstackNavigationControllerTests {
                     BackstackEntry(
                         value = "a",
                         previous = null,
-                        id = id1
-                    )
-                )
+                        id = id1,
+                    ),
+                ),
             )
         }
 
@@ -192,15 +192,15 @@ class MutableBackstackNavigationControllerTests {
                     BackstackEntry(
                         value = "a",
                         previous = null,
-                        id = id1
-                    )
-                )
+                        id = id1,
+                    ),
+                ),
             )
         }
 
         navController.navigate(
             value = "b",
-            id = id2
+            id = id2,
         )
         navController.popBackstack()
 
@@ -220,23 +220,23 @@ class MutableBackstackNavigationControllerTests {
                     BackstackEntry(
                         value = "a",
                         previous = null,
-                        id = id1
-                    )
-                )
+                        id = id1,
+                    ),
+                ),
             )
         }
 
         navController.navigate(
             value = "b",
-            id = id2
+            id = id2,
         )
         navController.navigate(
             value = "c",
-            id = id3
+            id = id3,
         )
         navController.navigate(
             value = "d",
-            id = id4
+            id = id4,
         )
 
         assertEquals(id4, navController.currentEntryId)
@@ -255,23 +255,23 @@ class MutableBackstackNavigationControllerTests {
                     BackstackEntry(
                         value = "a",
                         previous = null,
-                        id = id1
-                    )
-                )
+                        id = id1,
+                    ),
+                ),
             )
         }
 
         navController.navigate(
             value = "b",
-            id = id2
+            id = id2,
         )
         navController.navigate(
             value = "c",
-            id = id3
+            id = id3,
         )
         navController.navigate(
             value = "d",
-            id = id4
+            id = id4,
         )
         navController.popUpTo(id2)
 
@@ -291,23 +291,23 @@ class MutableBackstackNavigationControllerTests {
                     BackstackEntry(
                         value = "a",
                         previous = null,
-                        id = id1
-                    )
-                )
+                        id = id1,
+                    ),
+                ),
             )
         }
 
         navController.navigate(
             value = "b",
-            id = id2
+            id = id2,
         )
         navController.navigate(
             value = "c",
-            id = id3
+            id = id3,
         )
         navController.navigate(
             value = "d",
-            id = id4
+            id = id4,
         )
         navController.popUpTo(predicate = { it == "b" })
 
@@ -327,23 +327,23 @@ class MutableBackstackNavigationControllerTests {
                     BackstackEntry(
                         value = "a",
                         previous = null,
-                        id = id1
-                    )
-                )
+                        id = id1,
+                    ),
+                ),
             )
         }
 
         navController.navigate(
             value = "b",
-            id = id2
+            id = id2,
         )
         navController.navigate(
             value = "c",
-            id = id3
+            id = id3,
         )
         navController.navigate(
             value = "d",
-            id = id4
+            id = id4,
         )
         navController.popUpTo(entryPredicate = { it.value == "b" })
 
@@ -363,23 +363,23 @@ class MutableBackstackNavigationControllerTests {
                     BackstackEntry(
                         value = "a",
                         previous = null,
-                        id = id1
-                    )
-                )
+                        id = id1,
+                    ),
+                ),
             )
         }
 
         navController.navigate(
             value = "b",
-            id = id2
+            id = id2,
         )
         navController.navigate(
             value = "c",
-            id = id3
+            id = id3,
         )
         navController.navigate(
             value = "d",
-            id = id4
+            id = id4,
         )
 
         assertTrue {
@@ -409,23 +409,23 @@ class MutableBackstackNavigationControllerTests {
                     BackstackEntry(
                         value = "a",
                         previous = null,
-                        id = id1
-                    )
-                )
+                        id = id1,
+                    ),
+                ),
             )
         }
 
         navController.navigate(
             value = "b",
-            id = id2
+            id = id2,
         )
         navController.navigate(
             value = "c",
-            id = id3
+            id = id3,
         )
         navController.navigate(
             value = "d",
-            id = id4
+            id = id4,
         )
 
         assertTrue {
@@ -450,23 +450,23 @@ class MutableBackstackNavigationControllerTests {
                     BackstackEntry(
                         value = "a",
                         previous = null,
-                        id = id1
-                    )
-                )
+                        id = id1,
+                    ),
+                ),
             )
         }
 
         navController.navigate(
             value = "b",
-            id = id2
+            id = id2,
         )
         navController.navigate(
             value = "c",
-            id = id3
+            id = id3,
         )
         navController.navigate(
             value = "d",
-            id = id4
+            id = id4,
         )
 
         assertTrue {

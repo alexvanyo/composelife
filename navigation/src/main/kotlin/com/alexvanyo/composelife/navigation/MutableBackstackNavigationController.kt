@@ -51,7 +51,7 @@ fun <T> rememberMutableBackstackNavigationController(
 ): MutableBackstackNavigationController<T> =
     rememberMutableBackstackNavigationController(
         initialBackstackEntries = initialBackstackEntries,
-        backstackValueSaverFactory = { saver }
+        backstackValueSaverFactory = { saver },
     )
 
 @Composable
@@ -63,14 +63,14 @@ fun <T> rememberMutableBackstackNavigationController(
 
     val backstackMap = rememberBackstackMap(
         initialBackstackEntries = initialBackstackEntries,
-        backstackValueSaverFactory = backstackValueSaverFactory
+        backstackValueSaverFactory = backstackValueSaverFactory,
     )
 
     var currentBackstackEntryId by rememberSaveable(
         saver = Saver(
             save = { it.value.toString() },
-            restore = { mutableStateOf(UUID.fromString(it)) }
-        )
+            restore = { mutableStateOf(UUID.fromString(it)) },
+        ),
     ) {
         mutableStateOf(initialBackstackEntries.last().id)
     }
@@ -100,7 +100,7 @@ fun <T> rememberMutableBackstackNavigationController(
  */
 fun <T> MutableBackstackNavigationController<T>.withExpectedActor(
     actorEntryId: UUID?,
-    block: MutableBackstackNavigationController<T>.(currentEntry: BackstackEntry<T>) -> Unit
+    block: MutableBackstackNavigationController<T>.(currentEntry: BackstackEntry<T>) -> Unit,
 ): Boolean =
     if (actorEntryId == null || actorEntryId == currentEntry.id) {
         block(currentEntry)
@@ -125,7 +125,7 @@ fun <T> MutableBackstackNavigationController<T>.popUpTo(
     currentEntryId = entryMap.popUpTo(
         currentEntryId = currentEntryId,
         entryPredicate = entryPredicate,
-        inclusive = inclusive
+        inclusive = inclusive,
     )
 }
 
@@ -173,7 +173,7 @@ fun <T> MutableBackstackNavigationController<T>.navigate(
     currentEntryId = entryMap.navigate(
         currentEntryId = currentEntryId,
         valueFactory = valueFactory,
-        id = id
+        id = id,
     )
 }
 

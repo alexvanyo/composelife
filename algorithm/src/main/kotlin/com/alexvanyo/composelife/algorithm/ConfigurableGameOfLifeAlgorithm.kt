@@ -52,7 +52,7 @@ class ConfigurableGameOfLifeAlgorithm @Inject constructor(
     override suspend fun computeGenerationWithStep(cellState: CellState, step: Int): CellState =
         snapshotFlow { currentAlgorithm }.firstSuccess().value.computeGenerationWithStep(
             cellState = cellState,
-            step = step
+            step = step,
         )
 
     @OptIn(FlowPreview::class)
@@ -81,7 +81,7 @@ class ConfigurableGameOfLifeAlgorithm @Inject constructor(
                         cellStateChannel?.cancel()
                         cellStateChannel = it.computeGenerationsWithStep(
                             originalCellState = cellState,
-                            step = step
+                            step = step,
                         )
                             .buffer(Channel.RENDEZVOUS) // Buffer rendezvous, we'll only compute what we need by default
                             .produceIn(this@channelFlow)

@@ -141,7 +141,7 @@ fun MacroCell.withCell(target: IntOffset, isAlive: Boolean): MacroCell {
                         nw = nw,
                         ne = ne,
                         sw = sw,
-                        se = se.withCell(target + IntOffset(-offsetDiff, -offsetDiff), isAlive)
+                        se = se.withCell(target + IntOffset(-offsetDiff, -offsetDiff), isAlive),
                     )
                 }
             }

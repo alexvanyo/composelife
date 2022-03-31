@@ -73,7 +73,7 @@ class TemporalGameOfLifeStateComposableTests {
                 cellState = PondPattern.seedCellState,
                 isRunning = false,
                 generationsPerStep = 5,
-                targetStepsPerSecond = 30.0
+                targetStepsPerSecond = 30.0,
             )
         }
 
@@ -97,11 +97,11 @@ class TemporalGameOfLifeStateComposableTests {
             cellState = SixLongLinePattern.seedCellState,
             isRunning = true,
             generationsPerStep = 1,
-            targetStepsPerSecond = 60.0
+            targetStepsPerSecond = 60.0,
         )
 
         val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers
+            dispatchers = dispatchers,
         )
 
         composeTestRule.setContent {
@@ -116,9 +116,9 @@ class TemporalGameOfLifeStateComposableTests {
         assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
         assertEquals(
             TemporalGameOfLifeState.EvolutionStatus.Running(
-                averageGenerationsPerSecond = 0.0
+                averageGenerationsPerSecond = 0.0,
             ),
-            temporalGameOfLifeState.status
+            temporalGameOfLifeState.status,
         )
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
@@ -140,11 +140,11 @@ class TemporalGameOfLifeStateComposableTests {
             cellState = SixLongLinePattern.seedCellState,
             isRunning = false,
             generationsPerStep = 1,
-            targetStepsPerSecond = 60.0
+            targetStepsPerSecond = 60.0,
         )
 
         val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers
+            dispatchers = dispatchers,
         )
 
         composeTestRule.setContent {
@@ -161,7 +161,7 @@ class TemporalGameOfLifeStateComposableTests {
         assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
         assertEquals(
             TemporalGameOfLifeState.EvolutionStatus.Paused,
-            temporalGameOfLifeState.status
+            temporalGameOfLifeState.status,
         )
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->

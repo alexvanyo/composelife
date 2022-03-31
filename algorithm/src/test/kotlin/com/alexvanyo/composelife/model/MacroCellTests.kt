@@ -51,7 +51,7 @@ class MacroCellTests {
         fun `making dead cell alive is correct`() {
             assertEquals(
                 MacroCell.Cell.AliveCell,
-                MacroCell.Cell.DeadCell.withCell(IntOffset.Zero, true)
+                MacroCell.Cell.DeadCell.withCell(IntOffset.Zero, true),
             )
         }
 
@@ -59,7 +59,7 @@ class MacroCellTests {
         fun `making alive cell dead is correct`() {
             assertEquals(
                 MacroCell.Cell.DeadCell,
-                MacroCell.Cell.AliveCell.withCell(IntOffset.Zero, false)
+                MacroCell.Cell.AliveCell.withCell(IntOffset.Zero, false),
             )
         }
 
@@ -76,7 +76,7 @@ class MacroCellTests {
                                 MacroCell.Cell.DeadCell,
                                 MacroCell.Cell.DeadCell,
                                 MacroCell.Cell.DeadCell,
-                                MacroCell.Cell.AliveCell
+                                MacroCell.Cell.AliveCell,
                             ),
                             createEmptyMacroCell(1),
                             createEmptyMacroCell(1),
@@ -87,7 +87,7 @@ class MacroCellTests {
                     createEmptyMacroCell(3),
                     createEmptyMacroCell(3),
                 ),
-                createEmptyMacroCell(4).withCell(IntOffset(9, 5), true)
+                createEmptyMacroCell(4).withCell(IntOffset(9, 5), true),
             )
         }
     }
@@ -106,7 +106,7 @@ class MacroCellTests {
         fun `create empty macro cell at level 0 is correct`() {
             assertEquals(
                 MacroCell.Cell.DeadCell,
-                createEmptyMacroCell(0)
+                createEmptyMacroCell(0),
             )
         }
 
@@ -117,9 +117,9 @@ class MacroCellTests {
                     MacroCell.Cell.DeadCell,
                     MacroCell.Cell.DeadCell,
                     MacroCell.Cell.DeadCell,
-                    MacroCell.Cell.DeadCell
+                    MacroCell.Cell.DeadCell,
                 ),
-                createEmptyMacroCell(1)
+                createEmptyMacroCell(1),
             )
         }
 
@@ -131,28 +131,28 @@ class MacroCellTests {
                         MacroCell.Cell.DeadCell,
                         MacroCell.Cell.DeadCell,
                         MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell
+                        MacroCell.Cell.DeadCell,
                     ),
                     MacroCell.CellNode(
                         MacroCell.Cell.DeadCell,
                         MacroCell.Cell.DeadCell,
                         MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell
+                        MacroCell.Cell.DeadCell,
                     ),
                     MacroCell.CellNode(
                         MacroCell.Cell.DeadCell,
                         MacroCell.Cell.DeadCell,
                         MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell
+                        MacroCell.Cell.DeadCell,
                     ),
                     MacroCell.CellNode(
                         MacroCell.Cell.DeadCell,
                         MacroCell.Cell.DeadCell,
                         MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell
+                        MacroCell.Cell.DeadCell,
                     ),
                 ),
-                createEmptyMacroCell(2)
+                createEmptyMacroCell(2),
             )
         }
 
@@ -165,51 +165,25 @@ class MacroCellTests {
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell
+                            MacroCell.Cell.DeadCell,
                         ),
                         MacroCell.CellNode(
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell
+                            MacroCell.Cell.DeadCell,
                         ),
                         MacroCell.CellNode(
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell
+                            MacroCell.Cell.DeadCell,
                         ),
                         MacroCell.CellNode(
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell
-                        ),
-                    ),
-                    MacroCell.CellNode(
-                        MacroCell.CellNode(
                             MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell
-                        ),
-                        MacroCell.CellNode(
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell
-                        ),
-                        MacroCell.CellNode(
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell
-                        ),
-                        MacroCell.CellNode(
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell
                         ),
                     ),
                     MacroCell.CellNode(
@@ -217,25 +191,25 @@ class MacroCellTests {
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell
+                            MacroCell.Cell.DeadCell,
                         ),
                         MacroCell.CellNode(
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell
+                            MacroCell.Cell.DeadCell,
                         ),
                         MacroCell.CellNode(
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell
+                            MacroCell.Cell.DeadCell,
                         ),
                         MacroCell.CellNode(
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell
+                            MacroCell.Cell.DeadCell,
                         ),
                     ),
                     MacroCell.CellNode(
@@ -243,29 +217,55 @@ class MacroCellTests {
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell
+                            MacroCell.Cell.DeadCell,
                         ),
                         MacroCell.CellNode(
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell
+                            MacroCell.Cell.DeadCell,
                         ),
                         MacroCell.CellNode(
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell
+                            MacroCell.Cell.DeadCell,
                         ),
                         MacroCell.CellNode(
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
                             MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell
+                            MacroCell.Cell.DeadCell,
+                        ),
+                    ),
+                    MacroCell.CellNode(
+                        MacroCell.CellNode(
+                            MacroCell.Cell.DeadCell,
+                            MacroCell.Cell.DeadCell,
+                            MacroCell.Cell.DeadCell,
+                            MacroCell.Cell.DeadCell,
+                        ),
+                        MacroCell.CellNode(
+                            MacroCell.Cell.DeadCell,
+                            MacroCell.Cell.DeadCell,
+                            MacroCell.Cell.DeadCell,
+                            MacroCell.Cell.DeadCell,
+                        ),
+                        MacroCell.CellNode(
+                            MacroCell.Cell.DeadCell,
+                            MacroCell.Cell.DeadCell,
+                            MacroCell.Cell.DeadCell,
+                            MacroCell.Cell.DeadCell,
+                        ),
+                        MacroCell.CellNode(
+                            MacroCell.Cell.DeadCell,
+                            MacroCell.Cell.DeadCell,
+                            MacroCell.Cell.DeadCell,
+                            MacroCell.Cell.DeadCell,
                         ),
                     ),
                 ),
-                createEmptyMacroCell(3)
+                createEmptyMacroCell(3),
             )
         }
     }
@@ -285,7 +285,7 @@ class MacroCellTests {
                                 MacroCell.Cell.DeadCell,
                                 MacroCell.Cell.DeadCell,
                                 MacroCell.Cell.DeadCell,
-                                MacroCell.Cell.AliveCell
+                                MacroCell.Cell.AliveCell,
                             ),
                             createEmptyMacroCell(1),
                             createEmptyMacroCell(1),
@@ -295,7 +295,7 @@ class MacroCellTests {
                     ),
                     createEmptyMacroCell(3),
                     createEmptyMacroCell(3),
-                ).contains(IntOffset(9, 5))
+                ).contains(IntOffset(9, 5)),
             )
         }
 
@@ -312,7 +312,7 @@ class MacroCellTests {
                                 MacroCell.Cell.DeadCell,
                                 MacroCell.Cell.DeadCell,
                                 MacroCell.Cell.DeadCell,
-                                MacroCell.Cell.AliveCell
+                                MacroCell.Cell.AliveCell,
                             ),
                             createEmptyMacroCell(1),
                             createEmptyMacroCell(1),
@@ -322,7 +322,7 @@ class MacroCellTests {
                     ),
                     createEmptyMacroCell(3),
                     createEmptyMacroCell(3),
-                ).contains(IntOffset(9, 6))
+                ).contains(IntOffset(9, 6)),
             )
         }
 
@@ -339,7 +339,7 @@ class MacroCellTests {
                                 MacroCell.Cell.DeadCell,
                                 MacroCell.Cell.DeadCell,
                                 MacroCell.Cell.DeadCell,
-                                MacroCell.Cell.AliveCell
+                                MacroCell.Cell.AliveCell,
                             ),
                             createEmptyMacroCell(1),
                             createEmptyMacroCell(1),
@@ -349,7 +349,7 @@ class MacroCellTests {
                     ),
                     createEmptyMacroCell(3),
                     createEmptyMacroCell(3),
-                ).contains(IntOffset(-2, -2))
+                ).contains(IntOffset(-2, -2)),
             )
         }
     }

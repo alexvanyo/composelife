@@ -61,7 +61,7 @@ class CellUniverseInfoItemTests {
             Column {
                 InfoItem(
                     cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
-                    isEditing = true
+                    isEditing = true,
                 )
             }
         }
@@ -84,7 +84,7 @@ class CellUniverseInfoItemTests {
             Column {
                 InfoItem(
                     cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
-                    isEditing = true
+                    isEditing = true,
                 )
             }
         }
@@ -107,7 +107,7 @@ class CellUniverseInfoItemTests {
             Column {
                 InfoItem(
                     cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
-                    isEditing = false
+                    isEditing = false,
                 )
             }
         }
@@ -123,7 +123,7 @@ class CellUniverseInfoItemTests {
             Column {
                 InfoItem(
                     cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
-                    isEditing = false
+                    isEditing = false,
                 )
             }
         }
@@ -142,7 +142,7 @@ class CellUniverseInfoItemTests {
             Column {
                 InfoItem(
                     cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
-                    isEditing = true
+                    isEditing = true,
                 )
             }
         }

@@ -40,7 +40,7 @@ class NavigationStateTests {
 
         assertEquals(
             entry2,
-            navigationState.currentEntry
+            navigationState.currentEntry,
         )
     }
 }

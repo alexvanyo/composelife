@@ -40,7 +40,7 @@ class NaiveGameOfLifeAlgorithm @Inject constructor(
         withContext(dispatchers.Default) {
             computeGenerationWithStepImpl(
                 cellState = cellState,
-                step = step
+                step = step,
             )
         }
 
@@ -53,7 +53,7 @@ class NaiveGameOfLifeAlgorithm @Inject constructor(
         } else {
             computeGenerationWithStepImpl(
                 cellState = computeNextGeneration(cellState),
-                step = step - 1
+                step = step - 1,
             )
         }
 

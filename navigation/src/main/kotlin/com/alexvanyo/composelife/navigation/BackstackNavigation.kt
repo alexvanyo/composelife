@@ -63,7 +63,7 @@ fun <T> MutableBackstackMap<T>.popUpTo(
     return popUpTo(
         currentEntryId = currentEntryId,
         entryPredicate = predicate,
-        inclusive = inclusive
+        inclusive = inclusive,
     )
 }
 
@@ -85,7 +85,7 @@ fun <T> MutableBackstackMap<T>.popUpTo(
     return popUpTo(
         currentEntryId = currentEntryId,
         entryPredicate = entryPredicate,
-        inclusive = inclusive
+        inclusive = inclusive,
     )
 }
 
@@ -101,7 +101,7 @@ fun <T> MutableBackstackMap<T>.navigate(
     val current = BackstackEntry(
         value = valueFactory(previous),
         id = id,
-        previous = previous
+        previous = previous,
     )
     put(current.id, current)
     return current.id

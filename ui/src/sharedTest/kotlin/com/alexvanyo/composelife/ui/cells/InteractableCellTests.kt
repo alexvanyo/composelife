@@ -62,10 +62,10 @@ class InteractableCellTests {
                 isAlive = true,
                 shape = CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
-                    cornerFraction = 0f
+                    cornerFraction = 0f,
                 ),
                 contentDescription = "test cell",
-                onValueChange = { onValueChangeResult = it }
+                onValueChange = { onValueChangeResult = it },
             )
         }
 
@@ -87,10 +87,10 @@ class InteractableCellTests {
                 isAlive = false,
                 shape = CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
-                    cornerFraction = 0f
+                    cornerFraction = 0f,
                 ),
                 contentDescription = "test cell",
-                onValueChange = { onValueChangeResult = it }
+                onValueChange = { onValueChangeResult = it },
             )
         }
 

@@ -58,7 +58,7 @@ private val neighborOffsets = listOf(
     IntOffset(1, 0),
     IntOffset(-1, 1),
     IntOffset(0, 1),
-    IntOffset(1, 1)
+    IntOffset(1, 1),
 )
 
 /**

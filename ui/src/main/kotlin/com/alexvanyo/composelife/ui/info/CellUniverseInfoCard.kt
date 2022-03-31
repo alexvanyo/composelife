@@ -125,13 +125,13 @@ fun CellUniverseInfoCard(
                 stringResource(
                     id = R.string.offset,
                     cellWindowState.offset.x,
-                    cellWindowState.offset.y
+                    cellWindowState.offset.y,
                 )
             },
             {
                 stringResource(
                     id = R.string.scale,
-                    cellWindowState.scale
+                    cellWindowState.scale,
                 )
             },
             { isEditing ->
@@ -145,13 +145,13 @@ fun CellUniverseInfoCard(
                             } else {
                                 R.string.generations_per_second_short
                             },
-                            newEvolutionStatus.averageGenerationsPerSecond
+                            newEvolutionStatus.averageGenerationsPerSecond,
                         )
                 }
-            }
+            },
         ),
         infoCardState = infoCardState,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -166,7 +166,7 @@ fun CellUniverseInfoCard(
         remember {
             CellUniverseInfoItemContent(
                 cellUniverseInfoCardState = infoItemState,
-                text = text
+                text = text,
             )
         }
     }
@@ -174,7 +174,7 @@ fun CellUniverseInfoCard(
     val infoCardContent = remember(infoItemContents, infoCardState) {
         CellUniverseInfoCardContent(
             cellUniverseInfoCardState = infoCardState,
-            cellUniverseInfoItemContents = infoItemContents
+            cellUniverseInfoItemContents = infoItemContents,
         )
     }
 
@@ -194,8 +194,8 @@ fun CellUniverseInfoCard(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.surface,
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 1.dp
-        )
+            defaultElevation = 1.dp,
+        ),
     ) {
         AnimatedContent(
             targetState = cellUniverseInfoCardContent.showColumn,
@@ -223,7 +223,7 @@ fun CellUniverseInfoCard(
                             .forEach { cellUniverseInfoItemContent ->
                                 InfoItem(
                                     cellUniverseInfoItemContent = cellUniverseInfoItemContent,
-                                    isEditing = cellUniverseInfoCardContent.isEditing
+                                    isEditing = cellUniverseInfoCardContent.isEditing,
                                 )
                             }
                     }
@@ -242,7 +242,7 @@ fun CellUniverseInfoCard(
 private fun CellUniverseInfoExpandButton(
     isExpanded: Boolean,
     setIsExpanded: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     IconToggleButton(
         checked = isExpanded,
@@ -259,18 +259,18 @@ private fun CellUniverseInfoExpandButton(
                 stringResource(id = R.string.collapse)
             } else {
                 stringResource(id = R.string.expand)
-            }
+            },
         )
     }
 }
 
 @Preview(
     name = "Collapsed light mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Preview(
     name = "Collapsed dark mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
 fun CellUniverseInfoCardCollapsedPreview() {
@@ -280,27 +280,27 @@ fun CellUniverseInfoCardCollapsedPreview() {
                 rememberCellUniverseInfoCardState(initialIsExpanded = false),
                 cellUniverseInfoItemContents = listOf(
                     CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(isChecked = true)
+                        rememberCellUniverseInfoItemState(isChecked = true),
                     ) { "First" },
                     CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(isChecked = true)
+                        rememberCellUniverseInfoItemState(isChecked = true),
                     ) { "Second" },
                     CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(isChecked = true)
-                    ) { "Third" }
-                )
-            )
+                        rememberCellUniverseInfoItemState(isChecked = true),
+                    ) { "Third" },
+                ),
+            ),
         )
     }
 }
 
 @Preview(
     name = "Collapsed single selection light mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Preview(
     name = "Collapsed single selection dark mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
 fun CellUniverseInfoCardCollapsedSingleSelectionPreview() {
@@ -310,27 +310,27 @@ fun CellUniverseInfoCardCollapsedSingleSelectionPreview() {
                 rememberCellUniverseInfoCardState(initialIsExpanded = false),
                 cellUniverseInfoItemContents = listOf(
                     CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(isChecked = false)
+                        rememberCellUniverseInfoItemState(isChecked = false),
                     ) { "First" },
                     CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(isChecked = false)
+                        rememberCellUniverseInfoItemState(isChecked = false),
                     ) { "Second" },
                     CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(isChecked = true)
-                    ) { "Third" }
-                )
-            )
+                        rememberCellUniverseInfoItemState(isChecked = true),
+                    ) { "Third" },
+                ),
+            ),
         )
     }
 }
 
 @Preview(
     name = "Fully collapsed light mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Preview(
     name = "Fully collapsed dark mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
 fun CellUniverseInfoCardFullyCollapsedPreview() {
@@ -340,27 +340,27 @@ fun CellUniverseInfoCardFullyCollapsedPreview() {
                 rememberCellUniverseInfoCardState(initialIsExpanded = false),
                 cellUniverseInfoItemContents = listOf(
                     CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(isChecked = false)
+                        rememberCellUniverseInfoItemState(isChecked = false),
                     ) { "First" },
                     CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(isChecked = false)
+                        rememberCellUniverseInfoItemState(isChecked = false),
                     ) { "Second" },
                     CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(isChecked = false)
-                    ) { "Third" }
-                )
-            )
+                        rememberCellUniverseInfoItemState(isChecked = false),
+                    ) { "Third" },
+                ),
+            ),
         )
     }
 }
 
 @Preview(
     name = "Expanded light mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Preview(
     name = "Expanded dark mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
 fun CellUniverseInfoCardExpandedPreview() {
@@ -370,16 +370,16 @@ fun CellUniverseInfoCardExpandedPreview() {
                 rememberCellUniverseInfoCardState(initialIsExpanded = true),
                 cellUniverseInfoItemContents = listOf(
                     CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState()
+                        rememberCellUniverseInfoItemState(),
                     ) { "First" },
                     CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState()
+                        rememberCellUniverseInfoItemState(),
                     ) { "Second" },
                     CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState()
-                    ) { "Third" }
-                )
-            )
+                        rememberCellUniverseInfoItemState(),
+                    ) { "Third" },
+                ),
+            ),
         )
     }
 }

@@ -123,12 +123,12 @@ fun InteractiveCellUniverseOverlay(
             Spacer(
                 modifier = Modifier
                     .windowInsetsTopHeight(WindowInsets.safeDrawing)
-                    .layoutId(TopInsets)
+                    .layoutId(TopInsets),
             )
             Spacer(
                 modifier = Modifier
                     .windowInsetsBottomHeight(WindowInsets.safeDrawing)
-                    .layoutId(BottomInsets)
+                    .layoutId(BottomInsets),
             )
 
             Box(
@@ -136,9 +136,9 @@ fun InteractiveCellUniverseOverlay(
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.safeDrawing)
                     .animatePlacement(
-                        alignment = Alignment.TopCenter
+                        alignment = Alignment.TopCenter,
                     )
-                    .layoutId(CellUniverseInfoCard)
+                    .layoutId(CellUniverseInfoCard),
             ) {
                 CellUniverseInfoCard(
                     cellWindowState = cellWindowState,
@@ -147,7 +147,7 @@ fun InteractiveCellUniverseOverlay(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .padding(8.dp)
-                        .testTag("CellUniverseInfoCard")
+                        .testTag("CellUniverseInfoCard"),
                 )
             }
 
@@ -159,28 +159,28 @@ fun InteractiveCellUniverseOverlay(
                     0.dp
                 } else {
                     8.dp + windowInsetsPaddingValues.calculateStartPadding(LocalLayoutDirection.current)
-                }
+                },
             )
             val outerPaddingTop by animateDpAsState(
                 targetValue = if (actionCardState.isFullscreen) {
                     0.dp
                 } else {
                     8.dp + windowInsetsPaddingValues.calculateTopPadding()
-                }
+                },
             )
             val outerPaddingEnd by animateDpAsState(
                 targetValue = if (actionCardState.isFullscreen) {
                     0.dp
                 } else {
                     8.dp + windowInsetsPaddingValues.calculateEndPadding(LocalLayoutDirection.current)
-                }
+                },
             )
             val outerPaddingBottom by animateDpAsState(
                 targetValue = if (actionCardState.isFullscreen) {
                     0.dp
                 } else {
                     8.dp + windowInsetsPaddingValues.calculateBottomPadding()
-                }
+                },
             )
             val outerPaddingLeft: Dp
             val outerPaddingRight: Dp
@@ -196,13 +196,13 @@ fun InteractiveCellUniverseOverlay(
                 start = outerPaddingStart,
                 top = outerPaddingTop,
                 end = outerPaddingEnd,
-                bottom = outerPaddingBottom
+                bottom = outerPaddingBottom,
             )
             val consumedWindowInsets = WindowInsets(
                 left = outerPaddingLeft,
                 top = outerPaddingTop,
                 right = outerPaddingRight,
-                bottom = outerPaddingBottom
+                bottom = outerPaddingBottom,
             )
 
             val cornerSize by animateDpAsState(
@@ -210,7 +210,7 @@ fun InteractiveCellUniverseOverlay(
                     0.dp
                 } else {
                     12.dp
-                }
+                },
             )
 
             Box(
@@ -218,9 +218,9 @@ fun InteractiveCellUniverseOverlay(
                     .fillMaxWidth()
                     .consumedWindowInsets(consumedWindowInsets)
                     .animatePlacement(
-                        alignment = Alignment.BottomCenter
+                        alignment = Alignment.BottomCenter,
                     )
-                    .layoutId(CellUniverseActionCard)
+                    .layoutId(CellUniverseActionCard),
             ) {
                 CellUniverseActionCard(
                     isTopCard = isActionCardTopCard,
@@ -230,7 +230,7 @@ fun InteractiveCellUniverseOverlay(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .padding(outerPadding)
-                        .testTag("CellUniverseActionCard")
+                        .testTag("CellUniverseActionCard"),
                 )
             }
         },
@@ -254,13 +254,13 @@ fun InteractiveCellUniverseOverlay(
                     infoCardPlaceable.place(0, 0)
                     actionCardPlaceable.place(
                         0,
-                        constraints.maxHeight - actionCardPlaceable.measuredHeight
+                        constraints.maxHeight - actionCardPlaceable.measuredHeight,
                     )
                 } else if (isActionCardTopCard) {
                     infoCardPlaceable.place(0, bottomInsetsPlaceable.height - infoCardPlaceable.measuredHeight)
                     actionCardPlaceable.place(
                         0,
-                        constraints.maxHeight - actionCardPlaceable.measuredHeight
+                        constraints.maxHeight - actionCardPlaceable.measuredHeight,
                     )
                 } else {
                     infoCardPlaceable.place(0, 0)
@@ -268,7 +268,7 @@ fun InteractiveCellUniverseOverlay(
                 }
             }
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 

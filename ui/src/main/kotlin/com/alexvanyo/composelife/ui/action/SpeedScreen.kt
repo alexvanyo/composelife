@@ -50,18 +50,18 @@ fun SpeedScreen(
     scrollState: ScrollState = rememberScrollState(),
 ) {
     Column(
-        modifier = modifier.verticalScroll(scrollState)
+        modifier = modifier.verticalScroll(scrollState),
     ) {
         TargetStepsPerSecondControl(
             targetStepsPerSecond = targetStepsPerSecond,
             setTargetStepsPerSecond = setTargetStepsPerSecond,
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier.padding(horizontal = 16.dp),
         )
 
         GenerationsPerStepControl(
             generationsPerStep = generationsPerStep,
             setGenerationsPerStep = setGenerationsPerStep,
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier.padding(horizontal = 16.dp),
         )
     }
 }
@@ -72,7 +72,7 @@ fun TargetStepsPerSecondControl(
     setTargetStepsPerSecond: (Double) -> Unit,
     modifier: Modifier = Modifier,
     minTargetStepsPerSecondPowerOfTwo: Int = 0,
-    maxTargetStepsPerSecondPowerOfTwo: Int = 8
+    maxTargetStepsPerSecondPowerOfTwo: Int = 8,
 ) {
     LabeledSlider(
         label = stringResource(id = R.string.target_steps_per_second, targetStepsPerSecond),
@@ -86,7 +86,7 @@ fun TargetStepsPerSecondControl(
             val tickColor = MaterialTheme.colorScheme.onSurfaceVariant
 
             Canvas(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             ) {
                 val offsets = (minTargetStepsPerSecondPowerOfTwo..maxTargetStepsPerSecondPowerOfTwo).map {
                     (2f.pow(it) - 2f.pow(minTargetStepsPerSecondPowerOfTwo)) /
@@ -97,11 +97,11 @@ fun TargetStepsPerSecondControl(
                     drawLine(
                         tickColor,
                         Offset(size.width * xOffset, 0f),
-                        Offset(size.width * xOffset, size.height)
+                        Offset(size.width * xOffset, size.height),
                     )
                 }
             }
-        }
+        },
     )
 }
 
@@ -111,7 +111,7 @@ fun GenerationsPerStepControl(
     setGenerationsPerStep: (Int) -> Unit,
     modifier: Modifier = Modifier,
     minTargetStepsPerSecondPowerOfTwo: Int = 0,
-    maxTargetStepsPerSecondPowerOfTwo: Int = 8
+    maxTargetStepsPerSecondPowerOfTwo: Int = 8,
 ) {
     LabeledSlider(
         label = stringResource(id = R.string.generations_per_step, generationsPerStep),
@@ -130,11 +130,11 @@ fun GenerationsPerStepControl(
 
 @Preview(
     name = "Light mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Preview(
     name = "Dark mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
 fun SpeedScreenPreview() {
@@ -144,7 +144,7 @@ fun SpeedScreenPreview() {
                 targetStepsPerSecond = 60.0,
                 setTargetStepsPerSecond = {},
                 generationsPerStep = 1,
-                setGenerationsPerStep = {}
+                setGenerationsPerStep = {},
             )
         }
     }

@@ -27,7 +27,7 @@ import java.io.File
 @Module
 @TestInstallIn(
     components = [SingletonComponent::class],
-    replaces = [PreferencesProtoModule::class]
+    replaces = [PreferencesProtoModule::class],
 )
 interface TestPreferencesProtoModule {
     companion object {

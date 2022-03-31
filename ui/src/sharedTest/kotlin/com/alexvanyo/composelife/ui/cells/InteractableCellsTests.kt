@@ -64,8 +64,8 @@ class InteractableCellsTests {
                 2 to 4,
                 4 to 0,
                 4 to 2,
-                4 to 4
-            ).toCellState()
+                4 to 4,
+            ).toCellState(),
         )
 
         composeTestRule.setContent {
@@ -73,91 +73,91 @@ class InteractableCellsTests {
                 gameOfLifeState = mutableGameOfLifeState,
                 shape = CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
-                    cornerFraction = 0f
+                    cornerFraction = 0f,
                 ),
                 scaledCellDpSize = 10.dp,
                 cellWindow = IntRect(
                     IntOffset(0, 0),
-                    IntOffset(8, 8)
+                    IntOffset(8, 8),
                 ),
             )
         }
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 0, 0)
+                applicationContext.getString(R.string.cell_content_description, 0, 0),
             )
             .assertIsOn()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 0, 1)
+                applicationContext.getString(R.string.cell_content_description, 0, 1),
             )
             .assertIsOff()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 0, 2)
+                applicationContext.getString(R.string.cell_content_description, 0, 2),
             )
             .assertIsOn()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 0, 3)
+                applicationContext.getString(R.string.cell_content_description, 0, 3),
             )
             .assertIsOff()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 0, 4)
+                applicationContext.getString(R.string.cell_content_description, 0, 4),
             )
             .assertIsOn()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 2, 0)
+                applicationContext.getString(R.string.cell_content_description, 2, 0),
             )
             .assertIsOn()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 2, 1)
+                applicationContext.getString(R.string.cell_content_description, 2, 1),
             )
             .assertIsOff()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 2, 2)
+                applicationContext.getString(R.string.cell_content_description, 2, 2),
             )
             .assertIsOn()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 2, 3)
+                applicationContext.getString(R.string.cell_content_description, 2, 3),
             )
             .assertIsOff()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 2, 4)
+                applicationContext.getString(R.string.cell_content_description, 2, 4),
             )
             .assertIsOn()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 8, 8)
+                applicationContext.getString(R.string.cell_content_description, 8, 8),
             )
             .assertExists()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, -1, -1)
+                applicationContext.getString(R.string.cell_content_description, -1, -1),
             )
             .assertDoesNotExist()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 9, 9)
+                applicationContext.getString(R.string.cell_content_description, 9, 9),
             )
             .assertDoesNotExist()
     }
@@ -174,8 +174,8 @@ class InteractableCellsTests {
                 2 to 4,
                 4 to 0,
                 4 to 2,
-                4 to 4
-            ).toCellState()
+                4 to 4,
+            ).toCellState(),
         )
 
         composeTestRule.setContent {
@@ -183,19 +183,19 @@ class InteractableCellsTests {
                 gameOfLifeState = mutableGameOfLifeState,
                 shape = CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
-                    cornerFraction = 0f
+                    cornerFraction = 0f,
                 ),
                 scaledCellDpSize = 10.dp,
                 cellWindow = IntRect(
                     IntOffset(0, 0),
-                    IntOffset(8, 8)
-                )
+                    IntOffset(8, 8),
+                ),
             )
         }
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 2, 4)
+                applicationContext.getString(R.string.cell_content_description, 2, 4),
             )
             .assertIsOn()
             .performTouchInput { click(topLeft) }
@@ -209,9 +209,9 @@ class InteractableCellsTests {
                 2 to 2,
                 4 to 0,
                 4 to 2,
-                4 to 4
+                4 to 4,
             ).toCellState(),
-            mutableGameOfLifeState.cellState
+            mutableGameOfLifeState.cellState,
         )
     }
 }

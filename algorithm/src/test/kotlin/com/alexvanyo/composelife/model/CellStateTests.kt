@@ -43,7 +43,7 @@ class CellStateTests {
         override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> =
             listOf(
                 CellStateFactory("Default cell state") { CellState(it.aliveCells.toSet()) },
-                CellStateFactory("Hash life cell state") { it.toHashLifeCellState() }
+                CellStateFactory("Hash life cell state") { it.toHashLifeCellState() },
             )
                 .map(::CellStateTestArguments)
                 .stream()
@@ -74,7 +74,7 @@ class CellStateTests {
             |.O.O..
             |.O....
             |......
-            """.trimMargin().toCellState()
+            """.trimMargin().toCellState(),
         )
 
         assertEquals(6, testCellState.aliveCells.size)
@@ -89,7 +89,7 @@ class CellStateTests {
             |.O.O..
             |.O....
             |......
-            """.trimMargin().toCellState()
+            """.trimMargin().toCellState(),
         ).offsetBy(IntOffset(2, 2))
 
         assertEquals(
@@ -99,7 +99,7 @@ class CellStateTests {
             |.O....
             |......
             """.trimMargin().toCellState(topLeftOffset = IntOffset(2, 2)),
-            testCellState
+            testCellState,
         )
     }
 
@@ -112,7 +112,7 @@ class CellStateTests {
             |.O.O..
             |.O....
             |......
-            """.trimMargin().toCellState()
+            """.trimMargin().toCellState(),
         )
 
         assertTrue(
@@ -123,9 +123,9 @@ class CellStateTests {
                     IntOffset(5, 0),
                     IntOffset(1, 1),
                     IntOffset(3, 1),
-                    IntOffset(1, 2)
-                )
-            )
+                    IntOffset(1, 2),
+                ),
+            ),
         )
     }
 
@@ -138,7 +138,7 @@ class CellStateTests {
             |.O.O..
             |.O....
             |......
-            """.trimMargin().toCellState()
+            """.trimMargin().toCellState(),
         ).offsetBy(IntOffset(2, 2)).withCell(IntOffset.Zero, true)
 
         assertEquals(
@@ -150,7 +150,7 @@ class CellStateTests {
             |...O....
             |........
             """.trimMargin().toCellState(),
-            testCellState
+            testCellState,
         )
     }
 }
