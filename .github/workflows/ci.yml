@@ -97,7 +97,7 @@ jobs:
           then
             echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"device\":[\"pixel2\",\"pixel3xl\"],\"api-level\":[\"27\",\"28\",\"29\",\"30\",\"31\"]},\"include\":[{\"java-version\":\"11\",\"device\":\"atdpixel2\",\"api-level\":\"30\"}]}"
           else
-            echo "::set-output name=matrix::{\"java-version\":[\"11\"],\"device\":[\"pixel2\"],\"api-level\":[\"31\"],\"include\":[{\"java-version\":\"11\",\"device\":\"atdpixel2\",\"api-level\":\"30\"}]}"
+            echo "::set-output name=matrix::{\"include\":[{\"java-version\":\"11\",\"device\":\"atdpixel2\",\"api-level\":\"30\"}]}"
           fi
 
   android-test-gmd:
@@ -130,13 +130,16 @@ jobs:
           distribution: 'zulu'
           java-version: ${{ matrix.java-version }}
 
+      - name: Accept license
+        run: echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_SDK_ROOT/licenses/android-sdk-preview-license"
+
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
 
       - name: Run device checks
         run: |
           # run the tests, with one retry attempt
-          run_tests () { ./gradlew ${{ matrix.device }}api${{ matrix.api-level }}Check --no-parallel --stacktrace -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect"; }
+          run_tests () { ./gradlew ${{ matrix.device }}api${{ matrix.api-level }}Check --no-parallel --stacktrace -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect" -Pandroid.sdk.channel=3; }
           (echo "==== Attempt 1 ====" && run_tests) || (echo "==== Attempt 2 ====" && run_tests) || (echo "==== Both attempts failed ====" && exit 1)
 
   android-test-aer-cfg:
