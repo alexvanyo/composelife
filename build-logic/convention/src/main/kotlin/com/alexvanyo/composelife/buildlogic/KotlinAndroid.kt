@@ -22,6 +22,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions
 
 fun Project.configureKotlinAndroid(
     commonExtension: CommonExtension<*, *, *, *>,
@@ -59,9 +60,19 @@ fun Project.configureKotlinAndroid(
                 )
             )
         }
+
+        kotlinOptions {
+            jvmTarget = JavaVersion.VERSION_1_8.toString()
+            allWarningsAsErrors = true
+            freeCompilerArgs = freeCompilerArgs + listOf("-Xopt-in=kotlin.RequiresOptIn")
+        }
     }
 
     dependencies {
         add("coreLibraryDesugaring", libs.findLibrary("android.desugarJdkLibs").get())
     }
+}
+
+private fun CommonExtension<*, *, *, *>.kotlinOptions(block: KotlinJvmOptions.() -> Unit) {
+    (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("kotlinOptions", block)
 }
