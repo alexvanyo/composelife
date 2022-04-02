@@ -51,13 +51,13 @@ sealed interface ActionCardNavigation {
                         is Edit -> with(ActionCardNavigationType.Edit.saver) { save(actionCardNavigation) }
                         is Palette -> with(ActionCardNavigationType.Palette.saver) { save(actionCardNavigation) }
                         is Settings -> with(ActionCardNavigationType.Settings.saver) { save(actionCardNavigation) }
-                    }
+                    },
                 )
             },
             restore = { list ->
                 val type = ActionCardNavigationType.Saver.restore(list[0] as Int)!!
                 type.saver.restore(list[1]!!)
-            }
+            },
         )
     }
 }
@@ -74,28 +74,28 @@ sealed interface ActionCardNavigationType {
     object Speed : ActionCardNavigationType {
         override val saver: Saver<ActionCardNavigation.Speed, Any> = Saver(
             save = { 0 },
-            restore = { ActionCardNavigation.Speed }
+            restore = { ActionCardNavigation.Speed },
         )
     }
 
     object Edit : ActionCardNavigationType {
         override val saver: Saver<ActionCardNavigation.Edit, Any> = Saver(
             save = { 0 },
-            restore = { ActionCardNavigation.Edit }
+            restore = { ActionCardNavigation.Edit },
         )
     }
 
     object Palette : ActionCardNavigationType {
         override val saver: Saver<ActionCardNavigation.Palette, Any> = Saver(
             save = { 0 },
-            restore = { ActionCardNavigation.Palette }
+            restore = { ActionCardNavigation.Palette },
         )
     }
 
     object Settings : ActionCardNavigationType {
         override val saver: Saver<ActionCardNavigation.Settings, Any> = Saver(
             save = { 0 },
-            restore = { ActionCardNavigation.Settings }
+            restore = { ActionCardNavigation.Settings },
         )
     }
 

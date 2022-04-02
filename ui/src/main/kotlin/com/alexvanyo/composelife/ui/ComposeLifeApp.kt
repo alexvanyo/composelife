@@ -38,12 +38,12 @@ fun ComposeLifeApp() {
         SideEffect {
             systemUiController.setSystemBarsColor(
                 color = Color.Transparent,
-                darkIcons = useDarkIcons
+                darkIcons = useDarkIcons,
             )
         }
 
         val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-            cellState = gosperGliderGun
+            cellState = gosperGliderGun,
         )
 
         val gameOfLifeAlgorithm = hiltViewModel<GameOfLifeAlgorithmEntryPoint>().gameOfLifeAlgorithm
@@ -52,13 +52,13 @@ fun ComposeLifeApp() {
         rememberTemporalGameOfLifeStateMutator(
             temporalGameOfLifeState = temporalGameOfLifeState,
             gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-            dispatchers = dispatchers
+            dispatchers = dispatchers,
         )
 
         // A surface container using the 'background' color from the theme
         Surface {
             InteractiveCellUniverse(
-                temporalGameOfLifeState = temporalGameOfLifeState
+                temporalGameOfLifeState = temporalGameOfLifeState,
             )
         }
     }

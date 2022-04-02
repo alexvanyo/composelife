@@ -72,7 +72,7 @@ fun PaletteScreen(
     Column(
         modifier = modifier
             .verticalScroll(scrollState)
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 16.dp),
     ) {
         when (currentShapeState) {
             ResourceState.Loading -> {
@@ -94,7 +94,7 @@ fun PaletteScreen(
                         value = stringResource(
                             id = when (currentShape) {
                                 is CurrentShape.RoundRectangle -> R.string.round_rectangle
-                            }
+                            },
                         ),
                         onValueChange = {},
                         enabled = false,
@@ -109,7 +109,7 @@ fun PaletteScreen(
                                 } else {
                                     Icons.Default.ArrowDropDown
                                 },
-                                contentDescription = null
+                                contentDescription = null,
                             )
                         },
                         colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -117,18 +117,18 @@ fun PaletteScreen(
                             disabledBorderColor = MaterialTheme.colorScheme.outline,
                             disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                             disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
                                 isShowingDropdownMenu = true
-                            }
+                            },
                     )
 
                     DropdownMenu(
                         expanded = isShowingDropdownMenu,
-                        onDismissRequest = { isShowingDropdownMenu = false }
+                        onDismissRequest = { isShowingDropdownMenu = false },
                     ) {
                         DropdownMenuItem(
                             text = { Text(stringResource(id = R.string.round_rectangle)) },
@@ -137,7 +137,7 @@ fun PaletteScreen(
                                     preferences.setCurrentShapeType(CurrentShapeType.RoundRectangle)
                                     isShowingDropdownMenu = false
                                 }
-                            }
+                            },
                         )
                     }
                 }
@@ -153,7 +153,7 @@ fun PaletteScreen(
                             preferences.setRoundRectangleConfig { roundRectangle ->
                                 roundRectangle.copy(
                                     sizeFraction = sizeFraction,
-                                    cornerFraction = cornerFraction
+                                    cornerFraction = cornerFraction,
                                 )
                             }
                         }

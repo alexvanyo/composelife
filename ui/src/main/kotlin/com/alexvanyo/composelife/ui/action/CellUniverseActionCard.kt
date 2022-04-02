@@ -132,13 +132,13 @@ fun CellUniverseActionCard(
         shape = shape,
         containerColor = MaterialTheme.colorScheme.surface,
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 1.dp
+            defaultElevation = 1.dp,
         ),
         modifier = modifier,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.safeDrawingPadding()
+            modifier = Modifier.safeDrawingPadding(),
         ) {
             AnimatedVisibility(visible = !actionCardState.isFullscreen) {
                 ActionControlRow(
@@ -176,13 +176,13 @@ fun CellUniverseActionCard(
                         layoutIdTypes = ActionCardDestinationLayoutTypes.sealedEnum,
                         content = {
                             val currentScrollState = contentScrollStateMap.getValue(
-                                actionCardState.navigationState.currentEntryId
+                                actionCardState.navigationState.currentEntryId,
                             )
 
                             ActionCardNavigationBar(
                                 actionCardState = actionCardState,
                                 isElevated = currentScrollState.canScrollDown,
-                                modifier = Modifier.layoutId(ActionCardDestinationLayoutTypes.BottomBar)
+                                modifier = Modifier.layoutId(ActionCardDestinationLayoutTypes.BottomBar),
                             )
 
                             NavigationHost(
@@ -194,7 +194,7 @@ fun CellUniverseActionCard(
                                 contentAlignment = Alignment.BottomCenter,
                                 modifier = Modifier
                                     .layoutId(ActionCardDestinationLayoutTypes.NavHost)
-                                    .animateContentSize()
+                                    .animateContentSize(),
                             ) { entry ->
                                 // Cache the scroll state based for the target entry id.
                                 // This value won't change normally, but it will ensure we keep using the old state
@@ -208,16 +208,16 @@ fun CellUniverseActionCard(
                                         generationsPerStep = generationsPerStep,
                                         setGenerationsPerStep = setGenerationsPerStep,
                                         scrollState = scrollState,
-                                        modifier = Modifier.fillMaxWidth()
+                                        modifier = Modifier.fillMaxWidth(),
                                     )
                                     ActionCardNavigation.Edit -> Spacer(modifier = Modifier.fillMaxWidth())
                                     ActionCardNavigation.Palette -> PaletteScreen(
                                         scrollState = scrollState,
-                                        modifier = Modifier.fillMaxWidth()
+                                        modifier = Modifier.fillMaxWidth(),
                                     )
                                     ActionCardNavigation.Settings -> {
                                         Column(
-                                            modifier = Modifier.fillMaxWidth()
+                                            modifier = Modifier.fillMaxWidth(),
                                         ) {
                                             Spacer(Modifier.weight(1f))
                                         }
@@ -233,14 +233,14 @@ fun CellUniverseActionCard(
 
                             val bottomBarPlaceable = bottomBarMeasurable.measure(
                                 constraints.copy(
-                                    maxHeight = bottomBarIntrinsicHeight
-                                )
+                                    maxHeight = bottomBarIntrinsicHeight,
+                                ),
                             )
 
                             val navHostPlaceable = navHostMeasurable.measure(
                                 constraints.copy(
-                                    maxHeight = constraints.maxHeight - bottomBarPlaceable.height
-                                )
+                                    maxHeight = constraints.maxHeight - bottomBarPlaceable.height,
+                                ),
                             )
 
                             layout(constraints.maxWidth, bottomBarPlaceable.height + navHostPlaceable.height) {
@@ -248,7 +248,7 @@ fun CellUniverseActionCard(
                                 bottomBarPlaceable.place(0, navHostPlaceable.height)
                             }
                         },
-                        modifier = Modifier.padding(top = 8.dp)
+                        modifier = Modifier.padding(top = 8.dp),
                     )
                 }
             }
@@ -275,7 +275,7 @@ fun ActionCardNavigationBar(
 
     NavigationBar(
         modifier = modifier,
-        tonalElevation = elevation
+        tonalElevation = elevation,
     ) {
         val speedSelected =
             actionCardState.navigationState.currentEntry.value == ActionCardNavigation.Speed
@@ -296,7 +296,7 @@ fun ActionCardNavigationBar(
                     } else {
                         Icons.Outlined.Speed
                     },
-                    contentDescription = ""
+                    contentDescription = "",
                 )
             },
             label = {
@@ -313,7 +313,7 @@ fun ActionCardNavigationBar(
                     } else {
                         Icons.Outlined.Edit
                     },
-                    contentDescription = ""
+                    contentDescription = "",
                 )
             },
             label = {
@@ -330,7 +330,7 @@ fun ActionCardNavigationBar(
                     } else {
                         Icons.Outlined.Palette
                     },
-                    contentDescription = ""
+                    contentDescription = "",
                 )
             },
             label = {
@@ -347,7 +347,7 @@ fun ActionCardNavigationBar(
                     } else {
                         Icons.Outlined.Settings
                     },
-                    contentDescription = ""
+                    contentDescription = "",
                 )
             },
             label = {
@@ -365,11 +365,11 @@ private fun ActionControlRow(
     onStep: () -> Unit,
     isExpanded: Boolean,
     setIsExpanded: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier
+        modifier = modifier,
     ) {
         Spacer(modifier = Modifier.weight(1f, fill = false))
 
@@ -387,16 +387,16 @@ private fun ActionControlRow(
                     stringResource(id = R.string.pause)
                 } else {
                     stringResource(id = R.string.play)
-                }
+                },
             )
         }
 
         IconButton(
-            onClick = onStep
+            onClick = onStep,
         ) {
             Icon(
                 imageVector = Icons.Filled.SkipNext,
-                contentDescription = stringResource(id = R.string.step)
+                contentDescription = stringResource(id = R.string.step),
             )
         }
 
@@ -414,7 +414,7 @@ private fun ActionControlRow(
                     stringResource(id = R.string.collapse)
                 } else {
                     stringResource(id = R.string.expand)
-                }
+                },
             )
         }
 

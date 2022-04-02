@@ -39,7 +39,7 @@ class TemporalGameOfLifeStateTests {
     @Test
     fun `initial values are correct when not running`() {
         val gameOfLifeState = TemporalGameOfLifeState(
-            isRunning = false
+            isRunning = false,
         )
 
         assertEquals(emptyCellState(), gameOfLifeState.cellState)
@@ -52,7 +52,7 @@ class TemporalGameOfLifeStateTests {
     fun `initial values are correct when running`() {
         val gameOfLifeState = TemporalGameOfLifeState(
             cellState = SixLongLinePattern.seedCellState,
-            isRunning = true
+            isRunning = true,
         )
 
         assertEquals(SixLongLinePattern.seedCellState, gameOfLifeState.cellState)
@@ -60,9 +60,9 @@ class TemporalGameOfLifeStateTests {
         assertEquals(60.0, gameOfLifeState.targetStepsPerSecond)
         assertEquals(
             TemporalGameOfLifeState.EvolutionStatus.Running(
-                averageGenerationsPerSecond = 0.0
+                averageGenerationsPerSecond = 0.0,
             ),
-            gameOfLifeState.status
+            gameOfLifeState.status,
         )
     }
 
@@ -70,7 +70,7 @@ class TemporalGameOfLifeStateTests {
     fun `simple evolution is correct`() = runTest {
         val gameOfLifeState = TemporalGameOfLifeState(
             cellState = SixLongLinePattern.seedCellState,
-            isRunning = true
+            isRunning = true,
         )
 
         snapshotFlow {
@@ -84,7 +84,7 @@ class TemporalGameOfLifeStateTests {
                         gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
                         clock = schedulerClock,
                         dispatchers = dispatchers,
-                        temporalGameOfLifeState = gameOfLifeState
+                        temporalGameOfLifeState = gameOfLifeState,
                     )
                 }
 
@@ -114,7 +114,7 @@ class TemporalGameOfLifeStateTests {
     fun `pausing evolution is correct`() = runTest {
         val gameOfLifeState = TemporalGameOfLifeState(
             cellState = SixLongLinePattern.seedCellState,
-            isRunning = true
+            isRunning = true,
         )
 
         snapshotFlow {
@@ -128,7 +128,7 @@ class TemporalGameOfLifeStateTests {
                         gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
                         clock = schedulerClock,
                         dispatchers = dispatchers,
-                        temporalGameOfLifeState = gameOfLifeState
+                        temporalGameOfLifeState = gameOfLifeState,
                     )
                 }
 
@@ -200,7 +200,7 @@ class TemporalGameOfLifeStateTests {
     fun `stepping evolution is correct`() = runTest {
         val gameOfLifeState = TemporalGameOfLifeState(
             cellState = SixLongLinePattern.seedCellState,
-            isRunning = true
+            isRunning = true,
         )
 
         snapshotFlow {
@@ -214,7 +214,7 @@ class TemporalGameOfLifeStateTests {
                         gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
                         clock = schedulerClock,
                         dispatchers = dispatchers,
-                        temporalGameOfLifeState = gameOfLifeState
+                        temporalGameOfLifeState = gameOfLifeState,
                     )
                 }
 
@@ -291,7 +291,7 @@ class TemporalGameOfLifeStateTests {
     fun `target steps evolution is correct`() = runTest {
         val gameOfLifeState = TemporalGameOfLifeState(
             cellState = SixLongLinePattern.seedCellState,
-            isRunning = true
+            isRunning = true,
         )
 
         snapshotFlow {
@@ -305,7 +305,7 @@ class TemporalGameOfLifeStateTests {
                         gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
                         clock = schedulerClock,
                         dispatchers = dispatchers,
-                        temporalGameOfLifeState = gameOfLifeState
+                        temporalGameOfLifeState = gameOfLifeState,
                     )
                 }
 
@@ -382,7 +382,7 @@ class TemporalGameOfLifeStateTests {
     fun `setting evolution is correct`() = runTest {
         val gameOfLifeState = TemporalGameOfLifeState(
             cellState = SixLongLinePattern.seedCellState,
-            isRunning = true
+            isRunning = true,
         )
 
         snapshotFlow {
@@ -396,7 +396,7 @@ class TemporalGameOfLifeStateTests {
                         gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
                         clock = schedulerClock,
                         dispatchers = dispatchers,
-                        temporalGameOfLifeState = gameOfLifeState
+                        temporalGameOfLifeState = gameOfLifeState,
                     )
                 }
 
@@ -449,7 +449,7 @@ class TemporalGameOfLifeStateTests {
     fun `multiple evolutions are correct`() = runTest {
         val gameOfLifeState = TemporalGameOfLifeState(
             cellState = SixLongLinePattern.seedCellState,
-            isRunning = true
+            isRunning = true,
         )
 
         snapshotFlow {
@@ -463,7 +463,7 @@ class TemporalGameOfLifeStateTests {
                         gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
                         clock = schedulerClock,
                         dispatchers = dispatchers,
-                        temporalGameOfLifeState = gameOfLifeState
+                        temporalGameOfLifeState = gameOfLifeState,
                     )
                 }
 
@@ -491,7 +491,7 @@ class TemporalGameOfLifeStateTests {
                         gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
                         clock = schedulerClock,
                         dispatchers = dispatchers,
-                        temporalGameOfLifeState = gameOfLifeState
+                        temporalGameOfLifeState = gameOfLifeState,
                     )
                 }
 

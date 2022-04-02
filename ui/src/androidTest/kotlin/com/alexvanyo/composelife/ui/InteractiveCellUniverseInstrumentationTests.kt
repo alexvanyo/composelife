@@ -52,13 +52,13 @@ class InteractiveCellUniverseInstrumentationTests : BaseHiltTest<TestActivity>(T
     @Test
     fun info_card_closes_upon_back_press() = runAppTest {
         val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers
+            dispatchers = dispatchers,
         )
 
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 isRunning = false,
-                targetStepsPerSecond = 60.0
+                targetStepsPerSecond = 60.0,
             )
 
             rememberTemporalGameOfLifeStateMutator(
@@ -70,7 +70,7 @@ class InteractiveCellUniverseInstrumentationTests : BaseHiltTest<TestActivity>(T
 
             InteractiveCellUniverse(
                 temporalGameOfLifeState = temporalGameOfLifeState,
-                modifier = Modifier.size(480.dp)
+                modifier = Modifier.size(480.dp),
             )
         }
 
@@ -92,13 +92,13 @@ class InteractiveCellUniverseInstrumentationTests : BaseHiltTest<TestActivity>(T
     @Test
     fun action_card_closes_upon_back_press() = runAppTest {
         val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers
+            dispatchers = dispatchers,
         )
 
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 isRunning = false,
-                targetStepsPerSecond = 60.0
+                targetStepsPerSecond = 60.0,
             )
 
             rememberTemporalGameOfLifeStateMutator(
@@ -110,7 +110,7 @@ class InteractiveCellUniverseInstrumentationTests : BaseHiltTest<TestActivity>(T
 
             InteractiveCellUniverse(
                 temporalGameOfLifeState = temporalGameOfLifeState,
-                modifier = Modifier.size(480.dp)
+                modifier = Modifier.size(480.dp),
             )
         }
 

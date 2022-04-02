@@ -77,8 +77,8 @@ class CellWindowTests {
                 2 to 4,
                 4 to 0,
                 4 to 2,
-                4 to 4
-            ).toCellState()
+                4 to 4,
+            ).toCellState(),
         )
 
         composeTestRule.setContent {
@@ -86,55 +86,55 @@ class CellWindowTests {
                 gameOfLifeState = mutableGameOfLifeState,
                 shape = CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
-                    cornerFraction = 0f
+                    cornerFraction = 0f,
                 ),
                 cellWindowState = rememberCellWindowState(
-                    offset = Offset(-0.5f, -0.5f)
+                    offset = Offset(-0.5f, -0.5f),
                 ),
                 cellDpSize = 10.dp,
-                modifier = Modifier.size(50.dp)
+                modifier = Modifier.size(50.dp),
             )
         }
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 0, 0)
+                applicationContext.getString(R.string.cell_content_description, 0, 0),
             )
             .assertIsOn()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 0, 1)
+                applicationContext.getString(R.string.cell_content_description, 0, 1),
             )
             .assertIsOff()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 0, 2)
+                applicationContext.getString(R.string.cell_content_description, 0, 2),
             )
             .assertIsOn()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 0, 4)
+                applicationContext.getString(R.string.cell_content_description, 0, 4),
             )
             .assertDoesNotExist()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 2, 0)
+                applicationContext.getString(R.string.cell_content_description, 2, 0),
             )
             .assertIsOn()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 2, 1)
+                applicationContext.getString(R.string.cell_content_description, 2, 1),
             )
             .assertIsOff()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 2, 2)
+                applicationContext.getString(R.string.cell_content_description, 2, 2),
             )
             .assertIsOn()
     }
@@ -152,8 +152,8 @@ class CellWindowTests {
                 2 to 4,
                 4 to 0,
                 4 to 2,
-                4 to 4
-            ).toCellState()
+                4 to 4,
+            ).toCellState(),
         )
 
         val cellWindowState = CellWindowState()
@@ -167,11 +167,11 @@ class CellWindowTests {
                 gameOfLifeState = mutableGameOfLifeState,
                 shape = CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
-                    cornerFraction = 0f
+                    cornerFraction = 0f,
                 ),
                 cellWindowState = cellWindowState,
                 cellDpSize = 30.dp,
-                modifier = Modifier.size(150.dp)
+                modifier = Modifier.size(150.dp),
             )
         }
 

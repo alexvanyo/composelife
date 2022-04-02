@@ -79,16 +79,16 @@ class CellUniverseInfoCardTests {
                     rememberCellUniverseInfoCardState(),
                     cellUniverseInfoItemContents = listOf(
                         CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState()
+                            rememberCellUniverseInfoItemState(),
                         ) { "First" },
                         CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState()
+                            rememberCellUniverseInfoItemState(),
                         ) { "Second" },
                         CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState()
-                        ) { "Third" }
-                    )
-                )
+                            rememberCellUniverseInfoItemState(),
+                        ) { "Third" },
+                    ),
+                ),
             )
         }
 
@@ -109,16 +109,16 @@ class CellUniverseInfoCardTests {
                     rememberCellUniverseInfoCardState(),
                     cellUniverseInfoItemContents = listOf(
                         CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState()
+                            rememberCellUniverseInfoItemState(),
                         ) { "First" },
                         CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState()
+                            rememberCellUniverseInfoItemState(),
                         ) { "Second" },
                         CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState()
-                        ) { "Third" }
-                    )
-                )
+                            rememberCellUniverseInfoItemState(),
+                        ) { "Third" },
+                    ),
+                ),
             )
         }
 
@@ -142,16 +142,16 @@ class CellUniverseInfoCardTests {
                     rememberCellUniverseInfoCardState(initialIsExpanded = false),
                     cellUniverseInfoItemContents = listOf(
                         CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState()
+                            rememberCellUniverseInfoItemState(),
                         ) { "First" },
                         CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState()
+                            rememberCellUniverseInfoItemState(),
                         ) { "Second" },
                         CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState()
-                        ) { "Third" }
-                    )
-                )
+                            rememberCellUniverseInfoItemState(),
+                        ) { "Third" },
+                    ),
+                ),
             )
         }
 
@@ -173,16 +173,16 @@ class CellUniverseInfoCardTests {
                     rememberCellUniverseInfoCardState(initialIsExpanded = true),
                     cellUniverseInfoItemContents = listOf(
                         CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState()
+                            rememberCellUniverseInfoItemState(),
                         ) { "First" },
                         CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState()
+                            rememberCellUniverseInfoItemState(),
                         ) { "Second" },
                         CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState()
-                        ) { "Third" }
-                    )
-                )
+                            rememberCellUniverseInfoItemState(),
+                        ) { "Third" },
+                    ),
+                ),
             )
         }
 

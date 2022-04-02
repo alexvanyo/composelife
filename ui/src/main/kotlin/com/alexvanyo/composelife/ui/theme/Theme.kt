@@ -37,7 +37,7 @@ fun ComposeLifeTheme(
     MaterialTheme(
         colorScheme = ComposeLifeTheme.colorScheme(darkTheme),
         typography = Typography(),
-        content = content
+        content = content,
     )
 }
 

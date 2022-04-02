@@ -78,7 +78,7 @@ class CellUniverseInfoItemState(
             },
             { list ->
                 CellUniverseInfoItemState(list[0])
-            }
+            },
         )
     }
 }
@@ -111,7 +111,7 @@ fun ColumnScope.InfoItem(
         visible = cellUniverseInfoItemContent.isChecked || isEditing,
         enter = fadeIn() + expandVertically(expandFrom = Alignment.CenterVertically),
         exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.CenterVertically),
-        modifier = modifier
+        modifier = modifier,
     ) {
         Box(
             modifier = if (isEditing) {
@@ -123,20 +123,20 @@ fun ColumnScope.InfoItem(
                     enabled = true,
                     role = Role.Checkbox,
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple()
+                    indication = rememberRipple(),
                 )
             } else {
                 Modifier
             }
                 .semantics(mergeDescendants = true) {}
-                .padding(horizontal = 8.dp)
+                .padding(horizontal = 8.dp),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = cellUniverseInfoItemContent.text(isEditing),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
 
                 // The AnimatedContent allowing the text to grow.
@@ -156,10 +156,10 @@ fun ColumnScope.InfoItem(
                                             initialSize
                                         } at AnimationConstants.DefaultDurationMillis / 2 with FastOutLinearInEasing
                                     }
-                                }
+                                },
                             )
                     },
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) { targetIsEditing ->
                     if (targetIsEditing) {
                         Spacer(modifier = Modifier.size(48.dp))
@@ -177,13 +177,13 @@ fun ColumnScope.InfoItem(
                         fadeOut() + shrinkOut(shrinkTowards = Alignment.Center)
                 },
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.align(Alignment.CenterEnd)
+                modifier = Modifier.align(Alignment.CenterEnd),
             ) { targetIsEditing ->
                 if (targetIsEditing) {
                     Checkbox(
                         checked = cellUniverseInfoItemContent.isChecked,
                         onCheckedChange = null,
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier.size(48.dp),
                     )
                 } else {
                     Spacer(modifier = Modifier.width(48.dp))
@@ -195,11 +195,11 @@ fun ColumnScope.InfoItem(
 
 @Preview(
     name = "Not editing light mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Preview(
     name = "Not editing dark mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
 fun CellUniverseInfoItemNotEditingPreview() {
@@ -207,9 +207,9 @@ fun CellUniverseInfoItemNotEditingPreview() {
         Column {
             InfoItem(
                 cellUniverseInfoItemContent = CellUniverseInfoItemContent(
-                    cellUniverseInfoCardState = rememberCellUniverseInfoItemState()
+                    cellUniverseInfoCardState = rememberCellUniverseInfoItemState(),
                 ) { "isEditing: $it" },
-                isEditing = false
+                isEditing = false,
             )
         }
     }
@@ -217,11 +217,11 @@ fun CellUniverseInfoItemNotEditingPreview() {
 
 @Preview(
     name = "Editing light mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Preview(
     name = "Editing dark mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
 fun CellUniverseInfoItemEditingPreview() {
@@ -229,9 +229,9 @@ fun CellUniverseInfoItemEditingPreview() {
         Column {
             InfoItem(
                 cellUniverseInfoItemContent = CellUniverseInfoItemContent(
-                    cellUniverseInfoCardState = rememberCellUniverseInfoItemState()
+                    cellUniverseInfoCardState = rememberCellUniverseInfoItemState(),
                 ) { "isEditing: $it" },
-                isEditing = true
+                isEditing = true,
             )
         }
     }

@@ -8,11 +8,29 @@ complexity:
     excludes: [ '**/test/**', '**/androidTest/**', '**/sharedTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
 
 formatting:
+  FunKeywordSpacing:
+    active: true
   Indentation:
     excludes: [ '**/generated/**' ]
+  ModifierListSpacing:
+    active: true
   NoConsecutiveBlankLines:
     excludes: [ '**/generated/**' ]
+  NoEmptyFirstLineInMethodBlock:
+    active: true
   NoLineBreakBeforeAssignment:
+    excludes: [ '**/generated/**' ]
+  SpacingAroundAngleBrackets:
+    active: true
+  TrailingComma:
+    active: true
+    autocorrect: true
+    allowTrailingComma: true
+    allowTrailingCommaOnCallSite: true
+    excludes: [ '**/generated/**' ]
+  UnnecessaryParenthesesBeforeTrailingLambda:
+    active: true
+  Wrapping:
     excludes: [ '**/generated/**' ]
 
 naming:

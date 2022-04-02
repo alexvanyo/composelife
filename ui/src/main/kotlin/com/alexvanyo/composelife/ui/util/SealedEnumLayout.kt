@@ -35,17 +35,16 @@ import com.livefront.sealedenum.SealedEnum
  *
  * Every possible of [T] should be represented by exactly one measurable, otherwise an exception will be thrown.
  */
-@UiComposable
-@Composable
+@UiComposable @Composable
 inline fun <T> Layout(
     layoutIdTypes: SealedEnum<T>,
     content: @Composable @UiComposable () -> Unit,
     modifier: Modifier = Modifier,
-    measurePolicy: SealedEnumMeasurePolicy<T>
+    measurePolicy: SealedEnumMeasurePolicy<T>,
 ) {
     Layout(
         content = content,
-        modifier = modifier
+        modifier = modifier,
     ) { measurables, constraints ->
         @Suppress("UNCHECKED_CAST")
         val measurablesMap = measurables.associateBy { it.layoutId as T }
@@ -63,6 +62,6 @@ fun interface SealedEnumMeasurePolicy<T> {
 
     fun MeasureScope.measure(
         measurables: Map<T, Measurable>,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult
 }

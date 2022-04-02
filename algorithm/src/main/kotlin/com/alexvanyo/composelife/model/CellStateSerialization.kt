@@ -108,8 +108,8 @@ class PlaintextCellStateSerializer : CellStateSerializer {
                                                 R.string.unexpected_character,
                                                 c,
                                                 lineIndex + 1,
-                                                columnIndex + 1
-                                            )
+                                                columnIndex + 1,
+                                            ),
                                         )
                                         when (c) {
                                             ' ' -> false
@@ -118,7 +118,7 @@ class PlaintextCellStateSerializer : CellStateSerializer {
                                     }
                                 }
                             }
-                            .map { (columnIndex, _) -> IntOffset(columnIndex, rowIndex) }
+                            .map { (columnIndex, _) -> IntOffset(columnIndex, rowIndex) },
                     )
 
                     rowIndex++
@@ -130,7 +130,7 @@ class PlaintextCellStateSerializer : CellStateSerializer {
 
         return DeserializationResult.Successful(
             warnings = warnings,
-            cellState = CellState(points)
+            cellState = CellState(points),
         )
     }
 
@@ -149,7 +149,7 @@ class PlaintextCellStateSerializer : CellStateSerializer {
                                 'O'
                             } else {
                                 '.'
-                            }
+                            },
                         )
                     }
                 }

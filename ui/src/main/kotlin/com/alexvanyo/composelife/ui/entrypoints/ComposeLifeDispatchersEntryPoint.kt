@@ -23,5 +23,5 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ComposeLifeDispatchersEntryPoint @Inject constructor(
-    val dispatchers: ComposeLifeDispatchers
+    val dispatchers: ComposeLifeDispatchers,
 ) : ViewModel()

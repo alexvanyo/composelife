@@ -49,9 +49,9 @@ class BackstackNavigationTests {
             mapOf(
                 id1 to entry1,
                 id2 to entry2,
-                id3 to entry3
+                id3 to entry3,
             ),
-            mutableBackstackMap.toMap()
+            mutableBackstackMap.toMap(),
         )
         assertEquals(id3, newId)
     }
@@ -71,7 +71,7 @@ class BackstackNavigationTests {
     fun `pop up to with id non inclusive is correct`() {
         val newId = mutableBackstackMap.popUpTo(
             currentEntryId = id4,
-            id = id2
+            id = id2,
         )
 
         assertEquals(
@@ -79,7 +79,7 @@ class BackstackNavigationTests {
                 id1 to entry1,
                 id2 to entry2,
             ),
-            mutableBackstackMap.toMap()
+            mutableBackstackMap.toMap(),
         )
         assertEquals(id2, newId)
     }
@@ -89,14 +89,14 @@ class BackstackNavigationTests {
         val newId = mutableBackstackMap.popUpTo(
             currentEntryId = id4,
             id = id2,
-            inclusive = true
+            inclusive = true,
         )
 
         assertEquals(
             mapOf(
                 id1 to entry1,
             ),
-            mutableBackstackMap.toMap()
+            mutableBackstackMap.toMap(),
         )
         assertEquals(id1, newId)
     }
@@ -117,7 +117,7 @@ class BackstackNavigationTests {
             mutableBackstackMap.popUpTo(
                 currentEntryId = id4,
                 id = id1,
-                inclusive = true
+                inclusive = true,
             )
         }
     }
@@ -126,7 +126,7 @@ class BackstackNavigationTests {
     fun `pop up to with value predicate non inclusive is correct`() {
         val newId = mutableBackstackMap.popUpTo(
             currentEntryId = id4,
-            predicate = { it == "b" }
+            predicate = { it == "b" },
         )
 
         assertEquals(
@@ -134,7 +134,7 @@ class BackstackNavigationTests {
                 id1 to entry1,
                 id2 to entry2,
             ),
-            mutableBackstackMap.toMap()
+            mutableBackstackMap.toMap(),
         )
         assertEquals(id2, newId)
     }
@@ -144,14 +144,14 @@ class BackstackNavigationTests {
         val newId = mutableBackstackMap.popUpTo(
             currentEntryId = id4,
             predicate = { it == "b" },
-            inclusive = true
+            inclusive = true,
         )
 
         assertEquals(
             mapOf(
                 id1 to entry1,
             ),
-            mutableBackstackMap.toMap()
+            mutableBackstackMap.toMap(),
         )
         assertEquals(id1, newId)
     }
@@ -160,7 +160,7 @@ class BackstackNavigationTests {
     fun `pop up to with entry predicate non inclusive is correct`() {
         val newId = mutableBackstackMap.popUpTo(
             currentEntryId = id4,
-            entryPredicate = { it.value == "b" }
+            entryPredicate = { it.value == "b" },
         )
 
         assertEquals(
@@ -168,7 +168,7 @@ class BackstackNavigationTests {
                 id1 to entry1,
                 id2 to entry2,
             ),
-            mutableBackstackMap.toMap()
+            mutableBackstackMap.toMap(),
         )
         assertEquals(id2, newId)
     }
@@ -178,14 +178,14 @@ class BackstackNavigationTests {
         val newId = mutableBackstackMap.popUpTo(
             currentEntryId = id4,
             entryPredicate = { it.value == "b" },
-            inclusive = true
+            inclusive = true,
         )
 
         assertEquals(
             mapOf(
                 id1 to entry1,
             ),
-            mutableBackstackMap.toMap()
+            mutableBackstackMap.toMap(),
         )
         assertEquals(id1, newId)
     }
@@ -211,9 +211,9 @@ class BackstackNavigationTests {
                 id2 to entry2,
                 id3 to entry3,
                 id4 to entry4,
-                id5 to entry5
+                id5 to entry5,
             ),
-            mutableBackstackMap.toMap()
+            mutableBackstackMap.toMap(),
         )
         assertEquals(id5, newId)
     }
@@ -239,9 +239,9 @@ class BackstackNavigationTests {
                 id2 to entry2,
                 id3 to entry3,
                 id4 to entry4,
-                id5 to entry5
+                id5 to entry5,
             ),
-            mutableBackstackMap.toMap()
+            mutableBackstackMap.toMap(),
         )
         assertEquals(id5, newId)
     }
