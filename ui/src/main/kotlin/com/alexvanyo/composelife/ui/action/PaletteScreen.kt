@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.ui.action
 
+import android.content.res.Configuration
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -29,13 +30,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -47,41 +48,51 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.component.LabeledSlider
 import com.alexvanyo.composelife.ui.entrypoints.ComposeLifePreferencesEntryPoint
+import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import kotlinx.coroutines.launch
+
+@Composable
+fun PaletteScreen(
+    modifier: Modifier = Modifier,
+    preferences: ComposeLifePreferences = hiltViewModel<ComposeLifePreferencesEntryPoint>().composeLifePreferences,
+    scrollState: ScrollState = rememberScrollState(),
+) {
+    PaletteScreen(
+        currentShapeState = preferences.currentShapeState,
+        setCurrentShapeType = preferences::setCurrentShapeType,
+        setRoundRectangleConfig = preferences::setRoundRectangleConfig,
+        modifier = modifier,
+        scrollState = scrollState,
+    )
+}
 
 @Suppress("LongMethod")
 @Composable
 fun PaletteScreen(
+    currentShapeState: ResourceState<CurrentShape>,
+    setCurrentShapeType: suspend (CurrentShapeType) -> Unit,
+    setRoundRectangleConfig: suspend ((CurrentShape.RoundRectangle) -> CurrentShape.RoundRectangle) -> Unit,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
 ) {
-    var retryCount by remember { mutableStateOf(0) }
-
-    val preferences = hiltViewModel<ComposeLifePreferencesEntryPoint>().composeLifePreferences
-
-    val currentShapeState = preferences.currentShapeState
-
     Column(
         modifier = modifier
             .verticalScroll(scrollState)
             .padding(horizontal = 16.dp),
     ) {
         when (currentShapeState) {
-            ResourceState.Loading -> {
+            ResourceState.Loading, is ResourceState.Failure -> {
                 CircularProgressIndicator()
-            }
-            is ResourceState.Failure -> {
-                Button(onClick = { retryCount++ }) {
-                    Text(text = stringResource(id = R.string.retry))
-                }
             }
             is ResourceState.Success -> {
                 val currentShape = currentShapeState.value
@@ -134,7 +145,7 @@ fun PaletteScreen(
                             text = { Text(stringResource(id = R.string.round_rectangle)) },
                             onClick = {
                                 coroutineScope.launch {
-                                    preferences.setCurrentShapeType(CurrentShapeType.RoundRectangle)
+                                    setCurrentShapeType(CurrentShapeType.RoundRectangle)
                                     isShowingDropdownMenu = false
                                 }
                             },
@@ -150,7 +161,7 @@ fun PaletteScreen(
                         var cornerFraction by remember { mutableStateOf(currentShape.cornerFraction) }
 
                         LaunchedEffect(sizeFraction, cornerFraction) {
-                            preferences.setRoundRectangleConfig { roundRectangle ->
+                            setRoundRectangleConfig { roundRectangle ->
                                 roundRectangle.copy(
                                     sizeFraction = sizeFraction,
                                     cornerFraction = cornerFraction,
@@ -174,6 +185,53 @@ fun PaletteScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Preview(
+    name = "Light mode",
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+)
+@Preview(
+    name = "Dark mode",
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+)
+@Composable
+fun LoadingPaletteScreenPreview() {
+    ComposeLifeTheme {
+        Surface {
+            PaletteScreen(
+                currentShapeState = ResourceState.Loading,
+                setCurrentShapeType = {},
+                setRoundRectangleConfig = {},
+            )
+        }
+    }
+}
+
+@Preview(
+    name = "Light mode",
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+)
+@Preview(
+    name = "Dark mode",
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+)
+@Composable
+fun RoundRectanglePaletteScreenPreview() {
+    ComposeLifeTheme {
+        Surface {
+            PaletteScreen(
+                currentShapeState = ResourceState.Success(
+                    CurrentShape.RoundRectangle(
+                        sizeFraction = 0.8f,
+                        cornerFraction = 0.4f,
+                    ),
+                ),
+                setCurrentShapeType = {},
+                setRoundRectangleConfig = {},
+            )
         }
     }
 }
