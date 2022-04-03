@@ -88,13 +88,13 @@ fun InteractableCells(
 }
 
 @Preview(
-    name = "Interactable cells light mode",
+    name = "Light mode",
     uiMode = Configuration.UI_MODE_NIGHT_NO,
     widthDp = 300,
     heightDp = 300,
 )
 @Preview(
-    name = "Interactable cells dark mode",
+    name = "Dark mode",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
     widthDp = 300,
     heightDp = 300,

@@ -21,11 +21,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.click
-import androidx.compose.ui.test.filterToOne
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.onChildren
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
@@ -148,9 +147,10 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
         }
 
         composeTestRule
-            .onNodeWithTag("CellUniverseActionCard")
-            .onChildren()
-            .filterToOne(hasContentDescription(context.getString(R.string.expand)))
+            .onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(context.getString(R.string.expand)),
+            )
             .performClick()
 
         composeTestRule
@@ -269,9 +269,10 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
         }
 
         composeTestRule
-            .onNodeWithTag("CellUniverseActionCard")
-            .onChildren()
-            .filterToOne(hasContentDescription(context.getString(R.string.expand)))
+            .onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(context.getString(R.string.expand)),
+            )
             .performClick()
 
         composeTestRule

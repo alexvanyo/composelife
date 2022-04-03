@@ -194,11 +194,11 @@ fun ColumnScope.InfoItem(
 }
 
 @Preview(
-    name = "Not editing light mode",
+    name = "Light mode",
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Preview(
-    name = "Not editing dark mode",
+    name = "Dark mode",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
@@ -216,11 +216,11 @@ fun CellUniverseInfoItemNotEditingPreview() {
 }
 
 @Preview(
-    name = "Editing light mode",
+    name = "Light mode",
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Preview(
-    name = "Editing dark mode",
+    name = "Dark mode",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable

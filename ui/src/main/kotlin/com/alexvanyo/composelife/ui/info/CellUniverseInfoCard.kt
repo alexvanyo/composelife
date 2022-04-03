@@ -265,11 +265,11 @@ private fun CellUniverseInfoExpandButton(
 }
 
 @Preview(
-    name = "Collapsed light mode",
+    name = "Light mode",
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Preview(
-    name = "Collapsed dark mode",
+    name = "Dark mode",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
@@ -295,11 +295,11 @@ fun CellUniverseInfoCardCollapsedPreview() {
 }
 
 @Preview(
-    name = "Collapsed single selection light mode",
+    name = "Light mode",
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Preview(
-    name = "Collapsed single selection dark mode",
+    name = "Dark mode",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
@@ -325,11 +325,11 @@ fun CellUniverseInfoCardCollapsedSingleSelectionPreview() {
 }
 
 @Preview(
-    name = "Fully collapsed light mode",
+    name = "Light mode",
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Preview(
-    name = "Fully collapsed dark mode",
+    name = "Dark mode",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
@@ -355,11 +355,11 @@ fun CellUniverseInfoCardFullyCollapsedPreview() {
 }
 
 @Preview(
-    name = "Expanded light mode",
+    name = "Light mode",
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Preview(
-    name = "Expanded dark mode",
+    name = "Dark mode",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
