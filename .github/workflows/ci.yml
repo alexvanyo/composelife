@@ -103,6 +103,7 @@ jobs:
   android-test-gmd:
     needs: android-test-gmd-cfg
     runs-on: macos-latest # for hardware acceleration
+    timeout-minutes: 60
 
     concurrency:
       group: ci-android-test-gmd-${{ github.event_name }}-${{ github.ref }}-${{ matrix.java-version }}-${{ matrix.device }}-${{ matrix.api-level }}
@@ -161,6 +162,7 @@ jobs:
   android-test-aer:
     needs: android-test-aer-cfg
     runs-on: macos-latest # for hardware acceleration
+    timeout-minutes: 60
 
     concurrency:
       group: ci-android-test-aer-${{ github.event_name }}-${{ github.ref }}-${{ matrix.java-version }}-${{ matrix.api-level }}
