@@ -62,12 +62,12 @@ import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import kotlinx.coroutines.launch
 
 @Composable
-fun PaletteScreen(
+fun InlinePaletteScreen(
     modifier: Modifier = Modifier,
     preferences: ComposeLifePreferences = hiltViewModel<ComposeLifePreferencesEntryPoint>().composeLifePreferences,
     scrollState: ScrollState = rememberScrollState(),
 ) {
-    PaletteScreen(
+    InlinePaletteScreen(
         currentShapeState = preferences.currentShapeState,
         setCurrentShapeType = preferences::setCurrentShapeType,
         setRoundRectangleConfig = preferences::setRoundRectangleConfig,
@@ -78,7 +78,7 @@ fun PaletteScreen(
 
 @Suppress("LongMethod")
 @Composable
-fun PaletteScreen(
+fun InlinePaletteScreen(
     currentShapeState: ResourceState<CurrentShape>,
     setCurrentShapeType: suspend (CurrentShapeType) -> Unit,
     setRoundRectangleConfig: suspend ((CurrentShape.RoundRectangle) -> CurrentShape.RoundRectangle) -> Unit,
@@ -198,10 +198,10 @@ fun PaletteScreen(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
-fun LoadingPaletteScreenPreview() {
+fun LoadingInlinePaletteScreenPreview() {
     ComposeLifeTheme {
         Surface {
-            PaletteScreen(
+            InlinePaletteScreen(
                 currentShapeState = ResourceState.Loading,
                 setCurrentShapeType = {},
                 setRoundRectangleConfig = {},
@@ -219,10 +219,10 @@ fun LoadingPaletteScreenPreview() {
     uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
-fun RoundRectanglePaletteScreenPreview() {
+fun RoundRectangleInlinePaletteScreenPreview() {
     ComposeLifeTheme {
         Surface {
-            PaletteScreen(
+            InlinePaletteScreen(
                 currentShapeState = ResourceState.Success(
                     CurrentShape.RoundRectangle(
                         sizeFraction = 0.8f,

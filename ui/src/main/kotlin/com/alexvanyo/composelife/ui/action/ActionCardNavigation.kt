@@ -39,8 +39,8 @@ sealed interface ActionCardNavigation {
     sealed interface Speed : ActionCardNavigation {
         override val type: ActionCardNavigationType.Speed
 
-        object QuickSettings : Speed {
-            override val type = ActionCardNavigationType.Speed.QuickSettings
+        object Inline : Speed {
+            override val type = ActionCardNavigationType.Speed.Inline
         }
 
         @GenSealedEnum
@@ -51,7 +51,7 @@ sealed interface ActionCardNavigation {
                     listOf(
                         with(ActionCardNavigationType.Speed.Saver) { save(actionCardNavigation.type) },
                         when (actionCardNavigation) {
-                            is QuickSettings -> with(ActionCardNavigationType.Speed.QuickSettings.saver) {
+                            is Inline -> with(ActionCardNavigationType.Speed.Inline.saver) {
                                 save(actionCardNavigation)
                             }
                         },
@@ -67,8 +67,8 @@ sealed interface ActionCardNavigation {
     sealed interface Edit : ActionCardNavigation {
         override val type: ActionCardNavigationType.Edit
 
-        object QuickSettings : Edit {
-            override val type = ActionCardNavigationType.Edit.QuickSettings
+        object Inline : Edit {
+            override val type = ActionCardNavigationType.Edit.Inline
         }
 
         @GenSealedEnum
@@ -79,7 +79,7 @@ sealed interface ActionCardNavigation {
                     listOf(
                         with(ActionCardNavigationType.Edit.Saver) { save(actionCardNavigation.type) },
                         when (actionCardNavigation) {
-                            is QuickSettings -> with(ActionCardNavigationType.Edit.QuickSettings.saver) {
+                            is Inline -> with(ActionCardNavigationType.Edit.Inline.saver) {
                                 save(actionCardNavigation)
                             }
                         },
@@ -95,8 +95,8 @@ sealed interface ActionCardNavigation {
     sealed interface Palette : ActionCardNavigation {
         override val type: ActionCardNavigationType.Palette
 
-        object QuickSettings : Palette {
-            override val type = ActionCardNavigationType.Palette.QuickSettings
+        object Inline : Palette {
+            override val type = ActionCardNavigationType.Palette.Inline
         }
 
         @GenSealedEnum
@@ -107,7 +107,7 @@ sealed interface ActionCardNavigation {
                     listOf(
                         with(ActionCardNavigationType.Palette.Saver) { save(actionCardNavigation.type) },
                         when (actionCardNavigation) {
-                            is QuickSettings -> with(ActionCardNavigationType.Palette.QuickSettings.saver) {
+                            is Inline -> with(ActionCardNavigationType.Palette.Inline.saver) {
                                 save(actionCardNavigation)
                             }
                         },
@@ -123,8 +123,8 @@ sealed interface ActionCardNavigation {
     sealed interface Settings : ActionCardNavigation {
         override val type: ActionCardNavigationType.Settings
 
-        object QuickSettings : Settings {
-            override val type = ActionCardNavigationType.Settings.QuickSettings
+        object Inline : Settings {
+            override val type = ActionCardNavigationType.Settings.Inline
         }
 
         @GenSealedEnum
@@ -135,7 +135,7 @@ sealed interface ActionCardNavigation {
                     listOf(
                         with(ActionCardNavigationType.Settings.Saver) { save(actionCardNavigation.type) },
                         when (actionCardNavigation) {
-                            is QuickSettings -> with(ActionCardNavigationType.Settings.QuickSettings.saver) {
+                            is Inline -> with(ActionCardNavigationType.Settings.Inline.saver) {
                                 save(actionCardNavigation)
                             }
                         },
@@ -165,10 +165,10 @@ sealed interface ActionCardNavigationType {
     sealed interface Speed : ActionCardNavigationType {
         override val saver: Saver<out ActionCardNavigation.Speed, Any>
 
-        object QuickSettings : Speed {
-            override val saver: Saver<ActionCardNavigation.Speed.QuickSettings, Any> = Saver(
+        object Inline : Speed {
+            override val saver: Saver<ActionCardNavigation.Speed.Inline, Any> = Saver(
                 save = { 0 },
-                restore = { ActionCardNavigation.Speed.QuickSettings },
+                restore = { ActionCardNavigation.Speed.Inline },
             )
         }
 
@@ -181,10 +181,10 @@ sealed interface ActionCardNavigationType {
     sealed interface Edit : ActionCardNavigationType {
         override val saver: Saver<out ActionCardNavigation.Edit, Any>
 
-        object QuickSettings : Edit {
-            override val saver: Saver<ActionCardNavigation.Edit.QuickSettings, Any> = Saver(
+        object Inline : Edit {
+            override val saver: Saver<ActionCardNavigation.Edit.Inline, Any> = Saver(
                 save = { 0 },
-                restore = { ActionCardNavigation.Edit.QuickSettings },
+                restore = { ActionCardNavigation.Edit.Inline },
             )
         }
 
@@ -197,10 +197,10 @@ sealed interface ActionCardNavigationType {
     sealed interface Palette : ActionCardNavigationType {
         override val saver: Saver<out ActionCardNavigation.Palette, Any>
 
-        object QuickSettings : Palette {
-            override val saver: Saver<ActionCardNavigation.Palette.QuickSettings, Any> = Saver(
+        object Inline : Palette {
+            override val saver: Saver<ActionCardNavigation.Palette.Inline, Any> = Saver(
                 save = { 0 },
-                restore = { ActionCardNavigation.Palette.QuickSettings },
+                restore = { ActionCardNavigation.Palette.Inline },
             )
         }
 
@@ -213,10 +213,10 @@ sealed interface ActionCardNavigationType {
     sealed interface Settings : ActionCardNavigationType {
         override val saver: Saver<out ActionCardNavigation.Settings, Any>
 
-        object QuickSettings : Settings {
-            override val saver: Saver<ActionCardNavigation.Settings.QuickSettings, Any> = Saver(
+        object Inline : Settings {
+            override val saver: Saver<ActionCardNavigation.Settings.Inline, Any> = Saver(
                 save = { 0 },
-                restore = { ActionCardNavigation.Settings.QuickSettings },
+                restore = { ActionCardNavigation.Settings.Inline },
             )
         }
 

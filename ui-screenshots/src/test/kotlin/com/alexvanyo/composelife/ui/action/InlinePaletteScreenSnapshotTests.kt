@@ -22,7 +22,7 @@ import app.cash.paparazzi.Paparazzi
 import org.junit.Rule
 import org.junit.Test
 
-class PaletteScreenSnapshotTests {
+class InlinePaletteScreenSnapshotTests {
 
     @get:Rule
     val paparazzi = Paparazzi(
@@ -31,19 +31,19 @@ class PaletteScreenSnapshotTests {
     )
 
     @Test
-    fun loading_palette_screen_preview() {
+    fun loading_inline_palette_screen_preview() {
         paparazzi.snapshot {
             Box {
-                LoadingPaletteScreenPreview()
+                LoadingInlinePaletteScreenPreview()
             }
         }
     }
 
     @Test
-    fun round_rectangle_palette_screen_preview() {
+    fun round_rectangle_inline_palette_screen_preview() {
         paparazzi.snapshot {
             Box {
-                RoundRectanglePaletteScreenPreview()
+                RoundRectangleInlinePaletteScreenPreview()
             }
         }
     }

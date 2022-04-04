@@ -42,7 +42,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class PaletteScreenTests {
+class InlinePaletteScreenTests {
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -50,23 +50,23 @@ class PaletteScreenTests {
     private val applicationContext = ApplicationProvider.getApplicationContext<Application>()
 
     @Test
-    fun loading_palette_screen_preview() {
+    fun loading_inline_palette_screen_preview() {
         composeTestRule.setContent {
-            LoadingPaletteScreenPreview()
+            LoadingInlinePaletteScreenPreview()
         }
     }
 
     @Test
-    fun round_rectangle_palette_screen_preview() {
+    fun round_rectangle_inline_palette_screen_preview() {
         composeTestRule.setContent {
-            RoundRectanglePaletteScreenPreview()
+            RoundRectangleInlinePaletteScreenPreview()
         }
     }
 
     @Test
     fun loading_is_displayed_correctly() {
         composeTestRule.setContent {
-            PaletteScreen(
+            InlinePaletteScreen(
                 currentShapeState = ResourceState.Loading,
                 setCurrentShapeType = {},
                 setRoundRectangleConfig = {},
@@ -81,7 +81,7 @@ class PaletteScreenTests {
     @Test
     fun round_rectangle_is_displayed_correctly() {
         composeTestRule.setContent {
-            PaletteScreen(
+            InlinePaletteScreen(
                 currentShapeState = ResourceState.Success(
                     CurrentShape.RoundRectangle(
                         sizeFraction = 0.8f,
@@ -116,7 +116,7 @@ class PaletteScreenTests {
         var currentShapeState by mutableStateOf<ResourceState<CurrentShape>>(ResourceState.Loading)
 
         composeTestRule.setContent {
-            PaletteScreen(
+            InlinePaletteScreen(
                 currentShapeState = currentShapeState,
                 setCurrentShapeType = {},
                 setRoundRectangleConfig = {},
@@ -161,7 +161,7 @@ class PaletteScreenTests {
         }
 
         composeTestRule.setContent {
-            PaletteScreen(
+            InlinePaletteScreen(
                 currentShapeState = ResourceState.Success(roundRectangleShape),
                 setCurrentShapeType = {},
                 setRoundRectangleConfig = {
@@ -200,7 +200,7 @@ class PaletteScreenTests {
         }
 
         composeTestRule.setContent {
-            PaletteScreen(
+            InlinePaletteScreen(
                 currentShapeState = ResourceState.Success(roundRectangleShape),
                 setCurrentShapeType = {},
                 setRoundRectangleConfig = {
