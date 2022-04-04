@@ -176,25 +176,47 @@ fun CellUniverseActionCard(
                                 // while being removed from the backstack
                                 val scrollState = remember { contentScrollStateMap.getValue(entry.id) }
 
-                                when (entry.value) {
-                                    ActionCardNavigation.Speed -> SpeedScreen(
-                                        targetStepsPerSecond = targetStepsPerSecond,
-                                        setTargetStepsPerSecond = setTargetStepsPerSecond,
-                                        generationsPerStep = generationsPerStep,
-                                        setGenerationsPerStep = setGenerationsPerStep,
-                                        scrollState = scrollState,
-                                        modifier = Modifier.fillMaxWidth(),
-                                    )
-                                    ActionCardNavigation.Edit -> Spacer(modifier = Modifier.fillMaxWidth())
-                                    ActionCardNavigation.Palette -> PaletteScreen(
-                                        scrollState = scrollState,
-                                        modifier = Modifier.fillMaxWidth(),
-                                    )
-                                    ActionCardNavigation.Settings -> {
-                                        Column(
-                                            modifier = Modifier.fillMaxWidth(),
-                                        ) {
-                                            Spacer(Modifier.weight(1f))
+                                when (val value = entry.value) {
+                                    is ActionCardNavigation.Speed -> {
+                                        when (value) {
+                                            ActionCardNavigation.Speed.QuickSettings -> {
+                                                SpeedScreen(
+                                                    targetStepsPerSecond = targetStepsPerSecond,
+                                                    setTargetStepsPerSecond = setTargetStepsPerSecond,
+                                                    generationsPerStep = generationsPerStep,
+                                                    setGenerationsPerStep = setGenerationsPerStep,
+                                                    scrollState = scrollState,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                )
+                                            }
+                                        }
+                                    }
+                                    is ActionCardNavigation.Edit -> {
+                                        when (value) {
+                                            ActionCardNavigation.Edit.QuickSettings -> {
+                                                Spacer(modifier = Modifier.fillMaxWidth())
+                                            }
+                                        }
+                                    }
+                                    is ActionCardNavigation.Palette -> {
+                                        when (value) {
+                                            ActionCardNavigation.Palette.QuickSettings -> {
+                                                PaletteScreen(
+                                                    scrollState = scrollState,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                )
+                                            }
+                                        }
+                                    }
+                                    is ActionCardNavigation.Settings -> {
+                                        when (value) {
+                                            ActionCardNavigation.Settings.QuickSettings -> {
+                                                Column(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                ) {
+                                                    Spacer(Modifier.weight(1f))
+                                                }
+                                            }
                                         }
                                     }
                                 }

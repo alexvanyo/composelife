@@ -17,49 +17,140 @@
 package com.alexvanyo.composelife.ui.action
 
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.runtime.saveable.listSaver
+import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
+
+sealed interface ActionCardBackstack {
+    object Speed : ActionCardBackstack
+    object Edit : ActionCardBackstack
+    object Palette : ActionCardBackstack
+    object Settings : ActionCardBackstack
+
+    @GenSealedEnum
+    companion object {
+        val Saver: Saver<ActionCardBackstack, Int> = sealedEnumSaver(sealedEnum)
+    }
+}
 
 sealed interface ActionCardNavigation {
     val type: ActionCardNavigationType
 
-    object Speed : ActionCardNavigation {
-        override val type = ActionCardNavigationType.Speed
+    sealed interface Speed : ActionCardNavigation {
+        override val type: ActionCardNavigationType.Speed
+
+        object QuickSettings : Speed {
+            override val type = ActionCardNavigationType.Speed.QuickSettings
+        }
+
+        @GenSealedEnum
+        companion object {
+            @Suppress("UnsafeCallOnNullableType")
+            val Saver: Saver<Speed, Any> = listSaver(
+                save = { actionCardNavigation ->
+                    listOf(
+                        with(ActionCardNavigationType.Speed.Saver) { save(actionCardNavigation.type) },
+                        when (actionCardNavigation) {
+                            is QuickSettings -> with(ActionCardNavigationType.Speed.QuickSettings.saver) {
+                                save(actionCardNavigation)
+                            }
+                        },
+                    )
+                },
+                restore = { list ->
+                    val type = ActionCardNavigationType.Speed.Saver.restore(list[0] as Int)!!
+                    type.saver.restore(list[1]!!)
+                },
+            )
+        }
+    }
+    sealed interface Edit : ActionCardNavigation {
+        override val type: ActionCardNavigationType.Edit
+
+        object QuickSettings : Edit {
+            override val type = ActionCardNavigationType.Edit.QuickSettings
+        }
+
+        @GenSealedEnum
+        companion object {
+            @Suppress("UnsafeCallOnNullableType")
+            val Saver: Saver<Edit, Any> = listSaver(
+                save = { actionCardNavigation ->
+                    listOf(
+                        with(ActionCardNavigationType.Edit.Saver) { save(actionCardNavigation.type) },
+                        when (actionCardNavigation) {
+                            is QuickSettings -> with(ActionCardNavigationType.Edit.QuickSettings.saver) {
+                                save(actionCardNavigation)
+                            }
+                        },
+                    )
+                },
+                restore = { list ->
+                    val type = ActionCardNavigationType.Edit.Saver.restore(list[0] as Int)!!
+                    type.saver.restore(list[1]!!)
+                },
+            )
+        }
+    }
+    sealed interface Palette : ActionCardNavigation {
+        override val type: ActionCardNavigationType.Palette
+
+        object QuickSettings : Palette {
+            override val type = ActionCardNavigationType.Palette.QuickSettings
+        }
+
+        @GenSealedEnum
+        companion object {
+            @Suppress("UnsafeCallOnNullableType")
+            val Saver: Saver<Palette, Any> = listSaver(
+                save = { actionCardNavigation ->
+                    listOf(
+                        with(ActionCardNavigationType.Palette.Saver) { save(actionCardNavigation.type) },
+                        when (actionCardNavigation) {
+                            is QuickSettings -> with(ActionCardNavigationType.Palette.QuickSettings.saver) {
+                                save(actionCardNavigation)
+                            }
+                        },
+                    )
+                },
+                restore = { list ->
+                    val type = ActionCardNavigationType.Palette.Saver.restore(list[0] as Int)!!
+                    type.saver.restore(list[1]!!)
+                },
+            )
+        }
+    }
+    sealed interface Settings : ActionCardNavigation {
+        override val type: ActionCardNavigationType.Settings
+
+        object QuickSettings : Settings {
+            override val type = ActionCardNavigationType.Settings.QuickSettings
+        }
+
+        @GenSealedEnum
+        companion object {
+            @Suppress("UnsafeCallOnNullableType")
+            val Saver: Saver<Settings, Any> = listSaver(
+                save = { actionCardNavigation ->
+                    listOf(
+                        with(ActionCardNavigationType.Settings.Saver) { save(actionCardNavigation.type) },
+                        when (actionCardNavigation) {
+                            is QuickSettings -> with(ActionCardNavigationType.Settings.QuickSettings.saver) {
+                                save(actionCardNavigation)
+                            }
+                        },
+                    )
+                },
+                restore = { list ->
+                    val type = ActionCardNavigationType.Settings.Saver.restore(list[0] as Int)!!
+                    type.saver.restore(list[1]!!)
+                },
+            )
+        }
     }
 
-    object Edit : ActionCardNavigation {
-        override val type = ActionCardNavigationType.Edit
-    }
-
-    object Palette : ActionCardNavigation {
-        override val type = ActionCardNavigationType.Palette
-    }
-
-    object Settings : ActionCardNavigation {
-        override val type = ActionCardNavigationType.Settings
-    }
-
-    companion object {
-        @Suppress("UnsafeCallOnNullableType")
-        val Saver: Saver<ActionCardNavigation, Any> = listSaver(
-            save = { actionCardNavigation ->
-                listOf(
-                    with(ActionCardNavigationType.Saver) { save(actionCardNavigation.type) },
-                    when (actionCardNavigation) {
-                        is Speed -> with(ActionCardNavigationType.Speed.saver) { save(actionCardNavigation) }
-                        is Edit -> with(ActionCardNavigationType.Edit.saver) { save(actionCardNavigation) }
-                        is Palette -> with(ActionCardNavigationType.Palette.saver) { save(actionCardNavigation) }
-                        is Settings -> with(ActionCardNavigationType.Settings.saver) { save(actionCardNavigation) }
-                    },
-                )
-            },
-            restore = { list ->
-                val type = ActionCardNavigationType.Saver.restore(list[0] as Int)!!
-                type.saver.restore(list[1]!!)
-            },
-        )
-    }
+    @GenSealedEnum
+    companion object
 }
 
 /**
@@ -71,42 +162,70 @@ sealed interface ActionCardNavigation {
 sealed interface ActionCardNavigationType {
     val saver: Saver<out ActionCardNavigation, Any>
 
-    object Speed : ActionCardNavigationType {
-        override val saver: Saver<ActionCardNavigation.Speed, Any> = Saver(
-            save = { 0 },
-            restore = { ActionCardNavigation.Speed },
-        )
+    sealed interface Speed : ActionCardNavigationType {
+        override val saver: Saver<out ActionCardNavigation.Speed, Any>
+
+        object QuickSettings : Speed {
+            override val saver: Saver<ActionCardNavigation.Speed.QuickSettings, Any> = Saver(
+                save = { 0 },
+                restore = { ActionCardNavigation.Speed.QuickSettings },
+            )
+        }
+
+        @GenSealedEnum
+        companion object {
+            val Saver: Saver<Speed, Int> = sealedEnumSaver(sealedEnum)
+        }
     }
 
-    object Edit : ActionCardNavigationType {
-        override val saver: Saver<ActionCardNavigation.Edit, Any> = Saver(
-            save = { 0 },
-            restore = { ActionCardNavigation.Edit },
-        )
+    sealed interface Edit : ActionCardNavigationType {
+        override val saver: Saver<out ActionCardNavigation.Edit, Any>
+
+        object QuickSettings : Edit {
+            override val saver: Saver<ActionCardNavigation.Edit.QuickSettings, Any> = Saver(
+                save = { 0 },
+                restore = { ActionCardNavigation.Edit.QuickSettings },
+            )
+        }
+
+        @GenSealedEnum
+        companion object {
+            val Saver: Saver<Edit, Int> = sealedEnumSaver(sealedEnum)
+        }
     }
 
-    object Palette : ActionCardNavigationType {
-        override val saver: Saver<ActionCardNavigation.Palette, Any> = Saver(
-            save = { 0 },
-            restore = { ActionCardNavigation.Palette },
-        )
+    sealed interface Palette : ActionCardNavigationType {
+        override val saver: Saver<out ActionCardNavigation.Palette, Any>
+
+        object QuickSettings : Palette {
+            override val saver: Saver<ActionCardNavigation.Palette.QuickSettings, Any> = Saver(
+                save = { 0 },
+                restore = { ActionCardNavigation.Palette.QuickSettings },
+            )
+        }
+
+        @GenSealedEnum
+        companion object {
+            val Saver: Saver<Palette, Int> = sealedEnumSaver(sealedEnum)
+        }
     }
 
-    object Settings : ActionCardNavigationType {
-        override val saver: Saver<ActionCardNavigation.Settings, Any> = Saver(
-            save = { 0 },
-            restore = { ActionCardNavigation.Settings },
-        )
+    sealed interface Settings : ActionCardNavigationType {
+        override val saver: Saver<out ActionCardNavigation.Settings, Any>
+
+        object QuickSettings : Settings {
+            override val saver: Saver<ActionCardNavigation.Settings.QuickSettings, Any> = Saver(
+                save = { 0 },
+                restore = { ActionCardNavigation.Settings.QuickSettings },
+            )
+        }
+
+        @GenSealedEnum
+        companion object {
+            val Saver: Saver<Settings, Int> = sealedEnumSaver(sealedEnum)
+        }
     }
 
     @GenSealedEnum
-    companion object {
-        val Saver: Saver<ActionCardNavigationType, Int> = object : Saver<ActionCardNavigationType, Int> {
-            override fun restore(value: Int): ActionCardNavigationType =
-                ActionCardNavigationTypeSealedEnum.values[value]
-
-            override fun SaverScope.save(value: ActionCardNavigationType): Int =
-                value.ordinal
-        }
-    }
+    companion object
 }

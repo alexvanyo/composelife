@@ -22,6 +22,8 @@ formatting:
     excludes: [ '**/generated/**' ]
   SpacingAroundAngleBrackets:
     active: true
+  SpacingAroundCurly:
+    excludes: [ '**/generated/**' ]
   TrailingComma:
     active: true
     autocorrect: true

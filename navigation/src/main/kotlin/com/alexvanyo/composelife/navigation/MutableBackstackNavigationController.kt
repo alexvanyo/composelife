@@ -100,7 +100,7 @@ fun <T> rememberMutableBackstackNavigationController(
  */
 fun <T> MutableBackstackNavigationController<T>.withExpectedActor(
     actorEntryId: UUID?,
-    block: MutableBackstackNavigationController<T>.(currentEntry: BackstackEntry<T>) -> Unit,
+    block: MutableBackstackNavigationController<T>.(currentEntry: BackstackEntry<out T>) -> Unit,
 ): Boolean =
     if (actorEntryId == null || actorEntryId == currentEntry.id) {
         block(currentEntry)
