@@ -28,6 +28,7 @@ import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.canNavigateBack
 import com.alexvanyo.composelife.navigation.currentEntry
+import com.alexvanyo.composelife.navigation.navigate
 import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
@@ -65,6 +66,8 @@ interface CellUniverseActionCardState {
     fun onPaletteClicked(actorBackstackEntryId: UUID? = null)
 
     fun onSettingsClicked(actorBackstackEntryId: UUID? = null)
+
+    fun onSeeMoreSettingsClicked(actorBackstackEntryId: UUID? = null)
 
     fun onBackPressed(actorBackstackEntryId: UUID? = null)
 
@@ -166,12 +169,17 @@ fun rememberCellUniverseActionCardState(
                 }
 
             override val isFullscreen: Boolean get() =
-                this.isExpanded && when (navigationState.currentEntry.value) {
+                this.isExpanded && when (val value = navigationState.currentEntry.value) {
                     is ActionCardNavigation.Speed,
                     is ActionCardNavigation.Edit,
                     is ActionCardNavigation.Palette,
                     -> false
-                    is ActionCardNavigation.Settings -> true
+                    is ActionCardNavigation.Settings -> {
+                        when (value) {
+                            is ActionCardNavigation.Settings.Fullscreen -> true
+                            ActionCardNavigation.Settings.Inline -> false
+                        }
+                    }
                 }
 
             override fun onSpeedClicked(actorBackstackEntryId: UUID?) {
@@ -195,6 +203,17 @@ fun rememberCellUniverseActionCardState(
             override fun onSettingsClicked(actorBackstackEntryId: UUID?) {
                 currentNavController.withExpectedActor(actorBackstackEntryId) {
                     currentBackstack = ActionCardBackstack.Settings
+                }
+            }
+
+            override fun onSeeMoreSettingsClicked(actorBackstackEntryId: UUID?) {
+                currentNavController.withExpectedActor(actorBackstackEntryId) {
+                    check(currentNavController === settingsNavController)
+                    settingsNavController.navigate(
+                        ActionCardNavigation.Settings.Fullscreen(
+                            initialSettingsCategory = null,
+                        ),
+                    )
                 }
             }
 

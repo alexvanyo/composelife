@@ -22,13 +22,16 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.with
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -85,7 +88,7 @@ fun CellUniverseActionCard(
     )
 }
 
-@Suppress("LongParameterList", "LongMethod")
+@Suppress("LongParameterList", "LongMethod", "ComplexMethod")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun CellUniverseActionCard(
@@ -122,8 +125,13 @@ fun CellUniverseActionCard(
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.safeDrawingPadding(),
         ) {
+            if (actionCardState.isExpanded && actionCardState.canNavigateBack) {
+                BackHandler(enabled = isTopCard) {
+                    actionCardState.onBackPressed(actionCardState.navigationState.currentEntryId)
+                }
+            }
+
             AnimatedVisibility(visible = !actionCardState.isFullscreen) {
                 ActionControlRow(
                     isElevated = actionCardState.isExpanded && currentScrollState.canScrollUp,
@@ -135,10 +143,8 @@ fun CellUniverseActionCard(
                 )
             }
 
-            if (actionCardState.isExpanded && actionCardState.canNavigateBack) {
-                BackHandler(enabled = isTopCard) {
-                    actionCardState.onBackPressed(actionCardState.navigationState.currentEntryId)
-                }
+            AnimatedVisibility(visible = !actionCardState.isFullscreen && actionCardState.isExpanded) {
+                Spacer(modifier = Modifier.height(8.dp))
             }
 
             AnimatedContent(
@@ -153,11 +159,18 @@ fun CellUniverseActionCard(
                     Layout(
                         layoutIdTypes = ActionCardDestinationLayoutTypes.sealedEnum,
                         content = {
-                            ActionCardNavigationBar(
-                                actionCardState = actionCardState,
-                                isElevated = currentScrollState.canScrollDown,
-                                modifier = Modifier.layoutId(ActionCardDestinationLayoutTypes.BottomBar),
-                            )
+                            Box(modifier = Modifier.layoutId(ActionCardDestinationLayoutTypes.BottomBar)) {
+                                androidx.compose.animation.AnimatedVisibility(
+                                    visible = !actionCardState.isFullscreen,
+                                    enter = fadeIn() + expandVertically(),
+                                    exit = fadeOut() + shrinkVertically(),
+                                ) {
+                                    ActionCardNavigationBar(
+                                        actionCardState = actionCardState,
+                                        isElevated = currentScrollState.canScrollDown,
+                                    )
+                                }
+                            }
 
                             NavigationHost(
                                 navigationState = actionCardState.navigationState,
@@ -210,7 +223,25 @@ fun CellUniverseActionCard(
                                     is ActionCardNavigation.Settings -> {
                                         when (value) {
                                             ActionCardNavigation.Settings.Inline -> {
-                                                InlineSettingsScreen(modifier = Modifier.fillMaxWidth())
+                                                InlineSettingsScreen(
+                                                    onSeeMoreClicked = {
+                                                        actionCardState.onSeeMoreSettingsClicked(
+                                                            actorBackstackEntryId = entry.id,
+                                                        )
+                                                    },
+                                                    scrollState = scrollState,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                )
+                                            }
+                                            is ActionCardNavigation.Settings.Fullscreen -> {
+                                                FullscreenSettingsScreen(
+                                                    onBackButtonPressed = {
+                                                        actionCardState.onBackPressed(
+                                                            actorBackstackEntryId = entry.id,
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                )
                                             }
                                         }
                                     }
@@ -240,7 +271,6 @@ fun CellUniverseActionCard(
                                 bottomBarPlaceable.place(0, navHostPlaceable.height)
                             }
                         },
-                        modifier = Modifier.padding(top = 8.dp),
                     )
                 }
             }

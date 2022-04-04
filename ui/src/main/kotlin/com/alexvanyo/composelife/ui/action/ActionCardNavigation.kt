@@ -16,8 +16,11 @@
 
 package com.alexvanyo.composelife.ui.action
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.setValue
 import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
 
@@ -29,7 +32,7 @@ sealed interface ActionCardBackstack {
 
     @GenSealedEnum
     companion object {
-        val Saver: Saver<ActionCardBackstack, Int> = sealedEnumSaver(sealedEnum)
+        val Saver = sealedEnumSaver(sealedEnum)
     }
 }
 
@@ -43,7 +46,6 @@ sealed interface ActionCardNavigation {
             override val type = ActionCardNavigationType.Speed.Inline
         }
 
-        @GenSealedEnum
         companion object {
             @Suppress("UnsafeCallOnNullableType")
             val Saver: Saver<Speed, Any> = listSaver(
@@ -71,7 +73,6 @@ sealed interface ActionCardNavigation {
             override val type = ActionCardNavigationType.Edit.Inline
         }
 
-        @GenSealedEnum
         companion object {
             @Suppress("UnsafeCallOnNullableType")
             val Saver: Saver<Edit, Any> = listSaver(
@@ -99,7 +100,6 @@ sealed interface ActionCardNavigation {
             override val type = ActionCardNavigationType.Palette.Inline
         }
 
-        @GenSealedEnum
         companion object {
             @Suppress("UnsafeCallOnNullableType")
             val Saver: Saver<Palette, Any> = listSaver(
@@ -127,7 +127,14 @@ sealed interface ActionCardNavigation {
             override val type = ActionCardNavigationType.Settings.Inline
         }
 
-        @GenSealedEnum
+        class Fullscreen(
+            initialSettingsCategory: SettingsCategory?,
+        ) : Settings {
+            var settingsCategory by mutableStateOf(initialSettingsCategory)
+
+            override val type = ActionCardNavigationType.Settings.Fullscreen
+        }
+
         companion object {
             @Suppress("UnsafeCallOnNullableType")
             val Saver: Saver<Settings, Any> = listSaver(
@@ -136,6 +143,9 @@ sealed interface ActionCardNavigation {
                         with(ActionCardNavigationType.Settings.Saver) { save(actionCardNavigation.type) },
                         when (actionCardNavigation) {
                             is Inline -> with(ActionCardNavigationType.Settings.Inline.saver) {
+                                save(actionCardNavigation)
+                            }
+                            is Fullscreen -> with(ActionCardNavigationType.Settings.Fullscreen.saver) {
                                 save(actionCardNavigation)
                             }
                         },
@@ -148,9 +158,6 @@ sealed interface ActionCardNavigation {
             )
         }
     }
-
-    @GenSealedEnum
-    companion object
 }
 
 /**
@@ -174,7 +181,7 @@ sealed interface ActionCardNavigationType {
 
         @GenSealedEnum
         companion object {
-            val Saver: Saver<Speed, Int> = sealedEnumSaver(sealedEnum)
+            val Saver = sealedEnumSaver(sealedEnum)
         }
     }
 
@@ -190,7 +197,7 @@ sealed interface ActionCardNavigationType {
 
         @GenSealedEnum
         companion object {
-            val Saver: Saver<Edit, Int> = sealedEnumSaver(sealedEnum)
+            val Saver = sealedEnumSaver(sealedEnum)
         }
     }
 
@@ -206,7 +213,7 @@ sealed interface ActionCardNavigationType {
 
         @GenSealedEnum
         companion object {
-            val Saver: Saver<Palette, Int> = sealedEnumSaver(sealedEnum)
+            val Saver = sealedEnumSaver(sealedEnum)
         }
     }
 
@@ -220,9 +227,29 @@ sealed interface ActionCardNavigationType {
             )
         }
 
+        object Fullscreen : Settings {
+            override val saver: Saver<ActionCardNavigation.Settings.Fullscreen, Any> =
+                Saver(
+                    save = { fullscreen ->
+                        with(SettingsCategory.Saver) { fullscreen.settingsCategory?.let { save(it) } ?: -1 }
+                    },
+                    restore = {
+                        it as Int
+
+                        ActionCardNavigation.Settings.Fullscreen(
+                            if (it == -1) {
+                                null
+                            } else {
+                                SettingsCategory.Saver.restore(it)
+                            },
+                        )
+                    },
+                )
+        }
+
         @GenSealedEnum
         companion object {
-            val Saver: Saver<Settings, Int> = sealedEnumSaver(sealedEnum)
+            val Saver = sealedEnumSaver(sealedEnum)
         }
     }
 
