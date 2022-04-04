@@ -26,7 +26,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -179,8 +178,8 @@ fun CellUniverseActionCard(
                                 when (val value = entry.value) {
                                     is ActionCardNavigation.Speed -> {
                                         when (value) {
-                                            ActionCardNavigation.Speed.QuickSettings -> {
-                                                SpeedScreen(
+                                            ActionCardNavigation.Speed.Inline -> {
+                                                InlineSpeedScreen(
                                                     targetStepsPerSecond = targetStepsPerSecond,
                                                     setTargetStepsPerSecond = setTargetStepsPerSecond,
                                                     generationsPerStep = generationsPerStep,
@@ -193,15 +192,15 @@ fun CellUniverseActionCard(
                                     }
                                     is ActionCardNavigation.Edit -> {
                                         when (value) {
-                                            ActionCardNavigation.Edit.QuickSettings -> {
-                                                Spacer(modifier = Modifier.fillMaxWidth())
+                                            ActionCardNavigation.Edit.Inline -> {
+                                                InlineEditScreen(modifier = Modifier.fillMaxWidth())
                                             }
                                         }
                                     }
                                     is ActionCardNavigation.Palette -> {
                                         when (value) {
-                                            ActionCardNavigation.Palette.QuickSettings -> {
-                                                PaletteScreen(
+                                            ActionCardNavigation.Palette.Inline -> {
+                                                InlinePaletteScreen(
                                                     scrollState = scrollState,
                                                     modifier = Modifier.fillMaxWidth(),
                                                 )
@@ -210,12 +209,8 @@ fun CellUniverseActionCard(
                                     }
                                     is ActionCardNavigation.Settings -> {
                                         when (value) {
-                                            ActionCardNavigation.Settings.QuickSettings -> {
-                                                Column(
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                ) {
-                                                    Spacer(Modifier.weight(1f))
-                                                }
+                                            ActionCardNavigation.Settings.Inline -> {
+                                                InlineSettingsScreen(modifier = Modifier.fillMaxWidth())
                                             }
                                         }
                                     }

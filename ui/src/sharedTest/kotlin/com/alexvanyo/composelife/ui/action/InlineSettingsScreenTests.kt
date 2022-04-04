@@ -16,26 +16,22 @@
 
 package com.alexvanyo.composelife.ui.action
 
-import androidx.compose.foundation.layout.Box
-import app.cash.paparazzi.DeviceConfig
-import app.cash.paparazzi.Paparazzi
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 
-class SpeedScreenSnapshotTests {
+@RunWith(AndroidJUnit4::class)
+class InlineSettingsScreenTests {
 
     @get:Rule
-    val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.NEXUS_5.copy(softButtons = false),
-        maxPercentDifference = 0.0,
-    )
+    val composeTestRule = createComposeRule()
 
     @Test
-    fun speed_screen_preview() {
-        paparazzi.snapshot {
-            Box {
-                SpeedScreenPreview()
-            }
+    fun inline_settings_screen_preview() {
+        composeTestRule.setContent {
+            InlineSettingsScreenPreview()
         }
     }
 }

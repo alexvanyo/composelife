@@ -41,7 +41,7 @@ import kotlin.math.roundToInt
 
 @Suppress("LongParameterList")
 @Composable
-fun SpeedScreen(
+fun InlineSpeedScreen(
     targetStepsPerSecond: Double,
     setTargetStepsPerSecond: (Double) -> Unit,
     generationsPerStep: Int,
@@ -137,10 +137,10 @@ fun GenerationsPerStepControl(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
-fun SpeedScreenPreview() {
+fun InlineSpeedScreenPreview() {
     ComposeLifeTheme {
         Surface {
-            SpeedScreen(
+            InlineSpeedScreen(
                 targetStepsPerSecond = 60.0,
                 setTargetStepsPerSecond = {},
                 generationsPerStep = 1,

@@ -92,7 +92,7 @@ fun rememberCellUniverseActionCardState(
     val speedNavController = rememberMutableBackstackNavigationController(
         initialBackstackEntries = listOf(
             BackstackEntry(
-                value = ActionCardNavigation.Speed.QuickSettings,
+                value = ActionCardNavigation.Speed.Inline,
                 previous = null,
             ),
         ),
@@ -102,7 +102,7 @@ fun rememberCellUniverseActionCardState(
     val editNavController = rememberMutableBackstackNavigationController(
         initialBackstackEntries = listOf(
             BackstackEntry(
-                value = ActionCardNavigation.Edit.QuickSettings,
+                value = ActionCardNavigation.Edit.Inline,
                 previous = null,
             ),
         ),
@@ -112,7 +112,7 @@ fun rememberCellUniverseActionCardState(
     val paletteNavController = rememberMutableBackstackNavigationController(
         initialBackstackEntries = listOf(
             BackstackEntry(
-                value = ActionCardNavigation.Palette.QuickSettings,
+                value = ActionCardNavigation.Palette.Inline,
                 previous = null,
             ),
         ),
@@ -122,7 +122,7 @@ fun rememberCellUniverseActionCardState(
     val settingsNavController = rememberMutableBackstackNavigationController(
         initialBackstackEntries = listOf(
             BackstackEntry(
-                value = ActionCardNavigation.Settings.QuickSettings,
+                value = ActionCardNavigation.Settings.Inline,
                 previous = null,
             ),
         ),
