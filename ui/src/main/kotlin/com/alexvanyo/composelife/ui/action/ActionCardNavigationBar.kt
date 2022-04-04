@@ -52,13 +52,13 @@ fun ActionCardNavigationBar(
         tonalElevation = elevation,
     ) {
         val speedSelected =
-            actionCardState.navigationState.currentEntry.value == ActionCardNavigation.Speed
+            actionCardState.navigationState.currentEntry.value is ActionCardNavigation.Speed
         val editSelected =
-            actionCardState.navigationState.currentEntry.value == ActionCardNavigation.Edit
+            actionCardState.navigationState.currentEntry.value is ActionCardNavigation.Edit
         val paletteSelected =
-            actionCardState.navigationState.currentEntry.value == ActionCardNavigation.Palette
+            actionCardState.navigationState.currentEntry.value is ActionCardNavigation.Palette
         val settingsSelected =
-            actionCardState.navigationState.currentEntry.value == ActionCardNavigation.Settings
+            actionCardState.navigationState.currentEntry.value is ActionCardNavigation.Settings
 
         NavigationBarItem(
             selected = speedSelected,

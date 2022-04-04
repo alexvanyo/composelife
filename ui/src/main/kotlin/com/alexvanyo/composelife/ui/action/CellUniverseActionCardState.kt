@@ -17,18 +17,18 @@
 package com.alexvanyo.composelife.ui.action
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.alexvanyo.composelife.navigation.BackstackEntry
+import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.canNavigateBack
 import com.alexvanyo.composelife.navigation.currentEntry
-import com.alexvanyo.composelife.navigation.navigate
 import com.alexvanyo.composelife.navigation.popBackstack
-import com.alexvanyo.composelife.navigation.popUpTo
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
 import java.util.UUID
@@ -51,7 +51,7 @@ interface CellUniverseActionCardState {
     /**
      * The navigation state of the card.
      */
-    val navigationState: BackstackState<ActionCardNavigation>
+    val navigationState: BackstackState<out ActionCardNavigation>
 
     /**
      * `true` if the card can navigate back.
@@ -76,92 +76,136 @@ interface CellUniverseActionCardState {
 /**
  * Remembers the a default implementation of [CellUniverseActionCardState].
  */
+@Suppress("LongMethod")
 @Composable
 fun rememberCellUniverseActionCardState(
     initialIsExpanded: Boolean = CellUniverseActionCardState.defaultIsExpanded,
-    initialBackstackEntries: List<BackstackEntry<ActionCardNavigation>> = listOf(
-        BackstackEntry(
-            value = ActionCardNavigation.Speed,
-            previous = null,
-        ),
-    ),
 ): CellUniverseActionCardState {
     val isExpanded = rememberSaveable { mutableStateOf(initialIsExpanded) }
 
-    val navController = rememberMutableBackstackNavigationController(
-        initialBackstackEntries = initialBackstackEntries,
-        saver = ActionCardNavigation.Saver,
+    var currentBackstack by rememberSaveable(
+        stateSaver = ActionCardBackstack.Saver,
+    ) {
+        mutableStateOf(ActionCardBackstack.Speed)
+    }
+
+    val speedNavController = rememberMutableBackstackNavigationController(
+        initialBackstackEntries = listOf(
+            BackstackEntry(
+                value = ActionCardNavigation.Speed.QuickSettings,
+                previous = null,
+            ),
+        ),
+        saver = ActionCardNavigation.Speed.Saver,
     )
+
+    val editNavController = rememberMutableBackstackNavigationController(
+        initialBackstackEntries = listOf(
+            BackstackEntry(
+                value = ActionCardNavigation.Edit.QuickSettings,
+                previous = null,
+            ),
+        ),
+        saver = ActionCardNavigation.Edit.Saver,
+    )
+
+    val paletteNavController = rememberMutableBackstackNavigationController(
+        initialBackstackEntries = listOf(
+            BackstackEntry(
+                value = ActionCardNavigation.Palette.QuickSettings,
+                previous = null,
+            ),
+        ),
+        saver = ActionCardNavigation.Palette.Saver,
+    )
+
+    val settingsNavController = rememberMutableBackstackNavigationController(
+        initialBackstackEntries = listOf(
+            BackstackEntry(
+                value = ActionCardNavigation.Settings.QuickSettings,
+                previous = null,
+            ),
+        ),
+        saver = ActionCardNavigation.Settings.Saver,
+    )
+
+    val currentNavController by remember {
+        derivedStateOf {
+            when (currentBackstack) {
+                ActionCardBackstack.Speed -> speedNavController
+                ActionCardBackstack.Edit -> editNavController
+                ActionCardBackstack.Palette -> paletteNavController
+                ActionCardBackstack.Settings -> settingsNavController
+            }
+        }
+    }
 
     return remember {
         object : CellUniverseActionCardState {
             @Suppress("VarCouldBeVal")
             override var isExpanded: Boolean by isExpanded
 
-            override val navigationState get() = navController
+            override val navigationState = object : BackstackState<ActionCardNavigation> {
+                override val entryMap: BackstackMap<out ActionCardNavigation>
+                    get() = speedNavController.entryMap +
+                        editNavController.entryMap +
+                        paletteNavController.entryMap +
+                        settingsNavController.entryMap
 
-            override val canNavigateBack: Boolean get() = navController.canNavigateBack
+                override val currentEntryId: UUID
+                    get() = currentNavController.currentEntryId
+            }
+
+            override val canNavigateBack: Boolean get() =
+                currentNavController.canNavigateBack || when (currentBackstack) {
+                    ActionCardBackstack.Speed -> false
+                    ActionCardBackstack.Edit,
+                    ActionCardBackstack.Palette,
+                    ActionCardBackstack.Settings,
+                    -> true
+                }
 
             override val isFullscreen: Boolean get() =
                 this.isExpanded && when (navigationState.currentEntry.value) {
-                    ActionCardNavigation.Speed,
-                    ActionCardNavigation.Edit,
-                    ActionCardNavigation.Palette,
+                    is ActionCardNavigation.Speed,
+                    is ActionCardNavigation.Edit,
+                    is ActionCardNavigation.Palette,
                     -> false
-                    ActionCardNavigation.Settings -> true
+                    is ActionCardNavigation.Settings -> true
                 }
 
             override fun onSpeedClicked(actorBackstackEntryId: UUID?) {
-                navController.withExpectedActor(actorBackstackEntryId) {
-                    popUpToSpeed()
+                currentNavController.withExpectedActor(actorBackstackEntryId) {
+                    currentBackstack = ActionCardBackstack.Speed
                 }
             }
 
             override fun onEditClicked(actorBackstackEntryId: UUID?) {
-                navController.withExpectedActor(actorBackstackEntryId) {
-                    if (currentEntry.value !is ActionCardNavigation.Edit) {
-                        popUpToSpeed()
-                        navController.navigate(ActionCardNavigation.Edit)
-                    }
+                currentNavController.withExpectedActor(actorBackstackEntryId) {
+                    currentBackstack = ActionCardBackstack.Edit
                 }
             }
 
             override fun onPaletteClicked(actorBackstackEntryId: UUID?) {
-                navController.withExpectedActor(actorBackstackEntryId) {
-                    if (currentEntry.value !is ActionCardNavigation.Palette) {
-                        popUpToSpeed()
-                        navController.navigate(ActionCardNavigation.Palette)
-                    }
+                currentNavController.withExpectedActor(actorBackstackEntryId) {
+                    currentBackstack = ActionCardBackstack.Palette
                 }
             }
 
             override fun onSettingsClicked(actorBackstackEntryId: UUID?) {
-                navController.withExpectedActor(actorBackstackEntryId) {
-                    if (currentEntry.value !is ActionCardNavigation.Settings) {
-                        popUpToSpeed()
-                        navController.navigate(ActionCardNavigation.Settings)
-                    }
+                currentNavController.withExpectedActor(actorBackstackEntryId) {
+                    currentBackstack = ActionCardBackstack.Settings
                 }
             }
 
             override fun onBackPressed(actorBackstackEntryId: UUID?) {
-                navController.withExpectedActor(actorBackstackEntryId) {
-                    navController.popBackstack()
+                currentNavController.withExpectedActor(actorBackstackEntryId) {
+                    if (currentNavController.canNavigateBack) {
+                        currentNavController.popBackstack()
+                    } else {
+                        currentBackstack = ActionCardBackstack.Speed
+                    }
                 }
-            }
-
-            private fun popUpToSpeed() {
-                navController.popUpTo(
-                    predicate = { value: ActionCardNavigation ->
-                        when (value) {
-                            ActionCardNavigation.Speed -> true
-                            ActionCardNavigation.Edit,
-                            ActionCardNavigation.Palette,
-                            ActionCardNavigation.Settings,
-                            -> false
-                        }
-                    },
-                )
             }
         }
     }
