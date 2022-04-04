@@ -242,11 +242,11 @@ private fun CellWindowUiState.isInteractable(
 }
 
 @Preview(
-    name = "Immutable cell window light mode",
+    name = "Light mode",
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Preview(
-    name = "Immutable cell window dark mode",
+    name = "Dark mode",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
@@ -275,11 +275,11 @@ fun ImmutableCellWindowPreview() {
 }
 
 @Preview(
-    name = "Mutable cell window light mode",
+    name = "Light mode",
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Preview(
-    name = "Mutable cell window dark mode",
+    name = "Dark mode",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable

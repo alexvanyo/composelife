@@ -18,11 +18,10 @@ package com.alexvanyo.composelife.ui
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.test.filterToOne
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.onChildren
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.espresso.Espresso
@@ -75,9 +74,10 @@ class InteractiveCellUniverseInstrumentationTests : BaseHiltTest<TestActivity>(T
         }
 
         composeTestRule
-            .onNodeWithTag("CellUniverseInfoCard")
-            .onChildren()
-            .filterToOne(hasContentDescription(context.getString(R.string.expand)))
+            .onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(context.getString(R.string.expand)),
+            )
             .performClick()
 
         composeTestRule.waitForIdle()
@@ -115,9 +115,10 @@ class InteractiveCellUniverseInstrumentationTests : BaseHiltTest<TestActivity>(T
         }
 
         composeTestRule
-            .onNodeWithTag("CellUniverseActionCard")
-            .onChildren()
-            .filterToOne(hasContentDescription(context.getString(R.string.expand)))
+            .onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(context.getString(R.string.expand)),
+            )
             .performClick()
 
         composeTestRule.waitForIdle()
