@@ -37,7 +37,7 @@ import org.junit.runner.RunWith
 import kotlin.math.log2
 
 @RunWith(AndroidJUnit4::class)
-class SpeedScreenTests {
+class InlineSpeedScreenTests {
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -45,9 +45,9 @@ class SpeedScreenTests {
     private val applicationContext = ApplicationProvider.getApplicationContext<Application>()
 
     @Test
-    fun speed_screen_preview() {
+    fun inline_speed_screen_preview() {
         composeTestRule.setContent {
-            SpeedScreenPreview()
+            InlineSpeedScreenPreview()
         }
     }
 
@@ -57,7 +57,7 @@ class SpeedScreenTests {
             var targetStepsPerSecond by remember { mutableStateOf(60.0) }
             var generationsPerStep by remember { mutableStateOf(1) }
 
-            SpeedScreen(
+            InlineSpeedScreen(
                 targetStepsPerSecond = targetStepsPerSecond,
                 setTargetStepsPerSecond = { targetStepsPerSecond = it },
                 generationsPerStep = generationsPerStep,
@@ -78,7 +78,7 @@ class SpeedScreenTests {
             var targetStepsPerSecond by remember { mutableStateOf(60.0) }
             var generationsPerStep by remember { mutableStateOf(1) }
 
-            SpeedScreen(
+            InlineSpeedScreen(
                 targetStepsPerSecond = targetStepsPerSecond,
                 setTargetStepsPerSecond = { targetStepsPerSecond = it },
                 generationsPerStep = generationsPerStep,
@@ -107,7 +107,7 @@ class SpeedScreenTests {
             var targetStepsPerSecond by remember { mutableStateOf(60.0) }
             var generationsPerStep by remember { mutableStateOf(1) }
 
-            SpeedScreen(
+            InlineSpeedScreen(
                 targetStepsPerSecond = targetStepsPerSecond,
                 setTargetStepsPerSecond = { targetStepsPerSecond = it },
                 generationsPerStep = generationsPerStep,
@@ -128,7 +128,7 @@ class SpeedScreenTests {
             var targetStepsPerSecond by remember { mutableStateOf(60.0) }
             var generationsPerStep by remember { mutableStateOf(1) }
 
-            SpeedScreen(
+            InlineSpeedScreen(
                 targetStepsPerSecond = targetStepsPerSecond,
                 setTargetStepsPerSecond = { targetStepsPerSecond = it },
                 generationsPerStep = generationsPerStep,

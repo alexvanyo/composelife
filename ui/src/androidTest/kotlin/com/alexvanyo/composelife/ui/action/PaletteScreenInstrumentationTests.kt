@@ -48,7 +48,7 @@ class PaletteScreenInstrumentationTests {
         var setCurrentShapeType: CurrentShapeType? = null
 
         composeTestRule.setContent {
-            PaletteScreen(
+            InlinePaletteScreen(
                 currentShapeState = ResourceState.Success(
                     CurrentShape.RoundRectangle(
                         sizeFraction = 0.8f,
