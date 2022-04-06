@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.action
+package com.alexvanyo.composelife.ui.action.settings
 
-import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
 
-sealed interface SettingsCategory {
-    object Algorithm : SettingsCategory
-    object Visual : SettingsCategory
-    object FeatureFlags : SettingsCategory
+sealed interface Setting {
+    val category: SettingsCategory
+
+    object AlgorithmImplementation : Setting {
+        override val category = SettingsCategory.Algorithm
+    }
 
     @GenSealedEnum
-    companion object {
-        val Saver = sealedEnumSaver(sealedEnum)
-    }
+    companion object
 }

@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.ui
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -30,10 +31,13 @@ import androidx.compose.foundation.layout.consumedWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,11 +47,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.BottomInsets
 import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseActionCard
@@ -70,6 +76,7 @@ import com.livefront.sealedenum.GenSealedEnum
 fun InteractiveCellUniverseOverlay(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     cellWindowState: CellWindowState,
+    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
 ) {
     var isActionCardTopCard by rememberSaveable { mutableStateOf(true) }
@@ -147,6 +154,7 @@ fun InteractiveCellUniverseOverlay(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .padding(8.dp)
+                        .sizeIn(maxWidth = with(LocalDensity.current) { 400.sp.toDp() })
                         .testTag("CellUniverseInfoCard"),
                 )
             }
@@ -213,7 +221,7 @@ fun InteractiveCellUniverseOverlay(
                 },
             )
 
-            Box(
+            BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth()
                     .consumedWindowInsets(consumedWindowInsets)
@@ -222,14 +230,24 @@ fun InteractiveCellUniverseOverlay(
                     )
                     .layoutId(CellUniverseActionCard),
             ) {
+                val confinedWidth by animateDpAsState(if (actionCardState.isFullscreen) maxWidth else 480.dp)
+
                 CellUniverseActionCard(
+                    windowSizeClass = windowSizeClass,
                     isTopCard = isActionCardTopCard,
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     actionCardState = actionCardState,
                     shape = RoundedCornerShape(cornerSize),
                     modifier = Modifier
-                        .align(Alignment.Center)
+                        .align(
+                            if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) {
+                                Alignment.Center
+                            } else {
+                                Alignment.CenterEnd
+                            },
+                        )
                         .padding(outerPadding)
+                        .sizeIn(maxWidth = confinedWidth)
                         .testTag("CellUniverseActionCard"),
                 )
             }

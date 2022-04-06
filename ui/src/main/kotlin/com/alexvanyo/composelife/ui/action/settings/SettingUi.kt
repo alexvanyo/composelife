@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.action
+package com.alexvanyo.composelife.ui.action.settings
 
-import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 
-@RunWith(AndroidJUnit4::class)
-class InlineSettingsScreenTests {
-
-    @get:Rule
-    val composeTestRule = createComposeRule()
-
-    @Test
-    fun inline_settings_screen_preview() {
-        composeTestRule.setContent {
-            InlineSettingsScreenPreview()
-        }
+@Composable
+fun SettingUi(
+    setting: Setting,
+    modifier: Modifier = Modifier,
+) {
+    when (setting) {
+        Setting.AlgorithmImplementation -> AlgorithmImplementationUi(modifier = modifier)
     }
 }

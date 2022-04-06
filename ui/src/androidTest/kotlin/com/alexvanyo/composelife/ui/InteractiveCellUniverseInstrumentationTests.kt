@@ -17,6 +17,8 @@
 package com.alexvanyo.composelife.ui
 
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
@@ -38,7 +40,7 @@ import kotlinx.coroutines.test.TestDispatcher
 import org.junit.Test
 import javax.inject.Inject
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @HiltAndroidTest
 class InteractiveCellUniverseInstrumentationTests : BaseHiltTest<TestActivity>(TestActivity::class.java) {
 
@@ -69,6 +71,7 @@ class InteractiveCellUniverseInstrumentationTests : BaseHiltTest<TestActivity>(T
 
             InteractiveCellUniverse(
                 temporalGameOfLifeState = temporalGameOfLifeState,
+                windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
                 modifier = Modifier.size(480.dp),
             )
         }
@@ -110,6 +113,7 @@ class InteractiveCellUniverseInstrumentationTests : BaseHiltTest<TestActivity>(T
 
             InteractiveCellUniverse(
                 temporalGameOfLifeState = temporalGameOfLifeState,
+                windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
                 modifier = Modifier.size(480.dp),
             )
         }

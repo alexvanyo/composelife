@@ -32,6 +32,7 @@ import com.alexvanyo.composelife.navigation.navigate
 import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
+import com.alexvanyo.composelife.ui.action.settings.SettingsCategory
 import java.util.UUID
 
 /**
@@ -169,18 +170,7 @@ fun rememberCellUniverseActionCardState(
                 }
 
             override val isFullscreen: Boolean get() =
-                this.isExpanded && when (val value = navigationState.currentEntry.value) {
-                    is ActionCardNavigation.Speed,
-                    is ActionCardNavigation.Edit,
-                    is ActionCardNavigation.Palette,
-                    -> false
-                    is ActionCardNavigation.Settings -> {
-                        when (value) {
-                            is ActionCardNavigation.Settings.Fullscreen -> true
-                            ActionCardNavigation.Settings.Inline -> false
-                        }
-                    }
-                }
+                this.isExpanded && navigationState.currentEntry.value.isFullscreen
 
             override fun onSpeedClicked(actorBackstackEntryId: UUID?) {
                 currentNavController.withExpectedActor(actorBackstackEntryId) {
@@ -211,7 +201,8 @@ fun rememberCellUniverseActionCardState(
                     check(currentNavController === settingsNavController)
                     settingsNavController.navigate(
                         ActionCardNavigation.Settings.Fullscreen(
-                            initialSettingsCategory = null,
+                            initialSettingsCategory = SettingsCategory.Algorithm,
+                            initialShowDetails = false,
                         ),
                     )
                 }

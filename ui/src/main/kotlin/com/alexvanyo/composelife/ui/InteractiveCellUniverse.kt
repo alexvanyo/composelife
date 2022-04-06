@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.ui
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +39,7 @@ import com.alexvanyo.composelife.ui.entrypoints.ComposeLifePreferencesEntryPoint
 @Composable
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
+    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
     cellWindowState: CellWindowState = rememberCellWindowState(),
     preferences: ComposeLifePreferences = hiltViewModel<ComposeLifePreferencesEntryPoint>().composeLifePreferences,
@@ -65,6 +67,7 @@ fun InteractiveCellUniverse(
             InteractiveCellUniverseOverlay(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 cellWindowState = cellWindowState,
+                windowSizeClass = windowSizeClass,
             )
         }
     }

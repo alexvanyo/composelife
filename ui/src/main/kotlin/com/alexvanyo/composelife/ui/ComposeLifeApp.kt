@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.ui
 
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
@@ -29,7 +30,9 @@ import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
-fun ComposeLifeApp() {
+fun ComposeLifeApp(
+    windowSizeClass: WindowSizeClass,
+) {
     ComposeLifeTheme {
         val useDarkIcons = ComposeLifeTheme.isLight
         val systemUiController = rememberSystemUiController()
@@ -56,6 +59,7 @@ fun ComposeLifeApp() {
 
         InteractiveCellUniverse(
             temporalGameOfLifeState = temporalGameOfLifeState,
+            windowSizeClass = windowSizeClass,
         )
     }
 }
