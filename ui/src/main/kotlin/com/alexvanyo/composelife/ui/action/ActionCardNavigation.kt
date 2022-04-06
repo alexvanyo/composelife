@@ -21,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
+import com.alexvanyo.composelife.ui.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
 
@@ -39,11 +40,14 @@ sealed interface ActionCardBackstack {
 sealed interface ActionCardNavigation {
     val type: ActionCardNavigationType
 
+    val isFullscreen: Boolean
+
     sealed interface Speed : ActionCardNavigation {
         override val type: ActionCardNavigationType.Speed
 
         object Inline : Speed {
             override val type = ActionCardNavigationType.Speed.Inline
+            override val isFullscreen: Boolean = false
         }
 
         companion object {
@@ -71,6 +75,7 @@ sealed interface ActionCardNavigation {
 
         object Inline : Edit {
             override val type = ActionCardNavigationType.Edit.Inline
+            override val isFullscreen: Boolean = false
         }
 
         companion object {
@@ -98,6 +103,7 @@ sealed interface ActionCardNavigation {
 
         object Inline : Palette {
             override val type = ActionCardNavigationType.Palette.Inline
+            override val isFullscreen: Boolean = false
         }
 
         companion object {
@@ -125,14 +131,19 @@ sealed interface ActionCardNavigation {
 
         object Inline : Settings {
             override val type = ActionCardNavigationType.Settings.Inline
+            override val isFullscreen: Boolean = false
         }
 
         class Fullscreen(
-            initialSettingsCategory: SettingsCategory?,
+            initialSettingsCategory: SettingsCategory,
+            initialShowDetails: Boolean,
         ) : Settings {
             var settingsCategory by mutableStateOf(initialSettingsCategory)
 
+            var showDetails by mutableStateOf(initialShowDetails)
+
             override val type = ActionCardNavigationType.Settings.Fullscreen
+            override val isFullscreen: Boolean = true
         }
 
         companion object {
@@ -228,20 +239,19 @@ sealed interface ActionCardNavigationType {
         }
 
         object Fullscreen : Settings {
+            @Suppress("UnsafeCallOnNullableType")
             override val saver: Saver<ActionCardNavigation.Settings.Fullscreen, Any> =
-                Saver(
+                listSaver(
                     save = { fullscreen ->
-                        with(SettingsCategory.Saver) { fullscreen.settingsCategory?.let { save(it) } ?: -1 }
+                        listOf(
+                            with(SettingsCategory.Saver) { save(fullscreen.settingsCategory) },
+                            fullscreen.showDetails,
+                        )
                     },
                     restore = {
-                        it as Int
-
                         ActionCardNavigation.Settings.Fullscreen(
-                            if (it == -1) {
-                                null
-                            } else {
-                                SettingsCategory.Saver.restore(it)
-                            },
+                            initialSettingsCategory = SettingsCategory.Saver.restore(it[0] as Int)!!,
+                            initialShowDetails = it[1] as Boolean,
                         )
                     },
                 )

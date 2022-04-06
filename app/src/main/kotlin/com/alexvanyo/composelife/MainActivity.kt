@@ -19,6 +19,8 @@ package com.alexvanyo.composelife
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.core.view.WindowCompat
 import com.alexvanyo.composelife.ui.ComposeLifeApp
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,7 +33,8 @@ class MainActivity : Hilt_MainActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
-            ComposeLifeApp()
+            @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+            ComposeLifeApp(calculateWindowSizeClass(this))
         }
     }
 }

@@ -17,6 +17,8 @@
 package com.alexvanyo.composelife.ui
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsOn
@@ -43,7 +45,7 @@ import kotlinx.coroutines.test.TestDispatcher
 import org.junit.Test
 import javax.inject.Inject
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @HiltAndroidTest
 class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::class.java) {
 
@@ -73,6 +75,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
 
             InteractiveCellUniverse(
                 temporalGameOfLifeState = temporalGameOfLifeState,
+                windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
                 modifier = Modifier.fillMaxSize(),
                 preferences = preferences,
             )
@@ -129,6 +132,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
 
             InteractiveCellUniverse(
                 temporalGameOfLifeState = temporalGameOfLifeState,
+                windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
                 modifier = Modifier.fillMaxSize(),
                 preferences = preferences,
             )
@@ -196,6 +200,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
 
             InteractiveCellUniverse(
                 temporalGameOfLifeState = temporalGameOfLifeState,
+                windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
                 modifier = Modifier.fillMaxSize(),
                 preferences = preferences,
             )
@@ -251,6 +256,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
 
             InteractiveCellUniverse(
                 temporalGameOfLifeState = temporalGameOfLifeState,
+                windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
                 modifier = Modifier.fillMaxSize(),
                 preferences = preferences,
             )

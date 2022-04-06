@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.action
+package com.alexvanyo.composelife.ui.action.settings
 
 import androidx.compose.foundation.layout.Box
 import app.cash.paparazzi.DeviceConfig

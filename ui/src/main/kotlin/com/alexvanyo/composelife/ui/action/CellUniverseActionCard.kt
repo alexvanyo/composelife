@@ -20,14 +20,12 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
+import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.shrinkOut
 import androidx.compose.animation.with
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,6 +36,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
@@ -45,11 +44,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.NavigationHost
-import com.alexvanyo.composelife.ui.util.Layout
+import com.alexvanyo.composelife.ui.action.settings.FullscreenSettingsScreen
+import com.alexvanyo.composelife.ui.action.settings.InlineSettingsScreen
 import com.alexvanyo.composelife.ui.util.canScrollDown
 import com.alexvanyo.composelife.ui.util.canScrollUp
 import com.livefront.sealedenum.GenSealedEnum
@@ -60,6 +60,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun CellUniverseActionCard(
     temporalGameOfLifeState: TemporalGameOfLifeState,
+    windowSizeClass: WindowSizeClass,
     isTopCard: Boolean,
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(12.0.dp),
@@ -67,6 +68,7 @@ fun CellUniverseActionCard(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ) {
     CellUniverseActionCard(
+        windowSizeClass = windowSizeClass,
         isTopCard = isTopCard,
         isRunning = when (temporalGameOfLifeState.status) {
             TemporalGameOfLifeState.EvolutionStatus.Paused -> false
@@ -92,6 +94,7 @@ fun CellUniverseActionCard(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun CellUniverseActionCard(
+    windowSizeClass: WindowSizeClass,
     isTopCard: Boolean,
     isRunning: Boolean,
     setIsRunning: (Boolean) -> Unit,
@@ -104,6 +107,12 @@ fun CellUniverseActionCard(
     shape: Shape = RoundedCornerShape(12.0.dp),
     actionCardState: CellUniverseActionCardState = rememberCellUniverseActionCardState(),
 ) {
+    if (actionCardState.isExpanded && actionCardState.canNavigateBack) {
+        BackHandler(enabled = isTopCard) {
+            actionCardState.onBackPressed(actionCardState.navigationState.currentEntryId)
+        }
+    }
+
     Card(
         shape = shape,
         colors = CardDefaults.cardColors(
@@ -158,122 +167,96 @@ fun CellUniverseActionCard(
                 contentAlignment = Alignment.BottomCenter,
             ) { isExpanded ->
                 if (isExpanded) {
-                    Layout(
-                        layoutIdTypes = ActionCardDestinationLayoutTypes.sealedEnum,
-                        content = {
-                            Box(modifier = Modifier.layoutId(ActionCardDestinationLayoutTypes.BottomBar)) {
-                                androidx.compose.animation.AnimatedVisibility(
-                                    visible = !actionCardState.isFullscreen,
-                                    enter = fadeIn() + expandVertically(),
-                                    exit = fadeOut() + shrinkVertically(),
-                                ) {
-                                    ActionCardNavigationBar(
-                                        actionCardState = actionCardState,
-                                        isElevated = currentScrollState.canScrollDown,
-                                    )
+                    Column {
+                        NavigationHost(
+                            navigationState = actionCardState.navigationState,
+                            transitionSpec = {
+                                fadeIn(animationSpec = tween(220, delayMillis = 90)) with
+                                    fadeOut(animationSpec = tween(90))
+                            },
+                            contentAlignment = Alignment.BottomCenter,
+                            modifier = Modifier.weight(1f, fill = false),
+                        ) { entry ->
+                            // Cache the scroll state based for the target entry id.
+                            // This value won't change normally, but it will ensure we keep using the old state
+                            // while being removed from the backstack
+                            val scrollState = remember { contentScrollStateMap.getValue(entry.id) }
+
+                            when (val value = entry.value) {
+                                is ActionCardNavigation.Speed -> {
+                                    when (value) {
+                                        ActionCardNavigation.Speed.Inline -> {
+                                            InlineSpeedScreen(
+                                                targetStepsPerSecond = targetStepsPerSecond,
+                                                setTargetStepsPerSecond = setTargetStepsPerSecond,
+                                                generationsPerStep = generationsPerStep,
+                                                setGenerationsPerStep = setGenerationsPerStep,
+                                                scrollState = scrollState,
+                                                modifier = Modifier.fillMaxWidth(),
+                                            )
+                                        }
+                                    }
                                 }
-                            }
-
-                            NavigationHost(
-                                navigationState = actionCardState.navigationState,
-                                transitionSpec = {
-                                    fadeIn(animationSpec = tween(220, delayMillis = 90)) with
-                                        fadeOut(animationSpec = tween(90))
-                                },
-                                contentAlignment = Alignment.BottomCenter,
-                                modifier = Modifier
-                                    .layoutId(ActionCardDestinationLayoutTypes.NavHost)
-                                    .animateContentSize(),
-                            ) { entry ->
-                                // Cache the scroll state based for the target entry id.
-                                // This value won't change normally, but it will ensure we keep using the old state
-                                // while being removed from the backstack
-                                val scrollState = remember { contentScrollStateMap.getValue(entry.id) }
-
-                                when (val value = entry.value) {
-                                    is ActionCardNavigation.Speed -> {
-                                        when (value) {
-                                            ActionCardNavigation.Speed.Inline -> {
-                                                InlineSpeedScreen(
-                                                    targetStepsPerSecond = targetStepsPerSecond,
-                                                    setTargetStepsPerSecond = setTargetStepsPerSecond,
-                                                    generationsPerStep = generationsPerStep,
-                                                    setGenerationsPerStep = setGenerationsPerStep,
-                                                    scrollState = scrollState,
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                )
-                                            }
+                                is ActionCardNavigation.Edit -> {
+                                    when (value) {
+                                        ActionCardNavigation.Edit.Inline -> {
+                                            InlineEditScreen(modifier = Modifier.fillMaxWidth())
                                         }
                                     }
-                                    is ActionCardNavigation.Edit -> {
-                                        when (value) {
-                                            ActionCardNavigation.Edit.Inline -> {
-                                                InlineEditScreen(modifier = Modifier.fillMaxWidth())
-                                            }
+                                }
+                                is ActionCardNavigation.Palette -> {
+                                    when (value) {
+                                        ActionCardNavigation.Palette.Inline -> {
+                                            InlinePaletteScreen(
+                                                scrollState = scrollState,
+                                                modifier = Modifier.fillMaxWidth(),
+                                            )
                                         }
                                     }
-                                    is ActionCardNavigation.Palette -> {
-                                        when (value) {
-                                            ActionCardNavigation.Palette.Inline -> {
-                                                InlinePaletteScreen(
-                                                    scrollState = scrollState,
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                )
-                                            }
+                                }
+                                is ActionCardNavigation.Settings -> {
+                                    when (value) {
+                                        ActionCardNavigation.Settings.Inline -> {
+                                            InlineSettingsScreen(
+                                                onSeeMoreClicked = {
+                                                    actionCardState.onSeeMoreSettingsClicked(
+                                                        actorBackstackEntryId = entry.id,
+                                                    )
+                                                },
+                                                scrollState = scrollState,
+                                                modifier = Modifier.fillMaxWidth(),
+                                            )
                                         }
-                                    }
-                                    is ActionCardNavigation.Settings -> {
-                                        when (value) {
-                                            ActionCardNavigation.Settings.Inline -> {
-                                                InlineSettingsScreen(
-                                                    onSeeMoreClicked = {
-                                                        actionCardState.onSeeMoreSettingsClicked(
-                                                            actorBackstackEntryId = entry.id,
-                                                        )
-                                                    },
-                                                    scrollState = scrollState,
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                )
-                                            }
-                                            is ActionCardNavigation.Settings.Fullscreen -> {
-                                                FullscreenSettingsScreen(
-                                                    onBackButtonPressed = {
-                                                        actionCardState.onBackPressed(
-                                                            actorBackstackEntryId = entry.id,
-                                                        )
-                                                    },
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                )
-                                            }
+                                        is ActionCardNavigation.Settings.Fullscreen -> {
+                                            FullscreenSettingsScreen(
+                                                windowSizeClass = windowSizeClass,
+                                                fullscreen = value,
+                                                onBackButtonPressed = {
+                                                    actionCardState.onBackPressed(
+                                                        actorBackstackEntryId = entry.id,
+                                                    )
+                                                },
+                                                modifier = Modifier.fillMaxWidth(),
+                                            )
                                         }
                                     }
                                 }
                             }
-                        },
-                        measurePolicy = { measurables, constraints ->
-                            val bottomBarMeasurable = measurables.getValue(ActionCardDestinationLayoutTypes.BottomBar)
-                            val navHostMeasurable = measurables.getValue(ActionCardDestinationLayoutTypes.NavHost)
+                        }
 
-                            val bottomBarIntrinsicHeight = bottomBarMeasurable.minIntrinsicHeight(constraints.maxWidth)
-
-                            val bottomBarPlaceable = bottomBarMeasurable.measure(
-                                constraints.copy(
-                                    maxHeight = bottomBarIntrinsicHeight,
-                                ),
+                        AnimatedVisibility(
+                            visible = !actionCardState.isFullscreen,
+                            enter = expandIn(expandFrom = Alignment.Center) { IntSize(it.width, 0) } +
+                                fadeIn(animationSpec = tween(220, delayMillis = 90)),
+                            exit = shrinkOut(shrinkTowards = Alignment.Center) { IntSize(it.width, 0) } +
+                                fadeOut(animationSpec = tween(90)),
+                        ) {
+                            ActionCardNavigationBar(
+                                actionCardState = actionCardState,
+                                isElevated = currentScrollState.canScrollDown,
                             )
-
-                            val navHostPlaceable = navHostMeasurable.measure(
-                                constraints.copy(
-                                    maxHeight = constraints.maxHeight - bottomBarPlaceable.height,
-                                ),
-                            )
-
-                            layout(constraints.maxWidth, bottomBarPlaceable.height + navHostPlaceable.height) {
-                                navHostPlaceable.place(0, 0)
-                                bottomBarPlaceable.place(0, navHostPlaceable.height)
-                            }
-                        },
-                    )
+                        }
+                    }
                 }
             }
         }

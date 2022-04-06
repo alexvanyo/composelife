@@ -43,6 +43,7 @@ dependencies {
 
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.androidx.compose.material3)
+    api(libs.androidx.compose.material3.windowSizeClass)
     implementation(libs.androidx.compose.materialIconsExtended)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.poolingContainer)
@@ -50,6 +51,7 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.lifecycle)
+    implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)

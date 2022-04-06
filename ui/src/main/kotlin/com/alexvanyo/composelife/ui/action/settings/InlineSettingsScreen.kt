@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.action
+package com.alexvanyo.composelife.ui.action.settings
 
 import android.content.res.Configuration
 import androidx.compose.foundation.ScrollState
@@ -46,7 +46,7 @@ fun InlineSettingsScreen(
         TextButton(
             onClick = onSeeMoreClicked,
         ) {
-            Text(text = stringResource(R.string.see_more))
+            Text(text = stringResource(R.string.see_all))
         }
     }
 }
