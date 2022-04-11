@@ -23,6 +23,7 @@ plugins {
 }
 
 android {
+    namespace = "com.alexvanyo.composelife.ui.screenshots"
     defaultConfig {
         minSdk = 21
     }

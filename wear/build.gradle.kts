@@ -27,6 +27,7 @@ plugins {
 }
 
 android {
+    namespace = "com.alexvanyo.composelife.wear"
     defaultConfig {
         applicationId = "com.alexvanyo.composelife.wear"
         minSdk = 26

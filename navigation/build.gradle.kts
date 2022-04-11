@@ -26,6 +26,7 @@ plugins {
 }
 
 android {
+    namespace = "com.alexvanyo.composelife.navigation"
     defaultConfig {
         minSdk = 21
     }
