@@ -24,8 +24,6 @@ pluginManagement {
 
 dependencyResolutionManagement {
     repositories {
-        google()
-        mavenCentral()
         maven(url = "https://storage.googleapis.com/r8-releases/raw") {
             content {
                 includeModule("com.android.tools", "r8")
@@ -36,6 +34,8 @@ dependencyResolutionManagement {
                 includeGroup("app.cash.paparazzi")
             }
         }
+        google()
+        mavenCentral()
     }
     versionCatalogs {
         create("libs") {

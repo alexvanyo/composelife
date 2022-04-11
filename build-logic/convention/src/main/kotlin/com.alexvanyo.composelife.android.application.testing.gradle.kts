@@ -46,4 +46,5 @@ android {
 
 keeper {
     automaticR8RepoManagement.set(false)
+    traceReferences {}
 }
