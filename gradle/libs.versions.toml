@@ -75,6 +75,7 @@ kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+leakCanary = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakCanary" }
 paparazzi-gradlePlugin = { group = "app.cash.paparazzi", name = "paparazzi-gradle-plugin", version.ref = "paparazzi" }
 paparazzi-runtime = { group = "app.cash.paparazzi", name = "paparazzi", version.ref = "paparazzi" }
 protobuf-protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "protobuf" }
@@ -82,7 +83,6 @@ protobuf-runtime = { group = "com.google.protobuf", name = "protobuf-kotlin-lite
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 sealedEnum-ksp = { group = "com.github.livefront.sealed-enum", name = "ksp", version.ref = "sealedEnum" }
 sealedEnum-runtime = { group = "com.github.livefront.sealed-enum", name = "runtime", version.ref = "sealedEnum" }
-square-leakCanary = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakCanary" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 
 [plugins]
