@@ -19,27 +19,25 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 pluginManagement {
     includeBuild("build-logic")
     repositories {
-        google()
-        mavenCentral()
         maven(url = "https://storage.googleapis.com/r8-releases/raw") {
             content {
                 includeModule("com.android.tools", "r8")
             }
         }
-        gradlePluginPortal()
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots/") {
             content {
                 includeGroup("app.cash.paparazzi")
             }
         }
+        google()
+        mavenCentral()
+        gradlePluginPortal()
     }
 }
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()
-        mavenCentral()
         maven(url = "https://androidx.dev/snapshots/builds/8276583/artifacts/repository")
         maven(url = "https://storage.googleapis.com/r8-releases/raw") {
             content {
@@ -56,6 +54,8 @@ dependencyResolutionManagement {
                 includeGroup("app.cash.paparazzi")
             }
         }
+        google()
+        mavenCentral()
     }
 }
 
