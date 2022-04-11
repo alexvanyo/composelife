@@ -46,7 +46,7 @@ dependencies {
     kapt(libs.dagger.hilt.compiler)
 
     debugImplementation(libs.androidx.compose.uiTooling)
-    debugImplementation(libs.square.leakCanary)
+    debugImplementation(libs.leakCanary)
 
     sharedTestImplementation(projects.dispatchersTest)
     sharedTestImplementation(projects.patterns)

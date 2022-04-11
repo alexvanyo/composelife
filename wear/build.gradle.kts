@@ -52,7 +52,7 @@ dependencies {
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 
-    debugImplementation(libs.square.leakCanary)
+    debugImplementation(libs.leakCanary)
 
     sharedTestImplementation(libs.androidx.compose.uiTestJunit4)
     sharedTestImplementation(libs.androidx.test.espresso)
