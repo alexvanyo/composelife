@@ -21,6 +21,7 @@ plugins {
 }
 
 android {
+    namespace = "com.alexvanyo.composelife.dispatchers"
     defaultConfig {
         minSdk = 21
     }
