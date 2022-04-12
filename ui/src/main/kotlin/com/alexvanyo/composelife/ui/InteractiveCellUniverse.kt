@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,27 +44,28 @@ fun InteractiveCellUniverse(
 ) {
     val currentShapeState = preferences.currentShapeState
 
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier,
-    ) {
-        when (currentShapeState) {
-            is ResourceState.Failure -> Unit
-            ResourceState.Loading -> {
-                CircularProgressIndicator()
+    Surface(modifier = modifier) {
+        Box(
+            contentAlignment = Alignment.Center,
+        ) {
+            when (currentShapeState) {
+                is ResourceState.Failure -> Unit
+                ResourceState.Loading -> {
+                    CircularProgressIndicator()
+                }
+                is ResourceState.Success -> {
+                    MutableCellWindow(
+                        gameOfLifeState = temporalGameOfLifeState,
+                        cellWindowState = cellWindowState,
+                        shape = currentShapeState.value,
+                    )
+                }
             }
-            is ResourceState.Success -> {
-                MutableCellWindow(
-                    gameOfLifeState = temporalGameOfLifeState,
-                    cellWindowState = cellWindowState,
-                    shape = currentShapeState.value,
-                )
-            }
-        }
 
-        InteractiveCellUniverseOverlay(
-            temporalGameOfLifeState = temporalGameOfLifeState,
-            cellWindowState = cellWindowState,
-        )
+            InteractiveCellUniverseOverlay(
+                temporalGameOfLifeState = temporalGameOfLifeState,
+                cellWindowState = cellWindowState,
+            )
+        }
     }
 }

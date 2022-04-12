@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui
 
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
@@ -55,12 +54,9 @@ fun ComposeLifeApp() {
             dispatchers = dispatchers,
         )
 
-        // A surface container using the 'background' color from the theme
-        Surface {
-            InteractiveCellUniverse(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-            )
-        }
+        InteractiveCellUniverse(
+            temporalGameOfLifeState = temporalGameOfLifeState,
+        )
     }
 }
 
