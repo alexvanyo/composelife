@@ -143,7 +143,8 @@ class HashLifeAlgorithm @Inject constructor(
      *
      * This function is memoized by [cellMap].
      *
-     * @param useMap if true, use the [canonicalCellMap] to memoize the answer. If false,
+     * @param useMap if true, use the [canonicalCellMap] to memoize the answer. If false, compute this entry directly,
+     * while still using [canonicalCellMap] to compute child nodes.
      */
     @Suppress("LongMethod", "ComplexMethod")
     private fun MacroCell.CellNode.computeNextGeneration(
@@ -315,45 +316,143 @@ class HashLifeAlgorithm @Inject constructor(
     /**
      * Returns the [HashLifeCellState] corresponding to the next generation.
      */
-    @Suppress("ComplexMethod")
+    @Suppress("ComplexMethod", "LongMethod", "ReturnCount")
     private tailrec fun computeNextGeneration(cellState: HashLifeCellState): HashLifeCellState {
         val node = cellState.macroCell as MacroCell.CellNode
 
         if (node.level > 3) {
             node.nw as MacroCell.CellNode
             node.nw.nw as MacroCell.CellNode
-            node.nw.ne as MacroCell.CellNode
-            node.nw.sw as MacroCell.CellNode
-            node.nw.se as MacroCell.CellNode
             node.ne as MacroCell.CellNode
-            node.ne.nw as MacroCell.CellNode
-            node.ne.ne as MacroCell.CellNode
-            node.ne.sw as MacroCell.CellNode
-            node.ne.se as MacroCell.CellNode
             node.sw as MacroCell.CellNode
-            node.sw.nw as MacroCell.CellNode
-            node.sw.ne as MacroCell.CellNode
-            node.sw.sw as MacroCell.CellNode
-            node.sw.se as MacroCell.CellNode
             node.se as MacroCell.CellNode
-            node.se.nw as MacroCell.CellNode
-            node.se.ne as MacroCell.CellNode
-            node.se.sw as MacroCell.CellNode
             node.se.se as MacroCell.CellNode
 
-            @Suppress("ComplexCondition")
-            if (node.nw.nw.size == 0 && node.nw.ne.size == 0 && node.nw.ne.size == 0 &&
-                node.nw.se.nw.size == 0 && node.nw.se.ne.size == 0 && node.nw.se.sw.size == 0 &&
-                node.ne.nw.size == 0 && node.ne.ne.size == 0 && node.ne.se.size == 0 &&
-                node.ne.sw.nw.size == 0 && node.ne.sw.ne.size == 0 && node.ne.sw.se.size == 0 &&
-                node.sw.nw.size == 0 && node.sw.sw.size == 0 && node.sw.se.size == 0 &&
-                node.sw.ne.nw.size == 0 && node.sw.ne.sw.size == 0 && node.sw.ne.se.size == 0 &&
-                node.se.ne.size == 0 && node.se.sw.size == 0 && node.se.se.size == 0 &&
-                node.se.nw.ne.size == 0 && node.se.nw.sw.size == 0 && node.se.nw.se.size == 0
-            ) {
+            // Check if all alive nodes are within some connected 4 nodes two layers deep.
+            // If this is the case, then it is guaranteed that the result of computing a generation will be entirely
+            // contained within the middle 4 nodes one layer deep.
+            val n00 = centeredSubnode(node.nw)
+            val n01 = centeredHorizontal(node.nw, node.ne)
+            val n02 = centeredSubnode(node.ne)
+            val n10 = centeredVertical(node.nw, node.sw)
+            val n11 = centeredSubSubnode(node)
+            val n12 = centeredVertical(node.ne, node.se)
+            val n20 = centeredSubnode(node.sw)
+            val n21 = centeredHorizontal(node.sw, node.se)
+            val n22 = centeredSubnode(node.se)
+
+            // Case 5, we already have the correct center
+            if (centeredSubnode(n11).size == node.size) {
                 return HashLifeCellState(
                     offset = cellState.offset + IntOffset(1 shl (node.level - 2), 1 shl (node.level - 2)),
                     macroCell = cellState.macroCell.computeNextGeneration(),
+                )
+            }
+
+            data class ShiftedCenterInfo(
+                val resultCell: MacroCell.CellNode,
+                val offset: IntOffset,
+                val emptyCell: MacroCell.CellNode,
+            ) {
+                init {
+                    require(resultCell.level - 1 == emptyCell.level)
+                    require(emptyCell.size == 0)
+                }
+            }
+
+            val shiftedCenterInfo: ShiftedCenterInfo? =
+                when (node.size) {
+                    centeredSubnode(n00).size -> {
+                        ShiftedCenterInfo(
+                            resultCell = n00,
+                            emptyCell = node.se.se,
+                            offset = IntOffset.Zero,
+                        )
+                    }
+                    centeredSubnode(n01).size -> {
+                        ShiftedCenterInfo(
+                            resultCell = n01,
+                            emptyCell = node.se.se,
+                            offset = IntOffset(1 shl (node.level - 2), 0),
+                        )
+                    }
+                    centeredSubnode(n02).size -> {
+                        ShiftedCenterInfo(
+                            resultCell = n02,
+                            emptyCell = node.se.se,
+                            offset = IntOffset(1 shl (node.level - 1), 0),
+                        )
+                    }
+                    centeredSubnode(n10).size -> {
+                        ShiftedCenterInfo(
+                            resultCell = n10,
+                            emptyCell = node.se.se,
+                            offset = IntOffset(0, 1 shl (node.level - 2)),
+                        )
+                    }
+                    centeredSubnode(n12).size -> {
+                        ShiftedCenterInfo(
+                            resultCell = n12,
+                            emptyCell = node.nw.nw,
+                            offset = IntOffset(1 shl (node.level - 1), 1 shl (node.level - 2)),
+                        )
+                    }
+                    centeredSubnode(n20).size -> {
+                        ShiftedCenterInfo(
+                            resultCell = n20,
+                            emptyCell = node.nw.nw,
+                            offset = IntOffset(0, 1 shl (node.level - 1)),
+                        )
+                    }
+                    centeredSubnode(n21).size -> {
+                        ShiftedCenterInfo(
+                            resultCell = n21,
+                            emptyCell = node.nw.nw,
+                            offset = IntOffset(1 shl (node.level - 2), 1 shl (node.level - 1)),
+                        )
+                    }
+                    centeredSubnode(n22).size -> {
+                        ShiftedCenterInfo(
+                            resultCell = n22,
+                            emptyCell = node.nw.nw,
+                            offset = IntOffset(1 shl (node.level - 1), 1 shl (node.level - 2)),
+                        )
+                    }
+                    else -> null
+                }
+
+            if (shiftedCenterInfo != null) {
+                return computeNextGeneration(
+                    HashLifeCellState(
+                        offset = cellState.offset + shiftedCenterInfo.offset -
+                            IntOffset(1 shl (node.level - 2), 1 shl (node.level - 2)),
+                        macroCell = MacroCell.CellNode(
+                            nw = MacroCell.CellNode(
+                                nw = shiftedCenterInfo.emptyCell,
+                                ne = shiftedCenterInfo.emptyCell,
+                                sw = shiftedCenterInfo.emptyCell,
+                                se = shiftedCenterInfo.resultCell.nw,
+                            ),
+                            ne = MacroCell.CellNode(
+                                nw = shiftedCenterInfo.emptyCell,
+                                ne = shiftedCenterInfo.emptyCell,
+                                sw = shiftedCenterInfo.resultCell.ne,
+                                se = shiftedCenterInfo.emptyCell,
+                            ),
+                            sw = MacroCell.CellNode(
+                                nw = shiftedCenterInfo.emptyCell,
+                                ne = shiftedCenterInfo.resultCell.sw,
+                                sw = shiftedCenterInfo.emptyCell,
+                                se = shiftedCenterInfo.emptyCell,
+                            ),
+                            se = MacroCell.CellNode(
+                                nw = shiftedCenterInfo.resultCell.se,
+                                ne = shiftedCenterInfo.emptyCell,
+                                sw = shiftedCenterInfo.emptyCell,
+                                se = shiftedCenterInfo.emptyCell,
+                            ),
+                        ),
+                    ),
                 )
             }
         }
