@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
@@ -51,35 +52,37 @@ fun InteractableCells(
     cellWindow: IntRect,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier
+    Surface(
+        modifier = modifier
             .requiredSize(
                 scaledCellDpSize * (cellWindow.width + 1),
                 scaledCellDpSize * (cellWindow.height + 1),
             ),
     ) {
-        (cellWindow.top..cellWindow.bottom).forEach { row ->
-            Row {
-                (cellWindow.left..cellWindow.right).forEach { column ->
-                    val cell = IntOffset(column, row)
-                    key(cell) {
-                        InteractableCell(
-                            modifier = Modifier
-                                .size(scaledCellDpSize),
-                            isAlive = cell in gameOfLifeState.cellState.aliveCells,
-                            shape = shape,
-                            contentDescription = stringResource(
-                                R.string.cell_content_description,
-                                cell.x,
-                                cell.y,
-                            ),
-                            onValueChange = { isAlive ->
-                                gameOfLifeState.setCellState(
-                                    cellCoordinate = cell,
-                                    isAlive = isAlive,
-                                )
-                            },
-                        )
+        Column {
+            (cellWindow.top..cellWindow.bottom).forEach { row ->
+                Row {
+                    (cellWindow.left..cellWindow.right).forEach { column ->
+                        val cell = IntOffset(column, row)
+                        key(cell) {
+                            InteractableCell(
+                                modifier = Modifier
+                                    .size(scaledCellDpSize),
+                                isAlive = cell in gameOfLifeState.cellState.aliveCells,
+                                shape = shape,
+                                contentDescription = stringResource(
+                                    R.string.cell_content_description,
+                                    cell.x,
+                                    cell.y,
+                                ),
+                                onValueChange = { isAlive ->
+                                    gameOfLifeState.setCellState(
+                                        cellCoordinate = cell,
+                                        isAlive = isAlive,
+                                    )
+                                },
+                            )
+                        }
                     }
                 }
             }
