@@ -57,13 +57,17 @@ sealed interface CellStateFormat {
 
 class PlaintextCellStateSerializer : CellStateSerializer {
 
+    private data class LineLengthInfo(
+        val index: Int,
+        val length: Int,
+    )
+
     @Suppress("LongMethod")
     override fun deserializeToCellState(lines: Sequence<String>): DeserializationResult {
         val warnings = mutableListOf<ParameterizedString>()
         val points = mutableSetOf<IntOffset>()
 
-        var expectedRowLength: Int? = null
-        var longestLineIndex: Int? = null
+        var longestLine: LineLengthInfo? = null
 
         var lineIndex = 0
         var rowIndex = 0
@@ -83,16 +87,18 @@ class PlaintextCellStateSerializer : CellStateSerializer {
                     }
                 }
                 else -> {
-                    if (expectedRowLength == null) {
-                        expectedRowLength = line.length
-                        longestLineIndex = lineIndex
-                    } else if (line.length > expectedRowLength) {
-                        // Guaranteed non-null since expectedRowLength is non-null
-                        @Suppress("UnsafeCallOnNullableType")
-                        warnings.add(ParameterizedString(R.string.unexpected_short_line, longestLineIndex!! + 1))
-                        expectedRowLength = line.length
-                        longestLineIndex = lineIndex
-                    } else if (line.length < expectedRowLength) {
+                    if (longestLine == null) {
+                        longestLine = LineLengthInfo(
+                            index = lineIndex,
+                            length = line.length,
+                        )
+                    } else if (line.length > longestLine.length) {
+                        warnings.add(ParameterizedString(R.string.unexpected_short_line, longestLine.index + 1))
+                        longestLine = LineLengthInfo(
+                            index = lineIndex,
+                            length = line.length,
+                        )
+                    } else if (line.length < longestLine.length) {
                         warnings.add(ParameterizedString(R.string.unexpected_short_line, lineIndex + 1))
                     }
 
@@ -135,10 +141,10 @@ class PlaintextCellStateSerializer : CellStateSerializer {
     }
 
     override fun serializeToString(cellState: CellState): Sequence<String> {
-        val minX = cellState.aliveCells.map { it.x }.minOrNull() ?: 0
-        val maxX = cellState.aliveCells.map { it.x }.maxOrNull() ?: 0
-        val minY = cellState.aliveCells.map { it.y }.minOrNull() ?: 0
-        val maxY = cellState.aliveCells.map { it.y }.maxOrNull() ?: 0
+        val minX = cellState.aliveCells.minOfOrNull { it.x } ?: 0
+        val maxX = cellState.aliveCells.maxOfOrNull { it.x } ?: 0
+        val minY = cellState.aliveCells.minOfOrNull { it.y } ?: 0
+        val maxY = cellState.aliveCells.maxOfOrNull { it.y } ?: 0
 
         return sequence {
             (minY..maxY).forEach { y ->
