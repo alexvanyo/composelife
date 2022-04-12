@@ -18,7 +18,7 @@ package com.alexvanyo.composelife.ui
 
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
@@ -35,7 +35,7 @@ fun ComposeLifeApp() {
         val useDarkIcons = ComposeLifeTheme.isLight
         val systemUiController = rememberSystemUiController()
 
-        SideEffect {
+        LaunchedEffect(systemUiController, useDarkIcons) {
             systemUiController.setSystemBarsColor(
                 color = Color.Transparent,
                 darkIcons = useDarkIcons,
