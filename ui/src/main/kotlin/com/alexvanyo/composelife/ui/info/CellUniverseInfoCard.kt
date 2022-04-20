@@ -37,7 +37,9 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -192,7 +194,9 @@ fun CellUniverseInfoCard(
 ) {
     Card(
         modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.surface,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 1.dp,
         ),
@@ -247,6 +251,9 @@ private fun CellUniverseInfoExpandButton(
     IconToggleButton(
         checked = isExpanded,
         onCheckedChange = setIsExpanded,
+        colors = IconButtonDefaults.iconToggleButtonColors(
+            checkedContentColor = LocalContentColor.current,
+        ),
         modifier = modifier,
     ) {
         Icon(

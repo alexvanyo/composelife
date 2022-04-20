@@ -124,7 +124,7 @@ fun InlinePaletteScreen(
                             )
                         },
                         colors = TextFieldDefaults.outlinedTextFieldColors(
-                            backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
                             disabledBorderColor = MaterialTheme.colorScheme.outline,
                             disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                             disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
