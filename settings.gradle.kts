@@ -38,7 +38,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        maven(url = "https://androidx.dev/snapshots/builds/8276583/artifacts/repository")
+        maven(url = "https://androidx.dev/snapshots/builds/8478487/artifacts/repository")
         maven(url = "https://storage.googleapis.com/r8-releases/raw") {
             content {
                 includeModule("com.android.tools", "r8")

@@ -29,7 +29,9 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,7 +42,7 @@ import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "LongMethod")
 @Composable
 fun ActionControlRow(
     isElevated: Boolean,
@@ -65,6 +67,9 @@ fun ActionControlRow(
             IconToggleButton(
                 checked = isRunning,
                 onCheckedChange = setIsRunning,
+                colors = IconButtonDefaults.iconToggleButtonColors(
+                    checkedContentColor = LocalContentColor.current,
+                ),
             ) {
                 Icon(
                     imageVector = if (isRunning) {
@@ -92,6 +97,9 @@ fun ActionControlRow(
             IconToggleButton(
                 checked = isExpanded,
                 onCheckedChange = setIsExpanded,
+                colors = IconButtonDefaults.iconToggleButtonColors(
+                    checkedContentColor = LocalContentColor.current,
+                ),
             ) {
                 Icon(
                     imageVector = if (isExpanded) {
