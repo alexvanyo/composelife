@@ -56,11 +56,13 @@ class GameOfLifeRenderer(
     currentUserStyleRepository = currentUserStyleRepository,
     watchState = watchState,
     canvasType = CanvasType.HARDWARE,
-    interactiveDrawModeUpdateDelayMillis = 200L,
+    interactiveDrawModeUpdateDelayMillis = 50,
 ) {
     private val density = Density(context = context)
 
     private val cellWindow = IntRect(IntOffset(0, 0), IntSize(99, 99))
+
+    private val cellWindowContainedPoints = cellWindow.containedPoints()
 
     private val use24HourFormat = DateFormat.is24HourFormat(context)
 
@@ -72,31 +74,36 @@ class GameOfLifeRenderer(
         val localTime = zonedDateTime.toLocalTime()
 
         if (previousLocalTime.hour != localTime.hour || previousLocalTime.minute != localTime.minute) {
-            temporalGameOfLifeState.cellState = createTimeCellState(createTimeDigits(localTime, use24HourFormat))
+            Snapshot.withMutableSnapshot {
+                temporalGameOfLifeState.cellState = createTimeCellState(createTimeDigits(localTime, use24HourFormat))
+            }
         }
 
         val cellSize = bounds.width().toFloat() / cellWindow.width
-
-        Snapshot.sendApplyNotifications()
 
         val cellState = temporalGameOfLifeState.cellState
 
         CanvasDrawScope().draw(density, LayoutDirection.Ltr, Canvas(c = canvas), bounds.toComposeRect().size) {
             drawRect(color = Color.Black)
 
-            cellWindow.containedPoints().intersect(cellState.aliveCells).forEach { cell ->
-                val windowOffset = (cell - cellWindow.topLeft).toOffset() * cellSize
+            for (index in cellWindowContainedPoints.indices) {
+                val point = cellWindowContainedPoints[index]
+                if (point in cellState.aliveCells) {
+                    val windowOffset = (point - cellWindow.topLeft).toOffset() * cellSize
 
-                drawRect(
-                    color = Color.White,
-                    topLeft = windowOffset,
-                    size = Size(cellSize, cellSize),
-                )
+                    drawRect(
+                        color = Color.White,
+                        topLeft = windowOffset,
+                        size = Size(cellSize, cellSize),
+                    )
+                }
             }
         }
 
         if (zonedDateTime.toEpochSecond() * 1000 == watchState.digitalPreviewReferenceTimeMillis) {
-            temporalGameOfLifeState.cellState = previousSeedCellState
+            Snapshot.withMutableSnapshot {
+                temporalGameOfLifeState.cellState = previousSeedCellState
+            }
         } else {
             previousLocalTime = localTime
         }
