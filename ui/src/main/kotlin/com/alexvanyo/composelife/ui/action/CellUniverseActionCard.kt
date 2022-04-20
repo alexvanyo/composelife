@@ -106,7 +106,9 @@ fun CellUniverseActionCard(
 ) {
     Card(
         shape = shape,
-        containerColor = MaterialTheme.colorScheme.surface,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 1.dp,
         ),
