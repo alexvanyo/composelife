@@ -47,7 +47,8 @@ fun Project.configureGradleManagedDevices(
             }
         }
             .filterNot {
-                it.systemImageSource.contains("atd") && it.apiLevel != 30
+                // ATD is only supported on versions 30 and above
+                it.systemImageSource.contains("atd") && it.apiLevel < 30
             }
             .forEach { config ->
                 create<com.android.build.api.dsl.ManagedVirtualDevice>(

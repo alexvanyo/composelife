@@ -105,6 +105,7 @@ jobs:
               {"device": "pixel3xl", "api-level": "30"},
               {"device": "pixel3xl", "api-level": "31"},
               {"device": "atdpixel2", "api-level": "30"},
+              {"device": "atdpixel2", "api-level": "31"},
             '
           else
             MATRIX='
