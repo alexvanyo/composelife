@@ -52,7 +52,8 @@ suspend fun PointerInputScope.detectTransformGestures(
             awaitFirstDown(requireUnconsumed = false)
             do {
                 val event = awaitPointerEvent()
-                val canceled = event.changes.any { it.isConsumed }
+                // Custom logic
+                val canceled = event.changes.any { it.positionChanged() && it.isConsumed }
                 if (!canceled) {
                     val zoomChange = event.calculateZoom()
                     val rotationChange = event.calculateRotation()
@@ -96,7 +97,10 @@ suspend fun PointerInputScope.detectTransformGestures(
                 }
             } while (!canceled && event.changes.any { it.pressed })
 
-            onGestureEnd() // Custom callback
+            // Custom callback
+            if (pastTouchSlop) {
+                onGestureEnd()
+            }
         }
     }
 }
