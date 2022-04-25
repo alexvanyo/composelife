@@ -51,12 +51,13 @@ class GameOfLifeRenderer(
     currentUserStyleRepository: CurrentUserStyleRepository,
     private val watchState: WatchState,
     private val temporalGameOfLifeState: TemporalGameOfLifeState,
-) : Renderer.CanvasRenderer(
+) : Renderer.CanvasRenderer2<Renderer.SharedAssets>(
     surfaceHolder = surfaceHolder,
     currentUserStyleRepository = currentUserStyleRepository,
     watchState = watchState,
     canvasType = CanvasType.HARDWARE,
     interactiveDrawModeUpdateDelayMillis = 50,
+    clearWithBackgroundTintBeforeRenderingHighlightLayer = false,
 ) {
     private val density = Density(context = context)
 
@@ -68,7 +69,12 @@ class GameOfLifeRenderer(
 
     private var previousLocalTime = LocalTime.MIN
 
-    override fun render(canvas: android.graphics.Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+    override fun render(
+        canvas: android.graphics.Canvas,
+        bounds: Rect,
+        zonedDateTime: ZonedDateTime,
+        sharedAssets: SharedAssets,
+    ) {
         val previousSeedCellState = temporalGameOfLifeState.seedCellState
 
         val localTime = zonedDateTime.toLocalTime()
@@ -109,8 +115,17 @@ class GameOfLifeRenderer(
         }
     }
 
-    override fun renderHighlightLayer(canvas: android.graphics.Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+    override fun renderHighlightLayer(
+        canvas: android.graphics.Canvas,
+        bounds: Rect,
+        zonedDateTime: ZonedDateTime,
+        sharedAssets: SharedAssets,
+    ) {
         // TODO
+    }
+
+    override suspend fun createSharedAssets(): SharedAssets = object : SharedAssets {
+        override fun onDestroy() = Unit
     }
 }
 
