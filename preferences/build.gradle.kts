@@ -16,7 +16,10 @@
 
 import com.alexvanyo.composelife.buildlogic.kaptSharedTest
 import com.alexvanyo.composelife.buildlogic.sharedTestImplementation
+import com.google.protobuf.gradle.builtins
+import com.google.protobuf.gradle.generateProtoTasks
 import com.google.protobuf.gradle.protobuf
+import com.google.protobuf.gradle.protoc
 
 plugins {
     id("com.alexvanyo.composelife.android.library")
@@ -56,19 +59,19 @@ dependencies {
 }
 
 protobuf {
-    protoc(closureOf<com.google.protobuf.gradle.ExecutableLocator> {
+    protoc {
         artifact = libs.protobuf.protoc.get().toString()
-    })
-    generateProtoTasks(closureOf<com.google.protobuf.gradle.ProtobufConfigurator.AndroidGenerateProtoTaskCollection> {
+    }
+    generateProtoTasks {
         all().forEach { task ->
-            task.plugins(closureOf<NamedDomainObjectContainer<com.google.protobuf.gradle.GenerateProtoTask.PluginOptions>> {
-                create("java") {
+            task.builtins {
+                val java by registering {
                     option("lite")
                 }
-                create("kotlin") {
+                val kotlin by registering {
                     option("lite")
                 }
-            })
+            }
         }
-    })
+    }
 }
