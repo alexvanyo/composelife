@@ -38,7 +38,6 @@ android {
 dependencies {
     api(projects.algorithm)
     api(projects.dispatchers)
-    implementation(projects.hiltTestActivity)
     implementation(projects.navigation)
     implementation(projects.resourceState)
 
@@ -48,7 +47,6 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.poolingContainer)
     implementation(libs.androidx.compose.uiToolingPreview)
-    implementation(libs.androidx.compose.uiTestManifest)
     implementation(libs.androidx.core)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.lifecycle)
@@ -63,6 +61,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.uiTooling)
 
     sharedTestImplementation(projects.dispatchersTest)
+    sharedTestImplementation(projects.hiltTestActivity)
     sharedTestImplementation(projects.patterns)
     sharedTestImplementation(projects.preferencesTest)
     sharedTestImplementation(projects.screenshotTest)

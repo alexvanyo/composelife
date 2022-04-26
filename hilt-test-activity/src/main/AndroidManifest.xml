@@ -19,6 +19,6 @@
         <activity
             android:name="com.alexvanyo.composelife.test.TestActivity"
             android:exported="true"
-            android:theme="@style/Theme.Test" />
+            android:theme="@style/Theme.ComposeLife" />
     </application>
 </manifest>

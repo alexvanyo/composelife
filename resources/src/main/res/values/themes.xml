@@ -14,4 +14,13 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest />
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.ComposeLifeBase" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.ComposeLife" parent="Theme.ComposeLifeBase" tools:ignore="UnusedResources">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+</resources>
