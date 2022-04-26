@@ -28,6 +28,8 @@ android {
 }
 
 dependencies {
+    implementation(projects.resources)
+    api(projects.testActivity)
     api(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 }

@@ -35,8 +35,8 @@ android {
 dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.runtime)
-    implementation(libs.androidx.compose.uiTestManifest)
 
+    sharedTestImplementation(projects.testActivity)
     sharedTestImplementation(libs.androidx.test.espresso)
     sharedTestImplementation(libs.androidx.compose.uiTestJunit4)
 }

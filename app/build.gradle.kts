@@ -39,6 +39,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.resources)
     implementation(projects.ui)
 
     implementation(libs.androidx.activityCompose)
