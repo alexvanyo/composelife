@@ -33,6 +33,6 @@ dependencies {
     add("testImplementation", libs.findLibrary("guava.jre").get())
 }
 
-tasks.getByName("check") {
+tasks.named("check") {
     dependsOn("verifyPaparazziDebug")
 }
