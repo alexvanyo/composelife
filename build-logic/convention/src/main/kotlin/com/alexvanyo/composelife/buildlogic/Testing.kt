@@ -84,7 +84,7 @@ fun Project.configureAndroidTesting(
         }
 
         if (useSharedTest == "robolectric") {
-            testVariants.all {
+            testVariants.configureEach {
                 connectedInstrumentTestProvider.configure {
                     doFirst {
                         throw GradleException("useSharedTest is configured to only run robolectric tests!")
