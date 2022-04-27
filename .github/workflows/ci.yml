@@ -169,22 +169,22 @@ jobs:
           if ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch') }}
           then
             MATRIX='
-              {"api-level": "21"},
-              {"api-level": "22"},
-              {"api-level": "23"},
-              {"api-level": "24"},
-              {"api-level": "25"},
-              {"api-level": "26"},
-              {"api-level": "27"},
-              {"api-level": "28"},
-              {"api-level": "29"},
-              {"api-level": "30"},
-              {"api-level": "31"},
-              {"api-level": "32"}
+              {"api-level": "21", "target": "default"},
+              {"api-level": "22", "target": "default"},
+              {"api-level": "23", "target": "default"},
+              {"api-level": "24", "target": "default"},
+              {"api-level": "25", "target": "default"},
+              {"api-level": "26", "target": "default"},
+              {"api-level": "27", "target": "default"},
+              {"api-level": "28", "target": "default"},
+              {"api-level": "29", "target": "default"},
+              {"api-level": "30", "target": "default"},
+              {"api-level": "31", "target": "default"},
+              {"api-level": "32", "target": "google_apis"}
             '
           else
             MATRIX='
-              {"api-level": "21"}
+              {"api-level": "21", "target": "default"}
             '
           fi
           echo ::set-output name=matrix::{\"include\":[$MATRIX]}
@@ -195,7 +195,7 @@ jobs:
     timeout-minutes: 60
 
     concurrency:
-      group: ci-android-test-aer-${{ github.event_name }}-${{ github.ref }}-${{ matrix.api-level }}
+      group: ci-android-test-aer-${{ github.event_name }}-${{ github.ref }}-${{ matrix.api-level }}-${{ matrix.target }}
       cancel-in-progress: true
 
     strategy:
@@ -213,7 +213,7 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: v2-${{ runner.os }}-avd-${{ matrix.api-level }}
+          key: v3-${{ runner.os }}-avd-${{ matrix.api-level }}-${{ matrix.target }}
 
       - name: Configure JDK
         uses: actions/setup-java@v3
@@ -229,6 +229,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
+          target: ${{ matrix.target }}
           arch: x86_64
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
@@ -240,6 +241,7 @@ jobs:
         continue-on-error: true # Allow uploading logs on failure
         with:
           api-level: ${{ matrix.api-level }}
+          target: ${{ matrix.target }}
           arch: x86_64
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
@@ -253,7 +255,7 @@ jobs:
       - name: Upload failing test logs
         uses: actions/upload-artifact@v3
         with:
-          name: android-test-aer-${{ matrix.api-level }}-logs
+          name: android-test-aer-${{ matrix.api-level }}-${{ matrix.target }}-logs
           path: emulator.log
 
       - name: Raise error on test failure
