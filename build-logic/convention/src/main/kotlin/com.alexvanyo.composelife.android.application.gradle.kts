@@ -25,7 +25,7 @@ android {
     configureKotlinAndroid(this)
 
     signingConfigs {
-        getByName("debug") {
+        named("debug") {
             keyAlias = "debug"
             keyPassword = "android"
             storeFile = file("$rootDir/keystore/debug.jks")

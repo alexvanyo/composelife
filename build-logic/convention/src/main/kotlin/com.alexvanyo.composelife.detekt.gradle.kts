@@ -38,9 +38,11 @@ dependencies {
 }
 
 tasks {
-    withType<io.gitlab.arturbosch.detekt.Detekt> {
+    withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 
-    getByName("check").dependsOn("detektMain")
+    named("check") {
+        dependsOn("detektMain")
+    }
 }
