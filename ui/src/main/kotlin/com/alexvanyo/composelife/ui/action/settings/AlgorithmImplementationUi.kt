@@ -39,20 +39,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.R
-import com.alexvanyo.composelife.ui.entrypoints.ComposeLifePreferencesEntryPoint
+import com.alexvanyo.composelife.ui.entrypoints.preferences.inject
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import kotlinx.coroutines.launch
 
 @Composable
 fun AlgorithmImplementationUi(
     modifier: Modifier = Modifier,
-    composeLifePreferences: ComposeLifePreferences =
-        hiltViewModel<ComposeLifePreferencesEntryPoint>().composeLifePreferences,
+    composeLifePreferences: ComposeLifePreferences = inject(),
 ) {
     AlgorithmImplementationUi(
         algorithmChoiceState = composeLifePreferences.algorithmChoiceState,

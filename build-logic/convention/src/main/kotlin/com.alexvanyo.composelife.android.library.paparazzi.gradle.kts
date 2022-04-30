@@ -36,3 +36,9 @@ dependencies {
 tasks.named("check") {
     dependsOn("verifyPaparazziDebug")
 }
+
+tasks.withType<Test>().configureEach {
+    // Increase memory and parallelize Paparazzi tests
+    maxHeapSize = "2g"
+    maxParallelForks = 4
+}

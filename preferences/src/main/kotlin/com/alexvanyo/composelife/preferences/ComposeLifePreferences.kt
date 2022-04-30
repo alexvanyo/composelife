@@ -24,9 +24,13 @@ interface ComposeLifePreferences {
 
     val currentShapeState: ResourceState<CurrentShape>
 
+    val darkThemeConfigState: ResourceState<DarkThemeConfig>
+
     suspend fun setAlgorithmChoice(algorithm: AlgorithmType)
 
     suspend fun setCurrentShapeType(currentShapeType: CurrentShapeType)
+
+    suspend fun setDarkThemeConfig(darkThemeConfig: DarkThemeConfig)
 
     suspend fun setRoundRectangleConfig(update: (RoundRectangle) -> RoundRectangle)
 }

@@ -16,53 +16,36 @@
 
 package com.alexvanyo.composelife.ui.info
 
-import androidx.compose.foundation.layout.Box
-import app.cash.paparazzi.DeviceConfig
-import app.cash.paparazzi.Paparazzi
-import org.junit.Rule
+import com.alexvanyo.composelife.ui.util.BasePaparazziTest
 import org.junit.Test
 
-class CellUniverseInfoCardSnapshotTests {
-
-    @get:Rule
-    val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.NEXUS_5.copy(softButtons = false),
-        maxPercentDifference = 0.0,
-    )
+class CellUniverseInfoCardSnapshotTests : BasePaparazziTest() {
 
     @Test
     fun collapsed_preview() {
-        paparazzi.snapshot {
-            Box {
-                CellUniverseInfoCardCollapsedPreview()
-            }
+        snapshot {
+            CellUniverseInfoCardCollapsedPreview()
         }
     }
 
     @Test
     fun collapsed_single_selection_preview() {
-        paparazzi.snapshot {
-            Box {
-                CellUniverseInfoCardCollapsedSingleSelectionPreview()
-            }
+        snapshot {
+            CellUniverseInfoCardCollapsedSingleSelectionPreview()
         }
     }
 
     @Test
     fun fully_collapsed_preview() {
-        paparazzi.snapshot {
-            Box {
-                CellUniverseInfoCardFullyCollapsedPreview()
-            }
+        snapshot {
+            CellUniverseInfoCardFullyCollapsedPreview()
         }
     }
 
     @Test
     fun expanded_preview() {
-        paparazzi.snapshot {
-            Box {
-                CellUniverseInfoCardExpandedPreview()
-            }
+        snapshot {
+            CellUniverseInfoCardExpandedPreview()
         }
     }
 }

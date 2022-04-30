@@ -52,20 +52,6 @@ class CellWindowTests {
     private val applicationContext = ApplicationProvider.getApplicationContext<Application>()
 
     @Test
-    fun immutable_cell_window_preview() {
-        composeTestRule.setContent {
-            ImmutableCellWindowPreview()
-        }
-    }
-
-    @Test
-    fun mutable_cell_window_preview() {
-        composeTestRule.setContent {
-            MutableCellWindowPreview()
-        }
-    }
-
-    @Test
     fun cells_are_displayed_correctly() {
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(

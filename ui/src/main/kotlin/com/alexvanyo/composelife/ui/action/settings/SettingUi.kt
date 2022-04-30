@@ -26,5 +26,6 @@ fun SettingUi(
 ) {
     when (setting) {
         Setting.AlgorithmImplementation -> AlgorithmImplementationUi(modifier = modifier)
+        Setting.DarkThemeConfig -> DarkThemeConfigUi(modifier = modifier)
     }
 }

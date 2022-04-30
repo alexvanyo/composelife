@@ -16,53 +16,36 @@
 
 package com.alexvanyo.composelife.ui.action
 
-import androidx.compose.foundation.layout.Box
-import app.cash.paparazzi.DeviceConfig
-import app.cash.paparazzi.Paparazzi
-import org.junit.Rule
+import com.alexvanyo.composelife.ui.util.BasePaparazziTest
 import org.junit.Test
 
-class ActionControlRowSnapshotTests {
-
-    @get:Rule
-    val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.NEXUS_5.copy(softButtons = false),
-        maxPercentDifference = 0.0,
-    )
+class ActionControlRowSnapshotTests : BasePaparazziTest() {
 
     @Test
     fun collapsed_paused_action_control_row_preview() {
-        paparazzi.snapshot {
-            Box {
-                CollapsedPausedActionControlRowPreview()
-            }
+        snapshot {
+            CollapsedPausedActionControlRowPreview()
         }
     }
 
     @Test
     fun collapsed_running_action_control_row_preview() {
-        paparazzi.snapshot {
-            Box {
-                CollapsedRunningActionControlRowPreview()
-            }
+        snapshot {
+            CollapsedRunningActionControlRowPreview()
         }
     }
 
     @Test
     fun expanded_action_control_row_preview() {
-        paparazzi.snapshot {
-            Box {
-                ExpandedActionControlRowPreview()
-            }
+        snapshot {
+            ExpandedActionControlRowPreview()
         }
     }
 
     @Test
     fun elevated_expanded_action_control_row_preview() {
-        paparazzi.snapshot {
-            Box {
-                ElevatedExpandedActionControlRowPreview()
-            }
+        snapshot {
+            ElevatedExpandedActionControlRowPreview()
         }
     }
 }

@@ -23,6 +23,7 @@ import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.preferences.CurrentShape.RoundRectangle
 import com.alexvanyo.composelife.preferences.proto.AlgorithmProto
 import com.alexvanyo.composelife.preferences.proto.CurrentShapeTypeProto
+import com.alexvanyo.composelife.preferences.proto.DarkThemeConfigProto
 import com.alexvanyo.composelife.preferences.proto.RoundRectangleProto
 import com.alexvanyo.composelife.preferences.proto.copy
 import com.alexvanyo.composelife.preferences.proto.roundRectangleProto
@@ -46,6 +47,9 @@ class DefaultComposeLifePreferences @Inject constructor(
     override var currentShapeState: ResourceState<CurrentShape> by mutableStateOf(ResourceState.Loading)
         private set
 
+    override var darkThemeConfigState: ResourceState<DarkThemeConfig> by mutableStateOf(ResourceState.Loading)
+        private set
+
     init {
         dataStore.data
             .onEach { preferencesProto ->
@@ -67,10 +71,21 @@ class DefaultComposeLifePreferences @Inject constructor(
                         CurrentShapeTypeProto.ROUND_RECTANGLE -> preferencesProto.roundRectangle.toResolved()
                     },
                 )
+
+                darkThemeConfigState = ResourceState.Success(
+                    when (preferencesProto.darkThemeConfig!!) {
+                        DarkThemeConfigProto.DARK_THEME_UNKNOWN,
+                        DarkThemeConfigProto.UNRECOGNIZED,
+                        DarkThemeConfigProto.SYSTEM, -> DarkThemeConfig.FollowSystem
+                        DarkThemeConfigProto.DARK -> DarkThemeConfig.Dark
+                        DarkThemeConfigProto.LIGHT -> DarkThemeConfig.Light
+                    },
+                )
             }
             .catch {
                 algorithmChoiceState = ResourceState.Failure(it)
                 currentShapeState = ResourceState.Failure(it)
+                darkThemeConfigState = ResourceState.Failure(it)
             }
             .launchIn(scope)
     }
@@ -91,6 +106,18 @@ class DefaultComposeLifePreferences @Inject constructor(
             preferencesProto.copy {
                 this.currentShapeType = when (currentShapeType) {
                     CurrentShapeType.RoundRectangle -> CurrentShapeTypeProto.ROUND_RECTANGLE
+                }
+            }
+        }
+    }
+
+    override suspend fun setDarkThemeConfig(darkThemeConfig: DarkThemeConfig) {
+        dataStore.updateData { preferencesProto ->
+            preferencesProto.copy {
+                this.darkThemeConfig = when (darkThemeConfig) {
+                    DarkThemeConfig.FollowSystem -> DarkThemeConfigProto.SYSTEM
+                    DarkThemeConfig.Dark -> DarkThemeConfigProto.DARK
+                    DarkThemeConfig.Light -> DarkThemeConfigProto.LIGHT
                 }
             }
         }

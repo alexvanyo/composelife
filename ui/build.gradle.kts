@@ -41,7 +41,6 @@ dependencies {
     implementation(projects.navigation)
     implementation(projects.resourceState)
 
-    implementation(libs.accompanist.systemuicontroller)
     implementation(libs.androidx.compose.material3)
     api(libs.androidx.compose.material3.windowSizeClass)
     implementation(libs.androidx.compose.materialIconsExtended)

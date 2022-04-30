@@ -45,13 +45,6 @@ class InlineSpeedScreenTests {
     private val applicationContext = ApplicationProvider.getApplicationContext<Application>()
 
     @Test
-    fun inline_speed_screen_preview() {
-        composeTestRule.setContent {
-            InlineSpeedScreenPreview()
-        }
-    }
-
-    @Test
     fun target_steps_per_second_is_displayed_correctly() {
         composeTestRule.setContent {
             var targetStepsPerSecond by remember { mutableStateOf(60.0) }

@@ -16,35 +16,22 @@
 
 package com.alexvanyo.composelife.ui.action
 
-import androidx.compose.foundation.layout.Box
-import app.cash.paparazzi.DeviceConfig
-import app.cash.paparazzi.Paparazzi
-import org.junit.Rule
+import com.alexvanyo.composelife.ui.util.BasePaparazziTest
 import org.junit.Test
 
-class InlinePaletteScreenSnapshotTests {
-
-    @get:Rule
-    val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.NEXUS_5.copy(softButtons = false),
-        maxPercentDifference = 0.0,
-    )
+class InlinePaletteScreenSnapshotTests : BasePaparazziTest() {
 
     @Test
     fun loading_inline_palette_screen_preview() {
-        paparazzi.snapshot {
-            Box {
-                LoadingInlinePaletteScreenPreview()
-            }
+        snapshot {
+            LoadingInlinePaletteScreenPreview()
         }
     }
 
     @Test
     fun round_rectangle_inline_palette_screen_preview() {
-        paparazzi.snapshot {
-            Box {
-                RoundRectangleInlinePaletteScreenPreview()
-            }
+        snapshot {
+            RoundRectangleInlinePaletteScreenPreview()
         }
     }
 }

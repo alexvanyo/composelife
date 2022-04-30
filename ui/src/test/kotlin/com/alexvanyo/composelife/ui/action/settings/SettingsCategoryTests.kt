@@ -32,7 +32,7 @@ class SettingsCategoryTests {
     @Test
     fun `visual settings are correct`() {
         assertEquals(
-            emptyList(),
+            listOf(Setting.DarkThemeConfig),
             SettingsCategory.Visual.settings,
         )
     }

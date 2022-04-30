@@ -39,9 +39,7 @@ naming:
   ClassNaming:
     excludes: [ '**/generated/**' ]
   FunctionNaming:
-    ignoreAnnotated:
-      - "Composable"
-    excludes: [ '**/test/**', '**/androidTest/**', '**/sharedTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    active: false
   MatchingDeclarationName:
     excludes: [ '**/generated/**' ]
   TopLevelPropertyNaming:

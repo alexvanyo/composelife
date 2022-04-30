@@ -44,34 +44,6 @@ class CellUniverseInfoCardTests {
     private val applicationContext = ApplicationProvider.getApplicationContext<Application>()
 
     @Test
-    fun collapsed_preview() {
-        composeTestRule.setContent {
-            CellUniverseInfoCardCollapsedPreview()
-        }
-    }
-
-    @Test
-    fun collapsed_single_selection_preview() {
-        composeTestRule.setContent {
-            CellUniverseInfoCardCollapsedSingleSelectionPreview()
-        }
-    }
-
-    @Test
-    fun fully_collapsed_preview() {
-        composeTestRule.setContent {
-            CellUniverseInfoCardFullyCollapsedPreview()
-        }
-    }
-
-    @Test
-    fun expanded_preview() {
-        composeTestRule.setContent {
-            CellUniverseInfoCardExpandedPreview()
-        }
-    }
-
-    @Test
     fun card_is_collapsed_by_default() {
         composeTestRule.setContent {
             CellUniverseInfoCard(

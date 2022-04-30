@@ -40,20 +40,6 @@ class CellUniverseInfoItemTests {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun editing_preview() {
-        composeTestRule.setContent {
-            CellUniverseInfoItemEditingPreview()
-        }
-    }
-
-    @Test
-    fun not_editing_preview() {
-        composeTestRule.setContent {
-            CellUniverseInfoItemNotEditingPreview()
-        }
-    }
-
-    @Test
     fun can_check_while_editing() {
         val cellUniverseInfoItemState = CellUniverseInfoItemState()
 

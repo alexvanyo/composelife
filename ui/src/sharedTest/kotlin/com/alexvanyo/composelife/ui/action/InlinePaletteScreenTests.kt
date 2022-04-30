@@ -50,20 +50,6 @@ class InlinePaletteScreenTests {
     private val applicationContext = ApplicationProvider.getApplicationContext<Application>()
 
     @Test
-    fun loading_inline_palette_screen_preview() {
-        composeTestRule.setContent {
-            LoadingInlinePaletteScreenPreview()
-        }
-    }
-
-    @Test
-    fun round_rectangle_inline_palette_screen_preview() {
-        composeTestRule.setContent {
-            RoundRectangleInlinePaletteScreenPreview()
-        }
-    }
-
-    @Test
     fun loading_is_displayed_correctly() {
         composeTestRule.setContent {
             InlinePaletteScreen(

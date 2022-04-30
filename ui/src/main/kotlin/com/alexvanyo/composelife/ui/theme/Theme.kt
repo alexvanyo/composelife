@@ -26,26 +26,38 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.platform.LocalContext
+import com.alexvanyo.composelife.preferences.DarkThemeConfig
+import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.ui.entrypoints.preferences.inject
+
+private val LocalAppliedComposeLifeTheme = compositionLocalOf { false }
 
 @Composable
 fun ComposeLifeTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = shouldUseDarkTheme(),
     content: @Composable () -> Unit,
 ) {
-    MaterialTheme(
-        colorScheme = ComposeLifeTheme.colorScheme(darkTheme),
-        typography = Typography(),
-        content = content,
-    )
+    if (LocalAppliedComposeLifeTheme.current) {
+        content()
+    } else {
+        CompositionLocalProvider(LocalAppliedComposeLifeTheme provides true) {
+            MaterialTheme(
+                colorScheme = ComposeLifeTheme.colorScheme(darkTheme),
+                typography = Typography(),
+                content = content,
+            )
+        }
+    }
 }
 
 object ComposeLifeTheme {
 
     @Composable
-    @ReadOnlyComposable
-    fun colorScheme(darkTheme: Boolean = isSystemInDarkTheme()) =
+    fun colorScheme(darkTheme: Boolean) =
         if (darkTheme) {
             darkColorScheme
         } else {
@@ -91,3 +103,18 @@ object ComposeLifeTheme {
 @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.S)
 private fun useDynamicColorScheme() =
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+
+@Composable
+private fun shouldUseDarkTheme(): Boolean =
+    when (
+        val darkThemeConfigState = inject().darkThemeConfigState
+    ) {
+        ResourceState.Loading,
+        is ResourceState.Failure,
+        -> isSystemInDarkTheme()
+        is ResourceState.Success -> when (darkThemeConfigState.value) {
+            DarkThemeConfig.FollowSystem -> isSystemInDarkTheme()
+            DarkThemeConfig.Dark -> true
+            DarkThemeConfig.Light -> false
+        }
+    }
