@@ -41,6 +41,10 @@
     <string name="algorithm_implementation">Implementation</string>
     <string name="hash_life_algorithm">Hashlife</string>
     <string name="naive_algorithm">Naïve</string>
+    <string name="dark_theme_config">Theme</string>
+    <string name="follow_system">Follow system</string>
+    <string name="dark_theme">Dark</string>
+    <string name="light_theme">Light</string>
     <string name="algorithm">Algorithm</string>
     <string name="feature_flags">Feature Flags</string>
     <string name="visual">Visual</string>

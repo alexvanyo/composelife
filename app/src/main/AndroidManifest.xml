@@ -24,7 +24,7 @@
         android:name=".ComposeLifeApplication"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ComposeLife">
+        android:theme="@style/Theme.ComposeLife.Starting">
 
         <activity-alias
             android:name="Launcher"

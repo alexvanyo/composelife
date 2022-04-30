@@ -23,14 +23,13 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.cells.CellWindowState
 import com.alexvanyo.composelife.ui.cells.MutableCellWindow
 import com.alexvanyo.composelife.ui.cells.rememberCellWindowState
-import com.alexvanyo.composelife.ui.entrypoints.ComposeLifePreferencesEntryPoint
+import com.alexvanyo.composelife.ui.entrypoints.preferences.inject
 
 /**
  * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
@@ -42,7 +41,7 @@ fun InteractiveCellUniverse(
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
     cellWindowState: CellWindowState = rememberCellWindowState(),
-    preferences: ComposeLifePreferences = hiltViewModel<ComposeLifePreferencesEntryPoint>().composeLifePreferences,
+    preferences: ComposeLifePreferences = inject(),
 ) {
     val currentShapeState = preferences.currentShapeState
 

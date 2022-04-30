@@ -42,8 +42,10 @@ dependencies {
     implementation(projects.resources)
     implementation(projects.ui)
 
+    implementation(libs.accompanist.systemuicontroller)
     implementation(libs.androidx.activityCompose)
     implementation(libs.androidx.core)
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 

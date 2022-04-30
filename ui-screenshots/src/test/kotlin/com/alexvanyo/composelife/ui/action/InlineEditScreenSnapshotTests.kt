@@ -16,26 +16,15 @@
 
 package com.alexvanyo.composelife.ui.action
 
-import androidx.compose.foundation.layout.Box
-import app.cash.paparazzi.DeviceConfig
-import app.cash.paparazzi.Paparazzi
-import org.junit.Rule
+import com.alexvanyo.composelife.ui.util.BasePaparazziTest
 import org.junit.Test
 
-class InlineEditScreenSnapshotTests {
-
-    @get:Rule
-    val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.NEXUS_5.copy(softButtons = false),
-        maxPercentDifference = 0.0,
-    )
+class InlineEditScreenSnapshotTests : BasePaparazziTest() {
 
     @Test
     fun inline_edit_screen_preview() {
-        paparazzi.snapshot {
-            Box {
-                InlineEditScreenPreview()
-            }
+        snapshot {
+            InlineEditScreenPreview()
         }
     }
 }

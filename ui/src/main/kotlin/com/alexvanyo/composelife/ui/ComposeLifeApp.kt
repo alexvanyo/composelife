@@ -16,52 +16,43 @@
 
 package com.alexvanyo.composelife.ui
 
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.material3.Surface
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.graphics.Color
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.unit.DpSize
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.ui.entrypoints.ComposeLifeDispatchersEntryPoint
-import com.alexvanyo.composelife.ui.entrypoints.GameOfLifeAlgorithmEntryPoint
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.alexvanyo.composelife.ui.util.SizePreviews
+import com.alexvanyo.composelife.ui.entrypoints.algorithm.inject as injectAlgorithm
+import com.alexvanyo.composelife.ui.entrypoints.dispatchers.inject as injectDispatchers
 
 @Composable
 fun ComposeLifeApp(
     windowSizeClass: WindowSizeClass,
+    gameOfLifeAlgorithm: GameOfLifeAlgorithm = injectAlgorithm(),
+    dispatchers: ComposeLifeDispatchers = injectDispatchers(),
 ) {
-    ComposeLifeTheme {
-        val useDarkIcons = ComposeLifeTheme.isLight
-        val systemUiController = rememberSystemUiController()
+    val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
+        cellState = gosperGliderGun,
+        isRunning = false,
+    )
 
-        LaunchedEffect(systemUiController, useDarkIcons) {
-            systemUiController.setSystemBarsColor(
-                color = Color.Transparent,
-                darkIcons = useDarkIcons,
-            )
-        }
+    rememberTemporalGameOfLifeStateMutator(
+        temporalGameOfLifeState = temporalGameOfLifeState,
+        gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+        dispatchers = dispatchers,
+    )
 
-        val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-            cellState = gosperGliderGun,
-        )
-
-        val gameOfLifeAlgorithm = hiltViewModel<GameOfLifeAlgorithmEntryPoint>().gameOfLifeAlgorithm
-        val dispatchers = hiltViewModel<ComposeLifeDispatchersEntryPoint>().dispatchers
-
-        rememberTemporalGameOfLifeStateMutator(
-            temporalGameOfLifeState = temporalGameOfLifeState,
-            gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-            dispatchers = dispatchers,
-        )
-
-        InteractiveCellUniverse(
-            temporalGameOfLifeState = temporalGameOfLifeState,
-            windowSizeClass = windowSizeClass,
-        )
-    }
+    InteractiveCellUniverse(
+        temporalGameOfLifeState = temporalGameOfLifeState,
+        windowSizeClass = windowSizeClass,
+    )
 }
 
 private val gosperGliderGun = """
@@ -75,3 +66,23 @@ private val gosperGliderGun = """
     |...........O...O....................
     |............OO......................
 """.toCellState()
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@SizePreviews
+@Composable
+fun InteractiveCellUniversePreview() {
+    ComposeLifeTheme {
+        BoxWithConstraints {
+            val size = DpSize(maxWidth, maxHeight)
+            Surface {
+                InteractiveCellUniverse(
+                    temporalGameOfLifeState = rememberTemporalGameOfLifeState(
+                        cellState = gosperGliderGun,
+                        isRunning = false,
+                    ),
+                    windowSizeClass = WindowSizeClass.calculateFromSize(size),
+                )
+            }
+        }
+    }
+}

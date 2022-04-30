@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.info
 
-import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
@@ -60,9 +59,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.state.ToggleableState
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 class CellUniverseInfoItemState(
     isChecked: Boolean = defaultIsChecked,
@@ -193,14 +192,7 @@ fun ColumnScope.InfoItem(
     }
 }
 
-@Preview(
-    name = "Light mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-)
-@Preview(
-    name = "Dark mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
+@ThemePreviews
 @Composable
 fun CellUniverseInfoItemNotEditingPreview() {
     ComposeLifeTheme {
@@ -215,14 +207,7 @@ fun CellUniverseInfoItemNotEditingPreview() {
     }
 }
 
-@Preview(
-    name = "Light mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-)
-@Preview(
-    name = "Dark mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
+@ThemePreviews
 @Composable
 fun CellUniverseInfoItemEditingPreview() {
     ComposeLifeTheme {

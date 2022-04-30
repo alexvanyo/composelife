@@ -16,35 +16,22 @@
 
 package com.alexvanyo.composelife.ui.cells
 
-import androidx.compose.foundation.layout.Box
-import app.cash.paparazzi.DeviceConfig
-import app.cash.paparazzi.Paparazzi
-import org.junit.Rule
+import com.alexvanyo.composelife.ui.util.BasePaparazziTest
 import org.junit.Test
 
-class InteractableCellSnapshotTests {
-
-    @get:Rule
-    val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.NEXUS_5.copy(softButtons = false),
-        maxPercentDifference = 0.0,
-    )
+class InteractableCellSnapshotTests : BasePaparazziTest() {
 
     @Test
     fun alive_cell_preview() {
-        paparazzi.snapshot {
-            Box {
-                AliveCellPreview()
-            }
+        snapshot {
+            AliveCellPreview()
         }
     }
 
     @Test
     fun dead_cell_preview() {
-        paparazzi.snapshot {
-            Box {
-                DeadCellPreview()
-            }
+        snapshot {
+            DeadCellPreview()
         }
     }
 }

@@ -16,25 +16,81 @@
 
 package com.alexvanyo.composelife
 
+import android.animation.ObjectAnimator
 import android.os.Bundle
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+import androidx.core.animation.doOnEnd
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.ui.ComposeLifeApp
+import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint(ComponentActivity::class)
 class MainActivity : Hilt_MainActivity() {
+
+    @Inject
+    lateinit var composeLifePreferences: ComposeLifePreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        // Keep the splash screen on screen until we've determine the theme
+        splashScreen.setKeepOnScreenCondition {
+            !composeLifePreferences.darkThemeConfigState.isSuccess()
+        }
+
+        // The splash screen library internally sets the system bars color
+        // When the animation is done, poke this state to ensure we set the right ones
+        var setSystemBarsColorTick by mutableStateOf(0)
+
+        splashScreen.setOnExitAnimationListener { viewProvider ->
+            ObjectAnimator.ofFloat(
+                viewProvider.view,
+                View.ALPHA,
+                1f,
+                0f,
+            ).apply {
+                duration = 250
+                doOnEnd {
+                    setSystemBarsColorTick++
+                    viewProvider.remove()
+                }
+                start()
+            }
+        }
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
-            @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-            ComposeLifeApp(calculateWindowSizeClass(this))
+            ComposeLifeTheme {
+                val useDarkIcons = ComposeLifeTheme.isLight
+                val systemUiController = rememberSystemUiController()
+
+                LaunchedEffect(systemUiController, useDarkIcons, setSystemBarsColorTick) {
+                    systemUiController.setSystemBarsColor(
+                        color = Color.Transparent,
+                        darkIcons = useDarkIcons,
+                    )
+                }
+
+                @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+                ComposeLifeApp(calculateWindowSizeClass(this))
+            }
         }
     }
 }

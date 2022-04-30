@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.action.settings
 
-import android.content.res.Configuration
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
@@ -28,9 +27,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 @Composable
 fun InlineSettingsScreen(
@@ -51,14 +50,7 @@ fun InlineSettingsScreen(
     }
 }
 
-@Preview(
-    name = "Light mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-)
-@Preview(
-    name = "Dark mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
+@ThemePreviews
 @Composable
 fun InlineSettingsScreenPreview() {
     ComposeLifeTheme {

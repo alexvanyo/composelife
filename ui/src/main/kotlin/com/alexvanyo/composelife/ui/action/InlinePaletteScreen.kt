@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.action
 
-import android.content.res.Configuration
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -48,23 +47,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.component.LabeledSlider
-import com.alexvanyo.composelife.ui.entrypoints.ComposeLifePreferencesEntryPoint
+import com.alexvanyo.composelife.ui.entrypoints.preferences.inject
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.util.ThemePreviews
 import kotlinx.coroutines.launch
 
 @Composable
 fun InlinePaletteScreen(
     modifier: Modifier = Modifier,
-    preferences: ComposeLifePreferences = hiltViewModel<ComposeLifePreferencesEntryPoint>().composeLifePreferences,
+    preferences: ComposeLifePreferences = inject(),
     scrollState: ScrollState = rememberScrollState(),
 ) {
     InlinePaletteScreen(
@@ -189,14 +187,7 @@ fun InlinePaletteScreen(
     }
 }
 
-@Preview(
-    name = "Light mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-)
-@Preview(
-    name = "Dark mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
+@ThemePreviews
 @Composable
 fun LoadingInlinePaletteScreenPreview() {
     ComposeLifeTheme {
@@ -210,14 +201,7 @@ fun LoadingInlinePaletteScreenPreview() {
     }
 }
 
-@Preview(
-    name = "Light mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-)
-@Preview(
-    name = "Dark mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
+@ThemePreviews
 @Composable
 fun RoundRectangleInlinePaletteScreenPreview() {
     ComposeLifeTheme {

@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.info
 
-import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
@@ -52,12 +51,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.cells.CellWindowState
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 /**
  * The persistable state describing the [CellUniverseInfoCard].
@@ -271,14 +270,7 @@ private fun CellUniverseInfoExpandButton(
     }
 }
 
-@Preview(
-    name = "Light mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-)
-@Preview(
-    name = "Dark mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
+@ThemePreviews
 @Composable
 fun CellUniverseInfoCardCollapsedPreview() {
     ComposeLifeTheme {
@@ -301,14 +293,7 @@ fun CellUniverseInfoCardCollapsedPreview() {
     }
 }
 
-@Preview(
-    name = "Light mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-)
-@Preview(
-    name = "Dark mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
+@ThemePreviews
 @Composable
 fun CellUniverseInfoCardCollapsedSingleSelectionPreview() {
     ComposeLifeTheme {
@@ -331,14 +316,7 @@ fun CellUniverseInfoCardCollapsedSingleSelectionPreview() {
     }
 }
 
-@Preview(
-    name = "Light mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-)
-@Preview(
-    name = "Dark mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
+@ThemePreviews
 @Composable
 fun CellUniverseInfoCardFullyCollapsedPreview() {
     ComposeLifeTheme {
@@ -361,14 +339,7 @@ fun CellUniverseInfoCardFullyCollapsedPreview() {
     }
 }
 
-@Preview(
-    name = "Light mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-)
-@Preview(
-    name = "Dark mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
+@ThemePreviews
 @Composable
 fun CellUniverseInfoCardExpandedPreview() {
     ComposeLifeTheme {

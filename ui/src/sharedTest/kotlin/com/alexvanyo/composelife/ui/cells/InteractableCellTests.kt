@@ -38,20 +38,6 @@ class InteractableCellTests {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun alive_cell_preview() {
-        composeTestRule.setContent {
-            AliveCellPreview()
-        }
-    }
-
-    @Test
-    fun dead_cell_preview() {
-        composeTestRule.setContent {
-            DeadCellPreview()
-        }
-    }
-
-    @Test
     fun alive_cell_calls_correct_function() {
         var onValueChangeResult: Boolean? = null
 

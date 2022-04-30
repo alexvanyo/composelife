@@ -60,9 +60,9 @@ abstract class BaseHiltTest<T : ComponentActivity>(clazz: Class<T>) {
 
     fun runAppTest(
         preferencesInitializer: suspend TestComposeLifePreferences.() -> Unit = {
-            setAlgorithmChoice(AlgorithmType.HashLifeAlgorithm)
-            setCurrentShapeType(CurrentShapeType.RoundRectangle)
-            setRoundRectangleConfig(
+            testSetAlgorithmChoice(AlgorithmType.HashLifeAlgorithm)
+            testSetCurrentShapeType(CurrentShapeType.RoundRectangle)
+            testSetRoundRectangleConfig(
                 CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
                     cornerFraction = 0f,

@@ -46,13 +46,6 @@ class InteractableCellsTests {
     private val applicationContext = ApplicationProvider.getApplicationContext<Application>()
 
     @Test
-    fun interactable_cells_preview() {
-        composeTestRule.setContent {
-            InteractableCellsPreview()
-        }
-    }
-
-    @Test
     fun cells_are_displayed_correctly() {
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(

@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.action.settings
 
-import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -81,12 +80,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.action.ActionCardNavigation
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.util.SizePreviews
 import com.alexvanyo.composelife.ui.util.canScrollUp
 
 @Suppress("LongMethod")
@@ -441,38 +440,6 @@ private val SettingsCategory.outlinedIcon: ImageVector
         SettingsCategory.FeatureFlags -> Icons.Outlined.Flag
         SettingsCategory.Visual -> Icons.Outlined.Palette
     }
-
-@Preview(
-    name = "Light mode phone",
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-    device = "spec:shape=Normal,width=360,height=640,unit=dp,dpi=480",
-)
-@Preview(
-    name = "Dark mode phone",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    device = "spec:shape=Normal,width=360,height=640,unit=dp,dpi=480",
-)
-@Preview(
-    name = "Light mode foldable",
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-    device = "spec:shape=Normal,width=673,height=841,unit=dp,dpi=480",
-)
-@Preview(
-    name = "Dark mode foldable",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    device = "spec:shape=Normal,width=673,height=841,unit=dp,dpi=480",
-)
-@Preview(
-    name = "Light mode tablet",
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-    device = "spec:shape=Normal,width=1280,height=800,unit=dp,dpi=480",
-)
-@Preview(
-    name = "Dark mode tablet",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    device = "spec:shape=Normal,width=1280,height=800,unit=dp,dpi=480",
-)
-annotation class SizePreviews
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @SizePreviews

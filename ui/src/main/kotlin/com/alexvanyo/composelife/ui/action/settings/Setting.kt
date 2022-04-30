@@ -25,6 +25,10 @@ sealed interface Setting {
         override val category = SettingsCategory.Algorithm
     }
 
+    object DarkThemeConfig : Setting {
+        override val category = SettingsCategory.Visual
+    }
+
     @GenSealedEnum
     companion object
 }

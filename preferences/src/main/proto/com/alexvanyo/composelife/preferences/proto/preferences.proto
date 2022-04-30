@@ -16,7 +16,9 @@
 
 syntax = "proto3";
 
+import "com/alexvanyo/composelife/preferences/proto/algorithm.proto";
 import "com/alexvanyo/composelife/preferences/proto/current_shape_type.proto";
+import "com/alexvanyo/composelife/preferences/proto/dark_theme_config.proto";
 import "com/alexvanyo/composelife/preferences/proto/shapes.proto";
 
 option java_package = "com.alexvanyo.composelife.preferences.proto";
@@ -26,11 +28,5 @@ message PreferencesProto {
   AlgorithmProto algorithm = 1;
   CurrentShapeTypeProto current_shape_type = 2;
   RoundRectangleProto round_rectangle = 3;
-}
-
-enum AlgorithmProto {
-  ALGORITHM_UNKNOWN = 0;
-  DEFAULT = 1;
-  NAIVE = 2;
-  HASHLIFE = 3;
+  DarkThemeConfigProto dark_theme_config = 4;
 }

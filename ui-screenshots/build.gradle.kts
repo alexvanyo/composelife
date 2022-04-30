@@ -33,4 +33,6 @@ dependencies {
     implementation(projects.ui)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.ui)
+
+    testImplementation(libs.testParameterInjector)
 }
