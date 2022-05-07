@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import com.alexvanyo.composelife.buildlogic.configureAndroidTesting
 import com.alexvanyo.composelife.buildlogic.configureTesting
 import com.slack.keeper.optInToKeeper
 
@@ -42,9 +43,9 @@ android {
     }
 
     configureTesting(this)
+    configureAndroidTesting(this)
 }
 
 keeper {
     automaticR8RepoManagement.set(false)
-    traceReferences {}
 }

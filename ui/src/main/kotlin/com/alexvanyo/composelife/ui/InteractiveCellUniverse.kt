@@ -23,6 +23,7 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
@@ -59,6 +60,7 @@ fun InteractiveCellUniverse(
                         gameOfLifeState = temporalGameOfLifeState,
                         cellWindowState = cellWindowState,
                         shape = currentShapeState.value,
+                        modifier = Modifier.testTag("MutableCellWindow"),
                     )
                 }
             }

@@ -122,4 +122,112 @@ class BoundsExtensionsTests {
             )
         }
     }
+
+    @Nested
+    inner class RingIndexTests {
+
+        @Test
+        fun `0`() {
+            assertEquals(0, IntOffset(0, 0).toRingIndex())
+        }
+
+        @Test
+        fun `1`() {
+            assertEquals(1, IntOffset(-1, -1).toRingIndex())
+        }
+
+        @Test
+        fun `2`() {
+            assertEquals(2, IntOffset(0, -1).toRingIndex())
+        }
+
+        @Test
+        fun `3`() {
+            assertEquals(3, IntOffset(1, -1).toRingIndex())
+        }
+
+        @Test
+        fun `4`() {
+            assertEquals(4, IntOffset(1, 0).toRingIndex())
+        }
+
+        @Test
+        fun `5`() {
+            assertEquals(5, IntOffset(1, 1).toRingIndex())
+        }
+
+        @Test
+        fun `6`() {
+            assertEquals(6, IntOffset(0, 1).toRingIndex())
+        }
+
+        @Test
+        fun `7`() {
+            assertEquals(7, IntOffset(-1, 1).toRingIndex())
+        }
+
+        @Test
+        fun `8`() {
+            assertEquals(8, IntOffset(-1, 0).toRingIndex())
+        }
+
+        @Test
+        fun `9`() {
+            assertEquals(9, IntOffset(-2, -2).toRingIndex())
+        }
+    }
+
+    @Nested
+    inner class RingOffsetTests {
+
+        @Test
+        fun `0`() {
+            assertEquals(IntOffset(0, 0), 0.toRingOffset())
+        }
+
+        @Test
+        fun `1`() {
+            assertEquals(IntOffset(-1, -1), 1.toRingOffset())
+        }
+
+        @Test
+        fun `2`() {
+            assertEquals(IntOffset(0, -1), 2.toRingOffset())
+        }
+
+        @Test
+        fun `3`() {
+            assertEquals(IntOffset(1, -1), 3.toRingOffset())
+        }
+
+        @Test
+        fun `4`() {
+            assertEquals(IntOffset(1, 0), 4.toRingOffset())
+        }
+
+        @Test
+        fun `5`() {
+            assertEquals(IntOffset(1, 1), 5.toRingOffset())
+        }
+
+        @Test
+        fun `6`() {
+            assertEquals(IntOffset(0, 1), 6.toRingOffset())
+        }
+
+        @Test
+        fun `7`() {
+            assertEquals(IntOffset(-1, 1), 7.toRingOffset())
+        }
+
+        @Test
+        fun `8`() {
+            assertEquals(IntOffset(-1, 0), 8.toRingOffset())
+        }
+
+        @Test
+        fun `9`() {
+            assertEquals(IntOffset(-2, -2), 9.toRingOffset())
+        }
+    }
 }

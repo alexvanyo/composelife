@@ -29,6 +29,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.ScrollAxisRange
+import androidx.compose.ui.semantics.horizontalScrollAxisRange
+import androidx.compose.ui.semantics.scrollBy
+import androidx.compose.ui.semantics.scrollToIndex
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -43,6 +49,7 @@ import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import com.alexvanyo.composelife.ui.util.detectTransformGestures
 import com.alexvanyo.composelife.util.floor
+import com.alexvanyo.composelife.util.toRingOffset
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.math.ceil
@@ -130,7 +137,27 @@ private fun CellWindowImpl(
     val cellPixelSize = with(LocalDensity.current) { cellDpSize.toPx() }
     val scaledCellPixelSize = cellPixelSize * cellWindowState.scale
 
-    BoxWithConstraints(modifier = modifier) {
+    BoxWithConstraints(
+        modifier = modifier
+            .semantics {
+                horizontalScrollAxisRange = ScrollAxisRange(
+                    value = { cellWindowState.offset.x },
+                    maxValue = { Float.POSITIVE_INFINITY },
+                )
+                verticalScrollAxisRange = ScrollAxisRange(
+                    value = { cellWindowState.offset.y },
+                    maxValue = { Float.POSITIVE_INFINITY },
+                )
+                scrollBy { x, y ->
+                    cellWindowState.offset += Offset(x, y)
+                    true
+                }
+                scrollToIndex {
+                    cellWindowState.offset = it.toRingOffset().toOffset()
+                    true
+                }
+            },
+    ) {
         // Convert the window state offset into integer and fractional parts
         val intOffset = floor(cellWindowState.offset)
         val fracOffset = cellWindowState.offset - intOffset.toOffset()
