@@ -40,5 +40,5 @@ tasks.named("check") {
 tasks.withType<Test>().configureEach {
     // Increase memory and parallelize Paparazzi tests
     maxHeapSize = "2g"
-    maxParallelForks = 4
+    maxParallelForks = 1024
 }
