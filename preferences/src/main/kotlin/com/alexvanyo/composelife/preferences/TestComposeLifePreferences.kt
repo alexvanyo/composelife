@@ -25,7 +25,9 @@ import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.combine
 import com.alexvanyo.composelife.resourcestate.firstSuccess
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class TestComposeLifePreferences @Inject constructor() : ComposeLifePreferences {
     override var algorithmChoiceState: ResourceState<AlgorithmType> by mutableStateOf(ResourceState.Loading)
         private set

@@ -23,6 +23,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
+import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -68,6 +69,7 @@ abstract class BaseHiltTest<T : ComponentActivity>(clazz: Class<T>) {
                     cornerFraction = 0f,
                 ),
             )
+            testSetDarkThemeConfig(DarkThemeConfig.FollowSystem)
         },
         testBody: suspend TestScope.() -> Unit,
     ): TestResult = runTest {

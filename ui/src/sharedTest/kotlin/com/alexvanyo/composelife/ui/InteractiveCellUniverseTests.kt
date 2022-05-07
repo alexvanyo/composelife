@@ -21,12 +21,15 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsActions.ScrollToIndex
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
@@ -39,6 +42,7 @@ import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import com.alexvanyo.composelife.test.BaseHiltTest
 import com.alexvanyo.composelife.test.TestActivity
+import com.alexvanyo.composelife.util.toRingIndex
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
@@ -55,12 +59,11 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
     @Inject
     lateinit var dispatchers: ComposeLifeDispatchers
 
+    @Inject
+    lateinit var hashLifeAlgorithm: HashLifeAlgorithm
+
     @Test
     fun six_long_line_evolves_correctly() = runAppTest {
-        val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers,
-        )
-
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 60.0,
@@ -85,7 +88,9 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             .onNodeWithContentDescription(context.getString(R.string.pause))
             .performClick()
 
-        SixLongLinePattern.seedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
+        SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
+            scrollToCell(cell)
+
             composeTestRule
                 .onNodeWithContentDescription(
                     context.getString(R.string.cell_content_description, cell.x, cell.y),
@@ -102,13 +107,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             testDispatcher.scheduler.runCurrent()
             composeTestRule.waitForIdle()
 
-            expectedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
-                composeTestRule
-                    .onNodeWithContentDescription(
-                        context.getString(R.string.cell_content_description, cell.x, cell.y),
-                    )
-                    .assertIsOn()
-            }
+            assertNodesAreAlive(expectedCellState.aliveCells)
         }
     }
 
@@ -142,7 +141,9 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             .onNodeWithContentDescription(context.getString(R.string.pause))
             .performClick()
 
-        SixLongLinePattern.seedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
+        SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
+            scrollToCell(cell)
+
             composeTestRule
                 .onNodeWithContentDescription(
                     context.getString(R.string.cell_content_description, cell.x, cell.y),
@@ -165,27 +166,24 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             .onNodeWithContentDescription(context.getString(R.string.play))
             .performClick()
 
+        composeTestRule
+            .onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(context.getString(R.string.collapse)),
+            )
+            .performClick()
+
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
             testDispatcher.scheduler.advanceTimeBy(1000)
             testDispatcher.scheduler.runCurrent()
             composeTestRule.waitForIdle()
 
-            expectedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
-                composeTestRule
-                    .onNodeWithContentDescription(
-                        context.getString(R.string.cell_content_description, cell.x, cell.y),
-                    )
-                    .assertIsOn()
-            }
+            assertNodesAreAlive(expectedCellState.aliveCells)
         }
     }
 
     @Test
     fun six_long_line_evolves_correctly_with_step() = runAppTest {
-        val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers,
-        )
-
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 0.001,
@@ -210,7 +208,9 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             .onNodeWithContentDescription(context.getString(R.string.pause))
             .performClick()
 
-        SixLongLinePattern.seedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
+        SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
+            scrollToCell(cell)
+
             composeTestRule
                 .onNodeWithContentDescription(
                     context.getString(R.string.cell_content_description, cell.x, cell.y),
@@ -226,22 +226,12 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             testDispatcher.scheduler.runCurrent()
             composeTestRule.waitForIdle()
 
-            expectedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
-                composeTestRule
-                    .onNodeWithContentDescription(
-                        context.getString(R.string.cell_content_description, cell.x, cell.y),
-                    )
-                    .assertIsOn()
-            }
+            assertNodesAreAlive(expectedCellState.aliveCells)
         }
     }
 
     @Test
     fun six_long_line_evolves_correctly_with_double_step() = runAppTest {
-        val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers,
-        )
-
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 0.001,
@@ -266,7 +256,9 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             .onNodeWithContentDescription(context.getString(R.string.pause))
             .performClick()
 
-        SixLongLinePattern.seedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
+        SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
+            scrollToCell(cell)
+
             composeTestRule
                 .onNodeWithContentDescription(
                     context.getString(R.string.cell_content_description, cell.x, cell.y),
@@ -285,6 +277,13 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             .onNodeWithContentDescription(context.getString(R.string.generations_per_step, 1))
             .performSemanticsAction(SemanticsActions.SetProgress) { it(1f) }
 
+        composeTestRule
+            .onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(context.getString(R.string.collapse)),
+            )
+            .performClick()
+
         SixLongLinePattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 }.forEach { expectedCellState ->
             composeTestRule
                 .onNodeWithContentDescription(context.getString(R.string.step))
@@ -293,13 +292,33 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             testDispatcher.scheduler.runCurrent()
             composeTestRule.waitForIdle()
 
-            expectedCellState.offsetBy(IntOffset(-4, -3)).aliveCells.forEach { cell ->
-                composeTestRule
-                    .onNodeWithContentDescription(
-                        context.getString(R.string.cell_content_description, cell.x, cell.y),
-                    )
-                    .assertIsOn()
-            }
+            assertNodesAreAlive(expectedCellState.aliveCells)
         }
+    }
+
+    private fun assertNodesAreAlive(cells: Set<IntOffset>) {
+        cells.forEach { cell ->
+            if (composeTestRule.onAllNodesWithContentDescription(
+                    context.getString(R.string.cell_content_description, cell.x, cell.y),
+                ).fetchSemanticsNodes().isEmpty()
+            ) {
+                scrollToCell(cell)
+            }
+
+            composeTestRule
+                .onNodeWithContentDescription(
+                    context.getString(R.string.cell_content_description, cell.x, cell.y),
+                )
+                .assertIsOn()
+        }
+    }
+
+    private fun scrollToCell(cell: IntOffset) {
+        composeTestRule
+            .onNodeWithTag("MutableCellWindow")
+            .fetchSemanticsNode()
+            .config[ScrollToIndex]
+            .action
+            ?.invoke(cell.toRingIndex())
     }
 }
