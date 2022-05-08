@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.ui
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.ui.Modifier
@@ -34,6 +35,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import androidx.test.espresso.Espresso
 import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.clock
@@ -61,6 +64,82 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
 
     @Inject
     lateinit var hashLifeAlgorithm: HashLifeAlgorithm
+
+    @Test
+    fun info_card_closes_upon_back_press() = runAppTest {
+        composeTestRule.setContent {
+            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
+                isRunning = false,
+                targetStepsPerSecond = 60.0,
+            )
+
+            rememberTemporalGameOfLifeStateMutator(
+                temporalGameOfLifeState = temporalGameOfLifeState,
+                gameOfLifeAlgorithm = hashLifeAlgorithm,
+                clock = testDispatcher.scheduler.clock,
+                dispatchers = dispatchers,
+            )
+
+            InteractiveCellUniverse(
+                temporalGameOfLifeState = temporalGameOfLifeState,
+                windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                modifier = Modifier.size(480.dp),
+            )
+        }
+
+        composeTestRule
+            .onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(context.getString(R.string.expand)),
+            )
+            .performClick()
+
+        composeTestRule.waitForIdle()
+
+        Espresso.pressBack()
+
+        composeTestRule
+            .onNodeWithContentDescription(context.getString(R.string.collapse))
+            .assertDoesNotExist()
+    }
+
+    @Test
+    fun action_card_closes_upon_back_press() = runAppTest {
+        composeTestRule.setContent {
+            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
+                isRunning = false,
+                targetStepsPerSecond = 60.0,
+            )
+
+            rememberTemporalGameOfLifeStateMutator(
+                temporalGameOfLifeState = temporalGameOfLifeState,
+                gameOfLifeAlgorithm = hashLifeAlgorithm,
+                clock = testDispatcher.scheduler.clock,
+                dispatchers = dispatchers,
+            )
+
+            InteractiveCellUniverse(
+                temporalGameOfLifeState = temporalGameOfLifeState,
+                windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                modifier = Modifier.size(480.dp),
+            )
+        }
+
+        composeTestRule
+            .onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(context.getString(R.string.expand)),
+            )
+            .performClick()
+
+        composeTestRule.waitForIdle()
+
+        Espresso.pressBack()
+
+        composeTestRule
+            .onNodeWithContentDescription(context.getString(R.string.collapse))
+            .assertDoesNotExist()
+    }
 
     @Test
     fun six_long_line_evolves_correctly() = runAppTest {
