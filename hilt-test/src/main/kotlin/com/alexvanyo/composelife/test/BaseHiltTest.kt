@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.test
 
 import android.content.Context
+import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -31,8 +32,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Before
 import org.junit.Rule
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import javax.inject.Inject
 
@@ -42,9 +45,16 @@ import javax.inject.Inject
 abstract class BaseHiltTest<T : ComponentActivity>(clazz: Class<T>) {
 
     @get:Rule(order = 0)
-    val hiltAndroidRule = HiltAndroidRule(this)
+    val leakCanaryRule = if (Build.FINGERPRINT.lowercase() == "robolectric") {
+        TestRule { base, _ -> base }
+    } else {
+        DetectLeaksAfterTestSuccess()
+    }
 
     @get:Rule(order = 1)
+    val hiltAndroidRule = HiltAndroidRule(this)
+
+    @get:Rule(order = 2)
     val composeTestRule = createAndroidComposeRule(clazz)
 
     @Inject
