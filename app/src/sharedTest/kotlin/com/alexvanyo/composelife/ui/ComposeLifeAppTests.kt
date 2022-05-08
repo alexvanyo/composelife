@@ -16,15 +16,38 @@
 
 package com.alexvanyo.composelife.ui
 
+import android.app.Activity
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.ui.graphics.toComposeRect
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.Density
+import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso
 import com.alexvanyo.composelife.MainActivity
+import com.alexvanyo.composelife.preferences.AlgorithmType
+import com.alexvanyo.composelife.preferences.DarkThemeConfig
+import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.test.BaseHiltTest
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Test
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
+import kotlin.test.assertEquals
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @HiltAndroidTest
 class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java) {
 
@@ -47,4 +70,192 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
 
         composeTestRule.waitForIdle()
     }
+
+    @Test
+    fun can_change_theme_to_dark_mode() = runAppTest {
+        val windowSizeClass = WindowSizeClass.calculateFromSize(
+            composeTestRule.activityRule.scenario.withActivity {
+                with(Density(this)) {
+                    androidx.window.layout.WindowMetricsCalculator
+                        .getOrCreate()
+                        .computeCurrentWindowMetrics(this@withActivity)
+                        .bounds
+                        .toComposeRect()
+                        .size
+                        .toDpSize()
+                }
+            },
+        )
+
+        composeTestRule
+            .onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(context.getString(R.string.expand)),
+            )
+            .performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings))
+            .performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings))
+            .assertIsSelected()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.see_all))
+            .performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.visual))
+            .performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.dark_theme_config))
+            .performClick()
+
+        composeTestRule
+            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(R.string.dark_theme)))
+            .assertHasClickAction()
+            .performClick()
+
+        composeTestRule
+            .onNode(isPopup())
+            .assertDoesNotExist()
+
+        assertEquals(ResourceState.Success(DarkThemeConfig.Dark), preferences.darkThemeConfigState)
+
+        when (windowSizeClass.widthSizeClass) {
+            WindowWidthSizeClass.Compact, WindowWidthSizeClass.Medium -> {
+                composeTestRule
+                    .onNodeWithContentDescription(context.getString(R.string.back))
+                    .performClick()
+            }
+        }
+
+        composeTestRule
+            .onNodeWithContentDescription(context.getString(R.string.back))
+            .performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings))
+            .assertIsSelected()
+
+        Espresso.pressBack()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.speed))
+            .assertIsSelected()
+
+        Espresso.pressBack()
+
+        composeTestRule
+            .onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(context.getString(R.string.expand)),
+            )
+            .assertExists()
+    }
+
+    @Test
+    fun can_change_algorithm_implementation_to_naive() = runAppTest {
+        val windowSizeClass = WindowSizeClass.calculateFromSize(
+            composeTestRule.activityRule.scenario.withActivity {
+                with(Density(this)) {
+                    androidx.window.layout.WindowMetricsCalculator
+                        .getOrCreate()
+                        .computeCurrentWindowMetrics(this@withActivity)
+                        .bounds
+                        .toComposeRect()
+                        .size
+                        .toDpSize()
+                }
+            },
+        )
+
+        composeTestRule
+            .onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(context.getString(R.string.expand)),
+            )
+            .performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings))
+            .performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings))
+            .assertIsSelected()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.see_all))
+            .performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.algorithm))
+            .performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.algorithm_implementation))
+            .performClick()
+
+        composeTestRule
+            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(R.string.naive_algorithm)))
+            .assertHasClickAction()
+            .performClick()
+
+        composeTestRule
+            .onNode(isPopup())
+            .assertDoesNotExist()
+
+        assertEquals(ResourceState.Success(AlgorithmType.NaiveAlgorithm), preferences.algorithmChoiceState)
+
+        when (windowSizeClass.widthSizeClass) {
+            WindowWidthSizeClass.Compact, WindowWidthSizeClass.Medium -> {
+                composeTestRule
+                    .onNodeWithContentDescription(context.getString(R.string.back))
+                    .performClick()
+            }
+        }
+
+        composeTestRule
+            .onNodeWithContentDescription(context.getString(R.string.back))
+            .performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings))
+            .assertIsSelected()
+
+        Espresso.pressBack()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.speed))
+            .assertIsSelected()
+
+        Espresso.pressBack()
+
+        composeTestRule
+            .onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(context.getString(R.string.expand)),
+            )
+            .assertExists()
+    }
+}
+
+@OptIn(ExperimentalContracts::class)
+private inline fun <reified A : Activity, T : Any> ActivityScenario<A>.withActivity(
+    crossinline block: A.() -> T,
+): T {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
+    var result: Result<T>? = null
+    onActivity { activity ->
+        result = kotlin.runCatching {
+            block(activity)
+        }
+    }
+    return result!!.getOrThrow()
 }

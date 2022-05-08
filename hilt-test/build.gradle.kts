@@ -34,4 +34,5 @@ dependencies {
     api(libs.kotlinx.coroutines.test)
     api(libs.androidx.compose.uiTestJunit4)
     kapt(libs.dagger.hilt.compiler)
+    implementation(libs.androidx.savedState)
 }

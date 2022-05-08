@@ -59,6 +59,7 @@ dependencies {
     sharedTestImplementation(libs.androidx.compose.uiTestJunit4)
     sharedTestImplementation(libs.androidx.test.espresso)
     sharedTestImplementation(libs.androidx.test.junit)
+    sharedTestImplementation(libs.androidx.window)
     sharedTestImplementation(libs.kotlinx.coroutines.test)
     sharedTestImplementation(libs.turbine)
     kaptSharedTest(libs.dagger.hilt.compiler)
