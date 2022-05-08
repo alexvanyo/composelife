@@ -33,6 +33,8 @@ dependencies {
     api(libs.androidx.test.runner)
     api(libs.kotlinx.coroutines.test)
     api(libs.androidx.compose.uiTestJunit4)
+    implementation(libs.leakCanary.android)
+    api(libs.leakCanary.instrumentation)
     kapt(libs.dagger.hilt.compiler)
     implementation(libs.androidx.savedState)
 }
