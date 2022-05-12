@@ -36,5 +36,4 @@ dependencies {
     implementation(libs.leakCanary.android)
     api(libs.leakCanary.instrumentation)
     kapt(libs.dagger.hilt.compiler)
-    implementation(libs.androidx.savedState)
 }

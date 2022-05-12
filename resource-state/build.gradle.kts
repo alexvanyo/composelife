@@ -36,7 +36,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.runtime)
-    implementation(libs.androidx.savedState)
 
     sharedTestImplementation(projects.testActivity)
     sharedTestImplementation(libs.kotlinx.coroutines.test)
