@@ -45,7 +45,6 @@ dependencies {
     api(libs.kotlinx.coroutines.core)
     api(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.compose.runtime)
-    implementation(libs.androidx.savedState)
     api(libs.androidx.dataStore)
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)

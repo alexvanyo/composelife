@@ -36,5 +36,4 @@ dependencies {
     api(libs.dagger.hilt.test)
     api(libs.androidx.test.junit)
     kapt(libs.dagger.hilt.compiler)
-    implementation(libs.androidx.savedState)
 }
