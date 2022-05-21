@@ -28,15 +28,12 @@ import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlin.experimental.ExperimentalTypeInference
 
 @HiltViewModel
 private class ComposeLifePreferencesEntryPoint @Inject constructor(
     val composeLifePreferences: ComposeLifePreferences,
 ) : ViewModel()
 
-@OptIn(ExperimentalTypeInference::class)
-@OverloadResolutionByLambdaReturnType
 @Composable
 fun inject(
     testComposeLifePreferences: TestComposeLifePreferences = TestComposeLifePreferences.Loaded(

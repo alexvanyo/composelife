@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.model
 
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -24,6 +25,7 @@ import org.junit.jupiter.params.provider.ArgumentsProvider
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.util.stream.Stream
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class CellStateTests {
@@ -127,6 +129,14 @@ class CellStateTests {
                 ),
             ),
         )
+
+        assertFalse(
+            testCellState.aliveCells.containsAll(
+                setOf(
+                    IntOffset(0, 0),
+                ),
+            ),
+        )
     }
 
     @ParameterizedTest(name = "{displayName}: {0}")
@@ -151,6 +161,40 @@ class CellStateTests {
             |........
             """.trimMargin().toCellState(),
             testCellState,
+        )
+    }
+
+    @ParameterizedTest(name = "{displayName}: {0}")
+    @ArgumentsSource(CellStateTestProvider::class)
+    fun `bounding box is correct`(args: CellStateTestArguments) {
+        val testCellState = args.cellStateFactory.factory(
+            """
+            |.O.O.O
+            |.O.O..
+            |.O....
+            |......
+            """.trimMargin().toCellState(),
+        )
+
+        assertEquals(
+            IntRect(
+                left = 1,
+                top = 0,
+                right = 5,
+                bottom = 2,
+            ),
+            testCellState.boundingBox,
+        )
+    }
+
+    @ParameterizedTest(name = "{displayName}: {0}")
+    @ArgumentsSource(CellStateTestProvider::class)
+    fun `empty bounding box is correct`(args: CellStateTestArguments) {
+        val testCellState = args.cellStateFactory.factory(emptyCellState())
+
+        assertEquals(
+            IntRect.Zero,
+            testCellState.boundingBox,
         )
     }
 }

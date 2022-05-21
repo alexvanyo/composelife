@@ -33,6 +33,9 @@ android {
     defaultConfig {
         minSdk = 21
     }
+    testOptions {
+        execution = "ANDROIDX_TEST_ORCHESTRATOR"
+    }
 }
 
 dependencies {
@@ -40,6 +43,7 @@ dependencies {
     api(projects.dispatchers)
     implementation(projects.navigation)
     implementation(projects.resourceState)
+    implementation(projects.patterns)
 
     implementation(libs.androidx.compose.material3)
     api(libs.androidx.compose.material3.windowSizeClass)
@@ -72,6 +76,7 @@ dependencies {
     sharedTestImplementation(libs.kotlinx.coroutines.test)
     sharedTestImplementation(libs.turbine)
     kaptSharedTest(libs.dagger.hilt.compiler)
+    androidTestUtil(libs.androidx.test.orchestrator)
 }
 
 kapt {

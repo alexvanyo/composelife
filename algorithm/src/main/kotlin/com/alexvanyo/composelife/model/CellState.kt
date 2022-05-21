@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.model
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
 import com.alexvanyo.composelife.util.toIntOffset
 
 /**
@@ -30,15 +31,54 @@ abstract class CellState {
      */
     abstract val aliveCells: Set<IntOffset>
 
+    /**
+     * Returns a new cell state, where a cell is alive in the new cell state if it is alive in
+     * this cell state, or in the [other] cell state (OR).
+     *
+     * This is overridable by subclasses in case the operation can be done more efficiently in a
+     * particular implementation.
+     */
     open fun union(other: CellState) = CellState(aliveCells.union(other.aliveCells))
 
+    /**
+     * Returns a new cell state with offset by the given [offset].
+     *
+     * This is overridable by subclasses in case the operation can be done more efficiently in a
+     * particular implementation.
+     */
     open fun offsetBy(offset: IntOffset) = CellState(aliveCells.map { it + offset }.toSet())
 
+    /**
+     * Returns a new cell state where the cell at the given [offset] is set to be alive or dead as
+     * specified by [isAlive].
+     *
+     * This is overridable by subclasses in case the operation can be done more efficiently in a
+     * particular implementation.
+     */
     open fun withCell(offset: IntOffset, isAlive: Boolean): CellState =
         if (isAlive) {
             CellState(aliveCells + offset)
         } else {
             CellState(aliveCells - offset)
+        }
+
+    /**
+     * Returns the [IntRect] describing the minimal bounding box required to enclose all alive cells
+     * in this cell state. If the cell state is empty, this will return [IntRect.Zero].
+     *
+     * This is overridable by subclasses in case the operation can be done more efficiently in a
+     * particular implementation.
+     */
+    open val boundingBox: IntRect get() =
+        if (aliveCells.isEmpty()) {
+            IntRect.Zero
+        } else {
+            IntRect(
+                left = aliveCells.minOf { it.x },
+                top = aliveCells.minOf { it.y },
+                right = aliveCells.maxOf { it.x },
+                bottom = aliveCells.maxOf { it.y },
+            )
         }
 
     override fun equals(other: Any?): Boolean =

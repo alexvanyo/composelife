@@ -15,6 +15,7 @@ androidxPoolingContainer = "1.0.0-beta02"
 androidxTest = "1.5.0-alpha03"
 androidxTestEspresso = "3.5.0-alpha06"
 androidxTestExt = "1.1.4-alpha06"
+androidxTestOrchestrator = "1.4.2-alpha03"
 androidxWearWatchface = "1.1.0-rc01"
 androidxWindow = "1.1.0-alpha02"
 dagger = "2.42"
@@ -64,6 +65,7 @@ androidx-poolingContainer = { group = "androidx.customview", name = "customview-
 androidx-test-espresso = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxTestEspresso" }
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTest" }
 androidx-test-junit = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "androidxTestExt" }
+androidx-test-orchestrator = { group = "androidx.test", name = "orchestrator", version.ref = "androidxTestOrchestrator" }
 androidx-wear-watchface = { group = "androidx.wear.watchface", name = "watchface", version.ref = "androidxWearWatchface" }
 androidx-window = { group = "androidx.window", name = "window", version.ref = "androidxWindow" }
 dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "dagger" }

@@ -16,7 +16,10 @@
 
 plugins {
     id("com.alexvanyo.composelife.android.library")
+    id("com.alexvanyo.composelife.android.library.gradlemanageddevices")
     id("com.alexvanyo.composelife.android.library.ksp")
+    id("com.alexvanyo.composelife.android.library.jacoco")
+    id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
 }
 
