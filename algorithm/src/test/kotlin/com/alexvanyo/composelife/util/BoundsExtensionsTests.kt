@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.util
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import org.junit.jupiter.api.Nested
@@ -74,7 +75,7 @@ class BoundsExtensionsTests {
     inner class IntOffsetToPairTests {
 
         @Test
-        fun `pair to int offset is correct`() {
+        fun `int offset to pair is correct`() {
             assertEquals(
                 11 to 13,
                 IntOffset(11, 13).toPair(),
@@ -119,6 +120,28 @@ class BoundsExtensionsTests {
             assertEquals(
                 IntOffset(-20, -7),
                 floor(Offset(-19.3f, -6.8f)),
+            )
+        }
+    }
+
+    @Nested
+    inner class IntRectToRectTests {
+
+        @Test
+        fun `int rect to rect is correct`() {
+            assertEquals(
+                Rect(
+                    -3f,
+                    2f,
+                    -1f,
+                    4f,
+                ),
+                IntRect(
+                    -3,
+                    2,
+                    -1,
+                    4,
+                ).toRect(),
             )
         }
     }

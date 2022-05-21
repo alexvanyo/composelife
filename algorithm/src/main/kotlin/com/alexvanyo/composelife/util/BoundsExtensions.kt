@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.util
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import kotlin.math.abs
@@ -68,6 +69,16 @@ private val neighborOffsets = listOf(
  * Floors an [Offset] into an [IntOffset], taking the [floor] of both coordinates.
  */
 fun floor(offset: Offset): IntOffset = IntOffset(floor(offset.x).toInt(), floor(offset.y).toInt())
+
+/**
+ * Converts an [IntRect] to a [Rect].
+ */
+fun IntRect.toRect() = Rect(
+    left = left.toFloat(),
+    top = top.toFloat(),
+    right = right.toFloat(),
+    bottom = bottom.toFloat(),
+)
 
 /**
  * Maps an [IntOffset] into an [Int] to enumerate the 2d plane.

@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.action
 
-import android.app.Application
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,32 +30,27 @@ import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isPopup
-import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
 import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.test.BaseHiltTest
+import com.alexvanyo.composelife.test.TestActivity
 import com.alexvanyo.composelife.ui.R
-import org.junit.Rule
+import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Test
-import org.junit.runner.RunWith
 import kotlin.test.assertEquals
 
-@RunWith(AndroidJUnit4::class)
-class InlinePaletteScreenTests {
-
-    @get:Rule
-    val composeTestRule = createComposeRule()
-
-    private val applicationContext = ApplicationProvider.getApplicationContext<Application>()
+@OptIn(ExperimentalCoroutinesApi::class)
+@HiltAndroidTest
+class InlinePaletteScreenTests : BaseHiltTest<TestActivity>(TestActivity::class.java) {
 
     @Test
-    fun loading_is_displayed_correctly() {
+    fun loading_is_displayed_correctly() = runAppTest {
         composeTestRule.setContent {
             InlinePaletteScreen(
                 currentShapeState = ResourceState.Loading,
@@ -71,7 +65,7 @@ class InlinePaletteScreenTests {
     }
 
     @Test
-    fun round_rectangle_is_displayed_correctly() {
+    fun round_rectangle_is_displayed_correctly() = runAppTest {
         composeTestRule.setContent {
             InlinePaletteScreen(
                 currentShapeState = ResourceState.Success(
@@ -86,25 +80,25 @@ class InlinePaletteScreenTests {
         }
 
         composeTestRule
-            .onNodeWithText(applicationContext.getString(R.string.round_rectangle))
+            .onNodeWithText(context.getString(R.string.round_rectangle))
             .assertExists()
             .assertHasClickAction()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.size_fraction, 0.8f),
+                context.getString(R.string.size_fraction, 0.8f),
             )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.8f, range = 0.1f..1f)))
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.corner_fraction, 0.4f),
+                context.getString(R.string.corner_fraction, 0.4f),
             )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.4f, range = 0f..0.5f)))
     }
 
     @Test
-    fun round_rectangle_is_displayed_correctly_after_updating() {
+    fun round_rectangle_is_displayed_correctly_after_updating() = runAppTest {
         var currentShapeState by mutableStateOf<ResourceState<CurrentShape>>(ResourceState.Loading)
 
         composeTestRule.setContent {
@@ -123,25 +117,25 @@ class InlinePaletteScreenTests {
         )
 
         composeTestRule
-            .onNodeWithText(applicationContext.getString(R.string.round_rectangle))
+            .onNodeWithText(context.getString(R.string.round_rectangle))
             .assertExists()
             .assertHasClickAction()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.size_fraction, 0.8f),
+                context.getString(R.string.size_fraction, 0.8f),
             )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.8f, range = 0.1f..1f)))
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.corner_fraction, 0.4f),
+                context.getString(R.string.corner_fraction, 0.4f),
             )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.4f, range = 0f..0.5f)))
     }
 
     @Test
-    fun round_rectangle_size_fraction_slider_updates_state() {
+    fun round_rectangle_size_fraction_slider_updates_state() = runAppTest {
         var sizeFraction by mutableStateOf(0.8f)
         var cornerFraction by mutableStateOf(0.4f)
 
@@ -166,7 +160,7 @@ class InlinePaletteScreenTests {
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.size_fraction, 0.8f),
+                context.getString(R.string.size_fraction, 0.8f),
             )
             .performSemanticsAction(SemanticsActions.SetProgress) {
                 it(0.5f)
@@ -174,13 +168,13 @@ class InlinePaletteScreenTests {
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.size_fraction, 0.5f),
+                context.getString(R.string.size_fraction, 0.5f),
             )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0.1f..1f)))
     }
 
     @Test
-    fun round_rectangle_corner_fraction_slider_updates_state() {
+    fun round_rectangle_corner_fraction_slider_updates_state() = runAppTest {
         var sizeFraction by mutableStateOf(0.8f)
         var cornerFraction by mutableStateOf(0.4f)
 
@@ -205,7 +199,7 @@ class InlinePaletteScreenTests {
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.corner_fraction, 0.4f),
+                context.getString(R.string.corner_fraction, 0.4f),
             )
             .performSemanticsAction(SemanticsActions.SetProgress) {
                 it(0f)
@@ -213,13 +207,13 @@ class InlinePaletteScreenTests {
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.corner_fraction, 0f),
+                context.getString(R.string.corner_fraction, 0f),
             )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0f, range = 0f..0.5f)))
     }
 
     @Test
-    fun round_rectangle_popup_displays_options() {
+    fun round_rectangle_popup_displays_options() = runAppTest {
         var setCurrentShapeType: CurrentShapeType? = null
 
         composeTestRule.setContent {
@@ -238,11 +232,11 @@ class InlinePaletteScreenTests {
         }
 
         composeTestRule
-            .onNodeWithText(applicationContext.getString(R.string.round_rectangle))
+            .onNodeWithText(context.getString(R.string.round_rectangle))
             .performClick()
 
         composeTestRule
-            .onNode(hasAnyAncestor(isPopup()) and hasText(applicationContext.getString(R.string.round_rectangle)))
+            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(R.string.round_rectangle)))
             .assertHasClickAction()
             .performClick()
 

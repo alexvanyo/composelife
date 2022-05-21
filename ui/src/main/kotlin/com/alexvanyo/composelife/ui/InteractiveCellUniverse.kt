@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife.ui
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
@@ -30,6 +29,7 @@ import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.cells.CellWindowState
 import com.alexvanyo.composelife.ui.cells.MutableCellWindow
 import com.alexvanyo.composelife.ui.cells.rememberCellWindowState
+import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicator
 import com.alexvanyo.composelife.ui.entrypoints.preferences.inject
 
 /**
@@ -53,7 +53,7 @@ fun InteractiveCellUniverse(
             when (currentShapeState) {
                 is ResourceState.Failure -> Unit
                 ResourceState.Loading -> {
-                    CircularProgressIndicator()
+                    GameOfLifeProgressIndicator()
                 }
                 is ResourceState.Success -> {
                     MutableCellWindow(

@@ -24,7 +24,6 @@ import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.algorithm.NaiveGameOfLifeAlgorithm
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlin.experimental.ExperimentalTypeInference
 import com.alexvanyo.composelife.ui.entrypoints.dispatchers.inject as injectDispatchers
 
 @HiltViewModel
@@ -32,8 +31,6 @@ private class GameOfLifeAlgorithmEntryPoint @Inject constructor(
     val gameOfLifeAlgorithm: GameOfLifeAlgorithm,
 ) : ViewModel()
 
-@OptIn(ExperimentalTypeInference::class)
-@OverloadResolutionByLambdaReturnType
 @Composable
 fun inject(
     previewGameOfLifeAlgorithm: GameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(injectDispatchers()),

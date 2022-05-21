@@ -24,15 +24,12 @@ import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.DefaultComposeLifeDispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlin.experimental.ExperimentalTypeInference
 
 @HiltViewModel
 private class ComposeLifeDispatchersEntryPoint @Inject constructor(
     val dispatchers: ComposeLifeDispatchers,
 ) : ViewModel()
 
-@OptIn(ExperimentalTypeInference::class)
-@OverloadResolutionByLambdaReturnType
 @Composable
 fun inject(): ComposeLifeDispatchers =
     if (LocalInspectionMode.current) {

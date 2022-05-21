@@ -16,33 +16,58 @@
 
 package com.alexvanyo.composelife.patterns
 
+import androidx.compose.ui.unit.IntRect
+import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.toCellState
+import com.livefront.sealedenum.GenSealedEnum
 
-object BlinkerPattern : GameOfLifeTestPattern(
+sealed class OscillatorPattern(
+    patternName: String,
+    seedCellState: CellState,
+    internal val otherCellStates: List<CellState>,
+    val boundingBox: IntRect,
+) : GameOfLifeTestPattern(
+    patternName = patternName,
+    seedCellState = seedCellState,
+    cellStates = List(oscillatorTestGenerations) {
+        val repeatingCellStates = otherCellStates + seedCellState
+        repeatingCellStates[it.mod(repeatingCellStates.size)]
+    },
+) {
+    /**
+     * The period of the oscillating pattern.
+     */
+    val period = otherCellStates.size + 1
+
+    @GenSealedEnum(generateEnum = true)
+    companion object {
+        const val oscillatorTestGenerations = 50
+    }
+}
+
+object BlinkerPattern : OscillatorPattern(
     patternName = "Blinker",
     """
     |...
     |OOO
     |...
     """.toCellState(),
-    List(50) {
-        if (it.rem(2) == 0) {
-            """
-            |.O.
-            |.O.
-            |.O.
-            """.toCellState()
-        } else {
-            """
-            |...
-            |OOO
-            |...
-            """.toCellState()
-        }
-    },
+    listOf(
+        """
+        |.O.
+        |.O.
+        |.O.
+        """.toCellState(),
+    ),
+    IntRect(
+        left = 0,
+        top = 0,
+        right = 2,
+        bottom = 2,
+    ),
 )
 
-object ToadPattern : GameOfLifeTestPattern(
+object ToadPattern : OscillatorPattern(
     patternName = "Toad",
     """
     |.OO.
@@ -50,26 +75,23 @@ object ToadPattern : GameOfLifeTestPattern(
     |...O
     |.OO.
     """.toCellState(),
-    List(50) {
-        if (it.rem(2) == 0) {
-            """
-            |.O..
-            |.OO.
-            |.OO.
-            |..O.
-            """.toCellState()
-        } else {
-            """
-            |.OO.
-            |O...
-            |...O
-            |.OO.
-            """.toCellState()
-        }
-    },
+    listOf(
+        """
+        |.O..
+        |.OO.
+        |.OO.
+        |..O.
+        """.toCellState(),
+    ),
+    IntRect(
+        left = 0,
+        top = 0,
+        right = 3,
+        bottom = 3,
+    ),
 )
 
-object BeaconPattern : GameOfLifeTestPattern(
+object BeaconPattern : OscillatorPattern(
     patternName = "Beacon",
     """
     |OO..
@@ -77,21 +99,18 @@ object BeaconPattern : GameOfLifeTestPattern(
     |...O
     |..OO
     """.toCellState(),
-    List(50) {
-        if (it.rem(2) == 0) {
-            """
-            |OO..
-            |OO..
-            |..OO
-            |..OO
-            """.toCellState()
-        } else {
-            """
-            |OO..
-            |O...
-            |...O
-            |..OO
-            """.toCellState()
-        }
-    },
+    listOf(
+        """
+        |OO..
+        |OO..
+        |..OO
+        |..OO
+        """.toCellState(),
+    ),
+    IntRect(
+        left = 0,
+        top = 0,
+        right = 3,
+        bottom = 3,
+    ),
 )
