@@ -35,9 +35,6 @@ android {
     defaultConfig {
         minSdk = 21
     }
-    testOptions {
-        execution = "ANDROIDX_TEST_ORCHESTRATOR"
-    }
 }
 
 kotlin {
@@ -122,7 +119,6 @@ kotlin {
             }
             dependencies {
                 configurations["kaptAndroidTest"].dependencies.add(libs.dagger.hilt.compiler.get())
-                configurations["androidTestUtil"].dependencies.add(libs.androidx.test.orchestrator.get())
             }
         }
     }
