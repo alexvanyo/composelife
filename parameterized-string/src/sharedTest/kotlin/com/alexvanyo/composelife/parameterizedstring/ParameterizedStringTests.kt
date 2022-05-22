@@ -16,9 +16,9 @@
 
 package com.alexvanyo.composelife.parameterizedstring
 
-import android.app.Application
-import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.test.core.app.ApplicationProvider
+import android.content.Context
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.parameterizedstring.test.R
 import org.junit.Rule
@@ -31,15 +31,15 @@ import kotlin.test.assertEquals
 class ParameterizedStringTests {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
-    private val applicationContext = ApplicationProvider.getApplicationContext<Application>()
+    private val context: Context get() = composeTestRule.activity
 
     @Test
     fun zero_arg_string_is_correct() {
         assertEquals(
             "Zero",
-            applicationContext.getParameterizedString(ParameterizedString(R.string.no_arg_string)),
+            context.getParameterizedString(ParameterizedString(R.string.no_arg_string)),
         )
     }
 
@@ -47,7 +47,7 @@ class ParameterizedStringTests {
     fun one_arg_string_is_correct() {
         assertEquals(
             "One: (a)",
-            applicationContext.getParameterizedString(ParameterizedString(R.string.one_arg_string, "a")),
+            context.getParameterizedString(ParameterizedString(R.string.one_arg_string, "a")),
         )
     }
 
@@ -55,7 +55,7 @@ class ParameterizedStringTests {
     fun two_arg_string_is_correct() {
         assertEquals(
             "Two: (a) (b)",
-            applicationContext.getParameterizedString(ParameterizedString(R.string.two_arg_string, "a", "b")),
+            context.getParameterizedString(ParameterizedString(R.string.two_arg_string, "a", "b")),
         )
     }
 
@@ -63,20 +63,20 @@ class ParameterizedStringTests {
     fun three_arg_string_is_correct() {
         assertEquals(
             "Three: (a) (b) (c)",
-            applicationContext.getParameterizedString(ParameterizedString(R.string.three_arg_string, "a", "b", "c")),
+            context.getParameterizedString(ParameterizedString(R.string.three_arg_string, "a", "b", "c")),
         )
     }
 
     @Test(expected = MissingFormatArgumentException::class)
     fun three_arg_string_with_two_args_throws() {
-        applicationContext.getParameterizedString(ParameterizedString(R.string.three_arg_string, "a", "b"))
+        context.getParameterizedString(ParameterizedString(R.string.three_arg_string, "a", "b"))
     }
 
     @Test
     fun nested_two_arg_string_is_correct() {
         assertEquals(
             "Two: (One: (a)) (One: (b))",
-            applicationContext.getParameterizedString(
+            context.getParameterizedString(
                 ParameterizedString(
                     R.string.two_arg_string,
                     ParameterizedString(
@@ -96,7 +96,7 @@ class ParameterizedStringTests {
     fun nested_three_arg_string_is_correct() {
         assertEquals(
             "Three: (Two: (a) (b)) (One: (One: (c))) (One: (One: (One: (d))))",
-            applicationContext.getParameterizedString(
+            context.getParameterizedString(
                 ParameterizedString(
                     R.string.three_arg_string,
                     ParameterizedString(

@@ -26,7 +26,6 @@ import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestResult
@@ -60,9 +59,7 @@ abstract class BaseHiltTest<T : ComponentActivity>(clazz: Class<T>) {
     @Inject
     lateinit var preferences: TestComposeLifePreferences
 
-    @Inject
-    @ApplicationContext
-    lateinit var context: Context
+    val context: Context get() = composeTestRule.activity
 
     @Before
     fun setup() {

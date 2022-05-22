@@ -16,17 +16,17 @@
 
 package com.alexvanyo.composelife.ui.cells
 
-import android.app.Application
+import android.content.Context
+import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.click
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
@@ -41,9 +41,9 @@ import kotlin.test.assertEquals
 class InteractableCellsTests {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
-    private val applicationContext = ApplicationProvider.getApplicationContext<Application>()
+    private val context: Context get() = composeTestRule.activity
 
     @Test
     fun cells_are_displayed_correctly() {
@@ -78,79 +78,79 @@ class InteractableCellsTests {
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 0, 0),
+                context.getString(R.string.cell_content_description, 0, 0),
             )
             .assertIsOn()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 0, 1),
+                context.getString(R.string.cell_content_description, 0, 1),
             )
             .assertIsOff()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 0, 2),
+                context.getString(R.string.cell_content_description, 0, 2),
             )
             .assertIsOn()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 0, 3),
+                context.getString(R.string.cell_content_description, 0, 3),
             )
             .assertIsOff()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 0, 4),
+                context.getString(R.string.cell_content_description, 0, 4),
             )
             .assertIsOn()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 2, 0),
+                context.getString(R.string.cell_content_description, 2, 0),
             )
             .assertIsOn()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 2, 1),
+                context.getString(R.string.cell_content_description, 2, 1),
             )
             .assertIsOff()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 2, 2),
+                context.getString(R.string.cell_content_description, 2, 2),
             )
             .assertIsOn()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 2, 3),
+                context.getString(R.string.cell_content_description, 2, 3),
             )
             .assertIsOff()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 2, 4),
+                context.getString(R.string.cell_content_description, 2, 4),
             )
             .assertIsOn()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 8, 8),
+                context.getString(R.string.cell_content_description, 8, 8),
             )
             .assertExists()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, -1, -1),
+                context.getString(R.string.cell_content_description, -1, -1),
             )
             .assertDoesNotExist()
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 9, 9),
+                context.getString(R.string.cell_content_description, 9, 9),
             )
             .assertDoesNotExist()
     }
@@ -188,7 +188,7 @@ class InteractableCellsTests {
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.cell_content_description, 2, 4),
+                context.getString(R.string.cell_content_description, 2, 4),
             )
             .assertIsOn()
             .performTouchInput { click(topLeft) }
