@@ -66,7 +66,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
     @Inject
     lateinit var hashLifeAlgorithm: HashLifeAlgorithm
 
-    @SkipLeakDetection("appliedChanges")
+    @SkipLeakDetection("appliedChanges", "Outer")
     @Test
     fun info_card_closes_upon_back_press() = runAppTest {
         composeTestRule.setContent {
@@ -105,7 +105,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             .assertDoesNotExist()
     }
 
-    @SkipLeakDetection("appliedChanges")
+    @SkipLeakDetection("appliedChanges", "Outer")
     @Test
     fun action_card_closes_upon_back_press() = runAppTest {
         composeTestRule.setContent {
@@ -144,7 +144,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             .assertDoesNotExist()
     }
 
-    @SkipLeakDetection("appliedChanges")
+    @SkipLeakDetection("appliedChanges", "Outer")
     @Test
     fun six_long_line_evolves_correctly() = runAppTest {
         composeTestRule.setContent {
@@ -194,7 +194,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
         }
     }
 
-    @SkipLeakDetection("appliedChanges")
+    @SkipLeakDetection("appliedChanges", "Outer")
     @Test
     fun six_long_line_evolves_correctly_after_slowing_down() = runAppTest {
         val hashLifeAlgorithm = HashLifeAlgorithm(
@@ -266,7 +266,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
         }
     }
 
-    @SkipLeakDetection("appliedChanges")
+    @SkipLeakDetection("appliedChanges", "Outer")
     @Test
     fun six_long_line_evolves_correctly_with_step() = runAppTest {
         composeTestRule.setContent {
@@ -315,7 +315,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
         }
     }
 
-    @SkipLeakDetection("appliedChanges")
+    @SkipLeakDetection("appliedChanges", "Outer")
     @Test
     fun six_long_line_evolves_correctly_with_double_step() = runAppTest {
         composeTestRule.setContent {

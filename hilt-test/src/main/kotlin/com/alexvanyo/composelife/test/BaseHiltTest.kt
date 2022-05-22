@@ -44,17 +44,16 @@ import javax.inject.Inject
 abstract class BaseHiltTest<T : ComponentActivity>(clazz: Class<T>) {
 
     @get:Rule(order = 0)
-    val leakCanaryRule = if (Build.FINGERPRINT.lowercase() == "robolectric") {
-        TestRule { base, _ -> base }
-    } else {
-        DetectLeaksAfterTestSuccess()
-    }
+    val outerLeakRule = createLeakRule("Outer")
 
     @get:Rule(order = 1)
     val hiltAndroidRule = HiltAndroidRule(this)
 
     @get:Rule(order = 2)
     val composeTestRule = createAndroidComposeRule(clazz)
+
+    @get:Rule(order = 3)
+    val innerLeakRule = createLeakRule("Inner")
 
     @Inject
     lateinit var preferences: TestComposeLifePreferences
@@ -84,3 +83,10 @@ abstract class BaseHiltTest<T : ComponentActivity>(clazz: Class<T>) {
         testBody()
     }
 }
+
+private fun createLeakRule(tag: String) =
+    if (Build.FINGERPRINT.lowercase() == "robolectric") {
+        TestRule { base, _ -> base }
+    } else {
+        DetectLeaksAfterTestSuccess(tag)
+    }
