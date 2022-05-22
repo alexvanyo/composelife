@@ -27,13 +27,22 @@ android {
     configureTesting(this)
 }
 
+androidComponents {
+    // Disable release builds for this test-only library, no need to run screenshot tests more than
+    // once
+    beforeVariants(selector().withBuildType("release")) { builder ->
+        builder.enable = false
+    }
+}
+
 dependencies {
-    add("testImplementation", libs.findLibrary("paparazzi.runtime").get())
     // Ensure we use the jre version of guava, since layoutlib requires it
     add("testImplementation", libs.findLibrary("guava.jre").get())
 }
 
 tasks.named("check") {
+    // Ensure check is verifying the snapshots, see discussion in
+    // https://github.com/cashapp/paparazzi/pull/421
     dependsOn("verifyPaparazziDebug")
 }
 
