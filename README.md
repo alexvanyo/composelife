@@ -1,11 +1,11 @@
 ![CI](https://github.com/alexvanyo/composelife/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/alexvanyo/composelife/branch/main/graph/badge.svg?token=z7yP8Z8xqC)](https://codecov.io/gh/alexvanyo/composelife)
 
-# composelife
+# ComposeLife
 
 **This is not an official Google product**
 
-composelife is a
+ComposeLife is a
 work-in-progress [Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) simulator
 Android app.
 
@@ -18,10 +18,10 @@ These include:
 - Fully functional CI system with Github Actions with:
     - JVM tests
     - [Robolectric](http://robolectric.org/) tests
-    - Integration tests (minification with the help of [Keeper](https://slackhq.github.io/keeper/))
+    - Integration tests (minification with the help of [Keeper](https://slackhq.github.io/keeper/), memory leak checking with [LeakCanary](https://square.github.io/leakcanary/))
     - Screenshot tests with [Paparazzi](https://cashapp.github.io/paparazzi/)
     - Linting, with android/lint and [detekt](https://detekt.dev/)
-    - Code coverage with Jacoco (reporting done with [Codecov](https://about.codecov.io/))
+    - Code coverage with JaCoCo (reporting done with [Codecov](https://about.codecov.io/))
     - Automatic dependency updates with [Renovate](https://docs.renovatebot.com/)
 
 ## Setup
