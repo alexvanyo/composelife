@@ -42,6 +42,7 @@ import com.alexvanyo.composelife.test.TestActivity
 import com.alexvanyo.composelife.ui.R
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import leakcanary.SkipLeakDetection
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -212,6 +213,7 @@ class InlinePaletteScreenTests : BaseHiltTest<TestActivity>(TestActivity::class.
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0f, range = 0f..0.5f)))
     }
 
+    @SkipLeakDetection("https://issuetracker.google.com/issues/206177594", "Inner")
     @Test
     fun round_rectangle_popup_displays_options() = runAppTest {
         var setCurrentShapeType: CurrentShapeType? = null
