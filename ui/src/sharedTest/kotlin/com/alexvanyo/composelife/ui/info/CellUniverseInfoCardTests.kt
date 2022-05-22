@@ -16,7 +16,8 @@
 
 package com.alexvanyo.composelife.ui.info
 
-import android.app.Application
+import android.content.Context
+import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
@@ -24,11 +25,10 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsToggleable
 import androidx.compose.ui.test.isToggleable
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.ui.R
 import org.junit.Rule
@@ -39,9 +39,9 @@ import org.junit.runner.RunWith
 class CellUniverseInfoCardTests {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
-    private val applicationContext = ApplicationProvider.getApplicationContext<Application>()
+    private val context: Context get() = composeTestRule.activity
 
     @Test
     fun card_is_collapsed_by_default() {
@@ -64,12 +64,12 @@ class CellUniverseInfoCardTests {
             )
         }
 
-        composeTestRule.onNodeWithContentDescription(applicationContext.getString(R.string.expand))
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.expand))
             .assertIsDisplayed()
             .assertHasClickAction()
             .assertIsEnabled()
 
-        composeTestRule.onNodeWithContentDescription(applicationContext.getString(R.string.collapse))
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.collapse))
             .assertDoesNotExist()
     }
 
@@ -94,15 +94,15 @@ class CellUniverseInfoCardTests {
             )
         }
 
-        composeTestRule.onNodeWithContentDescription(applicationContext.getString(R.string.expand))
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.expand))
             .performClick()
 
-        composeTestRule.onNodeWithContentDescription(applicationContext.getString(R.string.collapse))
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.collapse))
             .assertIsDisplayed()
             .assertHasClickAction()
             .assertIsEnabled()
 
-        composeTestRule.onNodeWithContentDescription(applicationContext.getString(R.string.expand))
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.expand))
             .assertDoesNotExist()
     }
 

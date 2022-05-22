@@ -16,7 +16,8 @@
 
 package com.alexvanyo.composelife.ui.action
 
-import android.app.Application
+import android.content.Context
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,10 +26,9 @@ import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasProgressBarRangeInfo
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performSemanticsAction
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.ui.R
 import org.junit.Rule
@@ -40,9 +40,9 @@ import kotlin.math.log2
 class InlineSpeedScreenTests {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
-    private val applicationContext = ApplicationProvider.getApplicationContext<Application>()
+    private val context: Context get() = composeTestRule.activity
 
     @Test
     fun target_steps_per_second_is_displayed_correctly() {
@@ -60,7 +60,7 @@ class InlineSpeedScreenTests {
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.target_steps_per_second, 60.0),
+                context.getString(R.string.target_steps_per_second, 60.0),
             )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = log2(60f), range = 0f..8f)))
     }
@@ -81,7 +81,7 @@ class InlineSpeedScreenTests {
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.target_steps_per_second, 60.0),
+                context.getString(R.string.target_steps_per_second, 60.0),
             )
             .performSemanticsAction(SemanticsActions.SetProgress) {
                 it(8f)
@@ -89,7 +89,7 @@ class InlineSpeedScreenTests {
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.target_steps_per_second, 256.0),
+                context.getString(R.string.target_steps_per_second, 256.0),
             )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f)))
     }
@@ -110,7 +110,7 @@ class InlineSpeedScreenTests {
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.generations_per_step, 1),
+                context.getString(R.string.generations_per_step, 1),
             )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0f, range = 0f..8f, steps = 7)))
     }
@@ -131,7 +131,7 @@ class InlineSpeedScreenTests {
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.generations_per_step, 1),
+                context.getString(R.string.generations_per_step, 1),
             )
             .performSemanticsAction(SemanticsActions.SetProgress) {
                 it(8f)
@@ -139,7 +139,7 @@ class InlineSpeedScreenTests {
 
         composeTestRule
             .onNodeWithContentDescription(
-                applicationContext.getString(R.string.generations_per_step, 256),
+                context.getString(R.string.generations_per_step, 256),
             )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f, steps = 7)))
     }
