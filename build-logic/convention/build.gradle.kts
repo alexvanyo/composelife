@@ -34,3 +34,68 @@ dependencies {
     implementation(libs.ksp.gradlePlugin)
     implementation(libs.paparazzi.gradlePlugin)
 }
+
+gradlePlugin {
+    plugins {
+        register("androidApplication") {
+            id = "com.alexvanyo.composelife.android.application"
+            implementationClass = "AndroidApplicationConventionPlugin"
+        }
+        register("androidApplicationCompose") {
+            id = "com.alexvanyo.composelife.android.application.compose"
+            implementationClass = "AndroidApplicationComposeConventionPlugin"
+        }
+        register("androidApplicationGradleManagedDevices") {
+            id = "com.alexvanyo.composelife.android.application.gradlemanageddevices"
+            implementationClass = "AndroidApplicationGradleManagedDevicesConventionPlugin"
+        }
+        register("androidApplicationJacoco") {
+            id = "com.alexvanyo.composelife.android.application.jacoco"
+            implementationClass = "AndroidApplicationJacocoConventionPlugin"
+        }
+        register("androidApplicationKsp") {
+            id = "com.alexvanyo.composelife.android.application.ksp"
+            implementationClass = "AndroidApplicationKspConventionPlugin"
+        }
+        register("androidApplicationTesting") {
+            id = "com.alexvanyo.composelife.android.application.testing"
+            implementationClass = "AndroidApplicationTestingConventionPlugin"
+        }
+        register("androidLibrary") {
+            id = "com.alexvanyo.composelife.android.library"
+            implementationClass = "AndroidLibraryConventionPlugin"
+        }
+        register("androidLibraryCompose") {
+            id = "com.alexvanyo.composelife.android.library.compose"
+            implementationClass = "AndroidLibraryComposeConventionPlugin"
+        }
+        register("androidLibraryGradleManagedDevices") {
+            id = "com.alexvanyo.composelife.android.library.gradlemanageddevices"
+            implementationClass = "AndroidLibraryGradleManagedDevicesConventionPlugin"
+        }
+        register("androidLibraryJacoco") {
+            id = "com.alexvanyo.composelife.android.library.jacoco"
+            implementationClass = "AndroidLibraryJacocoConventionPlugin"
+        }
+        register("androidLibraryKsp") {
+            id = "com.alexvanyo.composelife.android.library.ksp"
+            implementationClass = "AndroidLibraryKspConventionPlugin"
+        }
+        register("androidLibraryPaparazzi") {
+            id = "com.alexvanyo.composelife.android.library.paparazzi"
+            implementationClass = "AndroidLibraryPaparazziConventionPlugin"
+        }
+        register("androidLibraryTesting") {
+            id = "com.alexvanyo.composelife.android.library.testing"
+            implementationClass = "AndroidLibraryTestingConventionPlugin"
+        }
+        register("detekt") {
+            id = "com.alexvanyo.composelife.detekt"
+            implementationClass = "DetektConventionPlugin"
+        }
+        register("mergeJacoco") {
+            id = "com.alexvanyo.composelife.mergejacoco"
+            implementationClass = "MergeJacocoConventionPlugin"
+        }
+    }
+}

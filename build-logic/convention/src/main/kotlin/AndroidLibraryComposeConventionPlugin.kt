@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.configureJacocoMerge
+import com.alexvanyo.composelife.buildlogic.ConventionPlugin
+import com.alexvanyo.composelife.buildlogic.configureAndroidCompose
+import com.android.build.gradle.LibraryExtension
+import org.gradle.kotlin.dsl.getByType
 
-plugins {
-    jacoco
-}
+class AndroidLibraryComposeConventionPlugin : ConventionPlugin({
+    with(pluginManager) {
+        apply("com.android.library")
+        apply("org.jetbrains.kotlin.android")
+    }
 
-configureJacocoMerge()
+    configureAndroidCompose(extensions.getByType<LibraryExtension>())
+})

@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.configureAndroidTesting
-import com.alexvanyo.composelife.buildlogic.configureTesting
+import com.alexvanyo.composelife.buildlogic.ConventionPlugin
+import com.alexvanyo.composelife.buildlogic.configureKotlinAndroid
+import com.android.build.gradle.LibraryExtension
+import org.gradle.kotlin.dsl.configure
 
-plugins {
-    id("com.android.library")
-}
+class AndroidLibraryConventionPlugin : ConventionPlugin({
+    with(pluginManager) {
+        apply("com.android.library")
+        apply("org.jetbrains.kotlin.android")
+    }
 
-android {
-    configureTesting(this)
-    configureAndroidTesting(this)
-}
+    extensions.configure<LibraryExtension> {
+        configureKotlinAndroid(this)
 
-fun DependencyHandlerScope.sharedTestImplementation(dependencyNotation: Any) {
-    testImplementation(dependencyNotation)
-
-    androidTestImplementation(dependencyNotation)
-}
+        defaultConfig {
+            targetSdk = 32
+            consumerProguardFiles("consumer-rules.pro")
+        }
+    }
+})

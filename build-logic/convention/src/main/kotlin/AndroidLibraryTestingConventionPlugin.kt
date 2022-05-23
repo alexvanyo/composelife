@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.configureAndroidCompose
+import com.alexvanyo.composelife.buildlogic.ConventionPlugin
+import com.alexvanyo.composelife.buildlogic.configureAndroidTesting
+import com.alexvanyo.composelife.buildlogic.configureTesting
+import com.android.build.gradle.LibraryExtension
+import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.getByType
 
-plugins {
-    id("com.android.library")
-    kotlin("android")
-}
+class AndroidLibraryTestingConventionPlugin : ConventionPlugin({
+    pluginManager.apply("com.android.library")
 
-android {
-    configureAndroidCompose(this)
-}
+    val libraryExtension = extensions.getByType<LibraryExtension>()
+    configureTesting(libraryExtension)
+    configureAndroidTesting(libraryExtension)
+})
