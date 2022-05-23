@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.configureKsp
+import com.alexvanyo.composelife.buildlogic.ConventionPlugin
+import com.alexvanyo.composelife.buildlogic.configureAndroidCompose
+import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
+import org.gradle.kotlin.dsl.getByType
 
-plugins {
-    id("com.android.library")
-    id("com.google.devtools.ksp")
-}
-
-android {
-    androidComponents {
-        configureKsp(this@android, this)
+class AndroidApplicationComposeConventionPlugin : ConventionPlugin({
+    with(pluginManager) {
+        apply("com.android.application")
+        apply("org.jetbrains.kotlin.android")
     }
-}
+
+    configureAndroidCompose(extensions.getByType<BaseAppModuleExtension>())
+})

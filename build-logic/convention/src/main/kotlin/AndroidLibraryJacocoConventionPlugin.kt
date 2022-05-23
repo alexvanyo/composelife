@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import com.alexvanyo.composelife.buildlogic.ConventionPlugin
+import com.alexvanyo.composelife.buildlogic.configureJacoco
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import org.gradle.kotlin.dsl.getByType
 
-plugins {
-    id("com.android.library")
-}
+class AndroidLibraryJacocoConventionPlugin : ConventionPlugin({
+    with(pluginManager) {
+        apply("com.android.library")
+        apply("jacoco")
+    }
 
-android {
-    configureGradleManagedDevices(this)
-}
+    configureJacoco(extensions.getByType<LibraryAndroidComponentsExtension>())
+})

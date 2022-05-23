@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.configureKotlinAndroid
+import com.alexvanyo.composelife.buildlogic.ConventionPlugin
+import com.alexvanyo.composelife.buildlogic.configureJacocoMerge
 
-plugins {
-    id("com.android.library")
-    kotlin("android")
-}
+class MergeJacocoConventionPlugin : ConventionPlugin({
+    pluginManager.apply("jacoco")
 
-android {
-    configureKotlinAndroid(this)
-
-    defaultConfig {
-        targetSdk = 32
-        consumerProguardFiles("consumer-rules.pro")
-    }
-}
+    configureJacocoMerge()
+})

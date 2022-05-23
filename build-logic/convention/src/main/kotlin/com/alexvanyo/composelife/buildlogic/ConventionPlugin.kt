@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.configureKsp
+package com.alexvanyo.composelife.buildlogic
 
-plugins {
-    id("com.android.application")
-    id("com.google.devtools.ksp")
-}
+import org.gradle.api.Plugin
+import org.gradle.api.Project
 
-android {
-    androidComponents {
-        configureKsp(this@android, this)
+open class ConventionPlugin(
+    val configure: Project.() -> Unit = {}
+) : Plugin<Project> {
+    final override fun apply(target: Project) {
+        configure(target)
     }
 }
