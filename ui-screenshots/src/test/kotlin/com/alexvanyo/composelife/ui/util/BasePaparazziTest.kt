@@ -51,16 +51,17 @@ abstract class BasePaparazziTest {
     @TestParameter
     lateinit var nightMode: NightMode
 
-    @get:Rule
-    val paparazzi = globalPaparazzi
-
     private val deviceConfig get() = baseDeviceConfig.deviceConfig.copy(
         nightMode = nightMode,
         softButtons = false,
     )
 
+    @get:Rule
+    val paparazzi = globalPaparazzi
+
     fun snapshot(composable: @Composable () -> Unit) {
-        paparazzi.snapshot(deviceConfig = deviceConfig) {
+        paparazzi.unsafeUpdateConfig(deviceConfig = deviceConfig)
+        paparazzi.snapshot {
             CompositionLocalProvider(LocalInspectionMode provides true) {
                 ComposeLifeTheme(darkTheme = nightMode == NightMode.NIGHT) {
                     Box {
