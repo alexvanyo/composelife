@@ -33,9 +33,9 @@ android {
 }
 
 dependencies {
-    implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.androidx.compose.foundation)
-    implementation(libs.androidx.compose.runtime)
+    api(libs.kotlinx.coroutines.android)
+    api(libs.androidx.compose.foundation)
+    api(libs.androidx.compose.runtime)
 
     sharedTestImplementation(projects.testActivity)
     sharedTestImplementation(libs.kotlinx.coroutines.test)
