@@ -31,8 +31,8 @@ android {
 }
 
 dependencies {
-    implementation(projects.algorithm)
-    implementation(libs.androidx.compose.foundation)
-    implementation(libs.sealedEnum.runtime)
+    api(projects.algorithm)
+    api(libs.androidx.compose.foundation)
+    api(libs.sealedEnum.runtime)
     ksp(libs.sealedEnum.ksp)
 }
