@@ -2,11 +2,5 @@
   "extends": [
     "config:base"
   ],
-  "ignoreUnstable": false,
-  "packageRules": [
-    {
-      "matchPackageNames": ["com.google.guava:guava"],
-      "allowedVersions": "!/.*jre/"
-    }
-  ]
+  "ignoreUnstable": false
 }
