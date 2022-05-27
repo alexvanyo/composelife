@@ -33,9 +33,8 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.activityCompose)
-    implementation(libs.androidx.compose.foundation)
-    implementation(libs.androidx.compose.runtime)
+    api(libs.androidx.compose.foundation)
+    api(libs.androidx.compose.runtime)
 
     sharedTestImplementation(projects.testActivity)
     sharedTestImplementation(libs.androidx.test.espresso)

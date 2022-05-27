@@ -39,8 +39,8 @@ dependencies {
     api(projects.resourceState)
     api(libs.kotlinx.coroutines.core)
     api(libs.kotlinx.coroutines.android)
-    implementation(libs.androidx.compose.runtime)
-    api(libs.androidx.dataStore)
+    api(libs.androidx.compose.runtime)
+    implementation(libs.androidx.dataStore)
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 
