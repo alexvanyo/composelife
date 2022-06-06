@@ -275,6 +275,7 @@ private class TemporalGameOfLifeStateImpl(
         clock: Clock,
         dispatchers: ComposeLifeDispatchers,
     ) {
+        @Suppress("InjectDispatcher") // Dispatchers are injected via dispatchers
         withContext(dispatchers.Default) {
             evolveMutex.withLock {
                 try {

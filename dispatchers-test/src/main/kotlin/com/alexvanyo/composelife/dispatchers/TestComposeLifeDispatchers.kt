@@ -31,6 +31,7 @@ import javax.inject.Inject
  *
  * To use [TestDispatcher] as [Dispatchers.Main], use [Dispatchers.setMain].
  */
+@Suppress("InjectDispatcher")
 @OptIn(ExperimentalCoroutinesApi::class)
 class TestComposeLifeDispatchers @Inject constructor(
     testDispatcher: TestDispatcher,
