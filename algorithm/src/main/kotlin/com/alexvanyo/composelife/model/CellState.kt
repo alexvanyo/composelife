@@ -110,13 +110,13 @@ fun String.toCellState(
 
     return when (deserializationResult) {
         is CellStateSerializer.DeserializationResult.Successful -> {
-            if (throwOnWarnings && deserializationResult.warnings.isNotEmpty()) {
-                throw IllegalStateException("Warnings when parsing cell state!")
+            check(deserializationResult.warnings.isEmpty() || !throwOnWarnings) {
+                "Warnings when parsing cell state!"
             }
             deserializationResult.cellState.offsetBy(topLeftOffset)
         }
         is CellStateSerializer.DeserializationResult.Unsuccessful ->
-            throw IllegalStateException("Could not parse cell state!")
+            error("Could not parse cell state!")
     }
 }
 

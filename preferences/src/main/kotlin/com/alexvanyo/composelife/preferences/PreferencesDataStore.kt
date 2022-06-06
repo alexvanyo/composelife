@@ -55,6 +55,9 @@ class PreferencesDataStore @Inject constructor(
         override suspend fun writeTo(t: PreferencesProto, output: OutputStream) =
             t.writeTo(output)
     },
-    scope = CoroutineScope(dispatchers.IO + SupervisorJob()),
+    scope = CoroutineScope(
+        @Suppress("InjectDispatcher") // Dispatchers are injected via dispatchers
+        dispatchers.IO + SupervisorJob(),
+    ),
     produceFile = { file },
 )
