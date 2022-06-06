@@ -29,11 +29,6 @@ dependencyResolutionManagement {
                 includeModule("com.android.tools", "r8")
             }
         }
-        maven(url = "https://oss.sonatype.org/content/repositories/snapshots/") {
-            content {
-                includeGroup("app.cash.paparazzi")
-            }
-        }
         google()
         mavenCentral()
     }
