@@ -24,11 +24,6 @@ pluginManagement {
                 includeModule("com.android.tools", "r8")
             }
         }
-        maven(url = "https://oss.sonatype.org/content/repositories/snapshots/") {
-            content {
-                includeGroup("app.cash.paparazzi")
-            }
-        }
         google()
         mavenCentral()
         gradlePluginPortal()
@@ -47,11 +42,6 @@ dependencyResolutionManagement {
         maven(url = "https://jitpack.io") {
             content {
                 includeGroup("com.github.livefront.sealed-enum")
-            }
-        }
-        maven(url = "https://oss.sonatype.org/content/repositories/snapshots/") {
-            content {
-                includeGroup("app.cash.paparazzi")
             }
         }
         google()
