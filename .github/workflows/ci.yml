@@ -213,7 +213,7 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: v3-${{ runner.os }}-avd-${{ matrix.api-level }}-${{ matrix.target }}
+          key: v4-${{ runner.os }}-avd-${{ matrix.api-level }}-${{ matrix.target }}
 
       - name: Configure JDK
         uses: actions/setup-java@v3
@@ -231,6 +231,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           target: ${{ matrix.target }}
           arch: x86_64
+          disk-size: 2048M
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: echo "Generated AVD snapshot for caching."
@@ -243,6 +244,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           target: ${{ matrix.target }}
           arch: x86_64
+          disk-size: 2048M
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: |
