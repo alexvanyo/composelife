@@ -7,10 +7,18 @@ complexity:
   LongMethod:
     excludes: [ '**/test/**', '**/androidTest/**', '**/sharedTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
 
+empty-blocks:
+  EmptyKtFile:
+    excludes: [ '**/generated/**' ]
+
 formatting:
+  CommentSpacing:
+    excludes: [ '**/generated/**' ]
   FunKeywordSpacing:
     active: true
   Indentation:
+    excludes: [ '**/generated/**' ]
+  MaximumLineLength:
     excludes: [ '**/generated/**' ]
   ModifierListSpacing:
     active: true
@@ -19,6 +27,10 @@ formatting:
   NoEmptyFirstLineInMethodBlock:
     active: true
   NoLineBreakBeforeAssignment:
+    excludes: [ '**/generated/**' ]
+  NoSemicolons:
+    excludes: [ '**/generated/**' ]
+  ParameterListWrapping:
     excludes: [ '**/generated/**' ]
   SpacingAroundAngleBrackets:
     active: true
@@ -36,6 +48,8 @@ formatting:
     excludes: [ '**/generated/**' ]
 
 naming:
+  ConstructorParameterNaming:
+    excludes: [ '**/generated/**' ]
   ClassNaming:
     excludes: [ '**/generated/**' ]
   FunctionNaming:
@@ -58,5 +72,7 @@ style:
       - 'org.junit.jupiter.api.fail'
       - 'org.junit.jupiter.api.assert*'
       - 'org.junit.Assert.*'
+  MaxLineLength:
+    excludes: [ '**/generated/**' ]
   MagicNumber:
     active: false

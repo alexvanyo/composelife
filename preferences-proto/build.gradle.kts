@@ -29,6 +29,17 @@ dependencies {
     api(libs.protobuf.runtime)
 }
 
+java {
+    sourceSets {
+        val main by getting {
+            java {
+                srcDir("build/generated/source/proto/main/java")
+                srcDir("build/generated/source/proto/main/kotlin")
+            }
+        }
+    }
+}
+
 protobuf {
     protoc {
         artifact = libs.protobuf.protoc.get().toString()
