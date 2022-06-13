@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.buildlogic
 
 import com.android.build.gradle.TestedExtension
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.invoke
@@ -31,9 +32,9 @@ fun Project.configureGradleManagedDevices(
     testedExtension: TestedExtension,
 ) {
     testedExtension.testOptions.managedDevices.devices {
-        val deviceNames = listOf("Pixel 2", "Pixel 3 XL")
-        val apiLevels = listOf(27, 28, 29, 30, 31)
-        val systemImageSources = listOf("aosp", "aosp-atd")
+        val deviceNames = listOf("Pixel C", "Pixel 2", "Pixel 3 XL", "Pixel 6 Pro")
+        val apiLevels = listOf(27, 28, 29, 30, 31, 32, 33)
+        val systemImageSources = listOf("aosp", "aosp-atd", "google")
 
         deviceNames.flatMap { deviceName ->
             apiLevels.flatMap { apiLevel ->
@@ -47,13 +48,24 @@ fun Project.configureGradleManagedDevices(
             }
         }
             .filterNot {
-                // ATD is only supported on versions 30 and above
-                it.systemImageSource.contains("atd") && it.apiLevel < 30
+                // ATD is only supported on some versions
+                it.systemImageSource.contains("atd") && it.apiLevel !in 30..31
+            }
+            .filterNot {
+                // aosp images are only supported on some versions
+                it.systemImageSource.contains("aosp") && it.apiLevel > 31
             }
             .forEach { config ->
                 create<com.android.build.api.dsl.ManagedVirtualDevice>(
                     buildString {
-                        append(if (config.systemImageSource.contains("atd")) "atd" else "")
+                        append(
+                            when (config.systemImageSource) {
+                                "aosp" -> "aosp"
+                                "aosp-atd" -> "aospatd"
+                                "google" -> "google"
+                                else -> throw GradleException("Unknown system image source!")
+                            }
+                        )
                         append(config.deviceName)
                         append("api")
                         append(config.apiLevel)

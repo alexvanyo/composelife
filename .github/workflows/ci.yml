@@ -94,22 +94,21 @@ jobs:
           if ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch') }}
           then
             MATRIX='
-              {"device": "pixel2", "api-level": "27"},
-              {"device": "pixel2", "api-level": "28"},
-              {"device": "pixel2", "api-level": "29"},
-              {"device": "pixel2", "api-level": "30"},
-              {"device": "pixel2", "api-level": "31"},
-              {"device": "pixel3xl", "api-level": "27"},
-              {"device": "pixel3xl", "api-level": "28"},
-              {"device": "pixel3xl", "api-level": "29"},
-              {"device": "pixel3xl", "api-level": "30"},
-              {"device": "pixel3xl", "api-level": "31"},
-              {"device": "atdpixel2", "api-level": "30"},
-              {"device": "atdpixel2", "api-level": "31"},
+              {"device": "pixel2", "api-level": "27", "target": "aosp"},
+              {"device": "pixel2", "api-level": "28", "target": "aosp"},
+              {"device": "pixel2", "api-level": "29", "target": "aosp"},
+              {"device": "pixel3xl", "api-level": "30", "target": "aosp"},
+              {"device": "pixel3xl", "api-level": "31", "target": "aosp"},
+              {"device": "pixel6pro", "api-level": "32", "target": "google"},
+              {"device": "pixel6pro", "api-level": "33", "target": "google"},
+              {"device": "pixelc", "api-level": "32", "target": "google"},
+              {"device": "pixelc", "api-level": "33", "target": "google"},
+              {"device": "pixel2", "api-level": "30", "target": "aospatd"},
+              {"device": "pixel2", "api-level": "31", "target": "aospatd"},
             '
           else
             MATRIX='
-              {"device": "atdpixel2", "api-level": "30"}
+              {"device": "pixel2", "api-level": "30", "target": "aospatd"}
             '
           fi
           echo ::set-output name=matrix::{\"include\":[$MATRIX]}
@@ -154,7 +153,7 @@ jobs:
       - name: Run device checks
         run: |
           # run the tests, with one retry attempt
-          run_tests () { ./gradlew ${{ matrix.device }}api${{ matrix.api-level }}Check --no-parallel --stacktrace -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect" -Pandroid.sdk.channel=3; }
+          run_tests () { ./gradlew ${{ matrix.target }}${{ matrix.device }}api${{ matrix.api-level }}Check --no-parallel --stacktrace -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect" -Pandroid.sdk.channel=3; }
           (echo "==== Attempt 1 ====" && run_tests) || (echo "==== Attempt 2 ====" && run_tests) || (echo "==== Both attempts failed ====" && exit 1)
 
   android-test-aer-cfg:
