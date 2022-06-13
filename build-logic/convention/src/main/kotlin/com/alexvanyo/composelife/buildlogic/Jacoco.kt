@@ -16,7 +16,7 @@
 
 package com.alexvanyo.composelife.buildlogic
 
-import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.tasks.testing.Test
@@ -43,13 +43,21 @@ private val coverageExclusions = listOf(
 )
 
 fun Project.configureJacocoMerge() {
-    configureJacocoVersion()
+    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+
+    configure<JacocoPluginExtension> {
+        toolVersion = libs.findVersion("jacoco").get().toString()
+    }
 
     val variants = listOf("debug", "release")
 
     val variantJacocoTestReports = variants.map { variant ->
         tasks.register("jacocoTest${variant.capitalize()}UnitTestReport", JacocoReport::class) {
-            dependsOn(subprojects.mapNotNull { it.tasks.findByName("jacocoTestReport") })
+            dependsOn(
+                subprojects.mapNotNull {
+                    it.tasks.findByName("create${variant.capitalize()}UnitTestCoverageReport")
+                }
+            )
 
             classDirectories.setFrom(
                 files(
@@ -73,9 +81,13 @@ fun Project.configureJacocoMerge() {
                 )
             )
             executionData.setFrom(
-                subprojects.filter { it.tasks.findByName("jacocoTestReport") != null }.map {
-                    file("${it.buildDir}/jacoco/test${variant.capitalize()}UnitTest.exec")
-                }
+                subprojects
+                    .filter {
+                        it.tasks.findByName("create${variant.capitalize()}UnitTestCoverageReport") != null
+                    }
+                    .map {
+                        file("${it.buildDir}/outputs/unit_test_code_coverage/${variant}UnitTest/test${variant.capitalize()}UnitTest.exec")
+                    }
             )
 
             reports {
@@ -91,34 +103,16 @@ fun Project.configureJacocoMerge() {
 }
 
 fun Project.configureJacoco(
-    androidComponentsExtension: AndroidComponentsExtension<*, *, *>,
+    commonExtension: CommonExtension<*, *, *, *>,
 ) {
-    configureJacocoVersion()
+    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
-    val jacocoTestReport = tasks.create("jacocoTestReport")
+    commonExtension.testCoverage {
+        jacocoVersion = libs.findVersion("jacoco").get().toString()
+    }
 
-    androidComponentsExtension.onVariants { variant ->
-        val testTaskName = "test${variant.name.capitalize()}UnitTest"
-
-        val reportTask = tasks.register("jacoco${testTaskName.capitalize()}Report", JacocoReport::class) {
-            dependsOn(testTaskName)
-
-            reports {
-                xml.required.set(true)
-                html.required.set(true)
-            }
-
-            classDirectories.setFrom(
-                fileTree("$buildDir/tmp/kotlin-classes/${variant.name}") {
-                    exclude(coverageExclusions)
-                }
-            )
-
-            sourceDirectories.setFrom(files("$projectDir/src/main/java", "$projectDir/src/main/kotlin"))
-            executionData.setFrom(file("$buildDir/jacoco/$testTaskName.exec"))
-        }
-
-        jacocoTestReport.dependsOn(reportTask)
+    commonExtension.buildTypes.configureEach {
+        enableUnitTestCoverage = true
     }
 
     tasks.withType<Test>().configureEach {
@@ -131,13 +125,5 @@ fun Project.configureJacoco(
             // https://github.com/gradle/gradle/issues/5184#issuecomment-391982009
             excludes = listOf("jdk.internal.*")
         }
-    }
-}
-
-fun Project.configureJacocoVersion() {
-    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-
-    configure<JacocoPluginExtension> {
-        toolVersion = libs.findVersion("jacoco").get().toString()
     }
 }
