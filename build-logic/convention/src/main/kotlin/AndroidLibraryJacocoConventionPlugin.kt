@@ -16,7 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureJacoco
-import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import com.android.build.gradle.LibraryExtension
 import org.gradle.kotlin.dsl.getByType
 
 class AndroidLibraryJacocoConventionPlugin : ConventionPlugin({
@@ -25,5 +25,5 @@ class AndroidLibraryJacocoConventionPlugin : ConventionPlugin({
         apply("jacoco")
     }
 
-    configureJacoco(extensions.getByType<LibraryAndroidComponentsExtension>())
+    configureJacoco(extensions.getByType<LibraryExtension>())
 })
