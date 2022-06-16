@@ -21,3 +21,9 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class kotlin.collections.CollectionsKt*
+-keep class androidx.compose.runtime.MonotonicFrameClock {
+    *;
+}
+-keep class androidx.compose.ui.platform.InfiniteAnimationPolicy {
+    *;
+}

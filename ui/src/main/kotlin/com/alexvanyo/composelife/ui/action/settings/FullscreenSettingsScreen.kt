@@ -68,7 +68,6 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
@@ -104,29 +103,21 @@ fun FullscreenSettingsScreen(
         key(it) { rememberScrollState() }
     }
 
-    val showList by remember(fullscreen) {
-        derivedStateOf {
-            when (currentWindowSizeClass.widthSizeClass) {
-                WindowWidthSizeClass.Compact -> !fullscreen.showDetails
-                else -> true
-            }
+    fun showList() =
+        when (currentWindowSizeClass.widthSizeClass) {
+            WindowWidthSizeClass.Compact -> !fullscreen.showDetails
+            else -> true
         }
-    }
 
-    val showDetail by remember(fullscreen) {
-        derivedStateOf {
-            when (currentWindowSizeClass.widthSizeClass) {
-                WindowWidthSizeClass.Compact -> fullscreen.showDetails
-                else -> true
-            }
+    fun showDetail() =
+        when (currentWindowSizeClass.widthSizeClass) {
+            WindowWidthSizeClass.Compact -> fullscreen.showDetails
+            else -> true
         }
-    }
 
-    val showListAndDetail by remember(showList, showDetail) {
-        derivedStateOf { showList && showDetail }
-    }
+    fun showListAndDetail() = showList() && showDetail()
 
-    if (showDetail && !showList) {
+    if (showDetail() && !showList()) {
         BackHandler {
             fullscreen.showDetails = false
         }
@@ -136,13 +127,13 @@ fun FullscreenSettingsScreen(
         movableContentOf {
             SettingsCategoryList(
                 currentSettingsCategory = fullscreen.settingsCategory,
-                showSelectedSettingsCategory = showListAndDetail,
+                showSelectedSettingsCategory = showListAndDetail(),
                 listScrollState = listScrollState,
                 setSettingsCategory = {
                     fullscreen.settingsCategory = it
                     fullscreen.showDetails = true
                 },
-                showFloatingAppBar = showListAndDetail,
+                showFloatingAppBar = showListAndDetail(),
                 onBackButtonPressed = onBackButtonPressed,
             )
         }
@@ -155,13 +146,13 @@ fun FullscreenSettingsScreen(
             SettingsCategoryDetail(
                 settingsCategory = settingsCategory,
                 detailScrollState = detailScrollState,
-                showAppBar = !showListAndDetail,
+                showAppBar = !showListAndDetail(),
                 onBackButtonPressed = { fullscreen.showDetails = false },
             )
         }
     }
 
-    if (showListAndDetail) {
+    if (showListAndDetail()) {
         Row(modifier = modifier) {
             Box(
                 modifier = Modifier
@@ -199,7 +190,7 @@ fun FullscreenSettingsScreen(
     } else {
         Box(modifier = modifier) {
             AnimatedContent(
-                targetState = showList,
+                targetState = showList(),
                 transitionSpec = {
                     fadeIn(animationSpec = tween(220, delayMillis = 90)) with
                         fadeOut(animationSpec = tween(90))
