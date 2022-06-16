@@ -126,7 +126,7 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
         assertEquals(ResourceState.Success(DarkThemeConfig.Dark), preferences.darkThemeConfigState)
 
         when (windowSizeClass.widthSizeClass) {
-            WindowWidthSizeClass.Compact, WindowWidthSizeClass.Medium -> {
+            WindowWidthSizeClass.Compact -> {
                 composeTestRule
                     .onNodeWithContentDescription(context.getString(R.string.back))
                     .performClick()
@@ -212,7 +212,7 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
         assertEquals(ResourceState.Success(AlgorithmType.NaiveAlgorithm), preferences.algorithmChoiceState)
 
         when (windowSizeClass.widthSizeClass) {
-            WindowWidthSizeClass.Compact, WindowWidthSizeClass.Medium -> {
+            WindowWidthSizeClass.Compact -> {
                 composeTestRule
                     .onNodeWithContentDescription(context.getString(R.string.back))
                     .performClick()
