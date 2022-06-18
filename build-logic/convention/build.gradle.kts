@@ -89,6 +89,14 @@ gradlePlugin {
             id = "com.alexvanyo.composelife.android.library.testing"
             implementationClass = "AndroidLibraryTestingConventionPlugin"
         }
+        register("androidTest") {
+            id = "com.alexvanyo.composelife.android.test"
+            implementationClass = "AndroidTestConventionPlugin"
+        }
+        register("androidTestGradleManagedDevices") {
+            id = "com.alexvanyo.composelife.android.test.gradlemanageddevices"
+            implementationClass = "AndroidTestGradleManagedDevicesConventionPlugin"
+        }
         register("detekt") {
             id = "com.alexvanyo.composelife.detekt"
             implementationClass = "DetektConventionPlugin"

@@ -36,6 +36,10 @@ class DetektConventionPlugin : ConventionPlugin({
         config.setFrom("$rootDir/config/detekt.yml")
         source = files(
             "src/main/kotlin",
+            "src/debug/kotlin",
+            "src/release/kotlin",
+            "src/staging/kotlin",
+            "src/benchmark/kotlin",
             "src/test/kotlin",
             "src/androidTest/kotlin",
             "src/sharedTest/kotlin"
