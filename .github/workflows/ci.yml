@@ -44,6 +44,7 @@ jobs:
           - 30
           - 31
           - 32
+          - 33
 
     steps:
       - name: Checkout
@@ -83,11 +84,11 @@ jobs:
         run: ./gradlew check --stacktrace
 
       - name: Generate code coverage
-        if: matrix.sdk == '32'
+        if: matrix.sdk == '33'
         run: ./gradlew jacocoTestReport --stacktrace
 
       - name: Upload coverage to Codecov
-        if: matrix.sdk == '32'
+        if: matrix.sdk == '33'
         uses: codecov/codecov-action@v3
         with:
           directory: build/reports/jacoco
