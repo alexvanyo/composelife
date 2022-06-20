@@ -60,11 +60,13 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
     override fun onCreate() {
         super.onCreate()
         scope.launch {
-            temporalGameOfLifeState.evolve(
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = Clock.System,
-                dispatchers = dispatchers,
-            )
+            with(gameOfLifeAlgorithm) {
+                with(dispatchers) {
+                    with(Clock.System) {
+                        temporalGameOfLifeState.evolve()
+                    }
+                }
+            }
         }
     }
 
