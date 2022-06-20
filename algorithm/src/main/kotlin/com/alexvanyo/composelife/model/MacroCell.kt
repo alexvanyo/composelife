@@ -189,17 +189,20 @@ fun createEmptyMacroCell(@IntRange(from = 0) level: Int): MacroCell {
  */
 fun MacroCell.iterator(
     offset: IntOffset,
-): Iterator<IntOffset> = iterator {
-    if (size > 0) {
-        when (this@iterator) {
-            AliveCell -> yield(offset)
-            DeadCell -> throw AssertionError("Dead cell must have a size equal to 0!")
-            is CellNode -> {
-                val offsetDiff = 1 shl (level - 1)
-                yieldAll(nw.iterator(offset))
-                yieldAll(ne.iterator(offset + IntOffset(offsetDiff, 0)))
-                yieldAll(sw.iterator(offset + IntOffset(0, offsetDiff)))
-                yieldAll(se.iterator(offset + IntOffset(offsetDiff, offsetDiff)))
+): Iterator<IntOffset> {
+    val macroCell = this
+    return iterator {
+        if (size > 0) {
+            when (macroCell) {
+                AliveCell -> yield(offset)
+                DeadCell -> throw AssertionError("Dead cell must have a size equal to 0!")
+                is CellNode -> {
+                    val offsetDiff = 1 shl (level - 1)
+                    yieldAll(macroCell.nw.iterator(offset))
+                    yieldAll(macroCell.ne.iterator(offset + IntOffset(offsetDiff, 0)))
+                    yieldAll(macroCell.sw.iterator(offset + IntOffset(0, offsetDiff)))
+                    yieldAll(macroCell.se.iterator(offset + IntOffset(offsetDiff, offsetDiff)))
+                }
             }
         }
     }
