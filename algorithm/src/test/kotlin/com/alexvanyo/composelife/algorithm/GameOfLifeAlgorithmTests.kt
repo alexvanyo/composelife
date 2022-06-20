@@ -16,8 +16,10 @@
 
 package com.alexvanyo.composelife.algorithm
 
+import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
+import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.patterns.GameOfLifeTestPattern
 import com.alexvanyo.composelife.patterns.values
 import com.alexvanyo.composelife.preferences.AlgorithmType
@@ -51,11 +53,20 @@ class GameOfLifeAlgorithmTests {
         override fun toString(): String = algorithmName
     }
 
+    class CellStateMapper(
+        val name: String,
+        val mapper: (CellState) -> CellState,
+    )
+
     class GameOfLifeAlgorithmTestArguments(
         val algorithmFactory: GameOfLifeAlgorithmFactory,
         val testPattern: GameOfLifeTestPattern,
+        val cellStateMapper: CellStateMapper,
     ) {
-        override fun toString(): String = "algo: ${algorithmFactory.algorithmName}, pattern: ${testPattern.patternName}"
+        override fun toString(): String =
+            "algo: ${algorithmFactory.algorithmName}, " +
+                "pattern: ${testPattern.patternName}, " +
+                "mapper: ${cellStateMapper.name}"
     }
 
     class GameOfLifeAlgorithmTestProvider : ArgumentsProvider {
@@ -89,12 +100,33 @@ class GameOfLifeAlgorithmTests {
                 },
             )
 
+            val cellStateMappers = listOf(
+                CellStateMapper("Identity") { cellState ->
+                    cellState
+                },
+                CellStateMapper("Flip across x-axis") { cellState ->
+                    CellState(cellState.aliveCells.map { cell -> IntOffset(cell.x, -cell.y) }.toSet())
+                },
+                CellStateMapper("Flip across y-axis") { cellState ->
+                    CellState(cellState.aliveCells.map { cell -> IntOffset(-cell.x, cell.y) }.toSet())
+                },
+                CellStateMapper("Flip across x = y") { cellState ->
+                    CellState(cellState.aliveCells.map { cell -> IntOffset(cell.y, cell.x) }.toSet())
+                },
+                CellStateMapper("Translate by an arbitrary amount") { cellState ->
+                    CellState(cellState.aliveCells.map { cell -> cell + IntOffset(157, 72) }.toSet())
+                },
+            )
+
             return algorithmFactories.flatMap { algorithmFactory ->
-                GameOfLifeTestPattern.values.map { testPattern ->
-                    GameOfLifeAlgorithmTestArguments(
-                        algorithmFactory = algorithmFactory,
-                        testPattern = testPattern,
-                    )
+                GameOfLifeTestPattern.values.flatMap { testPattern ->
+                    cellStateMappers.map { cellStateMapper ->
+                        GameOfLifeAlgorithmTestArguments(
+                            algorithmFactory = algorithmFactory,
+                            testPattern = testPattern,
+                            cellStateMapper = cellStateMapper,
+                        )
+                    }
                 }
             }
                 .stream()
@@ -113,9 +145,9 @@ class GameOfLifeAlgorithmTests {
         )
 
         assertEquals(
-            args.testPattern.cellStates,
+            args.testPattern.cellStates.map { args.cellStateMapper.mapper(it) },
             algorithm.computeGenerationsWithStep(
-                originalCellState = args.testPattern.seedCellState,
+                originalCellState = args.cellStateMapper.mapper(args.testPattern.seedCellState),
                 step = 1,
             )
                 .onEach {
@@ -140,9 +172,11 @@ class GameOfLifeAlgorithmTests {
         )
 
         assertEquals(
-            args.testPattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 },
+            args.testPattern.cellStates
+                .filterIndexed { index, _ -> index.rem(2) == 1 }
+                .map { args.cellStateMapper.mapper(it) },
             algorithm.computeGenerationsWithStep(
-                originalCellState = args.testPattern.seedCellState,
+                originalCellState = args.cellStateMapper.mapper(args.testPattern.seedCellState),
                 step = 2,
             )
                 .onEach {
@@ -167,13 +201,13 @@ class GameOfLifeAlgorithmTests {
         )
 
         val actualCellStates = (1..args.testPattern.cellStates.size)
-            .scan(args.testPattern.seedCellState) { previousCellState, _ ->
+            .scan(args.cellStateMapper.mapper(args.testPattern.seedCellState)) { previousCellState, _ ->
                 algorithm.computeNextGeneration(previousCellState)
             }
             .drop(1)
 
         assertEquals(
-            args.testPattern.cellStates,
+            args.testPattern.cellStates.map { args.cellStateMapper.mapper(it) },
             actualCellStates,
         )
 
@@ -191,13 +225,15 @@ class GameOfLifeAlgorithmTests {
         )
 
         val actualCellStates = (1..args.testPattern.cellStates.size / 2)
-            .scan(args.testPattern.seedCellState) { previousCellState, _ ->
+            .scan(args.cellStateMapper.mapper(args.testPattern.seedCellState)) { previousCellState, _ ->
                 algorithm.computeGenerationWithStep(previousCellState, 2)
             }
             .drop(1)
 
         assertEquals(
-            args.testPattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 },
+            args.testPattern.cellStates
+                .filterIndexed { index, _ -> index.rem(2) == 1 }
+                .map { args.cellStateMapper.mapper(it) },
             actualCellStates,
         )
 
