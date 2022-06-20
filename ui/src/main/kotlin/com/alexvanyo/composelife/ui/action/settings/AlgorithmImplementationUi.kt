@@ -24,21 +24,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.preferences.AlgorithmType
-import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.component.DropdownOption
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicator
 import com.alexvanyo.composelife.ui.component.TextFieldDropdown
-import com.alexvanyo.composelife.ui.entrypoints.preferences.inject
+import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
+import com.alexvanyo.composelife.ui.entrypoints.algorithm.GameOfLifeAlgorithmEntryPoint
+import com.alexvanyo.composelife.ui.entrypoints.dispatchers.ComposeLifeDispatchersEntryPoint
+import com.alexvanyo.composelife.ui.entrypoints.preferences.ComposeLifePreferencesEntryPoint
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.coroutines.launch
 
+context(GameOfLifeAlgorithmEntryPoint, ComposeLifePreferencesEntryPoint, ComposeLifeDispatchersEntryPoint)
 @Composable
 fun AlgorithmImplementationUi(
     modifier: Modifier = Modifier,
-    composeLifePreferences: ComposeLifePreferences = inject(),
 ) {
     AlgorithmImplementationUi(
         algorithmChoiceState = composeLifePreferences.algorithmChoiceState,
@@ -47,6 +49,7 @@ fun AlgorithmImplementationUi(
     )
 }
 
+context(GameOfLifeAlgorithmEntryPoint, ComposeLifePreferencesEntryPoint, ComposeLifeDispatchersEntryPoint)
 @Composable
 fun AlgorithmImplementationUi(
     algorithmChoiceState: ResourceState<AlgorithmType>,
@@ -103,21 +106,25 @@ sealed interface AlgorithmImplementationDropdownOption : DropdownOption {
 @Preview
 @Composable
 fun AlgorithmImplementationUiLoadingPreview() {
-    ComposeLifeTheme {
-        AlgorithmImplementationUi(
-            algorithmChoiceState = ResourceState.Loading,
-            setAlgorithmChoice = {},
-        )
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            AlgorithmImplementationUi(
+                algorithmChoiceState = ResourceState.Loading,
+                setAlgorithmChoice = {},
+            )
+        }
     }
 }
 
 @Preview
 @Composable
 fun AlgorithmImplementationUiLoadedPreview() {
-    ComposeLifeTheme {
-        AlgorithmImplementationUi(
-            algorithmChoiceState = ResourceState.Success(AlgorithmType.HashLifeAlgorithm),
-            setAlgorithmChoice = {},
-        )
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            AlgorithmImplementationUi(
+                algorithmChoiceState = ResourceState.Success(AlgorithmType.HashLifeAlgorithm),
+                setAlgorithmChoice = {},
+            )
+        }
     }
 }

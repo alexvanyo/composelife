@@ -31,9 +31,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.ui.ComposeLifeApp
+import com.alexvanyo.composelife.ui.entrypoints.WithDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,6 +44,12 @@ import javax.inject.Inject
 
 @AndroidEntryPoint(ComponentActivity::class)
 class MainActivity : Hilt_MainActivity() {
+
+    @Inject
+    lateinit var gameOfLifeAlgorithm: GameOfLifeAlgorithm
+
+    @Inject
+    lateinit var dispatchers: ComposeLifeDispatchers
 
     @Inject
     lateinit var composeLifePreferences: ComposeLifePreferences
@@ -77,19 +86,25 @@ class MainActivity : Hilt_MainActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
-            ComposeLifeTheme {
-                val useDarkIcons = ComposeLifeTheme.isLight
-                val systemUiController = rememberSystemUiController()
+            WithDependencies(
+                dispatchers = dispatchers,
+                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                composeLifePreferences = composeLifePreferences,
+            ) {
+                ComposeLifeTheme {
+                    val useDarkIcons = ComposeLifeTheme.isLight
+                    val systemUiController = rememberSystemUiController()
 
-                LaunchedEffect(systemUiController, useDarkIcons, setSystemBarsColorTick) {
-                    systemUiController.setSystemBarsColor(
-                        color = Color.Transparent,
-                        darkIcons = useDarkIcons,
-                    )
+                    LaunchedEffect(systemUiController, useDarkIcons, setSystemBarsColorTick) {
+                        systemUiController.setSystemBarsColor(
+                            color = Color.Transparent,
+                            darkIcons = useDarkIcons,
+                        )
+                    }
+
+                    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+                    ComposeLifeApp(calculateWindowSizeClass(this@MainActivity))
                 }
-
-                @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-                ComposeLifeApp(calculateWindowSizeClass(this))
             }
         }
     }

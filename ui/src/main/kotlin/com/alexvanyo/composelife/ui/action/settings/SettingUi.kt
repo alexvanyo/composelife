@@ -18,7 +18,11 @@ package com.alexvanyo.composelife.ui.action.settings
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.alexvanyo.composelife.ui.entrypoints.algorithm.GameOfLifeAlgorithmEntryPoint
+import com.alexvanyo.composelife.ui.entrypoints.dispatchers.ComposeLifeDispatchersEntryPoint
+import com.alexvanyo.composelife.ui.entrypoints.preferences.ComposeLifePreferencesEntryPoint
 
+context(GameOfLifeAlgorithmEntryPoint, ComposeLifePreferencesEntryPoint, ComposeLifeDispatchersEntryPoint)
 @Composable
 fun SettingUi(
     setting: Setting,

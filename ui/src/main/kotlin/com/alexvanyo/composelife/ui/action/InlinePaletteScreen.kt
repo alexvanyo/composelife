@@ -35,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
-import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
 import com.alexvanyo.composelife.resourcestate.ResourceState
@@ -44,27 +43,31 @@ import com.alexvanyo.composelife.ui.component.DropdownOption
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicator
 import com.alexvanyo.composelife.ui.component.LabeledSlider
 import com.alexvanyo.composelife.ui.component.TextFieldDropdown
-import com.alexvanyo.composelife.ui.entrypoints.preferences.inject
+import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
+import com.alexvanyo.composelife.ui.entrypoints.algorithm.GameOfLifeAlgorithmEntryPoint
+import com.alexvanyo.composelife.ui.entrypoints.dispatchers.ComposeLifeDispatchersEntryPoint
+import com.alexvanyo.composelife.ui.entrypoints.preferences.ComposeLifePreferencesEntryPoint
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.coroutines.launch
 
+context(GameOfLifeAlgorithmEntryPoint, ComposeLifePreferencesEntryPoint, ComposeLifeDispatchersEntryPoint)
 @Composable
 fun InlinePaletteScreen(
     modifier: Modifier = Modifier,
-    preferences: ComposeLifePreferences = inject(),
     scrollState: ScrollState = rememberScrollState(),
 ) {
     InlinePaletteScreen(
-        currentShapeState = preferences.currentShapeState,
-        setCurrentShapeType = preferences::setCurrentShapeType,
-        setRoundRectangleConfig = preferences::setRoundRectangleConfig,
+        currentShapeState = composeLifePreferences.currentShapeState,
+        setCurrentShapeType = composeLifePreferences::setCurrentShapeType,
+        setRoundRectangleConfig = composeLifePreferences::setRoundRectangleConfig,
         modifier = modifier,
         scrollState = scrollState,
     )
 }
 
+context(GameOfLifeAlgorithmEntryPoint, ComposeLifePreferencesEntryPoint, ComposeLifeDispatchersEntryPoint)
 @Suppress("LongMethod")
 @Composable
 fun InlinePaletteScreen(
@@ -153,13 +156,15 @@ sealed interface ShapeDropdownOption : DropdownOption {
 @ThemePreviews
 @Composable
 fun LoadingInlinePaletteScreenPreview() {
-    ComposeLifeTheme {
-        Surface {
-            InlinePaletteScreen(
-                currentShapeState = ResourceState.Loading,
-                setCurrentShapeType = {},
-                setRoundRectangleConfig = {},
-            )
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            Surface {
+                InlinePaletteScreen(
+                    currentShapeState = ResourceState.Loading,
+                    setCurrentShapeType = {},
+                    setRoundRectangleConfig = {},
+                )
+            }
         }
     }
 }
@@ -167,18 +172,20 @@ fun LoadingInlinePaletteScreenPreview() {
 @ThemePreviews
 @Composable
 fun RoundRectangleInlinePaletteScreenPreview() {
-    ComposeLifeTheme {
-        Surface {
-            InlinePaletteScreen(
-                currentShapeState = ResourceState.Success(
-                    CurrentShape.RoundRectangle(
-                        sizeFraction = 0.8f,
-                        cornerFraction = 0.4f,
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            Surface {
+                InlinePaletteScreen(
+                    currentShapeState = ResourceState.Success(
+                        CurrentShape.RoundRectangle(
+                            sizeFraction = 0.8f,
+                            cornerFraction = 0.4f,
+                        ),
                     ),
-                ),
-                setCurrentShapeType = {},
-                setRoundRectangleConfig = {},
-            )
+                    setCurrentShapeType = {},
+                    setRoundRectangleConfig = {},
+                )
+            }
         }
     }
 }

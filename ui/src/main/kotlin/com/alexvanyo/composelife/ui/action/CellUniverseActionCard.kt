@@ -50,12 +50,16 @@ import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.NavigationHost
 import com.alexvanyo.composelife.ui.action.settings.FullscreenSettingsScreen
 import com.alexvanyo.composelife.ui.action.settings.InlineSettingsScreen
+import com.alexvanyo.composelife.ui.entrypoints.algorithm.GameOfLifeAlgorithmEntryPoint
+import com.alexvanyo.composelife.ui.entrypoints.dispatchers.ComposeLifeDispatchersEntryPoint
+import com.alexvanyo.composelife.ui.entrypoints.preferences.ComposeLifePreferencesEntryPoint
 import com.alexvanyo.composelife.ui.util.canScrollDown
 import com.alexvanyo.composelife.ui.util.canScrollUp
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+context(GameOfLifeAlgorithmEntryPoint, ComposeLifePreferencesEntryPoint, ComposeLifeDispatchersEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun CellUniverseActionCard(
@@ -84,12 +88,13 @@ fun CellUniverseActionCard(
         setTargetStepsPerSecond = { temporalGameOfLifeState.targetStepsPerSecond = it },
         generationsPerStep = temporalGameOfLifeState.generationsPerStep,
         setGenerationsPerStep = { temporalGameOfLifeState.generationsPerStep = it },
+        modifier = modifier,
         shape = shape,
         actionCardState = actionCardState,
-        modifier = modifier,
     )
 }
 
+context(GameOfLifeAlgorithmEntryPoint, ComposeLifePreferencesEntryPoint, ComposeLifeDispatchersEntryPoint)
 @Suppress("LongParameterList", "LongMethod", "ComplexMethod")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable

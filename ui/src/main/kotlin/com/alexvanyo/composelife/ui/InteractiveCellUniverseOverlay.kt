@@ -69,6 +69,9 @@ import com.alexvanyo.composelife.ui.action.CellUniverseActionCard
 import com.alexvanyo.composelife.ui.action.CellUniverseActionCardState
 import com.alexvanyo.composelife.ui.action.rememberCellUniverseActionCardState
 import com.alexvanyo.composelife.ui.cells.CellWindowState
+import com.alexvanyo.composelife.ui.entrypoints.algorithm.GameOfLifeAlgorithmEntryPoint
+import com.alexvanyo.composelife.ui.entrypoints.dispatchers.ComposeLifeDispatchersEntryPoint
+import com.alexvanyo.composelife.ui.entrypoints.preferences.ComposeLifePreferencesEntryPoint
 import com.alexvanyo.composelife.ui.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.info.CellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.info.rememberCellUniverseInfoCardState
@@ -76,6 +79,7 @@ import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.animatePlacement
 import com.livefront.sealedenum.GenSealedEnum
 
+context(GameOfLifeAlgorithmEntryPoint, ComposeLifePreferencesEntryPoint, ComposeLifeDispatchersEntryPoint)
 @OptIn(ExperimentalLayoutApi::class)
 @Suppress("LongMethod", "ComplexMethod")
 @Composable
@@ -259,12 +263,11 @@ fun InteractiveCellUniverseOverlay(
             ) {
                 val confinedWidth by animateDpAsState(if (actionCardState.isFullscreen) maxWidth else 480.dp)
 
+                // TODO: Calling order is weird here, but required due to https://youtrack.jetbrains.com/issue/KT-51863
                 CellUniverseActionCard(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = windowSizeClass,
                     isTopCard = isActionCardTopCard,
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    actionCardState = actionCardState,
-                    shape = RoundedCornerShape(cornerSize),
                     modifier = Modifier
                         .align(
                             if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) {
@@ -276,6 +279,8 @@ fun InteractiveCellUniverseOverlay(
                         .padding(outerPadding)
                         .sizeIn(maxWidth = confinedWidth)
                         .testTag("CellUniverseActionCard"),
+                    shape = RoundedCornerShape(cornerSize),
+                    actionCardState = actionCardState,
                 )
             }
         },

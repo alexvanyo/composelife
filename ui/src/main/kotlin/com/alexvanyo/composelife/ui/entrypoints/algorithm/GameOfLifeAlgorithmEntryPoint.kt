@@ -16,27 +16,8 @@
 
 package com.alexvanyo.composelife.ui.entrypoints.algorithm
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
-import com.alexvanyo.composelife.algorithm.NaiveGameOfLifeAlgorithm
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import com.alexvanyo.composelife.ui.entrypoints.dispatchers.inject as injectDispatchers
 
-@HiltViewModel
-private class GameOfLifeAlgorithmEntryPoint @Inject constructor(
-    val gameOfLifeAlgorithm: GameOfLifeAlgorithm,
-) : ViewModel()
-
-@Composable
-fun inject(
-    previewGameOfLifeAlgorithm: GameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(injectDispatchers()),
-): GameOfLifeAlgorithm =
-    if (LocalInspectionMode.current) {
-        previewGameOfLifeAlgorithm
-    } else {
-        hiltViewModel<GameOfLifeAlgorithmEntryPoint>().gameOfLifeAlgorithm
-    }
+interface GameOfLifeAlgorithmEntryPoint {
+    val gameOfLifeAlgorithm: GameOfLifeAlgorithm
+}

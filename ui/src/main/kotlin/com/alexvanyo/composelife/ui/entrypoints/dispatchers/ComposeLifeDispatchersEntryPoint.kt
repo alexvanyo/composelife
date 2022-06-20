@@ -16,24 +16,8 @@
 
 package com.alexvanyo.composelife.ui.entrypoints.dispatchers
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.dispatchers.DefaultComposeLifeDispatchers
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 
-@HiltViewModel
-private class ComposeLifeDispatchersEntryPoint @Inject constructor(
-    val dispatchers: ComposeLifeDispatchers,
-) : ViewModel()
-
-@Composable
-fun inject(): ComposeLifeDispatchers =
-    if (LocalInspectionMode.current) {
-        DefaultComposeLifeDispatchers()
-    } else {
-        hiltViewModel<ComposeLifeDispatchersEntryPoint>().dispatchers
-    }
+interface ComposeLifeDispatchersEntryPoint {
+    val dispatchers: ComposeLifeDispatchers
+}
