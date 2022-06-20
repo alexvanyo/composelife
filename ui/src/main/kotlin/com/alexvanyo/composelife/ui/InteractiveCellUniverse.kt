@@ -24,27 +24,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
-import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.cells.CellWindowState
 import com.alexvanyo.composelife.ui.cells.MutableCellWindow
 import com.alexvanyo.composelife.ui.cells.rememberCellWindowState
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicator
-import com.alexvanyo.composelife.ui.entrypoints.preferences.inject
+import com.alexvanyo.composelife.ui.entrypoints.algorithm.GameOfLifeAlgorithmEntryPoint
+import com.alexvanyo.composelife.ui.entrypoints.dispatchers.ComposeLifeDispatchersEntryPoint
+import com.alexvanyo.composelife.ui.entrypoints.preferences.ComposeLifePreferencesEntryPoint
 
 /**
  * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
  * evolves.
  */
+context(GameOfLifeAlgorithmEntryPoint, ComposeLifePreferencesEntryPoint, ComposeLifeDispatchersEntryPoint)
 @Composable
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
     cellWindowState: CellWindowState = rememberCellWindowState(),
-    preferences: ComposeLifePreferences = inject(),
 ) {
-    val currentShapeState = preferences.currentShapeState
+    val currentShapeState = composeLifePreferences.currentShapeState
 
     Surface(modifier = modifier) {
         Box(

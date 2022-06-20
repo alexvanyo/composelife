@@ -21,22 +21,38 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasProgressBarRangeInfo
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.test.BaseHiltTest
 import com.alexvanyo.composelife.test.TestActivity
+import com.alexvanyo.composelife.ui.entrypoints.WithDependencies
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Test
+import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 class GameOfLifeProgressIndicatorTests : BaseHiltTest<TestActivity>(TestActivity::class.java) {
+
+    @Inject
+    lateinit var gameOfLifeAlgorithm: GameOfLifeAlgorithm
+
+    @Inject
+    lateinit var dispatchers: ComposeLifeDispatchers
 
     @Test
     fun progress_indicator_is_displayed_correctly_when_shape_is_loading() = runAppTest(
         preferencesInitializer = {},
     ) {
         composeTestRule.setContent {
-            GameOfLifeProgressIndicator()
+            WithDependencies(
+                dispatchers = dispatchers,
+                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                composeLifePreferences = preferences,
+            ) {
+                GameOfLifeProgressIndicator()
+            }
         }
 
         composeTestRule
@@ -47,7 +63,13 @@ class GameOfLifeProgressIndicatorTests : BaseHiltTest<TestActivity>(TestActivity
     @Test
     fun progress_indicator_is_displayed_correctly_when_shape_is_not_loading() = runAppTest {
         composeTestRule.setContent {
-            GameOfLifeProgressIndicator()
+            WithDependencies(
+                dispatchers = dispatchers,
+                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                composeLifePreferences = preferences,
+            ) {
+                GameOfLifeProgressIndicator()
+            }
         }
 
         composeTestRule

@@ -23,22 +23,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
-import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.component.DropdownOption
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicator
 import com.alexvanyo.composelife.ui.component.TextFieldDropdown
-import com.alexvanyo.composelife.ui.entrypoints.preferences.inject
+import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
+import com.alexvanyo.composelife.ui.entrypoints.algorithm.GameOfLifeAlgorithmEntryPoint
+import com.alexvanyo.composelife.ui.entrypoints.dispatchers.ComposeLifeDispatchersEntryPoint
+import com.alexvanyo.composelife.ui.entrypoints.preferences.ComposeLifePreferencesEntryPoint
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.coroutines.launch
 
+context(GameOfLifeAlgorithmEntryPoint, ComposeLifePreferencesEntryPoint, ComposeLifeDispatchersEntryPoint)
 @Composable
 fun DarkThemeConfigUi(
     modifier: Modifier = Modifier,
-    composeLifePreferences: ComposeLifePreferences = inject(),
 ) {
     DarkThemeConfigUi(
         darkThemeConfigState = composeLifePreferences.darkThemeConfigState,
@@ -47,6 +49,7 @@ fun DarkThemeConfigUi(
     )
 }
 
+context(GameOfLifeAlgorithmEntryPoint, ComposeLifePreferencesEntryPoint, ComposeLifeDispatchersEntryPoint)
 @Composable
 fun DarkThemeConfigUi(
     darkThemeConfigState: ResourceState<DarkThemeConfig>,
@@ -109,21 +112,25 @@ sealed interface DarkThemeConfigDropdownOption : DropdownOption {
 @Preview
 @Composable
 fun DarkThemeConfigUiLoadingPreview() {
-    ComposeLifeTheme {
-        DarkThemeConfigUi(
-            darkThemeConfigState = ResourceState.Loading,
-            setDarkThemeConfig = {},
-        )
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            DarkThemeConfigUi(
+                darkThemeConfigState = ResourceState.Loading,
+                setDarkThemeConfig = {},
+            )
+        }
     }
 }
 
 @Preview
 @Composable
 fun DarkThemeConfigUiLoadedPreview() {
-    ComposeLifeTheme {
-        DarkThemeConfigUi(
-            darkThemeConfigState = ResourceState.Success(DarkThemeConfig.FollowSystem),
-            setDarkThemeConfig = {},
-        )
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            DarkThemeConfigUi(
+                darkThemeConfigState = ResourceState.Success(DarkThemeConfig.FollowSystem),
+                setDarkThemeConfig = {},
+            )
+        }
     }
 }

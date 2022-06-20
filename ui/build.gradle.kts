@@ -45,6 +45,7 @@ dependencies {
     implementation(projects.resourceState)
     implementation(projects.patterns)
 
+    implementation(libs.androidx.activityCompose)
     implementation(libs.androidx.compose.material3)
     api(libs.androidx.compose.material3.windowSizeClass)
     implementation(libs.androidx.compose.materialIconsExtended)
@@ -52,16 +53,13 @@ dependencies {
     implementation(libs.androidx.poolingContainer)
     implementation(libs.androidx.compose.uiToolingPreview)
     implementation(libs.androidx.core)
-    implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.lifecycle)
-    implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.sealedEnum.runtime)
     ksp(libs.sealedEnum.ksp)
     implementation(libs.dagger.hilt.runtime)
-    kapt(libs.dagger.hilt.compiler)
 
     debugImplementation(libs.androidx.compose.uiTooling)
 
