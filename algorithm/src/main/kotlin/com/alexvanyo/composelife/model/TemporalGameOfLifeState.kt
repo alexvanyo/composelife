@@ -132,6 +132,20 @@ sealed interface TemporalGameOfLifeState : MutableGameOfLifeState {
     }
 }
 
+/**
+ * A description of a particular "genealogy" of cell states.
+ *
+ * A "genealogy" can be identified as a specific sequence of cell states to be displayed to the user. In particular,
+ * this corresponds to a [seedCellState] and a [generationsPerStep] to advance the original seed cell state by.
+ *
+ * Combining these two together allows using the same [Flow] of cell updates so long as the cell state isn't manually
+ * changed, or the desired [generationsPerStep] changes.
+ *
+ * This same [Flow] can be used as the speed of computation changes, by adjusting how often to update the state.
+ *
+ * The [computedCellState] is an observable, snapshot-state view of the current computed state for this genealogy, as
+ * advanced by [evolve].
+ */
 private class GameOfLifeGenealogy(
     private val seedCellState: CellState,
     private val generationsPerStep: Int,
@@ -378,6 +392,7 @@ private class TemporalGameOfLifeStateImpl(
             { list ->
                 @Suppress("UNCHECKED_CAST")
                 TemporalGameOfLifeStateImpl(
+                    // TODO: Don't persist the seed cell state, this could have an unbounded size
                     seedCellState = (list[0] as List<Pair<Int, Int>>).toSet().toCellState(),
                     isRunning = list[1] as Boolean,
                     generationsPerStep = list[2] as Int,
