@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.parameterizedstring
 
 import android.content.Context
 import android.content.res.Resources
+import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -25,25 +26,46 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 
 /**
- * A nestable representation of a [stringRes] with optional formatting arguments [args].
- *
- * [args] can be empty, or contain other [ParameterizedString]s (in which case resolution will be recursive).
+ * A nestable representation of a string resource or a quantity string resource.
  */
-data class ParameterizedString(
-    @StringRes val stringRes: Int,
-    val args: List<Any>,
-) {
-    /**
-     * A convenience varargs constructor.
-     */
-    constructor(
-        @StringRes stringRes: Int,
-        vararg args: Any,
-    ) : this(
-        stringRes = stringRes,
-        args = args.toList(),
-    )
+sealed class ParameterizedString {
+    internal abstract val args: List<Any>
+
+    internal data class NormalString(
+        @StringRes val stringRes: Int,
+        override val args: List<Any>,
+    ) : ParameterizedString()
+
+    internal data class QuantityString(
+        @PluralsRes val pluralsRes: Int,
+        val quantity: Int,
+        override val args: List<Any>,
+    ) : ParameterizedString()
 }
+
+/**
+ * Creates a representation of a string resource [stringRes] with optional [args].
+ */
+fun ParameterizedString(
+    @StringRes stringRes: Int,
+    vararg args: Any,
+): ParameterizedString = ParameterizedString.NormalString(
+    stringRes = stringRes,
+    args = args.toList(),
+)
+
+/**
+ * Creates a representation of a quantity string resource [pluralsRes] with [quantity] and optional [args].
+ */
+fun ParameterizedQuantityString(
+    @PluralsRes pluralsRes: Int,
+    quantity: Int,
+    vararg args: Any,
+): ParameterizedString = ParameterizedString.QuantityString(
+    pluralsRes = pluralsRes,
+    quantity = quantity,
+    args = args.toList(),
+)
 
 /**
  * Resolves the [ParameterizedString] to a [String] using the current [Context].
@@ -62,11 +84,23 @@ fun Resources.getParameterizedString(parameterizedString: ParameterizedString): 
         }
     }.toTypedArray()
 
-    @Suppress("SpreadOperator")
-    return getString(
-        parameterizedString.stringRes,
-        *resolvedArgs,
-    )
+    return when (parameterizedString) {
+        is ParameterizedString.NormalString -> {
+            @Suppress("SpreadOperator")
+            getString(
+                parameterizedString.stringRes,
+                *resolvedArgs,
+            )
+        }
+        is ParameterizedString.QuantityString -> {
+            @Suppress("SpreadOperator")
+            getQuantityString(
+                parameterizedString.pluralsRes,
+                parameterizedString.quantity,
+                *resolvedArgs,
+            )
+        }
+    }
 }
 
 /**

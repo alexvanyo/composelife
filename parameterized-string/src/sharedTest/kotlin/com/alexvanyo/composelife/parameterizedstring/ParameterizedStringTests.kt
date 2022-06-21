@@ -44,6 +44,54 @@ class ParameterizedStringTests {
     }
 
     @Test
+    fun quantity_arg_string_with_number_is_correct_for_zero() {
+        assertEquals(
+            "0 things",
+            context.getParameterizedString(ParameterizedQuantityString(R.plurals.plural_string_with_number, 0, 0)),
+        )
+    }
+
+    @Test
+    fun quantity_arg_string_with_number_is_correct_for_one() {
+        assertEquals(
+            "1 thing",
+            context.getParameterizedString(ParameterizedQuantityString(R.plurals.plural_string_with_number, 1, 1)),
+        )
+    }
+
+    @Test
+    fun quantity_arg_string_with_number_is_correct_for_two() {
+        assertEquals(
+            "2 things",
+            context.getParameterizedString(ParameterizedQuantityString(R.plurals.plural_string_with_number, 2, 2)),
+        )
+    }
+
+    @Test
+    fun quantity_arg_string_without_number_is_correct_for_zero() {
+        assertEquals(
+            "things",
+            context.getParameterizedString(ParameterizedQuantityString(R.plurals.plural_string_without_number, 0)),
+        )
+    }
+
+    @Test
+    fun quantity_arg_string_without_number_is_correct_for_one() {
+        assertEquals(
+            "thing",
+            context.getParameterizedString(ParameterizedQuantityString(R.plurals.plural_string_without_number, 1)),
+        )
+    }
+
+    @Test
+    fun quantity_arg_string_without_number_is_correct_for_two() {
+        assertEquals(
+            "things",
+            context.getParameterizedString(ParameterizedQuantityString(R.plurals.plural_string_without_number, 2)),
+        )
+    }
+
+    @Test
     fun one_arg_string_is_correct() {
         assertEquals(
             "One: (a)",
@@ -95,7 +143,7 @@ class ParameterizedStringTests {
     @Test
     fun nested_three_arg_string_is_correct() {
         assertEquals(
-            "Three: (Two: (a) (b)) (One: (One: (c))) (One: (One: (One: (d))))",
+            "Three: (Two: (a) (b)) (One: (One: (c))) (One: (One: (2 things)))",
             context.getParameterizedString(
                 ParameterizedString(
                     R.string.three_arg_string,
@@ -115,9 +163,10 @@ class ParameterizedStringTests {
                         R.string.one_arg_string,
                         ParameterizedString(
                             R.string.one_arg_string,
-                            ParameterizedString(
-                                R.string.one_arg_string,
-                                "d",
+                            ParameterizedQuantityString(
+                                R.plurals.plural_string_with_number,
+                                2,
+                                2,
                             ),
                         ),
                     ),
