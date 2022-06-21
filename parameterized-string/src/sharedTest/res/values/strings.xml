@@ -19,4 +19,12 @@
     <string name="one_arg_string">One: (%1$s)</string>
     <string name="two_arg_string">Two: (%1$s) (%2$s)</string>
     <string name="three_arg_string">Three: (%1$s) (%2$s) (%3$s)</string>
+    <plurals name="plural_string_without_number">
+        <item quantity="one">thing</item>
+        <item quantity="other">things</item>
+    </plurals>
+    <plurals name="plural_string_with_number">
+        <item quantity="one">%1$d thing</item>
+        <item quantity="other">%1$d things</item>
+    </plurals>
 </resources>
