@@ -32,9 +32,24 @@ fun Project.configureGradleManagedDevices(
     testedExtension: TestedExtension,
 ) {
     testedExtension.testOptions.managedDevices.devices {
-        val deviceNames = listOf("Pixel C", "Pixel 2", "Pixel 3 XL", "Pixel 6 Pro")
-        val apiLevels = listOf(27, 28, 29, 30, 31, 32, 33)
-        val systemImageSources = listOf("aosp", "aosp-atd", "google")
+        val deviceNames = listOf(
+            "Nexus 4",
+            "Nexus 5",
+            "Pixel C",
+            "Pixel 2",
+            "Pixel 3 XL",
+            "Pixel 6 Pro",
+            "Medium Desktop"
+        )
+        val apiLevels = 21..33
+        val systemImageSources = listOf(
+            "aosp",
+            "aosp-atd",
+            "google",
+            "google-atd",
+            "google_apis_playstore",
+            "android-desktop"
+        )
 
         deviceNames.flatMap { deviceName ->
             apiLevels.flatMap { apiLevel ->
@@ -49,11 +64,18 @@ fun Project.configureGradleManagedDevices(
         }
             .filterNot {
                 // ATD is only supported on some versions
-                it.systemImageSource.contains("atd") && it.apiLevel !in 30..31
+                "atd" in it.systemImageSource && it.apiLevel !in 30..31
             }
             .filterNot {
                 // aosp images are only supported on some versions
-                it.systemImageSource.contains("aosp") && it.apiLevel > 31
+                it.systemImageSource == "aosp" && it.apiLevel > 31
+            }
+            .filterNot {
+                // Desktop images only make sense on desktop devices
+                (it.systemImageSource == "android-desktop" && "Desktop" !in it.deviceName) ||
+                    (it.systemImageSource != "android-desktop" && "Desktop" in it.deviceName) ||
+                    // Desktop images are only supported on some versions
+                    (it.systemImageSource == "android-desktop" && it.apiLevel != 32)
             }
             .forEach { config ->
                 create<com.android.build.api.dsl.ManagedVirtualDevice>(
@@ -63,6 +85,9 @@ fun Project.configureGradleManagedDevices(
                                 "aosp" -> "aosp"
                                 "aosp-atd" -> "aospatd"
                                 "google" -> "google"
+                                "google-atd" -> "googleatd"
+                                "google_apis_playstore" -> "googleplaystore"
+                                "android-desktop" -> "desktop"
                                 else -> throw GradleException("Unknown system image source!")
                             }
                         )
