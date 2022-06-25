@@ -94,21 +94,29 @@ jobs:
           if ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch') }}
           then
             MATRIX='
-              {"device": "pixel2", "api-level": "27", "target": "aosp"},
-              {"device": "pixel2", "api-level": "28", "target": "aosp"},
-              {"device": "pixel2", "api-level": "29", "target": "aosp"},
-              {"device": "pixel3xl", "api-level": "30", "target": "aosp"},
-              {"device": "pixel3xl", "api-level": "31", "target": "aosp"},
-              {"device": "pixel6pro", "api-level": "32", "target": "google"},
-              {"device": "pixel6pro", "api-level": "33", "target": "google"},
-              {"device": "pixelc", "api-level": "32", "target": "google"},
-              {"device": "pixelc", "api-level": "33", "target": "google"},
-              {"device": "pixel2", "api-level": "30", "target": "aospatd"},
-              {"device": "pixel2", "api-level": "31", "target": "aospatd"},
+              {"api-level": "21", "target": "aosp", "device": "nexus4"},
+              {"api-level": "22", "target": "aosp", "device": "nexus4"},
+              {"api-level": "23", "target": "aosp", "device": "nexus4"},
+              {"api-level": "24", "target": "aosp", "device": "nexus4"},
+              {"api-level": "25", "target": "aosp", "device": "nexus4"},
+              {"api-level": "26", "target": "aosp", "device": "nexus4"},
+              {"api-level": "27", "target": "aosp", "device": "pixel2"},
+              {"api-level": "28", "target": "aosp", "device": "pixel2"},
+              {"api-level": "29", "target": "aosp", "device": "pixel2"},
+              {"api-level": "30", "target": "aosp", "device": "pixel3xl"},
+              {"api-level": "30", "target": "aospatd", "device": "pixel2"},
+              {"api-level": "31", "target": "aosp", "device": "pixel3xl"},
+              {"api-level": "31", "target": "aospatd", "device": "pixel2"},
+              {"api-level": "32", "target": "google", "device": "pixel6pro"},
+              {"api-level": "32", "target": "google", "device": "pixelc"},
+              {"api-level": "32", "target": "desktop", "device": "mediumdesktop"},
+              {"api-level": "33", "target": "google", "device": "pixel6pro"},
+              {"api-level": "33", "target": "google", "device": "pixelc"}
             '
           else
             MATRIX='
-              {"device": "pixel2", "api-level": "30", "target": "aospatd"}
+              {"api-level": "21", "target": "aosp", "device": "nexus4"},
+              {"api-level": "30", "target": "aospatd", "device": "pixel2"}
             '
           fi
           echo ::set-output name=matrix::{\"include\":[$MATRIX]}
@@ -136,7 +144,7 @@ jobs:
         with:
           path: |
             ~/.android/gradle/*
-          key: v1-${{ runner.os }}-gmd-${{ matrix.device }}-${{ matrix.api-level }}
+          key: v2-${{ runner.os }}-gmd-${{ matrix.device }}-${{ matrix.api-level }}-${{ matrix.target }}
 
       - name: Configure JDK
         uses: actions/setup-java@v3
@@ -153,112 +161,5 @@ jobs:
       - name: Run device checks
         run: |
           # run the tests, with one retry attempt
-          run_tests () { ./gradlew ${{ matrix.target }}${{ matrix.device }}api${{ matrix.api-level }}Check --no-parallel --stacktrace -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect" -Pandroid.sdk.channel=3; }
+          run_tests () { ./gradlew ${{ matrix.target }}${{ matrix.device }}api${{ matrix.api-level }}Check --no-parallel -Dorg.gradle.workers.max=2 --stacktrace -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect"; }
           (echo "==== Attempt 1 ====" && run_tests) || (echo "==== Attempt 2 ====" && run_tests) || (echo "==== Both attempts failed ====" && exit 1)
-
-  android-test-aer-cfg:
-    needs: validate-wrapper
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-
-    steps:
-      - id: set-matrix
-        run: |
-          if ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch') }}
-          then
-            MATRIX='
-              {"api-level": "21", "target": "default"},
-              {"api-level": "22", "target": "default"},
-              {"api-level": "23", "target": "default"},
-              {"api-level": "24", "target": "default"},
-              {"api-level": "25", "target": "default"},
-              {"api-level": "26", "target": "default"},
-              {"api-level": "27", "target": "default"},
-              {"api-level": "28", "target": "default"},
-              {"api-level": "29", "target": "default"},
-              {"api-level": "30", "target": "default"},
-              {"api-level": "31", "target": "default"},
-              {"api-level": "32", "target": "google_apis"}
-            '
-          else
-            MATRIX='
-              {"api-level": "21", "target": "default"}
-            '
-          fi
-          echo ::set-output name=matrix::{\"include\":[$MATRIX]}
-
-  android-test-aer:
-    needs: android-test-aer-cfg
-    runs-on: macos-latest # for hardware acceleration
-    timeout-minutes: 60
-
-    concurrency:
-      group: ci-android-test-aer-${{ github.event_name }}-${{ github.ref }}-${{ matrix.api-level }}-${{ matrix.target }}
-      cancel-in-progress: true
-
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.android-test-aer-cfg.outputs.matrix) }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Cache AVD
-        uses: actions/cache@v3
-        id: avd-cache
-        with:
-          path: |
-            ~/.android/avd/*
-            ~/.android/adb*
-          key: v4-${{ runner.os }}-avd-${{ matrix.api-level }}-${{ matrix.target }}
-
-      - name: Configure JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: 11
-
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-
-      - name: Create AVD and generate snapshot for caching
-        if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          target: ${{ matrix.target }}
-          arch: x86_64
-          disk-size: 2048M
-          force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: echo "Generated AVD snapshot for caching."
-
-      - name: Run tests
-        id: tests
-        uses: reactivecircus/android-emulator-runner@v2
-        continue-on-error: true # Allow uploading logs on failure
-        with:
-          api-level: ${{ matrix.api-level }}
-          target: ${{ matrix.target }}
-          arch: x86_64
-          disk-size: 2048M
-          force-avd-creation: false
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: |
-            touch emulator.log                                                         # create log file
-            chmod 777 emulator.log                                                     # allow writing to log file
-            adb logcat >> emulator.log &                                               # output logs to the log file
-            # run the tests, with one retry attempt
-            run_tests () { ./gradlew connectedCheck --stacktrace; }; (echo "==== Attempt 1 ====" && run_tests) || (echo "==== Attempt 2 ====" && run_tests) || (echo "==== Both attempts failed ====" && exit 1)
-
-      - name: Upload failing test logs
-        uses: actions/upload-artifact@v3
-        with:
-          name: android-test-aer-${{ matrix.api-level }}-${{ matrix.target }}-logs
-          path: emulator.log
-
-      - name: Raise error on test failure
-        if: steps.tests.outcome != 'success'
-        run: exit 1
