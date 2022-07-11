@@ -143,7 +143,7 @@ jobs:
         id: avd-cache
         with:
           path: |
-            ~/.android/gradle/*
+            ~/.android/avd/*
           key: v2-${{ runner.os }}-gmd-${{ matrix.device }}-${{ matrix.api-level }}-${{ matrix.target }}
 
       - name: Configure JDK
