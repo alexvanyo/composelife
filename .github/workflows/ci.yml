@@ -115,7 +115,7 @@ jobs:
             '
           else
             MATRIX='
-              {"api-level": "21", "target": "aosp", "device": "nexus4"},
+              {"api-level": "23", "target": "aosp", "device": "nexus4"},
               {"api-level": "30", "target": "aospatd", "device": "pixel2"}
             '
           fi
