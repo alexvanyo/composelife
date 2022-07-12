@@ -36,11 +36,11 @@ dependencies {
     api(libs.kotlinx.coroutines.android)
     api(libs.androidx.compose.foundation)
     api(libs.androidx.compose.runtime)
+    api(libs.androidx.compose.ui)
 
     sharedTestImplementation(projects.testActivity)
     sharedTestImplementation(libs.kotlinx.coroutines.test)
     sharedTestImplementation(libs.turbine)
     sharedTestImplementation(libs.androidx.test.espresso)
-    sharedTestImplementation(libs.androidx.compose.ui)
     sharedTestImplementation(libs.androidx.compose.uiTestJunit4)
 }
