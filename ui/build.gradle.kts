@@ -33,9 +33,9 @@ android {
     defaultConfig {
         minSdk = 21
     }
-    testOptions {
-        execution = "ANDROIDX_TEST_ORCHESTRATOR"
-    }
+    // testOptions {
+    //     execution = "ANDROIDX_TEST_ORCHESTRATOR"
+    // }
 }
 
 dependencies {
@@ -76,7 +76,7 @@ dependencies {
     sharedTestImplementation(libs.kotlinx.coroutines.test)
     sharedTestImplementation(libs.turbine)
     kaptSharedTest(libs.dagger.hilt.compiler)
-    androidTestUtil(libs.androidx.test.orchestrator)
+    // androidTestUtil(libs.androidx.test.orchestrator)
 }
 
 kapt {
