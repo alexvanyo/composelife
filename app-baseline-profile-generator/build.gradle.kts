@@ -26,15 +26,16 @@ android {
 }
 
 androidComponents {
-    val generateBaselineProfile = findProperty("com.alexvanyo.composelife.generateBaselineProfile")
+    val generateBaselineProfile =
+        findProperty("com.alexvanyo.composelife.generateBaselineProfile") == "true"
 
     beforeVariants(selector().all()) { variant ->
-        // Enable the debug variant, which will be empty to ensure one variant always exists.
         // Enable the benchmark variant (with the baseline profile generation test) only if the build is specifically
         // generating it as specified by the above property.
+        // Otherwise, enable the debug variant, which will be empty to ensure one variant always exists.
         variant.enable = when (variant.buildType) {
-            "debug" -> true
-            "benchmark" -> generateBaselineProfile == "true"
+            "debug" -> !generateBaselineProfile
+            "benchmark" -> generateBaselineProfile
             else -> false
         }
     }
