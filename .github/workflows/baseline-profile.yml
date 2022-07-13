@@ -1,0 +1,72 @@
+name: Update baseline profile
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'app/src/main/baseline-prof.txt' # don't recursively update baseline profile
+  workflow_dispatch:
+
+jobs:
+  validate-wrapper:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+  update-baseline-profile:
+    needs: validate-wrapper
+    runs-on: macos-latest # for hardware acceleration
+    timeout-minutes: 60
+
+    concurrency:
+      group: baseline-profile-update-baseline-profile
+      cancel-in-progress: true
+
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.android-test-gmd-cfg.outputs.matrix) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.PAT }}
+
+      - name: Cache AVD
+        uses: actions/cache@v3
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+          key: v2-${{ runner.os }}-gmd-pixel2-31-aosp
+
+      - name: Configure JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: 11
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Generate baseline profile
+        run: |
+          # generate the baseline profile, with one retry attempt
+          generate_profile () { ./gradlew :app-baseline-profile-generator:aosppixel2api31Check --no-parallel -Dorg.gradle.workers.max=2 --stacktrace -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect" -Pcom.alexvanyo.composelife.generateBaselineProfile=true; }
+          (echo "==== Attempt 1 ====" && generate_profile) || (echo "==== Attempt 2 ====" && generate_profile) || (echo "==== Both attempts failed ====" && exit 1)
+
+      - name: Copy baseline profile to app
+        run: cp app-baseline-profile-generator/build/outputs/managed_device_android_test_additional_output/aosppixel2api31/BaselineProfileGenerator_startup-baseline-prof.txt app/src/main/baseline-prof.txt
+
+      - name: Auto-commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Auto update app baseline profile
+          push_options: --force-with-lease

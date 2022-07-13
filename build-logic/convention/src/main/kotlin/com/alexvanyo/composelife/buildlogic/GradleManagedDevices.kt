@@ -16,7 +16,7 @@
 
 package com.alexvanyo.composelife.buildlogic
 
-import com.android.build.gradle.TestedExtension
+import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
@@ -29,9 +29,9 @@ private data class GradleManagedDeviceConfig(
 )
 
 fun Project.configureGradleManagedDevices(
-    testedExtension: TestedExtension,
+    commonExtension: CommonExtension<*, *, *, *>,
 ) {
-    testedExtension.testOptions.managedDevices.devices {
+    commonExtension.testOptions.managedDevices.devices {
         val deviceNames = listOf(
             "Nexus 4",
             "Nexus 5",

@@ -52,6 +52,8 @@ dependencyResolutionManagement {
 rootProject.name = "ComposeLife"
 include(":algorithm")
 include(":app")
+include(":app-baseline-profile-generator")
+include(":app-benchmark")
 include(":dispatchers")
 include(":dispatchers-test")
 include(":hilt-test")

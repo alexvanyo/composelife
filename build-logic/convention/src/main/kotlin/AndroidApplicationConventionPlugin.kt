@@ -61,6 +61,20 @@ class AndroidApplicationConventionPlugin : ConventionPlugin({
                     "staging-proguard-rules.pro"
                 )
             }
+
+            // Create a build type for the purposes of benchmarking a minified build (like release is)
+            create("benchmark") {
+                isMinifyEnabled = true // minify like a release build
+                isShrinkResources = true // shrink resources like a release build
+                matchingFallbacks.add("release") // fallback to release for dependencies
+                signingConfig = signingConfigs.getByName("debug") // sign with debug for testing
+                // Use the normal proguard rules, as well as some additional benchmarking ones
+                proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro",
+                    "benchmark-proguard-rules.pro"
+                )
+            }
         }
     }
 })
