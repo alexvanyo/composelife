@@ -28,10 +28,6 @@ jobs:
       group: baseline-profile-update-baseline-profile
       cancel-in-progress: true
 
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.android-test-gmd-cfg.outputs.matrix) }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
