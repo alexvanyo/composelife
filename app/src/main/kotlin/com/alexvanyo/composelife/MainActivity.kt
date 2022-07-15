@@ -31,36 +31,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
-import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
-import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.ui.ComposeLifeApp
-import com.alexvanyo.composelife.ui.entrypoints.WithDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import dagger.hilt.EntryPoints
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint(ComponentActivity::class)
 class MainActivity : Hilt_MainActivity() {
-
-    @Inject
-    lateinit var gameOfLifeAlgorithm: GameOfLifeAlgorithm
-
-    @Inject
-    lateinit var dispatchers: ComposeLifeDispatchers
-
-    @Inject
-    lateinit var composeLifePreferences: ComposeLifePreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
+        val mainActivityEntryPoint = EntryPoints.get(this, MainActivityEntryPoint::class.java)
+
         // Keep the splash screen on screen until we've determine the theme
         splashScreen.setKeepOnScreenCondition {
-            !composeLifePreferences.darkThemeConfigState.isSuccess()
+            !mainActivityEntryPoint.composeLifePreferences.darkThemeConfigState.isSuccess()
         }
 
         // The splash screen library internally sets the system bars color
@@ -86,11 +75,7 @@ class MainActivity : Hilt_MainActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
-            WithDependencies(
-                dispatchers = dispatchers,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                composeLifePreferences = composeLifePreferences,
-            ) {
+            with(mainActivityEntryPoint) {
                 ComposeLifeTheme {
                     val useDarkIcons = ComposeLifeTheme.isLight
                     val systemUiController = rememberSystemUiController()

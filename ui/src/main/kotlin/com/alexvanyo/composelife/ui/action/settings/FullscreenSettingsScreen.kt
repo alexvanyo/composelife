@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.ui.action.settings
 
@@ -84,14 +85,19 @@ import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.action.ActionCardNavigation
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.entrypoints.algorithm.GameOfLifeAlgorithmEntryPoint
-import com.alexvanyo.composelife.ui.entrypoints.dispatchers.ComposeLifeDispatchersEntryPoint
-import com.alexvanyo.composelife.ui.entrypoints.preferences.ComposeLifePreferencesEntryPoint
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.SizePreviews
 import com.alexvanyo.composelife.ui.util.canScrollUp
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ActivityComponent
 
-context(GameOfLifeAlgorithmEntryPoint, ComposeLifePreferencesEntryPoint, ComposeLifeDispatchersEntryPoint)
+@EntryPoint
+@InstallIn(ActivityComponent::class)
+interface FullscreenSettingsScreenEntryPoint :
+    SettingUiEntryPoint
+
+context(FullscreenSettingsScreenEntryPoint)
 @Suppress("LongMethod")
 @OptIn(ExperimentalLayoutApi::class, ExperimentalAnimationApi::class)
 @Composable
@@ -350,7 +356,7 @@ private fun SettingsCategoryButton(
     }
 }
 
-context(GameOfLifeAlgorithmEntryPoint, ComposeLifePreferencesEntryPoint, ComposeLifeDispatchersEntryPoint)
+context(SettingUiEntryPoint)
 @Composable
 private fun SettingsCategoryDetail(
     settingsCategory: SettingsCategory,

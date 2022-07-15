@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.entrypoints.dispatchers
+package com.alexvanyo.composelife.preferences.di
 
-import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 
-interface ComposeLifeDispatchersEntryPoint {
-    val dispatchers: ComposeLifeDispatchers
+interface ComposeLifePreferencesProvider {
+    val composeLifePreferences: ComposeLifePreferences
 }

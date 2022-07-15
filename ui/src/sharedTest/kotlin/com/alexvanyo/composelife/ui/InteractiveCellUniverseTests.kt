@@ -45,12 +45,13 @@ import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import com.alexvanyo.composelife.test.BaseHiltTest
 import com.alexvanyo.composelife.test.TestActivity
-import com.alexvanyo.composelife.ui.entrypoints.WithDependencies
 import com.alexvanyo.composelife.util.toRingIndex
+import dagger.hilt.EntryPoints
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
 import leakcanary.SkipLeakDetection
+import org.junit.Before
 import org.junit.Test
 import javax.inject.Inject
 
@@ -66,6 +67,14 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
 
     @Inject
     lateinit var dispatchers: ComposeLifeDispatchers
+
+    lateinit var interactiveCellUniverseEntryPoint: InteractiveCellUniverseEntryPoint
+
+    @Before
+    fun setup() {
+        interactiveCellUniverseEntryPoint =
+            EntryPoints.get(composeTestRule.activity, InteractiveCellUniverseEntryPoint::class.java)
+    }
 
     @SkipLeakDetection("appliedChanges", "Outer")
     @Test
@@ -83,11 +92,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 dispatchers = dispatchers,
             )
 
-            WithDependencies(
-                dispatchers = dispatchers,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                composeLifePreferences = preferences,
-            ) {
+            with(interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
@@ -128,11 +133,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 dispatchers = dispatchers,
             )
 
-            WithDependencies(
-                dispatchers = dispatchers,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                composeLifePreferences = preferences,
-            ) {
+            with(interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
@@ -172,11 +173,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 dispatchers = dispatchers,
             )
 
-            WithDependencies(
-                dispatchers = dispatchers,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                composeLifePreferences = preferences,
-            ) {
+            with(interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
@@ -227,11 +224,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 dispatchers = dispatchers,
             )
 
-            WithDependencies(
-                dispatchers = dispatchers,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                composeLifePreferences = preferences,
-            ) {
+            with(interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
@@ -300,11 +293,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 dispatchers = dispatchers,
             )
 
-            WithDependencies(
-                dispatchers = dispatchers,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                composeLifePreferences = preferences,
-            ) {
+            with(interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
@@ -354,11 +343,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 dispatchers = dispatchers,
             )
 
-            WithDependencies(
-                dispatchers = dispatchers,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                composeLifePreferences = preferences,
-            ) {
+            with(interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),

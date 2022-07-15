@@ -34,7 +34,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class DefaultComposeLifePreferences @Inject constructor(
     private val dataStore: PreferencesDataStore,
     dispatchers: ComposeLifeDispatchers,

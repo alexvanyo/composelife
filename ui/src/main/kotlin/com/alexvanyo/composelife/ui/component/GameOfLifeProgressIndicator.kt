@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.ui.component
 
@@ -30,28 +31,38 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
+import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.patterns.BlinkerPattern
 import com.alexvanyo.composelife.patterns.OscillatorPattern
 import com.alexvanyo.composelife.preferences.CurrentShape
+import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.cells.NonInteractableCells
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.entrypoints.algorithm.GameOfLifeAlgorithmEntryPoint
-import com.alexvanyo.composelife.ui.entrypoints.dispatchers.ComposeLifeDispatchersEntryPoint
-import com.alexvanyo.composelife.ui.entrypoints.preferences.ComposeLifePreferencesEntryPoint
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ActivityComponent
 import kotlinx.coroutines.awaitCancellation
 import kotlin.math.max
+
+@EntryPoint
+@InstallIn(ActivityComponent::class)
+interface GameOfLifeProgressIndicatorEntryPoint :
+    GameOfLifeAlgorithmProvider,
+    ComposeLifePreferencesProvider,
+    ComposeLifeDispatchersProvider
 
 /**
  * A progress indicator that displays progress via an embedded set of cells displaying an
  * oscillating pattern.
  */
-context(GameOfLifeAlgorithmEntryPoint, ComposeLifePreferencesEntryPoint, ComposeLifeDispatchersEntryPoint)
+context(GameOfLifeProgressIndicatorEntryPoint)
 @Composable
 fun GameOfLifeProgressIndicator(
     modifier: Modifier = Modifier,

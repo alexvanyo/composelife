@@ -31,12 +31,12 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
+import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.ui.entrypoints.preferences.ComposeLifePreferencesEntryPoint
 
 private val LocalAppliedComposeLifeTheme = compositionLocalOf { false }
 
-context(ComposeLifePreferencesEntryPoint)
+context(ComposeLifePreferencesProvider)
 @Composable
 fun ComposeLifeTheme(
     content: @Composable () -> Unit,
@@ -113,7 +113,7 @@ object ComposeLifeTheme {
 private fun useDynamicColorScheme() =
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
-context(ComposeLifePreferencesEntryPoint)
+context(ComposeLifePreferencesProvider)
 @Composable
 private fun shouldUseDarkTheme(): Boolean =
     when (

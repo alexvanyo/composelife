@@ -66,20 +66,26 @@ import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.Ce
 import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.TopInsets
 import com.alexvanyo.composelife.ui.action.CellUniverseActionCard
+import com.alexvanyo.composelife.ui.action.CellUniverseActionCardEntryPoint
 import com.alexvanyo.composelife.ui.action.CellUniverseActionCardState
 import com.alexvanyo.composelife.ui.action.rememberCellUniverseActionCardState
 import com.alexvanyo.composelife.ui.cells.CellWindowState
-import com.alexvanyo.composelife.ui.entrypoints.algorithm.GameOfLifeAlgorithmEntryPoint
-import com.alexvanyo.composelife.ui.entrypoints.dispatchers.ComposeLifeDispatchersEntryPoint
-import com.alexvanyo.composelife.ui.entrypoints.preferences.ComposeLifePreferencesEntryPoint
 import com.alexvanyo.composelife.ui.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.info.CellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.info.rememberCellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.animatePlacement
 import com.livefront.sealedenum.GenSealedEnum
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ActivityComponent
 
-context(GameOfLifeAlgorithmEntryPoint, ComposeLifePreferencesEntryPoint, ComposeLifeDispatchersEntryPoint)
+@EntryPoint
+@InstallIn(ActivityComponent::class)
+interface InteractiveCellUniverseOverlayEntryPoint :
+    CellUniverseActionCardEntryPoint
+
+context(InteractiveCellUniverseOverlayEntryPoint)
 @OptIn(ExperimentalLayoutApi::class)
 @Suppress("LongMethod", "ComplexMethod")
 @Composable
