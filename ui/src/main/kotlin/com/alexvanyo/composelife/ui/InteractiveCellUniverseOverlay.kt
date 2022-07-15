@@ -17,7 +17,11 @@
 package com.alexvanyo.composelife.ui
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -36,9 +40,11 @@ import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -115,12 +121,88 @@ fun InteractiveCellUniverseOverlay(
         check(!(infoCardState.isExpanded && actionCardState.isExpanded))
 
         BackHandler {
-            if (actionCardState.isExpanded) {
+            if (!infoCardState.isExpanded || isActionCardTopCard) {
                 actionCardState.isExpanded = false
             } else {
                 check(infoCardState.isExpanded)
                 infoCardState.isExpanded = false
             }
+        }
+    }
+
+    val windowInsets = WindowInsets.safeDrawing
+    val windowInsetsPaddingValues = windowInsets.asPaddingValues()
+
+    val outerPaddingStart by animateDpAsState(
+        targetValue = if (actionCardState.isFullscreen) {
+            0.dp
+        } else {
+            8.dp + windowInsetsPaddingValues.calculateStartPadding(LocalLayoutDirection.current)
+        },
+    )
+    val outerPaddingTop by animateDpAsState(
+        targetValue = if (actionCardState.isFullscreen) {
+            0.dp
+        } else {
+            8.dp + windowInsetsPaddingValues.calculateTopPadding()
+        },
+    )
+    val outerPaddingEnd by animateDpAsState(
+        targetValue = if (actionCardState.isFullscreen) {
+            0.dp
+        } else {
+            8.dp + windowInsetsPaddingValues.calculateEndPadding(LocalLayoutDirection.current)
+        },
+    )
+    val outerPaddingBottom by animateDpAsState(
+        targetValue = if (actionCardState.isFullscreen) {
+            0.dp
+        } else {
+            8.dp + windowInsetsPaddingValues.calculateBottomPadding()
+        },
+    )
+    val outerPaddingLeft: Dp
+    val outerPaddingRight: Dp
+    if (LocalLayoutDirection.current == LayoutDirection.Ltr) {
+        outerPaddingLeft = outerPaddingStart
+        outerPaddingRight = outerPaddingEnd
+    } else {
+        outerPaddingLeft = outerPaddingEnd
+        outerPaddingRight = outerPaddingStart
+    }
+
+    val outerPadding = PaddingValues(
+        start = outerPaddingStart,
+        top = outerPaddingTop,
+        end = outerPaddingEnd,
+        bottom = outerPaddingBottom,
+    )
+    val consumedWindowInsets = WindowInsets(
+        left = outerPaddingLeft,
+        top = outerPaddingTop,
+        right = outerPaddingRight,
+        bottom = outerPaddingBottom,
+    )
+
+    val cornerSize by animateDpAsState(
+        targetValue = if (actionCardState.isFullscreen) {
+            0.dp
+        } else {
+            12.dp
+        },
+    )
+
+    /**
+     * `true` if we are currently showing a full-screen card, which is inferred to be the case if the outer padding
+     * is 0 and we are still wanting to show the card as full-screen.
+     */
+    val isShowingFullscreen by remember {
+        derivedStateOf {
+            outerPaddingStart == 0.dp &&
+                outerPaddingTop == 0.dp &&
+                outerPaddingEnd == 0.dp &&
+                outerPaddingBottom == 0.dp &&
+                actionCardState.isFullscreen
         }
     }
 
@@ -159,73 +241,18 @@ fun InteractiveCellUniverseOverlay(
                 )
             }
 
-            val windowInsets = WindowInsets.safeDrawing
-            val windowInsetsPaddingValues = windowInsets.asPaddingValues()
-
-            val outerPaddingStart by animateDpAsState(
-                targetValue = if (actionCardState.isFullscreen) {
-                    0.dp
-                } else {
-                    8.dp + windowInsetsPaddingValues.calculateStartPadding(LocalLayoutDirection.current)
-                },
-            )
-            val outerPaddingTop by animateDpAsState(
-                targetValue = if (actionCardState.isFullscreen) {
-                    0.dp
-                } else {
-                    8.dp + windowInsetsPaddingValues.calculateTopPadding()
-                },
-            )
-            val outerPaddingEnd by animateDpAsState(
-                targetValue = if (actionCardState.isFullscreen) {
-                    0.dp
-                } else {
-                    8.dp + windowInsetsPaddingValues.calculateEndPadding(LocalLayoutDirection.current)
-                },
-            )
-            val outerPaddingBottom by animateDpAsState(
-                targetValue = if (actionCardState.isFullscreen) {
-                    0.dp
-                } else {
-                    8.dp + windowInsetsPaddingValues.calculateBottomPadding()
-                },
-            )
-            val outerPaddingLeft: Dp
-            val outerPaddingRight: Dp
-            if (LocalLayoutDirection.current == LayoutDirection.Ltr) {
-                outerPaddingLeft = outerPaddingStart
-                outerPaddingRight = outerPaddingEnd
-            } else {
-                outerPaddingLeft = outerPaddingEnd
-                outerPaddingRight = outerPaddingStart
-            }
-
-            val outerPadding = PaddingValues(
-                start = outerPaddingStart,
-                top = outerPaddingTop,
-                end = outerPaddingEnd,
-                bottom = outerPaddingBottom,
-            )
-            val consumedWindowInsets = WindowInsets(
-                left = outerPaddingLeft,
-                top = outerPaddingTop,
-                right = outerPaddingRight,
-                bottom = outerPaddingBottom,
-            )
-
-            val cornerSize by animateDpAsState(
-                targetValue = if (actionCardState.isFullscreen) {
-                    0.dp
-                } else {
-                    12.dp
-                },
-            )
-
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth()
                     .consumedWindowInsets(consumedWindowInsets)
                     .animatePlacement(
+                        // If we are showing fullscreen, avoid animating placement at this level, since the card
+                        // should effectively be fixed to be full screen
+                        animationSpec = if (isShowingFullscreen) {
+                            snap()
+                        } else {
+                            spring(stiffness = Spring.StiffnessMedium)
+                        },
                         alignment = Alignment.BottomCenter,
                     )
                     .layoutId(CellUniverseActionCard),
@@ -286,7 +313,17 @@ fun InteractiveCellUniverseOverlay(
                 }
             }
         },
-        modifier = modifier,
+        modifier = modifier
+            .then(
+                // If we are showing a card fullscreen, put an opaque background on the overlay (between the cards
+                // and the content underneath) to ensure content underneath is masked completely during animations
+                // while remaining fullscreen.
+                if (isShowingFullscreen) {
+                    Modifier.background(MaterialTheme.colorScheme.surface)
+                } else {
+                    Modifier
+                },
+            ),
     )
 }
 
