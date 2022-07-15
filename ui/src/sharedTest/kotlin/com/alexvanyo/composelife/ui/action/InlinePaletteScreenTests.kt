@@ -34,40 +34,36 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
-import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
-import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.test.BaseHiltTest
 import com.alexvanyo.composelife.test.TestActivity
 import com.alexvanyo.composelife.ui.R
-import com.alexvanyo.composelife.ui.entrypoints.WithDependencies
+import dagger.hilt.EntryPoints
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import leakcanary.SkipLeakDetection
+import org.junit.Before
 import org.junit.Test
-import javax.inject.Inject
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 class InlinePaletteScreenTests : BaseHiltTest<TestActivity>(TestActivity::class.java) {
 
-    @Inject
-    lateinit var gameOfLifeAlgorithm: GameOfLifeAlgorithm
+    lateinit var inlinePaletteScreenEntryPoint: InlinePaletteScreenEntryPoint
 
-    @Inject
-    lateinit var dispatchers: ComposeLifeDispatchers
+    @Before
+    fun setup() {
+        inlinePaletteScreenEntryPoint =
+            EntryPoints.get(composeTestRule.activity, InlinePaletteScreenEntryPoint::class.java)
+    }
 
     @Test
     fun loading_is_displayed_correctly() = runAppTest {
         composeTestRule.setContent {
-            WithDependencies(
-                dispatchers = dispatchers,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                composeLifePreferences = preferences,
-            ) {
+            with(inlinePaletteScreenEntryPoint) {
                 InlinePaletteScreen(
                     currentShapeState = ResourceState.Loading,
                     setCurrentShapeType = {},
@@ -84,11 +80,7 @@ class InlinePaletteScreenTests : BaseHiltTest<TestActivity>(TestActivity::class.
     @Test
     fun round_rectangle_is_displayed_correctly() = runAppTest {
         composeTestRule.setContent {
-            WithDependencies(
-                dispatchers = dispatchers,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                composeLifePreferences = preferences,
-            ) {
+            with(inlinePaletteScreenEntryPoint) {
                 InlinePaletteScreen(
                     currentShapeState = ResourceState.Success(
                         CurrentShape.RoundRectangle(
@@ -125,11 +117,7 @@ class InlinePaletteScreenTests : BaseHiltTest<TestActivity>(TestActivity::class.
         var currentShapeState by mutableStateOf<ResourceState<CurrentShape>>(ResourceState.Loading)
 
         composeTestRule.setContent {
-            WithDependencies(
-                dispatchers = dispatchers,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                composeLifePreferences = preferences,
-            ) {
+            with(inlinePaletteScreenEntryPoint) {
                 InlinePaletteScreen(
                     currentShapeState = currentShapeState,
                     setCurrentShapeType = {},
@@ -176,11 +164,7 @@ class InlinePaletteScreenTests : BaseHiltTest<TestActivity>(TestActivity::class.
         }
 
         composeTestRule.setContent {
-            WithDependencies(
-                dispatchers = dispatchers,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                composeLifePreferences = preferences,
-            ) {
+            with(inlinePaletteScreenEntryPoint) {
                 InlinePaletteScreen(
                     currentShapeState = ResourceState.Success(roundRectangleShape),
                     setCurrentShapeType = {},
@@ -221,11 +205,7 @@ class InlinePaletteScreenTests : BaseHiltTest<TestActivity>(TestActivity::class.
         }
 
         composeTestRule.setContent {
-            WithDependencies(
-                dispatchers = dispatchers,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                composeLifePreferences = preferences,
-            ) {
+            with(inlinePaletteScreenEntryPoint) {
                 InlinePaletteScreen(
                     currentShapeState = ResourceState.Success(roundRectangleShape),
                     setCurrentShapeType = {},
@@ -259,11 +239,7 @@ class InlinePaletteScreenTests : BaseHiltTest<TestActivity>(TestActivity::class.
         var setCurrentShapeType: CurrentShapeType? = null
 
         composeTestRule.setContent {
-            WithDependencies(
-                dispatchers = dispatchers,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                composeLifePreferences = preferences,
-            ) {
+            with(inlinePaletteScreenEntryPoint) {
                 InlinePaletteScreen(
                     currentShapeState = ResourceState.Success(
                         CurrentShape.RoundRectangle(

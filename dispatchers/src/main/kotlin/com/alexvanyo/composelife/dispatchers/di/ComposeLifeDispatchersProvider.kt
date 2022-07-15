@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.entrypoints.algorithm
+package com.alexvanyo.composelife.dispatchers.di
 
-import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 
-interface GameOfLifeAlgorithmEntryPoint {
-    val gameOfLifeAlgorithm: GameOfLifeAlgorithm
+interface ComposeLifeDispatchersProvider {
+    val dispatchers: ComposeLifeDispatchers
 }

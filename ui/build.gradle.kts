@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.sealedEnum.runtime)
     ksp(libs.sealedEnum.ksp)
     implementation(libs.dagger.hilt.runtime)
+    kapt(libs.dagger.hilt.compiler)
 
     debugImplementation(libs.androidx.compose.uiTooling)
 

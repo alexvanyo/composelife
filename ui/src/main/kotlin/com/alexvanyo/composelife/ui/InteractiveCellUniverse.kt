@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.ui
 
@@ -29,15 +30,19 @@ import com.alexvanyo.composelife.ui.cells.CellWindowState
 import com.alexvanyo.composelife.ui.cells.MutableCellWindow
 import com.alexvanyo.composelife.ui.cells.rememberCellWindowState
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicator
-import com.alexvanyo.composelife.ui.entrypoints.algorithm.GameOfLifeAlgorithmEntryPoint
-import com.alexvanyo.composelife.ui.entrypoints.dispatchers.ComposeLifeDispatchersEntryPoint
-import com.alexvanyo.composelife.ui.entrypoints.preferences.ComposeLifePreferencesEntryPoint
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ActivityComponent
+
+@EntryPoint
+@InstallIn(ActivityComponent::class)
+interface InteractiveCellUniverseEntryPoint : InteractiveCellUniverseOverlayEntryPoint
 
 /**
  * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
  * evolves.
  */
-context(GameOfLifeAlgorithmEntryPoint, ComposeLifePreferencesEntryPoint, ComposeLifeDispatchersEntryPoint)
+context(InteractiveCellUniverseEntryPoint)
 @Composable
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
