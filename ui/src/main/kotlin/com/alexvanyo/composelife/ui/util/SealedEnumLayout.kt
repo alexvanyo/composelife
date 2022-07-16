@@ -48,7 +48,8 @@ inline fun <T> Layout(
     ) { measurables, constraints ->
         @Suppress("UNCHECKED_CAST")
         val measurablesMap = measurables.associateBy { it.layoutId as T }
-        check(measurablesMap.size == layoutIdTypes.values.size)
+        // Check that each type T is associate with exactly one measurable
+        check(measurables.size == layoutIdTypes.values.size && measurablesMap.size == layoutIdTypes.values.size)
         with(measurePolicy) {
             measure(measurablesMap, constraints)
         }
