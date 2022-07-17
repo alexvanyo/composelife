@@ -17,26 +17,13 @@
 package com.alexvanyo.composelife.ui.action
 
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -47,16 +34,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.R
+import com.alexvanyo.composelife.ui.component.DropdownOption
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicator
 import com.alexvanyo.composelife.ui.component.LabeledSlider
+import com.alexvanyo.composelife.ui.component.TextFieldDropdown
 import com.alexvanyo.composelife.ui.entrypoints.preferences.inject
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
+import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.coroutines.launch
 
 @Composable
@@ -96,63 +87,26 @@ fun InlinePaletteScreen(
                 val currentShape = currentShapeState.value
                 val coroutineScope = rememberCoroutineScope()
 
-                var isShowingDropdownMenu by remember { mutableStateOf(false) }
-
-                Box {
-                    OutlinedTextField(
-                        value = stringResource(
-                            id = when (currentShape) {
-                                is CurrentShape.RoundRectangle -> R.string.round_rectangle
-                            },
-                        ),
-                        onValueChange = {},
-                        enabled = false,
-                        readOnly = true,
-                        label = {
-                            Text(text = stringResource(R.string.shape))
-                        },
-                        trailingIcon = {
-                            Icon(
-                                if (isShowingDropdownMenu) {
-                                    Icons.Default.ArrowDropUp
-                                } else {
-                                    Icons.Default.ArrowDropDown
+                TextFieldDropdown(
+                    label = stringResource(R.string.shape),
+                    currentValue = when (currentShape) {
+                        is CurrentShape.RoundRectangle -> ShapeDropdownOption.RoundRectangle
+                    },
+                    allValues = ShapeDropdownOption.values,
+                    setValue = { option ->
+                        coroutineScope.launch {
+                            setCurrentShapeType(
+                                when (option) {
+                                    ShapeDropdownOption.RoundRectangle -> CurrentShapeType.RoundRectangle
                                 },
-                                contentDescription = null,
                             )
-                        },
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            disabledBorderColor = MaterialTheme.colorScheme.outline,
-                            disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                isShowingDropdownMenu = true
-                            },
-                    )
-
-                    DropdownMenu(
-                        expanded = isShowingDropdownMenu,
-                        onDismissRequest = { isShowingDropdownMenu = false },
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(id = R.string.round_rectangle)) },
-                            onClick = {
-                                coroutineScope.launch {
-                                    setCurrentShapeType(CurrentShapeType.RoundRectangle)
-                                    isShowingDropdownMenu = false
-                                }
-                            },
-                        )
-                    }
-                }
+                        }
+                    },
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                @Suppress("USELESS_IS_CHECK")
                 when (currentShape) {
                     is CurrentShape.RoundRectangle -> {
                         var sizeFraction by remember { mutableStateOf(currentShape.sizeFraction) }
@@ -185,6 +139,15 @@ fun InlinePaletteScreen(
             }
         }
     }
+}
+
+sealed interface ShapeDropdownOption : DropdownOption {
+    object RoundRectangle : ShapeDropdownOption {
+        override val displayText: ParameterizedString = ParameterizedString(R.string.round_rectangle)
+    }
+
+    @GenSealedEnum
+    companion object
 }
 
 @ThemePreviews
