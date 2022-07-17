@@ -16,35 +16,23 @@
 
 package com.alexvanyo.composelife.ui.action.settings
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.R
+import com.alexvanyo.composelife.ui.component.DropdownOption
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicator
+import com.alexvanyo.composelife.ui.component.TextFieldDropdown
 import com.alexvanyo.composelife.ui.entrypoints.preferences.inject
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
+import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.coroutines.launch
 
 @Composable
@@ -59,7 +47,6 @@ fun DarkThemeConfigUi(
     )
 }
 
-@Suppress("LongMethod")
 @Composable
 fun DarkThemeConfigUi(
     darkThemeConfigState: ResourceState<DarkThemeConfig>,
@@ -76,83 +63,47 @@ fun DarkThemeConfigUi(
                 val currentDarkThemeConfig = darkThemeConfigState.value
                 val coroutineScope = rememberCoroutineScope()
 
-                var isShowingDropdownMenu by remember { mutableStateOf(false) }
-
-                Box {
-                    OutlinedTextField(
-                        value = stringResource(
-                            id = when (currentDarkThemeConfig) {
-                                DarkThemeConfig.FollowSystem -> R.string.follow_system
-                                DarkThemeConfig.Dark -> R.string.dark_theme
-                                DarkThemeConfig.Light -> R.string.light_theme
-                            },
-                        ),
-                        onValueChange = {},
-                        enabled = false,
-                        readOnly = true,
-                        label = {
-                            Text(text = stringResource(R.string.dark_theme_config))
-                        },
-                        trailingIcon = {
-                            Icon(
-                                if (isShowingDropdownMenu) {
-                                    Icons.Default.ArrowDropUp
-                                } else {
-                                    Icons.Default.ArrowDropDown
-                                },
-                                contentDescription = null,
-                            )
-                        },
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            disabledBorderColor = MaterialTheme.colorScheme.outline,
-                            disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                isShowingDropdownMenu = true
-                            },
-                    )
-
-                    fun chooseDarkThemeConfig(
-                        darkThemeConfig: DarkThemeConfig,
-                    ) {
+                TextFieldDropdown(
+                    label = stringResource(R.string.dark_theme_config),
+                    currentValue = when (currentDarkThemeConfig) {
+                        DarkThemeConfig.FollowSystem -> DarkThemeConfigDropdownOption.AFollowSystem
+                        DarkThemeConfig.Dark -> DarkThemeConfigDropdownOption.Dark
+                        DarkThemeConfig.Light -> DarkThemeConfigDropdownOption.Light
+                    },
+                    allValues = DarkThemeConfigDropdownOption.values,
+                    setValue = { option ->
                         coroutineScope.launch {
-                            setDarkThemeConfig(darkThemeConfig)
-                            isShowingDropdownMenu = false
+                            setDarkThemeConfig(
+                                when (option) {
+                                    DarkThemeConfigDropdownOption.AFollowSystem -> DarkThemeConfig.FollowSystem
+                                    DarkThemeConfigDropdownOption.Dark -> DarkThemeConfig.Dark
+                                    DarkThemeConfigDropdownOption.Light -> DarkThemeConfig.Light
+                                },
+                            )
                         }
-                    }
-
-                    DropdownMenu(
-                        expanded = isShowingDropdownMenu,
-                        onDismissRequest = { isShowingDropdownMenu = false },
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(id = R.string.follow_system)) },
-                            onClick = {
-                                chooseDarkThemeConfig(DarkThemeConfig.FollowSystem)
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(id = R.string.dark_theme)) },
-                            onClick = {
-                                chooseDarkThemeConfig(DarkThemeConfig.Dark)
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(id = R.string.light_theme)) },
-                            onClick = {
-                                chooseDarkThemeConfig(DarkThemeConfig.Light)
-                            },
-                        )
-                    }
-                }
+                    },
+                )
             }
         }
     }
+}
+
+sealed interface DarkThemeConfigDropdownOption : DropdownOption {
+    /**
+     * TODO: Rename to FollowSystem once sealed enum generation is fixed on Kotlin 1.7.0
+     */
+    object AFollowSystem : DarkThemeConfigDropdownOption {
+        override val displayText: ParameterizedString = ParameterizedString(R.string.follow_system)
+    }
+    object Dark : DarkThemeConfigDropdownOption {
+        override val displayText: ParameterizedString = ParameterizedString(R.string.dark_theme)
+    }
+    object Light : DarkThemeConfigDropdownOption {
+        override val displayText: ParameterizedString = ParameterizedString(R.string.light_theme)
+    }
+
+    @GenSealedEnum
+    companion object
 }
 
 @Preview

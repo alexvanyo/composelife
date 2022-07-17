@@ -16,35 +16,23 @@
 
 package com.alexvanyo.composelife.ui.action.settings
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.R
+import com.alexvanyo.composelife.ui.component.DropdownOption
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicator
+import com.alexvanyo.composelife.ui.component.TextFieldDropdown
 import com.alexvanyo.composelife.ui.entrypoints.preferences.inject
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
+import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.coroutines.launch
 
 @Composable
@@ -59,7 +47,6 @@ fun AlgorithmImplementationUi(
     )
 }
 
-@Suppress("LongMethod")
 @Composable
 fun AlgorithmImplementationUi(
     algorithmChoiceState: ResourceState<AlgorithmType>,
@@ -76,76 +63,41 @@ fun AlgorithmImplementationUi(
                 val currentAlgorithm = algorithmChoiceState.value
                 val coroutineScope = rememberCoroutineScope()
 
-                var isShowingDropdownMenu by remember { mutableStateOf(false) }
-
-                Box {
-                    OutlinedTextField(
-                        value = stringResource(
-                            id = when (currentAlgorithm) {
-                                AlgorithmType.HashLifeAlgorithm -> R.string.hash_life_algorithm
-                                AlgorithmType.NaiveAlgorithm -> R.string.naive_algorithm
-                            },
-                        ),
-                        onValueChange = {},
-                        enabled = false,
-                        readOnly = true,
-                        label = {
-                            Text(text = stringResource(R.string.algorithm_implementation))
-                        },
-                        trailingIcon = {
-                            Icon(
-                                if (isShowingDropdownMenu) {
-                                    Icons.Default.ArrowDropUp
-                                } else {
-                                    Icons.Default.ArrowDropDown
-                                },
-                                contentDescription = null,
-                            )
-                        },
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            disabledBorderColor = MaterialTheme.colorScheme.outline,
-                            disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                isShowingDropdownMenu = true
-                            },
-                    )
-
-                    fun chooseAlgorithmImplementation(
-                        algorithmType: AlgorithmType,
-                    ) {
+                TextFieldDropdown(
+                    label = stringResource(R.string.algorithm_implementation),
+                    currentValue = when (currentAlgorithm) {
+                        AlgorithmType.HashLifeAlgorithm -> AlgorithmImplementationDropdownOption.HashLifeAlgorithm
+                        AlgorithmType.NaiveAlgorithm -> AlgorithmImplementationDropdownOption.NaiveAlgorithm
+                    },
+                    allValues = AlgorithmImplementationDropdownOption.values,
+                    setValue = { option ->
                         coroutineScope.launch {
-                            setAlgorithmChoice(algorithmType)
-                            isShowingDropdownMenu = false
+                            setAlgorithmChoice(
+                                when (option) {
+                                    AlgorithmImplementationDropdownOption.HashLifeAlgorithm ->
+                                        AlgorithmType.HashLifeAlgorithm
+                                    AlgorithmImplementationDropdownOption.NaiveAlgorithm ->
+                                        AlgorithmType.NaiveAlgorithm
+                                },
+                            )
                         }
-                    }
-
-                    DropdownMenu(
-                        expanded = isShowingDropdownMenu,
-                        onDismissRequest = { isShowingDropdownMenu = false },
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(id = R.string.hash_life_algorithm)) },
-                            onClick = {
-                                chooseAlgorithmImplementation(AlgorithmType.HashLifeAlgorithm)
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(id = R.string.naive_algorithm)) },
-                            onClick = {
-                                chooseAlgorithmImplementation(AlgorithmType.NaiveAlgorithm)
-                            },
-                        )
-                    }
-                }
+                    },
+                )
             }
         }
     }
+}
+
+sealed interface AlgorithmImplementationDropdownOption : DropdownOption {
+    object HashLifeAlgorithm : AlgorithmImplementationDropdownOption {
+        override val displayText: ParameterizedString = ParameterizedString(R.string.hash_life_algorithm)
+    }
+    object NaiveAlgorithm : AlgorithmImplementationDropdownOption {
+        override val displayText: ParameterizedString = ParameterizedString(R.string.naive_algorithm)
+    }
+
+    @GenSealedEnum
+    companion object
 }
 
 @Preview
