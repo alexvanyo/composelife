@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.ui.action.settings
 
@@ -83,10 +84,20 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.action.ActionCardNavigation
+import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.SizePreviews
 import com.alexvanyo.composelife.ui.util.canScrollUp
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ActivityComponent
 
+@EntryPoint
+@InstallIn(ActivityComponent::class)
+interface FullscreenSettingsScreenEntryPoint :
+    SettingUiEntryPoint
+
+context(FullscreenSettingsScreenEntryPoint)
 @Suppress("LongMethod")
 @OptIn(ExperimentalLayoutApi::class, ExperimentalAnimationApi::class)
 @Composable
@@ -345,6 +356,7 @@ private fun SettingsCategoryButton(
     }
 }
 
+context(SettingUiEntryPoint)
 @Composable
 private fun SettingsCategoryDetail(
     settingsCategory: SettingsCategory,
@@ -436,19 +448,21 @@ private val SettingsCategory.outlinedIcon: ImageVector
 @SizePreviews
 @Composable
 fun FullscreenSettingsScreenListPreview() {
-    ComposeLifeTheme {
-        BoxWithConstraints {
-            val size = DpSize(maxWidth, maxHeight)
-            Surface {
-                FullscreenSettingsScreen(
-                    windowSizeClass = WindowSizeClass.calculateFromSize(size),
-                    fullscreen = ActionCardNavigation.Settings.Fullscreen(
-                        initialSettingsCategory = SettingsCategory.Algorithm,
-                        initialShowDetails = false,
-                    ),
-                    onBackButtonPressed = {},
-                    modifier = Modifier.fillMaxSize(),
-                )
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            BoxWithConstraints {
+                val size = DpSize(maxWidth, maxHeight)
+                Surface {
+                    FullscreenSettingsScreen(
+                        windowSizeClass = WindowSizeClass.calculateFromSize(size),
+                        fullscreen = ActionCardNavigation.Settings.Fullscreen(
+                            initialSettingsCategory = SettingsCategory.Algorithm,
+                            initialShowDetails = false,
+                        ),
+                        onBackButtonPressed = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             }
         }
     }
@@ -458,19 +472,21 @@ fun FullscreenSettingsScreenListPreview() {
 @SizePreviews
 @Composable
 fun FullscreenSettingsScreenDetailsPreview() {
-    ComposeLifeTheme {
-        BoxWithConstraints {
-            val size = DpSize(maxWidth, maxHeight)
-            Surface {
-                FullscreenSettingsScreen(
-                    windowSizeClass = WindowSizeClass.calculateFromSize(size),
-                    fullscreen = ActionCardNavigation.Settings.Fullscreen(
-                        initialSettingsCategory = SettingsCategory.Algorithm,
-                        initialShowDetails = true,
-                    ),
-                    onBackButtonPressed = {},
-                    modifier = Modifier.fillMaxSize(),
-                )
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            BoxWithConstraints {
+                val size = DpSize(maxWidth, maxHeight)
+                Surface {
+                    FullscreenSettingsScreen(
+                        windowSizeClass = WindowSizeClass.calculateFromSize(size),
+                        fullscreen = ActionCardNavigation.Settings.Fullscreen(
+                            initialSettingsCategory = SettingsCategory.Algorithm,
+                            initialShowDetails = true,
+                        ),
+                        onBackButtonPressed = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             }
         }
     }

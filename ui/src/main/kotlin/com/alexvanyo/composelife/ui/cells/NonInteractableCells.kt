@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.toOffset
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.CurrentShape
+import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.util.containedPoints
 
@@ -105,30 +106,32 @@ fun NonInteractableCells(
 )
 @Composable
 fun NonInteractableCellsPreview() {
-    ComposeLifeTheme {
-        NonInteractableCells(
-            gameOfLifeState = GameOfLifeState(
-                setOf(
-                    0 to 0,
-                    0 to 2,
-                    0 to 4,
-                    2 to 0,
-                    2 to 2,
-                    2 to 4,
-                    4 to 0,
-                    4 to 2,
-                    4 to 4,
-                ).toCellState(),
-            ),
-            scaledCellDpSize = 32.dp,
-            shape = CurrentShape.RoundRectangle(
-                sizeFraction = 1f,
-                cornerFraction = 0f,
-            ),
-            cellWindow = IntRect(
-                IntOffset(0, 0),
-                IntOffset(9, 9),
-            ),
-        )
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            NonInteractableCells(
+                gameOfLifeState = GameOfLifeState(
+                    setOf(
+                        0 to 0,
+                        0 to 2,
+                        0 to 4,
+                        2 to 0,
+                        2 to 2,
+                        2 to 4,
+                        4 to 0,
+                        4 to 2,
+                        4 to 4,
+                    ).toCellState(),
+                ),
+                scaledCellDpSize = 32.dp,
+                shape = CurrentShape.RoundRectangle(
+                    sizeFraction = 1f,
+                    cornerFraction = 0f,
+                ),
+                cellWindow = IntRect(
+                    IntOffset(0, 0),
+                    IntOffset(9, 9),
+                ),
+            )
+        }
     }
 }

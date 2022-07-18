@@ -31,27 +31,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
-import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.ui.ComposeLifeApp
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import dagger.hilt.EntryPoints
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint(ComponentActivity::class)
 class MainActivity : Hilt_MainActivity() {
-
-    @Inject
-    lateinit var composeLifePreferences: ComposeLifePreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
+        val mainActivityEntryPoint = EntryPoints.get(this, MainActivityEntryPoint::class.java)
+
         // Keep the splash screen on screen until we've determine the theme
         splashScreen.setKeepOnScreenCondition {
-            !composeLifePreferences.darkThemeConfigState.isSuccess()
+            !mainActivityEntryPoint.composeLifePreferences.darkThemeConfigState.isSuccess()
         }
 
         // The splash screen library internally sets the system bars color
@@ -77,19 +75,21 @@ class MainActivity : Hilt_MainActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
-            ComposeLifeTheme {
-                val useDarkIcons = ComposeLifeTheme.isLight
-                val systemUiController = rememberSystemUiController()
+            with(mainActivityEntryPoint) {
+                ComposeLifeTheme {
+                    val useDarkIcons = ComposeLifeTheme.isLight
+                    val systemUiController = rememberSystemUiController()
 
-                LaunchedEffect(systemUiController, useDarkIcons, setSystemBarsColorTick) {
-                    systemUiController.setSystemBarsColor(
-                        color = Color.Transparent,
-                        darkIcons = useDarkIcons,
-                    )
+                    LaunchedEffect(systemUiController, useDarkIcons, setSystemBarsColorTick) {
+                        systemUiController.setSystemBarsColor(
+                            color = Color.Transparent,
+                            darkIcons = useDarkIcons,
+                        )
+                    }
+
+                    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+                    ComposeLifeApp(calculateWindowSizeClass(this@MainActivity))
                 }
-
-                @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-                ComposeLifeApp(calculateWindowSizeClass(this))
             }
         }
     }

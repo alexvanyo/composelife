@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.ui.component
 
@@ -30,35 +31,41 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
-import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
+import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.patterns.BlinkerPattern
 import com.alexvanyo.composelife.patterns.OscillatorPattern
-import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.CurrentShape
+import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.cells.NonInteractableCells
+import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ActivityComponent
 import kotlinx.coroutines.awaitCancellation
 import kotlin.math.max
-import com.alexvanyo.composelife.ui.entrypoints.algorithm.inject as injectAlgorithm
-import com.alexvanyo.composelife.ui.entrypoints.dispatchers.inject as injectDispatchers
-import com.alexvanyo.composelife.ui.entrypoints.preferences.inject as injectPreferences
+
+@EntryPoint
+@InstallIn(ActivityComponent::class)
+interface GameOfLifeProgressIndicatorEntryPoint :
+    GameOfLifeAlgorithmProvider,
+    ComposeLifePreferencesProvider,
+    ComposeLifeDispatchersProvider
 
 /**
  * A progress indicator that displays progress via an embedded set of cells displaying an
  * oscillating pattern.
  */
+context(GameOfLifeProgressIndicatorEntryPoint)
 @Composable
 fun GameOfLifeProgressIndicator(
     modifier: Modifier = Modifier,
-    preferences: ComposeLifePreferences = injectPreferences(),
-    gameOfLifeAlgorithm: GameOfLifeAlgorithm = injectAlgorithm(),
-    dispatchers: ComposeLifeDispatchers = injectDispatchers(),
 ) {
     val pattern = BlinkerPattern
     val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
@@ -93,7 +100,7 @@ fun GameOfLifeProgressIndicator(
     GameOfLifeProgressIndicator(
         pattern = pattern,
         gameOfLifeState = temporalGameOfLifeState,
-        currentShapeState = preferences.currentShapeState,
+        currentShapeState = composeLifePreferences.currentShapeState,
         modifier = modifier,
     )
 }
@@ -136,7 +143,9 @@ fun GameOfLifeProgressIndicator(
 @ThemePreviews
 @Composable
 fun GameOfLifeProgressIndicatorPreview() {
-    ComposeLifeTheme {
-        GameOfLifeProgressIndicator()
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            GameOfLifeProgressIndicator()
+        }
     }
 }
