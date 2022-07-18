@@ -60,6 +60,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
@@ -195,14 +196,16 @@ fun ColumnScope.InfoItem(
 @ThemePreviews
 @Composable
 fun CellUniverseInfoItemNotEditingPreview() {
-    ComposeLifeTheme {
-        Column {
-            InfoItem(
-                cellUniverseInfoItemContent = CellUniverseInfoItemContent(
-                    cellUniverseInfoCardState = rememberCellUniverseInfoItemState(),
-                ) { "isEditing: $it" },
-                isEditing = false,
-            )
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            Column {
+                InfoItem(
+                    cellUniverseInfoItemContent = CellUniverseInfoItemContent(
+                        cellUniverseInfoCardState = rememberCellUniverseInfoItemState(),
+                    ) { "isEditing: $it" },
+                    isEditing = false,
+                )
+            }
         }
     }
 }
@@ -210,14 +213,16 @@ fun CellUniverseInfoItemNotEditingPreview() {
 @ThemePreviews
 @Composable
 fun CellUniverseInfoItemEditingPreview() {
-    ComposeLifeTheme {
-        Column {
-            InfoItem(
-                cellUniverseInfoItemContent = CellUniverseInfoItemContent(
-                    cellUniverseInfoCardState = rememberCellUniverseInfoItemState(),
-                ) { "isEditing: $it" },
-                isEditing = true,
-            )
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            Column {
+                InfoItem(
+                    cellUniverseInfoItemContent = CellUniverseInfoItemContent(
+                        cellUniverseInfoCardState = rememberCellUniverseInfoItemState(),
+                    ) { "isEditing: $it" },
+                    isEditing = true,
+                )
+            }
         }
     }
 }

@@ -23,20 +23,32 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import com.alexvanyo.composelife.test.BaseHiltTest
 import com.alexvanyo.composelife.test.TestActivity
+import dagger.hilt.EntryPoints
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.junit.Before
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 class GameOfLifeProgressIndicatorTests : BaseHiltTest<TestActivity>(TestActivity::class.java) {
 
+    lateinit var gameOfLifeProgressIndicatorEntryPoint: GameOfLifeProgressIndicatorEntryPoint
+
+    @Before
+    fun setup() {
+        gameOfLifeProgressIndicatorEntryPoint =
+            EntryPoints.get(composeTestRule.activity, GameOfLifeProgressIndicatorEntryPoint::class.java)
+    }
+
     @Test
     fun progress_indicator_is_displayed_correctly_when_shape_is_loading() = runAppTest(
         preferencesInitializer = {},
     ) {
         composeTestRule.setContent {
-            GameOfLifeProgressIndicator()
+            with(gameOfLifeProgressIndicatorEntryPoint) {
+                GameOfLifeProgressIndicator()
+            }
         }
 
         composeTestRule
@@ -47,7 +59,9 @@ class GameOfLifeProgressIndicatorTests : BaseHiltTest<TestActivity>(TestActivity
     @Test
     fun progress_indicator_is_displayed_correctly_when_shape_is_not_loading() = runAppTest {
         composeTestRule.setContent {
-            GameOfLifeProgressIndicator()
+            with(gameOfLifeProgressIndicatorEntryPoint) {
+                GameOfLifeProgressIndicator()
+            }
         }
 
         composeTestRule

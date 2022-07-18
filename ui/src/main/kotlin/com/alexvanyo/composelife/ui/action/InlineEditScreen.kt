@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
@@ -33,9 +34,11 @@ fun InlineEditScreen(
 @ThemePreviews
 @Composable
 fun InlineEditScreenPreview() {
-    ComposeLifeTheme {
-        Surface {
-            InlineEditScreen()
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            Surface {
+                InlineEditScreen()
+            }
         }
     }
 }

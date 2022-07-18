@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.component.LabeledSlider
+import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import kotlin.math.log2
@@ -130,14 +131,16 @@ fun GenerationsPerStepControl(
 @ThemePreviews
 @Composable
 fun InlineSpeedScreenPreview() {
-    ComposeLifeTheme {
-        Surface {
-            InlineSpeedScreen(
-                targetStepsPerSecond = 60.0,
-                setTargetStepsPerSecond = {},
-                generationsPerStep = 1,
-                setGenerationsPerStep = {},
-            )
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            Surface {
+                InlineSpeedScreen(
+                    targetStepsPerSecond = 60.0,
+                    setTargetStepsPerSecond = {},
+                    generationsPerStep = 1,
+                    setGenerationsPerStep = {},
+                )
+            }
         }
     }
 }

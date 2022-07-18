@@ -13,30 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("MatchingDeclarationName")
 
-package com.alexvanyo.composelife.ui.action.settings
+package com.alexvanyo.composelife
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import com.alexvanyo.composelife.ui.InteractiveCellUniverseEntryPoint
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 
 @EntryPoint
 @InstallIn(ActivityComponent::class)
-interface SettingUiEntryPoint :
-    AlgorithmImplementationUiEntryPoint,
-    DarkThemeConfigUiEntryPoint
-
-context(SettingUiEntryPoint)
-@Composable
-fun SettingUi(
-    setting: Setting,
-    modifier: Modifier = Modifier,
-) {
-    when (setting) {
-        Setting.AlgorithmImplementation -> AlgorithmImplementationUi(modifier = modifier)
-        Setting.DarkThemeConfig -> DarkThemeConfigUi(modifier = modifier)
-    }
-}
+interface MainActivityEntryPoint : InteractiveCellUniverseEntryPoint

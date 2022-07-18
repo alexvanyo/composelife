@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.alexvanyo.composelife.ui.R
+import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
@@ -53,11 +54,13 @@ fun InlineSettingsScreen(
 @ThemePreviews
 @Composable
 fun InlineSettingsScreenPreview() {
-    ComposeLifeTheme {
-        Surface {
-            InlineSettingsScreen(
-                onSeeMoreClicked = {},
-            )
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            Surface {
+                InlineSettingsScreen(
+                    onSeeMoreClicked = {},
+                )
+            }
         }
     }
 }

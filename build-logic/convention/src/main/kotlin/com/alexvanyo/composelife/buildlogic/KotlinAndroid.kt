@@ -64,7 +64,10 @@ fun Project.configureKotlinAndroid(
         kotlinOptions {
             jvmTarget = JavaVersion.VERSION_1_8.toString()
             allWarningsAsErrors = true
-            freeCompilerArgs = freeCompilerArgs + listOf("-opt-in=kotlin.RequiresOptIn")
+            freeCompilerArgs = freeCompilerArgs + listOf(
+                "-opt-in=kotlin.RequiresOptIn",
+                "-Xcontext-receivers"
+            )
         }
     }
 

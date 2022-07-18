@@ -38,6 +38,7 @@ import com.alexvanyo.composelife.model.setCellState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.ui.R
+import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.util.containedPoints
 import kotlin.math.roundToInt
@@ -131,30 +132,32 @@ fun InteractableCells(
 )
 @Composable
 fun InteractableCellsPreview() {
-    ComposeLifeTheme {
-        InteractableCells(
-            gameOfLifeState = MutableGameOfLifeState(
-                setOf(
-                    0 to 0,
-                    0 to 2,
-                    0 to 4,
-                    2 to 0,
-                    2 to 2,
-                    2 to 4,
-                    4 to 0,
-                    4 to 2,
-                    4 to 4,
-                ).toCellState(),
-            ),
-            shape = CurrentShape.RoundRectangle(
-                sizeFraction = 1f,
-                cornerFraction = 0f,
-            ),
-            scaledCellDpSize = 32.dp,
-            cellWindow = IntRect(
-                IntOffset(0, 0),
-                IntOffset(9, 9),
-            ),
-        )
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            InteractableCells(
+                gameOfLifeState = MutableGameOfLifeState(
+                    setOf(
+                        0 to 0,
+                        0 to 2,
+                        0 to 4,
+                        2 to 0,
+                        2 to 2,
+                        2 to 4,
+                        4 to 0,
+                        4 to 2,
+                        4 to 4,
+                    ).toCellState(),
+                ),
+                shape = CurrentShape.RoundRectangle(
+                    sizeFraction = 1f,
+                    cornerFraction = 0f,
+                ),
+                scaledCellDpSize = 32.dp,
+                cellWindow = IntRect(
+                    IntOffset(0, 0),
+                    IntOffset(9, 9),
+                ),
+            )
+        }
     }
 }

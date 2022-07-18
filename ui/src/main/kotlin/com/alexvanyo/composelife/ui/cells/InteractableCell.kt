@@ -34,6 +34,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.preferences.CurrentShape
+import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 
 /**
@@ -103,17 +104,19 @@ fun InteractableCell(
 )
 @Composable
 fun AliveCellPreview() {
-    ComposeLifeTheme {
-        InteractableCell(
-            modifier = Modifier.size(50.dp),
-            isAlive = true,
-            shape = CurrentShape.RoundRectangle(
-                sizeFraction = 1f,
-                cornerFraction = 0f,
-            ),
-            contentDescription = "test cell",
-            onValueChange = {},
-        )
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            InteractableCell(
+                modifier = Modifier.size(50.dp),
+                isAlive = true,
+                shape = CurrentShape.RoundRectangle(
+                    sizeFraction = 1f,
+                    cornerFraction = 0f,
+                ),
+                contentDescription = "test cell",
+                onValueChange = {},
+            )
+        }
     }
 }
 
@@ -127,16 +130,18 @@ fun AliveCellPreview() {
 )
 @Composable
 fun DeadCellPreview() {
-    ComposeLifeTheme {
-        InteractableCell(
-            modifier = Modifier.size(50.dp),
-            isAlive = false,
-            shape = CurrentShape.RoundRectangle(
-                sizeFraction = 1f,
-                cornerFraction = 0f,
-            ),
-            contentDescription = "test cell",
-            onValueChange = {},
-        )
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            InteractableCell(
+                modifier = Modifier.size(50.dp),
+                isAlive = false,
+                shape = CurrentShape.RoundRectangle(
+                    sizeFraction = 1f,
+                    cornerFraction = 0f,
+                ),
+                contentDescription = "test cell",
+                onValueChange = {},
+            )
+        }
     }
 }

@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.cells.CellWindowState
+import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
@@ -273,91 +274,99 @@ private fun CellUniverseInfoExpandButton(
 @ThemePreviews
 @Composable
 fun CellUniverseInfoCardCollapsedPreview() {
-    ComposeLifeTheme {
-        CellUniverseInfoCard(
-            cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                rememberCellUniverseInfoCardState(initialIsExpanded = false),
-                cellUniverseInfoItemContents = listOf(
-                    CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(isChecked = true),
-                    ) { "First" },
-                    CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(isChecked = true),
-                    ) { "Second" },
-                    CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(isChecked = true),
-                    ) { "Third" },
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            CellUniverseInfoCard(
+                cellUniverseInfoCardContent = CellUniverseInfoCardContent(
+                    rememberCellUniverseInfoCardState(initialIsExpanded = false),
+                    cellUniverseInfoItemContents = listOf(
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState(isChecked = true),
+                        ) { "First" },
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState(isChecked = true),
+                        ) { "Second" },
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState(isChecked = true),
+                        ) { "Third" },
+                    ),
                 ),
-            ),
-        )
+            )
+        }
     }
 }
 
 @ThemePreviews
 @Composable
 fun CellUniverseInfoCardCollapsedSingleSelectionPreview() {
-    ComposeLifeTheme {
-        CellUniverseInfoCard(
-            cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                rememberCellUniverseInfoCardState(initialIsExpanded = false),
-                cellUniverseInfoItemContents = listOf(
-                    CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(isChecked = false),
-                    ) { "First" },
-                    CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(isChecked = false),
-                    ) { "Second" },
-                    CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(isChecked = true),
-                    ) { "Third" },
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            CellUniverseInfoCard(
+                cellUniverseInfoCardContent = CellUniverseInfoCardContent(
+                    rememberCellUniverseInfoCardState(initialIsExpanded = false),
+                    cellUniverseInfoItemContents = listOf(
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState(isChecked = false),
+                        ) { "First" },
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState(isChecked = false),
+                        ) { "Second" },
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState(isChecked = true),
+                        ) { "Third" },
+                    ),
                 ),
-            ),
-        )
+            )
+        }
     }
 }
 
 @ThemePreviews
 @Composable
 fun CellUniverseInfoCardFullyCollapsedPreview() {
-    ComposeLifeTheme {
-        CellUniverseInfoCard(
-            cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                rememberCellUniverseInfoCardState(initialIsExpanded = false),
-                cellUniverseInfoItemContents = listOf(
-                    CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(isChecked = false),
-                    ) { "First" },
-                    CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(isChecked = false),
-                    ) { "Second" },
-                    CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(isChecked = false),
-                    ) { "Third" },
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            CellUniverseInfoCard(
+                cellUniverseInfoCardContent = CellUniverseInfoCardContent(
+                    rememberCellUniverseInfoCardState(initialIsExpanded = false),
+                    cellUniverseInfoItemContents = listOf(
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState(isChecked = false),
+                        ) { "First" },
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState(isChecked = false),
+                        ) { "Second" },
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState(isChecked = false),
+                        ) { "Third" },
+                    ),
                 ),
-            ),
-        )
+            )
+        }
     }
 }
 
 @ThemePreviews
 @Composable
 fun CellUniverseInfoCardExpandedPreview() {
-    ComposeLifeTheme {
-        CellUniverseInfoCard(
-            cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                rememberCellUniverseInfoCardState(initialIsExpanded = true),
-                cellUniverseInfoItemContents = listOf(
-                    CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(),
-                    ) { "First" },
-                    CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(),
-                    ) { "Second" },
-                    CellUniverseInfoItemContent(
-                        rememberCellUniverseInfoItemState(),
-                    ) { "Third" },
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            CellUniverseInfoCard(
+                cellUniverseInfoCardContent = CellUniverseInfoCardContent(
+                    rememberCellUniverseInfoCardState(initialIsExpanded = true),
+                    cellUniverseInfoItemContents = listOf(
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState(),
+                        ) { "First" },
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState(),
+                        ) { "Second" },
+                        CellUniverseInfoItemContent(
+                            rememberCellUniverseInfoItemState(),
+                        ) { "Third" },
+                    ),
                 ),
-            ),
-        )
+            )
+        }
     }
 }

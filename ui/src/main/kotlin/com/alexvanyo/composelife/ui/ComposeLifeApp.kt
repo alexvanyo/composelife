@@ -22,21 +22,17 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.DpSize
-import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
-import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.model.toCellState
+import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.SizePreviews
-import com.alexvanyo.composelife.ui.entrypoints.algorithm.inject as injectAlgorithm
-import com.alexvanyo.composelife.ui.entrypoints.dispatchers.inject as injectDispatchers
 
+context(InteractiveCellUniverseEntryPoint)
 @Composable
 fun ComposeLifeApp(
     windowSizeClass: WindowSizeClass,
-    gameOfLifeAlgorithm: GameOfLifeAlgorithm = injectAlgorithm(),
-    dispatchers: ComposeLifeDispatchers = injectDispatchers(),
 ) {
     val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
         cellState = gosperGliderGun,
@@ -71,17 +67,19 @@ private val gosperGliderGun = """
 @SizePreviews
 @Composable
 fun InteractiveCellUniversePreview() {
-    ComposeLifeTheme {
-        BoxWithConstraints {
-            val size = DpSize(maxWidth, maxHeight)
-            Surface {
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                        cellState = gosperGliderGun,
-                        isRunning = false,
-                    ),
-                    windowSizeClass = WindowSizeClass.calculateFromSize(size),
-                )
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            BoxWithConstraints {
+                val size = DpSize(maxWidth, maxHeight)
+                Surface {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = rememberTemporalGameOfLifeState(
+                            cellState = gosperGliderGun,
+                            isRunning = false,
+                        ),
+                        windowSizeClass = WindowSizeClass.calculateFromSize(size),
+                    )
+                }
             }
         }
     }

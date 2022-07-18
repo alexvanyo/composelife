@@ -104,7 +104,8 @@ sealed interface TemporalGameOfLifeState : MutableGameOfLifeState {
     /**
      * Evolves the cell state using the given [GameOfLifeAlgorithm] automatically through time
      */
-    suspend fun evolve(gameOfLifeAlgorithm: GameOfLifeAlgorithm, clock: Clock, dispatchers: ComposeLifeDispatchers)
+    context(GameOfLifeAlgorithm, Clock, ComposeLifeDispatchers)
+    suspend fun evolve()
 
     /**
      * A description of the current status of evolution.
@@ -158,16 +159,16 @@ private class GameOfLifeGenealogy(
     var computedCellState by mutableStateOf(seedCellState, policy = referentialEqualityPolicy())
         private set
 
+    context(GameOfLifeAlgorithm)
+    @Suppress("RedundantSuspendModifier") // TODO: detekt doesn't support context receivers properly
     suspend fun evolve(
-        gameOfLifeAlgorithm: GameOfLifeAlgorithm,
         stepTicker: Flow<Unit>,
         onNewCellState: (generationsPerStep: Int) -> Unit,
     ) {
-        gameOfLifeAlgorithm
-            .computeGenerationsWithStep(
-                originalCellState = seedCellState,
-                step = generationsPerStep,
-            )
+        computeGenerationsWithStep(
+            originalCellState = seedCellState,
+            step = generationsPerStep,
+        )
             .buffer()
             .zip(stepTicker) { newCellState, _ -> newCellState }
             .collect { cellState ->
@@ -284,18 +285,15 @@ private class TemporalGameOfLifeStateImpl(
         stepManualTicker.send(Unit)
     }
 
-    override suspend fun evolve(
-        gameOfLifeAlgorithm: GameOfLifeAlgorithm,
-        clock: Clock,
-        dispatchers: ComposeLifeDispatchers,
-    ) {
+    context(GameOfLifeAlgorithm, Clock, ComposeLifeDispatchers)
+    override suspend fun evolve() {
         @Suppress("InjectDispatcher") // Dispatchers are injected via dispatchers
-        withContext(dispatchers.Default) {
+        withContext(Default) {
             evolveMutex.withLock {
                 try {
                     // coroutineScope to ensure all child coroutines finish
                     coroutineScope {
-                        evolveImpl(gameOfLifeAlgorithm, clock)
+                        evolveImpl()
                     }
                 } finally {
                     // Update the seedCellState with the current cell state to ensure that the next evolve picks up at
@@ -309,8 +307,9 @@ private class TemporalGameOfLifeStateImpl(
     /**
      * The implementation of [evolve] guarded by [evolveMutex].
      */
+    context(GameOfLifeAlgorithm, Clock)
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun evolveImpl(gameOfLifeAlgorithm: GameOfLifeAlgorithm, clock: Clock) {
+    suspend fun evolveImpl() {
         val lastTickFlow = MutableSharedFlow<Instant>(replay = 1)
 
         val stepTimeTicker = snapshotFlow {
@@ -318,10 +317,10 @@ private class TemporalGameOfLifeStateImpl(
         }
             .flatMapLatest { (isRunning, targetStepsPerSecond) ->
                 if (isRunning) {
-                    lastTickFlow.tryEmit(clock.now())
+                    lastTickFlow.tryEmit(now())
                     lastTickFlow.map { lastTick ->
                         val targetDelay = 1.seconds / targetStepsPerSecond
-                        val remainingDelay = (targetDelay - (clock.now() - lastTick)).coerceAtLeast(Duration.ZERO)
+                        val remainingDelay = (targetDelay - (now() - lastTick)).coerceAtLeast(Duration.ZERO)
                         delay(remainingDelay)
                     }
                 } else {
@@ -340,10 +339,10 @@ private class TemporalGameOfLifeStateImpl(
             .collectLatest { cellStateGenealogy ->
                 completedGenerationTracker = completedGenerationTracker + ComputationRecord(
                     computedGenerations = 0,
-                    computedTime = clock.now(),
+                    computedTime = now(),
                 )
-                cellStateGenealogy.evolve(gameOfLifeAlgorithm, stepTicker) { generationsPerStep ->
-                    val lastTick = clock.now()
+                cellStateGenealogy.evolve(stepTicker) { generationsPerStep ->
+                    val lastTick = now()
                     lastTickFlow.tryEmit(lastTick)
                     val newRecord = ComputationRecord(
                         computedGenerations = generationsPerStep,
@@ -435,7 +434,13 @@ class TemporalGameOfLifeStateMutator(
 ) {
     init {
         coroutineScope.launch {
-            temporalGameOfLifeState.evolve(gameOfLifeAlgorithm, clock, dispatchers)
+            with(gameOfLifeAlgorithm) {
+                with(dispatchers) {
+                    with(clock) {
+                        temporalGameOfLifeState.evolve()
+                    }
+                }
+            }
         }
     }
 }

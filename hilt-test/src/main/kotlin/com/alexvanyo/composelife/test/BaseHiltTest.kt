@@ -61,7 +61,7 @@ abstract class BaseHiltTest<T : ComponentActivity>(clazz: Class<T>) {
     val context: Context get() = composeTestRule.activity
 
     @Before
-    fun setup() {
+    fun baseHiltTestSetup() {
         hiltAndroidRule.inject()
     }
 

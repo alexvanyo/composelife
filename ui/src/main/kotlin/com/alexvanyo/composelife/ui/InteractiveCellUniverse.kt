@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.ui
 
@@ -24,27 +25,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
-import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.cells.CellWindowState
 import com.alexvanyo.composelife.ui.cells.MutableCellWindow
 import com.alexvanyo.composelife.ui.cells.rememberCellWindowState
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicator
-import com.alexvanyo.composelife.ui.entrypoints.preferences.inject
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ActivityComponent
+
+@EntryPoint
+@InstallIn(ActivityComponent::class)
+interface InteractiveCellUniverseEntryPoint : InteractiveCellUniverseOverlayEntryPoint
 
 /**
  * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
  * evolves.
  */
+context(InteractiveCellUniverseEntryPoint)
 @Composable
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
     cellWindowState: CellWindowState = rememberCellWindowState(),
-    preferences: ComposeLifePreferences = inject(),
 ) {
-    val currentShapeState = preferences.currentShapeState
+    val currentShapeState = composeLifePreferences.currentShapeState
 
     Surface(modifier = modifier) {
         Box(

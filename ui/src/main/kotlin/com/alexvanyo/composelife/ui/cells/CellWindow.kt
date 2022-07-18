@@ -45,6 +45,7 @@ import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.CurrentShape
+import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import com.alexvanyo.composelife.ui.util.detectTransformGestures
@@ -270,51 +271,55 @@ private fun CellWindowUiState.isInteractable(
 @ThemePreviews
 @Composable
 fun ImmutableCellWindowPreview() {
-    ComposeLifeTheme {
-        ImmutableCellWindow(
-            gameOfLifeState = GameOfLifeState(
-                setOf(
-                    0 to 0,
-                    0 to 2,
-                    0 to 4,
-                    2 to 0,
-                    2 to 2,
-                    2 to 4,
-                    4 to 0,
-                    4 to 2,
-                    4 to 4,
-                ).toCellState(),
-            ),
-            shape = CurrentShape.RoundRectangle(
-                sizeFraction = 1f,
-                cornerFraction = 0f,
-            ),
-        )
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            ImmutableCellWindow(
+                gameOfLifeState = GameOfLifeState(
+                    setOf(
+                        0 to 0,
+                        0 to 2,
+                        0 to 4,
+                        2 to 0,
+                        2 to 2,
+                        2 to 4,
+                        4 to 0,
+                        4 to 2,
+                        4 to 4,
+                    ).toCellState(),
+                ),
+                shape = CurrentShape.RoundRectangle(
+                    sizeFraction = 1f,
+                    cornerFraction = 0f,
+                ),
+            )
+        }
     }
 }
 
 @ThemePreviews
 @Composable
 fun MutableCellWindowPreview() {
-    ComposeLifeTheme {
-        MutableCellWindow(
-            gameOfLifeState = MutableGameOfLifeState(
-                setOf(
-                    0 to 0,
-                    0 to 2,
-                    0 to 4,
-                    2 to 0,
-                    2 to 2,
-                    2 to 4,
-                    4 to 0,
-                    4 to 2,
-                    4 to 4,
-                ).toCellState(),
-            ),
-            shape = CurrentShape.RoundRectangle(
-                sizeFraction = 1f,
-                cornerFraction = 0f,
-            ),
-        )
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            MutableCellWindow(
+                gameOfLifeState = MutableGameOfLifeState(
+                    setOf(
+                        0 to 0,
+                        0 to 2,
+                        0 to 4,
+                        2 to 0,
+                        2 to 2,
+                        2 to 4,
+                        4 to 0,
+                        4 to 2,
+                        4 to 4,
+                    ).toCellState(),
+                ),
+                shape = CurrentShape.RoundRectangle(
+                    sizeFraction = 1f,
+                    cornerFraction = 0f,
+                ),
+            )
+        }
     }
 }

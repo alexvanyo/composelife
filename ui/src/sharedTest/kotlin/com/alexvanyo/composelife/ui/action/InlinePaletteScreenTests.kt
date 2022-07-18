@@ -40,9 +40,11 @@ import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.test.BaseHiltTest
 import com.alexvanyo.composelife.test.TestActivity
 import com.alexvanyo.composelife.ui.R
+import dagger.hilt.EntryPoints
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import leakcanary.SkipLeakDetection
+import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -50,14 +52,24 @@ import kotlin.test.assertEquals
 @HiltAndroidTest
 class InlinePaletteScreenTests : BaseHiltTest<TestActivity>(TestActivity::class.java) {
 
+    lateinit var inlinePaletteScreenEntryPoint: InlinePaletteScreenEntryPoint
+
+    @Before
+    fun setup() {
+        inlinePaletteScreenEntryPoint =
+            EntryPoints.get(composeTestRule.activity, InlinePaletteScreenEntryPoint::class.java)
+    }
+
     @Test
     fun loading_is_displayed_correctly() = runAppTest {
         composeTestRule.setContent {
-            InlinePaletteScreen(
-                currentShapeState = ResourceState.Loading,
-                setCurrentShapeType = {},
-                setRoundRectangleConfig = {},
-            )
+            with(inlinePaletteScreenEntryPoint) {
+                InlinePaletteScreen(
+                    currentShapeState = ResourceState.Loading,
+                    setCurrentShapeType = {},
+                    setRoundRectangleConfig = {},
+                )
+            }
         }
 
         composeTestRule
@@ -68,16 +80,18 @@ class InlinePaletteScreenTests : BaseHiltTest<TestActivity>(TestActivity::class.
     @Test
     fun round_rectangle_is_displayed_correctly() = runAppTest {
         composeTestRule.setContent {
-            InlinePaletteScreen(
-                currentShapeState = ResourceState.Success(
-                    CurrentShape.RoundRectangle(
-                        sizeFraction = 0.8f,
-                        cornerFraction = 0.4f,
+            with(inlinePaletteScreenEntryPoint) {
+                InlinePaletteScreen(
+                    currentShapeState = ResourceState.Success(
+                        CurrentShape.RoundRectangle(
+                            sizeFraction = 0.8f,
+                            cornerFraction = 0.4f,
+                        ),
                     ),
-                ),
-                setCurrentShapeType = {},
-                setRoundRectangleConfig = {},
-            )
+                    setCurrentShapeType = {},
+                    setRoundRectangleConfig = {},
+                )
+            }
         }
 
         composeTestRule
@@ -103,11 +117,13 @@ class InlinePaletteScreenTests : BaseHiltTest<TestActivity>(TestActivity::class.
         var currentShapeState by mutableStateOf<ResourceState<CurrentShape>>(ResourceState.Loading)
 
         composeTestRule.setContent {
-            InlinePaletteScreen(
-                currentShapeState = currentShapeState,
-                setCurrentShapeType = {},
-                setRoundRectangleConfig = {},
-            )
+            with(inlinePaletteScreenEntryPoint) {
+                InlinePaletteScreen(
+                    currentShapeState = currentShapeState,
+                    setCurrentShapeType = {},
+                    setRoundRectangleConfig = {},
+                )
+            }
         }
 
         currentShapeState = ResourceState.Success(
@@ -148,15 +164,17 @@ class InlinePaletteScreenTests : BaseHiltTest<TestActivity>(TestActivity::class.
         }
 
         composeTestRule.setContent {
-            InlinePaletteScreen(
-                currentShapeState = ResourceState.Success(roundRectangleShape),
-                setCurrentShapeType = {},
-                setRoundRectangleConfig = {
-                    val result = it(roundRectangleShape)
-                    sizeFraction = result.sizeFraction
-                    cornerFraction = result.cornerFraction
-                },
-            )
+            with(inlinePaletteScreenEntryPoint) {
+                InlinePaletteScreen(
+                    currentShapeState = ResourceState.Success(roundRectangleShape),
+                    setCurrentShapeType = {},
+                    setRoundRectangleConfig = {
+                        val result = it(roundRectangleShape)
+                        sizeFraction = result.sizeFraction
+                        cornerFraction = result.cornerFraction
+                    },
+                )
+            }
         }
 
         composeTestRule
@@ -187,15 +205,17 @@ class InlinePaletteScreenTests : BaseHiltTest<TestActivity>(TestActivity::class.
         }
 
         composeTestRule.setContent {
-            InlinePaletteScreen(
-                currentShapeState = ResourceState.Success(roundRectangleShape),
-                setCurrentShapeType = {},
-                setRoundRectangleConfig = {
-                    val result = it(roundRectangleShape)
-                    sizeFraction = result.sizeFraction
-                    cornerFraction = result.cornerFraction
-                },
-            )
+            with(inlinePaletteScreenEntryPoint) {
+                InlinePaletteScreen(
+                    currentShapeState = ResourceState.Success(roundRectangleShape),
+                    setCurrentShapeType = {},
+                    setRoundRectangleConfig = {
+                        val result = it(roundRectangleShape)
+                        sizeFraction = result.sizeFraction
+                        cornerFraction = result.cornerFraction
+                    },
+                )
+            }
         }
 
         composeTestRule
@@ -219,18 +239,20 @@ class InlinePaletteScreenTests : BaseHiltTest<TestActivity>(TestActivity::class.
         var setCurrentShapeType: CurrentShapeType? = null
 
         composeTestRule.setContent {
-            InlinePaletteScreen(
-                currentShapeState = ResourceState.Success(
-                    CurrentShape.RoundRectangle(
-                        sizeFraction = 0.8f,
-                        cornerFraction = 0.4f,
+            with(inlinePaletteScreenEntryPoint) {
+                InlinePaletteScreen(
+                    currentShapeState = ResourceState.Success(
+                        CurrentShape.RoundRectangle(
+                            sizeFraction = 0.8f,
+                            cornerFraction = 0.4f,
+                        ),
                     ),
-                ),
-                setCurrentShapeType = {
-                    setCurrentShapeType = it
-                },
-                setRoundRectangleConfig = {},
-            )
+                    setCurrentShapeType = {
+                        setCurrentShapeType = it
+                    },
+                    setRoundRectangleConfig = {},
+                )
+            }
         }
 
         composeTestRule
