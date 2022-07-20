@@ -42,6 +42,7 @@ dependencies {
     api(projects.algorithm)
     api(projects.dispatchers)
     implementation(projects.navigation)
+    api(projects.random)
     implementation(projects.resourceState)
     implementation(projects.patterns)
 
