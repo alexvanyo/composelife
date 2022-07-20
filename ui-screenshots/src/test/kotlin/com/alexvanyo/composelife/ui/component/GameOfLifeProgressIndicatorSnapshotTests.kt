@@ -22,9 +22,23 @@ import org.junit.Test
 class GameOfLifeProgressIndicatorSnapshotTests : BasePaparazziTest() {
 
     @Test
-    fun game_of_life_progress_indicator_preview() {
+    fun game_of_life_progress_indicator_blinker_preview() {
         snapshot {
-            GameOfLifeProgressIndicatorPreview()
+            GameOfLifeProgressIndicatorBlinkerPreview()
+        }
+    }
+
+    @Test
+    fun game_of_life_progress_indicator_toad_preview() {
+        snapshot {
+            GameOfLifeProgressIndicatorToadPreview()
+        }
+    }
+
+    @Test
+    fun game_of_life_progress_indicator_beacon_preview() {
+        snapshot {
+            GameOfLifeProgressIndicatorBeaconPreview()
         }
     }
 }

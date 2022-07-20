@@ -17,16 +17,20 @@
 package com.alexvanyo.composelife.ui.entrypoints
 
 import androidx.compose.runtime.Composable
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.algorithm.NaiveGameOfLifeAlgorithm
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.DefaultComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.preferences.AlgorithmType
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
+import com.alexvanyo.composelife.random.di.RandomProvider
 import com.alexvanyo.composelife.ui.InteractiveCellUniverseEntryPoint
 import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayEntryPoint
 import com.alexvanyo.composelife.ui.action.CellUniverseActionCardEntryPoint
@@ -36,6 +40,7 @@ import com.alexvanyo.composelife.ui.action.settings.DarkThemeConfigUiEntryPoint
 import com.alexvanyo.composelife.ui.action.settings.FullscreenSettingsScreenEntryPoint
 import com.alexvanyo.composelife.ui.action.settings.SettingUiEntryPoint
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorEntryPoint
+import kotlin.random.Random
 
 interface PreviewEntryPoint :
     AlgorithmImplementationUiEntryPoint,
@@ -55,11 +60,9 @@ interface PreviewEntryPoint :
  */
 @Composable
 fun WithPreviewDependencies(
-    content: @Composable context(PreviewEntryPoint) () -> Unit,
-) {
-    val dispatchers = DefaultComposeLifeDispatchers()
-    val gameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers)
-    val composeLifePreferences = TestComposeLifePreferences.Loaded(
+    dispatchers: ComposeLifeDispatchers = DefaultComposeLifeDispatchers(),
+    gameOfLifeAlgorithm: GameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
+    composeLifePreferences: ComposeLifePreferences = TestComposeLifePreferences.Loaded(
         algorithmChoice = AlgorithmType.NaiveAlgorithm,
         currentShapeType = CurrentShapeType.RoundRectangle,
         roundRectangleConfig = CurrentShape.RoundRectangle(
@@ -67,8 +70,10 @@ fun WithPreviewDependencies(
             cornerFraction = 0.0f,
         ),
         darkThemeConfig = DarkThemeConfig.FollowSystem,
-    )
-
+    ),
+    random: Random = Random(0),
+    content: @Composable context(PreviewEntryPoint) () -> Unit,
+) {
     val dispatchersProvider = object : ComposeLifeDispatchersProvider {
         override val dispatchers = dispatchers
     }
@@ -78,12 +83,16 @@ fun WithPreviewDependencies(
     val preferencesProvider = object : ComposeLifePreferencesProvider {
         override val composeLifePreferences = composeLifePreferences
     }
+    val randomProvider = object : RandomProvider {
+        override val random = random
+    }
 
     val entryPoint = object :
         PreviewEntryPoint,
         ComposeLifeDispatchersProvider by dispatchersProvider,
         GameOfLifeAlgorithmProvider by algorithmProvider,
-        ComposeLifePreferencesProvider by preferencesProvider {}
+        ComposeLifePreferencesProvider by preferencesProvider,
+        RandomProvider by randomProvider {}
 
     content(entryPoint)
 }

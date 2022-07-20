@@ -24,6 +24,8 @@ import androidx.compose.foundation.progressSemantics
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.InfiniteAnimationPolicy
@@ -36,10 +38,11 @@ import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
-import com.alexvanyo.composelife.patterns.BlinkerPattern
 import com.alexvanyo.composelife.patterns.OscillatorPattern
+import com.alexvanyo.composelife.patterns.values
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
+import com.alexvanyo.composelife.random.di.RandomProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.cells.NonInteractableCells
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
@@ -50,13 +53,15 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import kotlinx.coroutines.awaitCancellation
 import kotlin.math.max
+import kotlin.random.Random
 
 @EntryPoint
 @InstallIn(ActivityComponent::class)
 interface GameOfLifeProgressIndicatorEntryPoint :
     GameOfLifeAlgorithmProvider,
     ComposeLifePreferencesProvider,
-    ComposeLifeDispatchersProvider
+    ComposeLifeDispatchersProvider,
+    RandomProvider
 
 /**
  * A progress indicator that displays progress via an embedded set of cells displaying an
@@ -67,21 +72,28 @@ context(GameOfLifeProgressIndicatorEntryPoint)
 fun GameOfLifeProgressIndicator(
     modifier: Modifier = Modifier,
 ) {
-    val pattern = BlinkerPattern
-    val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-        cellState = pattern.seedCellState,
-        isRunning = false,
-        targetStepsPerSecond = 4.0,
-    )
+    val patternIndex = remember(OscillatorPattern.values.size) {
+        random.nextInt(OscillatorPattern.values.size)
+    }
+    val pattern = OscillatorPattern.values[patternIndex]
+    val temporalGameOfLifeState = key(pattern) {
+        rememberTemporalGameOfLifeState(
+            cellState = pattern.seedCellState,
+            isRunning = false,
+            targetStepsPerSecond = 4.0,
+        )
+    }
 
-    rememberTemporalGameOfLifeStateMutator(
-        temporalGameOfLifeState = temporalGameOfLifeState,
-        dispatchers = dispatchers,
-        gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-    )
+    key(pattern) {
+        rememberTemporalGameOfLifeStateMutator(
+            temporalGameOfLifeState = temporalGameOfLifeState,
+            dispatchers = dispatchers,
+            gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+        )
+    }
 
     val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(lifecycleOwner) {
+    LaunchedEffect(lifecycleOwner, temporalGameOfLifeState) {
         // If we are not visible, don't animate
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             try {
@@ -142,8 +154,34 @@ fun GameOfLifeProgressIndicator(
 
 @ThemePreviews
 @Composable
-fun GameOfLifeProgressIndicatorPreview() {
-    WithPreviewDependencies {
+fun GameOfLifeProgressIndicatorBlinkerPreview() {
+    WithPreviewDependencies(
+        random = Random(2),
+    ) {
+        ComposeLifeTheme {
+            GameOfLifeProgressIndicator()
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun GameOfLifeProgressIndicatorToadPreview() {
+    WithPreviewDependencies(
+        random = Random(5),
+    ) {
+        ComposeLifeTheme {
+            GameOfLifeProgressIndicator()
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun GameOfLifeProgressIndicatorBeaconPreview() {
+    WithPreviewDependencies(
+        random = Random(0),
+    ) {
         ComposeLifeTheme {
             GameOfLifeProgressIndicator()
         }

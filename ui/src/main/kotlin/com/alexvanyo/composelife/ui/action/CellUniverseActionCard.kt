@@ -220,8 +220,8 @@ fun CellUniverseActionCard(
                                     when (value) {
                                         ActionCardNavigation.Palette.Inline -> {
                                             InlinePaletteScreen(
-                                                scrollState = scrollState,
                                                 modifier = Modifier.fillMaxWidth(),
+                                                scrollState = scrollState,
                                             )
                                         }
                                     }
@@ -235,8 +235,8 @@ fun CellUniverseActionCard(
                                                         actorBackstackEntryId = entry.id,
                                                     )
                                                 },
-                                                scrollState = scrollState,
                                                 modifier = Modifier.fillMaxWidth(),
+                                                scrollState = scrollState,
                                             )
                                         }
                                         is ActionCardNavigation.Settings.Fullscreen -> {
