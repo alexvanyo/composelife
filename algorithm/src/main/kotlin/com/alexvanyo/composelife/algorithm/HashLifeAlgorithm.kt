@@ -249,13 +249,13 @@ class HashLifeAlgorithm @Inject constructor(
             )
         } else {
             val n00 = centeredSubnode(nw)
-            val n01 = centeredHorizontal(nw, ne)
+            val n01 = centeredHorizontalSubnode(nw, ne)
             val n02 = centeredSubnode(ne)
-            val n10 = centeredVertical(nw, sw)
+            val n10 = centeredVerticalSubnode(nw, sw)
             val n11 = centeredSubSubnode(canonicalMacroCell)
-            val n12 = centeredVertical(ne, se)
+            val n12 = centeredVerticalSubnode(ne, se)
             val n20 = centeredSubnode(sw)
-            val n21 = centeredHorizontal(sw, se)
+            val n21 = centeredHorizontalSubnode(sw, se)
             val n22 = centeredSubnode(se)
 
             MacroCell.CellNode(
@@ -317,145 +317,14 @@ class HashLifeAlgorithm @Inject constructor(
     /**
      * Returns the [HashLifeCellState] corresponding to the next generation.
      */
-    @Suppress("ComplexMethod", "LongMethod", "ReturnCount")
     private tailrec fun computeNextGeneration(cellState: HashLifeCellState): HashLifeCellState {
         val node = cellState.macroCell as MacroCell.CellNode
 
-        if (node.level > 3) {
-            node.nw as MacroCell.CellNode
-            node.nw.nw as MacroCell.CellNode
-            node.ne as MacroCell.CellNode
-            node.sw as MacroCell.CellNode
-            node.se as MacroCell.CellNode
-            node.se.se as MacroCell.CellNode
-
-            // Check if all alive nodes are within some connected 4 nodes two layers deep.
-            // If this is the case, then it is guaranteed that the result of computing a generation will be entirely
-            // contained within the middle 4 nodes one layer deep.
-            val n00 = centeredSubnode(node.nw)
-            val n01 = centeredHorizontal(node.nw, node.ne)
-            val n02 = centeredSubnode(node.ne)
-            val n10 = centeredVertical(node.nw, node.sw)
-            val n11 = centeredSubSubnode(node)
-            val n12 = centeredVertical(node.ne, node.se)
-            val n20 = centeredSubnode(node.sw)
-            val n21 = centeredHorizontal(node.sw, node.se)
-            val n22 = centeredSubnode(node.se)
-
-            // Case 5, we already have the correct center
-            if (centeredSubnode(n11).size == node.size) {
-                return HashLifeCellState(
-                    offset = cellState.offset + IntOffset(1 shl (node.level - 2), 1 shl (node.level - 2)),
-                    macroCell = cellState.macroCell.computeNextGeneration(),
-                )
-            }
-
-            data class ShiftedCenterInfo(
-                val resultCell: MacroCell.CellNode,
-                val offset: IntOffset,
-                val emptyCell: MacroCell.CellNode,
-            ) {
-                init {
-                    require(resultCell.level - 1 == emptyCell.level)
-                    require(emptyCell.size == 0)
-                }
-            }
-
-            val shiftedCenterInfo: ShiftedCenterInfo? =
-                when (node.size) {
-                    centeredSubnode(n00).size -> {
-                        ShiftedCenterInfo(
-                            resultCell = n00,
-                            emptyCell = node.se.se,
-                            offset = IntOffset.Zero,
-                        )
-                    }
-                    centeredSubnode(n01).size -> {
-                        ShiftedCenterInfo(
-                            resultCell = n01,
-                            emptyCell = node.se.se,
-                            offset = IntOffset(1 shl (node.level - 2), 0),
-                        )
-                    }
-                    centeredSubnode(n02).size -> {
-                        ShiftedCenterInfo(
-                            resultCell = n02,
-                            emptyCell = node.se.se,
-                            offset = IntOffset(1 shl (node.level - 1), 0),
-                        )
-                    }
-                    centeredSubnode(n10).size -> {
-                        ShiftedCenterInfo(
-                            resultCell = n10,
-                            emptyCell = node.se.se,
-                            offset = IntOffset(0, 1 shl (node.level - 2)),
-                        )
-                    }
-                    centeredSubnode(n12).size -> {
-                        ShiftedCenterInfo(
-                            resultCell = n12,
-                            emptyCell = node.nw.nw,
-                            offset = IntOffset(1 shl (node.level - 1), 1 shl (node.level - 2)),
-                        )
-                    }
-                    centeredSubnode(n20).size -> {
-                        ShiftedCenterInfo(
-                            resultCell = n20,
-                            emptyCell = node.nw.nw,
-                            offset = IntOffset(0, 1 shl (node.level - 1)),
-                        )
-                    }
-                    centeredSubnode(n21).size -> {
-                        ShiftedCenterInfo(
-                            resultCell = n21,
-                            emptyCell = node.nw.nw,
-                            offset = IntOffset(1 shl (node.level - 2), 1 shl (node.level - 1)),
-                        )
-                    }
-                    centeredSubnode(n22).size -> {
-                        ShiftedCenterInfo(
-                            resultCell = n22,
-                            emptyCell = node.nw.nw,
-                            offset = IntOffset(1 shl (node.level - 1), 1 shl (node.level - 2)),
-                        )
-                    }
-                    else -> null
-                }
-
-            if (shiftedCenterInfo != null) {
-                return computeNextGeneration(
-                    HashLifeCellState(
-                        offset = cellState.offset + shiftedCenterInfo.offset -
-                            IntOffset(1 shl (node.level - 2), 1 shl (node.level - 2)),
-                        macroCell = MacroCell.CellNode(
-                            nw = MacroCell.CellNode(
-                                nw = shiftedCenterInfo.emptyCell,
-                                ne = shiftedCenterInfo.emptyCell,
-                                sw = shiftedCenterInfo.emptyCell,
-                                se = shiftedCenterInfo.resultCell.nw,
-                            ),
-                            ne = MacroCell.CellNode(
-                                nw = shiftedCenterInfo.emptyCell,
-                                ne = shiftedCenterInfo.emptyCell,
-                                sw = shiftedCenterInfo.resultCell.ne,
-                                se = shiftedCenterInfo.emptyCell,
-                            ),
-                            sw = MacroCell.CellNode(
-                                nw = shiftedCenterInfo.emptyCell,
-                                ne = shiftedCenterInfo.resultCell.sw,
-                                sw = shiftedCenterInfo.emptyCell,
-                                se = shiftedCenterInfo.emptyCell,
-                            ),
-                            se = MacroCell.CellNode(
-                                nw = shiftedCenterInfo.resultCell.se,
-                                ne = shiftedCenterInfo.emptyCell,
-                                sw = shiftedCenterInfo.emptyCell,
-                                se = shiftedCenterInfo.emptyCell,
-                            ),
-                        ),
-                    ),
-                )
-            }
+        if (node.level > 3 && centeredSubSubnode(node).size == node.size) {
+            return HashLifeCellState(
+                offset = cellState.offset + IntOffset(1 shl (node.level - 2), 1 shl (node.level - 2)),
+                macroCell = node.computeNextGeneration(),
+            )
         }
 
         // If our primary macro cell would be too small or the resulting macro cell wouldn't be the correct result
@@ -478,7 +347,7 @@ private fun centeredSubnode(node: MacroCell.CellNode): MacroCell.CellNode {
     )
 }
 
-private fun centeredHorizontal(w: MacroCell.CellNode, e: MacroCell.CellNode): MacroCell.CellNode {
+private fun centeredHorizontalSubnode(w: MacroCell.CellNode, e: MacroCell.CellNode): MacroCell.CellNode {
     require(w.level >= 2)
     require(e.level >= 2)
     w.ne as MacroCell.CellNode
@@ -493,7 +362,7 @@ private fun centeredHorizontal(w: MacroCell.CellNode, e: MacroCell.CellNode): Ma
     )
 }
 
-private fun centeredVertical(n: MacroCell.CellNode, s: MacroCell.CellNode): MacroCell.CellNode {
+private fun centeredVerticalSubnode(n: MacroCell.CellNode, s: MacroCell.CellNode): MacroCell.CellNode {
     require(n.level >= 2)
     require(s.level >= 2)
     n.se as MacroCell.CellNode
