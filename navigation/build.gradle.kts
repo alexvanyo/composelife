@@ -35,6 +35,8 @@ android {
 dependencies {
     api(libs.androidx.compose.foundation)
     api(libs.androidx.compose.runtime)
+    implementation(libs.androidx.core)
+    implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.kotlinx.coroutines.android)
 
     sharedTestImplementation(projects.testActivity)
