@@ -36,9 +36,10 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
-
     lint {
         disable.add("OldTargetApi")
+        // TODO: Workaround until https://issuetracker.google.com/issues/237567009 is released
+        disable.add("DialogFragmentCallbacksDetector")
     }
 }
 

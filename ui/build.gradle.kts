@@ -36,6 +36,10 @@ android {
     testOptions {
         execution = "ANDROIDX_TEST_ORCHESTRATOR"
     }
+    lint {
+        // TODO: Workaround until https://issuetracker.google.com/issues/237567009 is released
+        disable.add("DialogFragmentCallbacksDetector")
+    }
 }
 
 dependencies {
@@ -54,7 +58,8 @@ dependencies {
     implementation(libs.androidx.poolingContainer)
     implementation(libs.androidx.compose.uiToolingPreview)
     implementation(libs.androidx.core)
-    implementation(libs.androidx.lifecycle)
+    implementation(libs.androidx.lifecycle.runtime)
+    implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
