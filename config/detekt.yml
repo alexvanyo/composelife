@@ -10,6 +10,8 @@ complexity:
     excludes: [ '**/test/**', '**/androidTest/**', '**/sharedTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
 
 empty-blocks:
+  EmptyDefaultConstructor:
+    excludes: [ '**/generated/**' ]
   EmptyKtFile:
     excludes: [ '**/generated/**' ]
 

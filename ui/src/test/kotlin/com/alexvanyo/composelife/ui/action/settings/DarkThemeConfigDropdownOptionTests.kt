@@ -25,7 +25,7 @@ class DarkThemeConfigDropdownOptionTests {
     fun `algorithm implementation dropdown options are correct`() {
         assertEquals(
             listOf(
-                DarkThemeConfigDropdownOption.AFollowSystem,
+                DarkThemeConfigDropdownOption.FollowSystem,
                 DarkThemeConfigDropdownOption.Dark,
                 DarkThemeConfigDropdownOption.Light,
             ),

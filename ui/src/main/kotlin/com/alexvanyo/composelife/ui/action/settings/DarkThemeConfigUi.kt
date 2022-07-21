@@ -78,7 +78,7 @@ fun DarkThemeConfigUi(
                 TextFieldDropdown(
                     label = stringResource(R.string.dark_theme_config),
                     currentValue = when (currentDarkThemeConfig) {
-                        DarkThemeConfig.FollowSystem -> DarkThemeConfigDropdownOption.AFollowSystem
+                        DarkThemeConfig.FollowSystem -> DarkThemeConfigDropdownOption.FollowSystem
                         DarkThemeConfig.Dark -> DarkThemeConfigDropdownOption.Dark
                         DarkThemeConfig.Light -> DarkThemeConfigDropdownOption.Light
                     },
@@ -87,7 +87,7 @@ fun DarkThemeConfigUi(
                         coroutineScope.launch {
                             setDarkThemeConfig(
                                 when (option) {
-                                    DarkThemeConfigDropdownOption.AFollowSystem -> DarkThemeConfig.FollowSystem
+                                    DarkThemeConfigDropdownOption.FollowSystem -> DarkThemeConfig.FollowSystem
                                     DarkThemeConfigDropdownOption.Dark -> DarkThemeConfig.Dark
                                     DarkThemeConfigDropdownOption.Light -> DarkThemeConfig.Light
                                 },
@@ -101,10 +101,7 @@ fun DarkThemeConfigUi(
 }
 
 sealed interface DarkThemeConfigDropdownOption : DropdownOption {
-    /**
-     * TODO: Rename to FollowSystem once sealed enum generation is fixed on Kotlin 1.7.0
-     */
-    object AFollowSystem : DarkThemeConfigDropdownOption {
+    object FollowSystem : DarkThemeConfigDropdownOption {
         override val displayText: ParameterizedString = ParameterizedString(R.string.follow_system)
     }
     object Dark : DarkThemeConfigDropdownOption {
