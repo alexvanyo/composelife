@@ -70,7 +70,7 @@ class ComposeLifePreferencesTests {
     }
 
     @Test
-    fun default_value_is_hashlife() = runTest {
+    fun default_algorithm_choice_is_hashlife() = runTest {
         assertEquals(ResourceState.Loading, composeLifePreferences.algorithmChoiceState)
 
         advanceUntilIdle()
@@ -96,5 +96,308 @@ class ComposeLifePreferencesTests {
         advanceUntilIdle()
 
         assertEquals(ResourceState.Success(AlgorithmType.NaiveAlgorithm), composeLifePreferences.algorithmChoiceState)
+    }
+
+    @Test
+    fun default_current_shape_is_round_rectangle() = runTest {
+        assertEquals(ResourceState.Loading, composeLifePreferences.currentShapeState)
+
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(
+                CurrentShape.RoundRectangle(
+                    sizeFraction = 1f,
+                    cornerFraction = 0f,
+                ),
+            ),
+            composeLifePreferences.currentShapeState,
+        )
+    }
+
+    @Test
+    fun setting_round_rectangle_config_updates_value() = runTest {
+        assertEquals(ResourceState.Loading, composeLifePreferences.currentShapeState)
+
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(
+                CurrentShape.RoundRectangle(
+                    sizeFraction = 1f,
+                    cornerFraction = 0f,
+                ),
+            ),
+            composeLifePreferences.currentShapeState,
+        )
+
+        composeLifePreferences.setRoundRectangleConfig { roundRectangle ->
+            roundRectangle.copy(
+                sizeFraction = 0.8f,
+                cornerFraction = 0.25f,
+            )
+        }
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(
+                CurrentShape.RoundRectangle(
+                    sizeFraction = 0.8f,
+                    cornerFraction = 0.25f,
+                ),
+            ),
+            composeLifePreferences.currentShapeState,
+        )
+    }
+
+    @Test
+    fun default_dark_theme_config_is_follow_system() = runTest {
+        assertEquals(ResourceState.Loading, composeLifePreferences.darkThemeConfigState)
+
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(DarkThemeConfig.FollowSystem),
+            composeLifePreferences.darkThemeConfigState,
+        )
+    }
+
+    @Test
+    fun setting_dark_theme_config_updates_value() = runTest {
+        assertEquals(ResourceState.Loading, composeLifePreferences.darkThemeConfigState)
+
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(DarkThemeConfig.FollowSystem),
+            composeLifePreferences.darkThemeConfigState,
+        )
+
+        composeLifePreferences.setDarkThemeConfig(DarkThemeConfig.Light)
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(DarkThemeConfig.Light),
+            composeLifePreferences.darkThemeConfigState,
+        )
+    }
+
+    @Test
+    fun default_quick_access_settings_is_empty() = runTest {
+        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
+
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(emptySet()),
+            composeLifePreferences.quickAccessSettings,
+        )
+    }
+
+    @Test
+    fun adding_quick_access_setting_updates_value() = runTest {
+        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
+
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(emptySet()),
+            composeLifePreferences.quickAccessSettings,
+        )
+
+        composeLifePreferences.addQuickAccessSetting(
+            QuickAccessSetting.DarkThemeConfig,
+        )
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
+            composeLifePreferences.quickAccessSettings,
+        )
+    }
+
+    @Test
+    fun adding_multiple_quick_access_settings_updates_value() = runTest {
+        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
+
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(emptySet()),
+            composeLifePreferences.quickAccessSettings,
+        )
+
+        composeLifePreferences.addQuickAccessSetting(
+            QuickAccessSetting.DarkThemeConfig,
+        )
+        composeLifePreferences.addQuickAccessSetting(
+            QuickAccessSetting.AlgorithmImplementation,
+        )
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(
+                setOf(
+                    QuickAccessSetting.DarkThemeConfig,
+                    QuickAccessSetting.AlgorithmImplementation,
+                ),
+            ),
+            composeLifePreferences.quickAccessSettings,
+        )
+    }
+
+    @Test
+    fun adding_all_quick_access_settings_updates_value() = runTest {
+        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
+
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(emptySet()),
+            composeLifePreferences.quickAccessSettings,
+        )
+
+        composeLifePreferences.addQuickAccessSetting(
+            QuickAccessSetting.DarkThemeConfig,
+        )
+        advanceUntilIdle()
+        composeLifePreferences.addQuickAccessSetting(
+            QuickAccessSetting.AlgorithmImplementation,
+        )
+        advanceUntilIdle()
+        composeLifePreferences.addQuickAccessSetting(
+            QuickAccessSetting.CellShapeConfig,
+        )
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(
+                setOf(
+                    QuickAccessSetting.DarkThemeConfig,
+                    QuickAccessSetting.AlgorithmImplementation,
+                    QuickAccessSetting.CellShapeConfig,
+                ),
+            ),
+            composeLifePreferences.quickAccessSettings,
+        )
+    }
+
+    @Test
+    fun adding_quick_access_setting_multiple_times_updates_value() = runTest {
+        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
+
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(emptySet()),
+            composeLifePreferences.quickAccessSettings,
+        )
+
+        composeLifePreferences.addQuickAccessSetting(
+            QuickAccessSetting.DarkThemeConfig,
+        )
+        advanceUntilIdle()
+        composeLifePreferences.addQuickAccessSetting(
+            QuickAccessSetting.DarkThemeConfig,
+        )
+        advanceUntilIdle()
+        composeLifePreferences.addQuickAccessSetting(
+            QuickAccessSetting.DarkThemeConfig,
+        )
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
+            composeLifePreferences.quickAccessSettings,
+        )
+    }
+
+    @Test
+    fun removing_quick_access_setting_multiple_times_updates_value() = runTest {
+        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
+
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(emptySet()),
+            composeLifePreferences.quickAccessSettings,
+        )
+
+        composeLifePreferences.addQuickAccessSetting(
+            QuickAccessSetting.DarkThemeConfig,
+        )
+        advanceUntilIdle()
+        composeLifePreferences.addQuickAccessSetting(
+            QuickAccessSetting.DarkThemeConfig,
+        )
+        advanceUntilIdle()
+        composeLifePreferences.addQuickAccessSetting(
+            QuickAccessSetting.DarkThemeConfig,
+        )
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
+            composeLifePreferences.quickAccessSettings,
+        )
+
+        composeLifePreferences.removeQuickAccessSetting(
+            QuickAccessSetting.DarkThemeConfig,
+        )
+        advanceUntilIdle()
+        composeLifePreferences.removeQuickAccessSetting(
+            QuickAccessSetting.DarkThemeConfig,
+        )
+        advanceUntilIdle()
+        composeLifePreferences.removeQuickAccessSetting(
+            QuickAccessSetting.DarkThemeConfig,
+        )
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(emptySet()),
+            composeLifePreferences.quickAccessSettings,
+        )
+    }
+
+    @Test
+    fun adding_and_removing_quick_access_settings_updates_value() = runTest {
+        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
+
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(emptySet()),
+            composeLifePreferences.quickAccessSettings,
+        )
+
+        composeLifePreferences.addQuickAccessSetting(
+            QuickAccessSetting.DarkThemeConfig,
+        )
+        advanceUntilIdle()
+        composeLifePreferences.addQuickAccessSetting(
+            QuickAccessSetting.AlgorithmImplementation,
+        )
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(
+                setOf(
+                    QuickAccessSetting.DarkThemeConfig,
+                    QuickAccessSetting.AlgorithmImplementation,
+                ),
+            ),
+            composeLifePreferences.quickAccessSettings,
+        )
+
+        composeLifePreferences.removeQuickAccessSetting(
+            QuickAccessSetting.DarkThemeConfig,
+        )
+        advanceUntilIdle()
+
+        assertEquals(
+            ResourceState.Success(setOf(QuickAccessSetting.AlgorithmImplementation)),
+            composeLifePreferences.quickAccessSettings,
+        )
     }
 }

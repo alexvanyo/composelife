@@ -17,11 +17,18 @@
 
 package com.alexvanyo.composelife.ui.action.settings
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import com.alexvanyo.composelife.preferences.QuickAccessSetting
+import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
+import com.alexvanyo.composelife.resourcestate.ResourceState
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
+import kotlinx.coroutines.launch
 
 @EntryPoint
 @InstallIn(ActivityComponent::class)
@@ -29,6 +36,7 @@ interface SettingUiEntryPoint :
     AlgorithmImplementationUiEntryPoint,
     CellShapeConfigUiEntryPoint,
     CellStatePreviewUiEntryPoint,
+    ComposeLifePreferencesProvider,
     DarkThemeConfigUiEntryPoint
 
 context(SettingUiEntryPoint)
@@ -36,11 +44,57 @@ context(SettingUiEntryPoint)
 fun SettingUi(
     setting: Setting,
     modifier: Modifier = Modifier,
+    onOpenInSettingsClicked: ((Setting) -> Unit)? = null,
 ) {
-    when (setting) {
-        Setting.AlgorithmImplementation -> AlgorithmImplementationUi(modifier = modifier)
-        Setting.CellStatePreview -> CellStatePreviewUi(modifier = modifier)
-        Setting.DarkThemeConfig -> DarkThemeConfigUi(modifier = modifier)
-        Setting.CellShapeConfig -> CellShapeConfigUi(modifier = modifier)
+    Column(
+        modifier = modifier.testTag("SettingUi:${setting.name}"),
+    ) {
+        val quickAccessSetting = setting.quickAccessSetting
+        if (quickAccessSetting != null) {
+            when (val quickAccessSettings = composeLifePreferences.quickAccessSettings) {
+                ResourceState.Loading, is ResourceState.Failure -> Unit
+                is ResourceState.Success -> {
+                    val coroutineScope = rememberCoroutineScope()
+                    QuickAccessSettingHeader(
+                        isFavorite = quickAccessSetting in quickAccessSettings.value,
+                        setIsFavorite = { isFavorite ->
+                            coroutineScope.launch {
+                                if (isFavorite) {
+                                    composeLifePreferences.addQuickAccessSetting(quickAccessSetting)
+                                } else {
+                                    composeLifePreferences.removeQuickAccessSetting(quickAccessSetting)
+                                }
+                            }
+                        },
+                        onOpenInSettingsClicked = onOpenInSettingsClicked?.let { { it(setting) } },
+                    )
+                }
+            }
+        }
+
+        when (setting) {
+            Setting.AlgorithmImplementation -> AlgorithmImplementationUi()
+            Setting.CellStatePreview -> CellStatePreviewUi()
+            Setting.DarkThemeConfig -> DarkThemeConfigUi()
+            Setting.CellShapeConfig -> CellShapeConfigUi()
+        }
     }
+}
+
+context(SettingUiEntryPoint)
+@Composable
+fun SettingUi(
+    quickAccessSetting: QuickAccessSetting,
+    onOpenInSettingsClicked: (Setting) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    SettingUi(
+        setting = when (quickAccessSetting) {
+            QuickAccessSetting.AlgorithmImplementation -> Setting.AlgorithmImplementation
+            QuickAccessSetting.CellShapeConfig -> Setting.CellShapeConfig
+            QuickAccessSetting.DarkThemeConfig -> Setting.DarkThemeConfig
+        },
+        modifier = modifier,
+        onOpenInSettingsClicked = onOpenInSettingsClicked,
+    )
 }

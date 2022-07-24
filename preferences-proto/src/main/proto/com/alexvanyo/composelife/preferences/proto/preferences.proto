@@ -19,6 +19,7 @@ syntax = "proto3";
 import "com/alexvanyo/composelife/preferences/proto/algorithm.proto";
 import "com/alexvanyo/composelife/preferences/proto/current_shape_type.proto";
 import "com/alexvanyo/composelife/preferences/proto/dark_theme_config.proto";
+import "com/alexvanyo/composelife/preferences/proto/quick_access_setting.proto";
 import "com/alexvanyo/composelife/preferences/proto/shapes.proto";
 
 option java_package = "com.alexvanyo.composelife.preferences.proto";
@@ -29,4 +30,5 @@ message PreferencesProto {
   CurrentShapeTypeProto current_shape_type = 2;
   RoundRectangleProto round_rectangle = 3;
   DarkThemeConfigProto dark_theme_config = 4;
+  repeated QuickAccessSettingProto quick_access_settings = 5;
 }

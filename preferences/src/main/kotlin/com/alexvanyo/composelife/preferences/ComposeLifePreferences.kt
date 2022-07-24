@@ -20,6 +20,8 @@ import com.alexvanyo.composelife.preferences.CurrentShape.RoundRectangle
 import com.alexvanyo.composelife.resourcestate.ResourceState
 
 interface ComposeLifePreferences {
+    val quickAccessSettings: ResourceState<Set<QuickAccessSetting>>
+
     val algorithmChoiceState: ResourceState<AlgorithmType>
 
     val currentShapeState: ResourceState<CurrentShape>
@@ -33,4 +35,8 @@ interface ComposeLifePreferences {
     suspend fun setDarkThemeConfig(darkThemeConfig: DarkThemeConfig)
 
     suspend fun setRoundRectangleConfig(update: (RoundRectangle) -> RoundRectangle)
+
+    suspend fun addQuickAccessSetting(quickAccessSetting: QuickAccessSetting)
+
+    suspend fun removeQuickAccessSetting(quickAccessSetting: QuickAccessSetting)
 }

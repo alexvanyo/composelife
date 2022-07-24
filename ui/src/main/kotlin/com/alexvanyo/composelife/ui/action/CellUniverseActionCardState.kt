@@ -32,6 +32,7 @@ import com.alexvanyo.composelife.navigation.navigate
 import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
+import com.alexvanyo.composelife.ui.action.settings.Setting
 import com.alexvanyo.composelife.ui.action.settings.SettingsCategory
 import java.util.UUID
 
@@ -67,6 +68,11 @@ interface CellUniverseActionCardState {
     fun onSettingsClicked(actorBackstackEntryId: UUID? = null)
 
     fun onSeeMoreSettingsClicked(actorBackstackEntryId: UUID? = null)
+
+    fun onOpenInSettingsClicked(
+        setting: Setting,
+        actorBackstackEntryId: UUID? = null,
+    )
 
     fun onBackPressed(actorBackstackEntryId: UUID? = null)
 
@@ -182,6 +188,20 @@ fun rememberCellUniverseActionCardState(
                         ActionCardNavigation.Settings.Fullscreen(
                             initialSettingsCategory = SettingsCategory.Algorithm,
                             initialShowDetails = false,
+                            initialSettingToScrollTo = null,
+                        ),
+                    )
+                }
+            }
+
+            override fun onOpenInSettingsClicked(setting: Setting, actorBackstackEntryId: UUID?) {
+                currentNavController.withExpectedActor(actorBackstackEntryId) {
+                    check(currentNavController === settingsNavController)
+                    settingsNavController.navigate(
+                        ActionCardNavigation.Settings.Fullscreen(
+                            initialSettingsCategory = setting.category,
+                            initialShowDetails = true,
+                            initialSettingToScrollTo = setting,
                         ),
                     )
                 }

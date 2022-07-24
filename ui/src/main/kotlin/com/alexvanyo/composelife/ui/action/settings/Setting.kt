@@ -16,27 +16,36 @@
 
 package com.alexvanyo.composelife.ui.action.settings
 
+import com.alexvanyo.composelife.preferences.QuickAccessSetting
+import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
 
 sealed interface Setting {
     val category: SettingsCategory
+    val quickAccessSetting: QuickAccessSetting?
 
     object AlgorithmImplementation : Setting {
         override val category = SettingsCategory.Algorithm
+        override val quickAccessSetting = QuickAccessSetting.AlgorithmImplementation
     }
 
     object CellStatePreview : Setting {
         override val category = SettingsCategory.Visual
+        override val quickAccessSetting = null
     }
 
     object DarkThemeConfig : Setting {
         override val category = SettingsCategory.Visual
+        override val quickAccessSetting = QuickAccessSetting.DarkThemeConfig
     }
 
     object CellShapeConfig : Setting {
         override val category = SettingsCategory.Visual
+        override val quickAccessSetting = QuickAccessSetting.CellShapeConfig
     }
 
     @GenSealedEnum
-    companion object
+    companion object {
+        val Saver = sealedEnumSaver(sealedEnum)
+    }
 }

@@ -33,6 +33,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.snapshotStateSet)
     api(libs.androidx.compose.foundation)
     api(libs.androidx.compose.runtime)
     implementation(libs.androidx.core)

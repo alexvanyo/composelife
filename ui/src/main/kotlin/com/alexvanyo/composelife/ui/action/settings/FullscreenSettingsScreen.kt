@@ -68,14 +68,20 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.boundsInParent
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -90,6 +96,7 @@ import com.alexvanyo.composelife.ui.util.canScrollUp
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
+import kotlin.math.roundToInt
 
 @EntryPoint
 @InstallIn(ActivityComponent::class)
@@ -158,6 +165,8 @@ fun FullscreenSettingsScreen(
                 detailScrollState = detailScrollState,
                 showAppBar = !showListAndDetail(),
                 onBackButtonPressed = { fullscreen.showDetails = false },
+                settingToScrollTo = fullscreen.settingToScrollTo,
+                onFinishedScrollingToSetting = { fullscreen.onFinishedScrollingToSetting() },
             )
         }
     }
@@ -356,12 +365,15 @@ private fun SettingsCategoryButton(
 }
 
 context(SettingUiEntryPoint)
+@Suppress("LongMethod", "LongParameterList")
 @Composable
 private fun SettingsCategoryDetail(
     settingsCategory: SettingsCategory,
     detailScrollState: ScrollState,
     showAppBar: Boolean,
     onBackButtonPressed: () -> Unit,
+    settingToScrollTo: Setting?,
+    onFinishedScrollingToSetting: () -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -409,10 +421,26 @@ private fun SettingsCategoryDetail(
                 .padding(vertical = 16.dp),
         ) {
             settingsCategory.settings.forEach { setting ->
+                var layoutCoordinates: LayoutCoordinates? by remember { mutableStateOf(null) }
+
                 SettingUi(
                     setting = setting,
-                    modifier = Modifier.padding(horizontal = 16.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .onPlaced {
+                            layoutCoordinates = it
+                        },
                 )
+
+                val currentOnFinishedScrollingToSetting by rememberUpdatedState(onFinishedScrollingToSetting)
+
+                LaunchedEffect(settingToScrollTo, layoutCoordinates) {
+                    val currentLayoutCoordinates = layoutCoordinates
+                    if (currentLayoutCoordinates != null && settingToScrollTo == setting) {
+                        detailScrollState.animateScrollTo(currentLayoutCoordinates.boundsInParent().top.roundToInt())
+                        currentOnFinishedScrollingToSetting()
+                    }
+                }
             }
         }
     }
@@ -456,6 +484,7 @@ fun FullscreenSettingsScreenListPreview() {
                         fullscreen = ActionCardNavigation.Settings.Fullscreen(
                             initialSettingsCategory = SettingsCategory.Algorithm,
                             initialShowDetails = false,
+                            initialSettingToScrollTo = null,
                         ),
                         onBackButtonPressed = {},
                         modifier = Modifier.fillMaxSize(),
@@ -480,6 +509,7 @@ fun FullscreenSettingsScreenAlgorithmPreview() {
                         fullscreen = ActionCardNavigation.Settings.Fullscreen(
                             initialSettingsCategory = SettingsCategory.Algorithm,
                             initialShowDetails = true,
+                            initialSettingToScrollTo = null,
                         ),
                         onBackButtonPressed = {},
                         modifier = Modifier.fillMaxSize(),
@@ -504,6 +534,7 @@ fun FullscreenSettingsScreenVisualPreview() {
                         fullscreen = ActionCardNavigation.Settings.Fullscreen(
                             initialSettingsCategory = SettingsCategory.Visual,
                             initialShowDetails = true,
+                            initialSettingToScrollTo = null,
                         ),
                         onBackButtonPressed = {},
                         modifier = Modifier.fillMaxSize(),
@@ -528,6 +559,7 @@ fun FullscreenSettingsScreenFeatureFlagsPreview() {
                         fullscreen = ActionCardNavigation.Settings.Fullscreen(
                             initialSettingsCategory = SettingsCategory.FeatureFlags,
                             initialShowDetails = true,
+                            initialSettingToScrollTo = null,
                         ),
                         onBackButtonPressed = {},
                         modifier = Modifier.fillMaxSize(),
