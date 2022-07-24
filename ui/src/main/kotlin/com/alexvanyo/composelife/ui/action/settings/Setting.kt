@@ -25,7 +25,15 @@ sealed interface Setting {
         override val category = SettingsCategory.Algorithm
     }
 
+    object CellStatePreview : Setting {
+        override val category = SettingsCategory.Visual
+    }
+
     object DarkThemeConfig : Setting {
+        override val category = SettingsCategory.Visual
+    }
+
+    object CellShapeConfig : Setting {
         override val category = SettingsCategory.Visual
     }
 

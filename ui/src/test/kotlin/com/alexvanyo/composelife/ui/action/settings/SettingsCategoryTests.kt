@@ -32,7 +32,11 @@ class SettingsCategoryTests {
     @Test
     fun `visual settings are correct`() {
         assertEquals(
-            listOf(Setting.DarkThemeConfig),
+            listOf(
+                Setting.CellStatePreview,
+                Setting.DarkThemeConfig,
+                Setting.CellShapeConfig,
+            ),
             SettingsCategory.Visual.settings,
         )
     }

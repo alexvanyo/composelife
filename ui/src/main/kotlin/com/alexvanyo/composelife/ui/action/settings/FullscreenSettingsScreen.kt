@@ -32,7 +32,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumedWindowInsets
@@ -365,9 +364,7 @@ private fun SettingsCategoryDetail(
     onBackButtonPressed: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(detailScrollState),
+        modifier = Modifier.fillMaxSize(),
     ) {
         if (showAppBar) {
             val isElevated = detailScrollState.canScrollUp
@@ -405,10 +402,11 @@ private fun SettingsCategoryDetail(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier
+                .verticalScroll(detailScrollState)
+                .padding(vertical = 16.dp),
         ) {
             settingsCategory.settings.forEach { setting ->
                 SettingUi(
@@ -471,7 +469,7 @@ fun FullscreenSettingsScreenListPreview() {
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @SizePreviews
 @Composable
-fun FullscreenSettingsScreenDetailsPreview() {
+fun FullscreenSettingsScreenAlgorithmPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             BoxWithConstraints {
@@ -481,6 +479,54 @@ fun FullscreenSettingsScreenDetailsPreview() {
                         windowSizeClass = WindowSizeClass.calculateFromSize(size),
                         fullscreen = ActionCardNavigation.Settings.Fullscreen(
                             initialSettingsCategory = SettingsCategory.Algorithm,
+                            initialShowDetails = true,
+                        ),
+                        onBackButtonPressed = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@SizePreviews
+@Composable
+fun FullscreenSettingsScreenVisualPreview() {
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            BoxWithConstraints {
+                val size = DpSize(maxWidth, maxHeight)
+                Surface {
+                    FullscreenSettingsScreen(
+                        windowSizeClass = WindowSizeClass.calculateFromSize(size),
+                        fullscreen = ActionCardNavigation.Settings.Fullscreen(
+                            initialSettingsCategory = SettingsCategory.Visual,
+                            initialShowDetails = true,
+                        ),
+                        onBackButtonPressed = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@SizePreviews
+@Composable
+fun FullscreenSettingsScreenFeatureFlagsPreview() {
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            BoxWithConstraints {
+                val size = DpSize(maxWidth, maxHeight)
+                Surface {
+                    FullscreenSettingsScreen(
+                        windowSizeClass = WindowSizeClass.calculateFromSize(size),
+                        fullscreen = ActionCardNavigation.Settings.Fullscreen(
+                            initialSettingsCategory = SettingsCategory.FeatureFlags,
                             initialShowDetails = true,
                         ),
                         onBackButtonPressed = {},

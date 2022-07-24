@@ -63,8 +63,7 @@ import kotlinx.coroutines.launch
 @EntryPoint
 @InstallIn(ActivityComponent::class)
 interface CellUniverseActionCardEntryPoint :
-    FullscreenSettingsScreenEntryPoint,
-    InlinePaletteScreenEntryPoint
+    FullscreenSettingsScreenEntryPoint
 
 context(CellUniverseActionCardEntryPoint)
 @Suppress("LongParameterList")
@@ -213,16 +212,6 @@ fun CellUniverseActionCard(
                                     when (value) {
                                         ActionCardNavigation.Edit.Inline -> {
                                             InlineEditScreen(modifier = Modifier.fillMaxWidth())
-                                        }
-                                    }
-                                }
-                                is ActionCardNavigation.Palette -> {
-                                    when (value) {
-                                        ActionCardNavigation.Palette.Inline -> {
-                                            InlinePaletteScreen(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                scrollState = scrollState,
-                                            )
                                         }
                                     }
                                 }

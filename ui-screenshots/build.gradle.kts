@@ -31,6 +31,7 @@ android {
 
 dependencies {
     implementation(projects.ui)
+    implementation(libs.androidx.activityCompose)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.ui)
 

@@ -34,8 +34,9 @@ import com.alexvanyo.composelife.random.di.RandomProvider
 import com.alexvanyo.composelife.ui.InteractiveCellUniverseEntryPoint
 import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayEntryPoint
 import com.alexvanyo.composelife.ui.action.CellUniverseActionCardEntryPoint
-import com.alexvanyo.composelife.ui.action.InlinePaletteScreenEntryPoint
 import com.alexvanyo.composelife.ui.action.settings.AlgorithmImplementationUiEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.CellShapeConfigUiEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.CellStatePreviewUiEntryPoint
 import com.alexvanyo.composelife.ui.action.settings.DarkThemeConfigUiEntryPoint
 import com.alexvanyo.composelife.ui.action.settings.FullscreenSettingsScreenEntryPoint
 import com.alexvanyo.composelife.ui.action.settings.SettingUiEntryPoint
@@ -44,11 +45,12 @@ import kotlin.random.Random
 
 interface PreviewEntryPoint :
     AlgorithmImplementationUiEntryPoint,
+    CellShapeConfigUiEntryPoint,
+    CellStatePreviewUiEntryPoint,
     CellUniverseActionCardEntryPoint,
     DarkThemeConfigUiEntryPoint,
     FullscreenSettingsScreenEntryPoint,
     GameOfLifeProgressIndicatorEntryPoint,
-    InlinePaletteScreenEntryPoint,
     InteractiveCellUniverseEntryPoint,
     InteractiveCellUniverseOverlayEntryPoint,
     SettingUiEntryPoint

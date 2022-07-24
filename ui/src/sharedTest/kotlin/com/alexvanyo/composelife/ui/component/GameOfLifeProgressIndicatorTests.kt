@@ -33,7 +33,7 @@ import org.junit.Test
 @HiltAndroidTest
 class GameOfLifeProgressIndicatorTests : BaseHiltTest<TestActivity>(TestActivity::class.java) {
 
-    lateinit var gameOfLifeProgressIndicatorEntryPoint: GameOfLifeProgressIndicatorEntryPoint
+    private lateinit var gameOfLifeProgressIndicatorEntryPoint: GameOfLifeProgressIndicatorEntryPoint
 
     @Before
     fun setup() {

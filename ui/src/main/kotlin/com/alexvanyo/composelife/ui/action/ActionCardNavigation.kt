@@ -28,7 +28,6 @@ import com.livefront.sealedenum.GenSealedEnum
 sealed interface ActionCardBackstack {
     object Speed : ActionCardBackstack
     object Edit : ActionCardBackstack
-    object Palette : ActionCardBackstack
     object Settings : ActionCardBackstack
 
     @GenSealedEnum
@@ -93,34 +92,6 @@ sealed interface ActionCardNavigation {
                 },
                 restore = { list ->
                     val type = ActionCardNavigationType.Edit.Saver.restore(list[0] as Int)!!
-                    type.saver.restore(list[1]!!)
-                },
-            )
-        }
-    }
-    sealed interface Palette : ActionCardNavigation {
-        override val type: ActionCardNavigationType.Palette
-
-        object Inline : Palette {
-            override val type = ActionCardNavigationType.Palette.Inline
-            override val isFullscreen: Boolean = false
-        }
-
-        companion object {
-            @Suppress("UnsafeCallOnNullableType")
-            val Saver: Saver<Palette, Any> = listSaver(
-                save = { actionCardNavigation ->
-                    listOf(
-                        with(ActionCardNavigationType.Palette.Saver) { save(actionCardNavigation.type) },
-                        when (actionCardNavigation) {
-                            is Inline -> with(ActionCardNavigationType.Palette.Inline.saver) {
-                                save(actionCardNavigation)
-                            }
-                        },
-                    )
-                },
-                restore = { list ->
-                    val type = ActionCardNavigationType.Palette.Saver.restore(list[0] as Int)!!
                     type.saver.restore(list[1]!!)
                 },
             )
@@ -203,22 +174,6 @@ sealed interface ActionCardNavigationType {
             override val saver: Saver<ActionCardNavigation.Edit.Inline, Any> = Saver(
                 save = { 0 },
                 restore = { ActionCardNavigation.Edit.Inline },
-            )
-        }
-
-        @GenSealedEnum
-        companion object {
-            val Saver = sealedEnumSaver(sealedEnum)
-        }
-    }
-
-    sealed interface Palette : ActionCardNavigationType {
-        override val saver: Saver<out ActionCardNavigation.Palette, Any>
-
-        object Inline : Palette {
-            override val saver: Saver<ActionCardNavigation.Palette.Inline, Any> = Saver(
-                save = { 0 },
-                restore = { ActionCardNavigation.Palette.Inline },
             )
         }
 

@@ -64,8 +64,6 @@ interface CellUniverseActionCardState {
 
     fun onEditClicked(actorBackstackEntryId: UUID? = null)
 
-    fun onPaletteClicked(actorBackstackEntryId: UUID? = null)
-
     fun onSettingsClicked(actorBackstackEntryId: UUID? = null)
 
     fun onSeeMoreSettingsClicked(actorBackstackEntryId: UUID? = null)
@@ -113,16 +111,6 @@ fun rememberCellUniverseActionCardState(
         saver = ActionCardNavigation.Edit.Saver,
     )
 
-    val paletteNavController = rememberMutableBackstackNavigationController(
-        initialBackstackEntries = listOf(
-            BackstackEntry(
-                value = ActionCardNavigation.Palette.Inline,
-                previous = null,
-            ),
-        ),
-        saver = ActionCardNavigation.Palette.Saver,
-    )
-
     val settingsNavController = rememberMutableBackstackNavigationController(
         initialBackstackEntries = listOf(
             BackstackEntry(
@@ -138,7 +126,6 @@ fun rememberCellUniverseActionCardState(
             when (currentBackstack) {
                 ActionCardBackstack.Speed -> speedNavController
                 ActionCardBackstack.Edit -> editNavController
-                ActionCardBackstack.Palette -> paletteNavController
                 ActionCardBackstack.Settings -> settingsNavController
             }
         }
@@ -153,7 +140,6 @@ fun rememberCellUniverseActionCardState(
                 override val entryMap: BackstackMap<out ActionCardNavigation>
                     get() = speedNavController.entryMap +
                         editNavController.entryMap +
-                        paletteNavController.entryMap +
                         settingsNavController.entryMap
 
                 override val currentEntryId: UUID
@@ -164,7 +150,6 @@ fun rememberCellUniverseActionCardState(
                 currentNavController.canNavigateBack || when (currentBackstack) {
                     ActionCardBackstack.Speed -> false
                     ActionCardBackstack.Edit,
-                    ActionCardBackstack.Palette,
                     ActionCardBackstack.Settings,
                     -> true
                 }
@@ -181,12 +166,6 @@ fun rememberCellUniverseActionCardState(
             override fun onEditClicked(actorBackstackEntryId: UUID?) {
                 currentNavController.withExpectedActor(actorBackstackEntryId) {
                     currentBackstack = ActionCardBackstack.Edit
-                }
-            }
-
-            override fun onPaletteClicked(actorBackstackEntryId: UUID?) {
-                currentNavController.withExpectedActor(actorBackstackEntryId) {
-                    currentBackstack = ActionCardBackstack.Palette
                 }
             }
 

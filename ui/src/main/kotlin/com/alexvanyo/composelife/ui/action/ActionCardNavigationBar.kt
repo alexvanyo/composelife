@@ -19,11 +19,9 @@ package com.alexvanyo.composelife.ui.action
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material3.Icon
@@ -55,8 +53,6 @@ fun ActionCardNavigationBar(
             actionCardState.navigationState.currentEntry.value is ActionCardNavigation.Speed
         val editSelected =
             actionCardState.navigationState.currentEntry.value is ActionCardNavigation.Edit
-        val paletteSelected =
-            actionCardState.navigationState.currentEntry.value is ActionCardNavigation.Palette
         val settingsSelected =
             actionCardState.navigationState.currentEntry.value is ActionCardNavigation.Settings
 
@@ -92,23 +88,6 @@ fun ActionCardNavigationBar(
             },
             label = {
                 Text(text = stringResource(id = R.string.edit))
-            },
-        )
-        NavigationBarItem(
-            selected = paletteSelected,
-            onClick = actionCardState::onPaletteClicked,
-            icon = {
-                Icon(
-                    if (paletteSelected) {
-                        Icons.Filled.Palette
-                    } else {
-                        Icons.Outlined.Palette
-                    },
-                    contentDescription = "",
-                )
-            },
-            label = {
-                Text(text = stringResource(id = R.string.palette))
             },
         )
         NavigationBarItem(
