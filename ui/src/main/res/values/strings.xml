@@ -30,7 +30,6 @@
     <string name="generations_per_second_long">Generations per second: %1$.2f</string>
     <string name="speed">Speed</string>
     <string name="edit">Edit</string>
-    <string name="palette">Palette</string>
     <string name="corner_fraction">Corner fraction: %1$.2f</string>
     <string name="size_fraction">Size fraction: %1$.2f</string>
     <string name="settings">Settings</string>

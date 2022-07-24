@@ -68,7 +68,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
     @Inject
     lateinit var dispatchers: ComposeLifeDispatchers
 
-    lateinit var interactiveCellUniverseEntryPoint: InteractiveCellUniverseEntryPoint
+    private lateinit var interactiveCellUniverseEntryPoint: InteractiveCellUniverseEntryPoint
 
     @Before
     fun setup() {

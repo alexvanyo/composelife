@@ -27,6 +27,8 @@ import dagger.hilt.android.components.ActivityComponent
 @InstallIn(ActivityComponent::class)
 interface SettingUiEntryPoint :
     AlgorithmImplementationUiEntryPoint,
+    CellShapeConfigUiEntryPoint,
+    CellStatePreviewUiEntryPoint,
     DarkThemeConfigUiEntryPoint
 
 context(SettingUiEntryPoint)
@@ -37,6 +39,8 @@ fun SettingUi(
 ) {
     when (setting) {
         Setting.AlgorithmImplementation -> AlgorithmImplementationUi(modifier = modifier)
+        Setting.CellStatePreview -> CellStatePreviewUi(modifier = modifier)
         Setting.DarkThemeConfig -> DarkThemeConfigUi(modifier = modifier)
+        Setting.CellShapeConfig -> CellShapeConfigUi(modifier = modifier)
     }
 }

@@ -16,10 +16,15 @@
 
 package com.alexvanyo.composelife.ui.util
 
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
@@ -62,7 +67,16 @@ abstract class BasePaparazziTest {
     fun snapshot(composable: @Composable () -> Unit) {
         paparazzi.unsafeUpdateConfig(deviceConfig = deviceConfig)
         paparazzi.snapshot {
-            CompositionLocalProvider(LocalInspectionMode provides true) {
+            val lifecycleOwner = LocalLifecycleOwner.current
+            CompositionLocalProvider(
+                LocalInspectionMode provides true,
+                // Provide a fake OnBackPressedDispatcherOwner
+                LocalOnBackPressedDispatcherOwner provides object : OnBackPressedDispatcherOwner {
+                    override fun getOnBackPressedDispatcher(): OnBackPressedDispatcher =
+                        OnBackPressedDispatcher()
+                    override fun getLifecycle(): Lifecycle = lifecycleOwner.lifecycle
+                },
+            ) {
                 ComposeLifeTheme(darkTheme = nightMode == NightMode.NIGHT) {
                     Box {
                         composable()
