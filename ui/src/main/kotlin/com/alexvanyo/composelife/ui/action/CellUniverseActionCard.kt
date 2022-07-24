@@ -51,6 +51,7 @@ import com.alexvanyo.composelife.navigation.NavigationHost
 import com.alexvanyo.composelife.ui.action.settings.FullscreenSettingsScreen
 import com.alexvanyo.composelife.ui.action.settings.FullscreenSettingsScreenEntryPoint
 import com.alexvanyo.composelife.ui.action.settings.InlineSettingsScreen
+import com.alexvanyo.composelife.ui.action.settings.InlineSettingsScreenEntryPoint
 import com.alexvanyo.composelife.ui.util.canScrollDown
 import com.alexvanyo.composelife.ui.util.canScrollUp
 import com.livefront.sealedenum.GenSealedEnum
@@ -63,7 +64,8 @@ import kotlinx.coroutines.launch
 @EntryPoint
 @InstallIn(ActivityComponent::class)
 interface CellUniverseActionCardEntryPoint :
-    FullscreenSettingsScreenEntryPoint
+    FullscreenSettingsScreenEntryPoint,
+    InlineSettingsScreenEntryPoint
 
 context(CellUniverseActionCardEntryPoint)
 @Suppress("LongParameterList")
@@ -221,6 +223,12 @@ fun CellUniverseActionCard(
                                             InlineSettingsScreen(
                                                 onSeeMoreClicked = {
                                                     actionCardState.onSeeMoreSettingsClicked(
+                                                        actorBackstackEntryId = entry.id,
+                                                    )
+                                                },
+                                                onOpenInSettingsClicked = { setting ->
+                                                    actionCardState.onOpenInSettingsClicked(
+                                                        setting = setting,
                                                         actorBackstackEntryId = entry.id,
                                                     )
                                                 },

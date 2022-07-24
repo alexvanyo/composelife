@@ -21,6 +21,7 @@ plugins {
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.android.library.gradlemanageddevices")
     id("com.alexvanyo.composelife.android.library.jacoco")
+    id("com.alexvanyo.composelife.android.library.ksp")
     id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
     kotlin("kapt")
@@ -46,6 +47,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel)
     api(libs.androidx.compose.runtime)
     api(libs.androidx.dataStore)
+    api(libs.sealedEnum.runtime)
+    ksp(libs.sealedEnum.ksp)
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 

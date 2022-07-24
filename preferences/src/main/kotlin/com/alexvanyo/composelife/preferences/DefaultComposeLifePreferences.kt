@@ -24,6 +24,7 @@ import com.alexvanyo.composelife.preferences.CurrentShape.RoundRectangle
 import com.alexvanyo.composelife.preferences.proto.AlgorithmProto
 import com.alexvanyo.composelife.preferences.proto.CurrentShapeTypeProto
 import com.alexvanyo.composelife.preferences.proto.DarkThemeConfigProto
+import com.alexvanyo.composelife.preferences.proto.QuickAccessSettingProto
 import com.alexvanyo.composelife.preferences.proto.RoundRectangleProto
 import com.alexvanyo.composelife.preferences.proto.copy
 import com.alexvanyo.composelife.preferences.proto.roundRectangleProto
@@ -43,6 +44,9 @@ class DefaultComposeLifePreferences @Inject constructor(
 ) : ComposeLifePreferences {
     private val scope = CoroutineScope(dispatchers.Main + SupervisorJob())
 
+    override var quickAccessSettings: ResourceState<Set<QuickAccessSetting>> by mutableStateOf(ResourceState.Loading)
+        private set
+
     override var algorithmChoiceState: ResourceState<AlgorithmType> by mutableStateOf(ResourceState.Loading)
         private set
 
@@ -55,6 +59,22 @@ class DefaultComposeLifePreferences @Inject constructor(
     init {
         dataStore.data
             .onEach { preferencesProto ->
+                quickAccessSettings = ResourceState.Success(
+                    preferencesProto.quickAccessSettingsList.mapNotNull { quickAccessSettingProto ->
+                        when (quickAccessSettingProto!!) {
+                            QuickAccessSettingProto.ALGORITHM_IMPLEMENTATION ->
+                                QuickAccessSetting.AlgorithmImplementation
+                            QuickAccessSettingProto.DARK_THEME_CONFIG ->
+                                QuickAccessSetting.DarkThemeConfig
+                            QuickAccessSettingProto.CELL_SHAPE_CONFIG ->
+                                QuickAccessSetting.CellShapeConfig
+                            QuickAccessSettingProto.SETTINGS_UNKNOWN,
+                            QuickAccessSettingProto.UNRECOGNIZED,
+                            -> null
+                        }
+                    }.toSet(),
+                )
+
                 algorithmChoiceState = ResourceState.Success(
                     when (preferencesProto.algorithm!!) {
                         AlgorithmProto.ALGORITHM_UNKNOWN,
@@ -137,6 +157,33 @@ class DefaultComposeLifePreferences @Inject constructor(
                     CurrentShapeTypeProto.ROUND_RECTANGLE -> Unit
                 }
                 roundRectangle = update(roundRectangle.toResolved()).toProto()
+            }
+        }
+    }
+
+    override suspend fun addQuickAccessSetting(quickAccessSetting: QuickAccessSetting) =
+        updateQuickAccessSetting(true, quickAccessSetting)
+
+    override suspend fun removeQuickAccessSetting(quickAccessSetting: QuickAccessSetting) =
+        updateQuickAccessSetting(false, quickAccessSetting)
+
+    private suspend fun updateQuickAccessSetting(include: Boolean, quickAccessSetting: QuickAccessSetting) {
+        dataStore.updateData { preferencesProto ->
+            val quickAccessSettingProto = when (quickAccessSetting) {
+                QuickAccessSetting.AlgorithmImplementation -> QuickAccessSettingProto.ALGORITHM_IMPLEMENTATION
+                QuickAccessSetting.CellShapeConfig -> QuickAccessSettingProto.CELL_SHAPE_CONFIG
+                QuickAccessSetting.DarkThemeConfig -> QuickAccessSettingProto.DARK_THEME_CONFIG
+            }
+
+            preferencesProto.copy {
+                val oldQuickAccessSettings = quickAccessSettings.toSet()
+                quickAccessSettings.clear()
+                val newQuickAccessSetting = if (include) {
+                    oldQuickAccessSettings + quickAccessSettingProto
+                } else {
+                    oldQuickAccessSettings - quickAccessSettingProto
+                }
+                quickAccessSettings.addAll(newQuickAccessSetting)
             }
         }
     }

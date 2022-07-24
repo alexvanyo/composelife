@@ -22,9 +22,16 @@ import org.junit.Test
 class InlineSettingsScreenSnapshotTests : BasePaparazziTest() {
 
     @Test
-    fun inline_settings_screen_preview() {
+    fun inline_settings_screen_no_quick_access_preview() {
         snapshot {
-            InlineSettingsScreenPreview()
+            InlineSettingsScreenNoQuickAccessPreview()
+        }
+    }
+
+    @Test
+    fun inline_settings_screen_with_quick_access_preview() {
+        snapshot {
+            InlineSettingsScreenWithQuickAccessPreview()
         }
     }
 }

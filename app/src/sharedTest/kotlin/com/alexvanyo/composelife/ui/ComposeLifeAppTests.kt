@@ -31,12 +31,15 @@ import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Density
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
+import androidx.window.layout.WindowMetricsCalculator
 import com.alexvanyo.composelife.MainActivity
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
+import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.test.BaseHiltTest
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -76,7 +79,7 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
         val windowSizeClass = WindowSizeClass.calculateFromSize(
             composeTestRule.activityRule.scenario.withActivity {
                 with(Density(this)) {
-                    androidx.window.layout.WindowMetricsCalculator
+                    WindowMetricsCalculator
                         .getOrCreate()
                         .computeCurrentWindowMetrics(this@withActivity)
                         .bounds
@@ -158,11 +161,138 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
     }
 
     @Test
+    fun can_save_theme_to_quick_access() = runAppTest {
+        val windowSizeClass = WindowSizeClass.calculateFromSize(
+            composeTestRule.activityRule.scenario.withActivity {
+                with(Density(this)) {
+                    WindowMetricsCalculator
+                        .getOrCreate()
+                        .computeCurrentWindowMetrics(this@withActivity)
+                        .bounds
+                        .toComposeRect()
+                        .size
+                        .toDpSize()
+                }
+            },
+        )
+
+        composeTestRule
+            .onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(context.getString(R.string.expand)),
+            )
+            .performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings))
+            .performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings))
+            .assertIsSelected()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.see_all))
+            .performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.visual))
+            .performClick()
+
+        composeTestRule
+            .onNode(
+                hasAnyAncestor(hasTestTag("SettingUi:Setting_DarkThemeConfig")) and
+                    hasContentDescription(context.getString(R.string.add_setting_to_quick_access)),
+            )
+            .performScrollTo()
+            .performClick()
+
+        assertEquals(ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)), preferences.quickAccessSettings)
+
+        when (windowSizeClass.widthSizeClass) {
+            WindowWidthSizeClass.Compact -> {
+                composeTestRule
+                    .onNodeWithContentDescription(context.getString(R.string.back))
+                    .performClick()
+            }
+        }
+
+        composeTestRule
+            .onNodeWithContentDescription(context.getString(R.string.back))
+            .performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings))
+            .assertIsSelected()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.dark_theme_config))
+            .performClick()
+
+        composeTestRule
+            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(R.string.dark_theme)))
+            .assertHasClickAction()
+            .performClick()
+
+        composeTestRule
+            .onNode(isPopup())
+            .assertDoesNotExist()
+
+        assertEquals(ResourceState.Success(DarkThemeConfig.Dark), preferences.darkThemeConfigState)
+
+        composeTestRule
+            .onNode(
+                hasAnyAncestor(hasTestTag("SettingUi:Setting_DarkThemeConfig")) and
+                    hasContentDescription(context.getString(R.string.open_in_settings)),
+            )
+            .performScrollTo()
+            .performClick()
+
+        composeTestRule
+            .onNode(
+                hasAnyAncestor(hasTestTag("SettingUi:Setting_DarkThemeConfig")) and
+                    hasContentDescription(context.getString(R.string.open_in_settings)),
+            )
+            .assertDoesNotExist()
+
+        when (windowSizeClass.widthSizeClass) {
+            WindowWidthSizeClass.Compact -> {
+                composeTestRule
+                    .onNodeWithContentDescription(context.getString(R.string.back))
+                    .performClick()
+            }
+        }
+
+        composeTestRule
+            .onNodeWithContentDescription(context.getString(R.string.back))
+            .performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings))
+            .assertIsSelected()
+
+        Espresso.pressBack()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.speed))
+            .assertIsSelected()
+
+        Espresso.pressBack()
+
+        composeTestRule
+            .onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(context.getString(R.string.expand)),
+            )
+            .assertExists()
+    }
+
+    @Test
     fun can_change_algorithm_implementation_to_naive() = runAppTest {
         val windowSizeClass = WindowSizeClass.calculateFromSize(
             composeTestRule.activityRule.scenario.withActivity {
                 with(Density(this)) {
-                    androidx.window.layout.WindowMetricsCalculator
+                    WindowMetricsCalculator
                         .getOrCreate()
                         .computeCurrentWindowMetrics(this@withActivity)
                         .bounds

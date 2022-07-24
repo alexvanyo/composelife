@@ -23,11 +23,7 @@ import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.DefaultComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
-import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
-import com.alexvanyo.composelife.preferences.CurrentShape
-import com.alexvanyo.composelife.preferences.CurrentShapeType
-import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.random.di.RandomProvider
@@ -39,6 +35,7 @@ import com.alexvanyo.composelife.ui.action.settings.CellShapeConfigUiEntryPoint
 import com.alexvanyo.composelife.ui.action.settings.CellStatePreviewUiEntryPoint
 import com.alexvanyo.composelife.ui.action.settings.DarkThemeConfigUiEntryPoint
 import com.alexvanyo.composelife.ui.action.settings.FullscreenSettingsScreenEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.InlineSettingsScreenEntryPoint
 import com.alexvanyo.composelife.ui.action.settings.SettingUiEntryPoint
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorEntryPoint
 import kotlin.random.Random
@@ -51,6 +48,7 @@ interface PreviewEntryPoint :
     DarkThemeConfigUiEntryPoint,
     FullscreenSettingsScreenEntryPoint,
     GameOfLifeProgressIndicatorEntryPoint,
+    InlineSettingsScreenEntryPoint,
     InteractiveCellUniverseEntryPoint,
     InteractiveCellUniverseOverlayEntryPoint,
     SettingUiEntryPoint
@@ -64,15 +62,7 @@ interface PreviewEntryPoint :
 fun WithPreviewDependencies(
     dispatchers: ComposeLifeDispatchers = DefaultComposeLifeDispatchers(),
     gameOfLifeAlgorithm: GameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
-    composeLifePreferences: ComposeLifePreferences = TestComposeLifePreferences.Loaded(
-        algorithmChoice = AlgorithmType.NaiveAlgorithm,
-        currentShapeType = CurrentShapeType.RoundRectangle,
-        roundRectangleConfig = CurrentShape.RoundRectangle(
-            sizeFraction = 1.0f,
-            cornerFraction = 0.0f,
-        ),
-        darkThemeConfig = DarkThemeConfig.FollowSystem,
-    ),
+    composeLifePreferences: ComposeLifePreferences = TestComposeLifePreferences.Loaded(),
     random: Random = Random(0),
     content: @Composable context(PreviewEntryPoint) () -> Unit,
 ) {

@@ -27,8 +27,12 @@ import com.alexvanyo.composelife.resourcestate.firstSuccess
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Suppress("TooManyFunctions")
 @Singleton
 class TestComposeLifePreferences @Inject constructor() : ComposeLifePreferences {
+    override var quickAccessSettings: ResourceState<Set<QuickAccessSetting>> by mutableStateOf(ResourceState.Loading)
+        private set
+
     override var algorithmChoiceState: ResourceState<AlgorithmType> by mutableStateOf(ResourceState.Loading)
         private set
 
@@ -75,6 +79,26 @@ class TestComposeLifePreferences @Inject constructor() : ComposeLifePreferences 
         }
     }
 
+    override suspend fun addQuickAccessSetting(quickAccessSetting: QuickAccessSetting) =
+        updateQuickAccessSetting(true, quickAccessSetting)
+
+    override suspend fun removeQuickAccessSetting(quickAccessSetting: QuickAccessSetting) =
+        updateQuickAccessSetting(false, quickAccessSetting)
+
+    private suspend fun updateQuickAccessSetting(include: Boolean, quickAccessSetting: QuickAccessSetting) {
+        val oldQuickAccessSettings = snapshotFlow { quickAccessSettings }.firstSuccess().value
+
+        Snapshot.withMutableSnapshot {
+            quickAccessSettings = ResourceState.Success(
+                if (include) {
+                    oldQuickAccessSettings + quickAccessSetting
+                } else {
+                    oldQuickAccessSettings - quickAccessSetting
+                },
+            )
+        }
+    }
+
     fun testSetAlgorithmChoice(algorithm: AlgorithmType) {
         Snapshot.withMutableSnapshot {
             algorithmChoiceState = ResourceState.Success(algorithm)
@@ -99,17 +123,28 @@ class TestComposeLifePreferences @Inject constructor() : ComposeLifePreferences 
         }
     }
 
+    fun testSetQuickAccessSetting(quickAccessSettings: Set<QuickAccessSetting>) {
+        Snapshot.withMutableSnapshot {
+            this.quickAccessSettings = ResourceState.Success(quickAccessSettings)
+        }
+    }
+
     companion object {
         fun Loaded(
-            algorithmChoice: AlgorithmType,
-            currentShapeType: CurrentShapeType,
-            roundRectangleConfig: CurrentShape.RoundRectangle,
-            darkThemeConfig: DarkThemeConfig,
+            algorithmChoice: AlgorithmType = AlgorithmType.NaiveAlgorithm,
+            currentShapeType: CurrentShapeType = CurrentShapeType.RoundRectangle,
+            roundRectangleConfig: CurrentShape.RoundRectangle = CurrentShape.RoundRectangle(
+                sizeFraction = 1.0f,
+                cornerFraction = 0.0f,
+            ),
+            darkThemeConfig: DarkThemeConfig = DarkThemeConfig.FollowSystem,
+            quickAccessSettings: Set<QuickAccessSetting> = emptySet(),
         ) = TestComposeLifePreferences().apply {
             testSetAlgorithmChoice(algorithmChoice)
             testSetCurrentShapeType(currentShapeType)
             testSetRoundRectangleConfig(roundRectangleConfig)
             testSetDarkThemeConfig(darkThemeConfig)
+            testSetQuickAccessSetting(quickAccessSettings)
         }
     }
 }

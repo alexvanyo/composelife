@@ -21,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
+import com.alexvanyo.composelife.ui.action.settings.Setting
 import com.alexvanyo.composelife.ui.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
@@ -108,10 +109,18 @@ sealed interface ActionCardNavigation {
         class Fullscreen(
             initialSettingsCategory: SettingsCategory,
             initialShowDetails: Boolean,
+            initialSettingToScrollTo: Setting?,
         ) : Settings {
             var settingsCategory by mutableStateOf(initialSettingsCategory)
 
             var showDetails by mutableStateOf(initialShowDetails)
+
+            var settingToScrollTo: Setting? by mutableStateOf(initialSettingToScrollTo)
+                private set
+
+            fun onFinishedScrollingToSetting() {
+                settingToScrollTo = null
+            }
 
             override val type = ActionCardNavigationType.Settings.Fullscreen
             override val isFullscreen: Boolean = true
@@ -201,12 +210,14 @@ sealed interface ActionCardNavigationType {
                         listOf(
                             with(SettingsCategory.Saver) { save(fullscreen.settingsCategory) },
                             fullscreen.showDetails,
+                            fullscreen.settingToScrollTo?.let { with(Setting.Saver) { save(it) } },
                         )
                     },
                     restore = {
                         ActionCardNavigation.Settings.Fullscreen(
                             initialSettingsCategory = SettingsCategory.Saver.restore(it[0] as Int)!!,
                             initialShowDetails = it[1] as Boolean,
+                            initialSettingToScrollTo = (it[2] as Int?)?.let(Setting.Saver::restore),
                         )
                     },
                 )

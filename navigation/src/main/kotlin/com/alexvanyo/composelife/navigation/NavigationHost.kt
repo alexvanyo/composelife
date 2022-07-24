@@ -27,16 +27,13 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.with
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.runtime.snapshots.SnapshotStateMap
-import androidx.compose.runtime.snapshots.StateObject
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.alexvanyo.composelife.snapshotstateset.mutableStateSetOf
 import java.util.UUID
 
 /**
@@ -95,31 +92,3 @@ fun <T : NavigationEntry> NavigationHost(
         allKeys.addAll(keySet)
     }
 }
-
-/**
- * An implementation of [MutableSet] that can be observed and snapshot. This is the result type
- * created by [mutableStateSetOf].
- *
- * This class closely implements the same semantics as [HashSet].
- *
- * This class is backed by a [mutableStateMapOf].
- *
- * @see mutableStateSetOf
- */
-@Stable
-private class SnapshotStateSet<T> private constructor(
-    private val delegateSnapshotStateMap: SnapshotStateMap<T, Unit>,
-) : MutableSet<T> by delegateSnapshotStateMap.keys, StateObject by delegateSnapshotStateMap {
-    constructor() : this(delegateSnapshotStateMap = mutableStateMapOf())
-
-    override fun add(element: T): Boolean =
-        delegateSnapshotStateMap.put(element, Unit) == null
-
-    override fun addAll(elements: Collection<T>): Boolean =
-        elements.map(::add).any()
-}
-
-/**
- * Create a instance of [MutableSet]<T> that is observable and can be snapshot.
- */
-private fun <T> mutableStateSetOf() = SnapshotStateSet<T>()

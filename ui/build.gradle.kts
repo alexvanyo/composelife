@@ -48,6 +48,7 @@ dependencies {
     implementation(projects.navigation)
     api(projects.random)
     implementation(projects.resourceState)
+    implementation(projects.snapshotStateSet)
     implementation(projects.patterns)
 
     implementation(libs.androidx.activityCompose)
