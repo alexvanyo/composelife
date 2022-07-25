@@ -16,8 +16,6 @@
 
 package com.alexvanyo.composelife.ui.cells
 
-import android.content.res.Configuration.UI_MODE_NIGHT_NO
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.size
@@ -31,11 +29,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 /**
  * An individual cell that is interactable.
@@ -94,14 +92,7 @@ fun InteractableCell(
     }
 }
 
-@Preview(
-    name = "Alive cell light mode",
-    uiMode = UI_MODE_NIGHT_NO,
-)
-@Preview(
-    name = "Alive cell dark mode",
-    uiMode = UI_MODE_NIGHT_YES,
-)
+@ThemePreviews
 @Composable
 fun AliveCellPreview() {
     WithPreviewDependencies {
@@ -120,14 +111,7 @@ fun AliveCellPreview() {
     }
 }
 
-@Preview(
-    name = "Dead cell light mode",
-    uiMode = UI_MODE_NIGHT_NO,
-)
-@Preview(
-    name = "Dead cell dark mode",
-    uiMode = UI_MODE_NIGHT_YES,
-)
+@ThemePreviews
 @Composable
 fun DeadCellPreview() {
     WithPreviewDependencies {
