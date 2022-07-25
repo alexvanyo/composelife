@@ -22,8 +22,10 @@ import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.unit.Density
 import androidx.lifecycle.Lifecycle
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
@@ -56,6 +58,9 @@ abstract class BasePaparazziTest {
     @TestParameter
     lateinit var nightMode: NightMode
 
+    @TestParameter(value = ["1.0", "1.5"])
+    var fontScale: Float = 0f
+
     private val deviceConfig get() = baseDeviceConfig.deviceConfig.copy(
         nightMode = nightMode,
         softButtons = false,
@@ -70,6 +75,10 @@ abstract class BasePaparazziTest {
             val lifecycleOwner = LocalLifecycleOwner.current
             CompositionLocalProvider(
                 LocalInspectionMode provides true,
+                LocalDensity provides Density(
+                    density = LocalDensity.current.density,
+                    fontScale = fontScale,
+                ),
                 // Provide a fake OnBackPressedDispatcherOwner
                 LocalOnBackPressedDispatcherOwner provides object : OnBackPressedDispatcherOwner {
                     override fun getOnBackPressedDispatcher(): OnBackPressedDispatcher =
