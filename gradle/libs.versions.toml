@@ -11,6 +11,7 @@ androidxComposeMaterial3 = "1.0.0-alpha14"
 androidxCore = "1.9.0-alpha05"
 androidxCoreSplashscreen = "1.0.0"
 androidxDataStore = "1.0.0"
+androidxFragment = "1.5.1"
 androidxHilt = "1.0.0"
 androidxLifecycle = "2.6.0-alpha01"
 androidxPoolingContainer = "1.0.0"
@@ -62,6 +63,7 @@ androidx-compose-uiToolingPreview = { group = "androidx.compose.ui", name = "ui-
 androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "androidxCoreSplashscreen" }
 androidx-dataStore = { group = "androidx.datastore", name = "datastore", version.ref = "androidxDataStore" }
+androidx-fragment = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "androidxFragment" }
 androidx-lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
 androidx-lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "androidxLifecycle" }
 androidx-poolingContainer = { group = "androidx.customview", name = "customview-poolingcontainer", version.ref = "androidxPoolingContainer" }

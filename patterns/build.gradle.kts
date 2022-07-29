@@ -28,14 +28,11 @@ android {
     defaultConfig {
         minSdk = 21
     }
-    lint {
-        // TODO: Workaround until https://issuetracker.google.com/issues/237567009 is released
-        disable.add("DialogFragmentCallbacksDetector")
-    }
 }
 
 dependencies {
     api(projects.algorithm)
+    implementation(libs.androidx.fragment)
     api(libs.androidx.compose.foundation)
     api(libs.sealedEnum.runtime)
     ksp(libs.sealedEnum.ksp)

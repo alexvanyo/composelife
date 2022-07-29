@@ -25,15 +25,12 @@ android {
     defaultConfig {
         minSdk = 21
     }
-    lint {
-        // TODO: Workaround until https://issuetracker.google.com/issues/237567009 is released
-        disable.add("DialogFragmentCallbacksDetector")
-    }
 }
 
 dependencies {
     implementation(projects.resources)
     api(projects.testActivity)
+    implementation(libs.androidx.fragment)
     api(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 }
