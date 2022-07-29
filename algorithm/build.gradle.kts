@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 
+    testImplementation(libs.testParameterInjector.junit5)
     sharedTestImplementation(projects.dispatchersTest)
     sharedTestImplementation(projects.patterns)
     sharedTestImplementation(projects.preferencesTest)

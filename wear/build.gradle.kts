@@ -60,6 +60,7 @@ dependencies {
 
     debugImplementation(libs.leakCanary.android)
 
+    testImplementation(libs.testParameterInjector.junit5)
     sharedTestImplementation(libs.androidx.compose.uiTestJunit4)
     sharedTestImplementation(libs.androidx.test.espresso)
     sharedTestImplementation(libs.kotlinx.coroutines.test)
