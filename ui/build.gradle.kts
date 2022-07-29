@@ -36,10 +36,6 @@ android {
     testOptions {
         execution = "ANDROIDX_TEST_ORCHESTRATOR"
     }
-    lint {
-        // TODO: Workaround until https://issuetracker.google.com/issues/237567009 is released
-        disable.add("DialogFragmentCallbacksDetector")
-    }
 }
 
 dependencies {
@@ -56,6 +52,7 @@ dependencies {
     api(libs.androidx.compose.material3.windowSizeClass)
     implementation(libs.androidx.compose.materialIconsExtended)
     implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.fragment)
     implementation(libs.androidx.poolingContainer)
     implementation(libs.androidx.compose.uiToolingPreview)
     implementation(libs.androidx.core)

@@ -25,14 +25,11 @@ android {
     defaultConfig {
         minSdk = 21
     }
-    lint {
-        // TODO: Workaround until https://issuetracker.google.com/issues/237567009 is released
-        disable.add("DialogFragmentCallbacksDetector")
-    }
 }
 
 dependencies {
     api(projects.dispatchers)
+    implementation(libs.androidx.fragment)
     api(libs.androidx.compose.uiTestJunit4)
     api(libs.kotlinx.coroutines.test)
     api(libs.kotlinx.datetime)
