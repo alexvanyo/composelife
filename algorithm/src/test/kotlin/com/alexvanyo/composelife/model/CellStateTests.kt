@@ -18,12 +18,9 @@ package com.alexvanyo.composelife.model
 
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
-import org.junit.jupiter.api.extension.ExtensionContext
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.ArgumentsProvider
-import org.junit.jupiter.params.provider.ArgumentsSource
-import java.util.stream.Stream
+import com.google.testing.junit.testparameterinjector.junit5.TestParameter
+import com.google.testing.junit.testparameterinjector.junit5.TestParameter.TestParameterValuesProvider
+import com.google.testing.junit.testparameterinjector.junit5.TestParameterInjectorTest
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -33,28 +30,23 @@ class CellStateTests {
     class CellStateFactory(
         val cellStateName: String,
         val factory: (cellState: CellState) -> CellState,
-    )
-
-    class CellStateTestArguments(
-        val cellStateFactory: CellStateFactory,
     ) {
-        override fun toString(): String = "cell state type: ${cellStateFactory.cellStateName}"
+        override fun toString(): String = cellStateName
+
+        class Provider : TestParameterValuesProvider {
+            override fun provideValues() =
+                listOf(
+                    CellStateFactory("Default cell state") { CellState(it.aliveCells.toSet()) },
+                    CellStateFactory("Hash life cell state") { it.toHashLifeCellState() },
+                )
+        }
     }
 
-    class CellStateTestProvider : ArgumentsProvider {
-        override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> =
-            listOf(
-                CellStateFactory("Default cell state") { CellState(it.aliveCells.toSet()) },
-                CellStateFactory("Hash life cell state") { it.toHashLifeCellState() },
-            )
-                .map(::CellStateTestArguments)
-                .stream()
-                .map(Arguments::of)
-    }
+    @TestParameter(valuesProvider = CellStateFactory.Provider::class)
+    lateinit var cellStateFactory: CellStateFactory
 
-    @ParameterizedTest(name = "{displayName}: {0}")
-    @ArgumentsSource(CellStateTestProvider::class)
-    fun `conversion is correct`(args: CellStateTestArguments) {
+    @TestParameterInjectorTest
+    fun `conversion is correct`() {
         val expectedCellState = """
             |.O.O.O
             |.O.O..
@@ -62,15 +54,14 @@ class CellStateTests {
             |......
         """.trimMargin().toCellState()
 
-        val testCellState = args.cellStateFactory.factory(expectedCellState)
+        val testCellState = cellStateFactory.factory(expectedCellState)
 
         assertEquals(expectedCellState, testCellState)
     }
 
-    @ParameterizedTest(name = "{displayName}: {0}")
-    @ArgumentsSource(CellStateTestProvider::class)
-    fun `size of empty cell state is correct`(args: CellStateTestArguments) {
-        val testCellState = args.cellStateFactory.factory(
+    @TestParameterInjectorTest
+    fun `size of empty cell state is correct`() {
+        val testCellState = cellStateFactory.factory(
             """
             |.O.O.O
             |.O.O..
@@ -82,10 +73,9 @@ class CellStateTests {
         assertEquals(6, testCellState.aliveCells.size)
     }
 
-    @ParameterizedTest(name = "{displayName}: {0}")
-    @ArgumentsSource(CellStateTestProvider::class)
-    fun `offset by is correct`(args: CellStateTestArguments) {
-        val testCellState = args.cellStateFactory.factory(
+    @TestParameterInjectorTest
+    fun `offset by is correct`() {
+        val testCellState = cellStateFactory.factory(
             """
             |.O.O.O
             |.O.O..
@@ -105,10 +95,9 @@ class CellStateTests {
         )
     }
 
-    @ParameterizedTest(name = "{displayName}: {0}")
-    @ArgumentsSource(CellStateTestProvider::class)
-    fun `contains all is correct`(args: CellStateTestArguments) {
-        val testCellState = args.cellStateFactory.factory(
+    @TestParameterInjectorTest
+    fun `contains all is correct`() {
+        val testCellState = cellStateFactory.factory(
             """
             |.O.O.O
             |.O.O..
@@ -139,10 +128,9 @@ class CellStateTests {
         )
     }
 
-    @ParameterizedTest(name = "{displayName}: {0}")
-    @ArgumentsSource(CellStateTestProvider::class)
-    fun `with offset is correct`(args: CellStateTestArguments) {
-        val testCellState = args.cellStateFactory.factory(
+    @TestParameterInjectorTest
+    fun `with offset is correct`() {
+        val testCellState = cellStateFactory.factory(
             """
             |.O.O.O
             |.O.O..
@@ -164,10 +152,9 @@ class CellStateTests {
         )
     }
 
-    @ParameterizedTest(name = "{displayName}: {0}")
-    @ArgumentsSource(CellStateTestProvider::class)
-    fun `bounding box is correct`(args: CellStateTestArguments) {
-        val testCellState = args.cellStateFactory.factory(
+    @TestParameterInjectorTest
+    fun `bounding box is correct`() {
+        val testCellState = cellStateFactory.factory(
             """
             |.O.O.O
             |.O.O..
@@ -187,10 +174,9 @@ class CellStateTests {
         )
     }
 
-    @ParameterizedTest(name = "{displayName}: {0}")
-    @ArgumentsSource(CellStateTestProvider::class)
-    fun `empty bounding box is correct`(args: CellStateTestArguments) {
-        val testCellState = args.cellStateFactory.factory(emptyCellState())
+    @TestParameterInjectorTest
+    fun `empty bounding box is correct`() {
+        val testCellState = cellStateFactory.factory(emptyCellState())
 
         assertEquals(
             IntRect.Zero,

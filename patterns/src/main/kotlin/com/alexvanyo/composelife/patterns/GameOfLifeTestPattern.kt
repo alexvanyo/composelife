@@ -26,6 +26,6 @@ sealed class GameOfLifeTestPattern(
 ) {
     override fun toString() = patternName
 
-    @GenSealedEnum
+    @GenSealedEnum(generateEnum = true)
     companion object
 }

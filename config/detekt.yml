@@ -72,10 +72,14 @@ style:
   ForbiddenImport:
     active: true
     imports:
+      # Disallow JUnit5 assertions in favor of kotlin.test
       - 'org.junit.jupiter.api.Assertions.*'
       - 'org.junit.jupiter.api.fail'
       - 'org.junit.jupiter.api.assert*'
+      # Disallow JUnit4 assertions in favor of kotlin.test
       - 'org.junit.Assert.*'
+      # Disallow JUnit5 parameterized tests in favor of TestParameterInjector
+      - 'org.junit.jupiter.params.*'
   MaxLineLength:
     excludes: [ '**/generated/**' ]
   MagicNumber:

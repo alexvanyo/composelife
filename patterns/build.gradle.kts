@@ -39,4 +39,6 @@ dependencies {
     api(libs.androidx.compose.foundation)
     api(libs.sealedEnum.runtime)
     ksp(libs.sealedEnum.ksp)
+
+    testImplementation(libs.testParameterInjector.junit5)
 }
