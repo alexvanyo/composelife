@@ -58,6 +58,9 @@ fun Project.configureAndroidTesting(
     testedExtension: TestedExtension,
 ) {
     val useSharedTest = findProperty("com.alexvanyo.composelife.useSharedTest")
+    if (useSharedTest !in setOf(null, "true", "robolectric", "android")) {
+        throw GradleException("Unexpected value $useSharedTest for useSharedTest!")
+    }
 
     testedExtension.apply {
         defaultConfig {
