@@ -35,5 +35,5 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.ui)
 
-    testImplementation(libs.testParameterInjector)
+    testImplementation(libs.testParameterInjector.junit4)
 }

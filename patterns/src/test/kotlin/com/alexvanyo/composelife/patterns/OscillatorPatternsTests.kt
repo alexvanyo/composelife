@@ -17,11 +17,16 @@
 package com.alexvanyo.composelife.patterns
 
 import androidx.compose.ui.unit.IntRect
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.EnumSource
+import com.google.testing.junit.testparameterinjector.junit5.TestParameter
+import com.google.testing.junit.testparameterinjector.junit5.TestParameterInjectorTest
 import kotlin.test.assertEquals
 
 class OscillatorPatternsTests {
+
+    @TestParameter
+    lateinit var oscillatorPatternEnum: OscillatorPatternEnum
+
+    private val oscillatorPattern get() = oscillatorPatternEnum.sealedObject
 
     /**
      * Check that the list of repeating states are distinct.
@@ -31,10 +36,8 @@ class OscillatorPatternsTests {
      * The oscillator patterns are used to verify the algorithm, so those checks will actually
      * ensure the pattern does oscillate.
      */
-    @ParameterizedTest
-    @EnumSource(OscillatorPatternEnum::class)
-    fun `list of states are distinct`(oscillatorPatternEnum: OscillatorPatternEnum) {
-        val oscillatorPattern = oscillatorPatternEnum.sealedObject
+    @TestParameterInjectorTest
+    fun `list of states are distinct`() {
         val repeatingCellStates =
             listOf(oscillatorPattern.seedCellState) + oscillatorPattern.otherCellStates
 
@@ -44,10 +47,8 @@ class OscillatorPatternsTests {
         )
     }
 
-    @ParameterizedTest
-    @EnumSource(OscillatorPatternEnum::class)
-    fun `bounding box is minimal and correct`(oscillatorPatternEnum: OscillatorPatternEnum) {
-        val oscillatorPattern = oscillatorPatternEnum.sealedObject
+    @TestParameterInjectorTest
+    fun `bounding box is minimal and correct`() {
         val repeatingCellStates =
             listOf(oscillatorPattern.seedCellState) + oscillatorPattern.otherCellStates
 

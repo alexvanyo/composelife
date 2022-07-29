@@ -98,7 +98,8 @@ protobuf-runtime = { group = "com.google.protobuf", name = "protobuf-kotlin-lite
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 sealedEnum-ksp = { group = "com.github.livefront.sealed-enum", name = "ksp", version.ref = "sealedEnum" }
 sealedEnum-runtime = { group = "com.github.livefront.sealed-enum", name = "runtime", version.ref = "sealedEnum" }
-testParameterInjector = { group = "com.google.testparameterinjector", name = "test-parameter-injector", version.ref = "testParameterInjector" }
+testParameterInjector-junit4 = { group = "com.google.testparameterinjector", name = "test-parameter-injector", version.ref = "testParameterInjector" }
+testParameterInjector-junit5 = { group = "com.google.testparameterinjector", name = "test-parameter-injector-junit5", version.ref = "testParameterInjector" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 
 [plugins]
