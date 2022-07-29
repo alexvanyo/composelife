@@ -21,6 +21,7 @@ import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
 import com.slack.keeper.KeeperExtension
 import com.slack.keeper.optInToKeeper
+import org.gradle.api.GradleException
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
@@ -36,7 +37,11 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
 
     extensions.configure<BaseAppModuleExtension> {
         defaultConfig {
-            testBuildType = findProperty("com.alexvanyo.composelife.testBuildType") as String? ?: "staging"
+            val testBuildTypeProperty = findProperty("com.alexvanyo.composelife.testBuildType") as String?
+            if (testBuildTypeProperty !in setOf(null, "staging", "default")) {
+                throw GradleException("Unexpected value $testBuildTypeProperty for testBuildType!")
+            }
+            testBuildType = testBuildTypeProperty ?: "staging"
         }
 
         configureTesting(this)
