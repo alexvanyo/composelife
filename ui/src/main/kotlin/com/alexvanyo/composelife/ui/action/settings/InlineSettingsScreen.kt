@@ -20,6 +20,7 @@ package com.alexvanyo.composelife.ui.action.settings
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,9 +31,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -43,7 +49,6 @@ import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.ordinal
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.snapshotstateset.toMutableStateSet
 import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicator
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorEntryPoint
@@ -53,6 +58,9 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 
 @EntryPoint
 @InstallIn(ActivityComponent::class)
@@ -63,6 +71,7 @@ interface InlineSettingsScreenEntryPoint :
 
 context(InlineSettingsScreenEntryPoint)
 @OptIn(ExperimentalAnimationApi::class)
+@Suppress("LongMethod")
 @Composable
 fun InlineSettingsScreen(
     onSeeMoreClicked: () -> Unit,
@@ -82,18 +91,40 @@ fun InlineSettingsScreen(
             }
             is ResourceState.Success -> {
                 val quickAccessSettings = quickAccessSettingsState.value
+
                 /**
-                 * The list of previously known quick access settings, used to smoothly animate out upon removing.
+                 * The list of previously known animatable quick access settings, used to smoothly animate out upon
+                 * removing and in upon appearing.
+                 *
+                 * These are initialed to be visible, with no appearing animation
                  */
-                val previouslyKnownQuickAccessSettings = remember {
-                    quickAccessSettings.toMutableStateSet()
+                var previouslyAnimatableQuickAccessSettings by remember {
+                    mutableStateOf(
+                        quickAccessSettings.associateWith { MutableTransitionState(true) },
+                    )
                 }
+
                 /**
-                 * Compute all known quick access settings. The order is important here for smooth animations:
-                 * We sort into the [QuickAccessSetting] ordinal order.
+                 * The list of currently animatable quick access settings. The order of the [Map.plus] is important
+                 * here, to preserve any ongoing animation state.
                  */
-                val allKnownQuickAccessSettings = (previouslyKnownQuickAccessSettings + quickAccessSettings)
-                    .sortedBy(QuickAccessSetting::ordinal)
+                val animatableQuickAccessSettings =
+                    quickAccessSettings.associateWith {
+                        MutableTransitionState(false).apply {
+                            targetState = true
+                        }
+                    } + previouslyAnimatableQuickAccessSettings
+
+                DisposableEffect(animatableQuickAccessSettings, quickAccessSettings) {
+                    animatableQuickAccessSettings.forEach { (quickAccessSetting, visibleState) ->
+                        // Update the target state based on whether the setting should currently be visible
+                        visibleState.targetState = quickAccessSetting in quickAccessSettings
+                    }
+                    onDispose {}
+                }
+
+                val animatingQuickAccessSettings = animatableQuickAccessSettings
+                    .keys.sortedBy(QuickAccessSetting::ordinal)
 
                 AnimatedContent(
                     targetState = quickAccessSettings.isEmpty(),
@@ -106,10 +137,10 @@ fun InlineSettingsScreen(
                         )
                     } else {
                         Column {
-                            allKnownQuickAccessSettings.forEach { quickAccessSetting ->
+                            animatingQuickAccessSettings.forEach { quickAccessSetting ->
                                 key(quickAccessSetting) {
                                     AnimatedVisibility(
-                                        visible = quickAccessSetting in quickAccessSettings,
+                                        visibleState = animatableQuickAccessSettings.getValue(quickAccessSetting),
                                     ) {
                                         SettingUi(
                                             quickAccessSetting = quickAccessSetting,
@@ -123,9 +154,24 @@ fun InlineSettingsScreen(
                     }
                 }
 
-                // Sync the all known quick access settings back to `previouslyKnownQuickAccessSettings`
-                LaunchedEffect(allKnownQuickAccessSettings) {
-                    previouslyKnownQuickAccessSettings.addAll(allKnownQuickAccessSettings)
+                // Sync all of the known quick access settings back to `previouslyAnimatableQuickAccessSettings`,
+                // removing any that have finished disappearing
+                LaunchedEffect(animatableQuickAccessSettings) {
+                    snapshotFlow {
+                        animatableQuickAccessSettings.values.firstOrNull {
+                            it.isIdle && !it.targetState
+                        }
+                    }
+                        // Intentionally ignore the setting that has animated out, we're just using it to trigger
+                        // updating `previouslyAnimatableQuickAccessSettings` in its entirety.
+                        .map {}
+                        .onEach {
+                            previouslyAnimatableQuickAccessSettings = animatableQuickAccessSettings.filterValues {
+                                // Only keep those that are visible, or are currently animating
+                                !it.isIdle || it.targetState
+                            }
+                        }
+                        .collect()
                 }
             }
         }
