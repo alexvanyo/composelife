@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife.ui.cells
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -82,7 +81,6 @@ fun CellWindowState(
     scaleRange = scaleRange,
 )
 
-@Suppress("VarCouldBeVal")
 private class CellWindowStateImpl(
     offset: Offset = Offset.Zero,
     scale: Float = 1f,
@@ -90,23 +88,23 @@ private class CellWindowStateImpl(
 ) : CellWindowState {
     override var offset: Offset by mutableStateOf(offset)
 
-    private var _scaleRange: MutableState<ClosedRange<Float>> = mutableStateOf(scaleRange)
+    private var _scaleRange by mutableStateOf(scaleRange)
 
     override var scaleRange: ClosedRange<Float>
-        get() = _scaleRange.value
+        get() = _scaleRange
         set(value) {
             require(!scaleRange.isEmpty()) { "scaleRange cannot be empty" }
-            _scaleRange.value = value
+            _scaleRange = value
             // Set scale, to coerce the value to the new range (if necessary)
             scale = scale
         }
 
-    private var _scale: MutableState<Float> = mutableStateOf(scale)
+    private var _scale by mutableStateOf(scale)
 
     override var scale: Float
-        get() = _scale.value
+        get() = _scale
         set(value) {
-            _scale.value = value.coerceIn(scaleRange)
+            _scale = value.coerceIn(scaleRange)
         }
 
     init {
