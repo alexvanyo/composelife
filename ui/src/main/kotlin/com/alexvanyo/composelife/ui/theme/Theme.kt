@@ -34,8 +34,17 @@ import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
 
+/**
+ * A composition local tracking whether or not the [ComposeLifeTheme] has already been applied.
+ */
 private val LocalAppliedComposeLifeTheme = compositionLocalOf { false }
 
+/**
+ * Applies the [ComposeLifeTheme] with the dark theme based given by [shouldUseDarkTheme], which is based off of the
+ * preferences from [ComposeLifePreferencesProvider].
+ *
+ * If [ComposeLifeTheme] is applied multiple times, only the outer one takes effect.
+ */
 context(ComposeLifePreferencesProvider)
 @Composable
 fun ComposeLifeTheme(
@@ -45,14 +54,21 @@ fun ComposeLifeTheme(
     content = content,
 )
 
+/**
+ * Applies the [ComposeLifeTheme] with the given [darkTheme].
+ *
+ * If [ComposeLifeTheme] is applied multiple times, only the outer one takes effect.
+ */
 @Composable
 fun ComposeLifeTheme(
     darkTheme: Boolean,
     content: @Composable () -> Unit,
 ) {
     if (LocalAppliedComposeLifeTheme.current) {
+        // Render the content directly if the theme has already been applied
         content()
     } else {
+        // Otherwise, mark that we've applied the theme, and wrap the content
         CompositionLocalProvider(LocalAppliedComposeLifeTheme provides true) {
             MaterialTheme(
                 colorScheme = ComposeLifeTheme.colorScheme(darkTheme),
