@@ -39,4 +39,5 @@ dependencyResolutionManagement {
     }
 }
 
+rootProject.name = "ComposeLife_build-logic"
 include(":convention")
