@@ -20,6 +20,9 @@ import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.io.File
 
 fun Project.configureAndroidCompose(
     commonExtension: CommonExtension<*, *, *, *>,
@@ -33,6 +36,24 @@ fun Project.configureAndroidCompose(
 
         composeOptions {
             kotlinCompilerExtensionVersion = libs.findVersion("androidxComposeCompiler").get().toString()
+        }
+
+        // TODO: Add metrics and report to non-test KotlinCompile tasks
+        afterEvaluate {
+            tasks.withType<KotlinCompile>().all {
+                if (!name.contains("test", true)) {
+                    kotlinOptions {
+                        val metricsFolder = File(buildDir, "compose-metrics")
+                        val reportsFolder = File(buildDir, "compose-reports")
+                        freeCompilerArgs = freeCompilerArgs + listOf(
+                            "-P",
+                            "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=${metricsFolder.absolutePath}",
+                            "-P",
+                            "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=${reportsFolder.absolutePath}",
+                        )
+                    }
+                }
+            }
         }
     }
 }
