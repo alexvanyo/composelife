@@ -109,11 +109,6 @@ object ComposeLifeTheme {
                 darkColorScheme()
             }
 
-    val isLight
-        @Composable
-        @ReadOnlyComposable
-        get() = MaterialTheme.colorScheme.surface == lightColorScheme.surface
-
     val aliveCellColor
         @Composable
         @ReadOnlyComposable
@@ -131,7 +126,7 @@ private fun useDynamicColorScheme() =
 
 context(ComposeLifePreferencesProvider)
 @Composable
-private fun shouldUseDarkTheme(): Boolean =
+fun shouldUseDarkTheme(): Boolean =
     when (
         val darkThemeConfigState = composeLifePreferences.darkThemeConfigState
     ) {
