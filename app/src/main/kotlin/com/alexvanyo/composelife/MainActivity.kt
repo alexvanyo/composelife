@@ -17,13 +17,15 @@
 package com.alexvanyo.composelife
 
 import android.animation.ObjectAnimator
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.window.SplashScreenView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -34,6 +36,7 @@ import androidx.core.view.WindowCompat
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.ui.ComposeLifeApp
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.theme.shouldUseDarkTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.EntryPoints
 import dagger.hilt.android.AndroidEntryPoint
@@ -65,8 +68,24 @@ class MainActivity : Hilt_MainActivity() {
             ).apply {
                 duration = 250
                 doOnEnd {
+                    // Ugly hack to avoid a flash on API 31 and above in some situations when the device is in dark
+                    // mode, but the theme has been overridden to be in light mode.
+                    // Call into SplashScreenView.remove directly instead of using the AndroidX
+                    // SplashScreenViewProvider.remove.
+                    // This avoids fighting as much for setting the system decor, because the
+                    // SplashScreenViewProvider.remove reverts back to the theme's values, whereas the built-in one
+                    // pulls the current values after we update to the real values
+                    if (Build.VERSION.SDK_INT >= 31) {
+                        val splashScreenView = viewProvider.view as? SplashScreenView
+                        if (splashScreenView != null) {
+                            splashScreenView.remove()
+                        } else {
+                            viewProvider.remove()
+                        }
+                    } else {
+                        viewProvider.remove()
+                    }
                     setSystemBarsColorTick++
-                    viewProvider.remove()
                 }
                 start()
             }
@@ -76,15 +95,16 @@ class MainActivity : Hilt_MainActivity() {
 
         setContent {
             with(mainActivityEntryPoint) {
-                ComposeLifeTheme {
-                    val useDarkIcons = ComposeLifeTheme.isLight
+                val darkTheme = shouldUseDarkTheme()
+                ComposeLifeTheme(darkTheme) {
                     val systemUiController = rememberSystemUiController()
 
-                    LaunchedEffect(systemUiController, useDarkIcons, setSystemBarsColorTick) {
+                    DisposableEffect(systemUiController, darkTheme, setSystemBarsColorTick) {
                         systemUiController.setSystemBarsColor(
                             color = Color.Transparent,
-                            darkIcons = useDarkIcons,
+                            darkIcons = !darkTheme,
                         )
+                        onDispose {}
                     }
 
                     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
