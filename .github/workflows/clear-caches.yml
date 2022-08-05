@@ -10,13 +10,13 @@ jobs:
       - run: |
           TOTAL_COUNT=0
           while true; do
-            LIST_CACHES=$(gh api -H "Accept: application/vnd.github+json" /repos/$OWNER/$REPO/actions/caches)
+            LIST_CACHES=$(gh api -H "Accept: application/vnd.github+json" /repos/$GITHUB_REPOSITORY/actions/caches)
             REMAINING_COUNT=$(echo $LIST_CACHES | jq .total_count)
             [[ $REMAINING_COUNT > 0 ]] || break
             IDS=$(echo $LIST_CACHES | jq .actions_caches[].id)
             for ID in ${IDS[@]}; do
               echo "Clearing $ID"
-              gh api --method DELETE -H "Accept: application/vnd.github+json" /repos/$OWNER/$REPO/actions/caches/$ID
+              gh api --method DELETE -H "Accept: application/vnd.github+json" /repos/$GITHUB_REPOSITORY/actions/caches/$ID
               ((TOTAL_COUNT++))
             done
           done
