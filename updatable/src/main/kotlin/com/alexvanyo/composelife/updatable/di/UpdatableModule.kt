@@ -14,29 +14,18 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.preferences.di
+package com.alexvanyo.composelife.updatable.di
 
-import com.alexvanyo.composelife.preferences.ComposeLifePreferences
-import com.alexvanyo.composelife.preferences.DefaultComposeLifePreferences
 import com.alexvanyo.composelife.updatable.Updatable
-import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import dagger.multibindings.IntoSet
+import dagger.multibindings.Multibinds
 
 @Module
 @InstallIn(SingletonComponent::class)
-interface PreferencesModule {
+interface UpdatableModule {
 
-    @Binds
-    fun bindsComposeLifePreferences(
-        defaultComposeLifePreferences: DefaultComposeLifePreferences,
-    ): ComposeLifePreferences
-
-    @Binds
-    @IntoSet
-    fun bindsComposeLifePreferencesIntoUpdatable(
-        composeLifePreferences: ComposeLifePreferences,
-    ): Updatable
+    @Multibinds
+    fun declareUpdatables(): Set<@JvmSuppressWildcards Updatable>
 }

@@ -26,8 +26,10 @@ import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
+import com.alexvanyo.composelife.updatable.Updatable
 import dagger.hilt.android.testing.HiltAndroidRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -58,6 +60,9 @@ abstract class BaseHiltTest<T : ComponentActivity>(clazz: Class<T>) {
     @Inject
     lateinit var preferences: TestComposeLifePreferences
 
+    @Inject
+    lateinit var updatables: Set<@JvmSuppressWildcards Updatable>
+
     val context: Context get() = composeTestRule.activity
 
     @Before
@@ -80,6 +85,11 @@ abstract class BaseHiltTest<T : ComponentActivity>(clazz: Class<T>) {
         },
         testBody: suspend TestScope.() -> Unit,
     ): TestResult = runTest {
+        updatables.forEach { updatable ->
+            backgroundScope.launch {
+                updatable.update()
+            }
+        }
         preferencesInitializer(preferences)
         testBody()
     }

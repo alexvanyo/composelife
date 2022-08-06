@@ -84,12 +84,14 @@ fun GameOfLifeProgressIndicator(
         )
     }
 
-    key(pattern) {
-        rememberTemporalGameOfLifeStateMutator(
-            temporalGameOfLifeState = temporalGameOfLifeState,
-            dispatchers = dispatchers,
-            gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-        )
+    val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
+        temporalGameOfLifeState = temporalGameOfLifeState,
+        gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+        dispatchers = dispatchers,
+    )
+
+    LaunchedEffect(temporalGameOfLifeStateMutator) {
+        temporalGameOfLifeStateMutator.update()
     }
 
     val lifecycleOwner = LocalLifecycleOwner.current

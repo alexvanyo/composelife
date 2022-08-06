@@ -19,7 +19,7 @@ package com.alexvanyo.composelife.preferences
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import androidx.compose.runtime.snapshots.Snapshot
 import com.alexvanyo.composelife.preferences.CurrentShape.RoundRectangle
 import com.alexvanyo.composelife.preferences.proto.AlgorithmProto
 import com.alexvanyo.composelife.preferences.proto.CurrentShapeTypeProto
@@ -29,10 +29,8 @@ import com.alexvanyo.composelife.preferences.proto.RoundRectangleProto
 import com.alexvanyo.composelife.preferences.proto.copy
 import com.alexvanyo.composelife.preferences.proto.roundRectangleProto
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -40,9 +38,7 @@ import javax.inject.Singleton
 @Singleton
 class DefaultComposeLifePreferences @Inject constructor(
     private val dataStore: PreferencesDataStore,
-    dispatchers: ComposeLifeDispatchers,
 ) : ComposeLifePreferences {
-    private val scope = CoroutineScope(dispatchers.Main + SupervisorJob())
 
     override var quickAccessSettings: ResourceState<Set<QuickAccessSetting>> by mutableStateOf(ResourceState.Loading)
         private set
@@ -56,60 +52,65 @@ class DefaultComposeLifePreferences @Inject constructor(
     override var darkThemeConfigState: ResourceState<DarkThemeConfig> by mutableStateOf(ResourceState.Loading)
         private set
 
-    init {
+    override suspend fun update() {
         dataStore.data
             .onEach { preferencesProto ->
-                quickAccessSettings = ResourceState.Success(
-                    preferencesProto.quickAccessSettingsList.mapNotNull { quickAccessSettingProto ->
-                        when (quickAccessSettingProto!!) {
-                            QuickAccessSettingProto.ALGORITHM_IMPLEMENTATION ->
-                                QuickAccessSetting.AlgorithmImplementation
-                            QuickAccessSettingProto.DARK_THEME_CONFIG ->
-                                QuickAccessSetting.DarkThemeConfig
-                            QuickAccessSettingProto.CELL_SHAPE_CONFIG ->
-                                QuickAccessSetting.CellShapeConfig
-                            QuickAccessSettingProto.SETTINGS_UNKNOWN,
-                            QuickAccessSettingProto.UNRECOGNIZED,
-                            -> null
-                        }
-                    }.toSet(),
-                )
+                Snapshot.withMutableSnapshot {
+                    quickAccessSettings = ResourceState.Success(
+                        preferencesProto.quickAccessSettingsList.mapNotNull { quickAccessSettingProto ->
+                            when (quickAccessSettingProto!!) {
+                                QuickAccessSettingProto.ALGORITHM_IMPLEMENTATION ->
+                                    QuickAccessSetting.AlgorithmImplementation
+                                QuickAccessSettingProto.DARK_THEME_CONFIG ->
+                                    QuickAccessSetting.DarkThemeConfig
+                                QuickAccessSettingProto.CELL_SHAPE_CONFIG ->
+                                    QuickAccessSetting.CellShapeConfig
+                                QuickAccessSettingProto.SETTINGS_UNKNOWN,
+                                QuickAccessSettingProto.UNRECOGNIZED,
+                                -> null
+                            }
+                        }.toSet(),
+                    )
 
-                algorithmChoiceState = ResourceState.Success(
-                    when (preferencesProto.algorithm!!) {
-                        AlgorithmProto.ALGORITHM_UNKNOWN,
-                        AlgorithmProto.DEFAULT,
-                        AlgorithmProto.HASHLIFE,
-                        AlgorithmProto.UNRECOGNIZED,
-                        -> AlgorithmType.HashLifeAlgorithm
-                        AlgorithmProto.NAIVE -> AlgorithmType.NaiveAlgorithm
-                    },
-                )
+                    algorithmChoiceState = ResourceState.Success(
+                        when (preferencesProto.algorithm!!) {
+                            AlgorithmProto.ALGORITHM_UNKNOWN,
+                            AlgorithmProto.DEFAULT,
+                            AlgorithmProto.HASHLIFE,
+                            AlgorithmProto.UNRECOGNIZED,
+                            -> AlgorithmType.HashLifeAlgorithm
+                            AlgorithmProto.NAIVE -> AlgorithmType.NaiveAlgorithm
+                        },
+                    )
 
-                currentShapeState = ResourceState.Success(
-                    when (preferencesProto.currentShapeType!!) {
-                        CurrentShapeTypeProto.CURRENT_SHAPE_TYPE_UNKNOWN,
-                        CurrentShapeTypeProto.UNRECOGNIZED, -> defaultRoundRectangle
-                        CurrentShapeTypeProto.ROUND_RECTANGLE -> preferencesProto.roundRectangle.toResolved()
-                    },
-                )
+                    currentShapeState = ResourceState.Success(
+                        when (preferencesProto.currentShapeType!!) {
+                            CurrentShapeTypeProto.CURRENT_SHAPE_TYPE_UNKNOWN,
+                            CurrentShapeTypeProto.UNRECOGNIZED, -> defaultRoundRectangle
+                            CurrentShapeTypeProto.ROUND_RECTANGLE -> preferencesProto.roundRectangle.toResolved()
+                        },
+                    )
 
-                darkThemeConfigState = ResourceState.Success(
-                    when (preferencesProto.darkThemeConfig!!) {
-                        DarkThemeConfigProto.DARK_THEME_UNKNOWN,
-                        DarkThemeConfigProto.UNRECOGNIZED,
-                        DarkThemeConfigProto.SYSTEM, -> DarkThemeConfig.FollowSystem
-                        DarkThemeConfigProto.DARK -> DarkThemeConfig.Dark
-                        DarkThemeConfigProto.LIGHT -> DarkThemeConfig.Light
-                    },
-                )
+                    darkThemeConfigState = ResourceState.Success(
+                        when (preferencesProto.darkThemeConfig!!) {
+                            DarkThemeConfigProto.DARK_THEME_UNKNOWN,
+                            DarkThemeConfigProto.UNRECOGNIZED,
+                            DarkThemeConfigProto.SYSTEM, -> DarkThemeConfig.FollowSystem
+                            DarkThemeConfigProto.DARK -> DarkThemeConfig.Dark
+                            DarkThemeConfigProto.LIGHT -> DarkThemeConfig.Light
+                        },
+                    )
+                }
             }
             .catch {
-                algorithmChoiceState = ResourceState.Failure(it)
-                currentShapeState = ResourceState.Failure(it)
-                darkThemeConfigState = ResourceState.Failure(it)
+                Snapshot.withMutableSnapshot {
+                    quickAccessSettings = ResourceState.Failure(it)
+                    algorithmChoiceState = ResourceState.Failure(it)
+                    currentShapeState = ResourceState.Failure(it)
+                    darkThemeConfigState = ResourceState.Failure(it)
+                }
             }
-            .launchIn(scope)
+            .collect()
     }
 
     override suspend fun setAlgorithmChoice(algorithm: AlgorithmType) {
