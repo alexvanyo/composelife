@@ -25,9 +25,10 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -71,9 +72,13 @@ class ComposeLifePreferencesTests {
 
     @Test
     fun default_algorithm_choice_is_hashlife() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
         assertEquals(ResourceState.Loading, composeLifePreferences.algorithmChoiceState)
 
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(AlgorithmType.HashLifeAlgorithm),
@@ -83,9 +88,13 @@ class ComposeLifePreferencesTests {
 
     @Test
     fun setting_algorithm_choice_updates_value() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
         assertEquals(ResourceState.Loading, composeLifePreferences.algorithmChoiceState)
 
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(AlgorithmType.HashLifeAlgorithm),
@@ -93,16 +102,20 @@ class ComposeLifePreferencesTests {
         )
 
         composeLifePreferences.setAlgorithmChoice(AlgorithmType.NaiveAlgorithm)
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(ResourceState.Success(AlgorithmType.NaiveAlgorithm), composeLifePreferences.algorithmChoiceState)
     }
 
     @Test
     fun default_current_shape_is_round_rectangle() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
         assertEquals(ResourceState.Loading, composeLifePreferences.currentShapeState)
 
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(
@@ -117,9 +130,13 @@ class ComposeLifePreferencesTests {
 
     @Test
     fun setting_round_rectangle_config_updates_value() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
         assertEquals(ResourceState.Loading, composeLifePreferences.currentShapeState)
 
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(
@@ -137,7 +154,7 @@ class ComposeLifePreferencesTests {
                 cornerFraction = 0.25f,
             )
         }
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(
@@ -152,9 +169,13 @@ class ComposeLifePreferencesTests {
 
     @Test
     fun default_dark_theme_config_is_follow_system() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
         assertEquals(ResourceState.Loading, composeLifePreferences.darkThemeConfigState)
 
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(DarkThemeConfig.FollowSystem),
@@ -164,9 +185,13 @@ class ComposeLifePreferencesTests {
 
     @Test
     fun setting_dark_theme_config_updates_value() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
         assertEquals(ResourceState.Loading, composeLifePreferences.darkThemeConfigState)
 
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(DarkThemeConfig.FollowSystem),
@@ -174,7 +199,7 @@ class ComposeLifePreferencesTests {
         )
 
         composeLifePreferences.setDarkThemeConfig(DarkThemeConfig.Light)
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(DarkThemeConfig.Light),
@@ -184,9 +209,13 @@ class ComposeLifePreferencesTests {
 
     @Test
     fun default_quick_access_settings_is_empty() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
         assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
 
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(emptySet()),
@@ -196,9 +225,13 @@ class ComposeLifePreferencesTests {
 
     @Test
     fun adding_quick_access_setting_updates_value() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
         assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
 
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(emptySet()),
@@ -208,7 +241,7 @@ class ComposeLifePreferencesTests {
         composeLifePreferences.addQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
@@ -218,9 +251,13 @@ class ComposeLifePreferencesTests {
 
     @Test
     fun adding_multiple_quick_access_settings_updates_value() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
         assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
 
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(emptySet()),
@@ -233,7 +270,7 @@ class ComposeLifePreferencesTests {
         composeLifePreferences.addQuickAccessSetting(
             QuickAccessSetting.AlgorithmImplementation,
         )
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(
@@ -248,9 +285,13 @@ class ComposeLifePreferencesTests {
 
     @Test
     fun adding_all_quick_access_settings_updates_value() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
         assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
 
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(emptySet()),
@@ -260,15 +301,15 @@ class ComposeLifePreferencesTests {
         composeLifePreferences.addQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        advanceUntilIdle()
+        runCurrent()
         composeLifePreferences.addQuickAccessSetting(
             QuickAccessSetting.AlgorithmImplementation,
         )
-        advanceUntilIdle()
+        runCurrent()
         composeLifePreferences.addQuickAccessSetting(
             QuickAccessSetting.CellShapeConfig,
         )
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(
@@ -284,9 +325,13 @@ class ComposeLifePreferencesTests {
 
     @Test
     fun adding_quick_access_setting_multiple_times_updates_value() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
         assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
 
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(emptySet()),
@@ -296,15 +341,15 @@ class ComposeLifePreferencesTests {
         composeLifePreferences.addQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        advanceUntilIdle()
+        runCurrent()
         composeLifePreferences.addQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        advanceUntilIdle()
+        runCurrent()
         composeLifePreferences.addQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
@@ -314,9 +359,13 @@ class ComposeLifePreferencesTests {
 
     @Test
     fun removing_quick_access_setting_multiple_times_updates_value() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
         assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
 
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(emptySet()),
@@ -326,15 +375,15 @@ class ComposeLifePreferencesTests {
         composeLifePreferences.addQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        advanceUntilIdle()
+        runCurrent()
         composeLifePreferences.addQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        advanceUntilIdle()
+        runCurrent()
         composeLifePreferences.addQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
@@ -344,15 +393,15 @@ class ComposeLifePreferencesTests {
         composeLifePreferences.removeQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        advanceUntilIdle()
+        runCurrent()
         composeLifePreferences.removeQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        advanceUntilIdle()
+        runCurrent()
         composeLifePreferences.removeQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(emptySet()),
@@ -362,9 +411,13 @@ class ComposeLifePreferencesTests {
 
     @Test
     fun adding_and_removing_quick_access_settings_updates_value() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
         assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
 
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(emptySet()),
@@ -374,11 +427,11 @@ class ComposeLifePreferencesTests {
         composeLifePreferences.addQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        advanceUntilIdle()
+        runCurrent()
         composeLifePreferences.addQuickAccessSetting(
             QuickAccessSetting.AlgorithmImplementation,
         )
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(
@@ -393,7 +446,7 @@ class ComposeLifePreferencesTests {
         composeLifePreferences.removeQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(setOf(QuickAccessSetting.AlgorithmImplementation)),

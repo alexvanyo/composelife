@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsActions.ScrollToIndex
@@ -85,12 +86,16 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 targetStepsPerSecond = 60.0,
             )
 
-            rememberTemporalGameOfLifeStateMutator(
+            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = gameOfLifeAlgorithm,
                 clock = testDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
+
+            LaunchedEffect(temporalGameOfLifeStateMutator) {
+                temporalGameOfLifeStateMutator.update()
+            }
 
             with(interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
@@ -126,12 +131,16 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 targetStepsPerSecond = 60.0,
             )
 
-            rememberTemporalGameOfLifeStateMutator(
+            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = gameOfLifeAlgorithm,
                 clock = testDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
+
+            LaunchedEffect(temporalGameOfLifeStateMutator) {
+                temporalGameOfLifeStateMutator.update()
+            }
 
             with(interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
@@ -166,12 +175,16 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 targetStepsPerSecond = 60.0,
             )
 
-            rememberTemporalGameOfLifeStateMutator(
+            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = gameOfLifeAlgorithm,
                 clock = testDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
+
+            LaunchedEffect(temporalGameOfLifeStateMutator) {
+                temporalGameOfLifeStateMutator.update()
+            }
 
             with(interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
@@ -217,12 +230,16 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 targetStepsPerSecond = 60.0,
             )
 
-            rememberTemporalGameOfLifeStateMutator(
+            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = gameOfLifeAlgorithm,
                 clock = testDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
+
+            LaunchedEffect(temporalGameOfLifeStateMutator) {
+                temporalGameOfLifeStateMutator.update()
+            }
 
             with(interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
@@ -286,12 +303,16 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 targetStepsPerSecond = 0.001,
             )
 
-            rememberTemporalGameOfLifeStateMutator(
+            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = gameOfLifeAlgorithm,
                 clock = testDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
+
+            LaunchedEffect(temporalGameOfLifeStateMutator) {
+                temporalGameOfLifeStateMutator.update()
+            }
 
             with(interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
@@ -336,12 +357,16 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 targetStepsPerSecond = 0.001,
             )
 
-            rememberTemporalGameOfLifeStateMutator(
+            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = gameOfLifeAlgorithm,
                 clock = testDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
+
+            LaunchedEffect(temporalGameOfLifeStateMutator) {
+                temporalGameOfLifeStateMutator.update()
+            }
 
             with(interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(

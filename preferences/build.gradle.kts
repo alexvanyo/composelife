@@ -38,6 +38,7 @@ dependencies {
     api(projects.dispatchers)
     implementation(projects.preferencesProto)
     api(projects.resourceState)
+    api(projects.updatable)
     api(libs.kotlinx.coroutines.core)
     api(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.fragment)

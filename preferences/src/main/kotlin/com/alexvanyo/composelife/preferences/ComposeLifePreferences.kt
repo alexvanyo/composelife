@@ -18,8 +18,9 @@ package com.alexvanyo.composelife.preferences
 
 import com.alexvanyo.composelife.preferences.CurrentShape.RoundRectangle
 import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.updatable.Updatable
 
-interface ComposeLifePreferences {
+interface ComposeLifePreferences : Updatable {
     val quickAccessSettings: ResourceState<Set<QuickAccessSetting>>
 
     val algorithmChoiceState: ResourceState<AlgorithmType>

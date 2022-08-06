@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.model
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -105,12 +106,16 @@ class TemporalGameOfLifeStateComposableTests {
         )
 
         composeTestRule.setContent {
-            rememberTemporalGameOfLifeStateMutator(
+            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = hashLifeAlgorithm,
                 clock = testDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
+
+            LaunchedEffect(temporalGameOfLifeStateMutator) {
+                temporalGameOfLifeStateMutator.update()
+            }
         }
 
         assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
@@ -148,12 +153,16 @@ class TemporalGameOfLifeStateComposableTests {
         )
 
         composeTestRule.setContent {
-            rememberTemporalGameOfLifeStateMutator(
+            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = hashLifeAlgorithm,
                 clock = testDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
+
+            LaunchedEffect(temporalGameOfLifeStateMutator) {
+                temporalGameOfLifeStateMutator.update()
+            }
         }
 
         composeTestRule.waitForIdle()

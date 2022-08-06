@@ -21,6 +21,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.unit.DpSize
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
@@ -39,11 +40,15 @@ fun ComposeLifeApp(
         isRunning = false,
     )
 
-    rememberTemporalGameOfLifeStateMutator(
+    val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
         temporalGameOfLifeState = temporalGameOfLifeState,
         gameOfLifeAlgorithm = gameOfLifeAlgorithm,
         dispatchers = dispatchers,
     )
+
+    LaunchedEffect(temporalGameOfLifeStateMutator) {
+        temporalGameOfLifeStateMutator.update()
+    }
 
     InteractiveCellUniverse(
         temporalGameOfLifeState = temporalGameOfLifeState,

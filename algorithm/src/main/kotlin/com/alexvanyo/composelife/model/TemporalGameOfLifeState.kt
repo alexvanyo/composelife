@@ -24,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -33,8 +32,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.util.toPair
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
@@ -49,7 +48,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.zip
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -412,12 +410,10 @@ fun rememberTemporalGameOfLifeStateMutator(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     dispatchers: ComposeLifeDispatchers,
     gameOfLifeAlgorithm: GameOfLifeAlgorithm,
-    coroutineScope: CoroutineScope = rememberCoroutineScope(),
     clock: Clock = Clock.System,
 ): TemporalGameOfLifeStateMutator =
-    remember(gameOfLifeAlgorithm, coroutineScope) {
+    remember(temporalGameOfLifeState, dispatchers, gameOfLifeAlgorithm, clock) {
         TemporalGameOfLifeStateMutator(
-            coroutineScope = coroutineScope,
             gameOfLifeAlgorithm = gameOfLifeAlgorithm,
             clock = clock,
             dispatchers = dispatchers,
@@ -426,19 +422,16 @@ fun rememberTemporalGameOfLifeStateMutator(
     }
 
 class TemporalGameOfLifeStateMutator(
-    coroutineScope: CoroutineScope,
     private val gameOfLifeAlgorithm: GameOfLifeAlgorithm,
     private val clock: Clock,
     private val dispatchers: ComposeLifeDispatchers,
     private val temporalGameOfLifeState: TemporalGameOfLifeState,
-) {
-    init {
-        coroutineScope.launch {
-            with(gameOfLifeAlgorithm) {
-                with(dispatchers) {
-                    with(clock) {
-                        temporalGameOfLifeState.evolve()
-                    }
+) : Updatable {
+    override suspend fun update() {
+        with(gameOfLifeAlgorithm) {
+            with(dispatchers) {
+                with(clock) {
+                    temporalGameOfLifeState.evolve()
                 }
             }
         }

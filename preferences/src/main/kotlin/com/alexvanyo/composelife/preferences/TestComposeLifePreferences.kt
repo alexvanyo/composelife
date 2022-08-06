@@ -54,6 +54,8 @@ class TestComposeLifePreferences @Inject constructor() : ComposeLifePreferences 
     override var darkThemeConfigState: ResourceState<DarkThemeConfig> by mutableStateOf(ResourceState.Loading)
         private set
 
+    override suspend fun update() = Unit
+
     override suspend fun setAlgorithmChoice(algorithm: AlgorithmType) {
         Snapshot.withMutableSnapshot {
             algorithmChoiceState = ResourceState.Success(algorithm)
