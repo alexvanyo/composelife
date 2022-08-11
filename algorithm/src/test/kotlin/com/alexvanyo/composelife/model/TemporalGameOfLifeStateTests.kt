@@ -51,7 +51,7 @@ class TemporalGameOfLifeStateTests {
     @Test
     fun `initial values are correct when running`() {
         val gameOfLifeState = TemporalGameOfLifeState(
-            cellState = SixLongLinePattern.seedCellState,
+            seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
         )
 
@@ -69,7 +69,7 @@ class TemporalGameOfLifeStateTests {
     @Test
     fun `simple evolution is correct`() = runTest {
         val gameOfLifeState = TemporalGameOfLifeState(
-            cellState = SixLongLinePattern.seedCellState,
+            seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
         )
 
@@ -113,7 +113,7 @@ class TemporalGameOfLifeStateTests {
     @Test
     fun `pausing evolution is correct`() = runTest {
         val gameOfLifeState = TemporalGameOfLifeState(
-            cellState = SixLongLinePattern.seedCellState,
+            seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
         )
 
@@ -199,7 +199,7 @@ class TemporalGameOfLifeStateTests {
     @Test
     fun `stepping evolution is correct`() = runTest {
         val gameOfLifeState = TemporalGameOfLifeState(
-            cellState = SixLongLinePattern.seedCellState,
+            seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
         )
 
@@ -290,7 +290,7 @@ class TemporalGameOfLifeStateTests {
     @Test
     fun `target steps evolution is correct`() = runTest {
         val gameOfLifeState = TemporalGameOfLifeState(
-            cellState = SixLongLinePattern.seedCellState,
+            seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
         )
 
@@ -381,7 +381,7 @@ class TemporalGameOfLifeStateTests {
     @Test
     fun `setting evolution is correct`() = runTest {
         val gameOfLifeState = TemporalGameOfLifeState(
-            cellState = SixLongLinePattern.seedCellState,
+            seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
         )
 
@@ -448,7 +448,7 @@ class TemporalGameOfLifeStateTests {
     @Test
     fun `multiple evolutions are correct`() = runTest {
         val gameOfLifeState = TemporalGameOfLifeState(
-            cellState = SixLongLinePattern.seedCellState,
+            seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
         )
 

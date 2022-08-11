@@ -18,31 +18,37 @@ package com.alexvanyo.composelife.model
 
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.algorithm.R
-import com.alexvanyo.composelife.model.CellStateSerializer.DeserializationResult
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.livefront.sealedenum.GenSealedEnum
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-interface CellStateSerializer {
+interface FixedFormatCellStateSerializer {
     fun deserializeToCellState(lines: Sequence<String>): DeserializationResult
 
     fun serializeToString(cellState: CellState): Sequence<String>
+}
 
-    sealed interface DeserializationResult {
-        val warnings: List<ParameterizedString>
+interface CellStateSerializer {
+    suspend fun deserializeToCellState(
+        format: CellStateFormat,
+        lines: Sequence<String>,
+    ): DeserializationResult
 
-        data class Successful(
-            override val warnings: List<ParameterizedString>,
-            val cellState: CellState,
-        ) : DeserializationResult
-
-        data class Unsuccessful(
-            override val warnings: List<ParameterizedString>,
-            val errors: List<ParameterizedString>,
-        ) : DeserializationResult
-    }
+    suspend fun serializeToString(
+        format: CellStateFormat.FixedFormat,
+        cellState: CellState,
+    ): Sequence<String>
 }
 
 sealed interface CellStateFormat {
+
+    object Unknown : CellStateFormat
+    object Life : CellStateFormat
 
     /**
      * A "fixed" format for a cell state. Any serialization or deserialization of a cell state should eventually
@@ -62,7 +68,83 @@ sealed interface CellStateFormat {
     companion object
 }
 
-class PlaintextCellStateSerializer : CellStateSerializer {
+fun CellStateFormat.Companion.fromFileExtension(fileExtension: String?): CellStateFormat =
+    when (fileExtension) {
+        "cells" -> CellStateFormat.FixedFormat.Plaintext
+        "lif", "life" -> CellStateFormat.Life
+        "rle" -> CellStateFormat.FixedFormat.RunLengthEncoding
+        else -> CellStateFormat.Unknown
+    }
+
+class FlexibleCellStateSerializer @Inject constructor(
+    private val dispatchers: ComposeLifeDispatchers,
+) : CellStateSerializer {
+    override suspend fun deserializeToCellState(
+        format: CellStateFormat,
+        lines: Sequence<String>,
+    ): DeserializationResult = @Suppress("InjectDispatcher") withContext(dispatchers.Default) {
+        val targetedSerializer = when (format) {
+            CellStateFormat.FixedFormat.Plaintext -> PlaintextCellStateSerializer
+            CellStateFormat.FixedFormat.Life105 -> Life105CellStateSerializer
+            CellStateFormat.FixedFormat.Life106,
+            CellStateFormat.FixedFormat.RunLengthEncoding,
+            CellStateFormat.Life,
+            CellStateFormat.Unknown,
+            -> null
+        }
+
+        when (val targetedResult = targetedSerializer?.deserializeToCellState(lines)) {
+            is DeserializationResult.Successful -> return@withContext targetedResult
+            is DeserializationResult.Unsuccessful,
+            null,
+            -> Unit
+        }
+
+        val allSerializers = listOf(
+            PlaintextCellStateSerializer,
+            Life105CellStateSerializer,
+        )
+
+        coroutineScope {
+            allSerializers
+                .map {
+                    async {
+                        it.deserializeToCellState(lines)
+                    }
+                }
+                .awaitAll()
+                .reduce { a, b ->
+                    when (a) {
+                        is DeserializationResult.Unsuccessful -> b
+                        is DeserializationResult.Successful -> {
+                            when (b) {
+                                is DeserializationResult.Successful -> if (a.warnings.isEmpty()) {
+                                    a
+                                } else {
+                                    b
+                                }
+                                is DeserializationResult.Unsuccessful -> a
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
+    override suspend fun serializeToString(
+        format: CellStateFormat.FixedFormat,
+        cellState: CellState,
+    ): Sequence<String> =
+        when (format) {
+            CellStateFormat.FixedFormat.Plaintext -> PlaintextCellStateSerializer
+            CellStateFormat.FixedFormat.Life105 -> Life105CellStateSerializer
+            CellStateFormat.FixedFormat.Life106,
+            CellStateFormat.FixedFormat.RunLengthEncoding,
+            -> TODO("Format not implemented yet!")
+        }.serializeToString(cellState)
+}
+
+object PlaintextCellStateSerializer : FixedFormatCellStateSerializer {
 
     private data class LineLengthInfo(
         val index: Int,
@@ -173,7 +255,7 @@ class PlaintextCellStateSerializer : CellStateSerializer {
     }
 }
 
-class Life105CellStateSerializer : CellStateSerializer {
+object Life105CellStateSerializer : FixedFormatCellStateSerializer {
 
     @Suppress("LongMethod", "ComplexMethod", "NestedBlockDepth", "ReturnCount")
     override fun deserializeToCellState(lines: Sequence<String>): DeserializationResult {

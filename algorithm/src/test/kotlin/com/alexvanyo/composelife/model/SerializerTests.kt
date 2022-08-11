@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.model
 
-import com.alexvanyo.composelife.model.CellStateSerializer.DeserializationResult
 import com.alexvanyo.composelife.patterns.GameOfLifeTestPattern
 import com.alexvanyo.composelife.patterns.GameOfLifeTestPatternEnum
 import com.alexvanyo.composelife.patterns.sealedObject
@@ -31,7 +30,7 @@ class SerializerTests {
     class CellStateSerializerFactory(
         private val name: String,
         val trueEquals: Boolean,
-        val factory: () -> CellStateSerializer,
+        val factory: () -> FixedFormatCellStateSerializer,
     ) {
         override fun toString(): String = name
 
@@ -42,13 +41,13 @@ class SerializerTests {
                         name = "Plaintext",
                         trueEquals = false,
                     ) {
-                        PlaintextCellStateSerializer()
+                        PlaintextCellStateSerializer
                     },
                     CellStateSerializerFactory(
                         name = "Life 1.05",
                         trueEquals = true,
                     ) {
-                        Life105CellStateSerializer()
+                        Life105CellStateSerializer
                     },
                 )
         }

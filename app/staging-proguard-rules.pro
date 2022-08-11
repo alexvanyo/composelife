@@ -21,6 +21,7 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class kotlin.collections.CollectionsKt*
+-keep class kotlin.text.StringsKt*
 -keep class androidx.compose.runtime.MonotonicFrameClock {
     *;
 }
@@ -30,6 +31,6 @@
 -keep,allowobfuscation class dagger.hilt.android.internal.managers.ActivityRetainedComponentManager$ActivityRetainedComponentBuilderEntryPoint {
     retainedComponentBuilder();
 }
--keep,allowobfuscation interface com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorHiltEntryPoint {
+-keep,allowobfuscation interface com.alexvanyo.composelife.ui.ComposeLifeAppHiltEntryPoint {
     *;
 }

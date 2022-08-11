@@ -71,7 +71,7 @@ class TemporalGameOfLifeStateComposableTests {
 
         stateRestorationTester.setContent {
             extractedState = rememberTemporalGameOfLifeState(
-                cellState = PondPattern.seedCellState,
+                seedCellState = PondPattern.seedCellState,
                 isRunning = false,
                 generationsPerStep = 5,
                 targetStepsPerSecond = 30.0,
@@ -95,7 +95,7 @@ class TemporalGameOfLifeStateComposableTests {
     @Test
     fun state_is_advanced_correctly() = runTest {
         val temporalGameOfLifeState = TemporalGameOfLifeState(
-            cellState = SixLongLinePattern.seedCellState,
+            seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
             generationsPerStep = 1,
             targetStepsPerSecond = 60.0,
@@ -142,7 +142,7 @@ class TemporalGameOfLifeStateComposableTests {
     @Test
     fun state_is_advanced_correctly_with_step() = runTest {
         val temporalGameOfLifeState = TemporalGameOfLifeState(
-            cellState = SixLongLinePattern.seedCellState,
+            seedCellState = SixLongLinePattern.seedCellState,
             isRunning = false,
             generationsPerStep = 1,
             targetStepsPerSecond = 60.0,

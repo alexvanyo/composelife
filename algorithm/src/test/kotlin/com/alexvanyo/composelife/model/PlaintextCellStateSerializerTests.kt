@@ -23,12 +23,12 @@ import kotlin.test.assertEquals
 
 class PlaintextCellStateSerializerTests {
 
-    private val serializer = PlaintextCellStateSerializer()
+    private val serializer = PlaintextCellStateSerializer
 
     @Test
     fun `basic deserialization is correct`() {
         assertEquals(
-            CellStateSerializer.DeserializationResult.Successful(
+            DeserializationResult.Successful(
                 warnings = emptyList(),
                 cellState = setOf(
                     0 to 0,
@@ -59,7 +59,7 @@ class PlaintextCellStateSerializerTests {
     @Test
     fun `deserialization with comments is correct`() {
         assertEquals(
-            CellStateSerializer.DeserializationResult.Successful(
+            DeserializationResult.Successful(
                 warnings = emptyList(),
                 cellState = setOf(
                     0 to 0,
@@ -94,7 +94,7 @@ class PlaintextCellStateSerializerTests {
     @Test
     fun `deserialization with comments and warnings is correct`() {
         assertEquals(
-            CellStateSerializer.DeserializationResult.Successful(
+            DeserializationResult.Successful(
                 warnings = listOf(
                     ParameterizedString(R.string.unexpected_blank_line, 3),
                     ParameterizedString(R.string.unexpected_character, '0', 4, 1),
