@@ -21,6 +21,7 @@ import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.alexvanyo.composelife.database.AppDatabase
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
@@ -34,6 +35,7 @@ import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.rules.TestRule
@@ -61,6 +63,9 @@ abstract class BaseHiltTest<T : ComponentActivity>(clazz: Class<T>) {
     lateinit var preferences: TestComposeLifePreferences
 
     @Inject
+    lateinit var appDatabase: AppDatabase
+
+    @Inject
     lateinit var updatables: Set<@JvmSuppressWildcards Updatable>
 
     val context: Context get() = composeTestRule.activity
@@ -68,6 +73,11 @@ abstract class BaseHiltTest<T : ComponentActivity>(clazz: Class<T>) {
     @Before
     fun baseHiltTestSetup() {
         hiltAndroidRule.inject()
+    }
+
+    @After
+    fun baseHiltTestTeardown() {
+        appDatabase.close()
     }
 
     fun runAppTest(

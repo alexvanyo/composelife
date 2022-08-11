@@ -17,12 +17,18 @@
 package com.alexvanyo.composelife.ui.entrypoints
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.room.Room
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.algorithm.NaiveGameOfLifeAlgorithm
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
+import com.alexvanyo.composelife.data.CellStateRepositoryImpl
+import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
+import com.alexvanyo.composelife.database.AppDatabase
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.DefaultComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
+import com.alexvanyo.composelife.model.FlexibleCellStateSerializer
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
@@ -30,7 +36,9 @@ import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.random.di.RandomProvider
+import com.alexvanyo.composelife.ui.ComposeLifeAppHiltEntryPoint
 import com.alexvanyo.composelife.ui.InteractiveCellUniverseHiltEntryPoint
+import com.alexvanyo.composelife.ui.InteractiveCellUniverseLocalEntryPoint
 import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayHiltEntryPoint
 import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLocalEntryPoint
 import com.alexvanyo.composelife.ui.action.CellUniverseActionCardHiltEntryPoint
@@ -66,6 +74,7 @@ interface PreviewEntryPoint :
     CellStatePreviewUiLocalEntryPoint,
     CellWindowLocalEntryPoint,
     CellUniverseActionCardHiltEntryPoint,
+    ComposeLifeAppHiltEntryPoint,
     DarkThemeConfigUiHiltEntryPoint,
     DarkThemeConfigUiLocalEntryPoint,
     DisableAGSLUiHiltEntryPoint,
@@ -80,6 +89,7 @@ interface PreviewEntryPoint :
     InlineSettingsScreenLocalEntryPoint,
     InteractableCellsLocalEntryPoint,
     InteractiveCellUniverseHiltEntryPoint,
+    InteractiveCellUniverseLocalEntryPoint,
     InteractiveCellUniverseOverlayHiltEntryPoint,
     InteractiveCellUniverseOverlayLocalEntryPoint,
     NonInteractableCellsLocalEntryPoint,
@@ -110,6 +120,9 @@ fun WithPreviewDependencies(
     random: Random = Random(0),
     content: @Composable context(PreviewEntryPoint) () -> Unit,
 ) {
+    val appDatabase = Room.inMemoryDatabaseBuilder(LocalContext.current, AppDatabase::class.java).build()
+    val cellStateDao = appDatabase.cellStateDao()
+
     val dispatchersProvider = object : ComposeLifeDispatchersProvider {
         override val dispatchers = dispatchers
     }
@@ -118,6 +131,12 @@ fun WithPreviewDependencies(
     }
     val preferencesProvider = object : ComposeLifePreferencesProvider {
         override val composeLifePreferences = composeLifePreferences
+    }
+    val cellStateRepositoryProvider = object : CellStateRepositoryProvider {
+        override val cellStateRepository = CellStateRepositoryImpl(
+            flexibleCellStateSerializer = FlexibleCellStateSerializer(dispatchers),
+            cellStateDao = cellStateDao,
+        )
     }
     val loadedPreferencesProvider = object : LoadedComposeLifePreferencesProvider {
         override val preferences: LoadedComposeLifePreferences = loadedComposeLifePreferences
@@ -131,6 +150,7 @@ fun WithPreviewDependencies(
         ComposeLifeDispatchersProvider by dispatchersProvider,
         GameOfLifeAlgorithmProvider by algorithmProvider,
         ComposeLifePreferencesProvider by preferencesProvider,
+        CellStateRepositoryProvider by cellStateRepositoryProvider,
         LoadedComposeLifePreferencesProvider by loadedPreferencesProvider,
         RandomProvider by randomProvider {}
 

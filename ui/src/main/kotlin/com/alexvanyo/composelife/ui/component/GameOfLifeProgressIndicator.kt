@@ -80,7 +80,7 @@ fun GameOfLifeProgressIndicator(
     val pattern = OscillatorPattern.values[patternIndex]
     val temporalGameOfLifeState = key(pattern) {
         rememberTemporalGameOfLifeState(
-            cellState = pattern.seedCellState,
+            seedCellState = pattern.seedCellState,
             isRunning = false,
             targetStepsPerSecond = 4.0,
         )

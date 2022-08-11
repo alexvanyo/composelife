@@ -40,6 +40,7 @@ android {
 
 dependencies {
     api(projects.algorithm)
+    api(projects.data)
     api(projects.dispatchers)
     implementation(projects.navigation)
     implementation(projects.openglRenderer)
@@ -59,6 +60,7 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.window)
     implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.coroutines.android)

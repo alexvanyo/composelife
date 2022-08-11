@@ -16,6 +16,7 @@ androidxHilt = "1.0.0"
 androidxLifecycle = "2.6.0-alpha01"
 androidxPoolingContainer = "1.0.0"
 androidxProfileInstaller = "1.2.0"
+androidxRoom = "2.5.0-alpha02"
 androidxTest = "1.5.0-alpha04"
 androidxTestEspresso = "3.5.0-alpha07"
 androidxTestExt = "1.1.4-alpha07"
@@ -69,6 +70,9 @@ androidx-lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-r
 androidx-lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "androidxLifecycle" }
 androidx-poolingContainer = { group = "androidx.customview", name = "customview-poolingcontainer", version.ref = "androidxPoolingContainer" }
 androidx-profileInstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "androidxProfileInstaller" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "androidxRoom" }
+androidx-room-runtime = { group = "androidx.room", name = "room-ktx", version.ref = "androidxRoom" }
+androidx-room-testing = { group = "androidx.room", name = "room-testing", version.ref = "androidxRoom" }
 androidx-test-espresso = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxTestEspresso" }
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTest" }
 androidx-test-junit = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "androidxTestExt" }

@@ -44,6 +44,7 @@ import com.alexvanyo.composelife.dispatchers.clock
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseHiltTest
 import com.alexvanyo.composelife.test.TestActivity
 import com.alexvanyo.composelife.util.toRingIndex
@@ -70,6 +71,10 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
     lateinit var dispatchers: ComposeLifeDispatchers
 
     private lateinit var interactiveCellUniverseHiltEntryPoint: InteractiveCellUniverseHiltEntryPoint
+
+    private val interactiveCellUniverseLocalEntryPoint = object : InteractiveCellUniverseLocalEntryPoint {
+        override val preferences = LoadedComposeLifePreferences.Defaults
+    }
 
     @Before
     fun setup() {
@@ -98,11 +103,13 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             }
 
             with(interactiveCellUniverseHiltEntryPoint) {
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
-                    modifier = Modifier.size(480.dp),
-                )
+                with(interactiveCellUniverseLocalEntryPoint) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        modifier = Modifier.size(480.dp),
+                    )
+                }
             }
         }
 
@@ -143,11 +150,13 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             }
 
             with(interactiveCellUniverseHiltEntryPoint) {
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
-                    modifier = Modifier.size(480.dp),
-                )
+                with(interactiveCellUniverseLocalEntryPoint) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        modifier = Modifier.size(480.dp),
+                    )
+                }
             }
         }
 
@@ -187,11 +196,13 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             }
 
             with(interactiveCellUniverseHiltEntryPoint) {
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
-                    modifier = Modifier.fillMaxSize(),
-                )
+                with(interactiveCellUniverseLocalEntryPoint) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             }
         }
 
@@ -242,11 +253,13 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             }
 
             with(interactiveCellUniverseHiltEntryPoint) {
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
-                    modifier = Modifier.fillMaxSize(),
-                )
+                with(interactiveCellUniverseLocalEntryPoint) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             }
         }
 
@@ -315,11 +328,13 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             }
 
             with(interactiveCellUniverseHiltEntryPoint) {
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
-                    modifier = Modifier.fillMaxSize(),
-                )
+                with(interactiveCellUniverseLocalEntryPoint) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             }
         }
 
@@ -369,11 +384,13 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             }
 
             with(interactiveCellUniverseHiltEntryPoint) {
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
-                    modifier = Modifier.fillMaxSize(),
-                )
+                with(interactiveCellUniverseLocalEntryPoint) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             }
         }
 

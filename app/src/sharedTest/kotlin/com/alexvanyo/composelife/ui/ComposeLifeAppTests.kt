@@ -44,8 +44,10 @@ import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.test.BaseHiltTest
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestDispatcher
 import leakcanary.SkipLeakDetection
 import org.junit.Test
+import javax.inject.Inject
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -55,9 +57,15 @@ import kotlin.test.assertEquals
 @HiltAndroidTest
 class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java) {
 
+    @Inject
+    lateinit var testDispatcher: TestDispatcher
+
     @SkipLeakDetection("recomposer", "Outer")
     @Test
     fun app_does_not_crash() = runAppTest {
+        composeTestRule.waitForIdle()
+        testDispatcher.scheduler.runCurrent()
+
         composeTestRule.onNodeWithContentDescription(context.getString(R.string.play)).performClick()
 
         composeTestRule.onNodeWithContentDescription(context.getString(R.string.pause)).performClick()
@@ -68,6 +76,9 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
     @SkipLeakDetection("recomposer", "Outer", "Inner")
     @Test
     fun app_does_not_crash_when_recreating() = runAppTest {
+        composeTestRule.waitForIdle()
+        testDispatcher.scheduler.runCurrent()
+
         composeTestRule.onNodeWithContentDescription(context.getString(R.string.play)).performClick()
 
         composeTestRule.onNodeWithContentDescription(context.getString(R.string.pause)).performClick()
@@ -93,6 +104,9 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
                 }
             },
         )
+
+        composeTestRule.waitForIdle()
+        testDispatcher.scheduler.runCurrent()
 
         composeTestRule
             .onNode(
@@ -180,6 +194,9 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
                 }
             },
         )
+
+        composeTestRule.waitForIdle()
+        testDispatcher.scheduler.runCurrent()
 
         composeTestRule
             .onNode(
@@ -311,6 +328,9 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
                 }
             },
         )
+
+        composeTestRule.waitForIdle()
+        testDispatcher.scheduler.runCurrent()
 
         composeTestRule
             .onNode(

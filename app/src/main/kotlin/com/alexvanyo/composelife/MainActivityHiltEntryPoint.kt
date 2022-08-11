@@ -16,7 +16,8 @@
 
 package com.alexvanyo.composelife
 
-import com.alexvanyo.composelife.ui.InteractiveCellUniverseHiltEntryPoint
+import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
+import com.alexvanyo.composelife.ui.ComposeLifeAppHiltEntryPoint
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
@@ -24,4 +25,5 @@ import dagger.hilt.android.components.ActivityComponent
 @EntryPoint
 @InstallIn(ActivityComponent::class)
 interface MainActivityHiltEntryPoint :
-    InteractiveCellUniverseHiltEntryPoint
+    ComposeLifePreferencesProvider,
+    ComposeLifeAppHiltEntryPoint

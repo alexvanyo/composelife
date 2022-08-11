@@ -16,7 +16,7 @@
 
 package com.alexvanyo.composelife.model
 
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import com.alexvanyo.composelife.util.containedPoints
@@ -25,7 +25,7 @@ import com.alexvanyo.composelife.util.toIntOffset
 /**
  * The cell state for a single generation.
  */
-@Stable
+@Immutable
 abstract class CellState {
     /**
      * The set of all cells alive at this generation.
@@ -127,22 +127,22 @@ fun Set<Pair<Int, Int>>.toCellState(): CellState = CellState(map(Pair<Int, Int>:
 
 fun String.toCellState(
     topLeftOffset: IntOffset = IntOffset.Zero,
-    cellStateSerializer: CellStateSerializer = PlaintextCellStateSerializer(),
+    fixedFormatCellStateSerializer: FixedFormatCellStateSerializer = PlaintextCellStateSerializer,
     throwOnWarnings: Boolean = true,
 ): CellState {
     val deserializationResult = trimMargin()
         .split("\n")
         .asSequence()
-        .run(cellStateSerializer::deserializeToCellState)
+        .run(fixedFormatCellStateSerializer::deserializeToCellState)
 
     return when (deserializationResult) {
-        is CellStateSerializer.DeserializationResult.Successful -> {
+        is DeserializationResult.Successful -> {
             check(deserializationResult.warnings.isEmpty() || !throwOnWarnings) {
                 "Warnings when parsing cell state!"
             }
             deserializationResult.cellState.offsetBy(topLeftOffset)
         }
-        is CellStateSerializer.DeserializationResult.Unsuccessful ->
+        is DeserializationResult.Unsuccessful ->
             error("Could not parse cell state!")
     }
 }

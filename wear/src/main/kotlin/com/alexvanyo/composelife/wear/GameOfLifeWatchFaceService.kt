@@ -52,7 +52,7 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
     private val scope = CoroutineScope(SupervisorJob() + AndroidUiDispatcher.Main)
 
     private val temporalGameOfLifeState = TemporalGameOfLifeState(
-        cellState = emptyCellState(),
+        seedCellState = emptyCellState(),
         isRunning = false,
         targetStepsPerSecond = 20.0,
     )

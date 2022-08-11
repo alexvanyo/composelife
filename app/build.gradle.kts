@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.fragment)
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.profileInstaller)
+    implementation(libs.androidx.room.runtime)
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 
@@ -59,6 +60,7 @@ dependencies {
     debugImplementation(libs.leakCanary.android)
     stagingImplementation(libs.leakCanary.android)
 
+    sharedTestImplementation(projects.databaseTest)
     sharedTestImplementation(projects.dispatchersTest)
     sharedTestImplementation(projects.patterns)
     sharedTestImplementation(projects.preferencesTest)
