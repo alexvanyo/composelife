@@ -18,20 +18,12 @@
 package com.alexvanyo.composelife.ui
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
-import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
-import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowState
 import com.alexvanyo.composelife.ui.cells.MutableCellWindow
@@ -45,11 +37,15 @@ import dagger.hilt.android.components.ActivityComponent
 interface InteractiveCellUniverseHiltEntryPoint :
     InteractiveCellUniverseOverlayHiltEntryPoint
 
+interface InteractiveCellUniverseLocalEntryPoint :
+    CellWindowLocalEntryPoint,
+    InteractiveCellUniverseOverlayLocalEntryPoint
+
 /**
  * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
  * evolves.
  */
-context(InteractiveCellUniverseHiltEntryPoint)
+context(InteractiveCellUniverseHiltEntryPoint, InteractiveCellUniverseLocalEntryPoint)
 @Composable
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
@@ -57,55 +53,17 @@ fun InteractiveCellUniverse(
     modifier: Modifier = Modifier,
     cellWindowState: CellWindowState = rememberCellWindowState(),
 ) {
-    val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+    Box(modifier = modifier.fillMaxSize()) {
+        MutableCellWindow(
+            gameOfLifeState = temporalGameOfLifeState,
+            modifier = Modifier.testTag("MutableCellWindow"),
+            cellWindowState = cellWindowState,
+        )
 
-    Surface(modifier = modifier) {
-        Box(
-            contentAlignment = Alignment.Center,
-        ) {
-            when (loadedPreferencesState) {
-                is ResourceState.Failure -> Unit
-                ResourceState.Loading -> {
-                    CircularProgressIndicator()
-                }
-                is ResourceState.Success -> {
-                    val currentLoadedPreferences by rememberUpdatedState(loadedPreferencesState.value)
-                    val loadedPreferencesProvider = remember {
-                        object : LoadedComposeLifePreferencesProvider {
-                            override val preferences: LoadedComposeLifePreferences
-                                get() = currentLoadedPreferences
-                        }
-                    }
-
-                    val cellWindowLocalEntryPoint = remember {
-                        object :
-                            CellWindowLocalEntryPoint,
-                            LoadedComposeLifePreferencesProvider by loadedPreferencesProvider {}
-                    }
-
-                    with(cellWindowLocalEntryPoint) {
-                        MutableCellWindow(
-                            gameOfLifeState = temporalGameOfLifeState,
-                            modifier = Modifier.testTag("MutableCellWindow"),
-                            cellWindowState = cellWindowState,
-                        )
-                    }
-
-                    val interactiveCellUniverseOverlayLocalEntryPoint = remember {
-                        object :
-                            InteractiveCellUniverseOverlayLocalEntryPoint,
-                            LoadedComposeLifePreferencesProvider by loadedPreferencesProvider {}
-                    }
-
-                    with(interactiveCellUniverseOverlayLocalEntryPoint) {
-                        InteractiveCellUniverseOverlay(
-                            temporalGameOfLifeState = temporalGameOfLifeState,
-                            cellWindowState = cellWindowState,
-                            windowSizeClass = windowSizeClass,
-                        )
-                    }
-                }
-            }
-        }
+        InteractiveCellUniverseOverlay(
+            temporalGameOfLifeState = temporalGameOfLifeState,
+            cellWindowState = cellWindowState,
+            windowSizeClass = windowSizeClass,
+        )
     }
 }

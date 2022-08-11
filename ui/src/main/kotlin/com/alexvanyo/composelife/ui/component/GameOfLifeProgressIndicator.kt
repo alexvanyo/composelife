@@ -17,16 +17,14 @@
 
 package com.alexvanyo.composelife.ui.component
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.InfiniteAnimationPolicy
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -80,7 +78,7 @@ fun GameOfLifeProgressIndicator(
     val pattern = OscillatorPattern.values[patternIndex]
     val temporalGameOfLifeState = key(pattern) {
         rememberTemporalGameOfLifeState(
-            cellState = pattern.seedCellState,
+            seedCellState = pattern.seedCellState,
             isRunning = false,
             targetStepsPerSecond = 4.0,
         )
@@ -128,30 +126,26 @@ fun GameOfLifeProgressIndicator(
     gameOfLifeState: GameOfLifeState,
     modifier: Modifier = Modifier,
 ) {
-    Box(
+    ImmutableCellWindow(
+        gameOfLifeState = gameOfLifeState,
         modifier = modifier
             .size(64.dp)
-            .padding(8.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        ImmutableCellWindow(
-            gameOfLifeState = gameOfLifeState,
-            modifier = Modifier
-                .progressSemantics()
-                .clearAndSetSemantics {},
-            cellWindowState = CellWindowState(
-                offset = Offset(
-                    pattern.boundingBox.width / 2f,
-                    pattern.boundingBox.height / 2f,
-                ),
-                scale = 1f / max(
-                    pattern.boundingBox.width + 1,
-                    pattern.boundingBox.height + 1,
-                ),
+            .clipToBounds()
+            .progressSemantics()
+            .clearAndSetSemantics {},
+        isNavigable = false,
+        cellWindowState = CellWindowState(
+            offset = Offset(
+                pattern.boundingBox.width / 2f,
+                pattern.boundingBox.height / 2f,
             ),
-            cellDpSize = 48.dp,
-        )
-    }
+            scale = 1f / max(
+                pattern.boundingBox.width + 1,
+                pattern.boundingBox.height + 1,
+            ),
+        ),
+        cellDpSize = 48.dp,
+    )
 }
 
 @ThemePreviews

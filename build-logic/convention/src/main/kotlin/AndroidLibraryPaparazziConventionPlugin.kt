@@ -72,6 +72,6 @@ class AndroidLibraryPaparazziConventionPlugin : ConventionPlugin({
     tasks.withType<Test>().configureEach {
         // Increase memory and parallelize Paparazzi tests
         maxHeapSize = "2g"
-        maxParallelForks = 1024
+        maxParallelForks = 2
     }
 },)

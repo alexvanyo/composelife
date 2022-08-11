@@ -28,6 +28,7 @@ android {
 }
 
 dependencies {
+    api(projects.databaseTest)
     api(projects.preferencesTest)
     api(libs.dagger.hilt.test)
     api(libs.androidx.test.runner)

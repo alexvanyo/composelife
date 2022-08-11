@@ -29,11 +29,9 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.updatable.Updatable
-import com.alexvanyo.composelife.util.toPair
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
@@ -178,16 +176,16 @@ private class GameOfLifeGenealogy(
 
 @Composable
 fun rememberTemporalGameOfLifeState(
-    cellState: CellState = TemporalGameOfLifeState.defaultCellState,
+    seedCellState: CellState = TemporalGameOfLifeState.defaultCellState,
     isRunning: Boolean = TemporalGameOfLifeState.defaultIsRunning,
     @IntRange(from = 1)
     generationsPerStep: Int = TemporalGameOfLifeState.defaultGenerationsPerStep,
     @FloatRange(from = 0.0, fromInclusive = false)
     targetStepsPerSecond: Double = TemporalGameOfLifeState.defaultTargetStepsPerSecond,
 ): TemporalGameOfLifeState =
-    rememberSaveable(saver = TemporalGameOfLifeStateImpl.Saver) {
+    rememberSaveable(saver = TemporalGameOfLifeStateImpl.Saver(seedCellState)) {
         TemporalGameOfLifeState(
-            cellState = cellState,
+            seedCellState = seedCellState,
             isRunning = isRunning,
             generationsPerStep = generationsPerStep,
             targetStepsPerSecond = targetStepsPerSecond,
@@ -195,14 +193,14 @@ fun rememberTemporalGameOfLifeState(
     }
 
 fun TemporalGameOfLifeState(
-    cellState: CellState = TemporalGameOfLifeState.defaultCellState,
+    seedCellState: CellState = TemporalGameOfLifeState.defaultCellState,
     isRunning: Boolean = TemporalGameOfLifeState.defaultIsRunning,
     @IntRange(from = 1)
     generationsPerStep: Int = TemporalGameOfLifeState.defaultGenerationsPerStep,
     @FloatRange(from = 0.0, fromInclusive = false)
     targetStepsPerSecond: Double = TemporalGameOfLifeState.defaultTargetStepsPerSecond,
 ): TemporalGameOfLifeState = TemporalGameOfLifeStateImpl(
-    seedCellState = cellState,
+    seedCellState = seedCellState,
     isRunning = isRunning,
     generationsPerStep = generationsPerStep,
     targetStepsPerSecond = targetStepsPerSecond,
@@ -374,13 +372,12 @@ private class TemporalGameOfLifeStateImpl(
     private var completedGenerationTracker: List<ComputationRecord> by mutableStateOf(emptyList())
 
     companion object {
-        val Saver: Saver<TemporalGameOfLifeState, *> = listSaver(
+        fun Saver(seedCellState: CellState): Saver<TemporalGameOfLifeState, *> = listSaver(
             { temporalGameOfLifeState ->
                 when (temporalGameOfLifeState) {
                     is TemporalGameOfLifeStateImpl -> Unit
                 }
                 listOf(
-                    temporalGameOfLifeState.cellState.aliveCells.map(IntOffset::toPair),
                     temporalGameOfLifeState.isRunning,
                     temporalGameOfLifeState.generationsPerStep,
                     temporalGameOfLifeState.targetStepsPerSecond,
@@ -389,11 +386,10 @@ private class TemporalGameOfLifeStateImpl(
             { list ->
                 @Suppress("UNCHECKED_CAST")
                 TemporalGameOfLifeStateImpl(
-                    // TODO: Don't persist the seed cell state, this could have an unbounded size
-                    seedCellState = (list[0] as List<Pair<Int, Int>>).toSet().toCellState(),
-                    isRunning = list[1] as Boolean,
-                    generationsPerStep = list[2] as Int,
-                    targetStepsPerSecond = list[3] as Double,
+                    seedCellState = seedCellState,
+                    isRunning = list[0] as Boolean,
+                    generationsPerStep = list[1] as Int,
+                    targetStepsPerSecond = list[2] as Double,
                 )
             },
         )
