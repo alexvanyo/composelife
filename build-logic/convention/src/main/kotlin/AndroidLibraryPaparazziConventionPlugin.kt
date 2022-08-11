@@ -33,7 +33,12 @@ class AndroidLibraryPaparazziConventionPlugin : ConventionPlugin({
 
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
-    configureTesting(extensions.getByType<LibraryExtension>())
+    val libraryExtension = extensions.getByType<LibraryExtension>()
+
+    configureTesting(libraryExtension)
+
+    // TODO: Remove when support is added for API 33
+    libraryExtension.compileSdk = 32
 
     extensions.configure<LibraryAndroidComponentsExtension> {
         // Disable release builds for this test-only library, no need to run screenshot tests more than
