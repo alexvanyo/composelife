@@ -151,7 +151,6 @@ class PlaintextCellStateSerializerTests {
             |O.O.O
             |.....
             |O.O.O
-            |
             """.trimMargin(),
             serializer.serializeToString(
                 setOf(
@@ -165,7 +164,7 @@ class PlaintextCellStateSerializerTests {
                     2 to 4,
                     4 to 4,
                 ).toCellState(),
-            ).joinToString(""),
+            ).joinToString("\n"),
         )
     }
 }

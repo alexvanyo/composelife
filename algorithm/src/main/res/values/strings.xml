@@ -18,4 +18,8 @@
     <string name="unexpected_blank_line">Unexpected blank line at line %1$d</string>
     <string name="unexpected_short_line">Line %1$d is unexpectedly short</string>
     <string name="unexpected_character" tools:ignore="PluralsCandidate">Unexpected character %1$c on line %2$d, offset %3$d interpreted as on</string>
+    <string name="unexpected_empty_file">Unexpected empty file, assuming blank pattern</string>
+    <string name="unexpected_header">Unexpected header, found %1$s</string>
+    <string name="rule_not_supported">Ruleset not supported</string>
+    <string name="unexpected_input">Unexpected input "%1$s" starting on line %2$d, character %3$d</string>
 </resources>
