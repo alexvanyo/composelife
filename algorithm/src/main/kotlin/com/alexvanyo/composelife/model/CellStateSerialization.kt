@@ -44,8 +44,15 @@ interface CellStateSerializer {
 
 sealed interface CellStateFormat {
 
-    sealed interface FixedFormat {
-        object Plaintext : CellStateFormat
+    /**
+     * A "fixed" format for a cell state. Any serialization or deserialization of a cell state should eventually
+     * be done with one of these formats, and other [CellStateFormat]s might delegate to here.
+     */
+    sealed interface FixedFormat : CellStateFormat {
+        object Plaintext : FixedFormat
+        object Life105 : FixedFormat
+        object Life106 : FixedFormat
+        object RunLengthEncoding : FixedFormat
 
         @GenSealedEnum(generateEnum = true)
         companion object
@@ -148,18 +155,221 @@ class PlaintextCellStateSerializer : CellStateSerializer {
 
         return sequence {
             (minY..maxY).forEach { y ->
-                val line = buildString {
-                    (minX..maxX).forEach { x ->
-                        append(
-                            if (IntOffset(x, y) in cellState.aliveCells) {
-                                'O'
-                            } else {
-                                '.'
-                            },
+                yield(
+                    buildString {
+                        (minX..maxX).forEach { x ->
+                            append(
+                                if (IntOffset(x, y) in cellState.aliveCells) {
+                                    'O'
+                                } else {
+                                    '.'
+                                },
+                            )
+                        }
+                    },
+                )
+            }
+        }
+    }
+}
+
+class Life105CellStateSerializer : CellStateSerializer {
+
+    @Suppress("LongMethod", "ComplexMethod", "NestedBlockDepth", "ReturnCount")
+    override fun deserializeToCellState(lines: Sequence<String>): DeserializationResult {
+        val warnings = mutableListOf<ParameterizedString>()
+        var lineIndex = 0
+
+        val iterator = lines.iterator()
+
+        if (!iterator.hasNext()) {
+            warnings.add(ParameterizedString(R.string.unexpected_empty_file))
+
+            return DeserializationResult.Successful(
+                warnings = warnings,
+                cellState = emptyCellState(),
+            )
+        }
+
+        val headerLine = iterator.next()
+        if (headerLine != "#Life 1.05") {
+            return DeserializationResult.Unsuccessful(
+                warnings = warnings,
+                errors = listOf(
+                    ParameterizedString(R.string.unexpected_header, headerLine),
+                ),
+            )
+        }
+        lineIndex++
+
+        var lineAfterDescriptions: String? = null
+        while (
+            run {
+                if (iterator.hasNext()) {
+                    val line = iterator.next()
+                    lineAfterDescriptions = line
+                    line.startsWith("#D")
+                } else {
+                    false
+                }
+            }
+        ) {
+            // Ignore description lines
+            lineIndex++
+        }
+
+        val ruleIterator = iterator {
+            lineAfterDescriptions?.let { yield(it) }
+            yieldAll(iterator)
+        }
+
+        val lineAfterRule = if (ruleIterator.hasNext()) {
+            val line = ruleIterator.next()
+            if (line.startsWith("#N")) {
+                if (line != "#N") {
+                    warnings.add(ParameterizedString(R.string.unexpected_input, lineIndex + 1, 3))
+                }
+                // Normal ruleset, continue
+                lineIndex++
+                null
+            } else if (line.startsWith("#R")) {
+                val ruleRegex = Regex("""#R (\d+)/(\d+)""")
+                val matchResult = ruleRegex.matchEntire(line)
+                if (matchResult == null) {
+                    return DeserializationResult.Unsuccessful(
+                        warnings = warnings,
+                        errors = listOf(
+                            ParameterizedString(R.string.unexpected_input, lineIndex + 1, 3),
+                        ),
+                    )
+                } else {
+                    val survival = matchResult.groupValues[1].map { it.digitToInt() }.toSet()
+                    val birth = matchResult.groupValues[2].map { it.digitToInt() }.toSet()
+
+                    if (survival != setOf(2, 3) || birth != setOf(3)) {
+                        return DeserializationResult.Unsuccessful(
+                            warnings = warnings,
+                            errors = listOf(
+                                ParameterizedString(R.string.rule_not_supported),
+                            ),
                         )
+                    } else {
+                        lineIndex++
+                        null
                     }
                 }
-                yield("$line\n")
+            } else {
+                line
+            }
+        } else {
+            null
+        }
+
+        val blockIterator = iterator {
+            lineAfterRule?.let { yield(it) }
+            yieldAll(ruleIterator)
+        }
+
+        val points = mutableSetOf<IntOffset>()
+
+        var blockOffset: IntOffset? = null
+        var rowIndex = 0
+
+        val blockRegex = Regex("""#P (-?\d+) (-?\d+)""")
+        val rowRegex = Regex("""[.*]+""")
+
+        while (blockIterator.hasNext()) {
+            val line = blockIterator.next()
+
+            when {
+                line.startsWith("#P") -> {
+                    val matchResult = blockRegex.matchEntire(line)
+                    if (matchResult == null) {
+                        return DeserializationResult.Unsuccessful(
+                            warnings = warnings,
+                            errors = listOf(
+                                ParameterizedString(R.string.unexpected_input, lineIndex + 1, 3),
+                            ),
+                        )
+                    } else {
+                        val x = matchResult.groupValues[1].toInt()
+                        val y = matchResult.groupValues[2].toInt()
+                        blockOffset = IntOffset(x, y)
+                        rowIndex = 0
+                    }
+                }
+                rowRegex.matches(line) -> {
+                    val currentBlockOffset = blockOffset
+                    if (currentBlockOffset == null) {
+                        return DeserializationResult.Unsuccessful(
+                            warnings = warnings,
+                            errors = listOf(
+                                ParameterizedString(R.string.unexpected_input, lineIndex + 1, 1),
+                            ),
+                        )
+                    } else {
+                        points.addAll(
+                            line.withIndex()
+                                .filter { (_, c) ->
+                                    when (c) {
+                                        '.' -> false
+                                        '*' -> true
+                                        else -> error("Characters should not occur due to matched regex!")
+                                    }
+                                }
+                                .map { (columnIndex, _) -> IntOffset(columnIndex, rowIndex) + currentBlockOffset },
+                        )
+
+                        rowIndex++
+                    }
+                }
+                else -> {
+                    return DeserializationResult.Unsuccessful(
+                        warnings = warnings,
+                        errors = listOf(
+                            ParameterizedString(R.string.unexpected_input, lineIndex + 1, 1),
+                        ),
+                    )
+                }
+            }
+
+            lineIndex++
+        }
+
+        return DeserializationResult.Successful(
+            warnings = warnings,
+            cellState = CellState(points),
+        )
+    }
+
+    override fun serializeToString(cellState: CellState): Sequence<String> = sequence {
+        yield("#Life 1.05")
+        yield("#N")
+
+        val remainingCells = cellState.aliveCells.toMutableSet()
+
+        // Brute-force implementation: find the remaining top-left-most point to use as a block offset, and emit all
+        // points we can in that block
+        while (remainingCells.isNotEmpty()) {
+            val minX = remainingCells.minOf(IntOffset::x)
+            val minY = remainingCells.minOf(IntOffset::y)
+            val maxY = remainingCells.maxOf(IntOffset::y)
+
+            yield("#P $minX $minY")
+            (minY..maxY).forEach { y ->
+                yield(
+                    buildString {
+                        (minX until minX + 80).forEach { x ->
+                            val offset = IntOffset(x, y)
+                            if (offset in remainingCells) {
+                                append("*")
+                                remainingCells.remove(offset)
+                            } else {
+                                append(".")
+                            }
+                        }
+                    },
+                )
             }
         }
     }

@@ -92,6 +92,23 @@ abstract class CellState {
     override fun hashCode(): Int = aliveCells.toSet().hashCode()
 }
 
+/**
+ * Returns `true` if this [CellState] and the [other] [CellState] are equivalent with the possible exception of being
+ * offset differently (in other words, different only by translation).
+ *
+ * This does not attempt to check equivalence against rotation or reflection.
+ */
+fun CellState.equalsModuloOffset(other: CellState): Boolean =
+    if (aliveCells.size != other.aliveCells.size) {
+        false
+    } else if (aliveCells.isEmpty()) {
+        true
+    } else {
+        val topLeftOffset = IntOffset(aliveCells.minOf(IntOffset::x), aliveCells.minOf(IntOffset::y))
+        val otherTopLeftOffset = IntOffset(other.aliveCells.minOf(IntOffset::x), other.aliveCells.minOf(IntOffset::y))
+        offsetBy(otherTopLeftOffset - topLeftOffset) == other
+    }
+
 fun CellState(aliveCells: Set<IntOffset>): CellState = CellStateImpl(aliveCells)
 
 fun emptyCellState(): CellState = CellState(emptySet())
