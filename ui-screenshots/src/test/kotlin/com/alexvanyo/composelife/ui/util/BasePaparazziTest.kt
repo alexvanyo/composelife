@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.Density
 import androidx.lifecycle.Lifecycle
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
+import app.cash.paparazzi.androidHome
+import app.cash.paparazzi.detectEnvironment
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.android.resources.NightMode
 import com.google.testing.junit.testparameterinjector.TestParameter
@@ -37,6 +39,11 @@ import org.junit.Rule
 import org.junit.runner.RunWith
 
 private val globalPaparazzi = Paparazzi(
+    environment = detectEnvironment().copy(
+        // TODO: Remove when support is added for API 33
+        platformDir = "${androidHome()}/platforms/android-32",
+        compileSdkVersion = 32,
+    ),
     maxPercentDifference = 0.0,
 )
 
