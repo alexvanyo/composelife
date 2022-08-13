@@ -67,6 +67,18 @@ jobs:
                echo sdk=${{ matrix.sdk }} > "$project"src/sharedTest/resources/com/alexvanyo/composelife/robolectric.properties
           done
 
+      - name: Sync project
+        run: ./gradlew tasks
+
+      # TODO: Remove with update to Paparazzi
+      - name: Change known_codenames for workaround for Paparazzi
+        run: |
+          mkdir $ANDROID_HOME/platforms/android-33-paparazzi
+          ln -s $ANDROID_HOME/platforms/android-33/* $ANDROID_HOME/platforms/android-33-paparazzi
+          unlink $ANDROID_HOME/platforms/android-33-paparazzi/build.prop
+          cp $ANDROID_HOME/platforms/android-33/build.prop $ANDROID_HOME/platforms/android-33-paparazzi
+          sed -i -E "s/ro\.build\.version\.known_codenames=.*(Base.*)/ro\.build\.version\.known_codenames=ro\.,\1/" $ANDROID_HOME/platforms/android-33-paparazzi/build.prop
+
       - name: Run checks
         run: ./gradlew check --stacktrace
 
