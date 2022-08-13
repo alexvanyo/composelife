@@ -27,6 +27,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -49,7 +50,10 @@ fun QuickAccessSettingHeader(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Divider(modifier = Modifier.weight(1f))
+        Divider(
+            modifier = Modifier.weight(1f),
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+        )
 
         if (onOpenInSettingsClicked != null) {
             IconButton(onClick = onOpenInSettingsClicked) {
@@ -58,7 +62,10 @@ fun QuickAccessSettingHeader(
                     contentDescription = stringResource(id = R.string.open_in_settings),
                 )
             }
-            Divider(modifier = Modifier.width(16.dp))
+            Divider(
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                modifier = Modifier.width(16.dp),
+            )
         }
 
         IconToggleButton(
@@ -79,7 +86,10 @@ fun QuickAccessSettingHeader(
             )
         }
 
-        Divider(modifier = Modifier.width(16.dp))
+        Divider(
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+            modifier = Modifier.width(16.dp),
+        )
     }
 }
 
