@@ -21,8 +21,6 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife.resources"
-    // TODO: Remove when support is added for API 33
-    compileSdk = 32
     defaultConfig {
         minSdk = 21
     }
