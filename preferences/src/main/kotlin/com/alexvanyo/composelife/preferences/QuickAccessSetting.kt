@@ -22,6 +22,8 @@ sealed interface QuickAccessSetting {
     object AlgorithmImplementation : QuickAccessSetting
     object DarkThemeConfig : QuickAccessSetting
     object CellShapeConfig : QuickAccessSetting
+    object DisableAGSL : QuickAccessSetting
+    object DisableOpenGL : QuickAccessSetting
 
     @GenSealedEnum
     companion object

@@ -26,6 +26,7 @@ import com.alexvanyo.composelife.test.TestActivity
 import dagger.hilt.EntryPoints
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import leakcanary.SkipLeakDetection
 import org.junit.Before
 import org.junit.Test
 
@@ -56,6 +57,7 @@ class GameOfLifeProgressIndicatorTests : BaseHiltTest<TestActivity>(TestActivity
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
     }
 
+    @SkipLeakDetection("recomposer", "Outer")
     @Test
     fun progress_indicator_is_displayed_correctly_when_shape_is_not_loading() = runAppTest {
         composeTestRule.setContent {

@@ -44,7 +44,10 @@ class SettingsCategoryTests {
     @Test
     fun `feature flag settings are correct`() {
         assertEquals(
-            emptyList(),
+            listOf(
+                Setting.DisableAGSL,
+                Setting.DisableOpenGL,
+            ),
             SettingsCategory.FeatureFlags.settings,
         )
     }

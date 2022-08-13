@@ -29,6 +29,10 @@ interface ComposeLifePreferences : Updatable {
 
     val darkThemeConfigState: ResourceState<DarkThemeConfig>
 
+    val disableAGSLState: ResourceState<Boolean>
+
+    val disableOpenGLState: ResourceState<Boolean>
+
     suspend fun setAlgorithmChoice(algorithm: AlgorithmType)
 
     suspend fun setCurrentShapeType(currentShapeType: CurrentShapeType)
@@ -40,4 +44,8 @@ interface ComposeLifePreferences : Updatable {
     suspend fun addQuickAccessSetting(quickAccessSetting: QuickAccessSetting)
 
     suspend fun removeQuickAccessSetting(quickAccessSetting: QuickAccessSetting)
+
+    suspend fun setDisabledAGSL(disabled: Boolean)
+
+    suspend fun setDisableOpenGL(disabled: Boolean)
 }

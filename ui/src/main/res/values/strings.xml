@@ -51,4 +51,6 @@
     <string name="add_setting_to_quick_access">Add setting to quick access</string>
     <string name="remove_setting_from_quick_access">Remove setting from quick access</string>
     <string name="open_in_settings">Open in settings</string>
+    <string name="disable_agsl">Disable AGSL</string>
+    <string name="disable_opengl">Disable OpenGL</string>
 </resources>

@@ -37,7 +37,9 @@ interface SettingUiEntryPoint :
     CellShapeConfigUiEntryPoint,
     CellStatePreviewUiEntryPoint,
     ComposeLifePreferencesProvider,
-    DarkThemeConfigUiEntryPoint
+    DarkThemeConfigUiEntryPoint,
+    DisableAGSLUiEntryPoint,
+    DisableOpenGLUiEntryPoint
 
 context(SettingUiEntryPoint)
 @Composable
@@ -77,6 +79,8 @@ fun SettingUi(
             Setting.CellStatePreview -> CellStatePreviewUi()
             Setting.DarkThemeConfig -> DarkThemeConfigUi()
             Setting.CellShapeConfig -> CellShapeConfigUi()
+            Setting.DisableAGSL -> DisableAGSLUi()
+            Setting.DisableOpenGL -> DisableOpenGLUi()
         }
     }
 }
@@ -93,6 +97,8 @@ fun SettingUi(
             QuickAccessSetting.AlgorithmImplementation -> Setting.AlgorithmImplementation
             QuickAccessSetting.CellShapeConfig -> Setting.CellShapeConfig
             QuickAccessSetting.DarkThemeConfig -> Setting.DarkThemeConfig
+            QuickAccessSetting.DisableAGSL -> Setting.DisableAGSL
+            QuickAccessSetting.DisableOpenGL -> Setting.DisableOpenGL
         },
         modifier = modifier,
         onOpenInSettingsClicked = onOpenInSettingsClicked,

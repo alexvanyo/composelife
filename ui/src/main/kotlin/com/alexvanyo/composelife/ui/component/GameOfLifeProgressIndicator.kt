@@ -28,8 +28,10 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.InfiniteAnimationPolicy
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
@@ -44,7 +46,9 @@ import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.random.di.RandomProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.ui.cells.NonInteractableCells
+import com.alexvanyo.composelife.resourcestate.combine
+import com.alexvanyo.composelife.ui.cells.CellWindowState
+import com.alexvanyo.composelife.ui.cells.ImmutableCellWindow
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
@@ -115,15 +119,20 @@ fun GameOfLifeProgressIndicator(
         pattern = pattern,
         gameOfLifeState = temporalGameOfLifeState,
         currentShapeState = composeLifePreferences.currentShapeState,
+        disableAGSLState = composeLifePreferences.disableAGSLState,
+        disableOpenGLState = composeLifePreferences.disableOpenGLState,
         modifier = modifier,
     )
 }
 
+@Suppress("LongParameterList")
 @Composable
 fun GameOfLifeProgressIndicator(
     pattern: OscillatorPattern,
     gameOfLifeState: GameOfLifeState,
     currentShapeState: ResourceState<CurrentShape>,
+    disableAGSLState: ResourceState<Boolean>,
+    disableOpenGLState: ResourceState<Boolean>,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -132,22 +141,33 @@ fun GameOfLifeProgressIndicator(
             .padding(8.dp),
         contentAlignment = Alignment.Center,
     ) {
-        when (currentShapeState) {
+        when (val combinedState = combine(currentShapeState, disableAGSLState, disableOpenGLState, ::Triple)) {
             ResourceState.Loading, is ResourceState.Failure -> {
                 // If we don't know the shape, fallback to a standard progress indicator
                 CircularProgressIndicator()
             }
             is ResourceState.Success -> {
-                NonInteractableCells(
+                val (currentShape, disableAGSL, disableOpenGL) = combinedState.value
+
+                ImmutableCellWindow(
                     gameOfLifeState = gameOfLifeState,
-                    scaledCellDpSize = 48.dp / max(
-                        pattern.boundingBox.width + 1,
-                        pattern.boundingBox.height + 1,
+                    shape = currentShape,
+                    disableAGSL = disableAGSL,
+                    disableOpenGL = disableOpenGL,
+                    cellWindowState = CellWindowState(
+                        offset = Offset(
+                            pattern.boundingBox.width / 2f,
+                            pattern.boundingBox.height / 2f,
+                        ),
+                        scale = 1f / max(
+                            pattern.boundingBox.width + 1,
+                            pattern.boundingBox.height + 1,
+                        ),
                     ),
-                    cellWindow = pattern.boundingBox.inflate(1),
-                    shape = currentShapeState.value,
+                    cellDpSize = 48.dp,
                     modifier = Modifier
-                        .progressSemantics(),
+                        .progressSemantics()
+                        .clearAndSetSemantics {},
                 )
             }
         }

@@ -19,20 +19,21 @@ package com.alexvanyo.composelife.ui.action.settings
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.ui.cells.NonInteractableCells
+import com.alexvanyo.composelife.resourcestate.combine
+import com.alexvanyo.composelife.ui.cells.CellWindowState
+import com.alexvanyo.composelife.ui.cells.ImmutableCellWindow
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicator
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorEntryPoint
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
@@ -55,6 +56,8 @@ fun CellStatePreviewUi(
 ) {
     CellStatePreviewUi(
         currentShapeState = composeLifePreferences.currentShapeState,
+        disableAGSLState = composeLifePreferences.disableAGSLState,
+        disableOpenGLState = composeLifePreferences.disableOpenGLState,
         modifier = modifier,
     )
 }
@@ -64,18 +67,22 @@ context(CellStatePreviewUiEntryPoint)
 @Composable
 fun CellStatePreviewUi(
     currentShapeState: ResourceState<CurrentShape>,
+    disableAGSLState: ResourceState<Boolean>,
+    disableOpenGLState: ResourceState<Boolean>,
     modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,
     ) {
-        when (currentShapeState) {
+        when (val combinedState = combine(currentShapeState, disableAGSLState, disableOpenGLState, ::Triple)) {
             ResourceState.Loading, is ResourceState.Failure -> {
                 GameOfLifeProgressIndicator()
             }
             is ResourceState.Success -> {
-                NonInteractableCells(
+                val (currentShape, disableAGSL, disableOpenGL) = combinedState.value
+
+                ImmutableCellWindow(
                     gameOfLifeState = GameOfLifeState(
                         """
                         |.....
@@ -85,9 +92,14 @@ fun CellStatePreviewUi(
                         |.....
                         """.toCellState(),
                     ),
-                    scaledCellDpSize = 96.dp / 5,
-                    cellWindow = IntRect(IntOffset.Zero, IntSize(4, 4)),
-                    shape = currentShapeState.value,
+                    shape = currentShape,
+                    disableAGSL = disableAGSL,
+                    disableOpenGL = disableOpenGL,
+                    cellWindowState = CellWindowState(
+                        offset = Offset(2f, 2f),
+                    ),
+                    cellDpSize = 96.dp / 5,
+                    modifier = Modifier.size(96.dp),
                 )
             }
         }
@@ -102,6 +114,8 @@ fun CellStatePreviewUiLoadingPreview() {
             Surface {
                 CellStatePreviewUi(
                     currentShapeState = ResourceState.Loading,
+                    disableAGSLState = ResourceState.Loading,
+                    disableOpenGLState = ResourceState.Loading,
                 )
             }
         }
@@ -121,6 +135,8 @@ fun CellStatePreviewUiRoundRectanglePreview() {
                             cornerFraction = 0.4f,
                         ),
                     ),
+                    disableAGSLState = ResourceState.Success(false),
+                    disableOpenGLState = ResourceState.Success(false),
                 )
             }
         }

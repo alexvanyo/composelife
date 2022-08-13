@@ -52,6 +52,13 @@ class DefaultComposeLifePreferences @Inject constructor(
     override var darkThemeConfigState: ResourceState<DarkThemeConfig> by mutableStateOf(ResourceState.Loading)
         private set
 
+    override var disableAGSLState: ResourceState<Boolean> by mutableStateOf(ResourceState.Loading)
+        private set
+
+    override var disableOpenGLState: ResourceState<Boolean> by mutableStateOf(ResourceState.Loading)
+        private set
+
+    @Suppress("LongMethod")
     override suspend fun update() {
         dataStore.data
             .onEach { preferencesProto ->
@@ -65,6 +72,10 @@ class DefaultComposeLifePreferences @Inject constructor(
                                     QuickAccessSetting.DarkThemeConfig
                                 QuickAccessSettingProto.CELL_SHAPE_CONFIG ->
                                     QuickAccessSetting.CellShapeConfig
+                                QuickAccessSettingProto.DISABLE_AGSL ->
+                                    QuickAccessSetting.DisableAGSL
+                                QuickAccessSettingProto.DISABLE_OPENGL ->
+                                    QuickAccessSetting.DisableOpenGL
                                 QuickAccessSettingProto.SETTINGS_UNKNOWN,
                                 QuickAccessSettingProto.UNRECOGNIZED,
                                 -> null
@@ -100,6 +111,10 @@ class DefaultComposeLifePreferences @Inject constructor(
                             DarkThemeConfigProto.LIGHT -> DarkThemeConfig.Light
                         },
                     )
+
+                    disableAGSLState = ResourceState.Success(preferencesProto.disableAgsl)
+
+                    disableOpenGLState = ResourceState.Success(preferencesProto.disableOpengl)
                 }
             }
             .catch {
@@ -174,6 +189,8 @@ class DefaultComposeLifePreferences @Inject constructor(
                 QuickAccessSetting.AlgorithmImplementation -> QuickAccessSettingProto.ALGORITHM_IMPLEMENTATION
                 QuickAccessSetting.CellShapeConfig -> QuickAccessSettingProto.CELL_SHAPE_CONFIG
                 QuickAccessSetting.DarkThemeConfig -> QuickAccessSettingProto.DARK_THEME_CONFIG
+                QuickAccessSetting.DisableAGSL -> QuickAccessSettingProto.DISABLE_AGSL
+                QuickAccessSetting.DisableOpenGL -> QuickAccessSettingProto.DISABLE_OPENGL
             }
 
             preferencesProto.copy {
@@ -185,6 +202,22 @@ class DefaultComposeLifePreferences @Inject constructor(
                     oldQuickAccessSettings - quickAccessSettingProto
                 }
                 quickAccessSettings.addAll(newQuickAccessSetting)
+            }
+        }
+    }
+
+    override suspend fun setDisabledAGSL(disabled: Boolean) {
+        dataStore.updateData { preferencesProto ->
+            preferencesProto.copy {
+                disableAgsl = disabled
+            }
+        }
+    }
+
+    override suspend fun setDisableOpenGL(disabled: Boolean) {
+        dataStore.updateData { preferencesProto ->
+            preferencesProto.copy {
+                disableOpengl = disabled
             }
         }
     }

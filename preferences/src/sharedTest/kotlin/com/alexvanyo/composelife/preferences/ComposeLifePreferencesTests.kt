@@ -453,4 +453,84 @@ class ComposeLifePreferencesTests {
             composeLifePreferences.quickAccessSettings,
         )
     }
+
+    @Test
+    fun default_disabled_agsl_is_disabled() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
+        assertEquals(ResourceState.Loading, composeLifePreferences.disableAGSLState)
+
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(false),
+            composeLifePreferences.disableAGSLState,
+        )
+    }
+
+    @Test
+    fun setting_disabled_agsl_updates_value() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
+        assertEquals(ResourceState.Loading, composeLifePreferences.disableAGSLState)
+
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(false),
+            composeLifePreferences.disableAGSLState,
+        )
+
+        composeLifePreferences.setDisabledAGSL(true)
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(true),
+            composeLifePreferences.disableAGSLState,
+        )
+    }
+
+    @Test
+    fun default_disabled_opengl_is_disabled() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
+        assertEquals(ResourceState.Loading, composeLifePreferences.disableOpenGLState)
+
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(false),
+            composeLifePreferences.disableOpenGLState,
+        )
+    }
+
+    @Test
+    fun setting_disabled_opengl_updates_value() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
+        assertEquals(ResourceState.Loading, composeLifePreferences.disableOpenGLState)
+
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(false),
+            composeLifePreferences.disableOpenGLState,
+        )
+
+        composeLifePreferences.setDisableOpenGL(true)
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(true),
+            composeLifePreferences.disableOpenGLState,
+        )
+    }
 }
