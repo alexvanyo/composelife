@@ -54,6 +54,12 @@ class TestComposeLifePreferences @Inject constructor() : ComposeLifePreferences 
     override var darkThemeConfigState: ResourceState<DarkThemeConfig> by mutableStateOf(ResourceState.Loading)
         private set
 
+    override var disableAGSLState: ResourceState<Boolean> by mutableStateOf(ResourceState.Loading)
+        private set
+
+    override var disableOpenGLState: ResourceState<Boolean> by mutableStateOf(ResourceState.Loading)
+        private set
+
     override suspend fun update() = Unit
 
     override suspend fun setAlgorithmChoice(algorithm: AlgorithmType) {
@@ -101,6 +107,18 @@ class TestComposeLifePreferences @Inject constructor() : ComposeLifePreferences 
         }
     }
 
+    override suspend fun setDisabledAGSL(disabled: Boolean) {
+        Snapshot.withMutableSnapshot {
+            disableAGSLState = ResourceState.Success(disabled)
+        }
+    }
+
+    override suspend fun setDisableOpenGL(disabled: Boolean) {
+        Snapshot.withMutableSnapshot {
+            disableOpenGLState = ResourceState.Success(disabled)
+        }
+    }
+
     fun testSetAlgorithmChoice(algorithm: AlgorithmType) {
         Snapshot.withMutableSnapshot {
             algorithmChoiceState = ResourceState.Success(algorithm)
@@ -131,7 +149,20 @@ class TestComposeLifePreferences @Inject constructor() : ComposeLifePreferences 
         }
     }
 
+    fun testSetDisabledAGSL(disabled: Boolean) {
+        Snapshot.withMutableSnapshot {
+            disableAGSLState = ResourceState.Success(disabled)
+        }
+    }
+
+    fun testSetDisableOpenGL(disabled: Boolean) {
+        Snapshot.withMutableSnapshot {
+            disableOpenGLState = ResourceState.Success(disabled)
+        }
+    }
+
     companion object {
+        @Suppress("LongParameterList")
         fun Loaded(
             algorithmChoice: AlgorithmType = AlgorithmType.NaiveAlgorithm,
             currentShapeType: CurrentShapeType = CurrentShapeType.RoundRectangle,
@@ -141,12 +172,16 @@ class TestComposeLifePreferences @Inject constructor() : ComposeLifePreferences 
             ),
             darkThemeConfig: DarkThemeConfig = DarkThemeConfig.FollowSystem,
             quickAccessSettings: Set<QuickAccessSetting> = emptySet(),
+            disableAGSL: Boolean = false,
+            disableOpenGL: Boolean = false,
         ) = TestComposeLifePreferences().apply {
             testSetAlgorithmChoice(algorithmChoice)
             testSetCurrentShapeType(currentShapeType)
             testSetRoundRectangleConfig(roundRectangleConfig)
             testSetDarkThemeConfig(darkThemeConfig)
             testSetQuickAccessSetting(quickAccessSettings)
+            testSetDisabledAGSL(disableAGSL)
+            testSetDisableOpenGL(disableOpenGL)
         }
     }
 }

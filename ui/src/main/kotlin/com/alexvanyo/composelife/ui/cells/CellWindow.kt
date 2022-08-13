@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.ui.cells
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,7 +27,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.ScrollAxisRange
@@ -60,7 +60,7 @@ object CellWindow {
         { isGesturing, scale ->
             !isGesturing && scale >= 1f
         }
-    val defaultCellDpSize = 32.dp
+    val defaultCellDpSize = 48.dp
     val defaultCenterOffset = Offset(0.5f, 0.5f)
 }
 
@@ -72,6 +72,8 @@ object CellWindow {
 fun ImmutableCellWindow(
     gameOfLifeState: GameOfLifeState,
     shape: CurrentShape,
+    disableAGSL: Boolean,
+    disableOpenGL: Boolean,
     modifier: Modifier = Modifier,
     cellWindowState: CellWindowState = rememberCellWindowState(),
     cellDpSize: Dp = CellWindow.defaultCellDpSize,
@@ -85,6 +87,8 @@ fun ImmutableCellWindow(
         shape = shape,
         cellDpSize = cellDpSize,
         centerOffset = centerOffset,
+        disableAGSL = disableAGSL,
+        disableOpenGL = disableOpenGL,
         modifier = modifier,
     )
 }
@@ -99,6 +103,8 @@ fun ImmutableCellWindow(
 fun MutableCellWindow(
     gameOfLifeState: MutableGameOfLifeState,
     shape: CurrentShape,
+    disableAGSL: Boolean,
+    disableOpenGL: Boolean,
     modifier: Modifier = Modifier,
     isInteractable: (isGesturing: Boolean, scale: Float) -> Boolean = CellWindow.defaultIsInteractable,
     cellWindowState: CellWindowState = rememberCellWindowState(),
@@ -114,6 +120,8 @@ fun MutableCellWindow(
         shape = shape,
         cellDpSize = cellDpSize,
         centerOffset = centerOffset,
+        disableAGSL = disableAGSL,
+        disableOpenGL = disableOpenGL,
         modifier = modifier,
     )
 }
@@ -125,8 +133,10 @@ private fun CellWindowImpl(
     cellWindowState: CellWindowState,
     shape: CurrentShape,
     cellDpSize: Dp,
-    modifier: Modifier,
     centerOffset: Offset,
+    disableAGSL: Boolean,
+    disableOpenGL: Boolean,
+    modifier: Modifier,
 ) {
     require(centerOffset.x in 0f..1f)
     require(centerOffset.y in 0f..1f)
@@ -162,7 +172,8 @@ private fun CellWindowImpl(
         // Convert the window state offset into integer and fractional parts
         val intOffset = floor(cellWindowState.offset)
         val fracOffset = cellWindowState.offset - intOffset.toOffset()
-        val fracPixelOffset = fracOffset * scaledCellPixelSize
+        val fracOffsetFromCenter = fracOffset - Offset(0.5f, 0.5f)
+        val fracPixelOffsetFromCenter = fracOffsetFromCenter * scaledCellPixelSize
 
         // Calculate the number of columns and rows necessary to cover the entire viewport.
         val columnsToLeft = ceil(constraints.maxWidth * centerOffset.x / scaledCellPixelSize).toInt()
@@ -204,10 +215,6 @@ private fun CellWindowImpl(
 
         Box(
             modifier = Modifier
-                .graphicsLayer {
-                    translationX = -fracPixelOffset.x
-                    translationY = -fracPixelOffset.y
-                }
                 .pointerInput(Unit) {
                     detectTransformGestures(
                         onGestureStart = { isGesturing = true },
@@ -218,6 +225,19 @@ private fun CellWindowImpl(
                     )
                 },
         ) {
+            // Keep the non-interactable cells always visible, to easily be able to switch to it when moving
+            NonInteractableCells(
+                gameOfLifeState = cellWindowUiState.gameOfLifeState,
+                scaledCellDpSize = scaledCellDpSize,
+                cellWindow = cellWindow,
+                shape = shape,
+                translationX = -fracPixelOffsetFromCenter.x,
+                translationY = -fracPixelOffsetFromCenter.y,
+                disableAGSL = disableAGSL,
+                disableOpenGL = disableOpenGL,
+                modifier = Modifier.size(this@BoxWithConstraints.maxWidth, this@BoxWithConstraints.maxHeight),
+            )
+
             if (
                 cellWindowUiState.isInteractable(
                     isGesturing = isGesturing,
@@ -229,13 +249,8 @@ private fun CellWindowImpl(
                     scaledCellDpSize = scaledCellDpSize,
                     cellWindow = cellWindow,
                     shape = shape,
-                )
-            } else {
-                NonInteractableCells(
-                    gameOfLifeState = cellWindowUiState.gameOfLifeState,
-                    scaledCellDpSize = scaledCellDpSize,
-                    cellWindow = cellWindow,
-                    shape = shape,
+                    translationX = -fracPixelOffsetFromCenter.x,
+                    translationY = -fracPixelOffsetFromCenter.y,
                 )
             }
         }
@@ -291,6 +306,8 @@ fun ImmutableCellWindowPreview() {
                     sizeFraction = 1f,
                     cornerFraction = 0f,
                 ),
+                disableAGSL = false,
+                disableOpenGL = false,
             )
         }
     }
@@ -319,6 +336,8 @@ fun MutableCellWindowPreview() {
                     sizeFraction = 1f,
                     cornerFraction = 0f,
                 ),
+                disableAGSL = false,
+                disableOpenGL = false,
             )
         }
     }

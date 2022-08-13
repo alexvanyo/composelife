@@ -82,6 +82,8 @@ abstract class BaseHiltTest<T : ComponentActivity>(clazz: Class<T>) {
             )
             testSetDarkThemeConfig(DarkThemeConfig.FollowSystem)
             testSetQuickAccessSetting(emptySet())
+            testSetDisabledAGSL(false)
+            testSetDisableOpenGL(false)
         },
         testBody: suspend TestScope.() -> Unit,
     ): TestResult = runTest {

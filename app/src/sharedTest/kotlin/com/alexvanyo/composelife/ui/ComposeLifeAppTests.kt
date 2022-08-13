@@ -44,6 +44,7 @@ import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.test.BaseHiltTest
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import leakcanary.SkipLeakDetection
 import org.junit.Test
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -54,6 +55,7 @@ import kotlin.test.assertEquals
 @HiltAndroidTest
 class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java) {
 
+    @SkipLeakDetection("recomposer", "Outer")
     @Test
     fun app_does_not_crash() = runAppTest {
         composeTestRule.onNodeWithContentDescription(context.getString(R.string.play)).performClick()
@@ -63,6 +65,7 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
         composeTestRule.waitForIdle()
     }
 
+    @SkipLeakDetection("recomposer", "Outer", "Inner")
     @Test
     fun app_does_not_crash_when_recreating() = runAppTest {
         composeTestRule.onNodeWithContentDescription(context.getString(R.string.play)).performClick()
@@ -74,6 +77,7 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
         composeTestRule.waitForIdle()
     }
 
+    @SkipLeakDetection("recomposer", "Outer")
     @Test
     fun can_change_theme_to_dark_mode() = runAppTest {
         val windowSizeClass = WindowSizeClass.calculateFromSize(
@@ -160,6 +164,7 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
             .assertExists()
     }
 
+    @SkipLeakDetection("recomposer", "Outer")
     @Test
     fun can_save_theme_to_quick_access() = runAppTest {
         val windowSizeClass = WindowSizeClass.calculateFromSize(
@@ -287,6 +292,7 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
             .assertExists()
     }
 
+    @SkipLeakDetection("recomposer", "Outer")
     @Test
     fun can_change_algorithm_implementation_to_naive() = runAppTest {
         val windowSizeClass = WindowSizeClass.calculateFromSize(

@@ -31,4 +31,6 @@ message PreferencesProto {
   RoundRectangleProto round_rectangle = 3;
   DarkThemeConfigProto dark_theme_config = 4;
   repeated QuickAccessSettingProto quick_access_settings = 5;
+  bool disable_agsl = 6;
+  bool disable_opengl = 7;
 }

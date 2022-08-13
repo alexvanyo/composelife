@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.model
 
 import androidx.annotation.IntRange
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
 import com.alexvanyo.composelife.model.MacroCell.Cell
 import com.alexvanyo.composelife.model.MacroCell.Cell.AliveCell
 import com.alexvanyo.composelife.model.MacroCell.Cell.DeadCell
@@ -184,24 +185,47 @@ fun createEmptyMacroCell(@IntRange(from = 0) level: Int): MacroCell {
 }
 
 /**
- * Returns an [Iterator] of [IntOffset] for every alive cell represented by this [MacroCell],
+ * Returns an [Iterator] of [IntOffset] for every alive cell within the [cellWindow] represented by this [MacroCell],
  * with the given upper left corner [offset].
  */
 fun MacroCell.iterator(
     offset: IntOffset,
+    cellWindow: IntRect,
 ): Iterator<IntOffset> {
     val macroCell = this
     return iterator {
-        if (size > 0) {
+        @Suppress("ComplexCondition")
+        if (
+            size > 0 &&
+            cellWindow.right >= 0 &&
+            cellWindow.bottom >= 0 &&
+            cellWindow.left < 1 shl level &&
+            cellWindow.top < 1 shl level
+        ) {
             when (macroCell) {
                 AliveCell -> yield(offset)
                 DeadCell -> throw AssertionError("Dead cell must have a size equal to 0!")
                 is CellNode -> {
                     val offsetDiff = 1 shl (level - 1)
-                    yieldAll(macroCell.nw.iterator(offset))
-                    yieldAll(macroCell.ne.iterator(offset + IntOffset(offsetDiff, 0)))
-                    yieldAll(macroCell.sw.iterator(offset + IntOffset(0, offsetDiff)))
-                    yieldAll(macroCell.se.iterator(offset + IntOffset(offsetDiff, offsetDiff)))
+                    yieldAll(macroCell.nw.iterator(offset, cellWindow))
+                    yieldAll(
+                        macroCell.ne.iterator(
+                            offset + IntOffset(offsetDiff, 0),
+                            cellWindow.translate(IntOffset(-offsetDiff, 0)),
+                        ),
+                    )
+                    yieldAll(
+                        macroCell.sw.iterator(
+                            offset + IntOffset(0, offsetDiff),
+                            cellWindow.translate(IntOffset(0, -offsetDiff)),
+                        ),
+                    )
+                    yieldAll(
+                        macroCell.se.iterator(
+                            offset + IntOffset(offsetDiff, offsetDiff),
+                            cellWindow.translate(IntOffset(-offsetDiff, -offsetDiff)),
+                        ),
+                    )
                 }
             }
         }

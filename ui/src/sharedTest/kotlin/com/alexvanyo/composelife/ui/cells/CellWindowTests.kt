@@ -74,6 +74,8 @@ class CellWindowTests {
                     sizeFraction = 1f,
                     cornerFraction = 0f,
                 ),
+                disableAGSL = false,
+                disableOpenGL = false,
                 cellWindowState = rememberCellWindowState(
                     offset = Offset(-0.5f, -0.5f),
                 ),
@@ -155,6 +157,8 @@ class CellWindowTests {
                     sizeFraction = 1f,
                     cornerFraction = 0f,
                 ),
+                disableAGSL = false,
+                disableOpenGL = false,
                 cellWindowState = cellWindowState,
                 cellDpSize = 30.dp,
                 modifier = Modifier.size(150.dp),

@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.model
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
+import com.alexvanyo.composelife.util.containedPoints
 import com.alexvanyo.composelife.util.toIntOffset
 
 /**
@@ -61,6 +62,15 @@ abstract class CellState {
         } else {
             CellState(aliveCells - offset)
         }
+
+    /**
+     * Returns the list of alive cells that are contained within the given [cellWindow].
+     *
+     * This is overridable by subclasses in case the operation can be done more efficiently in a
+     * particular implementation.
+     */
+    open fun getAliveCellsInWindow(cellWindow: IntRect): Iterable<IntOffset> =
+        cellWindow.containedPoints().filter { it in aliveCells }
 
     /**
      * Returns the [IntRect] describing the minimal bounding box required to enclose all alive cells

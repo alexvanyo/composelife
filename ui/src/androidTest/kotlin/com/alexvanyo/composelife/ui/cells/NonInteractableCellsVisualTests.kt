@@ -84,6 +84,10 @@ class NonInteractableCellsVisualTests {
                         sizeFraction = 1f,
                         cornerFraction = 0f,
                     ),
+                    translationX = 0f,
+                    translationY = 0f,
+                    disableAGSL = true,
+                    disableOpenGL = true,
                     cellWindow = IntRect(
                         IntOffset(0, 0),
                         IntOffset(9, 9),
@@ -147,6 +151,10 @@ class NonInteractableCellsVisualTests {
                         sizeFraction = 1f,
                         cornerFraction = 0f,
                     ),
+                    translationX = 0f,
+                    translationY = 0f,
+                    disableAGSL = true,
+                    disableOpenGL = true,
                     cellWindow = IntRect(
                         IntOffset(0, 0),
                         IntOffset(9, 9),

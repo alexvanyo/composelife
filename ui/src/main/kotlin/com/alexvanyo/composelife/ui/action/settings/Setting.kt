@@ -44,6 +44,16 @@ sealed interface Setting {
         override val quickAccessSetting = QuickAccessSetting.CellShapeConfig
     }
 
+    object DisableAGSL : Setting {
+        override val category = SettingsCategory.FeatureFlags
+        override val quickAccessSetting = QuickAccessSetting.DisableAGSL
+    }
+
+    object DisableOpenGL : Setting {
+        override val category = SettingsCategory.FeatureFlags
+        override val quickAccessSetting = QuickAccessSetting.DisableOpenGL
+    }
+
     @GenSealedEnum
     companion object {
         val Saver = sealedEnumSaver(sealedEnum)

@@ -73,6 +73,8 @@ class InteractableCellsTests {
                     IntOffset(0, 0),
                     IntOffset(8, 8),
                 ),
+                translationX = 0f,
+                translationY = 0f,
             )
         }
 
@@ -183,6 +185,8 @@ class InteractableCellsTests {
                     IntOffset(0, 0),
                     IntOffset(8, 8),
                 ),
+                translationX = 0f,
+                translationY = 0f,
             )
         }
 

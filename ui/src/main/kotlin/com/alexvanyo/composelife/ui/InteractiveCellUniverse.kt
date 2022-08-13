@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.resourcestate.combine
 import com.alexvanyo.composelife.ui.cells.CellWindowState
 import com.alexvanyo.composelife.ui.cells.MutableCellWindow
 import com.alexvanyo.composelife.ui.cells.rememberCellWindowState
@@ -51,21 +52,26 @@ fun InteractiveCellUniverse(
     cellWindowState: CellWindowState = rememberCellWindowState(),
 ) {
     val currentShapeState = composeLifePreferences.currentShapeState
+    val disableAGSLState = composeLifePreferences.disableAGSLState
+    val disableOpenGLState = composeLifePreferences.disableOpenGLState
 
     Surface(modifier = modifier) {
         Box(
             contentAlignment = Alignment.Center,
         ) {
-            when (currentShapeState) {
+            when (val combinedState = combine(currentShapeState, disableAGSLState, disableOpenGLState, ::Triple)) {
                 is ResourceState.Failure -> Unit
                 ResourceState.Loading -> {
                     GameOfLifeProgressIndicator()
                 }
                 is ResourceState.Success -> {
+                    val (currentShape, disableAGSL, disableOpenGL) = combinedState.value
                     MutableCellWindow(
                         gameOfLifeState = temporalGameOfLifeState,
                         cellWindowState = cellWindowState,
-                        shape = currentShapeState.value,
+                        shape = currentShape,
+                        disableAGSL = disableAGSL,
+                        disableOpenGL = disableOpenGL,
                         modifier = Modifier.testTag("MutableCellWindow"),
                     )
                 }

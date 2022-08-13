@@ -60,6 +60,7 @@ class CellShapeConfigUiTests : BaseHiltTest<TestActivity>(TestActivity::class.ja
             EntryPoints.get(composeTestRule.activity, CellShapeConfigUiEntryPoint::class.java)
     }
 
+    @SkipLeakDetection("recomposer", "Outer")
     @Test
     fun loading_is_displayed_correctly() = runAppTest {
         composeTestRule.setContent {
@@ -77,6 +78,7 @@ class CellShapeConfigUiTests : BaseHiltTest<TestActivity>(TestActivity::class.ja
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
     }
 
+    @SkipLeakDetection("recomposer", "Outer")
     @Test
     fun round_rectangle_is_displayed_correctly() = runAppTest {
         composeTestRule.setContent {
@@ -112,6 +114,7 @@ class CellShapeConfigUiTests : BaseHiltTest<TestActivity>(TestActivity::class.ja
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.4f, range = 0f..0.5f)))
     }
 
+    @SkipLeakDetection("recomposer", "Outer")
     @Test
     fun round_rectangle_is_displayed_correctly_after_updating() = runAppTest {
         var currentShapeState by mutableStateOf<ResourceState<CurrentShape>>(ResourceState.Loading)

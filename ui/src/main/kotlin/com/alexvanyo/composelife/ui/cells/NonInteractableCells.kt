@@ -16,28 +16,22 @@
 
 package com.alexvanyo.composelife.ui.cells
 
+import android.os.Build
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toOffset
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
-import com.alexvanyo.composelife.util.containedPoints
 
 /**
  * A fixed size composable that displays a specific [cellWindow] into the given [GameOfLifeState].
@@ -45,50 +39,49 @@ import com.alexvanyo.composelife.util.containedPoints
  * The [GameOfLifeState] is not interactable, so for efficiency the cell window is represented
  * by a single [Canvas], where each cell is drawn individually.
  */
+@Suppress("LongParameterList")
 @Composable
 fun NonInteractableCells(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,
     cellWindow: IntRect,
     shape: CurrentShape,
+    translationX: Float,
+    translationY: Float,
+    disableAGSL: Boolean,
+    disableOpenGL: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() }
-
-    val aliveColor = ComposeLifeTheme.aliveCellColor
-    val deadColor = ComposeLifeTheme.deadCellColor
-
-    Canvas(
-        modifier = modifier
-            .requiredSize(
-                scaledCellDpSize * (cellWindow.width + 1),
-                scaledCellDpSize * (cellWindow.height + 1),
-            ),
-    ) {
-        drawRect(
-            color = deadColor,
+    if (!disableAGSL && Build.VERSION.SDK_INT >= 33) {
+        AGSLNonInteractableCells(
+            gameOfLifeState = gameOfLifeState,
+            scaledCellDpSize = scaledCellDpSize,
+            cellWindow = cellWindow,
+            shape = shape,
+            translationX = translationX,
+            translationY = translationY,
+            modifier = modifier,
         )
-
-        cellWindow.containedPoints().forEach { cell ->
-            if (cell in gameOfLifeState.cellState.aliveCells) {
-                when (shape) {
-                    is CurrentShape.RoundRectangle -> {
-                        drawRoundRect(
-                            color = aliveColor,
-                            topLeft = (cell - cellWindow.topLeft).toOffset() * scaledCellPixelSize +
-                                Offset(
-                                    scaledCellPixelSize * (1f - shape.sizeFraction) / 2f,
-                                    scaledCellPixelSize * (1f - shape.sizeFraction) / 2f,
-                                ),
-                            size = Size(scaledCellPixelSize, scaledCellPixelSize) * shape.sizeFraction,
-                            cornerRadius = CornerRadius(
-                                scaledCellPixelSize * shape.sizeFraction * shape.cornerFraction,
-                            ),
-                        )
-                    }
-                }
-            }
-        }
+    } else if (!disableOpenGL && !LocalInspectionMode.current && openGLSupported()) {
+        OpenGLNonInteractableCells(
+            gameOfLifeState = gameOfLifeState,
+            scaledCellDpSize = scaledCellDpSize,
+            cellWindow = cellWindow,
+            shape = shape,
+            translationX = translationX,
+            translationY = translationY,
+            modifier = modifier,
+        )
+    } else {
+        CanvasNonInteractableCells(
+            gameOfLifeState = gameOfLifeState,
+            scaledCellDpSize = scaledCellDpSize,
+            cellWindow = cellWindow,
+            shape = shape,
+            translationX = translationX,
+            translationY = translationY,
+            modifier = modifier,
+        )
     }
 }
 
@@ -97,32 +90,35 @@ fun NonInteractableCells(
 fun NonInteractableCellsPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            Box(modifier = Modifier.size(300.dp)) {
-                NonInteractableCells(
-                    gameOfLifeState = GameOfLifeState(
-                        setOf(
-                            0 to 0,
-                            0 to 2,
-                            0 to 4,
-                            2 to 0,
-                            2 to 2,
-                            2 to 4,
-                            4 to 0,
-                            4 to 2,
-                            4 to 4,
-                        ).toCellState(),
-                    ),
-                    scaledCellDpSize = 32.dp,
-                    shape = CurrentShape.RoundRectangle(
-                        sizeFraction = 1f,
-                        cornerFraction = 0f,
-                    ),
-                    cellWindow = IntRect(
-                        IntOffset(0, 0),
-                        IntOffset(9, 9),
-                    ),
-                )
-            }
+            NonInteractableCells(
+                gameOfLifeState = GameOfLifeState(
+                    setOf(
+                        0 to 0,
+                        0 to 2,
+                        0 to 4,
+                        2 to 0,
+                        2 to 2,
+                        2 to 4,
+                        4 to 0,
+                        4 to 2,
+                        4 to 4,
+                    ).toCellState(),
+                ),
+                scaledCellDpSize = 32.dp,
+                shape = CurrentShape.RoundRectangle(
+                    sizeFraction = 1f,
+                    cornerFraction = 0f,
+                ),
+                disableAGSL = false,
+                disableOpenGL = false,
+                translationX = 0.0f,
+                translationY = 0.0f,
+                cellWindow = IntRect(
+                    IntOffset(0, 0),
+                    IntOffset(9, 9),
+                ),
+                modifier = Modifier.size(300.dp),
+            )
         }
     }
 }

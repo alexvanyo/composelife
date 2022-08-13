@@ -17,6 +17,8 @@
 package com.alexvanyo.composelife.model
 
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 import com.alexvanyo.composelife.model.MacroCell.CellNode
 import kotlin.math.ceil
 import kotlin.math.log2
@@ -136,7 +138,11 @@ class HashLifeCellState(
 
         override fun isEmpty(): Boolean = size == 0
 
-        override fun iterator(): Iterator<IntOffset> = macroCell.iterator(offset)
+        override fun iterator(): Iterator<IntOffset> =
+            macroCell.iterator(
+                offset,
+                IntRect(IntOffset.Zero, IntSize((1 shl macroCell.level) - 1, (1 shl macroCell.level) - 1)),
+            )
     }
 
     override fun offsetBy(offset: IntOffset) = HashLifeCellState(
@@ -164,6 +170,9 @@ class HashLifeCellState(
             macroCell = hashLifeCellState.macroCell.withCell(target, isAlive),
         )
     }
+
+    override fun getAliveCellsInWindow(cellWindow: IntRect): Iterable<IntOffset> =
+        Iterable { macroCell.iterator(offset, cellWindow.translate(-offset)) }
 
     override fun toString(): String = "HashLifeCellState(${aliveCells.toSet()})"
 }

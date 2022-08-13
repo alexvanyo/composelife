@@ -34,6 +34,8 @@ import com.alexvanyo.composelife.ui.action.settings.AlgorithmImplementationUiEnt
 import com.alexvanyo.composelife.ui.action.settings.CellShapeConfigUiEntryPoint
 import com.alexvanyo.composelife.ui.action.settings.CellStatePreviewUiEntryPoint
 import com.alexvanyo.composelife.ui.action.settings.DarkThemeConfigUiEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.DisableAGSLUiEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.DisableOpenGLUiEntryPoint
 import com.alexvanyo.composelife.ui.action.settings.FullscreenSettingsScreenEntryPoint
 import com.alexvanyo.composelife.ui.action.settings.InlineSettingsScreenEntryPoint
 import com.alexvanyo.composelife.ui.action.settings.SettingUiEntryPoint
@@ -46,6 +48,8 @@ interface PreviewEntryPoint :
     CellStatePreviewUiEntryPoint,
     CellUniverseActionCardEntryPoint,
     DarkThemeConfigUiEntryPoint,
+    DisableAGSLUiEntryPoint,
+    DisableOpenGLUiEntryPoint,
     FullscreenSettingsScreenEntryPoint,
     GameOfLifeProgressIndicatorEntryPoint,
     InlineSettingsScreenEntryPoint,

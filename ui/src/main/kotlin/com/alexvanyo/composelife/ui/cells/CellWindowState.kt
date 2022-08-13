@@ -53,7 +53,7 @@ interface CellWindowState {
     companion object {
         val defaultOffset = Offset.Zero
         const val defaultScale = 1f
-        val defaultScaleRange = 0.1f..3f
+        val defaultScaleRange = 0.01f..3f
     }
 }
 
