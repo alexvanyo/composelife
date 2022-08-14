@@ -19,10 +19,12 @@ import com.alexvanyo.composelife.buildlogic.configureTesting
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 
 class AndroidLibraryPaparazziConventionPlugin : ConventionPlugin({
@@ -54,6 +56,10 @@ class AndroidLibraryPaparazziConventionPlugin : ConventionPlugin({
         // Ensure check is verifying the snapshots, see discussion in
         // https://github.com/cashapp/paparazzi/pull/421
         dependsOn("verifyPaparazziDebug")
+    }
+
+    tasks.register<Delete>("deletePaparazziSnapshots") {
+        delete("${projectDir}/src/test/snapshots")
     }
 
     tasks.withType<Test>().configureEach {
