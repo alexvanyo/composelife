@@ -56,6 +56,10 @@ class AndroidLibraryPaparazziConventionPlugin : ConventionPlugin({
         dependsOn("verifyPaparazziDebug")
     }
 
+    tasks.register("deletePaparazziSnapshots") {
+        delete("${projectDir}/src/test/snapshots")
+    }
+
     tasks.withType<Test>().configureEach {
         // Increase memory and parallelize Paparazzi tests
         maxHeapSize = "2g"

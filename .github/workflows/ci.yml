@@ -80,7 +80,7 @@ jobs:
           sed -i -E "s/ro\.build\.version\.known_codenames=.*(Base.*)/ro\.build\.version\.known_codenames=ro\.,\1/" $ANDROID_HOME/platforms/android-33-paparazzi/build.prop
 
       - name: Run checks
-        run: ./gradlew check --stacktrace
+        run: ./gradlew check --info
 
       - name: Generate code coverage
         if: matrix.sdk == '32'
