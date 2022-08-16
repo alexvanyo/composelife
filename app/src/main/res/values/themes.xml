@@ -14,8 +14,13 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
-    <style name="Theme.ComposeLife.Starting" parent="Theme.SplashScreen">
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.SplashScreen.NightAdjusted" parent="Theme.SplashScreen">
+        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+    </style>
+
+    <style name="Theme.ComposeLife.Starting" parent="Theme.SplashScreen.NightAdjusted">
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
         <item name="postSplashScreenTheme">@style/Theme.ComposeLife</item>
     </style>
