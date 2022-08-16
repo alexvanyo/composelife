@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import app.cash.paparazzi.gradle.PaparazziPlugin
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureTesting
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
@@ -60,6 +61,12 @@ class AndroidLibraryPaparazziConventionPlugin : ConventionPlugin({
 
     tasks.register<Delete>("deletePaparazziSnapshots") {
         delete("${projectDir}/src/test/snapshots")
+    }
+
+    tasks.withType<PaparazziPlugin.PaparazziTask>().configureEach {
+        if (name.contains("record")) {
+            dependsOn("deletePaparazziSnapshots")
+        }
     }
 
     tasks.withType<Test>().configureEach {
