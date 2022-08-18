@@ -28,116 +28,52 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.preferences.CurrentShape
-import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.resourcestate.combine
+import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowState
 import com.alexvanyo.composelife.ui.cells.ImmutableCellWindow
-import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicator
-import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorEntryPoint
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
 
-@EntryPoint
-@InstallIn(ActivityComponent::class)
-interface CellStatePreviewUiEntryPoint :
-    GameOfLifeProgressIndicatorEntryPoint,
-    ComposeLifePreferencesProvider
+interface CellStatePreviewUiLocalEntryPoint :
+    CellWindowLocalEntryPoint
 
-context(CellStatePreviewUiEntryPoint)
-@Composable
-fun CellStatePreviewUi(
-    modifier: Modifier = Modifier,
-) {
-    CellStatePreviewUi(
-        currentShapeState = composeLifePreferences.currentShapeState,
-        disableAGSLState = composeLifePreferences.disableAGSLState,
-        disableOpenGLState = composeLifePreferences.disableOpenGLState,
-        modifier = modifier,
-    )
-}
-
-context(CellStatePreviewUiEntryPoint)
+context(CellStatePreviewUiLocalEntryPoint)
 @Suppress("LongMethod")
 @Composable
 fun CellStatePreviewUi(
-    currentShapeState: ResourceState<CurrentShape>,
-    disableAGSLState: ResourceState<Boolean>,
-    disableOpenGLState: ResourceState<Boolean>,
     modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,
     ) {
-        when (val combinedState = combine(currentShapeState, disableAGSLState, disableOpenGLState, ::Triple)) {
-            ResourceState.Loading, is ResourceState.Failure -> {
-                GameOfLifeProgressIndicator()
-            }
-            is ResourceState.Success -> {
-                val (currentShape, disableAGSL, disableOpenGL) = combinedState.value
-
-                ImmutableCellWindow(
-                    gameOfLifeState = GameOfLifeState(
-                        """
-                        |.....
-                        |..O..
-                        |...O.
-                        |.OOO.
-                        |.....
-                        """.toCellState(),
-                    ),
-                    shape = currentShape,
-                    disableAGSL = disableAGSL,
-                    disableOpenGL = disableOpenGL,
-                    cellWindowState = CellWindowState(
-                        offset = Offset(2f, 2f),
-                    ),
-                    cellDpSize = 96.dp / 5,
-                    modifier = Modifier.size(96.dp),
-                )
-            }
-        }
+        ImmutableCellWindow(
+            gameOfLifeState = GameOfLifeState(
+                """
+                |.....
+                |..O..
+                |...O.
+                |.OOO.
+                |.....
+                """.toCellState(),
+            ),
+            modifier = Modifier.size(96.dp),
+            cellWindowState = CellWindowState(
+                offset = Offset(2f, 2f),
+            ),
+            cellDpSize = 96.dp / 5,
+        )
     }
 }
 
 @ThemePreviews
 @Composable
-fun CellStatePreviewUiLoadingPreview() {
+fun CellStatePreviewUiPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             Surface {
-                CellStatePreviewUi(
-                    currentShapeState = ResourceState.Loading,
-                    disableAGSLState = ResourceState.Loading,
-                    disableOpenGLState = ResourceState.Loading,
-                )
-            }
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun CellStatePreviewUiRoundRectanglePreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            Surface {
-                CellStatePreviewUi(
-                    currentShapeState = ResourceState.Success(
-                        CurrentShape.RoundRectangle(
-                            sizeFraction = 0.8f,
-                            cornerFraction = 0.4f,
-                        ),
-                    ),
-                    disableAGSLState = ResourceState.Success(false),
-                    disableOpenGLState = ResourceState.Success(false),
-                )
+                CellStatePreviewUi()
             }
         }
     }

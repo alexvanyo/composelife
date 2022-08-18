@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.ui.cells
 
@@ -29,10 +30,13 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.preferences.CurrentShape
+import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
+
+interface NonInteractableCellsLocalEntryPoint :
+    LoadedComposeLifePreferencesProvider
 
 /**
  * A fixed size composable that displays a specific [cellWindow] into the given [GameOfLifeState].
@@ -40,33 +44,30 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
  * The [GameOfLifeState] is not interactable, so for efficiency the cell window is represented
  * by a single [Canvas], where each cell is drawn individually.
  */
-@Suppress("LongParameterList")
+context(NonInteractableCellsLocalEntryPoint)
 @Composable
 fun NonInteractableCells(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,
     cellWindow: IntRect,
-    shape: CurrentShape,
     pixelOffsetFromCenter: Offset,
-    disableAGSL: Boolean,
-    disableOpenGL: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    if (!disableAGSL && Build.VERSION.SDK_INT >= 33) {
+    if (!preferences.disableAGSL && Build.VERSION.SDK_INT >= 33) {
         AGSLNonInteractableCells(
             gameOfLifeState = gameOfLifeState,
             scaledCellDpSize = scaledCellDpSize,
             cellWindow = cellWindow,
-            shape = shape,
+            shape = preferences.currentShape,
             pixelOffsetFromCenter = pixelOffsetFromCenter,
             modifier = modifier,
         )
-    } else if (!disableOpenGL && !LocalInspectionMode.current && openGLSupported()) {
+    } else if (!preferences.disableOpenGL && !LocalInspectionMode.current && openGLSupported()) {
         OpenGLNonInteractableCells(
             gameOfLifeState = gameOfLifeState,
             scaledCellDpSize = scaledCellDpSize,
             cellWindow = cellWindow,
-            shape = shape,
+            shape = preferences.currentShape,
             pixelOffsetFromCenter = pixelOffsetFromCenter,
             modifier = modifier,
         )
@@ -75,7 +76,7 @@ fun NonInteractableCells(
             gameOfLifeState = gameOfLifeState,
             scaledCellDpSize = scaledCellDpSize,
             cellWindow = cellWindow,
-            shape = shape,
+            shape = preferences.currentShape,
             pixelOffsetFromCenter = pixelOffsetFromCenter,
             modifier = modifier,
         )
@@ -102,17 +103,11 @@ fun NonInteractableCellsPreview() {
                     ).toCellState(),
                 ),
                 scaledCellDpSize = 32.dp,
-                shape = CurrentShape.RoundRectangle(
-                    sizeFraction = 1f,
-                    cornerFraction = 0f,
-                ),
-                disableAGSL = false,
-                disableOpenGL = false,
-                pixelOffsetFromCenter = Offset.Zero,
                 cellWindow = IntRect(
                     IntOffset(0, 0),
                     IntOffset(9, 9),
                 ),
+                pixelOffsetFromCenter = Offset.Zero,
                 modifier = Modifier.size(300.dp),
             )
         }

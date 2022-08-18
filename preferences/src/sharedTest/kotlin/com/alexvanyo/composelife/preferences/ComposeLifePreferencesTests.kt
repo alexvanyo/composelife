@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.preferences
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
 import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.resourcestate.isSuccess
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -38,6 +39,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import javax.inject.Inject
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -68,6 +70,22 @@ class ComposeLifePreferencesTests {
     @After
     fun teardown() {
         Dispatchers.resetMain()
+    }
+
+    @Test
+    fun default_loaded_preferences_is_correct() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
+        assertEquals(ResourceState.Loading, composeLifePreferences.loadedPreferencesState)
+
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(LoadedComposeLifePreferences.Defaults),
+            composeLifePreferences.loadedPreferencesState,
+        )
     }
 
     @Test
@@ -105,6 +123,13 @@ class ComposeLifePreferencesTests {
         runCurrent()
 
         assertEquals(ResourceState.Success(AlgorithmType.NaiveAlgorithm), composeLifePreferences.algorithmChoiceState)
+
+        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertEquals(
+            AlgorithmType.NaiveAlgorithm,
+            loadedPreferencesState.value.algorithmChoice,
+        )
     }
 
     @Test
@@ -165,6 +190,16 @@ class ComposeLifePreferencesTests {
             ),
             composeLifePreferences.currentShapeState,
         )
+
+        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertEquals(
+            CurrentShape.RoundRectangle(
+                sizeFraction = 0.8f,
+                cornerFraction = 0.25f,
+            ),
+            loadedPreferencesState.value.currentShape,
+        )
     }
 
     @Test
@@ -205,6 +240,13 @@ class ComposeLifePreferencesTests {
             ResourceState.Success(DarkThemeConfig.Light),
             composeLifePreferences.darkThemeConfigState,
         )
+
+        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertEquals(
+            DarkThemeConfig.Light,
+            loadedPreferencesState.value.darkThemeConfig,
+        )
     }
 
     @Test
@@ -213,13 +255,13 @@ class ComposeLifePreferencesTests {
             composeLifePreferences.update()
         }
 
-        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
+        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettingsState)
 
         runCurrent()
 
         assertEquals(
             ResourceState.Success(emptySet()),
-            composeLifePreferences.quickAccessSettings,
+            composeLifePreferences.quickAccessSettingsState,
         )
     }
 
@@ -229,13 +271,13 @@ class ComposeLifePreferencesTests {
             composeLifePreferences.update()
         }
 
-        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
+        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettingsState)
 
         runCurrent()
 
         assertEquals(
             ResourceState.Success(emptySet()),
-            composeLifePreferences.quickAccessSettings,
+            composeLifePreferences.quickAccessSettingsState,
         )
 
         composeLifePreferences.addQuickAccessSetting(
@@ -245,7 +287,14 @@ class ComposeLifePreferencesTests {
 
         assertEquals(
             ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
-            composeLifePreferences.quickAccessSettings,
+            composeLifePreferences.quickAccessSettingsState,
+        )
+
+        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertEquals(
+            setOf(QuickAccessSetting.DarkThemeConfig),
+            loadedPreferencesState.value.quickAccessSettings,
         )
     }
 
@@ -255,13 +304,13 @@ class ComposeLifePreferencesTests {
             composeLifePreferences.update()
         }
 
-        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
+        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettingsState)
 
         runCurrent()
 
         assertEquals(
             ResourceState.Success(emptySet()),
-            composeLifePreferences.quickAccessSettings,
+            composeLifePreferences.quickAccessSettingsState,
         )
 
         composeLifePreferences.addQuickAccessSetting(
@@ -279,7 +328,17 @@ class ComposeLifePreferencesTests {
                     QuickAccessSetting.AlgorithmImplementation,
                 ),
             ),
-            composeLifePreferences.quickAccessSettings,
+            composeLifePreferences.quickAccessSettingsState,
+        )
+
+        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertEquals(
+            setOf(
+                QuickAccessSetting.DarkThemeConfig,
+                QuickAccessSetting.AlgorithmImplementation,
+            ),
+            loadedPreferencesState.value.quickAccessSettings,
         )
     }
 
@@ -289,13 +348,13 @@ class ComposeLifePreferencesTests {
             composeLifePreferences.update()
         }
 
-        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
+        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettingsState)
 
         runCurrent()
 
         assertEquals(
             ResourceState.Success(emptySet()),
-            composeLifePreferences.quickAccessSettings,
+            composeLifePreferences.quickAccessSettingsState,
         )
 
         composeLifePreferences.addQuickAccessSetting(
@@ -319,7 +378,18 @@ class ComposeLifePreferencesTests {
                     QuickAccessSetting.CellShapeConfig,
                 ),
             ),
-            composeLifePreferences.quickAccessSettings,
+            composeLifePreferences.quickAccessSettingsState,
+        )
+
+        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertEquals(
+            setOf(
+                QuickAccessSetting.DarkThemeConfig,
+                QuickAccessSetting.AlgorithmImplementation,
+                QuickAccessSetting.CellShapeConfig,
+            ),
+            loadedPreferencesState.value.quickAccessSettings,
         )
     }
 
@@ -329,13 +399,13 @@ class ComposeLifePreferencesTests {
             composeLifePreferences.update()
         }
 
-        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
+        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettingsState)
 
         runCurrent()
 
         assertEquals(
             ResourceState.Success(emptySet()),
-            composeLifePreferences.quickAccessSettings,
+            composeLifePreferences.quickAccessSettingsState,
         )
 
         composeLifePreferences.addQuickAccessSetting(
@@ -353,7 +423,14 @@ class ComposeLifePreferencesTests {
 
         assertEquals(
             ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
-            composeLifePreferences.quickAccessSettings,
+            composeLifePreferences.quickAccessSettingsState,
+        )
+
+        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertEquals(
+            setOf(QuickAccessSetting.DarkThemeConfig),
+            loadedPreferencesState.value.quickAccessSettings,
         )
     }
 
@@ -363,13 +440,13 @@ class ComposeLifePreferencesTests {
             composeLifePreferences.update()
         }
 
-        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
+        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettingsState)
 
         runCurrent()
 
         assertEquals(
             ResourceState.Success(emptySet()),
-            composeLifePreferences.quickAccessSettings,
+            composeLifePreferences.quickAccessSettingsState,
         )
 
         composeLifePreferences.addQuickAccessSetting(
@@ -387,7 +464,7 @@ class ComposeLifePreferencesTests {
 
         assertEquals(
             ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
-            composeLifePreferences.quickAccessSettings,
+            composeLifePreferences.quickAccessSettingsState,
         )
 
         composeLifePreferences.removeQuickAccessSetting(
@@ -405,7 +482,14 @@ class ComposeLifePreferencesTests {
 
         assertEquals(
             ResourceState.Success(emptySet()),
-            composeLifePreferences.quickAccessSettings,
+            composeLifePreferences.quickAccessSettingsState,
+        )
+
+        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertEquals(
+            emptySet(),
+            loadedPreferencesState.value.quickAccessSettings,
         )
     }
 
@@ -415,13 +499,13 @@ class ComposeLifePreferencesTests {
             composeLifePreferences.update()
         }
 
-        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettings)
+        assertEquals(ResourceState.Loading, composeLifePreferences.quickAccessSettingsState)
 
         runCurrent()
 
         assertEquals(
             ResourceState.Success(emptySet()),
-            composeLifePreferences.quickAccessSettings,
+            composeLifePreferences.quickAccessSettingsState,
         )
 
         composeLifePreferences.addQuickAccessSetting(
@@ -440,7 +524,7 @@ class ComposeLifePreferencesTests {
                     QuickAccessSetting.AlgorithmImplementation,
                 ),
             ),
-            composeLifePreferences.quickAccessSettings,
+            composeLifePreferences.quickAccessSettingsState,
         )
 
         composeLifePreferences.removeQuickAccessSetting(
@@ -450,7 +534,14 @@ class ComposeLifePreferencesTests {
 
         assertEquals(
             ResourceState.Success(setOf(QuickAccessSetting.AlgorithmImplementation)),
-            composeLifePreferences.quickAccessSettings,
+            composeLifePreferences.quickAccessSettingsState,
+        )
+
+        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertEquals(
+            setOf(QuickAccessSetting.AlgorithmImplementation),
+            loadedPreferencesState.value.quickAccessSettings,
         )
     }
 
@@ -492,6 +583,13 @@ class ComposeLifePreferencesTests {
             ResourceState.Success(true),
             composeLifePreferences.disableAGSLState,
         )
+
+        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertEquals(
+            true,
+            loadedPreferencesState.value.disableAGSL,
+        )
     }
 
     @Test
@@ -531,6 +629,13 @@ class ComposeLifePreferencesTests {
         assertEquals(
             ResourceState.Success(true),
             composeLifePreferences.disableOpenGLState,
+        )
+
+        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertEquals(
+            true,
+            loadedPreferencesState.value.disableOpenGL,
         )
     }
 }

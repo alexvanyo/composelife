@@ -66,7 +66,8 @@ import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.Ce
 import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLayoutTypes.TopInsets
 import com.alexvanyo.composelife.ui.action.CellUniverseActionCard
-import com.alexvanyo.composelife.ui.action.CellUniverseActionCardEntryPoint
+import com.alexvanyo.composelife.ui.action.CellUniverseActionCardHiltEntryPoint
+import com.alexvanyo.composelife.ui.action.CellUniverseActionCardLocalEntryPoint
 import com.alexvanyo.composelife.ui.action.CellUniverseActionCardState
 import com.alexvanyo.composelife.ui.action.rememberCellUniverseActionCardState
 import com.alexvanyo.composelife.ui.cells.CellWindowState
@@ -82,10 +83,13 @@ import dagger.hilt.android.components.ActivityComponent
 
 @EntryPoint
 @InstallIn(ActivityComponent::class)
-interface InteractiveCellUniverseOverlayEntryPoint :
-    CellUniverseActionCardEntryPoint
+interface InteractiveCellUniverseOverlayHiltEntryPoint :
+    CellUniverseActionCardHiltEntryPoint
 
-context(InteractiveCellUniverseOverlayEntryPoint)
+interface InteractiveCellUniverseOverlayLocalEntryPoint :
+    CellUniverseActionCardLocalEntryPoint
+
+context(InteractiveCellUniverseOverlayHiltEntryPoint, InteractiveCellUniverseOverlayLocalEntryPoint)
 @OptIn(ExperimentalLayoutApi::class)
 @Suppress("LongMethod", "ComplexMethod")
 @Composable

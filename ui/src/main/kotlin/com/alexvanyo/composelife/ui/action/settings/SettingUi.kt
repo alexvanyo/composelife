@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
@@ -32,16 +32,24 @@ import kotlinx.coroutines.launch
 
 @EntryPoint
 @InstallIn(ActivityComponent::class)
-interface SettingUiEntryPoint :
-    AlgorithmImplementationUiEntryPoint,
-    CellShapeConfigUiEntryPoint,
-    CellStatePreviewUiEntryPoint,
+interface SettingUiHiltEntryPoint :
+    AlgorithmImplementationUiHiltEntryPoint,
+    CellShapeConfigUiHiltEntryPoint,
     ComposeLifePreferencesProvider,
-    DarkThemeConfigUiEntryPoint,
-    DisableAGSLUiEntryPoint,
-    DisableOpenGLUiEntryPoint
+    DarkThemeConfigUiHiltEntryPoint,
+    DisableAGSLUiHiltEntryPoint,
+    DisableOpenGLUiHiltEntryPoint
 
-context(SettingUiEntryPoint)
+interface SettingUiLocalEntryPoint :
+    AlgorithmImplementationUiLocalEntryPoint,
+    CellShapeConfigUiLocalEntryPoint,
+    CellStatePreviewUiLocalEntryPoint,
+    DarkThemeConfigUiLocalEntryPoint,
+    DisableAGSLUiLocalEntryPoint,
+    DisableOpenGLUiLocalEntryPoint,
+    LoadedComposeLifePreferencesProvider
+
+context(SettingUiHiltEntryPoint, SettingUiLocalEntryPoint)
 @Composable
 fun SettingUi(
     setting: Setting,
@@ -53,25 +61,20 @@ fun SettingUi(
     ) {
         val quickAccessSetting = setting.quickAccessSetting
         if (quickAccessSetting != null) {
-            when (val quickAccessSettings = composeLifePreferences.quickAccessSettings) {
-                ResourceState.Loading, is ResourceState.Failure -> Unit
-                is ResourceState.Success -> {
-                    val coroutineScope = rememberCoroutineScope()
-                    QuickAccessSettingHeader(
-                        isFavorite = quickAccessSetting in quickAccessSettings.value,
-                        setIsFavorite = { isFavorite ->
-                            coroutineScope.launch {
-                                if (isFavorite) {
-                                    composeLifePreferences.addQuickAccessSetting(quickAccessSetting)
-                                } else {
-                                    composeLifePreferences.removeQuickAccessSetting(quickAccessSetting)
-                                }
-                            }
-                        },
-                        onOpenInSettingsClicked = onOpenInSettingsClicked?.let { { it(setting) } },
-                    )
-                }
-            }
+            val coroutineScope = rememberCoroutineScope()
+            QuickAccessSettingHeader(
+                isFavorite = quickAccessSetting in preferences.quickAccessSettings,
+                setIsFavorite = { isFavorite ->
+                    coroutineScope.launch {
+                        if (isFavorite) {
+                            composeLifePreferences.addQuickAccessSetting(quickAccessSetting)
+                        } else {
+                            composeLifePreferences.removeQuickAccessSetting(quickAccessSetting)
+                        }
+                    }
+                },
+                onOpenInSettingsClicked = onOpenInSettingsClicked?.let { { it(setting) } },
+            )
         }
 
         when (setting) {
@@ -85,7 +88,7 @@ fun SettingUi(
     }
 }
 
-context(SettingUiEntryPoint)
+context(SettingUiHiltEntryPoint, SettingUiLocalEntryPoint)
 @Composable
 fun SettingUi(
     quickAccessSetting: QuickAccessSetting,

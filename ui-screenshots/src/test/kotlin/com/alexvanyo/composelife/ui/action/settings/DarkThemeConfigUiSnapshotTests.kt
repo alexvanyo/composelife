@@ -22,16 +22,9 @@ import org.junit.Test
 class DarkThemeConfigUiSnapshotTests : BasePaparazziTest() {
 
     @Test
-    fun dark_theme_config_ui_loading_preview() {
-        snapshot {
-            DarkThemeConfigUiLoadingPreview()
-        }
-    }
-
-    @Test
     fun dark_theme_config_ui_loaded_preview() {
         snapshot {
-            DarkThemeConfigUiLoadedPreview()
+            DarkThemeConfigUiFollowSystemPreview()
         }
     }
 }

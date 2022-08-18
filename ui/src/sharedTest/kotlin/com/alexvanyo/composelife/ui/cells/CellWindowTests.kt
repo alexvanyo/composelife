@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.preferences.CurrentShape
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.ui.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -50,6 +50,10 @@ class CellWindowTests {
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     private val context: Context get() = composeTestRule.activity
+
+    private val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
+        override val preferences = LoadedComposeLifePreferences.Defaults
+    }
 
     @Test
     fun cells_are_displayed_correctly() {
@@ -68,20 +72,16 @@ class CellWindowTests {
         )
 
         composeTestRule.setContent {
-            MutableCellWindow(
-                gameOfLifeState = mutableGameOfLifeState,
-                shape = CurrentShape.RoundRectangle(
-                    sizeFraction = 1f,
-                    cornerFraction = 0f,
-                ),
-                disableAGSL = false,
-                disableOpenGL = false,
-                cellWindowState = rememberCellWindowState(
-                    offset = Offset(-0.5f, -0.5f),
-                ),
-                cellDpSize = 10.dp,
-                modifier = Modifier.size(50.dp),
-            )
+            with(cellWindowLocalEntryPoint) {
+                MutableCellWindow(
+                    gameOfLifeState = mutableGameOfLifeState,
+                    modifier = Modifier.size(50.dp),
+                    cellWindowState = rememberCellWindowState(
+                        offset = Offset(-0.5f, -0.5f),
+                    ),
+                    cellDpSize = 10.dp,
+                )
+            }
         }
 
         composeTestRule
@@ -151,18 +151,14 @@ class CellWindowTests {
         composeTestRule.setContent {
             density = LocalDensity.current
 
-            MutableCellWindow(
-                gameOfLifeState = mutableGameOfLifeState,
-                shape = CurrentShape.RoundRectangle(
-                    sizeFraction = 1f,
-                    cornerFraction = 0f,
-                ),
-                disableAGSL = false,
-                disableOpenGL = false,
-                cellWindowState = cellWindowState,
-                cellDpSize = 30.dp,
-                modifier = Modifier.size(150.dp),
-            )
+            with(cellWindowLocalEntryPoint) {
+                MutableCellWindow(
+                    gameOfLifeState = mutableGameOfLifeState,
+                    modifier = Modifier.size(150.dp),
+                    cellWindowState = cellWindowState,
+                    cellDpSize = 30.dp,
+                )
+            }
         }
 
         composeTestRule.onRoot().performTouchInput {

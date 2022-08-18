@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.toOffset
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
@@ -64,16 +63,18 @@ object CellWindow {
     val defaultCenterOffset = Offset(0.5f, 0.5f)
 }
 
+interface CellWindowLocalEntryPoint :
+    InteractableCellsLocalEntryPoint,
+    NonInteractableCellsLocalEntryPoint
+
 /**
  * A cell window that displays the given [gameOfLifeState] in an immutable fashion.
  */
+context(CellWindowLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun ImmutableCellWindow(
     gameOfLifeState: GameOfLifeState,
-    shape: CurrentShape,
-    disableAGSL: Boolean,
-    disableOpenGL: Boolean,
     modifier: Modifier = Modifier,
     cellWindowState: CellWindowState = rememberCellWindowState(),
     cellDpSize: Dp = CellWindow.defaultCellDpSize,
@@ -84,11 +85,8 @@ fun ImmutableCellWindow(
             gameOfLifeState = gameOfLifeState,
         ),
         cellWindowState = cellWindowState,
-        shape = shape,
         cellDpSize = cellDpSize,
         centerOffset = centerOffset,
-        disableAGSL = disableAGSL,
-        disableOpenGL = disableOpenGL,
         modifier = modifier,
     )
 }
@@ -98,13 +96,11 @@ fun ImmutableCellWindow(
  *
  * The cells will be interactable if and only if [isInteractable] returns true.
  */
+context(CellWindowLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun MutableCellWindow(
     gameOfLifeState: MutableGameOfLifeState,
-    shape: CurrentShape,
-    disableAGSL: Boolean,
-    disableOpenGL: Boolean,
     modifier: Modifier = Modifier,
     isInteractable: (isGesturing: Boolean, scale: Float) -> Boolean = CellWindow.defaultIsInteractable,
     cellWindowState: CellWindowState = rememberCellWindowState(),
@@ -117,25 +113,20 @@ fun MutableCellWindow(
             isInteractable = isInteractable,
         ),
         cellWindowState = cellWindowState,
-        shape = shape,
         cellDpSize = cellDpSize,
         centerOffset = centerOffset,
-        disableAGSL = disableAGSL,
-        disableOpenGL = disableOpenGL,
         modifier = modifier,
     )
 }
 
-@Suppress("LongMethod", "LongParameterList")
+context(CellWindowLocalEntryPoint)
+@Suppress("LongMethod")
 @Composable
 private fun CellWindowImpl(
     cellWindowUiState: CellWindowUiState,
     cellWindowState: CellWindowState,
-    shape: CurrentShape,
     cellDpSize: Dp,
     centerOffset: Offset,
-    disableAGSL: Boolean,
-    disableOpenGL: Boolean,
     modifier: Modifier,
 ) {
     require(centerOffset.x in 0f..1f)
@@ -230,10 +221,7 @@ private fun CellWindowImpl(
                 gameOfLifeState = cellWindowUiState.gameOfLifeState,
                 scaledCellDpSize = scaledCellDpSize,
                 cellWindow = cellWindow,
-                shape = shape,
                 pixelOffsetFromCenter = fracPixelOffsetFromCenter,
-                disableAGSL = disableAGSL,
-                disableOpenGL = disableOpenGL,
                 modifier = Modifier.size(this@BoxWithConstraints.maxWidth, this@BoxWithConstraints.maxHeight),
             )
 
@@ -247,7 +235,6 @@ private fun CellWindowImpl(
                     gameOfLifeState = cellWindowUiState.gameOfLifeState,
                     scaledCellDpSize = scaledCellDpSize,
                     cellWindow = cellWindow,
-                    shape = shape,
                     pixelOffsetFromCenter = fracPixelOffsetFromCenter,
                 )
             }
@@ -300,12 +287,6 @@ fun ImmutableCellWindowPreview() {
                         4 to 4,
                     ).toCellState(),
                 ),
-                shape = CurrentShape.RoundRectangle(
-                    sizeFraction = 1f,
-                    cornerFraction = 0f,
-                ),
-                disableAGSL = false,
-                disableOpenGL = false,
             )
         }
     }
@@ -330,12 +311,6 @@ fun MutableCellWindowPreview() {
                         4 to 4,
                     ).toCellState(),
                 ),
-                shape = CurrentShape.RoundRectangle(
-                    sizeFraction = 1f,
-                    cornerFraction = 0f,
-                ),
-                disableAGSL = false,
-                disableOpenGL = false,
             )
         }
     }

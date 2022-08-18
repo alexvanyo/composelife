@@ -30,8 +30,9 @@ import javax.inject.Singleton
 @Suppress("TooManyFunctions")
 @Singleton
 class TestComposeLifePreferences @Inject constructor() : ComposeLifePreferences {
-    override var quickAccessSettings: ResourceState<Set<QuickAccessSetting>> by mutableStateOf(ResourceState.Loading)
-        private set
+    override var quickAccessSettingsState:
+        ResourceState<Set<QuickAccessSetting>> by mutableStateOf(ResourceState.Loading)
+            private set
 
     override var algorithmChoiceState: ResourceState<AlgorithmType> by mutableStateOf(ResourceState.Loading)
         private set
@@ -59,6 +60,26 @@ class TestComposeLifePreferences @Inject constructor() : ComposeLifePreferences 
 
     override var disableOpenGLState: ResourceState<Boolean> by mutableStateOf(ResourceState.Loading)
         private set
+
+    override val loadedPreferencesState: ResourceState<LoadedComposeLifePreferences>
+        get() = combine(
+            quickAccessSettingsState,
+            algorithmChoiceState,
+            currentShapeState,
+            darkThemeConfigState,
+            disableAGSLState,
+            disableOpenGLState,
+        ) {
+            @Suppress("UNCHECKED_CAST")
+            LoadedComposeLifePreferences(
+                quickAccessSettings = it[0] as Set<QuickAccessSetting>,
+                algorithmChoice = it[1] as AlgorithmType,
+                currentShape = it[2] as CurrentShape,
+                darkThemeConfig = it[3] as DarkThemeConfig,
+                disableAGSL = it[4] as Boolean,
+                disableOpenGL = it[5] as Boolean,
+            )
+        }
 
     override suspend fun update() = Unit
 
@@ -94,10 +115,10 @@ class TestComposeLifePreferences @Inject constructor() : ComposeLifePreferences 
         updateQuickAccessSetting(false, quickAccessSetting)
 
     private suspend fun updateQuickAccessSetting(include: Boolean, quickAccessSetting: QuickAccessSetting) {
-        val oldQuickAccessSettings = snapshotFlow { quickAccessSettings }.firstSuccess().value
+        val oldQuickAccessSettings = snapshotFlow { quickAccessSettingsState }.firstSuccess().value
 
         Snapshot.withMutableSnapshot {
-            quickAccessSettings = ResourceState.Success(
+            quickAccessSettingsState = ResourceState.Success(
                 if (include) {
                     oldQuickAccessSettings + quickAccessSetting
                 } else {
@@ -145,7 +166,7 @@ class TestComposeLifePreferences @Inject constructor() : ComposeLifePreferences 
 
     fun testSetQuickAccessSetting(quickAccessSettings: Set<QuickAccessSetting>) {
         Snapshot.withMutableSnapshot {
-            this.quickAccessSettings = ResourceState.Success(quickAccessSettings)
+            this.quickAccessSettingsState = ResourceState.Success(quickAccessSettings)
         }
     }
 

@@ -21,6 +21,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasProgressBarRangeInfo
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseHiltTest
 import com.alexvanyo.composelife.test.TestActivity
 import dagger.hilt.EntryPoints
@@ -34,35 +35,26 @@ import org.junit.Test
 @HiltAndroidTest
 class GameOfLifeProgressIndicatorTests : BaseHiltTest<TestActivity>(TestActivity::class.java) {
 
-    private lateinit var gameOfLifeProgressIndicatorEntryPoint: GameOfLifeProgressIndicatorEntryPoint
+    private lateinit var gameOfLifeProgressIndicatorHiltEntryPoint: GameOfLifeProgressIndicatorHiltEntryPoint
+
+    private val gameOfLifeProgressIndicatorLocalEntryPoint = object : GameOfLifeProgressIndicatorLocalEntryPoint {
+        override val preferences = LoadedComposeLifePreferences.Defaults
+    }
 
     @Before
     fun setup() {
-        gameOfLifeProgressIndicatorEntryPoint =
-            EntryPoints.get(composeTestRule.activity, GameOfLifeProgressIndicatorEntryPoint::class.java)
-    }
-
-    @Test
-    fun progress_indicator_is_displayed_correctly_when_shape_is_loading() = runAppTest(
-        preferencesInitializer = {},
-    ) {
-        composeTestRule.setContent {
-            with(gameOfLifeProgressIndicatorEntryPoint) {
-                GameOfLifeProgressIndicator()
-            }
-        }
-
-        composeTestRule
-            .onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
+        gameOfLifeProgressIndicatorHiltEntryPoint =
+            EntryPoints.get(composeTestRule.activity, GameOfLifeProgressIndicatorHiltEntryPoint::class.java)
     }
 
     @SkipLeakDetection("recomposer", "Outer")
     @Test
-    fun progress_indicator_is_displayed_correctly_when_shape_is_not_loading() = runAppTest {
+    fun progress_indicator_is_displayed_correctly() = runAppTest {
         composeTestRule.setContent {
-            with(gameOfLifeProgressIndicatorEntryPoint) {
-                GameOfLifeProgressIndicator()
+            with(gameOfLifeProgressIndicatorHiltEntryPoint) {
+                with(gameOfLifeProgressIndicatorLocalEntryPoint) {
+                    GameOfLifeProgressIndicator()
+                }
             }
         }
 

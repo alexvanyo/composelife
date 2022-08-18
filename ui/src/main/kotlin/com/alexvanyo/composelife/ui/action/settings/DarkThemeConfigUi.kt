@@ -22,18 +22,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.component.DropdownOption
-import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicator
-import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorEntryPoint
+import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorHiltEntryPoint
 import com.alexvanyo.composelife.ui.component.TextFieldDropdown
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.util.ThemePreviews
 import com.livefront.sealedenum.GenSealedEnum
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -42,61 +41,54 @@ import kotlinx.coroutines.launch
 
 @EntryPoint
 @InstallIn(ActivityComponent::class)
-interface DarkThemeConfigUiEntryPoint :
+interface DarkThemeConfigUiHiltEntryPoint :
     ComposeLifePreferencesProvider,
-    GameOfLifeProgressIndicatorEntryPoint
+    GameOfLifeProgressIndicatorHiltEntryPoint
 
-context(DarkThemeConfigUiEntryPoint)
+interface DarkThemeConfigUiLocalEntryPoint :
+    LoadedComposeLifePreferencesProvider
+
+context(DarkThemeConfigUiHiltEntryPoint, DarkThemeConfigUiLocalEntryPoint)
 @Composable
 fun DarkThemeConfigUi(
     modifier: Modifier = Modifier,
 ) {
     DarkThemeConfigUi(
-        darkThemeConfigState = composeLifePreferences.darkThemeConfigState,
+        darkThemeConfig = preferences.darkThemeConfig,
         setDarkThemeConfig = composeLifePreferences::setDarkThemeConfig,
         modifier = modifier,
     )
 }
 
-context(GameOfLifeProgressIndicatorEntryPoint)
 @Composable
 fun DarkThemeConfigUi(
-    darkThemeConfigState: ResourceState<DarkThemeConfig>,
+    darkThemeConfig: DarkThemeConfig,
     setDarkThemeConfig: suspend (DarkThemeConfig) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier) {
-        when (darkThemeConfigState) {
-            ResourceState.Loading, is ResourceState.Failure -> {
-                GameOfLifeProgressIndicator()
-            }
+        val coroutineScope = rememberCoroutineScope()
 
-            is ResourceState.Success -> {
-                val currentDarkThemeConfig = darkThemeConfigState.value
-                val coroutineScope = rememberCoroutineScope()
-
-                TextFieldDropdown(
-                    label = stringResource(R.string.dark_theme_config),
-                    currentValue = when (currentDarkThemeConfig) {
-                        DarkThemeConfig.FollowSystem -> DarkThemeConfigDropdownOption.FollowSystem
-                        DarkThemeConfig.Dark -> DarkThemeConfigDropdownOption.Dark
-                        DarkThemeConfig.Light -> DarkThemeConfigDropdownOption.Light
-                    },
-                    allValues = DarkThemeConfigDropdownOption.values,
-                    setValue = { option ->
-                        coroutineScope.launch {
-                            setDarkThemeConfig(
-                                when (option) {
-                                    DarkThemeConfigDropdownOption.FollowSystem -> DarkThemeConfig.FollowSystem
-                                    DarkThemeConfigDropdownOption.Dark -> DarkThemeConfig.Dark
-                                    DarkThemeConfigDropdownOption.Light -> DarkThemeConfig.Light
-                                },
-                            )
-                        }
-                    },
-                )
-            }
-        }
+        TextFieldDropdown(
+            label = stringResource(R.string.dark_theme_config),
+            currentValue = when (darkThemeConfig) {
+                DarkThemeConfig.FollowSystem -> DarkThemeConfigDropdownOption.FollowSystem
+                DarkThemeConfig.Dark -> DarkThemeConfigDropdownOption.Dark
+                DarkThemeConfig.Light -> DarkThemeConfigDropdownOption.Light
+            },
+            allValues = DarkThemeConfigDropdownOption.values,
+            setValue = { option ->
+                coroutineScope.launch {
+                    setDarkThemeConfig(
+                        when (option) {
+                            DarkThemeConfigDropdownOption.FollowSystem -> DarkThemeConfig.FollowSystem
+                            DarkThemeConfigDropdownOption.Dark -> DarkThemeConfig.Dark
+                            DarkThemeConfigDropdownOption.Light -> DarkThemeConfig.Light
+                        },
+                    )
+                }
+            },
+        )
     }
 }
 
@@ -115,26 +107,13 @@ sealed interface DarkThemeConfigDropdownOption : DropdownOption {
     companion object
 }
 
-@Preview
+@ThemePreviews
 @Composable
-fun DarkThemeConfigUiLoadingPreview() {
+fun DarkThemeConfigUiFollowSystemPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             DarkThemeConfigUi(
-                darkThemeConfigState = ResourceState.Loading,
-                setDarkThemeConfig = {},
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-fun DarkThemeConfigUiLoadedPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            DarkThemeConfigUi(
-                darkThemeConfigState = ResourceState.Success(DarkThemeConfig.FollowSystem),
+                darkThemeConfig = DarkThemeConfig.FollowSystem,
                 setDarkThemeConfig = {},
             )
         }

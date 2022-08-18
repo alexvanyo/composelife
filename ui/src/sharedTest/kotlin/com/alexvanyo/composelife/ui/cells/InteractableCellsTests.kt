@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.preferences.CurrentShape
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.ui.R
 import org.junit.Rule
 import org.junit.Test
@@ -45,6 +45,10 @@ class InteractableCellsTests {
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     private val context: Context get() = composeTestRule.activity
+
+    private val interactableCellsLocalEntryPoint = object : InteractableCellsLocalEntryPoint {
+        override val preferences = LoadedComposeLifePreferences.Defaults
+    }
 
     @Test
     fun cells_are_displayed_correctly() {
@@ -63,19 +67,17 @@ class InteractableCellsTests {
         )
 
         composeTestRule.setContent {
-            InteractableCells(
-                gameOfLifeState = mutableGameOfLifeState,
-                shape = CurrentShape.RoundRectangle(
-                    sizeFraction = 1f,
-                    cornerFraction = 0f,
-                ),
-                scaledCellDpSize = 10.dp,
-                cellWindow = IntRect(
-                    IntOffset(0, 0),
-                    IntOffset(8, 8),
-                ),
-                pixelOffsetFromCenter = Offset.Zero,
-            )
+            with(interactableCellsLocalEntryPoint) {
+                InteractableCells(
+                    gameOfLifeState = mutableGameOfLifeState,
+                    scaledCellDpSize = 10.dp,
+                    cellWindow = IntRect(
+                        IntOffset(0, 0),
+                        IntOffset(8, 8),
+                    ),
+                    pixelOffsetFromCenter = Offset.Zero,
+                )
+            }
         }
 
         composeTestRule
@@ -174,19 +176,17 @@ class InteractableCellsTests {
         )
 
         composeTestRule.setContent {
-            InteractableCells(
-                gameOfLifeState = mutableGameOfLifeState,
-                shape = CurrentShape.RoundRectangle(
-                    sizeFraction = 1f,
-                    cornerFraction = 0f,
-                ),
-                scaledCellDpSize = 10.dp,
-                cellWindow = IntRect(
-                    IntOffset(0, 0),
-                    IntOffset(8, 8),
-                ),
-                pixelOffsetFromCenter = Offset.Zero,
-            )
+            with(interactableCellsLocalEntryPoint) {
+                InteractableCells(
+                    gameOfLifeState = mutableGameOfLifeState,
+                    scaledCellDpSize = 10.dp,
+                    cellWindow = IntRect(
+                        IntOffset(0, 0),
+                        IntOffset(8, 8),
+                    ),
+                    pixelOffsetFromCenter = Offset.Zero,
+                )
+            }
         }
 
         composeTestRule

@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
@@ -42,11 +41,8 @@ import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.patterns.OscillatorPattern
 import com.alexvanyo.composelife.patterns.values
-import com.alexvanyo.composelife.preferences.CurrentShape
-import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.random.di.RandomProvider
-import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.resourcestate.combine
+import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowState
 import com.alexvanyo.composelife.ui.cells.ImmutableCellWindow
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
@@ -61,17 +57,19 @@ import kotlin.random.Random
 
 @EntryPoint
 @InstallIn(ActivityComponent::class)
-interface GameOfLifeProgressIndicatorEntryPoint :
+interface GameOfLifeProgressIndicatorHiltEntryPoint :
     GameOfLifeAlgorithmProvider,
-    ComposeLifePreferencesProvider,
     ComposeLifeDispatchersProvider,
     RandomProvider
+
+interface GameOfLifeProgressIndicatorLocalEntryPoint :
+    CellWindowLocalEntryPoint
 
 /**
  * A progress indicator that displays progress via an embedded set of cells displaying an
  * oscillating pattern.
  */
-context(GameOfLifeProgressIndicatorEntryPoint)
+context(GameOfLifeProgressIndicatorHiltEntryPoint, GameOfLifeProgressIndicatorLocalEntryPoint)
 @Composable
 fun GameOfLifeProgressIndicator(
     modifier: Modifier = Modifier,
@@ -118,21 +116,16 @@ fun GameOfLifeProgressIndicator(
     GameOfLifeProgressIndicator(
         pattern = pattern,
         gameOfLifeState = temporalGameOfLifeState,
-        currentShapeState = composeLifePreferences.currentShapeState,
-        disableAGSLState = composeLifePreferences.disableAGSLState,
-        disableOpenGLState = composeLifePreferences.disableOpenGLState,
         modifier = modifier,
     )
 }
 
+context(GameOfLifeProgressIndicatorLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun GameOfLifeProgressIndicator(
     pattern: OscillatorPattern,
     gameOfLifeState: GameOfLifeState,
-    currentShapeState: ResourceState<CurrentShape>,
-    disableAGSLState: ResourceState<Boolean>,
-    disableOpenGLState: ResourceState<Boolean>,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -141,36 +134,23 @@ fun GameOfLifeProgressIndicator(
             .padding(8.dp),
         contentAlignment = Alignment.Center,
     ) {
-        when (val combinedState = combine(currentShapeState, disableAGSLState, disableOpenGLState, ::Triple)) {
-            ResourceState.Loading, is ResourceState.Failure -> {
-                // If we don't know the shape, fallback to a standard progress indicator
-                CircularProgressIndicator()
-            }
-            is ResourceState.Success -> {
-                val (currentShape, disableAGSL, disableOpenGL) = combinedState.value
-
-                ImmutableCellWindow(
-                    gameOfLifeState = gameOfLifeState,
-                    shape = currentShape,
-                    disableAGSL = disableAGSL,
-                    disableOpenGL = disableOpenGL,
-                    cellWindowState = CellWindowState(
-                        offset = Offset(
-                            pattern.boundingBox.width / 2f,
-                            pattern.boundingBox.height / 2f,
-                        ),
-                        scale = 1f / max(
-                            pattern.boundingBox.width + 1,
-                            pattern.boundingBox.height + 1,
-                        ),
-                    ),
-                    cellDpSize = 48.dp,
-                    modifier = Modifier
-                        .progressSemantics()
-                        .clearAndSetSemantics {},
-                )
-            }
-        }
+        ImmutableCellWindow(
+            gameOfLifeState = gameOfLifeState,
+            modifier = Modifier
+                .progressSemantics()
+                .clearAndSetSemantics {},
+            cellWindowState = CellWindowState(
+                offset = Offset(
+                    pattern.boundingBox.width / 2f,
+                    pattern.boundingBox.height / 2f,
+                ),
+                scale = 1f / max(
+                    pattern.boundingBox.width + 1,
+                    pattern.boundingBox.height + 1,
+                ),
+            ),
+            cellDpSize = 48.dp,
+        )
     }
 }
 

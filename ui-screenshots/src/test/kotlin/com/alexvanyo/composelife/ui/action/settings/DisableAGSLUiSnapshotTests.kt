@@ -22,13 +22,6 @@ import org.junit.Test
 class DisableAGSLUiSnapshotTests : BasePaparazziTest() {
 
     @Test
-    fun disable_agsl_ui_loading_preview() {
-        snapshot {
-            DisableAGSLUiLoadingPreview()
-        }
-    }
-
-    @Test
     fun disable_agsl_ui_disabled_preview() {
         snapshot {
             DisableAGSLUiDisabledPreview()

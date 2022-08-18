@@ -24,49 +24,89 @@ import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.DefaultComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.preferences.CurrentShape
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
+import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.random.di.RandomProvider
-import com.alexvanyo.composelife.ui.InteractiveCellUniverseEntryPoint
-import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayEntryPoint
-import com.alexvanyo.composelife.ui.action.CellUniverseActionCardEntryPoint
-import com.alexvanyo.composelife.ui.action.settings.AlgorithmImplementationUiEntryPoint
-import com.alexvanyo.composelife.ui.action.settings.CellShapeConfigUiEntryPoint
-import com.alexvanyo.composelife.ui.action.settings.CellStatePreviewUiEntryPoint
-import com.alexvanyo.composelife.ui.action.settings.DarkThemeConfigUiEntryPoint
-import com.alexvanyo.composelife.ui.action.settings.DisableAGSLUiEntryPoint
-import com.alexvanyo.composelife.ui.action.settings.DisableOpenGLUiEntryPoint
-import com.alexvanyo.composelife.ui.action.settings.FullscreenSettingsScreenEntryPoint
-import com.alexvanyo.composelife.ui.action.settings.InlineSettingsScreenEntryPoint
-import com.alexvanyo.composelife.ui.action.settings.SettingUiEntryPoint
-import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorEntryPoint
+import com.alexvanyo.composelife.ui.InteractiveCellUniverseHiltEntryPoint
+import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayHiltEntryPoint
+import com.alexvanyo.composelife.ui.InteractiveCellUniverseOverlayLocalEntryPoint
+import com.alexvanyo.composelife.ui.action.CellUniverseActionCardHiltEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.AlgorithmImplementationUiHiltEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.AlgorithmImplementationUiLocalEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.CellShapeConfigUiHiltEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.CellShapeConfigUiLocalEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.CellStatePreviewUiLocalEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.DarkThemeConfigUiHiltEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.DarkThemeConfigUiLocalEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.DisableAGSLUiHiltEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.DisableAGSLUiLocalEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.DisableOpenGLUiHiltEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.DisableOpenGLUiLocalEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.FullscreenSettingsScreenHiltEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.FullscreenSettingsScreenLocalEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.InlineSettingsScreenHiltEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.InlineSettingsScreenLocalEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.SettingUiHiltEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.SettingUiLocalEntryPoint
+import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
+import com.alexvanyo.composelife.ui.cells.InteractableCellsLocalEntryPoint
+import com.alexvanyo.composelife.ui.cells.NonInteractableCellsLocalEntryPoint
+import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorHiltEntryPoint
+import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorLocalEntryPoint
 import kotlin.random.Random
 
 interface PreviewEntryPoint :
-    AlgorithmImplementationUiEntryPoint,
-    CellShapeConfigUiEntryPoint,
-    CellStatePreviewUiEntryPoint,
-    CellUniverseActionCardEntryPoint,
-    DarkThemeConfigUiEntryPoint,
-    DisableAGSLUiEntryPoint,
-    DisableOpenGLUiEntryPoint,
-    FullscreenSettingsScreenEntryPoint,
-    GameOfLifeProgressIndicatorEntryPoint,
-    InlineSettingsScreenEntryPoint,
-    InteractiveCellUniverseEntryPoint,
-    InteractiveCellUniverseOverlayEntryPoint,
-    SettingUiEntryPoint
+    AlgorithmImplementationUiHiltEntryPoint,
+    AlgorithmImplementationUiLocalEntryPoint,
+    CellShapeConfigUiHiltEntryPoint,
+    CellShapeConfigUiLocalEntryPoint,
+    CellStatePreviewUiLocalEntryPoint,
+    CellWindowLocalEntryPoint,
+    CellUniverseActionCardHiltEntryPoint,
+    DarkThemeConfigUiHiltEntryPoint,
+    DarkThemeConfigUiLocalEntryPoint,
+    DisableAGSLUiHiltEntryPoint,
+    DisableAGSLUiLocalEntryPoint,
+    DisableOpenGLUiHiltEntryPoint,
+    DisableOpenGLUiLocalEntryPoint,
+    FullscreenSettingsScreenHiltEntryPoint,
+    FullscreenSettingsScreenLocalEntryPoint,
+    GameOfLifeProgressIndicatorHiltEntryPoint,
+    GameOfLifeProgressIndicatorLocalEntryPoint,
+    InlineSettingsScreenHiltEntryPoint,
+    InlineSettingsScreenLocalEntryPoint,
+    InteractableCellsLocalEntryPoint,
+    InteractiveCellUniverseHiltEntryPoint,
+    InteractiveCellUniverseOverlayHiltEntryPoint,
+    InteractiveCellUniverseOverlayLocalEntryPoint,
+    NonInteractableCellsLocalEntryPoint,
+    SettingUiHiltEntryPoint,
+    SettingUiLocalEntryPoint
 
 /**
  * Provides fake implementations for the entry points passed to [content] as context receivers.
  *
  * This is useful for providing dependencies to previews where the full dependency graph isn't available.
  */
+@Suppress("LongParameterList")
 @Composable
 fun WithPreviewDependencies(
     dispatchers: ComposeLifeDispatchers = DefaultComposeLifeDispatchers(),
     gameOfLifeAlgorithm: GameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
-    composeLifePreferences: ComposeLifePreferences = TestComposeLifePreferences.Loaded(),
+    loadedComposeLifePreferences: LoadedComposeLifePreferences = LoadedComposeLifePreferences.Defaults,
+    composeLifePreferences: ComposeLifePreferences = TestComposeLifePreferences.Loaded(
+        algorithmChoice = loadedComposeLifePreferences.algorithmChoice,
+        currentShapeType = loadedComposeLifePreferences.currentShape.type,
+        roundRectangleConfig = when (loadedComposeLifePreferences.currentShape) {
+            is CurrentShape.RoundRectangle -> loadedComposeLifePreferences.currentShape as CurrentShape.RoundRectangle
+        },
+        darkThemeConfig = loadedComposeLifePreferences.darkThemeConfig,
+        disableAGSL = loadedComposeLifePreferences.disableAGSL,
+        disableOpenGL = loadedComposeLifePreferences.disableOpenGL,
+    ),
     random: Random = Random(0),
     content: @Composable context(PreviewEntryPoint) () -> Unit,
 ) {
@@ -79,6 +119,9 @@ fun WithPreviewDependencies(
     val preferencesProvider = object : ComposeLifePreferencesProvider {
         override val composeLifePreferences = composeLifePreferences
     }
+    val loadedPreferencesProvider = object : LoadedComposeLifePreferencesProvider {
+        override val preferences: LoadedComposeLifePreferences = loadedComposeLifePreferences
+    }
     val randomProvider = object : RandomProvider {
         override val random = random
     }
@@ -88,6 +131,7 @@ fun WithPreviewDependencies(
         ComposeLifeDispatchersProvider by dispatchersProvider,
         GameOfLifeAlgorithmProvider by algorithmProvider,
         ComposeLifePreferencesProvider by preferencesProvider,
+        LoadedComposeLifePreferencesProvider by loadedPreferencesProvider,
         RandomProvider by randomProvider {}
 
     content(entryPoint)

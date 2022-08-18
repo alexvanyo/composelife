@@ -29,6 +29,7 @@ import com.alexvanyo.composelife.preferences.proto.RoundRectangleProto
 import com.alexvanyo.composelife.preferences.proto.copy
 import com.alexvanyo.composelife.preferences.proto.roundRectangleProto
 import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.resourcestate.map
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -40,89 +41,95 @@ class DefaultComposeLifePreferences @Inject constructor(
     private val dataStore: PreferencesDataStore,
 ) : ComposeLifePreferences {
 
-    override var quickAccessSettings: ResourceState<Set<QuickAccessSetting>> by mutableStateOf(ResourceState.Loading)
-        private set
+    override val quickAccessSettingsState: ResourceState<Set<QuickAccessSetting>>
+        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::quickAccessSettings)
 
-    override var algorithmChoiceState: ResourceState<AlgorithmType> by mutableStateOf(ResourceState.Loading)
-        private set
+    override val algorithmChoiceState: ResourceState<AlgorithmType>
+        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::algorithmChoice)
 
-    override var currentShapeState: ResourceState<CurrentShape> by mutableStateOf(ResourceState.Loading)
-        private set
+    override val currentShapeState: ResourceState<CurrentShape>
+        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::currentShape)
 
-    override var darkThemeConfigState: ResourceState<DarkThemeConfig> by mutableStateOf(ResourceState.Loading)
-        private set
+    override val darkThemeConfigState: ResourceState<DarkThemeConfig>
+        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::darkThemeConfig)
 
-    override var disableAGSLState: ResourceState<Boolean> by mutableStateOf(ResourceState.Loading)
-        private set
+    override val disableAGSLState: ResourceState<Boolean>
+        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::disableAGSL)
 
-    override var disableOpenGLState: ResourceState<Boolean> by mutableStateOf(ResourceState.Loading)
-        private set
+    override val disableOpenGLState: ResourceState<Boolean>
+        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::disableOpenGL)
+
+    override var loadedPreferencesState:
+        ResourceState<LoadedComposeLifePreferences> by mutableStateOf(ResourceState.Loading)
+            private set
 
     @Suppress("LongMethod")
     override suspend fun update() {
         dataStore.data
             .onEach { preferencesProto ->
+                val quickAccessSettings =
+                    preferencesProto.quickAccessSettingsList.mapNotNull { quickAccessSettingProto ->
+                        when (quickAccessSettingProto!!) {
+                            QuickAccessSettingProto.ALGORITHM_IMPLEMENTATION ->
+                                QuickAccessSetting.AlgorithmImplementation
+                            QuickAccessSettingProto.DARK_THEME_CONFIG ->
+                                QuickAccessSetting.DarkThemeConfig
+                            QuickAccessSettingProto.CELL_SHAPE_CONFIG ->
+                                QuickAccessSetting.CellShapeConfig
+                            QuickAccessSettingProto.DISABLE_AGSL ->
+                                QuickAccessSetting.DisableAGSL
+                            QuickAccessSettingProto.DISABLE_OPENGL ->
+                                QuickAccessSetting.DisableOpenGL
+                            QuickAccessSettingProto.SETTINGS_UNKNOWN,
+                            QuickAccessSettingProto.UNRECOGNIZED,
+                            -> null
+                        }
+                    }.toSet()
+
+                val algorithmChoiceState =
+                    when (preferencesProto.algorithm!!) {
+                        AlgorithmProto.ALGORITHM_UNKNOWN,
+                        AlgorithmProto.DEFAULT,
+                        AlgorithmProto.HASHLIFE,
+                        AlgorithmProto.UNRECOGNIZED,
+                        -> AlgorithmType.HashLifeAlgorithm
+                        AlgorithmProto.NAIVE -> AlgorithmType.NaiveAlgorithm
+                    }
+
+                val currentShapeState =
+                    when (preferencesProto.currentShapeType!!) {
+                        CurrentShapeTypeProto.CURRENT_SHAPE_TYPE_UNKNOWN,
+                        CurrentShapeTypeProto.UNRECOGNIZED, -> defaultRoundRectangle
+                        CurrentShapeTypeProto.ROUND_RECTANGLE -> preferencesProto.roundRectangle.toResolved()
+                    }
+
+                val darkThemeConfigState =
+                    when (preferencesProto.darkThemeConfig!!) {
+                        DarkThemeConfigProto.DARK_THEME_UNKNOWN,
+                        DarkThemeConfigProto.UNRECOGNIZED,
+                        DarkThemeConfigProto.SYSTEM, -> DarkThemeConfig.FollowSystem
+                        DarkThemeConfigProto.DARK -> DarkThemeConfig.Dark
+                        DarkThemeConfigProto.LIGHT -> DarkThemeConfig.Light
+                    }
+                val disableAGSLState = preferencesProto.disableAgsl
+                val disableOpenGLState = preferencesProto.disableOpengl
+
                 Snapshot.withMutableSnapshot {
-                    quickAccessSettings = ResourceState.Success(
-                        preferencesProto.quickAccessSettingsList.mapNotNull { quickAccessSettingProto ->
-                            when (quickAccessSettingProto!!) {
-                                QuickAccessSettingProto.ALGORITHM_IMPLEMENTATION ->
-                                    QuickAccessSetting.AlgorithmImplementation
-                                QuickAccessSettingProto.DARK_THEME_CONFIG ->
-                                    QuickAccessSetting.DarkThemeConfig
-                                QuickAccessSettingProto.CELL_SHAPE_CONFIG ->
-                                    QuickAccessSetting.CellShapeConfig
-                                QuickAccessSettingProto.DISABLE_AGSL ->
-                                    QuickAccessSetting.DisableAGSL
-                                QuickAccessSettingProto.DISABLE_OPENGL ->
-                                    QuickAccessSetting.DisableOpenGL
-                                QuickAccessSettingProto.SETTINGS_UNKNOWN,
-                                QuickAccessSettingProto.UNRECOGNIZED,
-                                -> null
-                            }
-                        }.toSet(),
+                    loadedPreferencesState = ResourceState.Success(
+                        LoadedComposeLifePreferences(
+                            quickAccessSettings = quickAccessSettings,
+                            algorithmChoice = algorithmChoiceState,
+                            currentShape = currentShapeState,
+                            darkThemeConfig = darkThemeConfigState,
+                            disableAGSL = disableAGSLState,
+                            disableOpenGL = disableOpenGLState,
+                        ),
                     )
-
-                    algorithmChoiceState = ResourceState.Success(
-                        when (preferencesProto.algorithm!!) {
-                            AlgorithmProto.ALGORITHM_UNKNOWN,
-                            AlgorithmProto.DEFAULT,
-                            AlgorithmProto.HASHLIFE,
-                            AlgorithmProto.UNRECOGNIZED,
-                            -> AlgorithmType.HashLifeAlgorithm
-                            AlgorithmProto.NAIVE -> AlgorithmType.NaiveAlgorithm
-                        },
-                    )
-
-                    currentShapeState = ResourceState.Success(
-                        when (preferencesProto.currentShapeType!!) {
-                            CurrentShapeTypeProto.CURRENT_SHAPE_TYPE_UNKNOWN,
-                            CurrentShapeTypeProto.UNRECOGNIZED, -> defaultRoundRectangle
-                            CurrentShapeTypeProto.ROUND_RECTANGLE -> preferencesProto.roundRectangle.toResolved()
-                        },
-                    )
-
-                    darkThemeConfigState = ResourceState.Success(
-                        when (preferencesProto.darkThemeConfig!!) {
-                            DarkThemeConfigProto.DARK_THEME_UNKNOWN,
-                            DarkThemeConfigProto.UNRECOGNIZED,
-                            DarkThemeConfigProto.SYSTEM, -> DarkThemeConfig.FollowSystem
-                            DarkThemeConfigProto.DARK -> DarkThemeConfig.Dark
-                            DarkThemeConfigProto.LIGHT -> DarkThemeConfig.Light
-                        },
-                    )
-
-                    disableAGSLState = ResourceState.Success(preferencesProto.disableAgsl)
-
-                    disableOpenGLState = ResourceState.Success(preferencesProto.disableOpengl)
                 }
             }
             .catch {
                 Snapshot.withMutableSnapshot {
-                    quickAccessSettings = ResourceState.Failure(it)
-                    algorithmChoiceState = ResourceState.Failure(it)
-                    currentShapeState = ResourceState.Failure(it)
-                    darkThemeConfigState = ResourceState.Failure(it)
+                    loadedPreferencesState = ResourceState.Failure(it)
                 }
             }
             .collect()

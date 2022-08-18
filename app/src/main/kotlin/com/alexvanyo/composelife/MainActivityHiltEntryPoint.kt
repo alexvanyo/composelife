@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.action.settings
+package com.alexvanyo.composelife
 
-import com.alexvanyo.composelife.ui.util.BasePaparazziTest
-import org.junit.Test
+import com.alexvanyo.composelife.ui.InteractiveCellUniverseHiltEntryPoint
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ActivityComponent
 
-class CellShapeConfigUiSnapshotTests : BasePaparazziTest() {
-
-    @Test
-    fun cell_shape_config_ui_round_rectangle_preview() {
-        snapshot {
-            CellShapeConfigUiRoundRectanglePreview()
-        }
-    }
-}
+@EntryPoint
+@InstallIn(ActivityComponent::class)
+interface MainActivityHiltEntryPoint :
+    InteractiveCellUniverseHiltEntryPoint

@@ -22,13 +22,6 @@ import org.junit.Test
 class DisableOpenGLUiSnapshotTests : BasePaparazziTest() {
 
     @Test
-    fun disable_opengl_ui_loading_preview() {
-        snapshot {
-            DisableOpenGLUiLoadingPreview()
-        }
-    }
-
-    @Test
     fun disable_opengl_ui_disabled_preview() {
         snapshot {
             DisableOpenGLUiDisabledPreview()
