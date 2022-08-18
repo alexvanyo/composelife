@@ -39,8 +39,7 @@ fun CanvasNonInteractableCells(
     scaledCellDpSize: Dp,
     cellWindow: IntRect,
     shape: CurrentShape,
-    translationX: Float,
-    translationY: Float,
+    pixelOffsetFromCenter: Offset,
     modifier: Modifier = Modifier,
 ) {
     val scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() }
@@ -51,8 +50,8 @@ fun CanvasNonInteractableCells(
     Canvas(
         modifier = modifier
             .graphicsLayer {
-                this.translationX = translationX
-                this.translationY = translationY
+                this.translationX = -pixelOffsetFromCenter.x
+                this.translationY = -pixelOffsetFromCenter.y
             }
             .requiredSize(
                 scaledCellDpSize * (cellWindow.width + 1),
