@@ -40,11 +40,11 @@ class MainActivity : Hilt_MainActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        val mainActivityEntryPoint = EntryPoints.get(this, MainActivityEntryPoint::class.java)
+        val mainActivityEntryPoint = EntryPoints.get(this, MainActivityHiltEntryPoint::class.java)
 
-        // Keep the splash screen on screen until we've determine the theme
+        // Keep the splash screen on screen until we've loaded preferences
         splashScreen.setKeepOnScreenCondition {
-            !mainActivityEntryPoint.composeLifePreferences.darkThemeConfigState.isSuccess()
+            !mainActivityEntryPoint.composeLifePreferences.loadedPreferencesState.isSuccess()
         }
 
         WindowCompat.setDecorFitsSystemWindows(window, false)

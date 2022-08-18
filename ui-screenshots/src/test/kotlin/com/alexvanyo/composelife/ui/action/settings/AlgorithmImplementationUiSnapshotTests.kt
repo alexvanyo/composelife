@@ -22,16 +22,9 @@ import org.junit.Test
 class AlgorithmImplementationUiSnapshotTests : BasePaparazziTest() {
 
     @Test
-    fun algorithm_implementation_ui_loading_preview() {
+    fun algorithm_implementation_ui_hash_life_preview() {
         snapshot {
-            AlgorithmImplementationUiLoadingPreview()
-        }
-    }
-
-    @Test
-    fun algorithm_implementation_ui_loaded_preview() {
-        snapshot {
-            AlgorithmImplementationUiLoadedPreview()
+            AlgorithmImplementationUiHashLifePreview()
         }
     }
 }

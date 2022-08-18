@@ -100,10 +100,13 @@ import kotlin.math.roundToInt
 
 @EntryPoint
 @InstallIn(ActivityComponent::class)
-interface FullscreenSettingsScreenEntryPoint :
-    SettingUiEntryPoint
+interface FullscreenSettingsScreenHiltEntryPoint :
+    SettingUiHiltEntryPoint
 
-context(FullscreenSettingsScreenEntryPoint)
+interface FullscreenSettingsScreenLocalEntryPoint :
+    SettingUiLocalEntryPoint
+
+context(FullscreenSettingsScreenHiltEntryPoint, FullscreenSettingsScreenLocalEntryPoint)
 @Suppress("LongMethod")
 @OptIn(ExperimentalLayoutApi::class, ExperimentalAnimationApi::class)
 @Composable
@@ -364,7 +367,7 @@ private fun SettingsCategoryButton(
     }
 }
 
-context(SettingUiEntryPoint)
+context(SettingUiHiltEntryPoint, SettingUiLocalEntryPoint)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
 private fun SettingsCategoryDetail(

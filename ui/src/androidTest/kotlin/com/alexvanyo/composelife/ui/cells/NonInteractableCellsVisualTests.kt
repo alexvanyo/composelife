@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.preferences.CurrentShape
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.screenshot.assertPixels
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import org.junit.Assume.assumeTrue
@@ -44,6 +44,13 @@ class NonInteractableCellsVisualTests {
 
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    private val nonInteractableCellsLocalEntryPoint = object : NonInteractableCellsLocalEntryPoint {
+        override val preferences = LoadedComposeLifePreferences.Defaults.copy(
+            disableAGSL = true,
+            disableOpenGL = true,
+        )
+    }
 
     @Test
     fun non_interactable_cells_draws_correctly_dark_mode() {
@@ -66,34 +73,30 @@ class NonInteractableCellsVisualTests {
 
         composeTestRule.setContent {
             ComposeLifeTheme(darkTheme = true) {
-                NonInteractableCells(
-                    gameOfLifeState = GameOfLifeState(
-                        setOf(
-                            0 to 0,
-                            2 to 0,
-                            4 to 0,
-                            0 to 2,
-                            2 to 2,
-                            4 to 2,
-                            0 to 4,
-                            2 to 4,
-                            4 to 4,
-                        ).toCellState(),
-                    ),
-                    scaledCellDpSize = with(LocalDensity.current) { 1.toDp() },
-                    shape = CurrentShape.RoundRectangle(
-                        sizeFraction = 1f,
-                        cornerFraction = 0f,
-                    ),
-                    pixelOffsetFromCenter = Offset.Zero,
-                    disableAGSL = true,
-                    disableOpenGL = true,
-                    cellWindow = IntRect(
-                        IntOffset(0, 0),
-                        IntOffset(9, 9),
-                    ),
-                    modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() }),
-                )
+                with(nonInteractableCellsLocalEntryPoint) {
+                    NonInteractableCells(
+                        gameOfLifeState = GameOfLifeState(
+                            setOf(
+                                0 to 0,
+                                2 to 0,
+                                4 to 0,
+                                0 to 2,
+                                2 to 2,
+                                4 to 2,
+                                0 to 4,
+                                2 to 4,
+                                4 to 4,
+                            ).toCellState(),
+                        ),
+                        scaledCellDpSize = with(LocalDensity.current) { 1.toDp() },
+                        cellWindow = IntRect(
+                            IntOffset(0, 0),
+                            IntOffset(9, 9),
+                        ),
+                        pixelOffsetFromCenter = Offset.Zero,
+                        modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() }),
+                    )
+                }
 
                 aliveCellColor = ComposeLifeTheme.aliveCellColor
                 deadCellColor = ComposeLifeTheme.deadCellColor
@@ -132,34 +135,30 @@ class NonInteractableCellsVisualTests {
 
         composeTestRule.setContent {
             ComposeLifeTheme(darkTheme = false) {
-                NonInteractableCells(
-                    gameOfLifeState = GameOfLifeState(
-                        setOf(
-                            0 to 0,
-                            2 to 0,
-                            4 to 0,
-                            0 to 2,
-                            2 to 2,
-                            4 to 2,
-                            0 to 4,
-                            2 to 4,
-                            4 to 4,
-                        ).toCellState(),
-                    ),
-                    scaledCellDpSize = with(LocalDensity.current) { 1.toDp() },
-                    shape = CurrentShape.RoundRectangle(
-                        sizeFraction = 1f,
-                        cornerFraction = 0f,
-                    ),
-                    pixelOffsetFromCenter = Offset.Zero,
-                    disableAGSL = true,
-                    disableOpenGL = true,
-                    cellWindow = IntRect(
-                        IntOffset(0, 0),
-                        IntOffset(9, 9),
-                    ),
-                    modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() }),
-                )
+                with(nonInteractableCellsLocalEntryPoint) {
+                    NonInteractableCells(
+                        gameOfLifeState = GameOfLifeState(
+                            setOf(
+                                0 to 0,
+                                2 to 0,
+                                4 to 0,
+                                0 to 2,
+                                2 to 2,
+                                4 to 2,
+                                0 to 4,
+                                2 to 4,
+                                4 to 4,
+                            ).toCellState(),
+                        ),
+                        scaledCellDpSize = with(LocalDensity.current) { 1.toDp() },
+                        cellWindow = IntRect(
+                            IntOffset(0, 0),
+                            IntOffset(9, 9),
+                        ),
+                        pixelOffsetFromCenter = Offset.Zero,
+                        modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() }),
+                    )
+                }
 
                 aliveCellColor = ComposeLifeTheme.aliveCellColor
                 deadCellColor = ComposeLifeTheme.deadCellColor

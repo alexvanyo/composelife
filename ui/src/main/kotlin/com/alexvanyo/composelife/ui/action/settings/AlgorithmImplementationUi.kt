@@ -17,23 +17,20 @@
 
 package com.alexvanyo.composelife.ui.action.settings
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.component.DropdownOption
-import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicator
-import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorEntryPoint
 import com.alexvanyo.composelife.ui.component.TextFieldDropdown
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.util.ThemePreviews
 import com.livefront.sealedenum.GenSealedEnum
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -42,62 +39,53 @@ import kotlinx.coroutines.launch
 
 @EntryPoint
 @InstallIn(ActivityComponent::class)
-interface AlgorithmImplementationUiEntryPoint :
-    ComposeLifePreferencesProvider,
-    GameOfLifeProgressIndicatorEntryPoint
+interface AlgorithmImplementationUiHiltEntryPoint :
+    ComposeLifePreferencesProvider
 
-context(AlgorithmImplementationUiEntryPoint)
+interface AlgorithmImplementationUiLocalEntryPoint :
+    LoadedComposeLifePreferencesProvider
+
+context(AlgorithmImplementationUiHiltEntryPoint, AlgorithmImplementationUiLocalEntryPoint)
 @Composable
 fun AlgorithmImplementationUi(
     modifier: Modifier = Modifier,
 ) {
     AlgorithmImplementationUi(
-        algorithmChoiceState = composeLifePreferences.algorithmChoiceState,
+        algorithmChoice = preferences.algorithmChoice,
         setAlgorithmChoice = composeLifePreferences::setAlgorithmChoice,
         modifier = modifier,
     )
 }
 
-context(GameOfLifeProgressIndicatorEntryPoint)
 @Composable
 fun AlgorithmImplementationUi(
-    algorithmChoiceState: ResourceState<AlgorithmType>,
+    algorithmChoice: AlgorithmType,
     setAlgorithmChoice: suspend (AlgorithmType) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier) {
-        when (algorithmChoiceState) {
-            ResourceState.Loading, is ResourceState.Failure -> {
-                GameOfLifeProgressIndicator()
-            }
+    val coroutineScope = rememberCoroutineScope()
 
-            is ResourceState.Success -> {
-                val currentAlgorithm = algorithmChoiceState.value
-                val coroutineScope = rememberCoroutineScope()
-
-                TextFieldDropdown(
-                    label = stringResource(R.string.algorithm_implementation),
-                    currentValue = when (currentAlgorithm) {
-                        AlgorithmType.HashLifeAlgorithm -> AlgorithmImplementationDropdownOption.HashLifeAlgorithm
-                        AlgorithmType.NaiveAlgorithm -> AlgorithmImplementationDropdownOption.NaiveAlgorithm
-                    },
-                    allValues = AlgorithmImplementationDropdownOption.values,
-                    setValue = { option ->
-                        coroutineScope.launch {
-                            setAlgorithmChoice(
-                                when (option) {
-                                    AlgorithmImplementationDropdownOption.HashLifeAlgorithm ->
-                                        AlgorithmType.HashLifeAlgorithm
-                                    AlgorithmImplementationDropdownOption.NaiveAlgorithm ->
-                                        AlgorithmType.NaiveAlgorithm
-                                },
-                            )
-                        }
+    TextFieldDropdown(
+        label = stringResource(R.string.algorithm_implementation),
+        currentValue = when (algorithmChoice) {
+            AlgorithmType.HashLifeAlgorithm -> AlgorithmImplementationDropdownOption.HashLifeAlgorithm
+            AlgorithmType.NaiveAlgorithm -> AlgorithmImplementationDropdownOption.NaiveAlgorithm
+        },
+        allValues = AlgorithmImplementationDropdownOption.values,
+        setValue = { option ->
+            coroutineScope.launch {
+                setAlgorithmChoice(
+                    when (option) {
+                        AlgorithmImplementationDropdownOption.HashLifeAlgorithm ->
+                            AlgorithmType.HashLifeAlgorithm
+                        AlgorithmImplementationDropdownOption.NaiveAlgorithm ->
+                            AlgorithmType.NaiveAlgorithm
                     },
                 )
             }
-        }
-    }
+        },
+        modifier = modifier,
+    )
 }
 
 sealed interface AlgorithmImplementationDropdownOption : DropdownOption {
@@ -112,26 +100,13 @@ sealed interface AlgorithmImplementationDropdownOption : DropdownOption {
     companion object
 }
 
-@Preview
+@ThemePreviews
 @Composable
-fun AlgorithmImplementationUiLoadingPreview() {
+fun AlgorithmImplementationUiHashLifePreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             AlgorithmImplementationUi(
-                algorithmChoiceState = ResourceState.Loading,
-                setAlgorithmChoice = {},
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-fun AlgorithmImplementationUiLoadedPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            AlgorithmImplementationUi(
-                algorithmChoiceState = ResourceState.Success(AlgorithmType.HashLifeAlgorithm),
+                algorithmChoice = AlgorithmType.HashLifeAlgorithm,
                 setAlgorithmChoice = {},
             )
         }

@@ -21,7 +21,7 @@ import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.updatable.Updatable
 
 interface ComposeLifePreferences : Updatable {
-    val quickAccessSettings: ResourceState<Set<QuickAccessSetting>>
+    val quickAccessSettingsState: ResourceState<Set<QuickAccessSetting>>
 
     val algorithmChoiceState: ResourceState<AlgorithmType>
 
@@ -32,6 +32,8 @@ interface ComposeLifePreferences : Updatable {
     val disableAGSLState: ResourceState<Boolean>
 
     val disableOpenGLState: ResourceState<Boolean>
+
+    val loadedPreferencesState: ResourceState<LoadedComposeLifePreferences>
 
     suspend fun setAlgorithmChoice(algorithm: AlgorithmType)
 

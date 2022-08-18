@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.ui.cells
 
@@ -37,7 +38,7 @@ import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.setCellState
 import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.preferences.CurrentShape
+import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
@@ -45,16 +46,18 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 import com.alexvanyo.composelife.util.containedPoints
 import kotlin.math.roundToInt
 
+interface InteractableCellsLocalEntryPoint : LoadedComposeLifePreferencesProvider
+
 /**
  * A fixed size composable that displays a specific [cellWindow] into the given [GameOfLifeState].
  *
  * The [GameOfLifeState] is interactable, so each cell is displayed by a unique [InteractableCell].
  */
+context(InteractableCellsLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 fun InteractableCells(
     gameOfLifeState: MutableGameOfLifeState,
-    shape: CurrentShape,
     scaledCellDpSize: Dp,
     cellWindow: IntRect,
     pixelOffsetFromCenter: Offset,
@@ -89,7 +92,7 @@ fun InteractableCells(
                             modifier = Modifier
                                 .size(scaledCellDpSize),
                             isAlive = cell in gameOfLifeState.cellState.aliveCells,
-                            shape = shape,
+                            shape = preferences.currentShape,
                             contentDescription = stringResource(
                                 R.string.cell_content_description,
                                 cell.x,
@@ -145,10 +148,6 @@ fun InteractableCellsPreview() {
                             4 to 2,
                             4 to 4,
                         ).toCellState(),
-                    ),
-                    shape = CurrentShape.RoundRectangle(
-                        sizeFraction = 1f,
-                        cornerFraction = 0f,
                     ),
                     scaledCellDpSize = 32.dp,
                     cellWindow = IntRect(

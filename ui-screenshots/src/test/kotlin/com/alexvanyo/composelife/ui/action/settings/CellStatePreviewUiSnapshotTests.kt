@@ -22,16 +22,9 @@ import org.junit.Test
 class CellStatePreviewUiSnapshotTests : BasePaparazziTest() {
 
     @Test
-    fun cell_state_preview_ui_loading_preview() {
-        snapshot {
-            CellStatePreviewUiLoadingPreview()
-        }
-    }
-
-    @Test
     fun cell_state_preview_ui_round_rectangle_preview() {
         snapshot {
-            CellStatePreviewUiRoundRectanglePreview()
+            CellStatePreviewUiPreview()
         }
     }
 }

@@ -212,7 +212,10 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
             .performScrollTo()
             .performClick()
 
-        assertEquals(ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)), preferences.quickAccessSettings)
+        assertEquals(
+            ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
+            preferences.quickAccessSettingsState,
+        )
 
         when (windowSizeClass.widthSizeClass) {
             WindowWidthSizeClass.Compact -> {

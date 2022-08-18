@@ -49,9 +49,11 @@ import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.NavigationHost
 import com.alexvanyo.composelife.ui.action.settings.FullscreenSettingsScreen
-import com.alexvanyo.composelife.ui.action.settings.FullscreenSettingsScreenEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.FullscreenSettingsScreenHiltEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.FullscreenSettingsScreenLocalEntryPoint
 import com.alexvanyo.composelife.ui.action.settings.InlineSettingsScreen
-import com.alexvanyo.composelife.ui.action.settings.InlineSettingsScreenEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.InlineSettingsScreenHiltEntryPoint
+import com.alexvanyo.composelife.ui.action.settings.InlineSettingsScreenLocalEntryPoint
 import com.alexvanyo.composelife.ui.util.canScrollDown
 import com.alexvanyo.composelife.ui.util.canScrollUp
 import com.livefront.sealedenum.GenSealedEnum
@@ -63,11 +65,15 @@ import kotlinx.coroutines.launch
 
 @EntryPoint
 @InstallIn(ActivityComponent::class)
-interface CellUniverseActionCardEntryPoint :
-    FullscreenSettingsScreenEntryPoint,
-    InlineSettingsScreenEntryPoint
+interface CellUniverseActionCardHiltEntryPoint :
+    FullscreenSettingsScreenHiltEntryPoint,
+    InlineSettingsScreenHiltEntryPoint
 
-context(CellUniverseActionCardEntryPoint)
+interface CellUniverseActionCardLocalEntryPoint :
+    FullscreenSettingsScreenLocalEntryPoint,
+    InlineSettingsScreenLocalEntryPoint
+
+context(CellUniverseActionCardHiltEntryPoint, CellUniverseActionCardLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun CellUniverseActionCard(
@@ -102,7 +108,7 @@ fun CellUniverseActionCard(
     )
 }
 
-context(CellUniverseActionCardEntryPoint)
+context(CellUniverseActionCardHiltEntryPoint, CellUniverseActionCardLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod", "ComplexMethod")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable

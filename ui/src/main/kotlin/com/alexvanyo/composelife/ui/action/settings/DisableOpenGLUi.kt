@@ -18,7 +18,6 @@
 package com.alexvanyo.composelife.ui.action.settings
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -27,15 +26,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.ui.R
-import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicator
-import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorEntryPoint
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.util.ThemePreviews
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
@@ -43,93 +40,72 @@ import kotlinx.coroutines.launch
 
 @EntryPoint
 @InstallIn(ActivityComponent::class)
-interface DisableOpenGLUiEntryPoint :
-    ComposeLifePreferencesProvider,
-    GameOfLifeProgressIndicatorEntryPoint
+interface DisableOpenGLUiHiltEntryPoint :
+    ComposeLifePreferencesProvider
 
-context(DisableOpenGLUiEntryPoint)
+interface DisableOpenGLUiLocalEntryPoint :
+    LoadedComposeLifePreferencesProvider
+
+context(DisableOpenGLUiHiltEntryPoint, DisableOpenGLUiLocalEntryPoint)
 @Composable
 fun DisableOpenGLUi(
     modifier: Modifier = Modifier,
 ) {
     DisableOpenGLUi(
-        disableOpenGLState = composeLifePreferences.disableOpenGLState,
+        disableOpenGL = preferences.disableOpenGL,
         setDisableOpenGL = composeLifePreferences::setDisableOpenGL,
         modifier = modifier,
     )
 }
 
-context(GameOfLifeProgressIndicatorEntryPoint)
 @Composable
 fun DisableOpenGLUi(
-    disableOpenGLState: ResourceState<Boolean>,
+    disableOpenGL: Boolean,
     setDisableOpenGL: suspend (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier) {
-        when (disableOpenGLState) {
-            ResourceState.Loading, is ResourceState.Failure -> {
-                GameOfLifeProgressIndicator()
-            }
+    val coroutineScope = rememberCoroutineScope()
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier,
+    ) {
+        Text(
+            stringResource(R.string.disable_opengl),
+            modifier = Modifier.weight(1f),
+        )
 
-            is ResourceState.Success -> {
-                val coroutineScope = rememberCoroutineScope()
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        stringResource(R.string.disable_opengl),
-                        modifier = Modifier.weight(1f),
-                    )
-
-                    Switch(
-                        checked = disableOpenGLState.value,
-                        onCheckedChange = { disabled ->
-                            coroutineScope.launch {
-                                setDisableOpenGL(disabled)
-                            }
-                        },
-                    )
+        Switch(
+            checked = disableOpenGL,
+            onCheckedChange = { disabled ->
+                coroutineScope.launch {
+                    setDisableOpenGL(disabled)
                 }
-            }
-        }
+            },
+        )
     }
 }
 
-@Preview
-@Composable
-fun DisableOpenGLUiLoadingPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            DisableOpenGLUi(
-                disableOpenGLState = ResourceState.Loading,
-                setDisableOpenGL = {},
-            )
-        }
-    }
-}
-
-@Preview
+@ThemePreviews
 @Composable
 fun DisableOpenGLUiDisabledPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             DisableOpenGLUi(
-                disableOpenGLState = ResourceState.Success(true),
+                disableOpenGL = true,
                 setDisableOpenGL = {},
             )
         }
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 fun DisableOpenGLUiEnabledPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             DisableOpenGLUi(
-                disableOpenGLState = ResourceState.Success(false),
+                disableOpenGL = false,
                 setDisableOpenGL = {},
             )
         }

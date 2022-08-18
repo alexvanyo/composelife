@@ -16,84 +16,57 @@
 
 package com.alexvanyo.composelife.ui.action.settings
 
+import android.content.Context
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isPopup
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
-import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.test.BaseHiltTest
-import com.alexvanyo.composelife.test.TestActivity
 import com.alexvanyo.composelife.ui.R
-import dagger.hilt.EntryPoints
-import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import leakcanary.SkipLeakDetection
-import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@HiltAndroidTest
-class CellShapeConfigUiTests : BaseHiltTest<TestActivity>(TestActivity::class.java) {
+@RunWith(AndroidJUnit4::class)
+class CellShapeConfigUiTests {
 
-    private lateinit var cellShapeConfigUiEntryPoint: CellShapeConfigUiEntryPoint
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
-    @Before
-    fun setup() {
-        cellShapeConfigUiEntryPoint =
-            EntryPoints.get(composeTestRule.activity, CellShapeConfigUiEntryPoint::class.java)
-    }
+    private val context: Context get() = composeTestRule.activity
 
-    @SkipLeakDetection("recomposer", "Outer")
     @Test
-    fun loading_is_displayed_correctly() = runAppTest {
+    fun round_rectangle_is_displayed_correctly() = runTest {
         composeTestRule.setContent {
-            with(cellShapeConfigUiEntryPoint) {
-                CellShapeConfigUi(
-                    currentShapeState = ResourceState.Loading,
-                    setCurrentShapeType = {},
-                    setRoundRectangleConfig = {},
-                )
-            }
-        }
-
-        composeTestRule
-            .onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
-    }
-
-    @SkipLeakDetection("recomposer", "Outer")
-    @Test
-    fun round_rectangle_is_displayed_correctly() = runAppTest {
-        composeTestRule.setContent {
-            with(cellShapeConfigUiEntryPoint) {
-                CellShapeConfigUi(
-                    currentShapeState = ResourceState.Success(
-                        CurrentShape.RoundRectangle(
-                            sizeFraction = 0.8f,
-                            cornerFraction = 0.4f,
-                        ),
-                    ),
-                    setCurrentShapeType = {},
-                    setRoundRectangleConfig = {},
-                )
-            }
+            CellShapeConfigUi(
+                currentShape = CurrentShape.RoundRectangle(
+                    sizeFraction = 0.8f,
+                    cornerFraction = 0.4f,
+                ),
+                setCurrentShapeType = {},
+                setRoundRectangleConfig = {},
+            )
         }
 
         composeTestRule
@@ -114,48 +87,8 @@ class CellShapeConfigUiTests : BaseHiltTest<TestActivity>(TestActivity::class.ja
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.4f, range = 0f..0.5f)))
     }
 
-    @SkipLeakDetection("recomposer", "Outer")
     @Test
-    fun round_rectangle_is_displayed_correctly_after_updating() = runAppTest {
-        var currentShapeState by mutableStateOf<ResourceState<CurrentShape>>(ResourceState.Loading)
-
-        composeTestRule.setContent {
-            with(cellShapeConfigUiEntryPoint) {
-                CellShapeConfigUi(
-                    currentShapeState = currentShapeState,
-                    setCurrentShapeType = {},
-                    setRoundRectangleConfig = {},
-                )
-            }
-        }
-
-        currentShapeState = ResourceState.Success(
-            CurrentShape.RoundRectangle(
-                sizeFraction = 0.8f,
-                cornerFraction = 0.4f,
-            ),
-        )
-
-        composeTestRule
-            .onNodeWithText(context.getString(R.string.round_rectangle))
-            .assertExists()
-            .assertHasClickAction()
-
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.size_fraction, 0.8f),
-            )
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.8f, range = 0.1f..1f)))
-
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.corner_fraction, 0.4f),
-            )
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.4f, range = 0f..0.5f)))
-    }
-
-    @Test
-    fun round_rectangle_size_fraction_slider_updates_state() = runAppTest {
+    fun round_rectangle_size_fraction_slider_updates_state() = runTest {
         var sizeFraction by mutableStateOf(0.8f)
         var cornerFraction by mutableStateOf(0.4f)
 
@@ -167,17 +100,15 @@ class CellShapeConfigUiTests : BaseHiltTest<TestActivity>(TestActivity::class.ja
         }
 
         composeTestRule.setContent {
-            with(cellShapeConfigUiEntryPoint) {
-                CellShapeConfigUi(
-                    currentShapeState = ResourceState.Success(roundRectangleShape),
-                    setCurrentShapeType = {},
-                    setRoundRectangleConfig = {
-                        val result = it(roundRectangleShape)
-                        sizeFraction = result.sizeFraction
-                        cornerFraction = result.cornerFraction
-                    },
-                )
-            }
+            CellShapeConfigUi(
+                currentShape = roundRectangleShape,
+                setCurrentShapeType = {},
+                setRoundRectangleConfig = {
+                    val result = it(roundRectangleShape)
+                    sizeFraction = result.sizeFraction
+                    cornerFraction = result.cornerFraction
+                },
+            )
         }
 
         composeTestRule
@@ -196,7 +127,7 @@ class CellShapeConfigUiTests : BaseHiltTest<TestActivity>(TestActivity::class.ja
     }
 
     @Test
-    fun round_rectangle_corner_fraction_slider_updates_state() = runAppTest {
+    fun round_rectangle_corner_fraction_slider_updates_state() = runTest {
         var sizeFraction by mutableStateOf(0.8f)
         var cornerFraction by mutableStateOf(0.4f)
 
@@ -208,17 +139,15 @@ class CellShapeConfigUiTests : BaseHiltTest<TestActivity>(TestActivity::class.ja
         }
 
         composeTestRule.setContent {
-            with(cellShapeConfigUiEntryPoint) {
-                CellShapeConfigUi(
-                    currentShapeState = ResourceState.Success(roundRectangleShape),
-                    setCurrentShapeType = {},
-                    setRoundRectangleConfig = {
-                        val result = it(roundRectangleShape)
-                        sizeFraction = result.sizeFraction
-                        cornerFraction = result.cornerFraction
-                    },
-                )
-            }
+            CellShapeConfigUi(
+                currentShape = roundRectangleShape,
+                setCurrentShapeType = {},
+                setRoundRectangleConfig = {
+                    val result = it(roundRectangleShape)
+                    sizeFraction = result.sizeFraction
+                    cornerFraction = result.cornerFraction
+                },
+            )
         }
 
         composeTestRule
@@ -238,24 +167,20 @@ class CellShapeConfigUiTests : BaseHiltTest<TestActivity>(TestActivity::class.ja
 
     @SkipLeakDetection("https://issuetracker.google.com/issues/206177594", "Inner")
     @Test
-    fun round_rectangle_popup_displays_options() = runAppTest {
+    fun round_rectangle_popup_displays_options() = runTest {
         var setCurrentShapeType: CurrentShapeType? = null
 
         composeTestRule.setContent {
-            with(cellShapeConfigUiEntryPoint) {
-                CellShapeConfigUi(
-                    currentShapeState = ResourceState.Success(
-                        CurrentShape.RoundRectangle(
-                            sizeFraction = 0.8f,
-                            cornerFraction = 0.4f,
-                        ),
-                    ),
-                    setCurrentShapeType = {
-                        setCurrentShapeType = it
-                    },
-                    setRoundRectangleConfig = {},
-                )
-            }
+            CellShapeConfigUi(
+                currentShape = CurrentShape.RoundRectangle(
+                    sizeFraction = 0.8f,
+                    cornerFraction = 0.4f,
+                ),
+                setCurrentShapeType = {
+                    setCurrentShapeType = it
+                },
+                setRoundRectangleConfig = {},
+            )
         }
 
         composeTestRule

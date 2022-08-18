@@ -36,11 +36,9 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.component.DropdownOption
-import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicator
-import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorEntryPoint
 import com.alexvanyo.composelife.ui.component.LabeledSlider
 import com.alexvanyo.composelife.ui.component.TextFieldDropdown
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
@@ -54,28 +52,29 @@ import kotlinx.coroutines.launch
 
 @EntryPoint
 @InstallIn(ActivityComponent::class)
-interface CellShapeConfigUiEntryPoint :
-    GameOfLifeProgressIndicatorEntryPoint,
+interface CellShapeConfigUiHiltEntryPoint :
     ComposeLifePreferencesProvider
 
-context(CellShapeConfigUiEntryPoint)
+interface CellShapeConfigUiLocalEntryPoint :
+    LoadedComposeLifePreferencesProvider
+
+context(CellShapeConfigUiHiltEntryPoint, CellShapeConfigUiLocalEntryPoint)
 @Composable
 fun CellShapeConfigUi(
     modifier: Modifier = Modifier,
 ) {
     CellShapeConfigUi(
-        currentShapeState = composeLifePreferences.currentShapeState,
+        currentShape = preferences.currentShape,
         setCurrentShapeType = composeLifePreferences::setCurrentShapeType,
         setRoundRectangleConfig = composeLifePreferences::setRoundRectangleConfig,
         modifier = modifier,
     )
 }
 
-context(CellShapeConfigUiEntryPoint)
 @Suppress("LongMethod")
 @Composable
 fun CellShapeConfigUi(
-    currentShapeState: ResourceState<CurrentShape>,
+    currentShape: CurrentShape,
     setCurrentShapeType: suspend (CurrentShapeType) -> Unit,
     setRoundRectangleConfig: suspend ((CurrentShape.RoundRectangle) -> CurrentShape.RoundRectangle) -> Unit,
     modifier: Modifier = Modifier,
@@ -84,63 +83,55 @@ fun CellShapeConfigUi(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        when (currentShapeState) {
-            ResourceState.Loading, is ResourceState.Failure -> {
-                GameOfLifeProgressIndicator()
-            }
-            is ResourceState.Success -> {
-                val currentShape = currentShapeState.value
-                val coroutineScope = rememberCoroutineScope()
+        val coroutineScope = rememberCoroutineScope()
 
-                TextFieldDropdown(
-                    label = stringResource(R.string.shape),
-                    currentValue = when (currentShape) {
-                        is CurrentShape.RoundRectangle -> ShapeDropdownOption.RoundRectangle
-                    },
-                    allValues = ShapeDropdownOption.values,
-                    setValue = { option ->
-                        coroutineScope.launch {
-                            setCurrentShapeType(
-                                when (option) {
-                                    ShapeDropdownOption.RoundRectangle -> CurrentShapeType.RoundRectangle
-                                },
-                            )
-                        }
-                    },
-                )
+        TextFieldDropdown(
+            label = stringResource(R.string.shape),
+            currentValue = when (currentShape) {
+                is CurrentShape.RoundRectangle -> ShapeDropdownOption.RoundRectangle
+            },
+            allValues = ShapeDropdownOption.values,
+            setValue = { option ->
+                coroutineScope.launch {
+                    setCurrentShapeType(
+                        when (option) {
+                            ShapeDropdownOption.RoundRectangle -> CurrentShapeType.RoundRectangle
+                        },
+                    )
+                }
+            },
+        )
 
-                Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-                @Suppress("USELESS_IS_CHECK")
-                when (currentShape) {
-                    is CurrentShape.RoundRectangle -> {
-                        var sizeFraction by remember { mutableStateOf(currentShape.sizeFraction) }
-                        var cornerFraction by remember { mutableStateOf(currentShape.cornerFraction) }
+        @Suppress("USELESS_IS_CHECK")
+        when (currentShape) {
+            is CurrentShape.RoundRectangle -> {
+                var sizeFraction by remember { mutableStateOf(currentShape.sizeFraction) }
+                var cornerFraction by remember { mutableStateOf(currentShape.cornerFraction) }
 
-                        LaunchedEffect(sizeFraction, cornerFraction) {
-                            setRoundRectangleConfig { roundRectangle ->
-                                roundRectangle.copy(
-                                    sizeFraction = sizeFraction,
-                                    cornerFraction = cornerFraction,
-                                )
-                            }
-                        }
-
-                        LabeledSlider(
-                            label = stringResource(id = R.string.size_fraction, sizeFraction),
-                            value = sizeFraction,
-                            onValueChange = { sizeFraction = it },
-                            valueRange = 0.1f..1f,
-                        )
-
-                        LabeledSlider(
-                            label = stringResource(id = R.string.corner_fraction, cornerFraction),
-                            value = cornerFraction,
-                            onValueChange = { cornerFraction = it },
-                            valueRange = 0f..0.5f,
+                LaunchedEffect(sizeFraction, cornerFraction) {
+                    setRoundRectangleConfig { roundRectangle ->
+                        roundRectangle.copy(
+                            sizeFraction = sizeFraction,
+                            cornerFraction = cornerFraction,
                         )
                     }
                 }
+
+                LabeledSlider(
+                    label = stringResource(id = R.string.size_fraction, sizeFraction),
+                    value = sizeFraction,
+                    onValueChange = { sizeFraction = it },
+                    valueRange = 0.1f..1f,
+                )
+
+                LabeledSlider(
+                    label = stringResource(id = R.string.corner_fraction, cornerFraction),
+                    value = cornerFraction,
+                    onValueChange = { cornerFraction = it },
+                    valueRange = 0f..0.5f,
+                )
             }
         }
     }
@@ -157,32 +148,14 @@ sealed interface ShapeDropdownOption : DropdownOption {
 
 @ThemePreviews
 @Composable
-fun CellShapeConfigUiLoadingPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            Surface {
-                CellShapeConfigUi(
-                    currentShapeState = ResourceState.Loading,
-                    setCurrentShapeType = {},
-                    setRoundRectangleConfig = {},
-                )
-            }
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
 fun CellShapeConfigUiRoundRectanglePreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             Surface {
                 CellShapeConfigUi(
-                    currentShapeState = ResourceState.Success(
-                        CurrentShape.RoundRectangle(
-                            sizeFraction = 0.8f,
-                            cornerFraction = 0.4f,
-                        ),
+                    currentShape = CurrentShape.RoundRectangle(
+                        sizeFraction = 0.8f,
+                        cornerFraction = 0.4f,
                     ),
                     setCurrentShapeType = {},
                     setRoundRectangleConfig = {},

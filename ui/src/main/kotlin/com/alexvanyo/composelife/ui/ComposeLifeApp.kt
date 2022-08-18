@@ -30,7 +30,7 @@ import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.SizePreviews
 
-context(InteractiveCellUniverseEntryPoint)
+context(InteractiveCellUniverseHiltEntryPoint)
 @Composable
 fun ComposeLifeApp(
     windowSizeClass: WindowSizeClass,

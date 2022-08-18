@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife
+package com.alexvanyo.composelife.preferences.di
 
-import com.alexvanyo.composelife.ui.InteractiveCellUniverseEntryPoint
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 
-@EntryPoint
-@InstallIn(ActivityComponent::class)
-interface MainActivityEntryPoint : InteractiveCellUniverseEntryPoint
+interface LoadedComposeLifePreferencesProvider {
+    val preferences: LoadedComposeLifePreferences
+}
