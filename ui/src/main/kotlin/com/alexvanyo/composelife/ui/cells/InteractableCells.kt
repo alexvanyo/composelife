@@ -23,6 +23,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
@@ -56,15 +57,14 @@ fun InteractableCells(
     shape: CurrentShape,
     scaledCellDpSize: Dp,
     cellWindow: IntRect,
-    translationX: Float,
-    translationY: Float,
+    pixelOffsetFromCenter: Offset,
     modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier
             .graphicsLayer {
-                this.translationX = translationX
-                this.translationY = translationY
+                this.translationX = -pixelOffsetFromCenter.x
+                this.translationY = -pixelOffsetFromCenter.y
             }
             .requiredSize(
                 scaledCellDpSize * (cellWindow.width + 1),
@@ -155,8 +155,7 @@ fun InteractableCellsPreview() {
                         IntOffset(0, 0),
                         IntOffset(9, 9),
                     ),
-                    translationX = 0f,
-                    translationY = 0f,
+                    pixelOffsetFromCenter = Offset.Zero,
                 )
             }
         }

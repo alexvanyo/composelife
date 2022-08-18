@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.ui.cells
 
 import android.content.Context
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.click
@@ -73,8 +74,7 @@ class InteractableCellsTests {
                     IntOffset(0, 0),
                     IntOffset(8, 8),
                 ),
-                translationX = 0f,
-                translationY = 0f,
+                pixelOffsetFromCenter = Offset.Zero,
             )
         }
 
@@ -185,8 +185,7 @@ class InteractableCellsTests {
                     IntOffset(0, 0),
                     IntOffset(8, 8),
                 ),
-                translationX = 0f,
-                translationY = 0f,
+                pixelOffsetFromCenter = Offset.Zero,
             )
         }
 

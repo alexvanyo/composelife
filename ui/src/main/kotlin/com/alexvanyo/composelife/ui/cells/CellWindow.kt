@@ -231,8 +231,7 @@ private fun CellWindowImpl(
                 scaledCellDpSize = scaledCellDpSize,
                 cellWindow = cellWindow,
                 shape = shape,
-                translationX = -fracPixelOffsetFromCenter.x,
-                translationY = -fracPixelOffsetFromCenter.y,
+                pixelOffsetFromCenter = fracPixelOffsetFromCenter,
                 disableAGSL = disableAGSL,
                 disableOpenGL = disableOpenGL,
                 modifier = Modifier.size(this@BoxWithConstraints.maxWidth, this@BoxWithConstraints.maxHeight),
@@ -249,8 +248,7 @@ private fun CellWindowImpl(
                     scaledCellDpSize = scaledCellDpSize,
                     cellWindow = cellWindow,
                     shape = shape,
-                    translationX = -fracPixelOffsetFromCenter.x,
-                    translationY = -fracPixelOffsetFromCenter.y,
+                    pixelOffsetFromCenter = fracPixelOffsetFromCenter,
                 )
             }
         }

@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.ui.cells
 import android.os.Build
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.captureToImage
@@ -84,8 +85,7 @@ class NonInteractableCellsVisualTests {
                         sizeFraction = 1f,
                         cornerFraction = 0f,
                     ),
-                    translationX = 0f,
-                    translationY = 0f,
+                    pixelOffsetFromCenter = Offset.Zero,
                     disableAGSL = true,
                     disableOpenGL = true,
                     cellWindow = IntRect(
@@ -151,8 +151,7 @@ class NonInteractableCellsVisualTests {
                         sizeFraction = 1f,
                         cornerFraction = 0f,
                     ),
-                    translationX = 0f,
-                    translationY = 0f,
+                    pixelOffsetFromCenter = Offset.Zero,
                     disableAGSL = true,
                     disableOpenGL = true,
                     cellWindow = IntRect(

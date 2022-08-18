@@ -21,6 +21,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -46,8 +47,7 @@ fun NonInteractableCells(
     scaledCellDpSize: Dp,
     cellWindow: IntRect,
     shape: CurrentShape,
-    translationX: Float,
-    translationY: Float,
+    pixelOffsetFromCenter: Offset,
     disableAGSL: Boolean,
     disableOpenGL: Boolean,
     modifier: Modifier = Modifier,
@@ -58,8 +58,7 @@ fun NonInteractableCells(
             scaledCellDpSize = scaledCellDpSize,
             cellWindow = cellWindow,
             shape = shape,
-            translationX = translationX,
-            translationY = translationY,
+            pixelOffsetFromCenter = pixelOffsetFromCenter,
             modifier = modifier,
         )
     } else if (!disableOpenGL && !LocalInspectionMode.current && openGLSupported()) {
@@ -68,8 +67,7 @@ fun NonInteractableCells(
             scaledCellDpSize = scaledCellDpSize,
             cellWindow = cellWindow,
             shape = shape,
-            translationX = translationX,
-            translationY = translationY,
+            pixelOffsetFromCenter = pixelOffsetFromCenter,
             modifier = modifier,
         )
     } else {
@@ -78,8 +76,7 @@ fun NonInteractableCells(
             scaledCellDpSize = scaledCellDpSize,
             cellWindow = cellWindow,
             shape = shape,
-            translationX = translationX,
-            translationY = translationY,
+            pixelOffsetFromCenter = pixelOffsetFromCenter,
             modifier = modifier,
         )
     }
@@ -111,8 +108,7 @@ fun NonInteractableCellsPreview() {
                 ),
                 disableAGSL = false,
                 disableOpenGL = false,
-                translationX = 0.0f,
-                translationY = 0.0f,
+                pixelOffsetFromCenter = Offset.Zero,
                 cellWindow = IntRect(
                     IntOffset(0, 0),
                     IntOffset(9, 9),

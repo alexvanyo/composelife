@@ -24,11 +24,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.getSystemService
 import com.alexvanyo.composelife.model.GameOfLifeState
@@ -65,8 +67,7 @@ fun OpenGLNonInteractableCells(
     scaledCellDpSize: Dp,
     cellWindow: IntRect,
     shape: CurrentShape,
-    translationX: Float,
-    translationY: Float,
+    pixelOffsetFromCenter: Offset,
     modifier: Modifier = Modifier,
 ) {
     val scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() }
@@ -90,11 +91,9 @@ fun OpenGLNonInteractableCells(
                 cells = cellsBuffer,
                 aliveColor = aliveColor,
                 deadColor = deadColor,
-                cellWindowWidth = cellWindow.width + 1,
-                cellWindowHeight = cellWindow.height + 1,
+                cellWindowSize = IntSize(cellWindow.width + 1, cellWindow.height + 1),
                 scaledCellPixelSize = scaledCellPixelSize,
-                translationX = translationX,
-                translationY = translationY,
+                pixelOffsetFromCenter = pixelOffsetFromCenter,
                 sizeFraction = shape.sizeFraction,
                 cornerFraction = shape.cornerFraction,
             )
@@ -167,21 +166,17 @@ sealed interface ScreenShapeParameters {
     val cells: ByteBuffer
     val aliveColor: Color
     val deadColor: Color
-    val cellWindowWidth: Int
-    val cellWindowHeight: Int
+    val cellWindowSize: IntSize
     val scaledCellPixelSize: Float
-    val translationX: Float
-    val translationY: Float
+    val pixelOffsetFromCenter: Offset
 
     data class RoundRectangle(
         override val cells: ByteBuffer,
         override val aliveColor: Color,
         override val deadColor: Color,
-        override val cellWindowWidth: Int,
-        override val cellWindowHeight: Int,
+        override val cellWindowSize: IntSize,
         override val scaledCellPixelSize: Float,
-        override val translationX: Float,
-        override val translationY: Float,
+        override val pixelOffsetFromCenter: Offset,
         val sizeFraction: Float,
         val cornerFraction: Float,
     ) : ScreenShapeParameters
@@ -209,20 +204,14 @@ private val fragmentShaderCode = """
     // The background (dead) color
     uniform vec4 deadColor;
     
-    // The number of cells horizontally
-    uniform int cellWindowWidth;
-    
-    // The number of cells vertically
-    uniform int cellWindowHeight;
+    // The size of the cell window
+    uniform ivec2 cellWindowSize;
     
     // The pixel size of a single cell
     uniform float scaledCellPixelSize;
     
-    // The x translation of the center cell from the center
-    uniform float translationX;
-    
-    // The y translation of the center cell from the center
-    uniform float translationY;
+    // The pixel translation of the center cell from the center
+    uniform vec2 pixelOffsetFromCenter;
     
     // The type of shape to draw for an alive cell
     uniform int shapeType;
@@ -255,20 +244,12 @@ private val fragmentShaderCode = """
     }
     
     void main() {
-        float cellWindowPixelWidth = scaledCellPixelSize * float(cellWindowWidth);
-        float cellWindowPixelHeight = scaledCellPixelSize * float(cellWindowHeight);
-    
-        float offsetXFromCellWindow = (float(size.x) - cellWindowPixelWidth) / 2.0 ;
-        float offsetYFromCellWindow = (float(size.y) - cellWindowPixelHeight) / 2.0;
-    
-        float x = (gl_FragCoord.x - offsetXFromCellWindow) / scaledCellPixelSize;
-        float y = (gl_FragCoord.y - offsetYFromCellWindow) / scaledCellPixelSize;
-        vec2 cellTranslation = vec2(translationX, translationY) / scaledCellPixelSize;
-        
-        vec2 cellCoordinates = vec2(x - cellTranslation.x, y + cellTranslation.y);
+        vec2 cellWindowPixelSize = scaledCellPixelSize * vec2(cellWindowSize);
+        vec2 offsetFromCellWindow = (vec2(size) - cellWindowPixelSize) / 2.0 - pixelOffsetFromCenter * vec2(1, -1);
+        vec2 cellCoordinates = (gl_FragCoord.xy - offsetFromCellWindow) / scaledCellPixelSize;
         vec2 normalizedCellCoordinates = vec2(
-            cellCoordinates.x / float(cellWindowWidth),
-            (float(cellWindowHeight) - cellCoordinates.y) / float(cellWindowHeight)
+            cellCoordinates.x / float(cellWindowSize.x),
+            1.0 - cellCoordinates.y / float(cellWindowSize.y)
         );
         
         if (texture2D(cells, normalizedCellCoordinates).a != 0.0) {
@@ -334,11 +315,9 @@ class ScreenShape {
     private val cellsHandle = GLES20.glGetUniformLocation(program, "cells")
     private val aliveColorHandle = GLES20.glGetUniformLocation(program, "aliveColor")
     private val deadColorHandle = GLES20.glGetUniformLocation(program, "deadColor")
-    private val cellWindowWidthHandle = GLES20.glGetUniformLocation(program, "cellWindowWidth")
-    private val cellWindowHeightHandle = GLES20.glGetUniformLocation(program, "cellWindowHeight")
+    private val cellWindowSizeHandle = GLES20.glGetUniformLocation(program, "cellWindowSize")
     private val scaledCellPixelSizeHandle = GLES20.glGetUniformLocation(program, "scaledCellPixelSize")
-    private val translationXHandle = GLES20.glGetUniformLocation(program, "translationX")
-    private val translationYHandle = GLES20.glGetUniformLocation(program, "translationY")
+    private val pixelOffsetFromCenterHandle = GLES20.glGetUniformLocation(program, "pixelOffsetFromCenter")
     private val shapeTypeHandle = GLES20.glGetUniformLocation(program, "shapeType")
     private val sizeFractionHandle = GLES20.glGetUniformLocation(program, "sizeFraction")
     private val cornerFractionHandle = GLES20.glGetUniformLocation(program, "cornerFraction")
@@ -369,8 +348,8 @@ class ScreenShape {
             GLES20.GL_TEXTURE_2D,
             0,
             GLES20.GL_ALPHA,
-            screenShapeParameters.cellWindowWidth,
-            screenShapeParameters.cellWindowHeight,
+            screenShapeParameters.cellWindowSize.width,
+            screenShapeParameters.cellWindowSize.height,
             0,
             GLES20.GL_ALPHA,
             GLES20.GL_UNSIGNED_BYTE,
@@ -391,11 +370,17 @@ class ScreenShape {
             screenShapeParameters.deadColor.blue,
             screenShapeParameters.deadColor.alpha,
         )
-        GLES20.glUniform1i(cellWindowWidthHandle, screenShapeParameters.cellWindowWidth)
-        GLES20.glUniform1i(cellWindowHeightHandle, screenShapeParameters.cellWindowHeight)
+        GLES20.glUniform2i(
+            cellWindowSizeHandle,
+            screenShapeParameters.cellWindowSize.width,
+            screenShapeParameters.cellWindowSize.height,
+        )
         GLES20.glUniform1f(scaledCellPixelSizeHandle, screenShapeParameters.scaledCellPixelSize)
-        GLES20.glUniform1f(translationXHandle, screenShapeParameters.translationX)
-        GLES20.glUniform1f(translationYHandle, screenShapeParameters.translationY)
+        GLES20.glUniform2f(
+            pixelOffsetFromCenterHandle,
+            screenShapeParameters.pixelOffsetFromCenter.x,
+            screenShapeParameters.pixelOffsetFromCenter.y,
+        )
         when (screenShapeParameters) {
             is ScreenShapeParameters.RoundRectangle -> {
                 GLES20.glUniform1i(shapeTypeHandle, 0)

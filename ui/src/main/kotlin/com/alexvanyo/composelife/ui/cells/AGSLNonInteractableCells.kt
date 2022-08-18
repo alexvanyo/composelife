@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
@@ -49,20 +50,14 @@ private val SHADER_SRC = """
     // The background (dead) color
     layout(color) uniform float4 deadColor;
     
-    // The number of cells horizontally
-    uniform int cellWindowWidth;
-    
-    // The number of cells vertically
-    uniform int cellWindowHeight;
+    // The size of the cell window
+    uniform int2 cellWindowSize;
     
     // The pixel size of a single cell
     uniform float scaledCellPixelSize;
-
-    // The x translation of the center cell from the center
-    uniform float translationX;
     
-    // The y translation of the center cell from the center
-    uniform float translationY;
+    // The pixel translation of the center cell from the center
+    uniform float2 pixelOffsetFromCenter;
 
     // The type of shape to draw for an alive cell
     uniform int shapeType;
@@ -83,7 +78,7 @@ private val SHADER_SRC = """
     float4 roundRectangleCell(float2 offsetFromCenter) {
         float distance = roundRectangleSDF(
             offsetFromCenter - float2(0.5),
-            float2(sizeFraction / 2),
+            float2(sizeFraction / 2.0),
             cornerFraction * sizeFraction
         );
         
@@ -95,15 +90,9 @@ private val SHADER_SRC = """
     }
     
     float4 main(float2 fragCoord) {
-        float cellWindowPixelWidth = scaledCellPixelSize * float(cellWindowWidth);
-        float cellWindowPixelHeight = scaledCellPixelSize * float(cellWindowHeight);
-    
-        float offsetXFromCellWindow = (size.x - cellWindowPixelWidth) / 2 + translationX;
-        float offsetYFromCellWindow = (size.y - cellWindowPixelHeight) / 2 + translationY;
-    
-        float x = (fragCoord.x - offsetXFromCellWindow) / scaledCellPixelSize;
-        float y = (fragCoord.y - offsetYFromCellWindow) / scaledCellPixelSize;
-        float2 cellCoordinates = float2(x, y);
+        float2 cellWindowPixelSize = scaledCellPixelSize * float2(cellWindowSize);
+        float2 offsetFromCellWindow = (size - cellWindowPixelSize) / 2.0 - pixelOffsetFromCenter;
+        float2 cellCoordinates = (fragCoord - offsetFromCellWindow) / scaledCellPixelSize;
         
         if (cells.eval(cellCoordinates).a != 0) {
             if (shapeType == 0) {
@@ -125,8 +114,7 @@ fun AGSLNonInteractableCells(
     scaledCellDpSize: Dp,
     cellWindow: IntRect,
     shape: CurrentShape,
-    translationX: Float,
-    translationY: Float,
+    pixelOffsetFromCenter: Offset,
     modifier: Modifier = Modifier,
 ) {
     val scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() }
@@ -171,15 +159,13 @@ fun AGSLNonInteractableCells(
     }
 
     DisposableEffect(shader, cellWindow) {
-        shader.setIntUniform("cellWindowWidth", cellWindow.width + 1)
-        shader.setIntUniform("cellWindowHeight", cellWindow.height + 1)
+        shader.setIntUniform("cellWindowSize", cellWindow.width + 1, cellWindow.height + 1)
 
         onDispose {}
     }
 
-    DisposableEffect(shader, translationX, translationY) {
-        shader.setFloatUniform("translationX", translationX)
-        shader.setFloatUniform("translationY", translationY)
+    DisposableEffect(shader, pixelOffsetFromCenter) {
+        shader.setFloatUniform("pixelOffsetFromCenter", pixelOffsetFromCenter.x, pixelOffsetFromCenter.y)
 
         onDispose {}
     }
@@ -204,8 +190,7 @@ fun AGSLNonInteractableCells(
     Canvas(
         modifier = modifier,
     ) {
-        translationX.let {}
-        translationY.let {}
+        pixelOffsetFromCenter.let {}
         shader.setFloatUniform("size", size.width, size.height)
 
         drawRect(
