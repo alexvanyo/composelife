@@ -39,11 +39,13 @@ android {
 
 dependencies {
     implementation(projects.algorithm)
+    implementation(projects.openglRenderer)
 
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.core)
     implementation(libs.androidx.fragment)
+    implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.wear.watchface)

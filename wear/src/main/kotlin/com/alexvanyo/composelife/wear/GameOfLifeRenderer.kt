@@ -17,22 +17,16 @@
 package com.alexvanyo.composelife.wear
 
 import android.content.Context
-import android.graphics.Rect
+import android.opengl.GLES20
+import android.opengl.Matrix
 import android.text.format.DateFormat
 import android.view.SurfaceHolder
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
-import androidx.compose.ui.graphics.toComposeRect
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.toOffset
-import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -40,9 +34,14 @@ import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.model.toCellState
+import com.alexvanyo.composelife.openglrenderer.GameOfLifeShape
+import com.alexvanyo.composelife.openglrenderer.GameOfLifeShapeParameters
+import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.util.containedPoints
+import java.nio.ByteBuffer
 import java.time.LocalTime
 import java.time.ZonedDateTime
+import kotlin.properties.Delegates
 import kotlin.random.Random
 
 class GameOfLifeRenderer(
@@ -51,30 +50,46 @@ class GameOfLifeRenderer(
     currentUserStyleRepository: CurrentUserStyleRepository,
     private val watchState: WatchState,
     private val temporalGameOfLifeState: TemporalGameOfLifeState,
-) : Renderer.CanvasRenderer2<Renderer.SharedAssets>(
+) : Renderer.GlesRenderer2<Renderer.SharedAssets>(
     surfaceHolder = surfaceHolder,
     currentUserStyleRepository = currentUserStyleRepository,
     watchState = watchState,
-    canvasType = CanvasType.HARDWARE,
     interactiveDrawModeUpdateDelayMillis = 50,
-    clearWithBackgroundTintBeforeRenderingHighlightLayer = false,
 ) {
-    private val density = Density(context = context)
-
     private val cellWindow = IntRect(IntOffset(0, 0), IntSize(99, 99))
-
-    private val cellWindowContainedPoints = cellWindow.containedPoints()
 
     private val use24HourFormat = DateFormat.is24HourFormat(context)
 
     private var previousLocalTime = LocalTime.MIN
 
-    override fun render(
-        canvas: android.graphics.Canvas,
-        bounds: Rect,
-        zonedDateTime: ZonedDateTime,
-        sharedAssets: SharedAssets,
-    ) {
+    private val shape: CurrentShape = CurrentShape.RoundRectangle(
+        sizeFraction = 1f,
+        cornerFraction = 0f,
+    )
+
+    private var cellSize by Delegates.notNull<Float>()
+
+    private val projectionMatrix = FloatArray(16)
+    private val mvpMatrix = FloatArray(16)
+    private val viewMatrix = FloatArray(16)
+
+    lateinit var gameOfLifeShape: GameOfLifeShape
+
+    override suspend fun onUiThreadGlSurfaceCreated(width: Int, height: Int) {
+        cellSize = width.toFloat() / (cellWindow.width + 1)
+
+        GLES20.glClearColor(0f, 0f, 0f, 0f)
+        GLES20.glViewport(0, 0, width, height)
+
+        Matrix.orthoM(projectionMatrix, 0, 0f, 1f, 0f, 1f, 0.5f, 2f)
+        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f, 0f)
+        Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
+
+        gameOfLifeShape = GameOfLifeShape()
+        gameOfLifeShape.setSize(width, height)
+    }
+
+    override fun render(zonedDateTime: ZonedDateTime, sharedAssets: SharedAssets) {
         val previousSeedCellState = temporalGameOfLifeState.seedCellState
 
         val localTime = zonedDateTime.toLocalTime()
@@ -85,26 +100,30 @@ class GameOfLifeRenderer(
             }
         }
 
-        val cellSize = bounds.width().toFloat() / cellWindow.width
-
         val cellState = temporalGameOfLifeState.cellState
 
-        CanvasDrawScope().draw(density, LayoutDirection.Ltr, Canvas(c = canvas), bounds.toComposeRect().size) {
-            drawRect(color = Color.Black)
+        val cellsBuffer = ByteBuffer.allocate((cellWindow.width + 1) * (cellWindow.height + 1))
+        cellState.getAliveCellsInWindow(cellWindow).forEach { cell ->
+            cellsBuffer.put((cell.y - cellWindow.top) * (cellWindow.width + 1) + cell.x - cellWindow.left, 0xf)
+        }
 
-            for (index in cellWindowContainedPoints.indices) {
-                val point = cellWindowContainedPoints[index]
-                if (point in cellState.aliveCells) {
-                    val windowOffset = (point - cellWindow.topLeft).toOffset() * cellSize
-
-                    drawRect(
-                        color = Color.White,
-                        topLeft = windowOffset,
-                        size = Size(cellSize, cellSize),
-                    )
-                }
+        val screenShapeParameters = when (shape) {
+            is CurrentShape.RoundRectangle -> {
+                GameOfLifeShapeParameters.RoundRectangle(
+                    cells = cellsBuffer,
+                    aliveColor = Color.White,
+                    deadColor = Color.Black,
+                    cellWindowSize = IntSize(cellWindow.width + 1, cellWindow.height + 1),
+                    scaledCellPixelSize = cellSize,
+                    pixelOffsetFromCenter = Offset.Zero,
+                    sizeFraction = shape.sizeFraction,
+                    cornerFraction = shape.cornerFraction,
+                )
             }
         }
+
+        gameOfLifeShape.setScreenShapeParameters(screenShapeParameters)
+        gameOfLifeShape.draw(mvpMatrix)
 
         if (zonedDateTime.toEpochSecond() * 1000 == watchState.digitalPreviewReferenceTimeMillis) {
             Snapshot.withMutableSnapshot {
@@ -115,12 +134,7 @@ class GameOfLifeRenderer(
         }
     }
 
-    override fun renderHighlightLayer(
-        canvas: android.graphics.Canvas,
-        bounds: Rect,
-        zonedDateTime: ZonedDateTime,
-        sharedAssets: SharedAssets,
-    ) {
+    override fun renderHighlightLayer(zonedDateTime: ZonedDateTime, sharedAssets: SharedAssets) {
         // TODO
     }
 
