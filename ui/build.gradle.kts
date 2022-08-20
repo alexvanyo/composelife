@@ -42,10 +42,11 @@ dependencies {
     api(projects.algorithm)
     api(projects.dispatchers)
     implementation(projects.navigation)
+    implementation(projects.openglRenderer)
+    implementation(projects.patterns)
     api(projects.random)
     implementation(projects.resourceState)
     implementation(projects.snapshotStateSet)
-    implementation(projects.patterns)
 
     implementation(libs.androidx.activityCompose)
     implementation(libs.androidx.compose.material3)
