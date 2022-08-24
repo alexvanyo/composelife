@@ -174,5 +174,9 @@ class HashLifeCellState(
     override fun getAliveCellsInWindow(cellWindow: IntRect): Iterable<IntOffset> =
         Iterable { macroCell.iterator(offset, cellWindow.translate(-offset)) }
 
+    override fun getShortPackedAliveCellsInWindow(cellWindow: IntRect): Pair<IntOffset, Iterable<Pair<IntOffset, UShort>>> {
+        return super.getShortPackedAliveCellsInWindow(cellWindow)
+    }
+
     override fun toString(): String = "HashLifeCellState(${aliveCells.toSet()})"
 }

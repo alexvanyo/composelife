@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import com.alexvanyo.composelife.util.containedPoints
 import com.alexvanyo.composelife.util.toIntOffset
+import kotlin.math.ceil
 
 /**
  * The cell state for a single generation.
@@ -71,6 +72,43 @@ abstract class CellState {
      */
     open fun getAliveCellsInWindow(cellWindow: IntRect): Iterable<IntOffset> =
         cellWindow.containedPoints().filter { it in aliveCells }
+
+    open fun getShortPackedAliveCellsInWindow(cellWindow: IntRect): Pair<IntOffset, Iterable<Pair<IntOffset, UShort>>> {
+        val minX = cellWindow.left
+        val maxX = cellWindow.right
+        val minY = cellWindow.top
+        val maxY = cellWindow.bottom
+
+        val shortPackedAliveCells = buildList {
+            (0 until ceil(maxX + 1 - minX / 4f).toInt()).forEach { metaX ->
+                (0 until ceil(maxY + 1 - minY / 4f).toInt()).forEach { metaY ->
+                    val value = (if (cellWindow.topLeft + IntOffset(metaX, metaY) in aliveCells) 1 shl 0 else 0) or
+                        (if (cellWindow.topLeft + IntOffset(metaX + 1, metaY) in aliveCells) 1 shl 1 else 0) or
+                        (if (cellWindow.topLeft + IntOffset(metaX, metaY + 1) in aliveCells) 1 shl 2 else 0) or
+                        (if (cellWindow.topLeft + IntOffset(metaX + 1, metaY + 1) in aliveCells) 1 shl 3 else 0) or
+                        (if (cellWindow.topLeft + IntOffset(metaX + 2, metaY) in aliveCells) 1 shl 4 else 0) or
+                        (if (cellWindow.topLeft + IntOffset(metaX + 3, metaY) in aliveCells) 1 shl 5 else 0) or
+                        (if (cellWindow.topLeft + IntOffset(metaX + 2, metaY + 1) in aliveCells) 1 shl 6 else 0) or
+                        (if (cellWindow.topLeft + IntOffset(metaX + 3, metaY + 1) in aliveCells) 1 shl 7 else 0) or
+                        (if (cellWindow.topLeft + IntOffset(metaX, metaY + 2) in aliveCells) 1 shl 8 else 0) or
+                        (if (cellWindow.topLeft + IntOffset(metaX + 1, metaY + 2) in aliveCells) 1 shl 9 else 0) or
+                        (if (cellWindow.topLeft + IntOffset(metaX, metaY + 3) in aliveCells) 1 shl 10 else 0) or
+                        (if (cellWindow.topLeft + IntOffset(metaX + 1, metaY + 3) in aliveCells) 1 shl 11 else 0) or
+                        (if (cellWindow.topLeft + IntOffset(metaX + 2, metaY + 2) in aliveCells) 1 shl 12 else 0) or
+                        (if (cellWindow.topLeft + IntOffset(metaX + 3,  + 2) in aliveCells) 1 shl 13 else 0) or
+                        (if (cellWindow.topLeft + IntOffset(metaX + 2, metaY + 3) in aliveCells) 1 shl 14 else 0) or
+                        (if (cellWindow.topLeft + IntOffset(metaX + 3, metaY + 3) in aliveCells) 1 shl 15 else 0)
+
+                    check(value <= UShort.MAX_VALUE.toInt())
+                    if (value != 0) {
+                        add(IntOffset(metaX, metaY) to value.toUShort())
+                    }
+                }
+            }
+        }
+
+        return IntOffset.Zero to shortPackedAliveCells
+    }
 
     /**
      * Returns the [IntRect] describing the minimal bounding box required to enclose all alive cells

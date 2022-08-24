@@ -63,16 +63,18 @@ sealed interface MacroCell {
 
             override val size: Int = 0
         }
+
+        val shortPackedValue get() = (if (isAlive) 1 else 0).toUShort()
     }
 
     /**
      * A non-leaf [MacroCell], which contains 4 subnode [MacroCell]s.
      */
-    data class CellNode(
-        val nw: MacroCell,
-        val ne: MacroCell,
-        val sw: MacroCell,
-        val se: MacroCell,
+    sealed class CellNode(
+        open val nw: MacroCell,
+        open val ne: MacroCell,
+        open val sw: MacroCell,
+        open val se: MacroCell,
     ) : MacroCell {
         init {
             require(nw.level == ne.level)
@@ -103,6 +105,96 @@ sealed interface MacroCell {
         }
 
         override fun hashCode(): Int = hashCode
+
+        /**
+         * A non-leaf [MacroCell], which contains 4 subnode [MacroCell]s.
+         */
+        data class CellNodeLevel1(
+            override val nw: Cell,
+            override val ne: Cell,
+            override val sw: Cell,
+            override val se: Cell,
+        ) : CellNode(nw, ne, sw, se) {
+            val shortPackedValue =
+                ((if (nw.isAlive) 1 shl 0 else 0) or
+                    (if (ne.isAlive) 1 shl 1 else 0) or
+                    (if (sw.isAlive) 1 shl 2 else 0) or
+                    (if (se.isAlive) 1 shl 3 else 0)).toUShort()
+        }
+
+        /**
+         * A non-leaf [MacroCell], which contains 4 subnode [MacroCell]s.
+         */
+        data class CellNodeLevel2(
+            override val nw: CellNodeLevel1,
+            override val ne: CellNodeLevel1,
+            override val sw: CellNodeLevel1,
+            override val se: CellNodeLevel1,
+        ) : CellNode(nw, ne, sw, se) {
+            val shortPackedValue =
+                ((if (nw.nw.isAlive) 1 shl 0 else 0) or
+                    (if (nw.ne.isAlive) 1 shl 1 else 0) or
+                    (if (nw.sw.isAlive) 1 shl 2 else 0) or
+                    (if (nw.se.isAlive) 1 shl 3 else 0) or
+                    (if (ne.nw.isAlive) 1 shl 4 else 0) or
+                    (if (ne.ne.isAlive) 1 shl 5 else 0) or
+                    (if (ne.sw.isAlive) 1 shl 6 else 0) or
+                    (if (ne.se.isAlive) 1 shl 7 else 0) or
+                    (if (sw.nw.isAlive) 1 shl 8 else 0) or
+                    (if (sw.ne.isAlive) 1 shl 9 else 0) or
+                    (if (sw.sw.isAlive) 1 shl 10 else 0) or
+                    (if (sw.se.isAlive) 1 shl 11 else 0) or
+                    (if (se.nw.isAlive) 1 shl 12 else 0) or
+                    (if (se.ne.isAlive) 1 shl 13 else 0) or
+                    (if (se.sw.isAlive) 1 shl 14 else 0) or
+                    (if (se.se.isAlive) 1 shl 15 else 0)).toUShort()
+        }
+
+        /**
+         * A non-leaf [MacroCell], which contains 4 subnode [MacroCell]s.
+         */
+        data class CellNodeLevelN(
+            override val nw: CellNode,
+            override val ne: CellNode,
+            override val sw: CellNode,
+            override val se: CellNode,
+        ) : CellNode(nw, ne, sw, se) {
+            init {
+                check(level >= 3)
+            }
+        }
+
+        companion object {
+            operator fun invoke(
+                nw: MacroCell,
+                ne: MacroCell,
+                sw: MacroCell,
+                se: MacroCell,
+            ): CellNode =
+                when (nw) {
+                    is Cell -> {
+                        ne as Cell
+                        sw as Cell
+                        se as Cell
+                        CellNodeLevel1(nw, ne, sw, se)
+                    }
+                    is CellNodeLevel1 -> {
+                        ne as CellNodeLevel1
+                        sw as CellNodeLevel1
+                        se as CellNodeLevel1
+                        CellNodeLevel2(nw, ne, sw, se)
+                    }
+                    is CellNodeLevel2,
+                    is CellNodeLevelN,
+                    -> {
+                        nw as CellNode
+                        ne as CellNode
+                        sw as CellNode
+                        se as CellNode
+                        CellNodeLevelN(nw, ne, sw, se)
+                    }
+                }
+        }
     }
 }
 
@@ -201,6 +293,58 @@ fun MacroCell.iterator(
             cellWindow.bottom >= 0 &&
             cellWindow.left < 1 shl level &&
             cellWindow.top < 1 shl level
+        ) {
+            when (macroCell) {
+                AliveCell -> yield(offset)
+                DeadCell -> throw AssertionError("Dead cell must have a size equal to 0!")
+                is CellNode -> {
+                    val offsetDiff = 1 shl (level - 1)
+                    yieldAll(macroCell.nw.iterator(offset, cellWindow))
+                    yieldAll(
+                        macroCell.ne.iterator(
+                            offset + IntOffset(offsetDiff, 0),
+                            cellWindow.translate(IntOffset(-offsetDiff, 0)),
+                        ),
+                    )
+                    yieldAll(
+                        macroCell.sw.iterator(
+                            offset + IntOffset(0, offsetDiff),
+                            cellWindow.translate(IntOffset(0, -offsetDiff)),
+                        ),
+                    )
+                    yieldAll(
+                        macroCell.se.iterator(
+                            offset + IntOffset(offsetDiff, offsetDiff),
+                            cellWindow.translate(IntOffset(-offsetDiff, -offsetDiff)),
+                        ),
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Returns an [Iterator] of [IntOffset] for every alive cell within the [cellWindow] represented by this [MacroCell],
+ * with the given upper left corner [offset].
+ */
+fun MacroCell.shortPackedIterator(
+    metaOffset: IntOffset,
+    metaWindow: IntRect,
+): Iterator<Pair<IntOffset, UShort>> {
+    val macroCell = this
+    return iterator {
+        @Suppress("ComplexCondition")
+        if (size == 0) return@iterator
+
+        if ()
+
+        if (
+            size > 0 &&
+            metaWindow.right >= 0 &&
+            metaWindow.bottom >= 0 &&
+            metaWindow.left < 1 shl level &&
+            metaWindow.top < 1 shl level
         ) {
             when (macroCell) {
                 AliveCell -> yield(offset)
