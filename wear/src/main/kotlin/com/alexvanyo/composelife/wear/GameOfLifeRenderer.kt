@@ -41,6 +41,8 @@ import com.alexvanyo.composelife.util.containedPoints
 import java.nio.ByteBuffer
 import java.time.LocalTime
 import java.time.ZonedDateTime
+import kotlin.experimental.or
+import kotlin.math.ceil
 import kotlin.properties.Delegates
 import kotlin.random.Random
 
@@ -102,9 +104,17 @@ class GameOfLifeRenderer(
 
         val cellState = temporalGameOfLifeState.cellState
 
-        val cellsBuffer = ByteBuffer.allocate((cellWindow.width + 1) * (cellWindow.height + 1))
+        val metaWidth = ceil((cellWindow.width + 1) / 4f).toInt()
+        val metaHeight = ceil((cellWindow.height + 1) / 2f).toInt()
+
+        val cellsBuffer = ByteBuffer.allocate(metaWidth * metaHeight)
+
         cellState.getAliveCellsInWindow(cellWindow).forEach { cell ->
-            cellsBuffer.put((cell.y - cellWindow.top) * (cellWindow.width + 1) + cell.x - cellWindow.left, 0xf)
+            val index = (cellWindow.bottom - cell.y) / 2 * metaWidth + (cell.x - cellWindow.left) / 4
+            val prev = cellsBuffer.get(index)
+            val offsetX = (cell.x - cellWindow.left).mod(4)
+            val offsetY = (cellWindow.bottom - cell.y).mod(2)
+            cellsBuffer.put(index, prev or (1 shl (offsetY * 4 + offsetX)).toByte())
         }
 
         val screenShapeParameters = when (shape) {
