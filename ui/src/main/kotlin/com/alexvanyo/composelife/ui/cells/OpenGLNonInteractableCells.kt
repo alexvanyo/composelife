@@ -47,6 +47,8 @@ import java.nio.ByteBuffer
 import java.util.concurrent.Executor
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+import kotlin.experimental.or
+import kotlin.math.ceil
 
 @Composable
 fun openGLSupported(): Boolean {
@@ -57,7 +59,7 @@ fun openGLSupported(): Boolean {
     return (activityManager?.deviceConfigurationInfo?.reqGlEsVersion ?: 0) >= 0x00020000
 }
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "LongMethod")
 @Composable
 fun OpenGLNonInteractableCells(
     gameOfLifeState: GameOfLifeState,
@@ -73,10 +75,17 @@ fun OpenGLNonInteractableCells(
     val deadColor = ComposeLifeTheme.deadCellColor
 
     val cellsBuffer = remember(cellWindow, gameOfLifeState.cellState) {
-        val buffer = ByteBuffer.allocate((cellWindow.width + 1) * (cellWindow.height + 1))
+        val metaWidth = ceil((cellWindow.width + 1) / 4f).toInt()
+        val metaHeight = ceil((cellWindow.height + 1) / 2f).toInt()
+
+        val buffer = ByteBuffer.allocate(metaWidth * metaHeight)
 
         gameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).forEach { cell ->
-            buffer.put((cell.y - cellWindow.top) * (cellWindow.width + 1) + cell.x - cellWindow.left, 0xf)
+            val index = (cellWindow.bottom - cell.y) / 2 * metaWidth + (cell.x - cellWindow.left) / 4
+            val prev = buffer.get(index)
+            val offsetX = (cell.x - cellWindow.left).mod(4)
+            val offsetY = (cellWindow.bottom - cell.y).mod(2)
+            buffer.put(index, prev or (1 shl (offsetY * 4 + offsetX)).toByte())
         }
 
         buffer

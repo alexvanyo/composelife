@@ -25,6 +25,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import java.nio.ShortBuffer
+import kotlin.math.ceil
 
 sealed interface GameOfLifeShapeParameters {
     val cells: ByteBuffer
@@ -57,7 +58,11 @@ private val vertexShaderCode = """
 
 @Language("GLSL")
 private val fragmentShaderCode = """
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+    #else
     precision mediump float;
+    #endif
 
     // The cell shader, as a mask.
     uniform sampler2D cells;
@@ -111,12 +116,16 @@ private val fragmentShaderCode = """
         vec2 cellWindowPixelSize = scaledCellPixelSize * vec2(cellWindowSize);
         vec2 offsetFromCellWindow = (vec2(size) - cellWindowPixelSize) / 2.0 - pixelOffsetFromCenter * vec2(1, -1);
         vec2 cellCoordinates = (gl_FragCoord.xy - offsetFromCellWindow) / scaledCellPixelSize;
-        vec2 normalizedCellCoordinates = vec2(
-            cellCoordinates.x / float(cellWindowSize.x),
-            1.0 - cellCoordinates.y / float(cellWindowSize.y)
+        vec2 metaCellWindowSize = vec2(ceil(float(cellWindowSize.x) / 4.0), ceil(float(cellWindowSize.y) / 2.0));
+        vec2 metaCellCoordinates = vec2(
+            cellCoordinates.x / 4.0 / metaCellWindowSize.x,
+            cellCoordinates.y / 2.0 / metaCellWindowSize.y
         );
 
-        if (texture2D(cells, normalizedCellCoordinates).a != 0.0) {
+        float metaCell = texture2D(cells, metaCellCoordinates).a * 255.0;
+        float mask = pow(2.0, floor(mod(cellCoordinates.y, 2.0)) * 4.0 + floor(mod(cellCoordinates.x, 4.0)));
+
+        if (mod(floor(metaCell / mask), 2.0) != 0.0) {
             if (shapeType == 0) {
                 gl_FragColor = roundRectangleCell(fract(cellCoordinates));
             }
@@ -208,17 +217,19 @@ class GameOfLifeShape {
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle)
         GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 1)
+        checkOpenGLError()
         GLES20.glTexImage2D(
             GLES20.GL_TEXTURE_2D,
             0,
             GLES20.GL_ALPHA,
-            parameters.cellWindowSize.width,
-            parameters.cellWindowSize.height,
+            ceil(parameters.cellWindowSize.width / 4.0f).toInt(),
+            ceil(parameters.cellWindowSize.height / 2.0f).toInt(),
             0,
             GLES20.GL_ALPHA,
             GLES20.GL_UNSIGNED_BYTE,
             parameters.cells,
         )
+        checkOpenGLError()
         GLES20.glUniform1i(cellsHandle, 0)
         GLES20.glUniform4f(
             aliveColorHandle,
@@ -252,6 +263,7 @@ class GameOfLifeShape {
                 GLES20.glUniform1f(cornerFractionHandle, parameters.cornerFraction)
             }
         }
+        checkOpenGLError()
     }
 
     fun draw(mvpMatrix: FloatArray) {
@@ -278,6 +290,14 @@ class GameOfLifeShape {
         )
 
         GLES20.glDisableVertexAttribArray(positionHandle)
+        checkOpenGLError()
+    }
+}
+
+private fun checkOpenGLError() {
+    val error = GLES20.glGetError()
+    if (error != GLES20.GL_NO_ERROR) {
+        error("OpenGL error: $error")
     }
 }
 
