@@ -42,6 +42,7 @@ dependencies {
     api(libs.androidx.test.junit)
     kapt(libs.dagger.hilt.compiler)
 
+    sharedTestImplementation(libs.androidx.test.core)
     sharedTestImplementation(libs.androidx.test.junit)
     kaptSharedTest(libs.dagger.hilt.compiler)
 }

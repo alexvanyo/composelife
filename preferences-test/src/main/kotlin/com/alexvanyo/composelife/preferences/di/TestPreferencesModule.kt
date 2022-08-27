@@ -16,12 +16,14 @@
 
 package com.alexvanyo.composelife.preferences.di
 
+import android.util.Log
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
-import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
+import javax.inject.Singleton
 
 @Module
 @TestInstallIn(
@@ -30,8 +32,13 @@ import dagger.hilt.testing.TestInstallIn
 )
 interface TestPreferencesModule {
 
-    @Binds
-    fun bindsComposeLifePreferences(
-        testComposeLifePreferences: TestComposeLifePreferences,
-    ): ComposeLifePreferences
+    companion object {
+
+        @Provides
+        @Singleton
+        fun providesComposeLifePreferences(): ComposeLifePreferences =
+            TestComposeLifePreferences.Loaded().also {
+                Log.d("vanyo", "preferences: $it")
+            }
+    }
 }

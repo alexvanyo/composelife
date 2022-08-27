@@ -21,11 +21,7 @@ import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.alexvanyo.composelife.preferences.AlgorithmType
-import com.alexvanyo.composelife.preferences.CurrentShape
-import com.alexvanyo.composelife.preferences.CurrentShapeType
-import com.alexvanyo.composelife.preferences.DarkThemeConfig
-import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.updatable.Updatable
 import dagger.hilt.android.testing.HiltAndroidRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -58,7 +54,7 @@ abstract class BaseHiltTest<T : ComponentActivity>(clazz: Class<T>) {
     val innerLeakRule = createLeakRule("Inner")
 
     @Inject
-    lateinit var preferences: TestComposeLifePreferences
+    lateinit var preferences: ComposeLifePreferences
 
     @Inject
     lateinit var updatables: Set<@JvmSuppressWildcards Updatable>
@@ -71,20 +67,6 @@ abstract class BaseHiltTest<T : ComponentActivity>(clazz: Class<T>) {
     }
 
     fun runAppTest(
-        preferencesInitializer: suspend TestComposeLifePreferences.() -> Unit = {
-            testSetAlgorithmChoice(AlgorithmType.HashLifeAlgorithm)
-            testSetCurrentShapeType(CurrentShapeType.RoundRectangle)
-            testSetRoundRectangleConfig(
-                CurrentShape.RoundRectangle(
-                    sizeFraction = 1f,
-                    cornerFraction = 0f,
-                ),
-            )
-            testSetDarkThemeConfig(DarkThemeConfig.FollowSystem)
-            testSetQuickAccessSetting(emptySet())
-            testSetDisabledAGSL(false)
-            testSetDisableOpenGL(false)
-        },
         testBody: suspend TestScope.() -> Unit,
     ): TestResult = runTest {
         updatables.forEach { updatable ->
@@ -92,7 +74,6 @@ abstract class BaseHiltTest<T : ComponentActivity>(clazz: Class<T>) {
                 updatable.update()
             }
         }
-        preferencesInitializer(preferences)
         testBody()
     }
 }
