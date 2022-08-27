@@ -32,7 +32,7 @@ android {
     defaultConfig {
         applicationId = "com.alexvanyo.composelife"
         minSdk = 21
-        targetSdk = 32
+        targetSdk = 33
         versionCode = 1
         versionName = "1.0"
     }
@@ -62,6 +62,7 @@ dependencies {
     sharedTestImplementation(projects.dispatchersTest)
     sharedTestImplementation(projects.patterns)
     sharedTestImplementation(projects.preferencesTest)
+    sharedTestImplementation(libs.androidx.test.core)
     sharedTestImplementation(libs.androidx.test.espresso)
     sharedTestImplementation(libs.androidx.window)
     kaptSharedTest(libs.dagger.hilt.compiler)

@@ -29,7 +29,7 @@ class AndroidLibraryConventionPlugin : ConventionPlugin({
         configureKotlinAndroid(this)
 
         defaultConfig {
-            targetSdk = 32
+            targetSdk = 33
             consumerProguardFiles("consumer-rules.pro")
         }
     }

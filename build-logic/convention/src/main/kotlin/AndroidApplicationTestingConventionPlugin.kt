@@ -38,7 +38,7 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
     extensions.configure<BaseAppModuleExtension> {
         defaultConfig {
             val testBuildTypeProperty = findProperty("com.alexvanyo.composelife.testBuildType") as String?
-            if (testBuildTypeProperty !in setOf(null, "staging", "default")) {
+            if (testBuildTypeProperty !in setOf(null, "staging", "debug")) {
                 throw GradleException("Unexpected value $testBuildTypeProperty for testBuildType!")
             }
             testBuildType = testBuildTypeProperty ?: "staging"
