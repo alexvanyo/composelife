@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife.ui
 
 import android.app.Activity
-import android.util.Log
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -131,7 +130,6 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
             .onNode(isPopup())
             .assertDoesNotExist()
 
-        Log.d("vanyo", "preferences2: $preferences")
         assertEquals(ResourceState.Success(DarkThemeConfig.Dark), preferences.darkThemeConfigState)
 
         when (windowSizeClass.widthSizeClass) {

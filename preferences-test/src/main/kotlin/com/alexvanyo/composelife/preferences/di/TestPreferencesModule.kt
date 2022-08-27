@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.preferences.di
 
-import android.util.Log
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import dagger.Module
@@ -37,8 +36,6 @@ interface TestPreferencesModule {
         @Provides
         @Singleton
         fun providesComposeLifePreferences(): ComposeLifePreferences =
-            TestComposeLifePreferences.Loaded().also {
-                Log.d("vanyo", "preferences: $it")
-            }
+            TestComposeLifePreferences.Loaded()
     }
 }
