@@ -33,11 +33,13 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntRect
+import androidx.core.graphics.get
 import androidx.core.graphics.set
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import org.intellij.lang.annotations.Language
+import kotlin.math.ceil
 
 @Language("AGSL")
 private val SHADER_SRC = """
@@ -93,8 +95,15 @@ private val SHADER_SRC = """
         float2 cellWindowPixelSize = scaledCellPixelSize * float2(cellWindowSize);
         float2 offsetFromCellWindow = (size - cellWindowPixelSize) / 2.0 - pixelOffsetFromCenter;
         float2 cellCoordinates = (fragCoord - offsetFromCellWindow) / scaledCellPixelSize;
+        float2 metaCellCoordinates = float2(
+            cellCoordinates.x / 4.0,
+            cellCoordinates.y / 2.0
+        );
+
+        float metaCell = cells.eval(metaCellCoordinates).a * 255.0;
+        float mask = pow(2.0, floor(mod(cellCoordinates.y, 2.0)) * 4.0 + floor(mod(cellCoordinates.x, 4.0)));
         
-        if (cells.eval(cellCoordinates).a != 0) {
+        if (mod(floor(metaCell / mask), 2.0) != 0.0) {
             if (shapeType == 0) {
                 return roundRectangleCell(fract(cellCoordinates));
             } else {
@@ -126,8 +135,10 @@ fun AGSLNonInteractableCells(
         RuntimeShader(SHADER_SRC)
     }
 
-    val cellBitmap = remember(cellWindow) {
-        Bitmap.createBitmap(cellWindow.width + 1, cellWindow.height + 1, Bitmap.Config.ALPHA_8)
+    val metaWidth = ceil((cellWindow.width + 1) / 4f).toInt()
+    val metaHeight = ceil((cellWindow.height + 1) / 2f).toInt()
+    val cellBitmap = remember(metaWidth, metaHeight) {
+        Bitmap.createBitmap(metaWidth, metaHeight, Bitmap.Config.ALPHA_8)
     }
     val cellBitmapShader = remember(cellBitmap) {
         BitmapShader(cellBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
@@ -179,7 +190,12 @@ fun AGSLNonInteractableCells(
     DisposableEffect(shader, cellBitmap, cellWindow, gameOfLifeState.cellState) {
         cellBitmap.eraseColor(Color.TRANSPARENT)
         gameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).forEach { cell ->
-            cellBitmap[cell.x - cellWindow.left, cell.y - cellWindow.top] = Color.BLACK
+            val xIndex = (cell.x - cellWindow.left) / 4
+            val yIndex = (cell.y - cellWindow.top) / 2
+            val prev = cellBitmap[xIndex, yIndex].toUInt()
+            val offsetX = (cell.x - cellWindow.left).mod(4)
+            val offsetY = (cell.y - cellWindow.top).mod(2)
+            cellBitmap[xIndex, yIndex] = (prev or (1 shl 24 + (offsetY * 4 + offsetX)).toUInt()).toInt()
         }
 
         onDispose {}
