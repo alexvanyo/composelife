@@ -39,7 +39,7 @@ fun Project.configureGradleManagedDevices(
             "Pixel 2",
             "Pixel 3 XL",
             "Pixel 6 Pro",
-            "Medium Desktop"
+            "Medium Desktop",
         )
         val apiLevels = 21..33
         val systemImageSources = listOf(
@@ -48,7 +48,7 @@ fun Project.configureGradleManagedDevices(
             "google",
             "google-atd",
             "google_apis_playstore",
-            "android-desktop"
+            "android-desktop",
         )
 
         deviceNames.flatMap { deviceName ->
@@ -89,14 +89,14 @@ fun Project.configureGradleManagedDevices(
                                 "google_apis_playstore" -> "googleplaystore"
                                 "android-desktop" -> "desktop"
                                 else -> throw GradleException("Unknown system image source!")
-                            }
+                            },
                         )
                         append(config.deviceName)
                         append("api")
                         append(config.apiLevel)
                     }
                         .toLowerCaseAsciiOnly()
-                        .replace(" ", "")
+                        .replace(" ", ""),
                 ) {
                     this.device = config.deviceName
                     this.apiLevel = config.apiLevel
