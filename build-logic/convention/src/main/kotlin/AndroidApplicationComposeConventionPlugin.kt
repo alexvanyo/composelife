@@ -26,4 +26,4 @@ class AndroidApplicationComposeConventionPlugin : ConventionPlugin({
     }
 
     configureAndroidCompose(extensions.getByType<BaseAppModuleExtension>())
-})
+},)

@@ -63,4 +63,4 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
     dependencies {
         add("keeperR8", libs.findLibrary("android.r8").get())
     }
-})
+},)

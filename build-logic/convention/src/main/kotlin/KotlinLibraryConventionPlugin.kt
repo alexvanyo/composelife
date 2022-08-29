@@ -15,13 +15,10 @@
  */
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
-import com.alexvanyo.composelife.buildlogic.configureKotlinAndroid
-import com.android.build.gradle.LibraryExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 class KotlinLibraryConventionPlugin : ConventionPlugin({
@@ -41,4 +38,4 @@ class KotlinLibraryConventionPlugin : ConventionPlugin({
             freeCompilerArgs = freeCompilerArgs + "-opt-in=kotlin.RequiresOptIn"
         }
     }
-})
+},)

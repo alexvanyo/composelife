@@ -39,7 +39,7 @@ private val coverageExclusions = listOf(
     "**/*SealedEnum*",
 
     // protobuf
-    "**/proto/*"
+    "**/proto/*",
 )
 
 fun Project.configureJacocoMerge() {
@@ -56,7 +56,7 @@ fun Project.configureJacocoMerge() {
             dependsOn(
                 subprojects.mapNotNull {
                     it.tasks.findByName("create${variant.capitalize()}UnitTestCoverageReport")
-                }
+                },
             )
 
             classDirectories.setFrom(
@@ -66,8 +66,8 @@ fun Project.configureJacocoMerge() {
                             fileTree("${it.buildDir}/tmp/kotlin-classes/$variant") {
                                 exclude(coverageExclusions)
                             }
-                        }
-                )
+                        },
+                ),
             )
             sourceDirectories.setFrom(
                 files(
@@ -77,8 +77,8 @@ fun Project.configureJacocoMerge() {
                                 it.projectDir.resolve("src/main/java"),
                                 it.projectDir.resolve("src/main/kotlin"),
                             )
-                        }
-                )
+                        },
+                ),
             )
             executionData.setFrom(
                 subprojects
@@ -86,8 +86,11 @@ fun Project.configureJacocoMerge() {
                         it.tasks.findByName("create${variant.capitalize()}UnitTestCoverageReport") != null
                     }
                     .map {
-                        file("${it.buildDir}/outputs/unit_test_code_coverage/${variant}UnitTest/test${variant.capitalize()}UnitTest.exec")
-                    }
+                        file(
+                            "${it.buildDir}/outputs/unit_test_code_coverage/" +
+                                "${variant}UnitTest/test${variant.capitalize()}UnitTest.exec",
+                        )
+                    },
             )
 
             reports {
