@@ -34,8 +34,9 @@ android {
 
 dependencies {
     implementation(projects.snapshotStateSet)
-    api(libs.androidx.compose.foundation)
+    api(libs.androidx.compose.animation)
     api(libs.androidx.compose.runtime)
+    api(libs.androidx.compose.ui)
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.kotlinx.coroutines.android)
