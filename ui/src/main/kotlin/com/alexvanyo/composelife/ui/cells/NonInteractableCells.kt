@@ -46,12 +46,14 @@ interface NonInteractableCellsLocalEntryPoint :
  */
 context(NonInteractableCellsLocalEntryPoint)
 @Composable
+@Suppress("LongParameterList")
 fun NonInteractableCells(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,
     cellWindow: IntRect,
     pixelOffsetFromCenter: Offset,
     modifier: Modifier = Modifier,
+    inOverlay: Boolean = false,
 ) {
     if (!preferences.disableAGSL && Build.VERSION.SDK_INT >= 33) {
         AGSLNonInteractableCells(
@@ -70,6 +72,7 @@ fun NonInteractableCells(
             shape = preferences.currentShape,
             pixelOffsetFromCenter = pixelOffsetFromCenter,
             modifier = modifier,
+            inOverlay = inOverlay,
         )
     } else {
         CanvasNonInteractableCells(

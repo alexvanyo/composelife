@@ -24,6 +24,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.GameOfLifeState
@@ -58,11 +59,13 @@ fun CellStatePreviewUi(
                 |.....
                 """.toCellState(),
             ),
-            modifier = Modifier.size(96.dp),
+            modifier = Modifier.size(96.dp).clipToBounds(),
+            isNavigable = false,
             cellWindowState = CellWindowState(
                 offset = Offset(2f, 2f),
             ),
             cellDpSize = 96.dp / 5,
+            inOverlay = true,
         )
     }
 }

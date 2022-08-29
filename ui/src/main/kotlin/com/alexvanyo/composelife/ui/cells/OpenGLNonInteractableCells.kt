@@ -68,6 +68,7 @@ fun OpenGLNonInteractableCells(
     shape: CurrentShape,
     pixelOffsetFromCenter: Offset,
     modifier: Modifier = Modifier,
+    inOverlay: Boolean = false,
 ) {
     val scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() }
 
@@ -163,6 +164,7 @@ fun OpenGLNonInteractableCells(
         },
         update = {
             it.parametersState.value = parameters
+            it.setZOrderMediaOverlay(inOverlay)
         },
         modifier = modifier,
     )
