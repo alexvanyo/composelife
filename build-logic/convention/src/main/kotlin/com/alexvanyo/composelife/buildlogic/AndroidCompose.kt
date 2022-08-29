@@ -47,9 +47,13 @@ fun Project.configureAndroidCompose(
                         val reportsFolder = File(buildDir, "compose-reports")
                         freeCompilerArgs = freeCompilerArgs + listOf(
                             "-P",
-                            "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=${metricsFolder.absolutePath}",
+                            "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=${
+                            metricsFolder.absolutePath
+                            }",
                             "-P",
-                            "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=${reportsFolder.absolutePath}",
+                            "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=${
+                            reportsFolder.absolutePath
+                            }",
                         )
                     }
                 }

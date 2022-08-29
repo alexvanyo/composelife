@@ -52,4 +52,4 @@ class AndroidTestConventionPlugin : ConventionPlugin({
             }
         }
     }
-})
+},)

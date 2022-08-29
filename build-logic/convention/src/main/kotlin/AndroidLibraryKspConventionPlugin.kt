@@ -28,6 +28,6 @@ class AndroidLibraryKspConventionPlugin : ConventionPlugin({
 
     configureKsp(
         extensions.getByType<LibraryExtension>(),
-        extensions.getByType<LibraryAndroidComponentsExtension>()
+        extensions.getByType<LibraryAndroidComponentsExtension>(),
     )
-})
+},)
