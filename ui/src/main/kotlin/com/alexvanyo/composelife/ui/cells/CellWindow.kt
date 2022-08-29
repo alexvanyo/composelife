@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,12 +56,14 @@ import kotlin.contracts.contract
 import kotlin.math.ceil
 
 object CellWindow {
-    val defaultIsInteractable: (isGesturing: Boolean, scale: Float) -> Boolean =
+    val defaultIsEditable: (isGesturing: Boolean, scale: Float) -> Boolean =
         { isGesturing, scale ->
             !isGesturing && scale >= 1f
         }
+    const val defaultIsNavigable = true
     val defaultCellDpSize = 48.dp
     val defaultCenterOffset = Offset(0.5f, 0.5f)
+    const val defaultInOverlay = false
 }
 
 interface CellWindowLocalEntryPoint :
@@ -76,9 +79,11 @@ context(CellWindowLocalEntryPoint)
 fun ImmutableCellWindow(
     gameOfLifeState: GameOfLifeState,
     modifier: Modifier = Modifier,
+    isNavigable: Boolean = CellWindow.defaultIsNavigable,
     cellWindowState: CellWindowState = rememberCellWindowState(),
     cellDpSize: Dp = CellWindow.defaultCellDpSize,
     centerOffset: Offset = CellWindow.defaultCenterOffset,
+    inOverlay: Boolean = CellWindow.defaultInOverlay,
 ) {
     CellWindowImpl(
         cellWindowUiState = CellWindowUiState.ImmutableState(
@@ -87,6 +92,8 @@ fun ImmutableCellWindow(
         cellWindowState = cellWindowState,
         cellDpSize = cellDpSize,
         centerOffset = centerOffset,
+        isNavigable = isNavigable,
+        inOverlay = inOverlay,
         modifier = modifier,
     )
 }
@@ -94,7 +101,7 @@ fun ImmutableCellWindow(
 /**
  * A cell window that displays the given [gameOfLifeState] in an mutable fashion.
  *
- * The cells will be interactable if and only if [isInteractable] returns true.
+ * The cells will be editable if and only if [isEditable] returns true.
  */
 context(CellWindowLocalEntryPoint)
 @Suppress("LongParameterList")
@@ -102,37 +109,50 @@ context(CellWindowLocalEntryPoint)
 fun MutableCellWindow(
     gameOfLifeState: MutableGameOfLifeState,
     modifier: Modifier = Modifier,
-    isInteractable: (isGesturing: Boolean, scale: Float) -> Boolean = CellWindow.defaultIsInteractable,
+    isEditable: (isGesturing: Boolean, scale: Float) -> Boolean = CellWindow.defaultIsEditable,
+    isNavigable: Boolean = CellWindow.defaultIsNavigable,
     cellWindowState: CellWindowState = rememberCellWindowState(),
     cellDpSize: Dp = CellWindow.defaultCellDpSize,
     centerOffset: Offset = CellWindow.defaultCenterOffset,
+    inOverlay: Boolean = CellWindow.defaultInOverlay,
 ) {
     CellWindowImpl(
         cellWindowUiState = CellWindowUiState.MutableState(
             gameOfLifeState = gameOfLifeState,
-            isInteractable = isInteractable,
+            isEditable = isEditable,
         ),
         cellWindowState = cellWindowState,
         cellDpSize = cellDpSize,
         centerOffset = centerOffset,
+        isNavigable = isNavigable,
+        inOverlay = inOverlay,
         modifier = modifier,
     )
 }
 
 context(CellWindowLocalEntryPoint)
-@Suppress("LongMethod")
+@Suppress("LongMethod", "LongParameterList")
 @Composable
 private fun CellWindowImpl(
     cellWindowUiState: CellWindowUiState,
     cellWindowState: CellWindowState,
     cellDpSize: Dp,
     centerOffset: Offset,
+    isNavigable: Boolean,
+    inOverlay: Boolean,
     modifier: Modifier,
 ) {
     require(centerOffset.x in 0f..1f)
     require(centerOffset.y in 0f..1f)
 
     var isGesturing by remember { mutableStateOf(false) }
+
+    if (!isNavigable) {
+        DisposableEffect(Unit) {
+            isGesturing = false
+            onDispose {}
+        }
+    }
 
     val scaledCellDpSize = cellDpSize * cellWindowState.scale
 
@@ -141,24 +161,30 @@ private fun CellWindowImpl(
 
     BoxWithConstraints(
         modifier = modifier
-            .semantics {
-                horizontalScrollAxisRange = ScrollAxisRange(
-                    value = { cellWindowState.offset.x },
-                    maxValue = { Float.POSITIVE_INFINITY },
-                )
-                verticalScrollAxisRange = ScrollAxisRange(
-                    value = { cellWindowState.offset.y },
-                    maxValue = { Float.POSITIVE_INFINITY },
-                )
-                scrollBy { x, y ->
-                    cellWindowState.offset += Offset(x, y)
-                    true
-                }
-                scrollToIndex {
-                    cellWindowState.offset = it.toRingOffset().toOffset()
-                    true
-                }
-            },
+            .then(
+                if (isNavigable) {
+                    Modifier.semantics {
+                        horizontalScrollAxisRange = ScrollAxisRange(
+                            value = { cellWindowState.offset.x },
+                            maxValue = { Float.POSITIVE_INFINITY },
+                        )
+                        verticalScrollAxisRange = ScrollAxisRange(
+                            value = { cellWindowState.offset.y },
+                            maxValue = { Float.POSITIVE_INFINITY },
+                        )
+                        scrollBy { x, y ->
+                            cellWindowState.offset += Offset(x, y)
+                            true
+                        }
+                        scrollToIndex {
+                            cellWindowState.offset = it.toRingOffset().toOffset()
+                            true
+                        }
+                    }
+                } else {
+                    Modifier
+                },
+            ),
     ) {
         // Convert the window state offset into integer and fractional parts
         val intOffset = floor(cellWindowState.offset)
@@ -206,15 +232,21 @@ private fun CellWindowImpl(
 
         Box(
             modifier = Modifier
-                .pointerInput(Unit) {
-                    detectTransformGestures(
-                        onGestureStart = { isGesturing = true },
-                        onGestureEnd = { isGesturing = false },
-                        onGesture = { centroid: Offset, pan: Offset, zoom: Float, rotation: Float ->
-                            currentOnGesture(centroid, pan, zoom, rotation)
-                        },
-                    )
-                },
+                .then(
+                    if (isNavigable) {
+                        Modifier.pointerInput(Unit) {
+                            detectTransformGestures(
+                                onGestureStart = { isGesturing = true },
+                                onGestureEnd = { isGesturing = false },
+                                onGesture = { centroid: Offset, pan: Offset, zoom: Float, rotation: Float ->
+                                    currentOnGesture(centroid, pan, zoom, rotation)
+                                },
+                            )
+                        }
+                    } else {
+                        Modifier
+                    },
+                ),
         ) {
             // Keep the non-interactable cells always visible, to easily be able to switch to it when moving
             NonInteractableCells(
@@ -223,11 +255,12 @@ private fun CellWindowImpl(
                 cellWindow = cellWindow,
                 pixelOffsetFromCenter = fracPixelOffsetFromCenter,
                 modifier = Modifier.size(this@BoxWithConstraints.maxWidth, this@BoxWithConstraints.maxHeight),
+                inOverlay = inOverlay,
             )
 
             if (
-                cellWindowUiState.isInteractable(
-                    isGesturing = isGesturing,
+                cellWindowUiState.isEditable(
+                    isGesturing = isNavigable && isGesturing,
                     scale = cellWindowState.scale,
                 )
             ) {
@@ -252,19 +285,19 @@ private sealed interface CellWindowUiState {
 
     class MutableState(
         override val gameOfLifeState: MutableGameOfLifeState,
-        val isInteractable: (isGesturing: Boolean, scale: Float) -> Boolean,
+        val isEditable: (isGesturing: Boolean, scale: Float) -> Boolean,
     ) : CellWindowUiState
 }
 
 @OptIn(ExperimentalContracts::class)
-private fun CellWindowUiState.isInteractable(
+private fun CellWindowUiState.isEditable(
     isGesturing: Boolean,
     scale: Float,
 ): Boolean {
-    contract { returns(true) implies (this@isInteractable is CellWindowUiState.MutableState) }
+    contract { returns(true) implies (this@isEditable is CellWindowUiState.MutableState) }
     return when (this) {
         is CellWindowUiState.ImmutableState -> false
-        is CellWindowUiState.MutableState -> isInteractable(isGesturing, scale)
+        is CellWindowUiState.MutableState -> isEditable(isGesturing, scale)
     }
 }
 
