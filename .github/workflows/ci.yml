@@ -136,7 +136,7 @@ jobs:
   android-test-gmd:
     needs: android-test-gmd-cfg
     runs-on: macos-latest # for hardware acceleration
-    timeout-minutes: 60
+    timeout-minutes: 90
 
     concurrency:
       group: ci-android-test-gmd-${{ github.event_name }}-${{ github.ref }}-${{ matrix.device }}-${{ matrix.api-level }}
