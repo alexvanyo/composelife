@@ -56,8 +56,8 @@ fun Project.configureKotlinAndroid(
                     "/META-INF/AL2.0",
                     "/META-INF/LGPL2.1",
                     "/META-INF/LICENSE.md",
-                    "/META-INF/LICENSE-notice.md"
-                )
+                    "/META-INF/LICENSE-notice.md",
+                ),
             )
         }
 
@@ -66,7 +66,7 @@ fun Project.configureKotlinAndroid(
             allWarningsAsErrors = true
             freeCompilerArgs = freeCompilerArgs + listOf(
                 "-opt-in=kotlin.RequiresOptIn",
-                "-Xcontext-receivers"
+                "-Xcontext-receivers",
             )
         }
     }

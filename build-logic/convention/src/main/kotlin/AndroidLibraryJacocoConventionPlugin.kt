@@ -26,4 +26,4 @@ class AndroidLibraryJacocoConventionPlugin : ConventionPlugin({
     }
 
     configureJacoco(extensions.getByType<LibraryExtension>())
-})
+},)

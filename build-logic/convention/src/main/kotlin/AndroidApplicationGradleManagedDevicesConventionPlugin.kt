@@ -23,4 +23,4 @@ class AndroidApplicationGradleManagedDevicesConventionPlugin : ConventionPlugin(
     pluginManager.apply("com.android.application")
 
     configureGradleManagedDevices(extensions.getByType<BaseAppModuleExtension>())
-})
+},)

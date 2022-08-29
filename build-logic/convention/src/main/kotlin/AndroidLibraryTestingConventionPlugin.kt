@@ -18,7 +18,6 @@ import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureAndroidTesting
 import com.alexvanyo.composelife.buildlogic.configureTesting
 import com.android.build.gradle.LibraryExtension
-import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
 
 class AndroidLibraryTestingConventionPlugin : ConventionPlugin({
@@ -27,4 +26,4 @@ class AndroidLibraryTestingConventionPlugin : ConventionPlugin({
     val libraryExtension = extensions.getByType<LibraryExtension>()
     configureTesting(libraryExtension)
     configureAndroidTesting(libraryExtension)
-})
+},)
