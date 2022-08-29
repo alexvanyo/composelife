@@ -58,7 +58,7 @@ class AndroidApplicationConventionPlugin : ConventionPlugin({
                 proguardFiles(
                     getDefaultProguardFile("proguard-android-optimize.txt"),
                     "proguard-rules.pro",
-                    "staging-proguard-rules.pro"
+                    "staging-proguard-rules.pro",
                 )
             }
 
@@ -72,9 +72,9 @@ class AndroidApplicationConventionPlugin : ConventionPlugin({
                 proguardFiles(
                     getDefaultProguardFile("proguard-android-optimize.txt"),
                     "proguard-rules.pro",
-                    "benchmark-proguard-rules.pro"
+                    "benchmark-proguard-rules.pro",
                 )
             }
         }
     }
-})
+},)

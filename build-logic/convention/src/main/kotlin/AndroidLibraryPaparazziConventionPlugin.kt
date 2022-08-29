@@ -60,7 +60,7 @@ class AndroidLibraryPaparazziConventionPlugin : ConventionPlugin({
     }
 
     tasks.register<Delete>("deletePaparazziSnapshots") {
-        delete("${projectDir}/src/test/snapshots")
+        delete("$projectDir/src/test/snapshots")
     }
 
     tasks.withType<PaparazziPlugin.PaparazziTask>().configureEach {
@@ -74,4 +74,4 @@ class AndroidLibraryPaparazziConventionPlugin : ConventionPlugin({
         maxHeapSize = "2g"
         maxParallelForks = 1024
     }
-})
+},)

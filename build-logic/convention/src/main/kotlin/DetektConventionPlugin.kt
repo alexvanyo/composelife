@@ -42,7 +42,7 @@ class DetektConventionPlugin : ConventionPlugin({
             "src/benchmark/kotlin",
             "src/test/kotlin",
             "src/androidTest/kotlin",
-            "src/sharedTest/kotlin"
+            "src/sharedTest/kotlin",
         )
     }
 
@@ -57,4 +57,4 @@ class DetektConventionPlugin : ConventionPlugin({
     tasks.named("check") {
         dependsOn("detektMain")
     }
-})
+},)
