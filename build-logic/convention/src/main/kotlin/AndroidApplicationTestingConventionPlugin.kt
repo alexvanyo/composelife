@@ -58,6 +58,7 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
 
     extensions.configure<KeeperExtension> {
         automaticR8RepoManagement.set(false)
+        traceReferences {}
     }
 
     dependencies {

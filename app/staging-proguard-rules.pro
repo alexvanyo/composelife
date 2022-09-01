@@ -27,3 +27,9 @@
 -keep class androidx.compose.ui.platform.InfiniteAnimationPolicy {
     *;
 }
+-keep,allowobfuscation class dagger.hilt.android.internal.managers.ActivityRetainedComponentManager$ActivityRetainedComponentBuilderEntryPoint {
+    retainedComponentBuilder();
+}
+-keep,allowobfuscation interface com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorHiltEntryPoint {
+    *;
+}
