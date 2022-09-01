@@ -16,10 +16,6 @@
 
 import com.alexvanyo.composelife.buildlogic.kaptSharedTest
 import com.alexvanyo.composelife.buildlogic.sharedTestImplementation
-import com.google.protobuf.gradle.builtins
-import com.google.protobuf.gradle.generateProtoTasks
-import com.google.protobuf.gradle.protobuf
-import com.google.protobuf.gradle.protoc
 
 plugins {
     id("com.alexvanyo.composelife.android.library")
@@ -28,7 +24,6 @@ plugins {
     id("com.alexvanyo.composelife.android.library.ksp")
     id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
-    alias(libs.plugins.protobuf)
     kotlin("kapt")
 }
 
@@ -41,7 +36,7 @@ android {
 
 dependencies {
     api(projects.dispatchers)
-    implementation(libs.protobuf.runtime)
+    implementation(projects.preferencesProto)
     api(projects.resourceState)
     api(projects.updatable)
     api(libs.kotlinx.coroutines.core)
@@ -63,22 +58,4 @@ dependencies {
     sharedTestImplementation(libs.kotlinx.coroutines.test)
     sharedTestImplementation(libs.turbine)
     kaptSharedTest(libs.dagger.hilt.compiler)
-}
-
-protobuf {
-    protoc {
-        artifact = libs.protobuf.protoc.get().toString()
-    }
-    generateProtoTasks {
-        all().forEach { task ->
-            task.builtins {
-                val java by registering {
-                    option("lite")
-                }
-                val kotlin by registering {
-                    option("lite")
-                }
-            }
-        }
-    }
 }
