@@ -36,6 +36,13 @@ class ActionControlRowSnapshotTests : BasePaparazziTest() {
     }
 
     @Test
+    fun viewport_tracking_action_control_row_preview() {
+        snapshot {
+            ViewportTrackingActionControlRowPreview()
+        }
+    }
+
+    @Test
     fun expanded_action_control_row_preview() {
         snapshot {
             ExpandedActionControlRowPreview()

@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife.ui
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.LaunchedEffect
@@ -30,13 +29,13 @@ import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
 import androidx.test.espresso.Espresso
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
@@ -106,8 +105,10 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
+                        isViewportTracking = false,
+                        setIsViewportTracking = {},
                         windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
-                        modifier = Modifier.size(480.dp),
+                        modifier = Modifier.fillMaxSize(),
                     )
                 }
             }
@@ -153,8 +154,10 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
+                        isViewportTracking = false,
+                        setIsViewportTracking = {},
                         windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
-                        modifier = Modifier.size(480.dp),
+                        modifier = Modifier.fillMaxSize(),
                     )
                 }
             }
@@ -199,6 +202,8 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
+                        isViewportTracking = false,
+                        setIsViewportTracking = {},
                         windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -225,6 +230,8 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             .performClick()
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
+            testDispatcher.scheduler.runCurrent()
+            composeTestRule.waitForIdle()
             testDispatcher.scheduler.advanceTimeBy(16)
             testDispatcher.scheduler.runCurrent()
             composeTestRule.waitForIdle()
@@ -256,6 +263,8 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
+                        isViewportTracking = false,
+                        setIsViewportTracking = {},
                         windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -300,6 +309,8 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             .performClick()
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
+            testDispatcher.scheduler.runCurrent()
+            composeTestRule.waitForIdle()
             testDispatcher.scheduler.advanceTimeBy(1000)
             testDispatcher.scheduler.runCurrent()
             composeTestRule.waitForIdle()
@@ -331,6 +342,8 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
+                        isViewportTracking = false,
+                        setIsViewportTracking = {},
                         windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -357,6 +370,8 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 .onNodeWithContentDescription(context.getString(R.string.step))
                 .performClick()
 
+            testDispatcher.scheduler.runCurrent()
+            composeTestRule.waitForIdle()
             testDispatcher.scheduler.runCurrent()
             composeTestRule.waitForIdle()
 
@@ -387,6 +402,8 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
+                        isViewportTracking = false,
+                        setIsViewportTracking = {},
                         windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -433,6 +450,8 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
 
             testDispatcher.scheduler.runCurrent()
             composeTestRule.waitForIdle()
+            testDispatcher.scheduler.runCurrent()
+            composeTestRule.waitForIdle()
 
             assertNodesAreAlive(expectedCellState.aliveCells)
         }
@@ -458,6 +477,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
     private fun scrollToCell(cell: IntOffset) {
         composeTestRule
             .onNodeWithTag("MutableCellWindow")
+            .onChild()
             .fetchSemanticsNode()
             .config[ScrollToIndex]
             .action

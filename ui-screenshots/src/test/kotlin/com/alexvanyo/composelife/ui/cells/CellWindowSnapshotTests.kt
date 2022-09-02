@@ -22,16 +22,30 @@ import org.junit.Test
 class CellWindowSnapshotTests : BasePaparazziTest() {
 
     @Test
-    fun immutable_cell_window_preview() {
+    fun navigable_immutable_cell_window_preview() {
         snapshot {
-            ImmutableCellWindowPreview()
+            NavigableImmutableCellWindowPreview()
         }
     }
 
     @Test
-    fun mutable_cell_window_preview() {
+    fun tracking_immutable_cell_window_preview() {
         snapshot {
-            MutableCellWindowPreview()
+            TrackingImmutableCellWindowPreview()
+        }
+    }
+
+    @Test
+    fun navigable_mutable_cell_window_preview() {
+        snapshot {
+            NavigableMutableCellWindowPreview()
+        }
+    }
+
+    @Test
+    fun tracking_mutable_cell_window_preview() {
+        snapshot {
+            TrackingMutableCellWindowPreview()
         }
     }
 }

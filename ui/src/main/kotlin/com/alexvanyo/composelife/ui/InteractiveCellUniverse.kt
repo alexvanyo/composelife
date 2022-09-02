@@ -21,13 +21,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
-import com.alexvanyo.composelife.ui.cells.CellWindowState
 import com.alexvanyo.composelife.ui.cells.MutableCellWindow
-import com.alexvanyo.composelife.ui.cells.rememberCellWindowState
+import com.alexvanyo.composelife.ui.cells.MutableCellWindowState
+import com.alexvanyo.composelife.ui.cells.TrackingCellWindowState
+import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
+import com.alexvanyo.composelife.ui.cells.rememberMutableCellWindowState
+import com.alexvanyo.composelife.ui.cells.rememberTrackingCellWindowState
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
@@ -46,23 +50,42 @@ interface InteractiveCellUniverseLocalEntryPoint :
  * evolves.
  */
 context(InteractiveCellUniverseHiltEntryPoint, InteractiveCellUniverseLocalEntryPoint)
+@Suppress("LongParameterList")
 @Composable
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
+    isViewportTracking: Boolean,
+    setIsViewportTracking: (Boolean) -> Unit,
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
-    cellWindowState: CellWindowState = rememberCellWindowState(),
+    mutableCellWindowState: MutableCellWindowState = rememberMutableCellWindowState(),
+    trackingCellWindowState: TrackingCellWindowState = rememberTrackingCellWindowState(temporalGameOfLifeState),
 ) {
+    val viewportInteractionConfig = remember(isViewportTracking, mutableCellWindowState, trackingCellWindowState) {
+        if (isViewportTracking) {
+            ViewportInteractionConfig.Tracking(
+                trackingCellWindowState = trackingCellWindowState,
+                mutableCellWindowState = mutableCellWindowState,
+            )
+        } else {
+            ViewportInteractionConfig.Navigable(
+                mutableCellWindowState = mutableCellWindowState,
+            )
+        }
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         MutableCellWindow(
             gameOfLifeState = temporalGameOfLifeState,
             modifier = Modifier.testTag("MutableCellWindow"),
-            cellWindowState = cellWindowState,
+            viewportInteractionConfig = viewportInteractionConfig,
         )
 
         InteractiveCellUniverseOverlay(
             temporalGameOfLifeState = temporalGameOfLifeState,
-            cellWindowState = cellWindowState,
+            cellWindowState = mutableCellWindowState,
+            isViewportTracking = isViewportTracking,
+            setIsViewportTracking = setIsViewportTracking,
             windowSizeClass = windowSizeClass,
         )
     }

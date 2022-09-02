@@ -91,11 +91,13 @@ interface InteractiveCellUniverseOverlayLocalEntryPoint :
 
 context(InteractiveCellUniverseOverlayHiltEntryPoint, InteractiveCellUniverseOverlayLocalEntryPoint)
 @OptIn(ExperimentalLayoutApi::class)
-@Suppress("LongMethod", "ComplexMethod")
+@Suppress("LongMethod", "ComplexMethod", "LongParameterList")
 @Composable
 fun InteractiveCellUniverseOverlay(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     cellWindowState: CellWindowState,
+    isViewportTracking: Boolean,
+    setIsViewportTracking: (Boolean) -> Unit,
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
 ) {
@@ -278,6 +280,8 @@ fun InteractiveCellUniverseOverlay(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = windowSizeClass,
                     isTopCard = isActionCardTopCard,
+                    isViewportTracking = isViewportTracking,
+                    setIsViewportTracking = setIsViewportTracking,
                     modifier = Modifier
                         .align(
                             if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) {
