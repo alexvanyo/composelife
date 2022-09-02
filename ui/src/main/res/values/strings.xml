@@ -23,6 +23,8 @@
     <string name="generations_per_step">Generations per step: %1$d</string>
     <string name="expand">Expand</string>
     <string name="collapse">Collapse</string>
+    <string name="enable_autofit">Enable autofit</string>
+    <string name="disable_autofit">Disable autofit</string>
     <string name="offset">Offset: x = %1$.1f, y = %2$.1f</string>
     <string name="scale">Scale: %1$.2f</string>
     <string name="paused">Paused</string>

@@ -43,6 +43,7 @@ import com.alexvanyo.composelife.random.di.RandomProvider
 import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowState
 import com.alexvanyo.composelife.ui.cells.ImmutableCellWindow
+import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
@@ -133,15 +134,16 @@ fun GameOfLifeProgressIndicator(
             .clipToBounds()
             .progressSemantics()
             .clearAndSetSemantics {},
-        isNavigable = false,
-        cellWindowState = CellWindowState(
-            offset = Offset(
-                pattern.boundingBox.width / 2f,
-                pattern.boundingBox.height / 2f,
-            ),
-            scale = 1f / max(
-                pattern.boundingBox.width + 1,
-                pattern.boundingBox.height + 1,
+        viewportInteractionConfig = ViewportInteractionConfig.Fixed(
+            cellWindowState = CellWindowState(
+                offset = Offset(
+                    pattern.boundingBox.width / 2f,
+                    pattern.boundingBox.height / 2f,
+                ),
+                scale = 1f / max(
+                    pattern.boundingBox.width + 1,
+                    pattern.boundingBox.height + 1,
+                ),
             ),
         ),
         cellDpSize = 48.dp,

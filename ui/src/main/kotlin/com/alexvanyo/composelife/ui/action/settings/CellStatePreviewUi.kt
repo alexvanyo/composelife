@@ -32,6 +32,7 @@ import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowState
 import com.alexvanyo.composelife.ui.cells.ImmutableCellWindow
+import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
@@ -60,9 +61,11 @@ fun CellStatePreviewUi(
                 """.toCellState(),
             ),
             modifier = Modifier.size(96.dp).clipToBounds(),
-            isNavigable = false,
-            cellWindowState = CellWindowState(
-                offset = Offset(2f, 2f),
+            viewportInteractionConfig = ViewportInteractionConfig.Fixed(
+                CellWindowState(
+                    offset = Offset(2f, 2f),
+                    scale = 1f,
+                ),
             ),
             cellDpSize = 96.dp / 5,
             inOverlay = true,

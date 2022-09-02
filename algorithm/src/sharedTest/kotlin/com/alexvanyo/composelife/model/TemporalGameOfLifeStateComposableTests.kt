@@ -127,6 +127,8 @@ class TemporalGameOfLifeStateComposableTests {
         )
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
+            testDispatcher.scheduler.runCurrent()
+            composeTestRule.waitForIdle()
             testDispatcher.scheduler.advanceTimeBy(16)
             testDispatcher.scheduler.runCurrent()
             composeTestRule.waitForIdle()
@@ -165,8 +167,6 @@ class TemporalGameOfLifeStateComposableTests {
             }
         }
 
-        composeTestRule.waitForIdle()
-
         assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
         assertEquals(
             TemporalGameOfLifeState.EvolutionStatus.Paused,
@@ -174,6 +174,8 @@ class TemporalGameOfLifeStateComposableTests {
         )
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
+            testDispatcher.scheduler.runCurrent()
+            composeTestRule.waitForIdle()
             launch(start = CoroutineStart.UNDISPATCHED) { temporalGameOfLifeState.step() }
             testDispatcher.scheduler.runCurrent()
             composeTestRule.waitForIdle()

@@ -32,6 +32,7 @@ import androidx.compose.runtime.snapshotFlow
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.updatable.Updatable
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
@@ -42,6 +43,7 @@ import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -303,7 +305,7 @@ private class TemporalGameOfLifeStateImpl(
     /**
      * The implementation of [evolve] guarded by [evolveMutex].
      */
-    context(GameOfLifeAlgorithm, Clock)
+    context(GameOfLifeAlgorithm, Clock, ComposeLifeDispatchers)
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun evolveImpl() {
         val lastTickFlow = MutableSharedFlow<Instant>(replay = 1)
@@ -332,6 +334,7 @@ private class TemporalGameOfLifeStateImpl(
             .buffer(0) // No buffer, so the ticks are only consumed upon a cell state being computed
 
         snapshotFlow { cellStateGenealogy }
+            .flowOn(Dispatchers.Main)
             .collectLatest { cellStateGenealogy ->
                 completedGenerationTracker = completedGenerationTracker + ComputationRecord(
                     computedGenerations = 0,

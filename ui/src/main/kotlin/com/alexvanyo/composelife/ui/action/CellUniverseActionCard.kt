@@ -34,7 +34,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
@@ -80,6 +79,8 @@ fun CellUniverseActionCard(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     windowSizeClass: WindowSizeClass,
     isTopCard: Boolean,
+    isViewportTracking: Boolean,
+    setIsViewportTracking: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(12.0.dp),
     actionCardState: CellUniverseActionCardState = rememberCellUniverseActionCardState(),
@@ -102,6 +103,8 @@ fun CellUniverseActionCard(
         setTargetStepsPerSecond = { temporalGameOfLifeState.targetStepsPerSecond = it },
         generationsPerStep = temporalGameOfLifeState.generationsPerStep,
         setGenerationsPerStep = { temporalGameOfLifeState.generationsPerStep = it },
+        isViewportTracking = isViewportTracking,
+        setIsViewportTracking = setIsViewportTracking,
         modifier = modifier,
         shape = shape,
         actionCardState = actionCardState,
@@ -110,7 +113,7 @@ fun CellUniverseActionCard(
 
 context(CellUniverseActionCardHiltEntryPoint, CellUniverseActionCardLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod", "ComplexMethod")
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CellUniverseActionCard(
     windowSizeClass: WindowSizeClass,
@@ -122,6 +125,8 @@ fun CellUniverseActionCard(
     setTargetStepsPerSecond: (Double) -> Unit,
     generationsPerStep: Int,
     setGenerationsPerStep: (Int) -> Unit,
+    isViewportTracking: Boolean,
+    setIsViewportTracking: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(12.0.dp),
     actionCardState: CellUniverseActionCardState = rememberCellUniverseActionCardState(),
@@ -170,6 +175,8 @@ fun CellUniverseActionCard(
                     onStep = onStep,
                     isExpanded = actionCardState.isExpanded,
                     setIsExpanded = { actionCardState.isExpanded = it },
+                    isViewportTracking = isViewportTracking,
+                    setIsViewportTracking = setIsViewportTracking,
                 )
             }
 

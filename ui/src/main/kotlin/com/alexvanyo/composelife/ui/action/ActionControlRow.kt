@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoMode
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Pause
@@ -51,6 +52,8 @@ fun ActionControlRow(
     onStep: () -> Unit,
     isExpanded: Boolean,
     setIsExpanded: (Boolean) -> Unit,
+    isViewportTracking: Boolean,
+    setIsViewportTracking: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val elevation by animateDpAsState(targetValue = if (isElevated) 3.dp else 0.dp)
@@ -95,6 +98,20 @@ fun ActionControlRow(
             }
 
             IconToggleButton(
+                checked = isViewportTracking,
+                onCheckedChange = setIsViewportTracking,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.AutoMode,
+                    contentDescription = if (isViewportTracking) {
+                        stringResource(id = R.string.disable_autofit)
+                    } else {
+                        stringResource(id = R.string.enable_autofit)
+                    },
+                )
+            }
+
+            IconToggleButton(
                 checked = isExpanded,
                 onCheckedChange = setIsExpanded,
                 colors = IconButtonDefaults.iconToggleButtonColors(
@@ -132,6 +149,8 @@ fun CollapsedRunningActionControlRowPreview() {
                 onStep = {},
                 isExpanded = false,
                 setIsExpanded = {},
+                isViewportTracking = false,
+                setIsViewportTracking = {},
             )
         }
     }
@@ -149,6 +168,8 @@ fun CollapsedPausedActionControlRowPreview() {
                 onStep = {},
                 isExpanded = false,
                 setIsExpanded = {},
+                isViewportTracking = false,
+                setIsViewportTracking = {},
             )
         }
     }
@@ -166,6 +187,27 @@ fun ExpandedActionControlRowPreview() {
                 onStep = {},
                 isExpanded = true,
                 setIsExpanded = {},
+                isViewportTracking = false,
+                setIsViewportTracking = {},
+            )
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun ViewportTrackingActionControlRowPreview() {
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            ActionControlRow(
+                isElevated = false,
+                isRunning = false,
+                setIsRunning = {},
+                onStep = {},
+                isExpanded = false,
+                setIsExpanded = {},
+                isViewportTracking = true,
+                setIsViewportTracking = {},
             )
         }
     }
@@ -183,6 +225,8 @@ fun ElevatedExpandedActionControlRowPreview() {
                 onStep = {},
                 isExpanded = true,
                 setIsExpanded = {},
+                isViewportTracking = false,
+                setIsViewportTracking = {},
             )
         }
     }

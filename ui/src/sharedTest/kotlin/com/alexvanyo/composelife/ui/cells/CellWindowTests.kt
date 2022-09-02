@@ -76,8 +76,11 @@ class CellWindowTests {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(50.dp),
-                    cellWindowState = rememberCellWindowState(
-                        offset = Offset(-0.5f, -0.5f),
+                    viewportInteractionConfig = ViewportInteractionConfig.Fixed(
+                        CellWindowState(
+                            offset = Offset(-0.5f, -0.5f),
+                            scale = 1f,
+                        ),
                     ),
                     cellDpSize = 10.dp,
                 )
@@ -144,7 +147,7 @@ class CellWindowTests {
             ).toCellState(),
         )
 
-        val cellWindowState = CellWindowState()
+        val mutableCellWindowState = MutableCellWindowState()
 
         lateinit var density: Density
 
@@ -155,7 +158,7 @@ class CellWindowTests {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),
-                    cellWindowState = cellWindowState,
+                    viewportInteractionConfig = ViewportInteractionConfig.Navigable(mutableCellWindowState),
                     cellDpSize = 30.dp,
                 )
             }
@@ -173,7 +176,7 @@ class CellWindowTests {
         composeTestRule.mainClock.advanceTimeBy(1000)
         composeTestRule.waitForIdle()
 
-        assertTrue(cellWindowState.offset.x > 3f)
-        assertTrue(cellWindowState.offset.y > 3f)
+        assertTrue(mutableCellWindowState.offset.x > 3f)
+        assertTrue(mutableCellWindowState.offset.y > 3f)
     }
 }

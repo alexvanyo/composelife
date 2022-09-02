@@ -60,7 +60,10 @@ object CellWindow {
         { isGesturing, scale ->
             !isGesturing && scale >= 1f
         }
-    const val defaultIsNavigable = true
+    val defaultViewportInteractionConfig
+        @Composable get() = ViewportInteractionConfig.Navigable(
+            rememberMutableCellWindowState(),
+        )
     val defaultCellDpSize = 48.dp
     val defaultCenterOffset = Offset(0.5f, 0.5f)
     const val defaultInOverlay = false
@@ -79,8 +82,7 @@ context(CellWindowLocalEntryPoint)
 fun ImmutableCellWindow(
     gameOfLifeState: GameOfLifeState,
     modifier: Modifier = Modifier,
-    isNavigable: Boolean = CellWindow.defaultIsNavigable,
-    cellWindowState: CellWindowState = rememberCellWindowState(),
+    viewportInteractionConfig: ViewportInteractionConfig = CellWindow.defaultViewportInteractionConfig,
     cellDpSize: Dp = CellWindow.defaultCellDpSize,
     centerOffset: Offset = CellWindow.defaultCenterOffset,
     inOverlay: Boolean = CellWindow.defaultInOverlay,
@@ -89,10 +91,9 @@ fun ImmutableCellWindow(
         cellWindowUiState = CellWindowUiState.ImmutableState(
             gameOfLifeState = gameOfLifeState,
         ),
-        cellWindowState = cellWindowState,
         cellDpSize = cellDpSize,
         centerOffset = centerOffset,
-        isNavigable = isNavigable,
+        viewportInteractionConfig = viewportInteractionConfig,
         inOverlay = inOverlay,
         modifier = modifier,
     )
@@ -110,8 +111,7 @@ fun MutableCellWindow(
     gameOfLifeState: MutableGameOfLifeState,
     modifier: Modifier = Modifier,
     isEditable: (isGesturing: Boolean, scale: Float) -> Boolean = CellWindow.defaultIsEditable,
-    isNavigable: Boolean = CellWindow.defaultIsNavigable,
-    cellWindowState: CellWindowState = rememberCellWindowState(),
+    viewportInteractionConfig: ViewportInteractionConfig = CellWindow.defaultViewportInteractionConfig,
     cellDpSize: Dp = CellWindow.defaultCellDpSize,
     centerOffset: Offset = CellWindow.defaultCenterOffset,
     inOverlay: Boolean = CellWindow.defaultInOverlay,
@@ -121,10 +121,9 @@ fun MutableCellWindow(
             gameOfLifeState = gameOfLifeState,
             isEditable = isEditable,
         ),
-        cellWindowState = cellWindowState,
         cellDpSize = cellDpSize,
         centerOffset = centerOffset,
-        isNavigable = isNavigable,
+        viewportInteractionConfig = viewportInteractionConfig,
         inOverlay = inOverlay,
         modifier = modifier,
     )
@@ -135,10 +134,9 @@ context(CellWindowLocalEntryPoint)
 @Composable
 private fun CellWindowImpl(
     cellWindowUiState: CellWindowUiState,
-    cellWindowState: CellWindowState,
     cellDpSize: Dp,
     centerOffset: Offset,
-    isNavigable: Boolean,
+    viewportInteractionConfig: ViewportInteractionConfig,
     inOverlay: Boolean,
     modifier: Modifier,
 ) {
@@ -147,48 +145,64 @@ private fun CellWindowImpl(
 
     var isGesturing by remember { mutableStateOf(false) }
 
-    if (!isNavigable) {
-        DisposableEffect(Unit) {
-            isGesturing = false
-            onDispose {}
+    // If the viewport is non-navigable, ensure that gesturing is cancelled.
+    when (viewportInteractionConfig) {
+        is ViewportInteractionConfig.Navigable -> Unit
+        is ViewportInteractionConfig.Fixed,
+        is ViewportInteractionConfig.Tracking,
+        -> {
+            DisposableEffect(Unit) {
+                isGesturing = false
+                onDispose {}
+            }
         }
     }
 
-    val scaledCellDpSize = cellDpSize * cellWindowState.scale
-
-    val cellPixelSize = with(LocalDensity.current) { cellDpSize.toPx() }
-    val scaledCellPixelSize = cellPixelSize * cellWindowState.scale
-
     BoxWithConstraints(
-        modifier = modifier
-            .then(
-                if (isNavigable) {
-                    Modifier.semantics {
-                        horizontalScrollAxisRange = ScrollAxisRange(
-                            value = { cellWindowState.offset.x },
-                            maxValue = { Float.POSITIVE_INFINITY },
-                        )
-                        verticalScrollAxisRange = ScrollAxisRange(
-                            value = { cellWindowState.offset.y },
-                            maxValue = { Float.POSITIVE_INFINITY },
-                        )
-                        scrollBy { x, y ->
-                            cellWindowState.offset += Offset(x, y)
-                            true
-                        }
-                        scrollToIndex {
-                            cellWindowState.offset = it.toRingOffset().toOffset()
-                            true
-                        }
-                    }
-                } else {
-                    Modifier
-                },
-            ),
+        modifier = modifier,
     ) {
+        /**
+         * The [CellWindowViewport] to use to display the cell universe.
+         *
+         * This will either be driven by the [viewportInteractionConfig].
+         */
+        val cellWindowViewport: CellWindowViewport
+
+        when (viewportInteractionConfig) {
+            is ViewportInteractionConfig.Fixed -> {
+                cellWindowViewport = viewportInteractionConfig.cellWindowState.cellWindowViewport
+            }
+            is ViewportInteractionConfig.Navigable -> {
+                cellWindowViewport = viewportInteractionConfig.mutableCellWindowState.cellWindowViewport
+            }
+            is ViewportInteractionConfig.Tracking -> {
+                cellWindowViewport = viewportInteractionConfig.trackingCellWindowState.calculateCellWindowViewport(
+                    baseCellWidth = maxWidth / cellDpSize,
+                    baseCellHeight = maxHeight / cellDpSize,
+                    centerOffset = centerOffset,
+                )
+
+                val mutableCellWindowState = viewportInteractionConfig.mutableCellWindowState
+
+                // Sync the calculated tracking viewport back to the mutable cell window viewport to preserve
+                // the viewport when disabling auto tracking
+                DisposableEffect(cellWindowViewport, mutableCellWindowState) {
+                    mutableCellWindowState?.offset = cellWindowViewport.offset
+                    mutableCellWindowState?.scale = cellWindowViewport.scale
+
+                    onDispose {}
+                }
+            }
+        }
+
+        val scaledCellDpSize = cellDpSize * cellWindowViewport.scale
+
+        val cellPixelSize = with(LocalDensity.current) { cellDpSize.toPx() }
+        val scaledCellPixelSize = cellPixelSize * cellWindowViewport.scale
+
         // Convert the window state offset into integer and fractional parts
-        val intOffset = floor(cellWindowState.offset)
-        val fracOffset = cellWindowState.offset - intOffset.toOffset()
+        val intOffset = floor(cellWindowViewport.offset)
+        val fracOffset = cellWindowViewport.offset - intOffset.toOffset()
         val fracOffsetFromCenter = fracOffset - Offset(0.5f, 0.5f)
         val fracPixelOffsetFromCenter = fracOffsetFromCenter * scaledCellPixelSize
 
@@ -210,43 +224,68 @@ private fun CellWindowImpl(
             ),
         )
 
-        val currentOnGesture by rememberUpdatedState { centroid: Offset, pan: Offset, zoom: Float, _: Float ->
-            val oldScale = cellWindowState.scale
+        val navigableModifier = when (viewportInteractionConfig) {
+            is ViewportInteractionConfig.Fixed,
+            is ViewportInteractionConfig.Tracking,
+            -> Modifier
+            is ViewportInteractionConfig.Navigable -> {
+                val mutableCellWindowState = viewportInteractionConfig.mutableCellWindowState
 
-            // Compute the offset from the centroid to the underlying offset, in cell coordinates
-            val centroidOffset = centroid / scaledCellPixelSize + topLeftOffset.toOffset()
+                val currentOnGesture by rememberUpdatedState { centroid: Offset, pan: Offset, zoom: Float, _: Float ->
+                    val oldScale = cellWindowViewport.scale
 
-            // Compute the offset update due to panning
-            val panDiff = pan / scaledCellPixelSize
+                    // Compute the offset from the centroid to the underlying offset, in cell coordinates
+                    val centroidOffset = centroid / scaledCellPixelSize + topLeftOffset.toOffset()
 
-            // Update the scale
-            cellWindowState.scale = oldScale * zoom
+                    // Compute the offset update due to panning
+                    val panDiff = pan / scaledCellPixelSize
 
-            // Compute offset update due to zooming. We adjust the offset by the distance it moved relative to the
-            // centroid, which allows the centroid to be the point that remains fixed while zooming.
-            val zoomDiff = centroidOffset * (cellWindowState.scale / oldScale - 1)
+                    // Update the scale
+                    mutableCellWindowState.scale = oldScale * zoom
 
-            // Update the offset
-            cellWindowState.offset += zoomDiff - panDiff
+                    // Compute offset update due to zooming. We adjust the offset by the distance it moved relative to
+                    // the centroid, which allows the centroid to be the point that remains fixed while zooming.
+                    val zoomDiff = centroidOffset * (mutableCellWindowState.scale / oldScale - 1)
+
+                    // Update the offset
+                    mutableCellWindowState.offset += zoomDiff - panDiff
+                }
+
+                Modifier
+                    .semantics {
+                        horizontalScrollAxisRange = ScrollAxisRange(
+                            value = { cellWindowViewport.offset.x },
+                            maxValue = { Float.POSITIVE_INFINITY },
+                        )
+                        verticalScrollAxisRange = ScrollAxisRange(
+                            value = { cellWindowViewport.offset.y },
+                            maxValue = { Float.POSITIVE_INFINITY },
+                        )
+                        scrollBy { x, y ->
+                            mutableCellWindowState.offset += Offset(x, y)
+                            true
+                        }
+                        scrollToIndex {
+                            mutableCellWindowState.offset = it
+                                .toRingOffset()
+                                .toOffset()
+                            true
+                        }
+                    }
+                    .pointerInput(Unit) {
+                        detectTransformGestures(
+                            onGestureStart = { isGesturing = true },
+                            onGestureEnd = { isGesturing = false },
+                            onGesture = { centroid: Offset, pan: Offset, zoom: Float, rotation: Float ->
+                                currentOnGesture(centroid, pan, zoom, rotation)
+                            },
+                        )
+                    }
+            }
         }
 
         Box(
-            modifier = Modifier
-                .then(
-                    if (isNavigable) {
-                        Modifier.pointerInput(Unit) {
-                            detectTransformGestures(
-                                onGestureStart = { isGesturing = true },
-                                onGestureEnd = { isGesturing = false },
-                                onGesture = { centroid: Offset, pan: Offset, zoom: Float, rotation: Float ->
-                                    currentOnGesture(centroid, pan, zoom, rotation)
-                                },
-                            )
-                        }
-                    } else {
-                        Modifier
-                    },
-                ),
+            modifier = navigableModifier,
         ) {
             // Keep the non-interactable cells always visible, to easily be able to switch to it when moving
             NonInteractableCells(
@@ -258,10 +297,16 @@ private fun CellWindowImpl(
                 inOverlay = inOverlay,
             )
 
+            // Only show the interactable cells if the conditions are met to be interactable.
             if (
                 cellWindowUiState.isEditable(
-                    isGesturing = isNavigable && isGesturing,
-                    scale = cellWindowState.scale,
+                    isGesturing = when (viewportInteractionConfig) {
+                        is ViewportInteractionConfig.Fixed,
+                        is ViewportInteractionConfig.Tracking,
+                        -> false
+                        is ViewportInteractionConfig.Navigable -> true
+                    } && isGesturing,
+                    scale = cellWindowViewport.scale,
                 )
             ) {
                 InteractableCells(
@@ -303,7 +348,7 @@ private fun CellWindowUiState.isEditable(
 
 @ThemePreviews
 @Composable
-fun ImmutableCellWindowPreview() {
+fun NavigableImmutableCellWindowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             ImmutableCellWindow(
@@ -327,7 +372,37 @@ fun ImmutableCellWindowPreview() {
 
 @ThemePreviews
 @Composable
-fun MutableCellWindowPreview() {
+fun TrackingImmutableCellWindowPreview() {
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            val gameOfLifeState = GameOfLifeState(
+                setOf(
+                    0 to 0,
+                    0 to 2,
+                    0 to 4,
+                    2 to 0,
+                    2 to 2,
+                    2 to 4,
+                    4 to 0,
+                    4 to 2,
+                    4 to 4,
+                ).toCellState(),
+            )
+            val trackingCellWindowState = rememberTrackingCellWindowState(gameOfLifeState)
+
+            ImmutableCellWindow(
+                gameOfLifeState = gameOfLifeState,
+                viewportInteractionConfig = ViewportInteractionConfig.Tracking(
+                    trackingCellWindowState = trackingCellWindowState,
+                ),
+            )
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun NavigableMutableCellWindowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             MutableCellWindow(
@@ -343,6 +418,48 @@ fun MutableCellWindowPreview() {
                         4 to 2,
                         4 to 4,
                     ).toCellState(),
+                ),
+            )
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun TrackingMutableCellWindowPreview() {
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            val gameOfLifeState = GameOfLifeState(
+                setOf(
+                    0 to 0,
+                    0 to 2,
+                    0 to 4,
+                    2 to 0,
+                    2 to 2,
+                    2 to 4,
+                    4 to 0,
+                    4 to 2,
+                    4 to 4,
+                ).toCellState(),
+            )
+            val trackingCellWindowState = rememberTrackingCellWindowState(gameOfLifeState)
+
+            MutableCellWindow(
+                gameOfLifeState = MutableGameOfLifeState(
+                    setOf(
+                        0 to 0,
+                        0 to 2,
+                        0 to 4,
+                        2 to 0,
+                        2 to 2,
+                        2 to 4,
+                        4 to 0,
+                        4 to 2,
+                        4 to 4,
+                    ).toCellState(),
+                ),
+                viewportInteractionConfig = ViewportInteractionConfig.Tracking(
+                    trackingCellWindowState = trackingCellWindowState,
                 ),
             )
         }

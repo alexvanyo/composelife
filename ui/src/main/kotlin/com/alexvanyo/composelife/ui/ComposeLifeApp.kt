@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -128,6 +129,8 @@ fun ComposeLifeApp(
                                     isRunning = false,
                                 )
 
+                                var isViewportTracking by rememberSaveable { mutableStateOf(false) }
+
                                 val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                                     temporalGameOfLifeState = temporalGameOfLifeState,
                                     gameOfLifeAlgorithm = gameOfLifeAlgorithm,
@@ -174,6 +177,8 @@ fun ComposeLifeApp(
 
                                 InteractiveCellUniverse(
                                     temporalGameOfLifeState = temporalGameOfLifeState,
+                                    isViewportTracking = isViewportTracking,
+                                    setIsViewportTracking = { isViewportTracking = it },
                                     windowSizeClass = windowSizeClass,
                                 )
                             }
@@ -211,6 +216,8 @@ fun InteractiveCellUniversePreview() {
                             seedCellState = gosperGliderGun,
                             isRunning = false,
                         ),
+                        isViewportTracking = false,
+                        setIsViewportTracking = {},
                         windowSizeClass = WindowSizeClass.calculateFromSize(size),
                     )
                 }

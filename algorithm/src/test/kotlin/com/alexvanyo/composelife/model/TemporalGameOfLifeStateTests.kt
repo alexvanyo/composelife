@@ -24,17 +24,37 @@ import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.schedulerClock
 import com.alexvanyo.composelife.patterns.SingleCellPattern
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TemporalGameOfLifeStateTests {
+
+    private val scheduler = TestCoroutineScheduler()
+    private val testDispatcher = StandardTestDispatcher(scheduler)
+    private val dispatchers = TestComposeLifeDispatchers(testDispatcher)
+
+    @BeforeEach
+    fun setup() {
+        Dispatchers.setMain(testDispatcher)
+    }
+
+    @AfterEach
+    fun teardown() {
+        Dispatchers.resetMain()
+    }
 
     @Test
     fun `initial values are correct when not running`() {
@@ -67,7 +87,7 @@ class TemporalGameOfLifeStateTests {
     }
 
     @Test
-    fun `simple evolution is correct`() = runTest {
+    fun `simple evolution is correct`() = runTest(testDispatcher) {
         val gameOfLifeState = TemporalGameOfLifeState(
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
@@ -78,7 +98,6 @@ class TemporalGameOfLifeStateTests {
         }
             .test {
                 val mutatorJob = launch {
-                    val dispatchers = TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
                     with(NaiveGameOfLifeAlgorithm(dispatchers)) {
                         with(dispatchers) {
                             with(schedulerClock) {
@@ -111,7 +130,7 @@ class TemporalGameOfLifeStateTests {
     }
 
     @Test
-    fun `pausing evolution is correct`() = runTest {
+    fun `pausing evolution is correct`() = runTest(testDispatcher) {
         val gameOfLifeState = TemporalGameOfLifeState(
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
@@ -122,7 +141,6 @@ class TemporalGameOfLifeStateTests {
         }
             .test {
                 val mutatorJob = launch {
-                    val dispatchers = TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
                     with(NaiveGameOfLifeAlgorithm(dispatchers)) {
                         with(dispatchers) {
                             with(schedulerClock) {
@@ -197,7 +215,7 @@ class TemporalGameOfLifeStateTests {
     }
 
     @Test
-    fun `stepping evolution is correct`() = runTest {
+    fun `stepping evolution is correct`() = runTest(testDispatcher) {
         val gameOfLifeState = TemporalGameOfLifeState(
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
@@ -208,7 +226,6 @@ class TemporalGameOfLifeStateTests {
         }
             .test {
                 val mutatorJob = launch {
-                    val dispatchers = TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
                     with(NaiveGameOfLifeAlgorithm(dispatchers)) {
                         with(dispatchers) {
                             with(schedulerClock) {
@@ -288,7 +305,7 @@ class TemporalGameOfLifeStateTests {
     }
 
     @Test
-    fun `target steps evolution is correct`() = runTest {
+    fun `target steps evolution is correct`() = runTest(testDispatcher) {
         val gameOfLifeState = TemporalGameOfLifeState(
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
@@ -299,7 +316,6 @@ class TemporalGameOfLifeStateTests {
         }
             .test {
                 val mutatorJob = launch {
-                    val dispatchers = TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
                     with(NaiveGameOfLifeAlgorithm(dispatchers)) {
                         with(dispatchers) {
                             with(schedulerClock) {
@@ -379,7 +395,7 @@ class TemporalGameOfLifeStateTests {
     }
 
     @Test
-    fun `setting evolution is correct`() = runTest {
+    fun `setting evolution is correct`() = runTest(testDispatcher) {
         val gameOfLifeState = TemporalGameOfLifeState(
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
@@ -390,7 +406,6 @@ class TemporalGameOfLifeStateTests {
         }
             .test {
                 val mutatorJob = launch {
-                    val dispatchers = TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
                     with(NaiveGameOfLifeAlgorithm(dispatchers)) {
                         with(dispatchers) {
                             with(schedulerClock) {
@@ -446,7 +461,7 @@ class TemporalGameOfLifeStateTests {
     }
 
     @Test
-    fun `multiple evolutions are correct`() = runTest {
+    fun `multiple evolutions are correct`() = runTest(testDispatcher) {
         val gameOfLifeState = TemporalGameOfLifeState(
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
@@ -457,7 +472,6 @@ class TemporalGameOfLifeStateTests {
         }
             .test {
                 val mutatorJob1 = launch {
-                    val dispatchers = TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
                     with(NaiveGameOfLifeAlgorithm(dispatchers)) {
                         with(dispatchers) {
                             with(schedulerClock) {
@@ -484,8 +498,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 assertEquals(SixLongLinePattern.cellStates[0], awaitItem())
 
-                val mutatorJob2 = launch {
-                    val dispatchers = TestComposeLifeDispatchers(StandardTestDispatcher(testScheduler))
+                val mutatorJob2 = launch(testDispatcher) {
                     with(NaiveGameOfLifeAlgorithm(dispatchers)) {
                         with(dispatchers) {
                             with(schedulerClock) {

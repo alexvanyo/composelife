@@ -32,7 +32,9 @@ import com.google.common.cache.LoadingCache
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class HashLifeAlgorithm @Inject constructor(
     private val dispatchers: ComposeLifeDispatchers,
 ) : GameOfLifeAlgorithm {
