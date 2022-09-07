@@ -14,15 +14,17 @@ These include:
 
 - Written in [Kotlin](https://kotlinlang.org/)
 - UI written in [Jetpack Compose](https://developer.android.com/jetpack/compose)
-- Dependency injection using [Hilt](https://dagger.dev/hilt/)
-- Fully functional CI system with Github Actions with:
+- Dependency injection using [Hilt](https://dagger.dev/hilt/) and [context receivers](https://github.com/Kotlin/KEEP/blob/master/proposals/context-receivers.md)
+- [AGSL](https://developer.android.com/develop/ui/views/graphics/agsl) and [OpenGL](https://developer.android.com/develop/ui/views/graphics/opengl/about-opengl) rendering
+- Fully functional CI system with GitHub Actions with:
     - JVM tests
     - [Robolectric](http://robolectric.org/) tests
     - Integration tests (minification with the help of [Keeper](https://slackhq.github.io/keeper/), memory leak checking with [LeakCanary](https://square.github.io/leakcanary/))
     - Screenshot tests with [Paparazzi](https://cashapp.github.io/paparazzi/)
     - Linting, with android/lint and [detekt](https://detekt.dev/)
-    - Code coverage with JaCoCo (reporting done with [Codecov](https://about.codecov.io/))
+    - Code coverage with [JaCoCo](https://github.com/jacoco/jacoco) (reporting done with [Codecov](https://about.codecov.io/))
     - Automatic dependency updates with [Renovate](https://docs.renovatebot.com/)
+    - Automatic [baseline profile](https://developer.android.com/topic/performance/baselineprofiles) generation
 
 ## Setup
 
