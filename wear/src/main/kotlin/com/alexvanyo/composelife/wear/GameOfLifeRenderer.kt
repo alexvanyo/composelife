@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toOffset
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -61,6 +62,8 @@ class GameOfLifeRenderer(
     private val cellWindow = IntRect(IntOffset(0, 0), IntSize(99, 99))
 
     private val use24HourFormat = DateFormat.is24HourFormat(context)
+
+    private val isRound = context.resources.configuration.isScreenRound
 
     private var previousLocalTime = LocalTime.MIN
 
@@ -98,7 +101,10 @@ class GameOfLifeRenderer(
 
         if (previousLocalTime.hour != localTime.hour || previousLocalTime.minute != localTime.minute) {
             Snapshot.withMutableSnapshot {
-                temporalGameOfLifeState.cellState = createTimeCellState(createTimeDigits(localTime, use24HourFormat))
+                temporalGameOfLifeState.cellState = createTimeCellState(
+                    isRound = isRound,
+                    timeDigits = createTimeDigits(localTime, use24HourFormat),
+                )
             }
         }
 
@@ -153,7 +159,10 @@ class GameOfLifeRenderer(
     }
 }
 
-private fun createTimeCellState(timeDigits: TimeDigits): CellState {
+private fun createTimeCellState(
+    isRound: Boolean,
+    timeDigits: TimeDigits,
+): CellState {
     val timeCellState = timeDigits.firstDigit.cellState
         .union(timeDigits.secondDigit.cellState.offsetBy(IntOffset(19, 0)))
         .union(timeDigits.thirdDigit.cellState.offsetBy(IntOffset(40, 0)))
@@ -170,6 +179,12 @@ private fun createTimeCellState(timeDigits: TimeDigits): CellState {
         )
         .offsetBy(IntOffset(14, 38))
 
+    val randomPointPool = if (isRound) {
+        roundRandomPointPool
+    } else {
+        notRoundRandomPointPool
+    }
+
     val randomPoints = CellState(
         randomPointPool.filter { Random.nextFloat() < 0.2 }.toSet(),
     )
@@ -177,19 +192,25 @@ private fun createTimeCellState(timeDigits: TimeDigits): CellState {
     return timeCellState.union(randomPoints)
 }
 
-val randomPointPool =
+val roundRandomPointPool =
     IntRect(
-        IntOffset(20, 10),
-        IntOffset(80, 25),
+        IntOffset(-30, -30),
+        IntOffset(130, 130),
     )
         .containedPoints()
-        .union(
-            IntRect(
-                IntOffset(20, 75),
-                IntOffset(80, 90),
-            )
-                .containedPoints(),
-        )
+        .filter {
+            (it.toOffset() - Offset(49.5f, 49.5f)).getDistance() in 51f..61f
+        }
+
+val notRoundRandomPointPool =
+    IntRect(
+        IntOffset(-10, -10),
+        IntOffset(110, 110),
+    )
+        .containedPoints()
+        .filter {
+            it.x !in 0..99 && it.y !in 0..99
+        }
 
 fun createTimeDigits(localTime: LocalTime, use24HourFormat: Boolean): TimeDigits {
     val clockHour = localTime.hour.rem(12)
