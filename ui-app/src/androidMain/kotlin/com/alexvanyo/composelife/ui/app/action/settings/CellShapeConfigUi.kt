@@ -69,6 +69,7 @@ fun CellShapeConfigUi(
         currentShape = preferences.currentShape,
         setCurrentShapeType = composeLifePreferences::setCurrentShapeType,
         setRoundRectangleConfig = composeLifePreferences::setRoundRectangleConfig,
+        setSuperellipseConfig = composeLifePreferences::setSuperellipseConfig,
         modifier = modifier,
     )
 }
@@ -79,6 +80,7 @@ fun CellShapeConfigUi(
     currentShape: CurrentShape,
     setCurrentShapeType: suspend (CurrentShapeType) -> Unit,
     setRoundRectangleConfig: suspend ((CurrentShape.RoundRectangle) -> CurrentShape.RoundRectangle) -> Unit,
+    setSuperellipseConfig: suspend ((CurrentShape.Superellipse) -> CurrentShape.Superellipse) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -91,6 +93,7 @@ fun CellShapeConfigUi(
             label = stringResource(R.string.shape),
             currentValue = when (currentShape) {
                 is CurrentShape.RoundRectangle -> ShapeDropdownOption.RoundRectangle
+                is CurrentShape.Superellipse -> ShapeDropdownOption.Superellipse
             },
             allValues = ShapeDropdownOption.values,
             setValue = { option ->
@@ -98,6 +101,7 @@ fun CellShapeConfigUi(
                     setCurrentShapeType(
                         when (option) {
                             ShapeDropdownOption.RoundRectangle -> CurrentShapeType.RoundRectangle
+                            ShapeDropdownOption.Superellipse -> CurrentShapeType.Superellipse
                         },
                     )
                 }
@@ -106,7 +110,6 @@ fun CellShapeConfigUi(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        @Suppress("USELESS_IS_CHECK")
         when (currentShape) {
             is CurrentShape.RoundRectangle -> {
                 var sizeFraction by remember { mutableStateOf(currentShape.sizeFraction) }
@@ -145,6 +148,43 @@ fun CellShapeConfigUi(
                     sliderBijection = Float.IdentitySliderBijection,
                 )
             }
+            is CurrentShape.Superellipse -> {
+                var sizeFraction by remember { mutableStateOf(currentShape.sizeFraction) }
+                var p by remember { mutableStateOf(currentShape.p) }
+
+                LaunchedEffect(sizeFraction, p) {
+                    setSuperellipseConfig { superellipse ->
+                        superellipse.copy(
+                            sizeFraction = sizeFraction,
+                            p = p,
+                        )
+                    }
+                }
+
+                val resolver = parameterizedStringResolver()
+
+                EditableSlider(
+                    labelAndValueText = { stringResource(id = R.string.size_fraction_label_and_value, it) },
+                    valueText = { resolver(ParameterizedString(R.string.size_fraction_value, it)) },
+                    labelText = stringResource(id = R.string.size_fraction_label),
+                    textToValue = { it.toFloatOrNull() },
+                    value = sizeFraction,
+                    onValueChange = { sizeFraction = it },
+                    valueRange = 0.1f..1f,
+                    sliderBijection = Float.IdentitySliderBijection,
+                )
+
+                EditableSlider(
+                    labelAndValueText = { stringResource(id = R.string.p_label_and_value, it) },
+                    valueText = { resolver(ParameterizedString(R.string.p_value, it)) },
+                    labelText = stringResource(id = R.string.p_label),
+                    textToValue = { it.toFloatOrNull() },
+                    value = p,
+                    onValueChange = { p = it },
+                    valueRange = 1f..8f,
+                    sliderBijection = Float.IdentitySliderBijection,
+                )
+            }
         }
     }
 }
@@ -152,6 +192,9 @@ fun CellShapeConfigUi(
 sealed interface ShapeDropdownOption : DropdownOption {
     object RoundRectangle : ShapeDropdownOption {
         override val displayText: ParameterizedString = ParameterizedString(R.string.round_rectangle)
+    }
+    object Superellipse : ShapeDropdownOption {
+        override val displayText: ParameterizedString = ParameterizedString(R.string.superellipse)
     }
 
     @GenSealedEnum
@@ -171,6 +214,7 @@ fun CellShapeConfigUiRoundRectanglePreview() {
                     ),
                     setCurrentShapeType = {},
                     setRoundRectangleConfig = {},
+                    setSuperellipseConfig = {},
                 )
             }
         }

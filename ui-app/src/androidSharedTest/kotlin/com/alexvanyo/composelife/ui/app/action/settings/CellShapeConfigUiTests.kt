@@ -71,6 +71,7 @@ class CellShapeConfigUiTests {
                 ),
                 setCurrentShapeType = {},
                 setRoundRectangleConfig = {},
+                setSuperellipseConfig = {},
             )
         }
 
@@ -127,6 +128,7 @@ class CellShapeConfigUiTests {
                     sizeFraction = result.sizeFraction
                     cornerFraction = result.cornerFraction
                 },
+                setSuperellipseConfig = {},
             )
         }
 
@@ -166,6 +168,7 @@ class CellShapeConfigUiTests {
                     sizeFraction = result.sizeFraction
                     cornerFraction = result.cornerFraction
                 },
+                setSuperellipseConfig = {},
             )
         }
 
@@ -199,6 +202,7 @@ class CellShapeConfigUiTests {
                     setCurrentShapeType = it
                 },
                 setRoundRectangleConfig = {},
+                setSuperellipseConfig = {},
             )
         }
 

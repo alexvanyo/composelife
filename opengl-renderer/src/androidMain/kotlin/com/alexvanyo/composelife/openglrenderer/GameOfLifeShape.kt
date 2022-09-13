@@ -45,6 +45,17 @@ sealed interface GameOfLifeShapeParameters {
         val sizeFraction: Float,
         val cornerFraction: Float,
     ) : GameOfLifeShapeParameters
+
+    data class Superellipse(
+        override val cells: IntBuffer,
+        override val aliveColor: Color,
+        override val deadColor: Color,
+        override val cellWindowSize: IntSize,
+        override val scaledCellPixelSize: Float,
+        override val pixelOffsetFromCenter: Offset,
+        val sizeFraction: Float,
+        val p: Float,
+    ) : GameOfLifeShapeParameters
 }
 
 @Language("GLSL")
@@ -85,11 +96,14 @@ private val fragmentShaderCode = """
     // The type of shape to draw for an alive cell
     uniform int shapeType;
 
-    // The size of the round rectangle
+    // The size of the cell
     uniform float sizeFraction;
 
-    // The size of the round rectangle corner
+    // The size of the corner (for round rectangle)
     uniform float cornerFraction;
+
+    // The value of the p-norm (for superellipse)
+    uniform float p;
 
     // The size of the viewport
     uniform ivec2 size;
@@ -111,6 +125,23 @@ private val fragmentShaderCode = """
             return deadColor;
         }
     }
+    
+    float superellipseSDF(vec2 centerPosition, float p) {
+        return pow(abs(centerPosition.x), p) + pow(abs(centerPosition.y), p) - 1.0;
+    }
+    
+    vec4 superellipseCell(vec2 offsetFromCenter) {
+        float distance = superellipseSDF(
+            (offsetFromCenter - vec2(0.5)) * 2.0 / sizeFraction,
+            p
+        );
+        
+        if (distance <= 0.0) {
+            return aliveColor;
+        } else {
+            return deadColor;
+        }
+    }
 
     void main() {
         vec2 cellWindowPixelSize = scaledCellPixelSize * vec2(cellWindowSize);
@@ -120,6 +151,8 @@ private val fragmentShaderCode = """
         if (texture2D(cells, cellCoordinates / vec2(cellWindowSize)).r != 0.0) {
             if (shapeType == 0) {
                 gl_FragColor = roundRectangleCell(fract(cellCoordinates));
+            } else if (shapeType == 1) {
+                gl_FragColor = superellipseCell(fract(cellCoordinates));
             }
         } else {
             gl_FragColor = deadColor;
@@ -188,6 +221,7 @@ class GameOfLifeShape(
     private val shapeTypeHandle = GLES20.glGetUniformLocation(program, "shapeType")
     private val sizeFractionHandle = GLES20.glGetUniformLocation(program, "sizeFraction")
     private val cornerFractionHandle = GLES20.glGetUniformLocation(program, "cornerFraction")
+    private val pHandle = GLES20.glGetUniformLocation(program, "p")
     private val sizeHandle = GLES20.glGetUniformLocation(program, "size")
     private val mvpMatrixHandle = GLES20.glGetUniformLocation(program, "mvpMatrix")
 
@@ -202,6 +236,7 @@ class GameOfLifeShape(
         GLES20.glUniform2i(sizeHandle, width, height)
     }
 
+    @Suppress("LongMethod")
     fun setScreenShapeParameters(parameters: GameOfLifeShapeParameters) {
         GLES20.glUseProgram(program)
         GLES20.glActiveTexture(getTextureReference(texture))
@@ -254,6 +289,11 @@ class GameOfLifeShape(
                 GLES20.glUniform1i(shapeTypeHandle, 0)
                 GLES20.glUniform1f(sizeFractionHandle, parameters.sizeFraction)
                 GLES20.glUniform1f(cornerFractionHandle, parameters.cornerFraction)
+            }
+            is GameOfLifeShapeParameters.Superellipse -> {
+                GLES20.glUniform1i(shapeTypeHandle, 1)
+                GLES20.glUniform1f(sizeFractionHandle, parameters.sizeFraction)
+                GLES20.glUniform1f(pHandle, parameters.p)
             }
         }
         checkOpenGLError()

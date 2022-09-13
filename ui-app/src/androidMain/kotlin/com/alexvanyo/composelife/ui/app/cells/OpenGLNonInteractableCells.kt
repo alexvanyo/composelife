@@ -105,6 +105,18 @@ fun OpenGLNonInteractableCells(
                 cornerFraction = shape.cornerFraction,
             )
         }
+        is CurrentShape.Superellipse -> {
+            GameOfLifeShapeParameters.Superellipse(
+                cells = cellsBuffer,
+                aliveColor = aliveColor,
+                deadColor = deadColor,
+                cellWindowSize = IntSize(cellWindow.width + 1, cellWindow.height + 1),
+                scaledCellPixelSize = scaledCellPixelSize,
+                pixelOffsetFromCenter = pixelOffsetFromCenter,
+                sizeFraction = shape.sizeFraction,
+                p = shape.p,
+            )
+        }
     }
 
     val lifecycleOwner = LocalLifecycleOwner.current

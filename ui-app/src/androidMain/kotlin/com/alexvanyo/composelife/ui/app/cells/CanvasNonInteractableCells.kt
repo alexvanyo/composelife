@@ -78,6 +78,14 @@ fun CanvasNonInteractableCells(
                         ),
                     )
                 }
+                is CurrentShape.Superellipse -> {
+                    // TODO
+                    drawRect(
+                        color = aliveColor,
+                        topLeft = (cell - cellWindow.topLeft).toOffset() * scaledCellPixelSize,
+                        size = Size(scaledCellPixelSize, scaledCellPixelSize),
+                    )
+                }
             }
         }
     }

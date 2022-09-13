@@ -155,6 +155,18 @@ class GameOfLifeRenderer(
                     cornerFraction = shape.cornerFraction,
                 )
             }
+            is CurrentShape.Superellipse -> {
+                GameOfLifeShapeParameters.Superellipse(
+                    cells = cellsBuffer,
+                    aliveColor = gameOfLifeColor,
+                    deadColor = Color.Black,
+                    cellWindowSize = IntSize(cellWindow.width + 1, cellWindow.height + 1),
+                    scaledCellPixelSize = cellSize,
+                    pixelOffsetFromCenter = Offset.Zero,
+                    sizeFraction = shape.sizeFraction,
+                    p = shape.p,
+                )
+            }
         }
 
         GLES20.glClearColor(0f, 0f, 0f, 1f)

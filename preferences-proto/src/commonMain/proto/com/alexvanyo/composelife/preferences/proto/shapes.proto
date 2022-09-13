@@ -23,3 +23,8 @@ message RoundRectangleProto {
   float size_fraction = 1;
   float corner_fraction = 2;
 }
+
+message SuperellipseProto {
+  float size_fraction = 1;
+  float p = 2;
+}

@@ -40,13 +40,18 @@ class TestComposeLifePreferences : ComposeLifePreferences {
     private var roundRectangleConfig:
         ResourceState<CurrentShape.RoundRectangle> by mutableStateOf(ResourceState.Loading)
 
+    private var superellipseConfig:
+        ResourceState<CurrentShape.Superellipse> by mutableStateOf(ResourceState.Loading)
+
     override val currentShapeState: ResourceState<CurrentShape> get() =
         combine(
             currentShapeType,
             roundRectangleConfig,
-        ) { currentShapeType, roundRectangleConfig ->
+            superellipseConfig,
+        ) { currentShapeType, roundRectangleConfig, superellipseConfig ->
             when (currentShapeType) {
                 CurrentShapeType.RoundRectangle -> roundRectangleConfig
+                CurrentShapeType.Superellipse -> superellipseConfig
             }
         }
 
@@ -108,6 +113,13 @@ class TestComposeLifePreferences : ComposeLifePreferences {
         val oldRoundRectangleConfig = snapshotFlow { roundRectangleConfig }.firstSuccess().value
         Snapshot.withMutableSnapshot {
             roundRectangleConfig = ResourceState.Success(update(oldRoundRectangleConfig))
+        }
+    }
+
+    override suspend fun setSuperellipseConfig(update: (CurrentShape.Superellipse) -> CurrentShape.Superellipse) {
+        val oldSuperellipseConfig = snapshotFlow { superellipseConfig }.firstSuccess().value
+        Snapshot.withMutableSnapshot {
+            superellipseConfig = ResourceState.Success(update(oldSuperellipseConfig))
         }
     }
 
@@ -173,6 +185,12 @@ class TestComposeLifePreferences : ComposeLifePreferences {
         }
     }
 
+    fun testSetSuperellipseConfig(superellipse: CurrentShape.Superellipse) {
+        Snapshot.withMutableSnapshot {
+            superellipseConfig = ResourceState.Success(superellipse)
+        }
+    }
+
     fun testSetQuickAccessSetting(quickAccessSettings: Set<QuickAccessSetting>) {
         Snapshot.withMutableSnapshot {
             this.quickAccessSettingsState = ResourceState.Success(quickAccessSettings)
@@ -202,10 +220,8 @@ class TestComposeLifePreferences : ComposeLifePreferences {
         fun Loaded(
             algorithmChoice: AlgorithmType = AlgorithmType.NaiveAlgorithm,
             currentShapeType: CurrentShapeType = CurrentShapeType.RoundRectangle,
-            roundRectangleConfig: CurrentShape.RoundRectangle = CurrentShape.RoundRectangle(
-                sizeFraction = 1.0f,
-                cornerFraction = 0.0f,
-            ),
+            roundRectangleConfig: CurrentShape.RoundRectangle = defaultRoundRectangleConfig,
+            superellipseConfig: CurrentShape.Superellipse = defaultSuperellipseConfig,
             darkThemeConfig: DarkThemeConfig = DarkThemeConfig.FollowSystem,
             quickAccessSettings: Set<QuickAccessSetting> = emptySet(),
             disableAGSL: Boolean = false,
@@ -215,11 +231,21 @@ class TestComposeLifePreferences : ComposeLifePreferences {
             testSetAlgorithmChoice(algorithmChoice)
             testSetCurrentShapeType(currentShapeType)
             testSetRoundRectangleConfig(roundRectangleConfig)
+            testSetSuperellipseConfig(superellipseConfig)
             testSetDarkThemeConfig(darkThemeConfig)
             testSetQuickAccessSetting(quickAccessSettings)
             testSetDisabledAGSL(disableAGSL)
             testSetDisableOpenGL(disableOpenGL)
             testSetDoNotKeepProcess(doNotKeepProcess)
         }
+
+        val defaultRoundRectangleConfig = CurrentShape.RoundRectangle(
+            sizeFraction = 1f,
+            cornerFraction = 0f,
+        )
+        val defaultSuperellipseConfig = CurrentShape.Superellipse(
+            sizeFraction = 1f,
+            p = 4f,
+        )
     }
 }

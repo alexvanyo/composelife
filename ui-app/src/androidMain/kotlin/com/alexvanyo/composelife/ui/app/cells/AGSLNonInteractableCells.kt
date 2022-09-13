@@ -62,11 +62,14 @@ private val SHADER_SRC = """
     // The type of shape to draw for an alive cell
     uniform int shapeType;
     
-    // The size of the rectangle
+    // The size of the cell
     uniform float sizeFraction;
     
-    // The size of the corner
+    // The size of the corner (for round rectangle)
     uniform float cornerFraction;
+
+    // The value of the p-norm (for superellipse)
+    uniform float p;
     
     // The size of the viewport
     uniform float2 size;
@@ -89,6 +92,23 @@ private val SHADER_SRC = """
         }
     }
     
+    float superellipseSDF(float2 centerPosition, float p) {
+        return pow(abs(centerPosition.x), p) + pow(abs(centerPosition.y), p) - 1.0;
+    }
+    
+    float4 superellipseCell(float2 offsetFromCenter) {
+        float distance = superellipseSDF(
+            (offsetFromCenter - float2(0.5)) * 2.0 / sizeFraction,
+            p
+        );
+        
+        if (distance <= 0.0) {
+            return aliveColor;
+        } else {
+            return deadColor;
+        }
+    }
+    
     float4 main(float2 fragCoord) {
         float2 cellWindowPixelSize = scaledCellPixelSize * float2(cellWindowSize);
         float2 offsetFromCellWindow = (size - cellWindowPixelSize) / 2.0 - pixelOffsetFromCenter;
@@ -97,6 +117,8 @@ private val SHADER_SRC = """
         if (cells.eval(cellCoordinates).r != 0.0) {
             if (shapeType == 0) {
                 return roundRectangleCell(fract(cellCoordinates));
+            } else if (shapeType == 1) {
+                return superellipseCell(fract(cellCoordinates));
             } else {
                 return aliveColor;
             }
@@ -139,6 +161,11 @@ fun AGSLNonInteractableCells(
                 shader.setIntUniform("shapeType", 0)
                 shader.setFloatUniform("sizeFraction", shape.sizeFraction)
                 shader.setFloatUniform("cornerFraction", shape.cornerFraction)
+            }
+            is CurrentShape.Superellipse -> {
+                shader.setIntUniform("shapeType", 1)
+                shader.setFloatUniform("sizeFraction", shape.sizeFraction)
+                shader.setFloatUniform("p", shape.p)
             }
         }
 

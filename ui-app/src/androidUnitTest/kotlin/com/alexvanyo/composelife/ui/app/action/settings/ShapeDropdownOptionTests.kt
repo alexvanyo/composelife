@@ -24,7 +24,10 @@ class ShapeDropdownOptionTests {
     @Test
     fun `shape dropdown options are correct`() {
         assertEquals(
-            listOf(ShapeDropdownOption.RoundRectangle),
+            listOf(
+                ShapeDropdownOption.RoundRectangle,
+                ShapeDropdownOption.Superellipse,
+            ),
             ShapeDropdownOption.values,
         )
     }

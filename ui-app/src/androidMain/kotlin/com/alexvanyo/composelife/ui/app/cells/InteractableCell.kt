@@ -87,6 +87,17 @@ fun InteractableCell(
                         ),
                     )
                 }
+                is CurrentShape.Superellipse -> {
+                    // TODO
+                    drawRect(
+                        color = aliveColor,
+                        topLeft = Offset(
+                            size.width * (1f - shape.sizeFraction) / 2f,
+                            size.height * (1f - shape.sizeFraction) / 2f,
+                        ),
+                        size = size * shape.sizeFraction,
+                    )
+                }
             }
         }
     }

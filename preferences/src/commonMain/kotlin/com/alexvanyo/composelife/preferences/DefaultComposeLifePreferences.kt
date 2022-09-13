@@ -21,11 +21,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import com.alexvanyo.composelife.preferences.CurrentShape.RoundRectangle
+import com.alexvanyo.composelife.preferences.CurrentShape.Superellipse
 import com.alexvanyo.composelife.preferences.proto.AlgorithmProto
 import com.alexvanyo.composelife.preferences.proto.CurrentShapeTypeProto
 import com.alexvanyo.composelife.preferences.proto.DarkThemeConfigProto
 import com.alexvanyo.composelife.preferences.proto.QuickAccessSettingProto
 import com.alexvanyo.composelife.preferences.proto.RoundRectangleProto
+import com.alexvanyo.composelife.preferences.proto.SuperellipseProto
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.map
 import kotlinx.coroutines.flow.catch
@@ -105,6 +107,7 @@ class DefaultComposeLifePreferences @Inject constructor(
                         CurrentShapeTypeProto.CURRENT_SHAPE_TYPE_UNKNOWN,
                         CurrentShapeTypeProto.ROUND_RECTANGLE,
                         -> preferencesProto.round_rectangle.toResolved()
+                        CurrentShapeTypeProto.SUPERELLIPSE -> preferencesProto.superellipse.toResolved()
                     }
 
                 val darkThemeConfig =
@@ -158,6 +161,7 @@ class DefaultComposeLifePreferences @Inject constructor(
             preferencesProto.copy(
                 current_shape_type = when (currentShapeType) {
                     CurrentShapeType.RoundRectangle -> CurrentShapeTypeProto.ROUND_RECTANGLE
+                    CurrentShapeType.Superellipse -> CurrentShapeTypeProto.SUPERELLIPSE
                 },
             )
         }
@@ -179,6 +183,14 @@ class DefaultComposeLifePreferences @Inject constructor(
         dataStore.updateData { preferencesProto ->
             preferencesProto.copy(
                 round_rectangle = update(preferencesProto.round_rectangle.toResolved()).toProto(),
+            )
+        }
+    }
+
+    override suspend fun setSuperellipseConfig(update: (Superellipse) -> Superellipse) {
+        dataStore.updateData { preferencesProto ->
+            preferencesProto.copy(
+                superellipse = update(preferencesProto.superellipse.toResolved()).toProto(),
             )
         }
     }
@@ -255,4 +267,23 @@ private fun RoundRectangle.toProto(): RoundRectangleProto =
     RoundRectangleProto(
         size_fraction = sizeFraction,
         corner_fraction = cornerFraction,
+    )
+
+private fun SuperellipseProto?.toResolved(): Superellipse =
+    if (this == null) {
+        Superellipse(
+            sizeFraction = 1f,
+            p = 4f,
+        )
+    } else {
+        Superellipse(
+            sizeFraction = size_fraction,
+            p = p,
+        )
+    }
+
+private fun Superellipse.toProto(): SuperellipseProto =
+    SuperellipseProto(
+        size_fraction = sizeFraction,
+        p = p,
     )

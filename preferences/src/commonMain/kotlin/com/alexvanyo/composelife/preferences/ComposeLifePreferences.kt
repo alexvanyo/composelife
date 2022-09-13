@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.preferences
 
 import com.alexvanyo.composelife.preferences.CurrentShape.RoundRectangle
+import com.alexvanyo.composelife.preferences.CurrentShape.Superellipse
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.updatable.Updatable
 
@@ -44,6 +45,8 @@ interface ComposeLifePreferences : Updatable {
     suspend fun setDarkThemeConfig(darkThemeConfig: DarkThemeConfig)
 
     suspend fun setRoundRectangleConfig(update: (RoundRectangle) -> RoundRectangle)
+
+    suspend fun setSuperellipseConfig(update: (Superellipse) -> Superellipse)
 
     suspend fun addQuickAccessSetting(quickAccessSetting: QuickAccessSetting)
 

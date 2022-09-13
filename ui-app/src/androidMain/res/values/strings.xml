@@ -39,12 +39,16 @@
     <string name="corner_fraction_label">Corner fraction</string>
     <string name="corner_fraction_label_and_value">Corner fraction: %1$.2f</string>
     <string name="corner_fraction_value">%1$.2f</string>
+    <string name="p_label">p value</string>
+    <string name="p_label_and_value">p value: %1$.2f</string>
+    <string name="p_value">%1$.2f</string>
     <string name="size_fraction_label">Size fraction</string>
     <string name="size_fraction_label_and_value">Size fraction: %1$.2f</string>
     <string name="size_fraction_value">%1$.2f</string>
     <string name="settings">Settings</string>
     <string name="shape">Shape</string>
     <string name="round_rectangle">Round Rectangle</string>
+    <string name="superellipse">Superellipse</string>
     <string name="see_all">See all…</string>
     <string name="back">Back</string>
     <string name="algorithm_implementation">Implementation</string>

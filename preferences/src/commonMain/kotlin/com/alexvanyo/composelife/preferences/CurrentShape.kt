@@ -25,4 +25,11 @@ sealed interface CurrentShape {
     ) : CurrentShape {
         override val type: CurrentShapeType = CurrentShapeType.RoundRectangle
     }
+
+    data class Superellipse(
+        val sizeFraction: Float,
+        val p: Float,
+    ) : CurrentShape {
+        override val type: CurrentShapeType = CurrentShapeType.Superellipse
+    }
 }

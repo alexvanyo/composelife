@@ -22,4 +22,5 @@ option java_multiple_files = true;
 enum CurrentShapeTypeProto {
   CURRENT_SHAPE_TYPE_UNKNOWN = 0;
   ROUND_RECTANGLE = 1;
+  SUPERELLIPSE = 2;
 }

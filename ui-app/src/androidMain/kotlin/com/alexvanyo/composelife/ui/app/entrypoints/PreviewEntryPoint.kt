@@ -118,6 +118,11 @@ internal fun WithPreviewDependencies(
         currentShapeType = loadedComposeLifePreferences.currentShape.type,
         roundRectangleConfig = when (loadedComposeLifePreferences.currentShape) {
             is CurrentShape.RoundRectangle -> loadedComposeLifePreferences.currentShape as CurrentShape.RoundRectangle
+            is CurrentShape.Superellipse -> TestComposeLifePreferences.defaultRoundRectangleConfig
+        },
+        superellipseConfig = when (loadedComposeLifePreferences.currentShape) {
+            is CurrentShape.RoundRectangle -> TestComposeLifePreferences.defaultSuperellipseConfig
+            is CurrentShape.Superellipse -> loadedComposeLifePreferences.currentShape as CurrentShape.Superellipse
         },
         darkThemeConfig = loadedComposeLifePreferences.darkThemeConfig,
         disableAGSL = loadedComposeLifePreferences.disableAGSL,
