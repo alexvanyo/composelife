@@ -638,4 +638,51 @@ class ComposeLifePreferencesTests {
             loadedPreferencesState.value.disableOpenGL,
         )
     }
+
+    @Test
+    fun default_do_not_keep_process_is_false() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
+        assertEquals(ResourceState.Loading, composeLifePreferences.doNotKeepProcessState)
+
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(false),
+            composeLifePreferences.doNotKeepProcessState,
+        )
+    }
+
+    @Test
+    fun setting_do_not_keep_process_updates_value() = runTest {
+        backgroundScope.launch {
+            composeLifePreferences.update()
+        }
+
+        assertEquals(ResourceState.Loading, composeLifePreferences.doNotKeepProcessState)
+
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(false),
+            composeLifePreferences.doNotKeepProcessState,
+        )
+
+        composeLifePreferences.setDoNotKeepProcess(true)
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(true),
+            composeLifePreferences.doNotKeepProcessState,
+        )
+
+        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertEquals(
+            true,
+            loadedPreferencesState.value.doNotKeepProcess,
+        )
+    }
 }

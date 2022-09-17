@@ -54,6 +54,11 @@ sealed interface Setting {
         override val quickAccessSetting = QuickAccessSetting.DisableOpenGL
     }
 
+    object DoNotKeepProcess : Setting {
+        override val category = SettingsCategory.FeatureFlags
+        override val quickAccessSetting = QuickAccessSetting.DoNotKeepProcess
+    }
+
     @GenSealedEnum
     companion object {
         val Saver = sealedEnumSaver(sealedEnum)

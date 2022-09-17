@@ -55,4 +55,5 @@
     <string name="open_in_settings">Open in settings</string>
     <string name="disable_agsl">Disable AGSL</string>
     <string name="disable_opengl">Disable OpenGL</string>
+    <string name="do_not_keep_process">Do not keep process</string>
 </resources>

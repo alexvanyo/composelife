@@ -23,6 +23,7 @@ data class LoadedComposeLifePreferences(
     val darkThemeConfig: DarkThemeConfig,
     val disableAGSL: Boolean,
     val disableOpenGL: Boolean,
+    val doNotKeepProcess: Boolean,
 ) {
     companion object {
         val Defaults = LoadedComposeLifePreferences(
@@ -35,6 +36,7 @@ data class LoadedComposeLifePreferences(
             darkThemeConfig = DarkThemeConfig.FollowSystem,
             disableAGSL = false,
             disableOpenGL = false,
+            doNotKeepProcess = false,
         )
     }
 }

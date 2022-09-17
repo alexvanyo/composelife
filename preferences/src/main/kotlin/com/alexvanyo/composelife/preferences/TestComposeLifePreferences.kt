@@ -58,6 +58,9 @@ class TestComposeLifePreferences : ComposeLifePreferences {
     override var disableOpenGLState: ResourceState<Boolean> by mutableStateOf(ResourceState.Loading)
         private set
 
+    override var doNotKeepProcessState: ResourceState<Boolean> by mutableStateOf(ResourceState.Loading)
+        private set
+
     override val loadedPreferencesState: ResourceState<LoadedComposeLifePreferences>
         get() = combine(
             quickAccessSettingsState,
@@ -66,6 +69,7 @@ class TestComposeLifePreferences : ComposeLifePreferences {
             darkThemeConfigState,
             disableAGSLState,
             disableOpenGLState,
+            doNotKeepProcessState,
         ) {
             @Suppress("UNCHECKED_CAST")
             LoadedComposeLifePreferences(
@@ -75,6 +79,7 @@ class TestComposeLifePreferences : ComposeLifePreferences {
                 darkThemeConfig = it[3] as DarkThemeConfig,
                 disableAGSL = it[4] as Boolean,
                 disableOpenGL = it[5] as Boolean,
+                doNotKeepProcess = it[6] as Boolean,
             )
         }
 
@@ -137,6 +142,12 @@ class TestComposeLifePreferences : ComposeLifePreferences {
         }
     }
 
+    override suspend fun setDoNotKeepProcess(doNotKeepProcess: Boolean) {
+        Snapshot.withMutableSnapshot {
+            doNotKeepProcessState = ResourceState.Success(doNotKeepProcess)
+        }
+    }
+
     fun testSetAlgorithmChoice(algorithm: AlgorithmType) {
         Snapshot.withMutableSnapshot {
             algorithmChoiceState = ResourceState.Success(algorithm)
@@ -179,6 +190,12 @@ class TestComposeLifePreferences : ComposeLifePreferences {
         }
     }
 
+    fun testSetDoNotKeepProcess(doNotKeepProcess: Boolean) {
+        Snapshot.withMutableSnapshot {
+            doNotKeepProcessState = ResourceState.Success(doNotKeepProcess)
+        }
+    }
+
     companion object {
         @Suppress("LongParameterList")
         fun Loaded(
@@ -192,6 +209,7 @@ class TestComposeLifePreferences : ComposeLifePreferences {
             quickAccessSettings: Set<QuickAccessSetting> = emptySet(),
             disableAGSL: Boolean = false,
             disableOpenGL: Boolean = false,
+            doNotKeepProcess: Boolean = false,
         ) = TestComposeLifePreferences().apply {
             testSetAlgorithmChoice(algorithmChoice)
             testSetCurrentShapeType(currentShapeType)
@@ -200,6 +218,7 @@ class TestComposeLifePreferences : ComposeLifePreferences {
             testSetQuickAccessSetting(quickAccessSettings)
             testSetDisabledAGSL(disableAGSL)
             testSetDisableOpenGL(disableOpenGL)
+            testSetDoNotKeepProcess(doNotKeepProcess)
         }
     }
 }
