@@ -47,6 +47,7 @@ class SettingsCategoryTests {
             listOf(
                 Setting.DisableAGSL,
                 Setting.DisableOpenGL,
+                Setting.DoNotKeepProcess,
             ),
             SettingsCategory.FeatureFlags.settings,
         )

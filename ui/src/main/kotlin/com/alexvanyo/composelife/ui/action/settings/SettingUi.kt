@@ -38,7 +38,8 @@ interface SettingUiHiltEntryPoint :
     ComposeLifePreferencesProvider,
     DarkThemeConfigUiHiltEntryPoint,
     DisableAGSLUiHiltEntryPoint,
-    DisableOpenGLUiHiltEntryPoint
+    DisableOpenGLUiHiltEntryPoint,
+    DoNotKeepProcessUiHiltEntryPoint
 
 interface SettingUiLocalEntryPoint :
     AlgorithmImplementationUiLocalEntryPoint,
@@ -47,6 +48,7 @@ interface SettingUiLocalEntryPoint :
     DarkThemeConfigUiLocalEntryPoint,
     DisableAGSLUiLocalEntryPoint,
     DisableOpenGLUiLocalEntryPoint,
+    DoNotKeepProcessUiLocalEntryPoint,
     LoadedComposeLifePreferencesProvider
 
 context(SettingUiHiltEntryPoint, SettingUiLocalEntryPoint)
@@ -84,6 +86,7 @@ fun SettingUi(
             Setting.CellShapeConfig -> CellShapeConfigUi()
             Setting.DisableAGSL -> DisableAGSLUi()
             Setting.DisableOpenGL -> DisableOpenGLUi()
+            Setting.DoNotKeepProcess -> DoNotKeepProcessUi()
         }
     }
 }
@@ -102,6 +105,7 @@ fun SettingUi(
             QuickAccessSetting.DarkThemeConfig -> Setting.DarkThemeConfig
             QuickAccessSetting.DisableAGSL -> Setting.DisableAGSL
             QuickAccessSetting.DisableOpenGL -> Setting.DisableOpenGL
+            QuickAccessSetting.DoNotKeepProcess -> Setting.DoNotKeepProcess
         },
         modifier = modifier,
         onOpenInSettingsClicked = onOpenInSettingsClicked,

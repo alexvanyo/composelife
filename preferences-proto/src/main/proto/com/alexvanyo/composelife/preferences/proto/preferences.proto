@@ -33,4 +33,5 @@ message PreferencesProto {
   repeated QuickAccessSettingProto quick_access_settings = 5;
   bool disable_agsl = 6;
   bool disable_opengl = 7;
+  bool do_not_keep_process = 8;
 }

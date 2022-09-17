@@ -42,6 +42,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.doNotKeepProcess)
     implementation(projects.resources)
     implementation(projects.ui)
 

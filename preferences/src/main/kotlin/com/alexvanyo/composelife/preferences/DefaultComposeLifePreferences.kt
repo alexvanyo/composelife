@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Suppress("TooManyFunctions")
 @Singleton
 class DefaultComposeLifePreferences @Inject constructor(
     private val dataStore: PreferencesDataStore,
@@ -59,11 +60,14 @@ class DefaultComposeLifePreferences @Inject constructor(
     override val disableOpenGLState: ResourceState<Boolean>
         get() = loadedPreferencesState.map(LoadedComposeLifePreferences::disableOpenGL)
 
+    override val doNotKeepProcessState: ResourceState<Boolean>
+        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::doNotKeepProcess)
+
     override var loadedPreferencesState:
         ResourceState<LoadedComposeLifePreferences> by mutableStateOf(ResourceState.Loading)
             private set
 
-    @Suppress("LongMethod")
+    @Suppress("LongMethod", "ComplexMethod")
     override suspend fun update() {
         dataStore.data
             .onEach { preferencesProto ->
@@ -80,13 +84,15 @@ class DefaultComposeLifePreferences @Inject constructor(
                                 QuickAccessSetting.DisableAGSL
                             QuickAccessSettingProto.DISABLE_OPENGL ->
                                 QuickAccessSetting.DisableOpenGL
+                            QuickAccessSettingProto.DO_NOT_KEEP_PROCESS ->
+                                QuickAccessSetting.DoNotKeepProcess
                             QuickAccessSettingProto.SETTINGS_UNKNOWN,
                             QuickAccessSettingProto.UNRECOGNIZED,
                             -> null
                         }
                     }.toSet()
 
-                val algorithmChoiceState =
+                val algorithmChoice =
                     when (preferencesProto.algorithm!!) {
                         AlgorithmProto.ALGORITHM_UNKNOWN,
                         AlgorithmProto.DEFAULT,
@@ -96,14 +102,14 @@ class DefaultComposeLifePreferences @Inject constructor(
                         AlgorithmProto.NAIVE -> AlgorithmType.NaiveAlgorithm
                     }
 
-                val currentShapeState =
+                val currentShape =
                     when (preferencesProto.currentShapeType!!) {
                         CurrentShapeTypeProto.CURRENT_SHAPE_TYPE_UNKNOWN,
                         CurrentShapeTypeProto.UNRECOGNIZED, -> defaultRoundRectangle
                         CurrentShapeTypeProto.ROUND_RECTANGLE -> preferencesProto.roundRectangle.toResolved()
                     }
 
-                val darkThemeConfigState =
+                val darkThemeConfig =
                     when (preferencesProto.darkThemeConfig!!) {
                         DarkThemeConfigProto.DARK_THEME_UNKNOWN,
                         DarkThemeConfigProto.UNRECOGNIZED,
@@ -111,18 +117,20 @@ class DefaultComposeLifePreferences @Inject constructor(
                         DarkThemeConfigProto.DARK -> DarkThemeConfig.Dark
                         DarkThemeConfigProto.LIGHT -> DarkThemeConfig.Light
                     }
-                val disableAGSLState = preferencesProto.disableAgsl
-                val disableOpenGLState = preferencesProto.disableOpengl
+                val disableAGSL = preferencesProto.disableAgsl
+                val disableOpenGL = preferencesProto.disableOpengl
+                val doNotKeepProcess = preferencesProto.doNotKeepProcess
 
                 Snapshot.withMutableSnapshot {
                     loadedPreferencesState = ResourceState.Success(
                         LoadedComposeLifePreferences(
                             quickAccessSettings = quickAccessSettings,
-                            algorithmChoice = algorithmChoiceState,
-                            currentShape = currentShapeState,
-                            darkThemeConfig = darkThemeConfigState,
-                            disableAGSL = disableAGSLState,
-                            disableOpenGL = disableOpenGLState,
+                            algorithmChoice = algorithmChoice,
+                            currentShape = currentShape,
+                            darkThemeConfig = darkThemeConfig,
+                            disableAGSL = disableAGSL,
+                            disableOpenGL = disableOpenGL,
+                            doNotKeepProcess = doNotKeepProcess,
                         ),
                     )
                 }
@@ -198,6 +206,7 @@ class DefaultComposeLifePreferences @Inject constructor(
                 QuickAccessSetting.DarkThemeConfig -> QuickAccessSettingProto.DARK_THEME_CONFIG
                 QuickAccessSetting.DisableAGSL -> QuickAccessSettingProto.DISABLE_AGSL
                 QuickAccessSetting.DisableOpenGL -> QuickAccessSettingProto.DISABLE_OPENGL
+                QuickAccessSetting.DoNotKeepProcess -> QuickAccessSettingProto.DO_NOT_KEEP_PROCESS
             }
 
             preferencesProto.copy {
@@ -225,6 +234,14 @@ class DefaultComposeLifePreferences @Inject constructor(
         dataStore.updateData { preferencesProto ->
             preferencesProto.copy {
                 disableOpengl = disabled
+            }
+        }
+    }
+
+    override suspend fun setDoNotKeepProcess(doNotKeepProcess: Boolean) {
+        dataStore.updateData { preferencesProto ->
+            preferencesProto.copy {
+                this.doNotKeepProcess = doNotKeepProcess
             }
         }
     }

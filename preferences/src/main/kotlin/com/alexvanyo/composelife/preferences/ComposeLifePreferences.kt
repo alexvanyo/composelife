@@ -33,6 +33,8 @@ interface ComposeLifePreferences : Updatable {
 
     val disableOpenGLState: ResourceState<Boolean>
 
+    val doNotKeepProcessState: ResourceState<Boolean>
+
     val loadedPreferencesState: ResourceState<LoadedComposeLifePreferences>
 
     suspend fun setAlgorithmChoice(algorithm: AlgorithmType)
@@ -50,4 +52,6 @@ interface ComposeLifePreferences : Updatable {
     suspend fun setDisabledAGSL(disabled: Boolean)
 
     suspend fun setDisableOpenGL(disabled: Boolean)
+
+    suspend fun setDoNotKeepProcess(doNotKeepProcess: Boolean)
 }

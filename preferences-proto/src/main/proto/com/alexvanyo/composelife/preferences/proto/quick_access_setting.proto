@@ -26,4 +26,5 @@ enum QuickAccessSettingProto {
   CELL_SHAPE_CONFIG = 3;
   DISABLE_AGSL = 4;
   DISABLE_OPENGL = 5;
+  DO_NOT_KEEP_PROCESS = 6;
 }
