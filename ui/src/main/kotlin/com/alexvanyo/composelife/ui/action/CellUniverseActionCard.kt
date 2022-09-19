@@ -76,7 +76,7 @@ context(CellUniverseActionCardHiltEntryPoint, CellUniverseActionCardLocalEntryPo
 fun CellUniverseActionCard(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     windowSizeClass: WindowSizeClass,
-    isTopCard: Boolean,
+    enableBackHandler: Boolean,
     isViewportTracking: Boolean,
     setIsViewportTracking: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -86,7 +86,7 @@ fun CellUniverseActionCard(
 ) {
     CellUniverseActionCard(
         windowSizeClass = windowSizeClass,
-        isTopCard = isTopCard,
+        enableBackHandler = enableBackHandler,
         isRunning = when (temporalGameOfLifeState.status) {
             TemporalGameOfLifeState.EvolutionStatus.Paused -> false
             is TemporalGameOfLifeState.EvolutionStatus.Running -> true
@@ -115,7 +115,7 @@ context(CellUniverseActionCardHiltEntryPoint, CellUniverseActionCardLocalEntryPo
 @Composable
 fun CellUniverseActionCard(
     windowSizeClass: WindowSizeClass,
-    isTopCard: Boolean,
+    enableBackHandler: Boolean,
     isRunning: Boolean,
     setIsRunning: (Boolean) -> Unit,
     onStep: () -> Unit,
@@ -130,7 +130,7 @@ fun CellUniverseActionCard(
     actionCardState: CellUniverseActionCardState = rememberCellUniverseActionCardState(),
 ) {
     if (actionCardState.isExpanded && actionCardState.canNavigateBack) {
-        BackHandler(enabled = isTopCard) {
+        BackHandler(enabled = enableBackHandler) {
             actionCardState.onBackPressed(actionCardState.navigationState.currentEntryId)
         }
     }
@@ -159,12 +159,6 @@ fun CellUniverseActionCard(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            if (actionCardState.isExpanded && actionCardState.canNavigateBack) {
-                BackHandler(enabled = isTopCard) {
-                    actionCardState.onBackPressed(actionCardState.navigationState.currentEntryId)
-                }
-            }
-
             AnimatedVisibility(visible = !actionCardState.isFullscreen) {
                 ActionControlRow(
                     isElevated = actionCardState.isExpanded && currentScrollState.canScrollUp,
