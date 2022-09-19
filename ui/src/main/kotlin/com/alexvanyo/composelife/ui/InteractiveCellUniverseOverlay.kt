@@ -279,7 +279,7 @@ fun InteractiveCellUniverseOverlay(
                 CellUniverseActionCard(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = windowSizeClass,
-                    isTopCard = isActionCardTopCard,
+                    enableBackHandler = isActionCardTopCard,
                     isViewportTracking = isViewportTracking,
                     setIsViewportTracking = setIsViewportTracking,
                     modifier = Modifier
