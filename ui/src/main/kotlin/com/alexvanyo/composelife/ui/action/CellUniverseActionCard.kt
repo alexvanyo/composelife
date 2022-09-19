@@ -27,9 +27,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkOut
 import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -178,10 +176,6 @@ fun CellUniverseActionCard(
                     isViewportTracking = isViewportTracking,
                     setIsViewportTracking = setIsViewportTracking,
                 )
-            }
-
-            AnimatedVisibility(visible = !actionCardState.isFullscreen && actionCardState.isExpanded) {
-                Spacer(modifier = Modifier.height(8.dp))
             }
 
             AnimatedContent(

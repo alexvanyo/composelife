@@ -85,7 +85,8 @@ fun InlineSettingsScreen(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .verticalScroll(scrollState),
+            .verticalScroll(scrollState)
+            .padding(vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val quickAccessSettings = preferences.quickAccessSettings
