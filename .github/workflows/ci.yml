@@ -136,7 +136,7 @@ jobs:
 
   android-test-gmd:
     needs: android-test-gmd-cfg
-    runs-on: macos-latest # for hardware acceleration
+    runs-on: buildjet-2vcpu-ubuntu-2204
     timeout-minutes: 90
 
     concurrency:
