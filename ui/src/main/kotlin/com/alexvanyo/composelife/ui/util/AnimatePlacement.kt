@@ -29,7 +29,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.layout.onPlaced
@@ -42,7 +41,6 @@ import kotlinx.coroutines.launch
 /**
  * A [Modifier] that animates placement using the given [animationSpec].
  */
-@OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.animatePlacement(
     animationSpec: AnimationSpec<IntOffset> = spring(stiffness = Spring.StiffnessMedium),
     alignment: Alignment = Alignment.Center,

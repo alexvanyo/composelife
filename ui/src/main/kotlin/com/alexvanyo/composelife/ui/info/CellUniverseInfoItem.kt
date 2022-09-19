@@ -44,7 +44,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.triStateToggleable
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -99,7 +98,7 @@ class CellUniverseInfoItemContent(
 }
 
 @Suppress("LongMethod")
-@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ColumnScope.InfoItem(
     cellUniverseInfoItemContent: CellUniverseInfoItemContent,
