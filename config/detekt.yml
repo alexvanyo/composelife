@@ -18,6 +18,10 @@ empty-blocks:
 formatting:
   CommentSpacing:
     excludes: [ '**/generated/**' ]
+  EnumEntryNameCase:
+    excludes: [ '**/generated/**' ]
+  Filename:
+    excludes: [ '**/generated/**' ]
   FunKeywordSpacing:
     active: true
   Indentation:
@@ -59,6 +63,8 @@ naming:
   FunctionNaming:
     active: false
   MatchingDeclarationName:
+    excludes: [ '**/generated/**' ]
+  ObjectPropertyNaming:
     excludes: [ '**/generated/**' ]
   TopLevelPropertyNaming:
     excludes: [ '**/generated/**' ]

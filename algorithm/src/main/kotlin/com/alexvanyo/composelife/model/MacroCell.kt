@@ -287,8 +287,9 @@ fun MacroCell.containsAll(targets: Collection<IntOffset>): Boolean {
     check(size > 0)
 
     // We can't contain targets outside of the representation
-    if (targets.any { target -> target.x !in 0 until (1 shl level) || target.y !in 0 until (1 shl level) })
+    if (targets.any { target -> target.x !in 0 until (1 shl level) || target.y !in 0 until (1 shl level) }) {
         return false
+    }
 
     return when (this) {
         AliveCell -> {

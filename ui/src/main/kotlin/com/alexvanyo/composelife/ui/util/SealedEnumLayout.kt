@@ -35,10 +35,14 @@ import com.livefront.sealedenum.SealedEnum
  *
  * Every possible of [T] should be represented by exactly one measurable, otherwise an exception will be thrown.
  */
-@UiComposable @Composable
+@UiComposable
+@Composable
 inline fun <T> Layout(
     layoutIdTypes: SealedEnum<T>,
-    content: @Composable @UiComposable () -> Unit,
+    content:
+        @Composable
+        @UiComposable
+        () -> Unit,
     modifier: Modifier = Modifier,
     measurePolicy: SealedEnumMeasurePolicy<T>,
 ) {
