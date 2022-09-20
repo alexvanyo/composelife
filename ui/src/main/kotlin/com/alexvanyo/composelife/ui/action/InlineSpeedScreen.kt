@@ -50,7 +50,9 @@ fun InlineSpeedScreen(
     scrollState: ScrollState = rememberScrollState(),
 ) {
     Column(
-        modifier = modifier.verticalScroll(scrollState),
+        modifier = modifier
+            .verticalScroll(scrollState)
+            .padding(vertical = 8.dp),
     ) {
         TargetStepsPerSecondControl(
             targetStepsPerSecond = targetStepsPerSecond,
