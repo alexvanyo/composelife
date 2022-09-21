@@ -50,7 +50,6 @@ import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.ordinal
 import com.alexvanyo.composelife.ui.R
-import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorHiltEntryPoint
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
@@ -65,7 +64,6 @@ import kotlinx.coroutines.flow.onEach
 @InstallIn(ActivityComponent::class)
 interface InlineSettingsScreenHiltEntryPoint :
     ComposeLifePreferencesProvider,
-    GameOfLifeProgressIndicatorHiltEntryPoint,
     SettingUiHiltEntryPoint
 
 interface InlineSettingsScreenLocalEntryPoint :
