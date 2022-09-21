@@ -28,7 +28,6 @@ import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.component.DropdownOption
-import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorHiltEntryPoint
 import com.alexvanyo.composelife.ui.component.TextFieldDropdown
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
@@ -42,8 +41,7 @@ import kotlinx.coroutines.launch
 @EntryPoint
 @InstallIn(ActivityComponent::class)
 interface DarkThemeConfigUiHiltEntryPoint :
-    ComposeLifePreferencesProvider,
-    GameOfLifeProgressIndicatorHiltEntryPoint
+    ComposeLifePreferencesProvider
 
 interface DarkThemeConfigUiLocalEntryPoint :
     LoadedComposeLifePreferencesProvider

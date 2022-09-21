@@ -48,6 +48,7 @@ import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicator
+import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorHiltEntryPoint
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorLocalEntryPoint
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
@@ -67,6 +68,7 @@ import kotlin.time.Duration.Companion.seconds
 interface ComposeLifeAppHiltEntryPoint :
     ComposeLifePreferencesProvider,
     CellStateRepositoryProvider,
+    GameOfLifeProgressIndicatorHiltEntryPoint,
     InteractiveCellUniverseHiltEntryPoint
 
 context(ComposeLifeAppHiltEntryPoint)
