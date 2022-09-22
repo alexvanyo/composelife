@@ -1,5 +1,5 @@
 [versions]
-accompanist = "0.26.3-beta"
+accompanist = "0.26.4-beta"
 androidDesugarJdkLibs = "2.0.0"
 androidGradlePlugin = "8.0.0-alpha01"
 androidR8 = "3.3.75"
