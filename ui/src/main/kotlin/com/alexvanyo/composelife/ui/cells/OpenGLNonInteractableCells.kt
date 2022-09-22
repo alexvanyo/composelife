@@ -150,6 +150,7 @@ fun OpenGLNonInteractableCells(
             }.apply {
                 setEGLContextClientVersion(2)
                 setRenderer(renderer)
+                renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
 
                 val openGLExecutor = Executor(::queueEvent)
                 val openGLDispatcher = openGLExecutor.asCoroutineDispatcher()
@@ -157,6 +158,7 @@ fun OpenGLNonInteractableCells(
                 coroutineScope.launch {
                     parametersState
                         .onEach(renderer::setParameters)
+                        .onEach { requestRender() }
                         .flowOn(openGLDispatcher)
                         .collect()
                 }
