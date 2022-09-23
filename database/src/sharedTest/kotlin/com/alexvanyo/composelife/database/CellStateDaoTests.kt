@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.database
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
+import app.cash.turbine.withTurbineTimeout
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,6 +31,7 @@ import org.junit.runner.RunWith
 import javax.inject.Inject
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -52,32 +54,22 @@ class CellStateDaoTests {
 
     @Test
     fun get_cell_states_returns_empty_initially() = runTest(testDispatcher) {
-        cellStateDao.getCellStates().test {
-            assertEquals(emptyList(), awaitItem())
+        withTurbineTimeout(5.seconds) {
+            cellStateDao.getCellStates().test {
+                assertEquals(emptyList(), awaitItem())
+            }
         }
     }
 
     @Test
     fun get_cell_states_returns_value_once_saved() = runTest(testDispatcher) {
-        cellStateDao.getCellStates().test {
-            assertEquals(emptyList(), awaitItem())
+        withTurbineTimeout(5.seconds) {
+            cellStateDao.getCellStates().test {
+                assertEquals(emptyList(), awaitItem())
 
-            val insertedId = cellStateDao.upsertCellState(
-                CellStateEntity(
-                    id = 0,
-                    name = null,
-                    description = null,
-                    formatExtension = null,
-                    serializedCellState = "O",
-                    generation = 0,
-                    wasAutosaved = true,
-                ),
-            )
-
-            assertEquals(
-                listOf(
+                val insertedId = cellStateDao.upsertCellState(
                     CellStateEntity(
-                        id = insertedId,
+                        id = 0,
                         name = null,
                         description = null,
                         formatExtension = null,
@@ -85,49 +77,146 @@ class CellStateDaoTests {
                         generation = 0,
                         wasAutosaved = true,
                     ),
-                ),
-                awaitItem(),
-            )
+                )
+
+                assertEquals(
+                    listOf(
+                        CellStateEntity(
+                            id = insertedId,
+                            name = null,
+                            description = null,
+                            formatExtension = null,
+                            serializedCellState = "O",
+                            generation = 0,
+                            wasAutosaved = true,
+                        ),
+                    ),
+                    awaitItem(),
+                )
+            }
         }
     }
 
     @Test
     fun get_cell_states_returns_value_if_saved_before() = runTest(testDispatcher) {
-        val insertedId = cellStateDao.upsertCellState(
-            CellStateEntity(
-                id = 0,
-                name = null,
-                description = null,
-                formatExtension = null,
-                serializedCellState = "O",
-                generation = 0,
-                wasAutosaved = true,
-            ),
-        )
-
-        cellStateDao.getCellStates().test {
-            assertEquals(
-                listOf(
-                    CellStateEntity(
-                        id = insertedId,
-                        name = null,
-                        description = null,
-                        formatExtension = null,
-                        serializedCellState = "O",
-                        generation = 0,
-                        wasAutosaved = true,
-                    ),
+        withTurbineTimeout(5.seconds) {
+            val insertedId = cellStateDao.upsertCellState(
+                CellStateEntity(
+                    id = 0,
+                    name = null,
+                    description = null,
+                    formatExtension = null,
+                    serializedCellState = "O",
+                    generation = 0,
+                    wasAutosaved = true,
                 ),
-                awaitItem(),
             )
+
+            cellStateDao.getCellStates().test {
+                assertEquals(
+                    listOf(
+                        CellStateEntity(
+                            id = insertedId,
+                            name = null,
+                            description = null,
+                            formatExtension = null,
+                            serializedCellState = "O",
+                            generation = 0,
+                            wasAutosaved = true,
+                        ),
+                    ),
+                    awaitItem(),
+                )
+            }
         }
     }
 
     @Test
     fun get_cell_states_returns_empty_once_deleted() = runTest(testDispatcher) {
-        cellStateDao.getCellStates().test {
-            assertEquals(emptyList(), awaitItem())
+        withTurbineTimeout(5.seconds) {
+            cellStateDao.getCellStates().test {
+                assertEquals(emptyList(), awaitItem())
 
+                val insertedId = cellStateDao.upsertCellState(
+                    CellStateEntity(
+                        id = 0,
+                        name = null,
+                        description = null,
+                        formatExtension = null,
+                        serializedCellState = "O",
+                        generation = 0,
+                        wasAutosaved = true,
+                    ),
+                )
+
+                assertEquals(
+                    listOf(
+                        CellStateEntity(
+                            id = insertedId,
+                            name = null,
+                            description = null,
+                            formatExtension = null,
+                            serializedCellState = "O",
+                            generation = 0,
+                            wasAutosaved = true,
+                        ),
+                    ),
+                    awaitItem(),
+                )
+
+                cellStateDao.deleteCellState(insertedId)
+
+                assertEquals(emptyList(), awaitItem())
+            }
+        }
+    }
+
+    @Test
+    fun get_cell_state_by_id_returns_null_initially() = runTest(testDispatcher) {
+        withTurbineTimeout(5.seconds) {
+            cellStateDao.getCellStateById(123).test {
+                assertNull(awaitItem())
+            }
+        }
+    }
+
+    @Test
+    fun get_cell_state_by_id_returns_value_once_saved() = runTest(testDispatcher) {
+        withTurbineTimeout(5.seconds) {
+            cellStateDao.getCellStateById(123).test {
+                assertNull(awaitItem())
+
+                cellStateDao.upsertCellState(
+                    CellStateEntity(
+                        id = 123,
+                        name = null,
+                        description = null,
+                        formatExtension = null,
+                        serializedCellState = "O",
+                        generation = 0,
+                        wasAutosaved = true,
+                    ),
+                )
+
+                assertEquals(
+                    CellStateEntity(
+                        id = 123,
+                        name = null,
+                        description = null,
+                        formatExtension = null,
+                        serializedCellState = "O",
+                        generation = 0,
+                        wasAutosaved = true,
+                    ),
+                    awaitItem(),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun get_cell_state_by_id_returns_value_if_saved_before() = runTest(testDispatcher) {
+        withTurbineTimeout(5.seconds) {
             val insertedId = cellStateDao.upsertCellState(
                 CellStateEntity(
                     id = 0,
@@ -140,8 +229,8 @@ class CellStateDaoTests {
                 ),
             )
 
-            assertEquals(
-                listOf(
+            cellStateDao.getCellStateById(insertedId).test {
+                assertEquals(
                     CellStateEntity(
                         id = insertedId,
                         name = null,
@@ -151,180 +240,15 @@ class CellStateDaoTests {
                         generation = 0,
                         wasAutosaved = true,
                     ),
-                ),
-                awaitItem(),
-            )
-
-            cellStateDao.deleteCellState(insertedId)
-
-            assertEquals(emptyList(), awaitItem())
-        }
-    }
-
-    @Test
-    fun get_cell_state_by_id_returns_null_initially() = runTest(testDispatcher) {
-        cellStateDao.getCellStateById(123).test {
-            assertNull(awaitItem())
-        }
-    }
-
-    @Test
-    fun get_cell_state_by_id_returns_value_once_saved() = runTest(testDispatcher) {
-        cellStateDao.getCellStateById(123).test {
-            assertNull(awaitItem())
-
-            cellStateDao.upsertCellState(
-                CellStateEntity(
-                    id = 123,
-                    name = null,
-                    description = null,
-                    formatExtension = null,
-                    serializedCellState = "O",
-                    generation = 0,
-                    wasAutosaved = true,
-                ),
-            )
-
-            assertEquals(
-                CellStateEntity(
-                    id = 123,
-                    name = null,
-                    description = null,
-                    formatExtension = null,
-                    serializedCellState = "O",
-                    generation = 0,
-                    wasAutosaved = true,
-                ),
-                awaitItem(),
-            )
-        }
-    }
-
-    @Test
-    fun get_cell_state_by_id_returns_value_if_saved_before() = runTest(testDispatcher) {
-        val insertedId = cellStateDao.upsertCellState(
-            CellStateEntity(
-                id = 0,
-                name = null,
-                description = null,
-                formatExtension = null,
-                serializedCellState = "O",
-                generation = 0,
-                wasAutosaved = true,
-            ),
-        )
-
-        cellStateDao.getCellStateById(insertedId).test {
-            assertEquals(
-                CellStateEntity(
-                    id = insertedId,
-                    name = null,
-                    description = null,
-                    formatExtension = null,
-                    serializedCellState = "O",
-                    generation = 0,
-                    wasAutosaved = true,
-                ),
-                awaitItem(),
-            )
+                    awaitItem(),
+                )
+            }
         }
     }
 
     @Test
     fun get_cell_states_returns_null_once_deleted() = runTest(testDispatcher) {
-        val insertedId = cellStateDao.upsertCellState(
-            CellStateEntity(
-                id = 0,
-                name = null,
-                description = null,
-                formatExtension = null,
-                serializedCellState = "O",
-                generation = 0,
-                wasAutosaved = true,
-            ),
-        )
-
-        cellStateDao.getCellStateById(insertedId).test {
-            assertEquals(
-                CellStateEntity(
-                    id = insertedId,
-                    name = null,
-                    description = null,
-                    formatExtension = null,
-                    serializedCellState = "O",
-                    generation = 0,
-                    wasAutosaved = true,
-                ),
-                awaitItem(),
-            )
-
-            cellStateDao.deleteCellState(insertedId)
-
-            assertNull(awaitItem())
-        }
-    }
-
-    @Test
-    fun get_most_recent_autosaved_cell_state_returns_null_initially() = runTest(testDispatcher) {
-        cellStateDao.getMostRecentAutosavedCellState().test {
-            assertNull(awaitItem())
-        }
-    }
-
-    @Test
-    fun get_most_recent_autosaved_cell_state_returns_null_if_not_autosaved_before() = runTest(testDispatcher) {
-        cellStateDao.upsertCellState(
-            CellStateEntity(
-                id = 0,
-                name = null,
-                description = null,
-                formatExtension = null,
-                serializedCellState = "O",
-                generation = 0,
-                wasAutosaved = false,
-            ),
-        )
-
-        cellStateDao.getMostRecentAutosavedCellState().test {
-            assertEquals(null, awaitItem())
-        }
-    }
-
-    @Test
-    fun get_most_recent_autosaved_cell_state_returns_value_if_autosaved_before() = runTest(testDispatcher) {
-        val insertedId = cellStateDao.upsertCellState(
-            CellStateEntity(
-                id = 0,
-                name = null,
-                description = null,
-                formatExtension = null,
-                serializedCellState = "O",
-                generation = 0,
-                wasAutosaved = true,
-            ),
-        )
-
-        cellStateDao.getMostRecentAutosavedCellState().test {
-            assertEquals(
-                CellStateEntity(
-                    id = insertedId,
-                    name = null,
-                    description = null,
-                    formatExtension = null,
-                    serializedCellState = "O",
-                    generation = 0,
-                    wasAutosaved = true,
-                ),
-                awaitItem(),
-            )
-        }
-    }
-
-    @Test
-    fun get_most_recent_autosaved_cell_state_returns_value_once_autosaved() = runTest(testDispatcher) {
-        cellStateDao.getMostRecentAutosavedCellState().test {
-            assertNull(awaitItem())
-
+        withTurbineTimeout(5.seconds) {
             val insertedId = cellStateDao.upsertCellState(
                 CellStateEntity(
                     id = 0,
@@ -337,9 +261,63 @@ class CellStateDaoTests {
                 ),
             )
 
-            assertEquals(
+            cellStateDao.getCellStateById(insertedId).test {
+                assertEquals(
+                    CellStateEntity(
+                        id = insertedId,
+                        name = null,
+                        description = null,
+                        formatExtension = null,
+                        serializedCellState = "O",
+                        generation = 0,
+                        wasAutosaved = true,
+                    ),
+                    awaitItem(),
+                )
+
+                cellStateDao.deleteCellState(insertedId)
+
+                assertNull(awaitItem())
+            }
+        }
+    }
+
+    @Test
+    fun get_most_recent_autosaved_cell_state_returns_null_initially() = runTest(testDispatcher) {
+        withTurbineTimeout(5.seconds) {
+            cellStateDao.getMostRecentAutosavedCellState().test {
+                assertNull(awaitItem())
+            }
+        }
+    }
+
+    @Test
+    fun get_most_recent_autosaved_cell_state_returns_null_if_not_autosaved_before() = runTest(testDispatcher) {
+        withTurbineTimeout(5.seconds) {
+            cellStateDao.upsertCellState(
                 CellStateEntity(
-                    id = insertedId,
+                    id = 0,
+                    name = null,
+                    description = null,
+                    formatExtension = null,
+                    serializedCellState = "O",
+                    generation = 0,
+                    wasAutosaved = false,
+                ),
+            )
+
+            cellStateDao.getMostRecentAutosavedCellState().test {
+                assertEquals(null, awaitItem())
+            }
+        }
+    }
+
+    @Test
+    fun get_most_recent_autosaved_cell_state_returns_value_if_autosaved_before() = runTest(testDispatcher) {
+        withTurbineTimeout(5.seconds) {
+            val insertedId = cellStateDao.upsertCellState(
+                CellStateEntity(
+                    id = 0,
                     name = null,
                     description = null,
                     formatExtension = null,
@@ -347,8 +325,56 @@ class CellStateDaoTests {
                     generation = 0,
                     wasAutosaved = true,
                 ),
-                awaitItem(),
             )
+
+            cellStateDao.getMostRecentAutosavedCellState().test {
+                assertEquals(
+                    CellStateEntity(
+                        id = insertedId,
+                        name = null,
+                        description = null,
+                        formatExtension = null,
+                        serializedCellState = "O",
+                        generation = 0,
+                        wasAutosaved = true,
+                    ),
+                    awaitItem(),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun get_most_recent_autosaved_cell_state_returns_value_once_autosaved() = runTest(testDispatcher) {
+        withTurbineTimeout(5.seconds) {
+            cellStateDao.getMostRecentAutosavedCellState().test {
+                assertNull(awaitItem())
+
+                val insertedId = cellStateDao.upsertCellState(
+                    CellStateEntity(
+                        id = 0,
+                        name = null,
+                        description = null,
+                        formatExtension = null,
+                        serializedCellState = "O",
+                        generation = 0,
+                        wasAutosaved = true,
+                    ),
+                )
+
+                assertEquals(
+                    CellStateEntity(
+                        id = insertedId,
+                        name = null,
+                        description = null,
+                        formatExtension = null,
+                        serializedCellState = "O",
+                        generation = 0,
+                        wasAutosaved = true,
+                    ),
+                    awaitItem(),
+                )
+            }
         }
     }
 }
