@@ -29,7 +29,6 @@ android {
 }
 
 kotlin {
-    jvm()
     android()
 
     sourceSets {

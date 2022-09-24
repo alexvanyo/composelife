@@ -54,14 +54,23 @@ fun Project.configureTesting(
     }
 }
 
+enum class SharedTestConfig {
+    Robolectric,
+    Instrumentation,
+    Both
+}
+
+val Project.useSharedTest: SharedTestConfig get() =
+    when (val useSharedTest = findProperty("com.alexvanyo.composelife.useSharedTest")) {
+        null, "true" -> SharedTestConfig.Both
+        "robolectric" -> SharedTestConfig.Robolectric
+        "android" -> SharedTestConfig.Instrumentation
+        else -> throw GradleException("Unexpected value $useSharedTest for useSharedTest!")
+    }
+
 fun Project.configureAndroidTesting(
     testedExtension: TestedExtension,
 ) {
-    val useSharedTest = findProperty("com.alexvanyo.composelife.useSharedTest")
-    if (useSharedTest !in setOf(null, "true", "robolectric", "android")) {
-        throw GradleException("Unexpected value $useSharedTest for useSharedTest!")
-    }
-
     testedExtension.apply {
         defaultConfig {
             testInstrumentationRunner = "com.alexvanyo.composelife.test.HiltTestRunner"
@@ -71,22 +80,24 @@ fun Project.configureAndroidTesting(
             // Setup a shared test directory for instrumentation tests and Robolectric tests
             val sharedTestDir = "src/sharedTest/kotlin"
             val sharedResDir = "src/sharedTest/res"
-            if (useSharedTest != "android") {
+            val kmpSharedTestDir = "src/androidSharedTest/kotlin"
+            val kmpSharedResDir = "src/androidSharedTest/res"
+            if (useSharedTest != SharedTestConfig.Instrumentation) {
                 getByName("test") {
-                    java.srcDir(sharedTestDir)
-                    res.srcDir(sharedResDir)
-                    resources.srcDir("src/sharedTest/resources")
+                    java.srcDirs(sharedTestDir, kmpSharedTestDir)
+                    res.srcDirs(sharedResDir, kmpSharedResDir)
+                    resources.srcDirs("src/sharedTest/resources", "src/androidSharedTest/resources")
                 }
             }
-            if (useSharedTest != "robolectric") {
+            if (useSharedTest != SharedTestConfig.Robolectric) {
                 getByName("androidTest") {
-                    java.srcDir(sharedTestDir)
-                    res.srcDir(sharedResDir)
+                    java.srcDirs(sharedTestDir, kmpSharedTestDir)
+                    res.srcDirs(sharedResDir, kmpSharedResDir)
                 }
             }
         }
 
-        if (useSharedTest == "robolectric") {
+        if (useSharedTest == SharedTestConfig.Robolectric) {
             testVariants.configureEach {
                 connectedInstrumentTestProvider.configure {
                     doFirst {
@@ -108,7 +119,7 @@ fun Project.configureAndroidTesting(
         // Automatically output Robolectric logs to stdout (for ease of debugging in Android Studio)
         systemProperty("robolectric.logging", "stdout")
 
-        if (useSharedTest == "android" && this.name.contains("Unit")) {
+        if (useSharedTest == SharedTestConfig.Instrumentation && this.name.contains("Unit")) {
             doFirst {
                 throw GradleException("useSharedTest is configured to only run android tests!")
             }

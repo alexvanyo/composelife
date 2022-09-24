@@ -15,7 +15,7 @@
  */
 
 plugins {
-    kotlin("android")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.detekt")
     kotlin("kapt")
@@ -28,8 +28,16 @@ android {
     }
 }
 
-dependencies {
-    implementation(libs.androidx.lifecycle.process)
-    implementation(libs.dagger.hilt.runtime)
-    kapt(libs.dagger.hilt.compiler)
+kotlin {
+    android()
+
+    sourceSets {
+        val androidMain by getting {
+            dependencies {
+                implementation(libs.androidx.lifecycle.process)
+                implementation(libs.dagger.hilt.runtime)
+                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
+            }
+        }
+    }
 }
