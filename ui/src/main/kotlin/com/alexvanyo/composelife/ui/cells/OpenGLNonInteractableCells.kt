@@ -27,17 +27,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.getSystemService
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.openglrenderer.GameOfLifeShape
 import com.alexvanyo.composelife.openglrenderer.GameOfLifeShapeParameters
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
@@ -107,6 +111,7 @@ fun OpenGLNonInteractableCells(
         }
     }
 
+    val lifecycleOwner = LocalLifecycleOwner.current
     val coroutineScope = rememberCoroutineScope()
 
     AndroidView(
@@ -115,9 +120,15 @@ fun OpenGLNonInteractableCells(
                 val parametersState = MutableStateFlow(parameters)
 
                 val renderer = object : Renderer {
-                    private val projectionMatrix = FloatArray(16)
                     private val mvpMatrix = FloatArray(16)
-                    private val viewMatrix = FloatArray(16)
+
+                    init {
+                        val projectionMatrix = FloatArray(16)
+                        Matrix.orthoM(projectionMatrix, 0, 0f, 1f, 0f, 1f, 0.5f, 2f)
+                        val viewMatrix = FloatArray(16)
+                        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f, 0f)
+                        Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
+                    }
 
                     lateinit var gameOfLifeShape: GameOfLifeShape
 
@@ -129,11 +140,6 @@ fun OpenGLNonInteractableCells(
 
                     override fun onSurfaceChanged(unused: GL10?, width: Int, height: Int) {
                         GLES20.glViewport(0, 0, width, height)
-
-                        Matrix.orthoM(projectionMatrix, 0, 0f, 1f, 0f, 1f, 0.5f, 2f)
-                        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f, 0f)
-                        Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
-
                         gameOfLifeShape.setSize(width, height)
                     }
 
@@ -161,6 +167,17 @@ fun OpenGLNonInteractableCells(
                         .onEach { requestRender() }
                         .flowOn(openGLDispatcher)
                         .collect()
+                }
+
+                coroutineScope.launch {
+                    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        onResume()
+                        try {
+                            awaitCancellation()
+                        } finally {
+                            onPause()
+                        }
+                    }
                 }
             }
         },
