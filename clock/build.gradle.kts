@@ -29,7 +29,6 @@ android {
 
 dependencies {
     api(libs.kotlinx.datetime)
-    implementation(libs.androidx.fragment)
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 }

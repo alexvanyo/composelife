@@ -30,7 +30,6 @@ android {
 dependencies {
     api(libs.kotlinx.coroutines.android)
     api(libs.kotlinx.coroutines.core)
-    implementation(libs.androidx.fragment)
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 }

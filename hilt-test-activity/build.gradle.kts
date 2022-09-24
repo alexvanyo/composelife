@@ -30,7 +30,6 @@ android {
 dependencies {
     implementation(projects.resources)
     api(projects.testActivity)
-    implementation(libs.androidx.fragment)
     api(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 }

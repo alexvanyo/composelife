@@ -41,8 +41,6 @@ dependencies {
     api(projects.dispatchers)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.runtime)
-    implementation(libs.androidx.fragment)
-    implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)

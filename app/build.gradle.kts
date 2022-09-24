@@ -50,7 +50,6 @@ dependencies {
     implementation(libs.androidx.activityCompose)
     implementation(libs.androidx.core)
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.androidx.fragment)
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.profileInstaller)
     implementation(libs.androidx.room.runtime)
