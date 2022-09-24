@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
+import com.alexvanyo.composelife.clock.di.ClockProvider
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
@@ -59,7 +60,8 @@ import kotlin.random.Random
 interface GameOfLifeProgressIndicatorHiltEntryPoint :
     GameOfLifeAlgorithmProvider,
     ComposeLifeDispatchersProvider,
-    RandomProvider
+    RandomProvider,
+    ClockProvider
 
 interface GameOfLifeProgressIndicatorLocalEntryPoint :
     CellWindowLocalEntryPoint
@@ -89,6 +91,7 @@ fun GameOfLifeProgressIndicator(
         temporalGameOfLifeState = temporalGameOfLifeState,
         gameOfLifeAlgorithm = gameOfLifeAlgorithm,
         dispatchers = dispatchers,
+        clock = clock,
     )
 
     LaunchedEffect(temporalGameOfLifeStateMutator) {

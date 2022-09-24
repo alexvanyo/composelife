@@ -409,7 +409,7 @@ fun rememberTemporalGameOfLifeStateMutator(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     dispatchers: ComposeLifeDispatchers,
     gameOfLifeAlgorithm: GameOfLifeAlgorithm,
-    clock: Clock = Clock.System,
+    clock: Clock,
 ): TemporalGameOfLifeStateMutator =
     remember(temporalGameOfLifeState, dispatchers, gameOfLifeAlgorithm, clock) {
         TemporalGameOfLifeStateMutator(
