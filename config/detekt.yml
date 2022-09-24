@@ -5,9 +5,30 @@ comments:
 
 complexity:
   LongMethod:
-    excludes: [ '**/test/**', '**/androidTest/**', '**/sharedTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    excludes: [
+      '**/test/**',
+      '**/androidTest/**',
+      '**/sharedTest/**',
+      '**/commonTest/**',
+      '**/jvmTest/**',
+      '**/androidAndroidTest/**',
+      '**/androidSharedTest/**',
+      '**/jsTest/**',
+      '**/iosTest/**'
+    ]
   TooManyFunctions:
-    excludes: [ '**/generated/**', '**/test/**', '**/androidTest/**', '**/sharedTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    excludes: [
+      '**/generated/**',
+      '**/test/**',
+      '**/androidTest/**',
+      '**/sharedTest/**',
+      '**/commonTest/**',
+      '**/jvmTest/**',
+      '**/androidAndroidTest/**',
+      '**/androidSharedTest/**',
+      '**/jsTest/**',
+      '**/iosTest/**'
+    ]
 
 empty-blocks:
   EmptyDefaultConstructor:

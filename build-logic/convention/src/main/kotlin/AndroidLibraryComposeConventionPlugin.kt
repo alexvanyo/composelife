@@ -22,7 +22,6 @@ import org.gradle.kotlin.dsl.getByType
 class AndroidLibraryComposeConventionPlugin : ConventionPlugin({
     with(pluginManager) {
         apply("com.android.library")
-        apply("org.jetbrains.kotlin.android")
     }
 
     configureAndroidCompose(extensions.getByType<LibraryExtension>())
