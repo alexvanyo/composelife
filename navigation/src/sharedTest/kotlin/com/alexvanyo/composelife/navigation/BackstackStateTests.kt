@@ -43,6 +43,7 @@ class BackstackStateTests {
     fun backstack_state_with_basic_value_is_saved_correctly() {
         val stateRestorationTester = StateRestorationTester(composeTestRule)
 
+        @Suppress("DoubleMutabilityForCollection")
         var backstackMap: MutableBackstackMap<String>? = null
 
         stateRestorationTester.setContent {
@@ -93,6 +94,7 @@ class BackstackStateTests {
     fun backstack_state_with_saver_factory_is_saved_correctly() {
         val stateRestorationTester = StateRestorationTester(composeTestRule)
 
+        @Suppress("DoubleMutabilityForCollection")
         var backstackMap: MutableBackstackMap<TestEntryType>? = null
 
         stateRestorationTester.setContent {

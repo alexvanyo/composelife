@@ -22,7 +22,6 @@ import org.gradle.kotlin.dsl.configure
 class AndroidApplicationConventionPlugin : ConventionPlugin({
     with(pluginManager) {
         apply("com.android.application")
-        apply("org.jetbrains.kotlin.android")
     }
 
     extensions.configure<BaseAppModuleExtension> {

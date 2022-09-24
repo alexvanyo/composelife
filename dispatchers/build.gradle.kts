@@ -15,6 +15,7 @@
  */
 
 plugins {
+    kotlin("android")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.detekt")
     kotlin("kapt")

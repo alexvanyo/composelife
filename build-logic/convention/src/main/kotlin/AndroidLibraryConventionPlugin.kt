@@ -22,7 +22,6 @@ import org.gradle.kotlin.dsl.configure
 class AndroidLibraryConventionPlugin : ConventionPlugin({
     with(pluginManager) {
         apply("com.android.library")
-        apply("org.jetbrains.kotlin.android")
     }
 
     extensions.configure<LibraryExtension> {

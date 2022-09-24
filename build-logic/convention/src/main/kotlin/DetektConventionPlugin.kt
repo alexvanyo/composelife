@@ -43,6 +43,13 @@ class DetektConventionPlugin : ConventionPlugin({
             "src/test/kotlin",
             "src/androidTest/kotlin",
             "src/sharedTest/kotlin",
+            "src/commonMain/kotlin",
+            "src/commonTest/kotlin",
+            "src/jvmMain/kotlin",
+            "src/jvmTest/kotlin",
+            "src/androidMain/kotlin",
+            "src/androidTest/kotlin",
+            "src/androidAndroidTest/kotlin",
         )
     }
 
@@ -54,7 +61,7 @@ class DetektConventionPlugin : ConventionPlugin({
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 
-    tasks.named("check") {
-        dependsOn("detektMain")
+    tasks.withType<Detekt>().all {
+        tasks.getByName("check").dependsOn(this)
     }
 },)
