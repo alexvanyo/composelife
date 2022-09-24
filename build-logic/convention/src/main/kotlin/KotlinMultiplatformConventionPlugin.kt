@@ -16,19 +16,12 @@
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import org.gradle.api.JavaVersion
-import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-class KotlinLibraryConventionPlugin : ConventionPlugin({
+class KotlinMultiplatformConventionPlugin : ConventionPlugin({
     with(pluginManager) {
-        apply("org.jetbrains.kotlin.jvm")
-    }
-
-    extensions.configure<JavaPluginExtension> {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        apply("org.jetbrains.kotlin.multiplatform")
     }
 
     tasks.withType<KotlinCompile>().configureEach {

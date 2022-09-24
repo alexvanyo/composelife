@@ -22,7 +22,6 @@ import org.gradle.kotlin.dsl.configure
 class AndroidTestConventionPlugin : ConventionPlugin({
     with(pluginManager) {
         apply("com.android.test")
-        apply("org.jetbrains.kotlin.android")
     }
 
     extensions.configure<TestExtension> {

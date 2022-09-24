@@ -49,6 +49,7 @@ private class TestScreenState(
 
     fun incrementPrevious() {
         check(canIncrementPrevious)
+        @Suppress("UnsafeCallOnNullableType")
         previous!!.increment()
     }
 
@@ -122,9 +123,9 @@ class ModifyPreviousDestinationUseCaseTests {
                         Modifier.clickable {
                             navController.withExpectedActor(entry.id) {
                                 navController.navigate(
-                                    valueFactory = {
+                                    valueFactory = { previous ->
                                         TestScreenState(
-                                            previous = it.value,
+                                            previous = previous.value,
                                         )
                                     },
                                 )
@@ -208,9 +209,9 @@ class ModifyPreviousDestinationUseCaseTests {
                         Modifier.clickable {
                             navController.withExpectedActor(entry.id) {
                                 navController.navigate(
-                                    valueFactory = {
+                                    valueFactory = { previous ->
                                         TestScreenState(
-                                            previous = it.value,
+                                            previous = previous.value,
                                         )
                                     },
                                 )

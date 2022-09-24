@@ -18,6 +18,7 @@ import com.alexvanyo.composelife.buildlogic.sharedTestImplementation
  */
 
 plugins {
+    kotlin("android")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.android.library.gradlemanageddevices")
     id("com.alexvanyo.composelife.android.library.jacoco")

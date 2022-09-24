@@ -416,5 +416,6 @@ private inline fun <reified A : Activity, T : Any> ActivityScenario<A>.withActiv
             block(activity)
         }
     }
+    @Suppress("UnsafeCallOnNullableType")
     return result!!.getOrThrow()
 }
