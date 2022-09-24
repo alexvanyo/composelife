@@ -41,8 +41,6 @@ dependencies {
     api(projects.updatable)
     api(libs.kotlinx.coroutines.core)
     api(libs.kotlinx.coroutines.android)
-    implementation(libs.androidx.fragment)
-    implementation(libs.androidx.lifecycle.viewmodel)
     api(libs.androidx.compose.runtime)
     api(libs.androidx.dataStore)
     api(libs.sealedEnum.runtime)

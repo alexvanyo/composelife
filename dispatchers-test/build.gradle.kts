@@ -29,7 +29,6 @@ android {
 
 dependencies {
     api(projects.dispatchers)
-    implementation(libs.androidx.fragment)
     api(libs.androidx.compose.uiTestJunit4)
     api(libs.kotlinx.coroutines.test)
     api(libs.kotlinx.datetime)

@@ -44,7 +44,6 @@ dependencies {
     api(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.fragment)
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 

@@ -33,7 +33,6 @@ dependencies {
     api(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.test)
     api(libs.androidx.room.runtime)
-    implementation(libs.androidx.fragment)
     implementation(libs.dagger.hilt.runtime)
     api(libs.dagger.hilt.test)
     kapt(libs.dagger.hilt.compiler)

@@ -38,7 +38,6 @@ dependencies {
     api(libs.androidx.compose.runtime)
     api(libs.androidx.compose.ui)
     implementation(libs.androidx.core)
-    implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.kotlinx.coroutines.android)
 
     sharedTestImplementation(projects.testActivity)

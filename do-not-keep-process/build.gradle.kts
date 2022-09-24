@@ -31,7 +31,6 @@ dependencies {
     implementation(projects.preferences)
     api(projects.processLifecycle)
     implementation(projects.updatable)
-    implementation(libs.androidx.fragment)
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 }

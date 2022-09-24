@@ -40,7 +40,6 @@ dependencies {
     implementation(projects.updatable)
     api(libs.kotlinx.coroutines.core)
     api(libs.kotlinx.coroutines.android)
-    implementation(libs.androidx.fragment)
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 

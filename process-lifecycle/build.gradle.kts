@@ -29,7 +29,6 @@ android {
 
 dependencies {
     implementation(libs.androidx.lifecycle.process)
-    implementation(libs.androidx.fragment)
     implementation(libs.dagger.hilt.runtime)
     kapt(libs.dagger.hilt.compiler)
 }

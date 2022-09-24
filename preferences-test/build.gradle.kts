@@ -38,7 +38,6 @@ dependencies {
     api(libs.dagger.hilt.runtime)
     api(libs.dagger.hilt.test)
     implementation(libs.androidx.compose.runtime)
-    implementation(libs.androidx.fragment)
     api(libs.androidx.test.junit)
     kapt(libs.dagger.hilt.compiler)
 
