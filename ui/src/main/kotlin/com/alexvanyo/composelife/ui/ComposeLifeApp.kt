@@ -37,6 +37,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
+import com.alexvanyo.composelife.clock.di.ClockProvider
 import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
 import com.alexvanyo.composelife.data.model.CellStateMetadata
 import com.alexvanyo.composelife.data.model.SaveableCellState
@@ -69,7 +70,8 @@ interface ComposeLifeAppHiltEntryPoint :
     ComposeLifePreferencesProvider,
     CellStateRepositoryProvider,
     GameOfLifeProgressIndicatorHiltEntryPoint,
-    InteractiveCellUniverseHiltEntryPoint
+    InteractiveCellUniverseHiltEntryPoint,
+    ClockProvider
 
 context(ComposeLifeAppHiltEntryPoint)
 @Suppress("LongMethod")
@@ -137,6 +139,7 @@ fun ComposeLifeApp(
                                     temporalGameOfLifeState = temporalGameOfLifeState,
                                     gameOfLifeAlgorithm = gameOfLifeAlgorithm,
                                     dispatchers = dispatchers,
+                                    clock = clock,
                                 )
 
                                 LaunchedEffect(temporalGameOfLifeStateMutator) {

@@ -40,6 +40,7 @@ android {
 
 dependencies {
     api(projects.algorithm)
+    api(projects.clock)
     api(projects.data)
     api(projects.dispatchers)
     implementation(projects.navigation)

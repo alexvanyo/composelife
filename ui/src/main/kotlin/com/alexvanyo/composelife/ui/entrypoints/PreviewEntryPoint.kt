@@ -22,6 +22,7 @@ import androidx.room.Room
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.algorithm.NaiveGameOfLifeAlgorithm
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
+import com.alexvanyo.composelife.clock.di.ClockProvider
 import com.alexvanyo.composelife.data.CellStateRepositoryImpl
 import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
 import com.alexvanyo.composelife.database.AppDatabase
@@ -64,6 +65,7 @@ import com.alexvanyo.composelife.ui.cells.InteractableCellsLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.NonInteractableCellsLocalEntryPoint
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorHiltEntryPoint
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorLocalEntryPoint
+import kotlinx.datetime.Clock
 import kotlin.random.Random
 
 interface PreviewEntryPoint :
@@ -118,6 +120,7 @@ fun WithPreviewDependencies(
         disableOpenGL = loadedComposeLifePreferences.disableOpenGL,
     ),
     random: Random = Random(0),
+    clock: Clock = Clock.System,
     content: @Composable context(PreviewEntryPoint) () -> Unit,
 ) {
     val appDatabase = Room.inMemoryDatabaseBuilder(LocalContext.current, AppDatabase::class.java).build()
@@ -144,6 +147,9 @@ fun WithPreviewDependencies(
     val randomProvider = object : RandomProvider {
         override val random = random
     }
+    val clockProvider = object : ClockProvider {
+        override val clock = clock
+    }
 
     val entryPoint = object :
         PreviewEntryPoint,
@@ -152,7 +158,8 @@ fun WithPreviewDependencies(
         ComposeLifePreferencesProvider by preferencesProvider,
         CellStateRepositoryProvider by cellStateRepositoryProvider,
         LoadedComposeLifePreferencesProvider by loadedPreferencesProvider,
-        RandomProvider by randomProvider {}
+        RandomProvider by randomProvider,
+        ClockProvider by clockProvider {}
 
     content(entryPoint)
 }
