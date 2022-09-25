@@ -101,10 +101,6 @@ gradlePlugin {
             id = "com.alexvanyo.composelife.detekt"
             implementationClass = "DetektConventionPlugin"
         }
-        register("kotlinMultiplatform") {
-            id = "com.alexvanyo.composelife.kotlin.multiplatform"
-            implementationClass = "KotlinMultiplatformConventionPlugin"
-        }
         register("mergeJacoco") {
             id = "com.alexvanyo.composelife.mergejacoco"
             implementationClass = "MergeJacocoConventionPlugin"

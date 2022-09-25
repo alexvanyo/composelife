@@ -15,7 +15,7 @@
  */
 
 plugins {
-    id("com.alexvanyo.composelife.kotlin.multiplatform")
+    kotlin("multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.android.library.compose")
     id("com.alexvanyo.composelife.detekt")
