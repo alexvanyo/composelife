@@ -59,7 +59,7 @@ jobs:
           (echo "==== Attempt 1 ====" && generate_profile) || (echo "==== Attempt 2 ====" && generate_profile) || (echo "==== Both attempts failed ====" && exit 1)
 
       - name: Copy baseline profile to app
-        run: cp app-baseline-profile-generator/build/intermediates/managed_device_android_test_additional_output/benchmark/aosppixel2api31BenchmarkAndroidTest/BaselineProfileGenerator_startup-baseline-prof.txt app/src/main/baseline-prof.txt
+        run: cp app-baseline-profile-generator/build/intermediates/managed_device_android_test_additional_output/benchmark/aosppixel2api31BenchmarkAndroidTest/BaselineProfileGenerator_startup-baseline-prof.txt app/src/androidMain/baseline-prof.txt
 
       - name: Auto-commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
