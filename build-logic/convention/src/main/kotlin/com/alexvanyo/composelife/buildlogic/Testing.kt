@@ -78,21 +78,19 @@ fun Project.configureAndroidTesting(
 
         sourceSets {
             // Setup a shared test directory for instrumentation tests and Robolectric tests
-            val sharedTestDir = "src/sharedTest/kotlin"
-            val sharedResDir = "src/sharedTest/res"
-            val kmpSharedTestDir = "src/androidSharedTest/kotlin"
-            val kmpSharedResDir = "src/androidSharedTest/res"
+            val sharedTestDir = "src/androidSharedTest/kotlin"
+            val sharedResDir = "src/androidSharedTest/res"
             if (useSharedTest != SharedTestConfig.Instrumentation) {
                 getByName("test") {
-                    java.srcDirs(sharedTestDir, kmpSharedTestDir)
-                    res.srcDirs(sharedResDir, kmpSharedResDir)
+                    java.srcDir(sharedTestDir)
+                    res.srcDir(sharedResDir)
                     resources.srcDirs("src/sharedTest/resources", "src/androidSharedTest/resources")
                 }
             }
             if (useSharedTest != SharedTestConfig.Robolectric) {
                 getByName("androidTest") {
-                    java.srcDirs(sharedTestDir, kmpSharedTestDir)
-                    res.srcDirs(sharedResDir, kmpSharedResDir)
+                    java.srcDir(sharedTestDir)
+                    res.srcDir(sharedResDir)
                 }
             }
         }
@@ -133,12 +131,4 @@ fun Project.configureAndroidTesting(
 fun DependencyHandlerScope.sharedTestImplementation(dependencyNotation: Any) {
     add("testImplementation", dependencyNotation)
     add("androidTestImplementation", dependencyNotation)
-}
-
-/**
- * Adds the given dependency to both `kaptTest` and `kaptAndroidTest`.
- */
-fun DependencyHandlerScope.kaptSharedTest(dependencyNotation: Any) {
-    add("kaptTest", dependencyNotation)
-    add("kaptAndroidTest", dependencyNotation)
 }

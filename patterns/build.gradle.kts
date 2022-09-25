@@ -15,7 +15,7 @@
  */
 
 plugins {
-    kotlin("android")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.android.library.gradlemanageddevices")
     id("com.alexvanyo.composelife.android.library.ksp")
@@ -26,16 +26,42 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife.patterns"
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
     }
 }
 
-dependencies {
-    api(projects.algorithm)
-    api(libs.androidx.compose.foundation)
-    api(libs.sealedEnum.runtime)
-    ksp(libs.sealedEnum.ksp)
+kotlin {
+    android()
 
+    sourceSets {
+        val androidMain by getting {
+            dependencies {
+                api(projects.algorithm)
+                api(libs.androidx.compose.foundation)
+                api(libs.sealedEnum.runtime)
+                configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+        val sharedAndroidTest by creating {
+            dependsOn(commonTest)
+        }
+        val androidTest by getting {
+            dependsOn(sharedAndroidTest)
+        }
+        val androidAndroidTest by getting {
+            dependsOn(sharedAndroidTest)
+        }
+    }
+}
+
+dependencies {
+    // TODO: Needing to do this is strange, putting it in androidTest above seems to leak it to androidAndroidTest
     testImplementation(libs.testParameterInjector.junit5)
 }

@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+import com.alexvanyo.composelife.buildlogic.SharedTestConfig
+import com.alexvanyo.composelife.buildlogic.useSharedTest
+
 plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.application")
@@ -85,15 +88,21 @@ kotlin {
             }
         }
         val androidTest by getting {
-            dependsOn(androidSharedTest)
-            dependencies {
-                implementation(libs.testParameterInjector.junit5)
+            if (useSharedTest != SharedTestConfig.Instrumentation) {
+                dependsOn(androidSharedTest)
             }
         }
         val androidAndroidTest by getting {
-            dependsOn(androidSharedTest)
+            if (useSharedTest != SharedTestConfig.Robolectric) {
+                dependsOn(androidSharedTest)
+            }
         }
     }
+}
+
+dependencies {
+    // TODO: Needing to do this is strange, putting it in androidTest above seems to leak it to androidAndroidTest
+    testImplementation(libs.testParameterInjector.junit5)
 }
 
 kapt {

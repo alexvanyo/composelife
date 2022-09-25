@@ -15,7 +15,7 @@
  */
 
 plugins {
-    kotlin("android")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.detekt")
     kotlin("kapt")
@@ -23,15 +23,24 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife.donotkeepprocess"
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
     }
 }
 
-dependencies {
-    implementation(projects.preferences)
-    api(projects.processLifecycle)
-    implementation(projects.updatable)
-    implementation(libs.dagger.hilt.runtime)
-    kapt(libs.dagger.hilt.compiler)
+kotlin {
+    android()
+
+    sourceSets {
+        val androidMain by getting {
+            dependencies {
+                implementation(projects.preferences)
+                api(projects.processLifecycle)
+                implementation(projects.updatable)
+                implementation(libs.dagger.hilt.runtime)
+                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
+            }
+        }
+    }
 }

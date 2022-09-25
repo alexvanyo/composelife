@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.sharedTestImplementation
+import com.alexvanyo.composelife.buildlogic.SharedTestConfig
+import com.alexvanyo.composelife.buildlogic.useSharedTest
 
 plugins {
-    kotlin("android")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.android.library.compose")
     id("com.alexvanyo.composelife.android.library.gradlemanageddevices")
@@ -28,22 +29,55 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife.navigation"
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
     }
 }
 
-dependencies {
-    implementation(projects.snapshotStateSet)
-    api(libs.androidx.compose.animation)
-    api(libs.androidx.compose.runtime)
-    api(libs.androidx.compose.ui)
-    implementation(libs.androidx.core)
-    implementation(libs.kotlinx.coroutines.android)
+kotlin {
+    android()
 
-    sharedTestImplementation(projects.testActivity)
-    sharedTestImplementation(libs.androidx.test.core)
-    sharedTestImplementation(libs.androidx.test.espresso)
-    sharedTestImplementation(libs.kotlinx.coroutines.test)
-    sharedTestImplementation(libs.androidx.compose.uiTestJunit4)
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation(libs.kotlinx.coroutines.core)
+            }
+        }
+        val androidMain by getting {
+            dependencies {
+                implementation(projects.snapshotStateSet)
+                api(libs.androidx.compose.animation)
+                api(libs.androidx.compose.runtime)
+                api(libs.androidx.compose.ui)
+                implementation(libs.androidx.core)
+                implementation(libs.kotlinx.coroutines.android)
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.kotlinx.coroutines.test)
+            }
+        }
+        val androidSharedTest by creating {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(projects.testActivity)
+                implementation(libs.androidx.test.core)
+                implementation(libs.androidx.test.espresso)
+                implementation(libs.androidx.compose.uiTestJunit4)
+            }
+        }
+        val androidTest by getting {
+            if (useSharedTest != SharedTestConfig.Instrumentation) {
+                dependsOn(androidSharedTest)
+            }
+        }
+        val androidAndroidTest by getting {
+            if (useSharedTest != SharedTestConfig.Robolectric) {
+                dependsOn(androidSharedTest)
+            }
+        }
+    }
 }

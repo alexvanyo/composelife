@@ -15,7 +15,7 @@
  */
 
 plugins {
-    kotlin("android")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.test")
     id("com.alexvanyo.composelife.android.test.gradlemanageddevices")
     id("com.alexvanyo.composelife.detekt")
@@ -23,6 +23,7 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife.baselineprofilegenerator"
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     targetProjectPath = ":app"
 }
 
@@ -42,9 +43,17 @@ androidComponents {
     }
 }
 
-dependencies {
-    implementation(libs.junit4)
-    implementation(libs.androidx.benchmark.macro.junit4)
-    implementation(libs.androidx.test.runner)
-    implementation(libs.androidx.test.junit)
+kotlin {
+    android()
+
+    sourceSets {
+        val androidMain by getting {
+            dependencies {
+                implementation(libs.junit4)
+                implementation(libs.androidx.benchmark.macro.junit4)
+                implementation(libs.androidx.test.runner)
+                implementation(libs.androidx.test.junit)
+            }
+        }
+    }
 }

@@ -29,6 +29,7 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife.resourcestate"
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
     }
@@ -78,8 +79,6 @@ kotlin {
             }
         }
         val androidTest by getting {
-            resources.srcDir("")
-
             if (useSharedTest != SharedTestConfig.Instrumentation) {
                 dependsOn(androidSharedTest)
             }

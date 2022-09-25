@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.kaptSharedTest
-import com.alexvanyo.composelife.buildlogic.sharedTestImplementation
+import com.alexvanyo.composelife.buildlogic.useSharedTest
 
 plugins {
-    kotlin("android")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.application")
     id("com.alexvanyo.composelife.android.application.compose")
     id("com.alexvanyo.composelife.android.application.gradlemanageddevices")
@@ -30,6 +29,9 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife"
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    sourceSets["debug"].manifest.srcFile("src/androidDebug/AndroidManifest.xml")
+    sourceSets["staging"].manifest.srcFile("src/androidStaging/AndroidManifest.xml")
     defaultConfig {
         applicationId = "com.alexvanyo.composelife"
         minSdk = 21
@@ -42,33 +44,72 @@ android {
     }
 }
 
-dependencies {
-    implementation(projects.doNotKeepProcess)
-    implementation(projects.resources)
-    implementation(projects.ui)
+kotlin {
+    android()
 
-    implementation(libs.accompanist.systemuicontroller)
-    implementation(libs.androidx.activityCompose)
-    implementation(libs.androidx.core)
-    implementation(libs.androidx.core.splashscreen)
-    implementation(libs.androidx.lifecycle.process)
-    implementation(libs.androidx.profileInstaller)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.dagger.hilt.runtime)
-    kapt(libs.dagger.hilt.compiler)
+    sourceSets {
+        val androidMain by getting {
+            dependencies {
+                implementation(projects.doNotKeepProcess)
+                implementation(projects.resources)
+                implementation(projects.ui)
 
-    debugImplementation(libs.androidx.compose.uiTooling)
-    debugImplementation(libs.leakCanary.android)
-    stagingImplementation(libs.leakCanary.android)
-
-    sharedTestImplementation(projects.databaseTest)
-    sharedTestImplementation(projects.dispatchersTest)
-    sharedTestImplementation(projects.patterns)
-    sharedTestImplementation(projects.preferencesTest)
-    sharedTestImplementation(libs.androidx.test.core)
-    sharedTestImplementation(libs.androidx.test.espresso)
-    sharedTestImplementation(libs.androidx.window)
-    kaptSharedTest(libs.dagger.hilt.compiler)
+                implementation(libs.accompanist.systemuicontroller)
+                implementation(libs.androidx.activityCompose)
+                implementation(libs.androidx.core)
+                implementation(libs.androidx.core.splashscreen)
+                implementation(libs.androidx.lifecycle.process)
+                implementation(libs.androidx.profileInstaller)
+                implementation(libs.androidx.room.runtime)
+                implementation(libs.dagger.hilt.runtime)
+                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
+            }
+        }
+        val androidDebug by getting {
+            dependencies {
+                implementation(libs.androidx.compose.uiTooling)
+                implementation(libs.leakCanary.android)
+            }
+        }
+        val androidStaging by getting {
+            dependencies {
+                implementation(libs.leakCanary.android)
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+        val androidSharedTest by creating {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(projects.databaseTest)
+                implementation(projects.dispatchersTest)
+                implementation(projects.patterns)
+                implementation(projects.preferencesTest)
+                implementation(libs.androidx.test.core)
+                implementation(libs.androidx.test.espresso)
+                implementation(libs.androidx.window)
+            }
+        }
+        val androidTest by getting {
+            if (useSharedTest != com.alexvanyo.composelife.buildlogic.SharedTestConfig.Instrumentation) {
+                dependsOn(androidSharedTest)
+            }
+            dependencies {
+                configurations["kaptTest"].dependencies.add(libs.dagger.hilt.compiler.get())
+            }
+        }
+        val androidAndroidTest by getting {
+            if (useSharedTest != com.alexvanyo.composelife.buildlogic.SharedTestConfig.Robolectric) {
+                dependsOn(androidSharedTest)
+            }
+            dependencies {
+                configurations["kaptAndroidTest"].dependencies.add(libs.dagger.hilt.compiler.get())
+            }
+        }
+    }
 }
 
 kapt {
