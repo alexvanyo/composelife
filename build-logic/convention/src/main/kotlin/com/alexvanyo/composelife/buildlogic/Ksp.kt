@@ -37,7 +37,7 @@ fun Project.configureKsp(
         // TODO: Add explicit dependency to avoid "execution optimizations have been disabled to ensure correctness"
         afterEvaluate {
             tasks.getByName("lintAnalyze${applicationVariant.name.capitalize()}")
-                .dependsOn("ksp${applicationVariant.name.capitalize()}UnitTestKotlin")
+                .dependsOn("ksp${applicationVariant.name.capitalize()}UnitTestKotlinAndroid")
         }
     }
 }

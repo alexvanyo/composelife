@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.sharedTestImplementation
-
 plugins {
-    kotlin("android")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.application")
     id("com.alexvanyo.composelife.android.application.compose")
     id("com.alexvanyo.composelife.android.application.jacoco")
@@ -38,31 +36,63 @@ android {
     }
 }
 
-dependencies {
-    implementation(projects.algorithm)
-    implementation(projects.openglRenderer)
+kotlin {
+    android()
 
-    implementation(libs.androidx.compose.foundation)
-    implementation(libs.androidx.compose.runtime)
-    implementation(libs.androidx.core)
-    implementation(libs.androidx.lifecycle.process)
-    implementation(libs.androidx.lifecycle.runtime)
-    implementation(libs.androidx.wear.watchface)
-    implementation(libs.kotlinx.datetime)
-    implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.sealedEnum.runtime)
-    ksp(libs.sealedEnum.ksp)
-    implementation(libs.dagger.hilt.runtime)
-    kapt(libs.dagger.hilt.compiler)
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.coroutines.core)
+            }
+        }
+        val androidMain by getting {
+            dependencies {
+                implementation(projects.algorithm)
+                implementation(projects.openglRenderer)
 
-    debugImplementation(libs.leakCanary.android)
-
-    testImplementation(libs.testParameterInjector.junit5)
-    sharedTestImplementation(libs.androidx.compose.uiTestJunit4)
-    sharedTestImplementation(libs.androidx.test.espresso)
-    sharedTestImplementation(libs.kotlinx.coroutines.test)
-    sharedTestImplementation(libs.turbine)
+                implementation(libs.androidx.compose.foundation)
+                implementation(libs.androidx.compose.runtime)
+                implementation(libs.androidx.core)
+                implementation(libs.androidx.lifecycle.process)
+                implementation(libs.androidx.lifecycle.runtime)
+                implementation(libs.androidx.wear.watchface)
+                implementation(libs.kotlinx.coroutines.android)
+                implementation(libs.sealedEnum.runtime)
+                configurations["ksp"].dependencies.add(libs.sealedEnum.ksp.get())
+                implementation(libs.dagger.hilt.runtime)
+                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
+            }
+        }
+        val androidDebug by getting {
+            dependencies {
+                implementation(libs.leakCanary.android)
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.turbine)
+            }
+        }
+        val androidSharedTest by creating {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.androidx.compose.uiTestJunit4)
+                implementation(libs.androidx.test.espresso)
+            }
+        }
+        val androidTest by getting {
+            dependsOn(androidSharedTest)
+            dependencies {
+                implementation(libs.testParameterInjector.junit5)
+            }
+        }
+        val androidAndroidTest by getting {
+            dependsOn(androidSharedTest)
+        }
+    }
 }
 
 kapt {
