@@ -15,20 +15,9 @@
  */
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
-import org.gradle.api.JavaVersion
-import org.gradle.kotlin.dsl.withType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 class KotlinMultiplatformConventionPlugin : ConventionPlugin({
     with(pluginManager) {
         apply("org.jetbrains.kotlin.multiplatform")
-    }
-
-    tasks.withType<KotlinCompile>().configureEach {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_1_8.toString()
-            allWarningsAsErrors = true
-            freeCompilerArgs = freeCompilerArgs + "-opt-in=kotlin.RequiresOptIn"
-        }
     }
 },)

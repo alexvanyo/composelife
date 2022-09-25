@@ -15,7 +15,7 @@
  */
 
 plugins {
-    kotlin("android")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.android.library.compose")
     id("com.alexvanyo.composelife.detekt")
@@ -23,11 +23,20 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife.snapshotstateset"
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
     }
 }
 
-dependencies {
-    api(libs.androidx.compose.runtime)
+kotlin {
+    android()
+
+    sourceSets {
+        val androidMain by getting {
+            dependencies {
+                api(libs.androidx.compose.runtime)
+            }
+        }
+    }
 }

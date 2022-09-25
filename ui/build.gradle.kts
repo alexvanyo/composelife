@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+import com.alexvanyo.composelife.buildlogic.SharedTestConfig
+import com.alexvanyo.composelife.buildlogic.useSharedTest
+
 plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
@@ -28,6 +31,7 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife.ui"
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
     }
@@ -104,13 +108,17 @@ kotlin {
             }
         }
         val androidTest by getting {
-            dependsOn(androidSharedTest)
+            if (useSharedTest != SharedTestConfig.Instrumentation) {
+                dependsOn(androidSharedTest)
+            }
             dependencies {
                 configurations["kaptTest"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }
         val androidAndroidTest by getting {
-            dependsOn(androidSharedTest)
+            if (useSharedTest != SharedTestConfig.Robolectric) {
+                dependsOn(androidSharedTest)
+            }
             dependencies {
                 configurations["kaptAndroidTest"].dependencies.add(libs.dagger.hilt.compiler.get())
                 configurations["androidTestUtil"].dependencies.add(libs.androidx.test.orchestrator.get())

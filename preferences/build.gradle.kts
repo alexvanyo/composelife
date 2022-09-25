@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.kaptSharedTest
-import com.alexvanyo.composelife.buildlogic.sharedTestImplementation
+import com.alexvanyo.composelife.buildlogic.SharedTestConfig
+import com.alexvanyo.composelife.buildlogic.useSharedTest
 
 plugins {
-    kotlin("android")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.android.library.gradlemanageddevices")
     id("com.alexvanyo.composelife.android.library.jacoco")
@@ -30,31 +30,68 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife.preferences"
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
     }
 }
 
-dependencies {
-    api(projects.dispatchers)
-    implementation(projects.preferencesProto)
-    api(projects.resourceState)
-    api(projects.updatable)
-    api(libs.kotlinx.coroutines.core)
-    api(libs.kotlinx.coroutines.android)
-    api(libs.androidx.compose.runtime)
-    api(libs.androidx.dataStore)
-    api(libs.sealedEnum.runtime)
-    ksp(libs.sealedEnum.ksp)
-    implementation(libs.dagger.hilt.runtime)
-    kapt(libs.dagger.hilt.compiler)
+kotlin {
+    android()
 
-    sharedTestImplementation(projects.preferencesTest)
-    sharedTestImplementation(projects.dispatchersTest)
-    sharedTestImplementation(libs.androidx.test.core)
-    sharedTestImplementation(libs.androidx.test.junit)
-    sharedTestImplementation(libs.androidx.test.runner)
-    sharedTestImplementation(libs.kotlinx.coroutines.test)
-    sharedTestImplementation(libs.turbine)
-    kaptSharedTest(libs.dagger.hilt.compiler)
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                api(libs.kotlinx.coroutines.core)
+            }
+        }
+        val androidMain by getting {
+            dependencies {
+                api(projects.dispatchers)
+                implementation(projects.preferencesProto)
+                api(projects.resourceState)
+                api(projects.updatable)
+                api(libs.kotlinx.coroutines.android)
+                api(libs.androidx.compose.runtime)
+                api(libs.androidx.dataStore)
+                api(libs.sealedEnum.runtime)
+                configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
+                implementation(libs.dagger.hilt.runtime)
+                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.turbine)
+            }
+        }
+        val androidSharedTest by creating {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(projects.preferencesTest)
+                implementation(projects.dispatchersTest)
+                implementation(libs.androidx.test.core)
+                implementation(libs.androidx.test.junit)
+                implementation(libs.androidx.test.runner)
+            }
+        }
+        val androidTest by getting {
+            if (useSharedTest != SharedTestConfig.Instrumentation) {
+                dependsOn(androidSharedTest)
+            }
+            dependencies {
+                configurations["kaptTest"].dependencies.add(libs.dagger.hilt.compiler.get())
+            }
+        }
+        val androidAndroidTest by getting {
+            if (useSharedTest != SharedTestConfig.Robolectric) {
+                dependsOn(androidSharedTest)
+            }
+            dependencies {
+                configurations["kaptAndroidTest"].dependencies.add(libs.dagger.hilt.compiler.get())
+            }
+        }
+    }
 }

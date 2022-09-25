@@ -15,19 +15,28 @@
  */
 
 plugins {
-    kotlin("android")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.detekt")
 }
 
 android {
     namespace = "com.alexvanyo.composelife.openglrenderer"
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
     }
 }
 
-dependencies {
-    api(libs.androidx.compose.runtime)
-    api(libs.androidx.compose.ui)
+kotlin {
+    android()
+
+    sourceSets {
+        val androidMain by getting {
+            dependencies {
+                api(libs.androidx.compose.runtime)
+                api(libs.androidx.compose.ui)
+            }
+        }
+    }
 }

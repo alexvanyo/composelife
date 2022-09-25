@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+import com.android.build.api.dsl.AndroidSourceSet
 import com.google.protobuf.gradle.builtins
 import com.google.protobuf.gradle.generateProtoTasks
 import com.google.protobuf.gradle.protobuf
 import com.google.protobuf.gradle.protoc
 
 plugins {
-    kotlin("android")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.detekt")
     alias(libs.plugins.protobuf)
@@ -28,13 +29,38 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife.preferencesproto"
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
     }
+
+    sourceSets {
+        getByName("main") {
+            proto {
+                srcDir("src/androidMain/proto")
+            }
+        }
+    }
 }
 
-dependencies {
-    api(libs.protobuf.runtime)
+fun AndroidSourceSet.proto(action: SourceDirectorySet.() -> Unit) {
+    (this as? ExtensionAware)
+        ?.extensions
+        ?.getByName("proto")
+        ?.let { it as? SourceDirectorySet }
+        ?.apply(action)
+}
+
+kotlin {
+    android()
+
+    sourceSets {
+        val androidMain by getting {
+            dependencies {
+                api(libs.protobuf.runtime)
+            }
+        }
+    }
 }
 
 protobuf {

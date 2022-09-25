@@ -15,19 +15,28 @@
  */
 
 plugins {
-    kotlin("android")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.detekt")
 }
 
 android {
     namespace = "com.alexvanyo.composelife.testactivity"
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
     }
 }
 
-dependencies {
-    implementation(projects.resources)
-    api(libs.androidx.compose.uiTestManifest)
+kotlin {
+    android()
+
+    sourceSets {
+        val androidMain by getting {
+            dependencies {
+                implementation(projects.resources)
+                api(libs.androidx.compose.uiTestManifest)
+            }
+        }
+    }
 }

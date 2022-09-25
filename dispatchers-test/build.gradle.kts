@@ -15,7 +15,7 @@
  */
 
 plugins {
-    kotlin("android")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.detekt")
     kotlin("kapt")
@@ -23,18 +23,31 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife.dispatcherstest"
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
     }
 }
 
-dependencies {
-    api(projects.dispatchers)
-    api(libs.androidx.compose.uiTestJunit4)
-    api(libs.kotlinx.coroutines.test)
-    api(libs.kotlinx.datetime)
-    api(libs.dagger.hilt.runtime)
-    api(libs.dagger.hilt.test)
-    api(libs.androidx.test.junit)
-    kapt(libs.dagger.hilt.compiler)
+kotlin {
+    android()
+
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                api(libs.kotlinx.coroutines.test)
+                api(libs.kotlinx.datetime)
+            }
+        }
+        val androidMain by getting {
+            dependencies {
+                api(projects.dispatchers)
+                api(libs.androidx.compose.uiTestJunit4)
+                api(libs.dagger.hilt.runtime)
+                api(libs.dagger.hilt.test)
+                api(libs.androidx.test.junit)
+                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
+            }
+        }
+    }
 }
