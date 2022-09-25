@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths-ignore:
-      - 'app/src/main/baseline-prof.txt' # don't recursively update baseline profile
+      - 'app/src/androidMain/baseline-prof.txt' # don't recursively update baseline profile
   workflow_dispatch:
 
 jobs:
