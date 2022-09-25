@@ -17,7 +17,7 @@
 import com.alexvanyo.composelife.buildlogic.useSharedTest
 
 plugins {
-    id("com.alexvanyo.composelife.kotlin.multiplatform")
+    kotlin("multiplatform")
     id("com.alexvanyo.composelife.android.application")
     id("com.alexvanyo.composelife.android.application.compose")
     id("com.alexvanyo.composelife.android.application.gradlemanageddevices")
