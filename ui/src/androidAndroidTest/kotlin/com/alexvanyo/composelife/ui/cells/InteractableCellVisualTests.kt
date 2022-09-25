@@ -69,6 +69,7 @@ class InteractableCellVisualTests {
         composeTestRule.onRoot().captureToImage().assertPixels(
             IntSize(10, 10),
         ) {
+            @Suppress("UnsafeCallOnNullableType")
             aliveCellColor!!
         }
     }
@@ -101,7 +102,8 @@ class InteractableCellVisualTests {
         composeTestRule.onRoot().captureToImage().assertPixels(
             IntSize(10, 10),
         ) {
-            aliveCellColor
+            @Suppress("UnsafeCallOnNullableType")
+            aliveCellColor!!
         }
     }
 
@@ -133,7 +135,8 @@ class InteractableCellVisualTests {
         composeTestRule.onRoot().captureToImage().assertPixels(
             IntSize(10, 10),
         ) {
-            deadCellColor
+            @Suppress("UnsafeCallOnNullableType")
+            deadCellColor!!
         }
     }
 
@@ -165,7 +168,8 @@ class InteractableCellVisualTests {
         composeTestRule.onRoot().captureToImage().assertPixels(
             IntSize(10, 10),
         ) {
-            deadCellColor
+            @Suppress("UnsafeCallOnNullableType")
+            deadCellColor!!
         }
     }
 }

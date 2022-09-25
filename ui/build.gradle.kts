@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.kaptSharedTest
-import com.alexvanyo.composelife.buildlogic.sharedTestImplementation
-
 plugins {
-    kotlin("android")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.android.library.compose")
     id("com.alexvanyo.composelife.android.library.gradlemanageddevices")
@@ -39,52 +36,87 @@ android {
     }
 }
 
-dependencies {
-    api(projects.algorithm)
-    api(projects.clock)
-    api(projects.data)
-    api(projects.dispatchers)
-    implementation(projects.navigation)
-    implementation(projects.openglRenderer)
-    implementation(projects.patterns)
-    api(projects.random)
-    implementation(projects.resourceState)
-    implementation(projects.snapshotStateSet)
+kotlin {
+    android()
 
-    implementation(libs.androidx.activityCompose)
-    implementation(libs.androidx.compose.material3)
-    api(libs.androidx.compose.material3.windowSizeClass)
-    implementation(libs.androidx.compose.materialIconsExtended)
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.poolingContainer)
-    implementation(libs.androidx.compose.uiToolingPreview)
-    implementation(libs.androidx.core)
-    implementation(libs.androidx.lifecycle.runtime)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.window)
-    implementation(libs.kotlinx.datetime)
-    implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.sealedEnum.runtime)
-    ksp(libs.sealedEnum.ksp)
-    implementation(libs.dagger.hilt.runtime)
-    kapt(libs.dagger.hilt.compiler)
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.coroutines.core)
+            }
+        }
+        val androidMain by getting {
+            dependencies {
+                api(projects.algorithm)
+                api(projects.clock)
+                api(projects.data)
+                api(projects.dispatchers)
+                implementation(projects.navigation)
+                implementation(projects.openglRenderer)
+                implementation(projects.patterns)
+                api(projects.random)
+                implementation(projects.resourceState)
+                implementation(projects.snapshotStateSet)
 
-    debugImplementation(libs.androidx.compose.uiTooling)
-
-    sharedTestImplementation(projects.dispatchersTest)
-    sharedTestImplementation(projects.hiltTestActivity)
-    sharedTestImplementation(projects.patterns)
-    sharedTestImplementation(projects.preferencesTest)
-    sharedTestImplementation(projects.screenshotTest)
-    sharedTestImplementation(libs.androidx.compose.uiTestJunit4)
-    sharedTestImplementation(libs.androidx.test.core)
-    sharedTestImplementation(libs.androidx.test.espresso)
-    sharedTestImplementation(libs.androidx.test.junit)
-    sharedTestImplementation(libs.kotlinx.coroutines.test)
-    sharedTestImplementation(libs.turbine)
-    kaptSharedTest(libs.dagger.hilt.compiler)
-    androidTestUtil(libs.androidx.test.orchestrator)
+                implementation(libs.androidx.activityCompose)
+                implementation(libs.androidx.compose.material3)
+                api(libs.androidx.compose.material3.windowSizeClass)
+                implementation(libs.androidx.compose.materialIconsExtended)
+                implementation(libs.androidx.compose.ui)
+                implementation(libs.androidx.poolingContainer)
+                implementation(libs.androidx.compose.uiToolingPreview)
+                implementation(libs.androidx.core)
+                implementation(libs.androidx.lifecycle.runtime)
+                implementation(libs.androidx.room.runtime)
+                implementation(libs.androidx.window)
+                implementation(libs.kotlinx.coroutines.android)
+                implementation(libs.sealedEnum.runtime)
+                configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
+                implementation(libs.dagger.hilt.runtime)
+                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
+            }
+        }
+        val androidDebug by getting {
+            dependencies {
+                implementation(libs.androidx.compose.uiTooling)
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.turbine)
+            }
+        }
+        val androidSharedTest by creating {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(projects.dispatchersTest)
+                implementation(projects.hiltTestActivity)
+                implementation(projects.patterns)
+                implementation(projects.preferencesTest)
+                implementation(projects.screenshotTest)
+                implementation(libs.androidx.compose.uiTestJunit4)
+                implementation(libs.androidx.test.core)
+                implementation(libs.androidx.test.espresso)
+                implementation(libs.androidx.test.junit)
+            }
+        }
+        val androidTest by getting {
+            dependsOn(androidSharedTest)
+            dependencies {
+                configurations["kaptTest"].dependencies.add(libs.dagger.hilt.compiler.get())
+            }
+        }
+        val androidAndroidTest by getting {
+            dependsOn(androidSharedTest)
+            dependencies {
+                configurations["kaptAndroidTest"].dependencies.add(libs.dagger.hilt.compiler.get())
+                configurations["androidTestUtil"].dependencies.add(libs.androidx.test.orchestrator.get())
+            }
+        }
+    }
 }
 
 kapt {

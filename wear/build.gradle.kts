@@ -27,6 +27,7 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife.wear"
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         applicationId = "com.alexvanyo.composelife.wear"
         minSdk = 26
@@ -59,7 +60,7 @@ kotlin {
                 implementation(libs.androidx.wear.watchface)
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.sealedEnum.runtime)
-                configurations["ksp"].dependencies.add(libs.sealedEnum.ksp.get())
+                configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
                 implementation(libs.dagger.hilt.runtime)
                 configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
