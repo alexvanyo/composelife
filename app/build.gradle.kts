@@ -48,12 +48,15 @@ kotlin {
     android()
 
     sourceSets {
-        val androidMain by getting {
+        val commonMain by getting {
             dependencies {
                 implementation(projects.doNotKeepProcess)
                 implementation(projects.resources)
                 implementation(projects.ui)
-
+            }
+        }
+        val androidMain by getting {
+            dependencies {
                 implementation(libs.accompanist.systemuicontroller)
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.core)
@@ -78,16 +81,17 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(projects.databaseTest)
+                implementation(projects.dispatchersTest)
+                implementation(projects.patterns)
+                implementation(projects.preferencesTest)
+
                 implementation(kotlin("test"))
             }
         }
         val androidSharedTest by creating {
             dependsOn(commonTest)
             dependencies {
-                implementation(projects.databaseTest)
-                implementation(projects.dispatchersTest)
-                implementation(projects.patterns)
-                implementation(projects.preferencesTest)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
                 implementation(libs.androidx.window)

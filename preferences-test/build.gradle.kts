@@ -39,9 +39,13 @@ kotlin {
     android()
 
     sourceSets {
-        val androidMain by getting {
+        val commonMain by getting {
             dependencies {
                 api(projects.preferences)
+            }
+        }
+        val androidMain by getting {
+            dependencies {
                 api(libs.dagger.hilt.runtime)
                 api(libs.dagger.hilt.test)
                 implementation(libs.androidx.compose.runtime)

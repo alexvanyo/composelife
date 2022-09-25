@@ -72,6 +72,7 @@ kotlin {
             dependsOn(commonTest)
             dependencies {
                 implementation(projects.testActivity)
+
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
                 implementation(libs.androidx.compose.uiTestJunit4)

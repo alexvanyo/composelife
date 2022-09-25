@@ -36,9 +36,13 @@ kotlin {
     android()
 
     sourceSets {
-        val androidMain by getting {
+        val commonMain by getting {
             dependencies {
                 api(projects.algorithm)
+            }
+        }
+        val androidMain by getting {
+            dependencies {
                 api(libs.androidx.compose.foundation)
                 api(libs.sealedEnum.runtime)
                 configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())

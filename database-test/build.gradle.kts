@@ -35,13 +35,14 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(projects.database)
+
                 api(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.coroutines.test)
             }
         }
         val androidMain by getting {
             dependencies {
-                api(projects.database)
                 api(libs.kotlinx.coroutines.android)
                 api(libs.androidx.room.runtime)
                 implementation(libs.dagger.hilt.runtime)

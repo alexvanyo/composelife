@@ -42,15 +42,16 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(projects.dispatchers)
+                implementation(projects.preferencesProto)
+                api(projects.resourceState)
+                api(projects.updatable)
+
                 api(libs.kotlinx.coroutines.core)
             }
         }
         val androidMain by getting {
             dependencies {
-                api(projects.dispatchers)
-                implementation(projects.preferencesProto)
-                api(projects.resourceState)
-                api(projects.updatable)
                 api(libs.kotlinx.coroutines.android)
                 api(libs.androidx.compose.runtime)
                 api(libs.androidx.dataStore)
@@ -62,6 +63,9 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(projects.preferencesTest)
+                implementation(projects.dispatchersTest)
+
                 implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
@@ -70,8 +74,6 @@ kotlin {
         val androidSharedTest by creating {
             dependsOn(commonTest)
             dependencies {
-                implementation(projects.preferencesTest)
-                implementation(projects.dispatchersTest)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.junit)
                 implementation(libs.androidx.test.runner)
