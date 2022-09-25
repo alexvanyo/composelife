@@ -107,8 +107,10 @@ class NonInteractableCellsVisualTests {
             IntSize(10, 10),
         ) {
             if (it in cellState.aliveCells) {
+                @Suppress("UnsafeCallOnNullableType")
                 aliveCellColor!!
             } else {
+                @Suppress("UnsafeCallOnNullableType")
                 deadCellColor!!
             }
         }
@@ -169,8 +171,10 @@ class NonInteractableCellsVisualTests {
             IntSize(10, 10),
         ) {
             if (it in cellState.aliveCells) {
+                @Suppress("UnsafeCallOnNullableType")
                 aliveCellColor!!
             } else {
+                @Suppress("UnsafeCallOnNullableType")
                 deadCellColor!!
             }
         }

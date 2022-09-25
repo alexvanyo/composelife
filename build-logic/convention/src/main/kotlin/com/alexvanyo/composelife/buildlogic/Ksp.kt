@@ -27,17 +27,11 @@ fun Project.configureKsp(
     androidComponentsExtension.onVariants { applicationVariant ->
         commonExtension.sourceSets {
             getByName(applicationVariant.name) {
-                java.srcDir(file("build/generated/ksp/${applicationVariant.name}/kotlin"))
+                java.srcDir(file("build/generated/ksp/android/android${applicationVariant.name.capitalize()}/kotlin"))
             }
             getByName("test${applicationVariant.name.capitalize()}") {
-                java.srcDir(file("build/generated/ksp/${applicationVariant.name}UnitTest/kotlin"))
+                java.srcDir(file("build/generated/ksp/android/android${applicationVariant.name.capitalize()}UnitTest/kotlin"))
             }
-        }
-
-        // TODO: Add explicit dependency to avoid "execution optimizations have been disabled to ensure correctness"
-        afterEvaluate {
-            tasks.getByName("lintAnalyze${applicationVariant.name.capitalize()}")
-                .dependsOn("ksp${applicationVariant.name.capitalize()}UnitTestKotlinAndroid")
         }
     }
 }

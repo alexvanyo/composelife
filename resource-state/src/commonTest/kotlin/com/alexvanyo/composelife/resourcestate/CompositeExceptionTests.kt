@@ -23,21 +23,21 @@ import kotlin.test.assertFailsWith
 class CompositeExceptionTests {
 
     @Test
-    fun `empty constructor throws exception`() {
+    fun empty_constructor_throws_exception() {
         assertFailsWith<IllegalArgumentException> {
             CompositeException()
         }
     }
 
     @Test
-    fun `single exception constructor throws exception`() {
+    fun single_exception_constructor_throws_exception() {
         assertFailsWith<IllegalArgumentException> {
             CompositeException(Exception())
         }
     }
 
     @Test
-    fun `vararg constructor creates expected exception`() {
+    fun vararg_constructor_creates_expected_exception() {
         val exception1 = Exception()
         val exception2 = Exception()
 
