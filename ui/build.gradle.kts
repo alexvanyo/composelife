@@ -46,12 +46,6 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.kotlinx.datetime)
-                implementation(libs.kotlinx.coroutines.core)
-            }
-        }
-        val androidMain by getting {
-            dependencies {
                 api(projects.algorithm)
                 api(projects.clock)
                 api(projects.data)
@@ -63,6 +57,12 @@ kotlin {
                 implementation(projects.resourceState)
                 implementation(projects.snapshotStateSet)
 
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.coroutines.core)
+            }
+        }
+        val androidMain by getting {
+            dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.material3)
                 api(libs.androidx.compose.material3.windowSizeClass)
@@ -88,6 +88,12 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(projects.dispatchersTest)
+                implementation(projects.hiltTestActivity)
+                implementation(projects.patterns)
+                implementation(projects.preferencesTest)
+                implementation(projects.screenshotTest)
+
                 implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
@@ -96,11 +102,6 @@ kotlin {
         val androidSharedTest by creating {
             dependsOn(commonTest)
             dependencies {
-                implementation(projects.dispatchersTest)
-                implementation(projects.hiltTestActivity)
-                implementation(projects.patterns)
-                implementation(projects.preferencesTest)
-                implementation(projects.screenshotTest)
                 implementation(libs.androidx.compose.uiTestJunit4)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)

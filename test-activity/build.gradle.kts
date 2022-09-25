@@ -32,9 +32,13 @@ kotlin {
     android()
 
     sourceSets {
-        val androidMain by getting {
+        val commonMain by getting {
             dependencies {
                 implementation(projects.resources)
+            }
+        }
+        val androidMain by getting {
+            dependencies {
                 api(libs.androidx.compose.uiTestManifest)
             }
         }

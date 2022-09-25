@@ -33,11 +33,15 @@ kotlin {
     android()
 
     sourceSets {
-        val androidMain by getting {
+        val commonMain by getting {
             dependencies {
                 implementation(projects.preferences)
                 api(projects.processLifecycle)
                 implementation(projects.updatable)
+            }
+        }
+        val androidMain by getting {
+            dependencies {
                 implementation(libs.dagger.hilt.runtime)
                 configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }

@@ -35,13 +35,14 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(projects.dispatchers)
+
                 api(libs.kotlinx.coroutines.test)
                 api(libs.kotlinx.datetime)
             }
         }
         val androidMain by getting {
             dependencies {
-                api(projects.dispatchers)
                 api(libs.androidx.compose.uiTestJunit4)
                 api(libs.dagger.hilt.runtime)
                 api(libs.dagger.hilt.test)

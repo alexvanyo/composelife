@@ -41,15 +41,16 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(projects.algorithm)
+                api(projects.database)
+                api(projects.dispatchers)
+                implementation(projects.updatable)
+
                 api(libs.kotlinx.coroutines.core)
             }
         }
         val androidMain by getting {
             dependencies {
-                implementation(projects.algorithm)
-                api(projects.database)
-                api(projects.dispatchers)
-                implementation(projects.updatable)
                 api(libs.kotlinx.coroutines.android)
                 implementation(libs.dagger.hilt.runtime)
                 configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
@@ -57,6 +58,9 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(projects.databaseTest)
+                implementation(projects.dispatchersTest)
+
                 implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
@@ -65,8 +69,6 @@ kotlin {
         val androidSharedTest by creating {
             dependsOn(commonTest)
             dependencies {
-                implementation(projects.databaseTest)
-                implementation(projects.dispatchersTest)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.junit)
                 implementation(libs.androidx.test.runner)

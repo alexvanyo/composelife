@@ -46,15 +46,15 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(projects.algorithm)
+                implementation(projects.openglRenderer)
+
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.coroutines.core)
             }
         }
         val androidMain by getting {
             dependencies {
-                implementation(projects.algorithm)
-                implementation(projects.openglRenderer)
-
                 implementation(libs.androidx.compose.foundation)
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.androidx.core)

@@ -41,12 +41,13 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(projects.snapshotStateSet)
+
                 implementation(libs.kotlinx.coroutines.core)
             }
         }
         val androidMain by getting {
             dependencies {
-                implementation(projects.snapshotStateSet)
                 api(libs.androidx.compose.animation)
                 api(libs.androidx.compose.runtime)
                 api(libs.androidx.compose.ui)
@@ -56,6 +57,8 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(projects.testActivity)
+
                 implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
             }
@@ -63,7 +66,6 @@ kotlin {
         val androidSharedTest by creating {
             dependsOn(commonTest)
             dependencies {
-                implementation(projects.testActivity)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
                 implementation(libs.androidx.compose.uiTestJunit4)
