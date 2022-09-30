@@ -53,6 +53,7 @@ kotlin {
                 implementation(projects.doNotKeepProcess)
                 implementation(projects.resources)
                 implementation(projects.ui)
+                implementation(libs.kotlinx.serialization.core)
             }
         }
         val androidMain by getting {
@@ -110,6 +111,8 @@ kotlin {
                 dependsOn(androidSharedTest)
             }
             dependencies {
+                compileOnly(libs.apiGuardian.api)
+                compileOnly(libs.google.autoValue.annotations)
                 configurations["kaptAndroidTest"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }
