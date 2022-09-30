@@ -1,7 +1,7 @@
 [versions]
 accompanist = "0.26.4-beta"
 androidDesugarJdkLibs = "2.0.0"
-androidGradlePlugin = "8.0.0-alpha01"
+androidGradlePlugin = "8.0.0-alpha02"
 androidR8 = "3.3.75"
 androidxActivity = "1.6.0"
 androidxBenchmark = "1.2.0-alpha04"
@@ -23,14 +23,17 @@ androidxTestOrchestrator = "1.4.2-alpha04"
 androidxTestRunner = "1.5.0-alpha04"
 androidxWearWatchface = "1.2.0-alpha02"
 androidxWindow = "1.1.0-alpha03"
+apiGuardian = "1.1.2"
 dagger = "2.44"
 detekt = "1.22.0-RC1"
+googleAutoValue = "1.9"
 guavaAndroid = "31.1-android"
 guavaJre = "31.1-jre"
 keeper = "0.12.0"
 kotlin = "1.7.10"
 kotlinxCoroutines = "1.6.4"
 kotlinxDatetime = "0.4.0"
+kotlinxSerialization = "1.4.0"
 ksp = "1.7.10-1.0.6"
 jacoco = "0.8.8"
 junit4 = "4.13.2"
@@ -79,11 +82,13 @@ androidx-test-orchestrator = { group = "androidx.test", name = "orchestrator", v
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
 androidx-wear-watchface = { group = "androidx.wear.watchface", name = "watchface", version.ref = "androidxWearWatchface" }
 androidx-window = { group = "androidx.window", name = "window", version.ref = "androidxWindow" }
+apiGuardian-api = { group = "org.apiguardian", name = "apiguardian-api", version.ref = "apiGuardian" }
 dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "dagger" }
 dagger-hilt-runtime = { group = "com.google.dagger", name = "hilt-android", version.ref = "dagger" }
 dagger-hilt-test = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "dagger" }
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
 detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
+google-autoValue-annotations = { group = "com.google.auto.value", name = "auto-value-annotations", version.ref = "googleAutoValue" }
 guava-android = { group = "com.google.guava", name = "guava", version.ref = "guavaAndroid" }
 guava-jre = { group = "com.google.guava", name = "guava", version.ref = "guavaJre" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
@@ -94,6 +99,7 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
+kotlinx-serialization-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 leakCanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakCanary" }
 leakCanary-instrumentation = { group = "com.squareup.leakcanary", name = "leakcanary-android-instrumentation", version.ref = "leakCanary" }
