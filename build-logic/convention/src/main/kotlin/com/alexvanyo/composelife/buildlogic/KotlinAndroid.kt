@@ -35,7 +35,6 @@ fun Project.configureKotlinAndroid(
 
         lint {
             warningsAsErrors = true
-            disable.add("ObsoleteLintCustomCheck")
         }
 
         defaultConfig {
