@@ -17,7 +17,7 @@
 import com.alexvanyo.composelife.buildlogic.useSharedTest
 
 plugins {
-    kotlin("multiplatform")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.application")
     id("com.alexvanyo.composelife.android.application.compose")
     id("com.alexvanyo.composelife.android.application.gradlemanageddevices")
@@ -62,7 +62,7 @@ kotlin {
                 implementation(libs.androidx.lifecycle.process)
                 implementation(libs.androidx.profileInstaller)
                 implementation(libs.androidx.room.runtime)
-                implementation(libs.dagger.hilt.runtime)
+                implementation(libs.dagger.hilt.android)
                 configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }

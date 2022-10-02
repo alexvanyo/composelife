@@ -14,29 +14,11 @@
  * limitations under the License.
  */
 
-plugins {
-    id("com.alexvanyo.composelife.kotlin.multiplatform")
-    id("com.alexvanyo.composelife.android.library")
-    id("com.alexvanyo.composelife.android.library.compose")
-    id("com.alexvanyo.composelife.detekt")
-}
+import com.alexvanyo.composelife.buildlogic.ConventionPlugin
+import com.alexvanyo.composelife.buildlogic.configureKotlin
 
-android {
-    namespace = "com.alexvanyo.composelife.snapshotstateset"
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    defaultConfig {
-        minSdk = 21
-    }
-}
+class KotlinAndroidConventionPlugin : ConventionPlugin({
+    pluginManager.apply("org.jetbrains.kotlin.android")
 
-kotlin {
-    android()
-
-    sourceSets {
-        val androidMain by getting {
-            dependencies {
-                api(libs.androidx.compose.runtime)
-            }
-        }
-    }
-}
+    configureKotlin()
+},)

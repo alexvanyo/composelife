@@ -15,7 +15,7 @@
  */
 
 plugins {
-    kotlin("multiplatform")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.detekt")
     kotlin("kapt")
@@ -31,16 +31,13 @@ android {
 
 kotlin {
     android()
+    jvm()
 
     sourceSets {
         val commonMain by getting {
             dependencies {
                 api(libs.kotlinx.datetime)
-            }
-        }
-        val androidMain by getting {
-            dependencies {
-                implementation(libs.dagger.hilt.runtime)
+                implementation(libs.dagger.hilt.core)
                 configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }
