@@ -14,29 +14,22 @@
  * limitations under the License.
  */
 
-plugins {
-    id("com.alexvanyo.composelife.kotlin.multiplatform")
-    id("com.alexvanyo.composelife.android.library")
-    id("com.alexvanyo.composelife.android.library.compose")
-    id("com.alexvanyo.composelife.detekt")
-}
+package com.alexvanyo.composelife.buildlogic
 
-android {
-    namespace = "com.alexvanyo.composelife.snapshotstateset"
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    defaultConfig {
-        minSdk = 21
-    }
-}
+import org.gradle.api.JavaVersion
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-kotlin {
-    android()
-
-    sourceSets {
-        val androidMain by getting {
-            dependencies {
-                api(libs.androidx.compose.runtime)
-            }
+fun Project.configureKotlin() {
+    tasks.withType<KotlinCompile>().configureEach {
+        kotlinOptions {
+            jvmTarget = JavaVersion.VERSION_1_8.toString()
+            allWarningsAsErrors = true
+            freeCompilerArgs = freeCompilerArgs + listOf(
+                "-opt-in=kotlin.RequiresOptIn",
+                "-Xcontext-receivers",
+            )
         }
     }
 }

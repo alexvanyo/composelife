@@ -18,7 +18,7 @@ import com.alexvanyo.composelife.buildlogic.SharedTestConfig
 import com.alexvanyo.composelife.buildlogic.useSharedTest
 
 plugins {
-    kotlin("multiplatform")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.android.library.gradlemanageddevices")
     id("com.alexvanyo.composelife.android.library.jacoco")
@@ -55,7 +55,7 @@ kotlin {
                 api(libs.kotlinx.coroutines.android)
                 implementation(libs.androidx.room.runtime)
                 configurations["kspAndroid"].dependencies.add(libs.androidx.room.compiler.get())
-                implementation(libs.dagger.hilt.runtime)
+                implementation(libs.dagger.hilt.android)
                 configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }

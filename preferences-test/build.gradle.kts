@@ -18,7 +18,7 @@ import com.alexvanyo.composelife.buildlogic.SharedTestConfig
 import com.alexvanyo.composelife.buildlogic.useSharedTest
 
 plugins {
-    kotlin("multiplatform")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.android.library.gradlemanageddevices")
     id("com.alexvanyo.composelife.android.library.jacoco")
@@ -46,7 +46,7 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
-                api(libs.dagger.hilt.runtime)
+                api(libs.dagger.hilt.android)
                 api(libs.dagger.hilt.test)
                 implementation(libs.androidx.compose.runtime)
                 api(libs.androidx.test.junit)

@@ -22,10 +22,8 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.withType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-fun Project.configureKotlinAndroid(
+fun Project.configureAndroid(
     commonExtension: CommonExtension<*, *, *, *>,
 ) {
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
@@ -58,17 +56,6 @@ fun Project.configureKotlinAndroid(
                     "/META-INF/LICENSE.md",
                     "/META-INF/LICENSE-notice.md",
                 ),
-            )
-        }
-    }
-
-    tasks.withType<KotlinCompile>().configureEach {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_1_8.toString()
-            allWarningsAsErrors = true
-            freeCompilerArgs = freeCompilerArgs + listOf(
-                "-opt-in=kotlin.RequiresOptIn",
-                "-Xcontext-receivers",
             )
         }
     }

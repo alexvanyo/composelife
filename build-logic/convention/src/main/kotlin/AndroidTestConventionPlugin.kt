@@ -15,7 +15,7 @@
  */
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
-import com.alexvanyo.composelife.buildlogic.configureKotlinAndroid
+import com.alexvanyo.composelife.buildlogic.configureAndroid
 import com.android.build.gradle.TestExtension
 import org.gradle.kotlin.dsl.configure
 
@@ -25,7 +25,7 @@ class AndroidTestConventionPlugin : ConventionPlugin({
     }
 
     extensions.configure<TestExtension> {
-        configureKotlinAndroid(this)
+        configureAndroid(this)
 
         defaultConfig {
             minSdk = 23
