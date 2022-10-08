@@ -97,11 +97,6 @@ fun <T : DropdownOption> TextFieldDropdown(
                 },
         )
 
-        fun chooseOption(value: T) {
-            setValue(value)
-            isShowingDropdownMenu = false
-        }
-
         DropdownMenu(
             expanded = isShowingDropdownMenu,
             onDismissRequest = { isShowingDropdownMenu = false },
@@ -110,7 +105,8 @@ fun <T : DropdownOption> TextFieldDropdown(
                 DropdownMenuItem(
                     text = { Text(parameterizedStringResource(value.displayText)) },
                     onClick = {
-                        chooseOption(value)
+                        setValue(value)
+                        isShowingDropdownMenu = false
                     },
                 )
             }
