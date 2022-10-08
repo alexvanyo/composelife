@@ -17,19 +17,14 @@
 
 package com.alexvanyo.composelife.ui.action.settings
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.ui.R
+import com.alexvanyo.composelife.ui.component.LabeledSwitch
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
@@ -65,25 +60,16 @@ fun DisableAGSLUi(
     modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
+    LabeledSwitch(
+        label = stringResource(R.string.disable_agsl),
+        checked = disableAGSL,
+        onCheckedChange = { disabled ->
+            coroutineScope.launch {
+                setDisableAGSL(disabled)
+            }
+        },
         modifier = modifier,
-    ) {
-        Text(
-            stringResource(R.string.disable_agsl),
-            modifier = Modifier.weight(1f),
-        )
-
-        Switch(
-            checked = disableAGSL,
-            onCheckedChange = { disabled ->
-                coroutineScope.launch {
-                    setDisableAGSL(disabled)
-                }
-            },
-        )
-    }
+    )
 }
 
 @ThemePreviews
