@@ -19,7 +19,10 @@ package com.alexvanyo.composelife.ui.util
 import androidx.compose.runtime.saveable.Saver
 import com.livefront.sealedenum.SealedEnum
 
-fun <T> sealedEnumSaver(sealedEnum: SealedEnum<T>) = Saver(
+/**
+ * Creates a [Saver] for the given [sealedEnum] using the ordinal value.
+ */
+fun <T> sealedEnumSaver(sealedEnum: SealedEnum<T>): Saver<T, Int> = Saver(
     save = { sealedEnum.ordinalOf(it) },
     restore = sealedEnum.values::get,
 )

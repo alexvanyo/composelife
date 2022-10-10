@@ -93,7 +93,7 @@ fun InlineSettingsScreen(
          * The list of previously known animatable quick access settings, used to smoothly animate out upon
          * removing and in upon appearing.
          *
-         * These are initialed to be visible, with no appearing animation
+         * These are initialized to be visible, with no appearing animation
          */
         var previouslyAnimatableQuickAccessSettings by remember {
             mutableStateOf(

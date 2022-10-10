@@ -68,7 +68,11 @@ import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorLocalEn
 import kotlinx.datetime.Clock
 import kotlin.random.Random
 
-interface PreviewEntryPoint :
+/**
+ * The full super-interface implementing all entry points for rendering
+ * previews in this module.
+ */
+internal interface PreviewEntryPoint :
     AlgorithmImplementationUiHiltEntryPoint,
     AlgorithmImplementationUiLocalEntryPoint,
     CellShapeConfigUiHiltEntryPoint,
@@ -105,7 +109,7 @@ interface PreviewEntryPoint :
  */
 @Suppress("LongParameterList")
 @Composable
-fun WithPreviewDependencies(
+internal fun WithPreviewDependencies(
     dispatchers: ComposeLifeDispatchers = DefaultComposeLifeDispatchers(),
     gameOfLifeAlgorithm: GameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
     loadedComposeLifePreferences: LoadedComposeLifePreferences = LoadedComposeLifePreferences.Defaults,
