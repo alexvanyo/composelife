@@ -15,10 +15,6 @@
  */
 
 import com.android.build.api.dsl.AndroidSourceSet
-import com.google.protobuf.gradle.builtins
-import com.google.protobuf.gradle.generateProtoTasks
-import com.google.protobuf.gradle.protobuf
-import com.google.protobuf.gradle.protoc
 
 plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
