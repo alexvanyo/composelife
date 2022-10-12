@@ -19,9 +19,23 @@ package com.alexvanyo.composelife.ui.action.settings
 import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
 
+/**
+ * The category for a particular setting.
+ */
 sealed interface SettingsCategory {
+    /**
+     * A setting impacting the algorithm.
+     */
     object Algorithm : SettingsCategory
+
+    /**
+     * A setting related to the visual display.
+     */
     object Visual : SettingsCategory
+
+    /**
+     * A setting for some app feature flag.
+     */
     object FeatureFlags : SettingsCategory
 
     @GenSealedEnum
@@ -30,6 +44,12 @@ sealed interface SettingsCategory {
     }
 }
 
+/**
+ * A [Map] from the [SettingsCategory] to a list of [Setting]s in that category.
+ */
 private val settingsByCategory by lazy { Setting.values.groupBy(Setting::category) }
 
+/**
+ * Returns the list of [Setting]s for the given [SettingsCategory].
+ */
 val SettingsCategory.settings get() = settingsByCategory.getOrDefault(this, emptyList())

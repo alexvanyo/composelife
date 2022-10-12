@@ -20,8 +20,27 @@ import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
 
+/**
+ * The list of settings supported by the app.
+ *
+ * A "setting" is a block of UI in the settings screen, which may display zero, one, or more affordances
+ * to the user to update some preference.
+ *
+ * A setting that displays zero affordances may simply be informational, with UI to be placed in relation to other
+ * settings with affordances.
+ *
+ * The order in which settings appear is determined by the declaration order of the subclasses of [Setting] below.
+ */
 sealed interface Setting {
+    /**
+     * The [SettingsCategory] this [Setting] belongs to.
+     */
     val category: SettingsCategory
+
+    /**
+     * If not-null, this setting can be favorited and viewed for quick access as
+     * represented by the given [QuickAccessSetting].
+     */
     val quickAccessSetting: QuickAccessSetting?
 
     object AlgorithmImplementation : Setting {

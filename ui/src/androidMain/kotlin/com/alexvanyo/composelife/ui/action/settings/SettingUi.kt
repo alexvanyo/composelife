@@ -51,6 +51,12 @@ interface SettingUiLocalEntryPoint :
     DoNotKeepProcessUiLocalEntryPoint,
     LoadedComposeLifePreferencesProvider
 
+/**
+ * Displays the setting UI for the given [setting].
+ *
+ * If [onOpenInSettingsClicked] is not null, then a button will be displayed to open the given
+ * setting that will invoke [onOpenInSettingsClicked].
+ */
 context(SettingUiHiltEntryPoint, SettingUiLocalEntryPoint)
 @Composable
 fun SettingUi(
@@ -91,6 +97,9 @@ fun SettingUi(
     }
 }
 
+/**
+ * Displays the setting UI for the given [quickAccessSetting].
+ */
 context(SettingUiHiltEntryPoint, SettingUiLocalEntryPoint)
 @Composable
 fun SettingUi(
