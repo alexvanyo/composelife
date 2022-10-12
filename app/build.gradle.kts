@@ -57,6 +57,7 @@ kotlin {
             dependencies {
                 implementation(libs.accompanist.systemuicontroller)
                 implementation(libs.androidx.activityCompose)
+                implementation(libs.androidx.appcompat)
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.core.splashscreen)
                 implementation(libs.androidx.lifecycle.process)

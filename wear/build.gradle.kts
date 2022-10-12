@@ -51,6 +51,7 @@ kotlin {
 
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.serialization.core)
             }
         }
         val androidMain by getting {
@@ -69,6 +70,11 @@ kotlin {
             }
         }
         val androidDebug by getting {
+            dependencies {
+                implementation(libs.leakCanary.android)
+            }
+        }
+        val androidStaging by getting {
             dependencies {
                 implementation(libs.leakCanary.android)
             }
@@ -95,6 +101,10 @@ kotlin {
         val androidAndroidTest by getting {
             if (useSharedTest != SharedTestConfig.Robolectric) {
                 dependsOn(androidSharedTest)
+            }
+            dependencies {
+                compileOnly(libs.apiGuardian.api)
+                compileOnly(libs.google.autoValue.annotations)
             }
         }
     }
