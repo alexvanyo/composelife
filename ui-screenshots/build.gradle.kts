@@ -15,7 +15,7 @@
  */
 
 plugins {
-    id("com.alexvanyo.composelife.kotlin.android")
+    id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.android.library.compose")
     id("com.alexvanyo.composelife.android.library.jacoco")
@@ -30,11 +30,23 @@ android {
     }
 }
 
-dependencies {
-    implementation(projects.ui)
-    implementation(libs.androidx.activityCompose)
-    implementation(libs.androidx.compose.foundation)
-    implementation(libs.androidx.compose.ui)
+kotlin {
+    android()
 
-    testImplementation(libs.testParameterInjector.junit4)
+    sourceSets {
+        val androidMain by getting {
+            dependencies {
+                implementation(projects.ui)
+                implementation(libs.androidx.activityCompose)
+                implementation(libs.androidx.compose.foundation)
+                implementation(libs.androidx.compose.ui)
+            }
+        }
+
+        val androidTest by getting {
+            dependencies {
+                implementation(libs.testParameterInjector.junit4)
+            }
+        }
+    }
 }
