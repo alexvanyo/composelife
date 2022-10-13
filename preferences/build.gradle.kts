@@ -55,6 +55,8 @@ kotlin {
                 api(libs.kotlinx.coroutines.android)
                 api(libs.androidx.compose.runtime)
                 api(libs.androidx.dataStore)
+                implementation(libs.androidx.lifecycle.viewmodel)
+                implementation(libs.androidx.lifecycle.viewmodel.savedstate)
                 api(libs.sealedEnum.runtime)
                 configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
                 implementation(libs.dagger.hilt.android)
