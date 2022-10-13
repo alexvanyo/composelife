@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.SharedTestConfig
 import com.alexvanyo.composelife.buildlogic.useSharedTest
+import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
 
 plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
@@ -25,6 +26,7 @@ plugins {
     id("com.alexvanyo.composelife.android.library.jacoco")
     id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
+    alias(libs.plugins.jetbrainsCompose)
 }
 
 android {
@@ -43,22 +45,29 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(libs.kotlinx.coroutines.core)
+                api(libs.jetbrains.compose.foundation)
+                api(libs.jetbrains.compose.runtime)
+                api(libs.jetbrains.compose.ui)
+            }
+        }
+        val jvmMain by getting {
+            dependencies {
+                implementation(compose.desktop.currentOs)
             }
         }
         val androidMain by getting {
             dependencies {
                 api(libs.kotlinx.coroutines.android)
                 implementation(libs.androidx.core)
-                api(libs.androidx.compose.foundation)
-                api(libs.androidx.compose.runtime)
-                api(libs.androidx.compose.ui)
+                implementation(libs.androidx.lifecycle.viewmodel.savedstate)
             }
         }
         val commonTest by getting {
             dependencies {
-                implementation(kotlin("test"))
+                implementation(kotlin("test-common"))
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
+                implementation(libs.jetbrains.compose.uiTestJunit4)
             }
         }
         val jvmTest by getting {
@@ -72,11 +81,11 @@ kotlin {
             dependsOn(commonTest)
             dependencies {
                 implementation(projects.testActivity)
+                implementation(kotlin("test-junit"))
 
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
                 implementation(libs.androidx.compose.uiTestJunit4)
-                implementation(kotlin("test-junit"))
             }
         }
         val androidTest by getting {
@@ -89,5 +98,11 @@ kotlin {
                 dependsOn(androidSharedTest)
             }
         }
+    }
+}
+
+tasks {
+    getByName<KotlinJvmTest>("jvmTest") {
+        useJUnitPlatform()
     }
 }

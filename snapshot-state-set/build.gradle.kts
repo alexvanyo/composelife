@@ -1,3 +1,6 @@
+import com.alexvanyo.composelife.buildlogic.useSharedTest
+import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
+
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -18,7 +21,9 @@ plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.android.library.compose")
+    id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
+    alias(libs.plugins.jetbrainsCompose)
 }
 
 android {
@@ -31,12 +36,65 @@ android {
 
 kotlin {
     android()
+    jvm()
 
     sourceSets {
-        val androidMain by getting {
+        val commonMain by getting {
             dependencies {
-                api(libs.androidx.compose.runtime)
+                api(libs.jetbrains.compose.runtime)
             }
         }
+        val jvmMain by getting {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+            }
+        }
+        val androidMain by getting {
+            dependencies {
+                implementation(libs.kotlinx.coroutines.android)
+                implementation(libs.androidx.core)
+                implementation(libs.androidx.lifecycle.viewmodel.savedstate)
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test-common"))
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.jetbrains.compose.uiTestJunit4)
+            }
+        }
+        val jvmTest by getting {
+            dependencies {
+                implementation(kotlin("test-junit5"))
+                implementation(libs.junit5.jupiter)
+                runtimeOnly(libs.junit5.vintageEngine)
+            }
+        }
+        val androidSharedTest by creating {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(projects.testActivity)
+                implementation(kotlin("test-junit"))
+
+                implementation(libs.androidx.test.core)
+                implementation(libs.androidx.test.espresso)
+            }
+        }
+        val androidTest by getting {
+            if (useSharedTest != com.alexvanyo.composelife.buildlogic.SharedTestConfig.Instrumentation) {
+                dependsOn(androidSharedTest)
+            }
+        }
+        val androidAndroidTest by getting {
+            if (useSharedTest != com.alexvanyo.composelife.buildlogic.SharedTestConfig.Robolectric) {
+                dependsOn(androidSharedTest)
+            }
+        }
+    }
+}
+
+tasks {
+    named<KotlinJvmTest>("jvmTest") {
+        useJUnitPlatform()
     }
 }
