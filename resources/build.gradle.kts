@@ -30,4 +30,12 @@ android {
 
 kotlin {
     android()
+
+    sourceSets {
+        val androidMain by getting {
+            dependencies {
+                implementation(libs.androidx.appcompat)
+            }
+        }
+    }
 }

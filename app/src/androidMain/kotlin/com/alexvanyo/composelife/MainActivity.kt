@@ -17,8 +17,8 @@
 package com.alexvanyo.composelife
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.isImeVisible
@@ -36,7 +36,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.EntryPoints
 import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint(ComponentActivity::class)
+@AndroidEntryPoint(AppCompatActivity::class)
 class MainActivity : Hilt_MainActivity() {
 
     @OptIn(ExperimentalLayoutApi::class)
