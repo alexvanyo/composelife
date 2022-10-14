@@ -18,12 +18,15 @@ package com.alexvanyo.composelife.snapshotstateset
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @Suppress("UnnecessaryAbstractClass")
 @OptIn(ExperimentalTestApi::class)
-abstract class BaseSnapshotStateSetTests {
+@RunWith(KmpAndroidJUnit4::class)
+class SnapshotStateSetTests {
 
     @Test
     fun collect_as_state_is_correct() {

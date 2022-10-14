@@ -58,14 +58,14 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(kotlin("test-common"))
+                implementation(projects.kmpAndroidRunner)
+                implementation(kotlin("test-junit"))
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.jetbrains.compose.uiTestJunit4)
             }
         }
         val jvmTest by getting {
             dependencies {
-                implementation(kotlin("test-junit5"))
                 implementation(libs.junit5.jupiter)
                 runtimeOnly(libs.junit5.vintageEngine)
             }
@@ -74,7 +74,6 @@ kotlin {
             dependsOn(commonTest)
             dependencies {
                 implementation(projects.testActivity)
-                implementation(kotlin("test-junit"))
 
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)

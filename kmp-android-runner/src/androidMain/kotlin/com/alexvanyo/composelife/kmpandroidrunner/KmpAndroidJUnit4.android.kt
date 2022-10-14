@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("Filename")
 
-package com.alexvanyo.composelife.snapshotstateset
+package com.alexvanyo.composelife.kmpandroidrunner
 
-class SnapshotStateSetTests : BaseSnapshotStateSetTests()
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.junit.runner.Runner
+
+internal actual fun createRunner(klass: Class<*>): Runner = AndroidJUnit4(klass)
