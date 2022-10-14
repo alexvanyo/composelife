@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("Filename")
 
-package com.alexvanyo.composelife.resourcestate
+package com.alexvanyo.composelife.kmpandroidrunner
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.junit.runner.RunWith
+import org.junit.runner.Runner
+import org.junit.runners.BlockJUnit4ClassRunner
 
-@RunWith(AndroidJUnit4::class)
-class ResourceStateComposableTests : BaseResourceStateComposableTests()
+internal actual fun createRunner(klass: Class<*>): Runner = BlockJUnit4ClassRunner(klass)

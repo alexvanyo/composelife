@@ -20,16 +20,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.test.runTest
+import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @Suppress("UnnecessaryAbstractClass")
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
-abstract class BaseResourceStateComposableTests {
+@RunWith(KmpAndroidJUnit4::class)
+class ResourceStateComposableTests {
 
     @Suppress("ThrowingExceptionsWithoutMessageOrCause")
     @Test
