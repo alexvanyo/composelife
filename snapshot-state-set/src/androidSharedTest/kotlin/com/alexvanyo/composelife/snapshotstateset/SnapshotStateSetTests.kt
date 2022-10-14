@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.resourcestate
+package com.alexvanyo.composelife.snapshotstateset
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class ResourceStateComposableTests : BaseResourceStateComposableTests()
+class SnapshotStateSetTests : BaseSnapshotStateSetTests()
