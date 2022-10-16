@@ -18,17 +18,18 @@ package com.alexvanyo.composelife.navigation
 
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.ui.test.junit4.StateRestorationTester
-import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.junit.Rule
-import org.junit.Test
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.runComposeUiTest
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
 import org.junit.runner.RunWith
 import java.util.UUID
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-@RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalTestApi::class)
+@RunWith(KmpAndroidJUnit4::class)
 class BackstackStateTests {
 
     private val id1 = UUID.randomUUID()
@@ -36,12 +37,9 @@ class BackstackStateTests {
     private val id3 = UUID.randomUUID()
     private val id4 = UUID.randomUUID()
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
-
     @Test
-    fun backstack_state_with_basic_value_is_saved_correctly() {
-        val stateRestorationTester = StateRestorationTester(composeTestRule)
+    fun backstack_state_with_basic_value_is_saved_correctly() = runComposeUiTest {
+        val stateRestorationTester = KmpStateRestorationTester(this)
 
         @Suppress("DoubleMutabilityForCollection")
         var backstackMap: MutableBackstackMap<String>? = null
@@ -91,8 +89,8 @@ class BackstackStateTests {
     }
 
     @Test
-    fun backstack_state_with_saver_factory_is_saved_correctly() {
-        val stateRestorationTester = StateRestorationTester(composeTestRule)
+    fun backstack_state_with_saver_factory_is_saved_correctly() = runComposeUiTest {
+        val stateRestorationTester = KmpStateRestorationTester(this)
 
         @Suppress("DoubleMutabilityForCollection")
         var backstackMap: MutableBackstackMap<TestEntryType>? = null

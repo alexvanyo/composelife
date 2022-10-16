@@ -26,25 +26,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.test.junit4.StateRestorationTester
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.junit.Rule
+import androidx.compose.ui.test.runComposeUiTest
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.UUID
 
-@OptIn(ExperimentalAnimationApi::class)
-@RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalTestApi::class)
+@RunWith(KmpAndroidJUnit4::class)
 class NavigationHostTests {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
-
     @Test
-    fun navigation_host_displays_current_entry() {
+    fun navigation_host_displays_current_entry() = runComposeUiTest {
         val id = UUID.randomUUID()
         val entry = BackstackEntry(
             value = "a",
@@ -57,7 +54,7 @@ class NavigationHostTests {
             override val currentEntryId get() = id
         }
 
-        composeTestRule.setContent {
+        setContent {
             NavigationHost(
                 navigationState = navigationState,
             ) { entry ->
@@ -65,11 +62,11 @@ class NavigationHostTests {
             }
         }
 
-        composeTestRule.onNodeWithText("value: a, id: $id").assertExists()
+        onNodeWithText("value: a, id: $id").assertExists()
     }
 
     @Test
-    fun navigation_host_displays_current_entry_with_multiple_entries() {
+    fun navigation_host_displays_current_entry_with_multiple_entries() = runComposeUiTest {
         val id1 = UUID.randomUUID()
         val id2 = UUID.randomUUID()
         val entry1 = BackstackEntry(
@@ -91,7 +88,7 @@ class NavigationHostTests {
             override val currentEntryId: UUID = id2
         }
 
-        composeTestRule.setContent {
+        setContent {
             NavigationHost(
                 navigationState = navigationState,
             ) { entry ->
@@ -99,11 +96,11 @@ class NavigationHostTests {
             }
         }
 
-        composeTestRule.onNodeWithText("value: b, id: $id2").assertExists()
+        onNodeWithText("value: b, id: $id2").assertExists()
     }
 
     @Test
-    fun navigation_host_keeps_state_for_entries_in_map() {
+    fun navigation_host_keeps_state_for_entries_in_map() = runComposeUiTest {
         val id1 = UUID.randomUUID()
         val id2 = UUID.randomUUID()
         val entry1 = BackstackEntry(
@@ -129,7 +126,7 @@ class NavigationHostTests {
             override val currentEntryId get() = currentEntryId
         }
 
-        composeTestRule.setContent {
+        setContent {
             NavigationHost(
                 navigationState = navigationState,
             ) { entry ->
@@ -142,23 +139,26 @@ class NavigationHostTests {
             }
         }
 
-        composeTestRule.onNodeWithText("value: a, id: $id1, count: 0").assertExists()
+        onNodeWithText("value: a, id: $id1, count: 0").assertExists()
 
-        composeTestRule.onNodeWithText("+").performClick()
+        onNodeWithText("+").performClick()
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("value: a, id: $id1, count: 1").assertExists()
+        onNodeWithText("value: a, id: $id1, count: 1").assertExists()
 
         currentEntryId = id2
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("value: b, id: $id2, count: 0").assertExists()
+        onNodeWithText("value: b, id: $id2, count: 0").assertExists()
 
         currentEntryId = id1
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("value: a, id: $id1, count: 1").assertExists()
+        onNodeWithText("value: a, id: $id1, count: 1").assertExists()
     }
 
     @Test
-    fun navigation_host_does_not_keep_state_for_entries_not_in_map() {
+    fun navigation_host_does_not_keep_state_for_entries_not_in_map() = runComposeUiTest {
         val id1 = UUID.randomUUID()
         val id2 = UUID.randomUUID()
         val entry1 = BackstackEntry(
@@ -184,7 +184,7 @@ class NavigationHostTests {
             override val currentEntryId get() = currentEntryId
         }
 
-        composeTestRule.setContent {
+        setContent {
             NavigationHost(
                 navigationState = navigationState,
             ) { entry ->
@@ -197,26 +197,29 @@ class NavigationHostTests {
             }
         }
 
-        composeTestRule.onNodeWithText("value: a, id: $id1, count: 0").assertExists()
+        onNodeWithText("value: a, id: $id1, count: 0").assertExists()
 
-        composeTestRule.onNodeWithText("+").performClick()
+        onNodeWithText("+").performClick()
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("value: a, id: $id1, count: 1").assertExists()
+        onNodeWithText("value: a, id: $id1, count: 1").assertExists()
 
         currentEntryId = id2
         backstackMap.remove(id1)
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("value: b, id: $id2, count: 0").assertExists()
+        onNodeWithText("value: b, id: $id2, count: 0").assertExists()
 
         currentEntryId = id1
         backstackMap[id1] = entry1
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("value: a, id: $id1, count: 0").assertExists()
+        onNodeWithText("value: a, id: $id1, count: 0").assertExists()
     }
 
     @Test
-    fun navigation_host_state_is_preserved_through_recreation() {
-        val stateRestorationTester = StateRestorationTester(composeTestRule)
+    fun navigation_host_state_is_preserved_through_recreation() = runComposeUiTest {
+        val stateRestorationTester = KmpStateRestorationTester(this)
 
         val id1 = UUID.randomUUID()
         val id2 = UUID.randomUUID()
@@ -256,20 +259,23 @@ class NavigationHostTests {
             }
         }
 
-        composeTestRule.onNodeWithText("value: a, id: $id1, count: 0").assertExists()
+        onNodeWithText("value: a, id: $id1, count: 0").assertExists()
 
-        composeTestRule.onNodeWithText("+").performClick()
+        onNodeWithText("+").performClick()
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("value: a, id: $id1, count: 1").assertExists()
+        onNodeWithText("value: a, id: $id1, count: 1").assertExists()
 
         currentEntryId = id2
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("value: b, id: $id2, count: 0").assertExists()
+        onNodeWithText("value: b, id: $id2, count: 0").assertExists()
 
         stateRestorationTester.emulateSavedInstanceStateRestore()
 
         currentEntryId = id1
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("value: a, id: $id1, count: 1").assertExists()
+        onNodeWithText("value: a, id: $id1, count: 1").assertExists()
     }
 }

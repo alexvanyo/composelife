@@ -97,6 +97,7 @@ detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gr
 google-autoValue-annotations = { group = "com.google.auto.value", name = "auto-value-annotations", version.ref = "googleAutoValue" }
 guava-android = { group = "com.google.guava", name = "guava", version.ref = "guavaAndroid" }
 guava-jre = { group = "com.google.guava", name = "guava", version.ref = "guavaJre" }
+jetbrains-compose-animation = { group = "org.jetbrains.compose.animation", name = "animation", version.ref = "jetbrainsCompose" }
 jetbrains-compose-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "jetbrainsCompose" }
 jetbrains-compose-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime", version.ref = "jetbrainsCompose" }
 jetbrains-compose-ui = { group = "org.jetbrains.compose.ui", name = "ui", version.ref = "jetbrainsCompose" }

@@ -16,8 +16,8 @@
 
 package com.alexvanyo.composelife.navigation
 
-import org.junit.jupiter.api.Test
 import java.util.UUID
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class BackstackEntryTests {
@@ -32,7 +32,7 @@ class BackstackEntryTests {
     private val entry4 = BackstackEntry("d", entry3, id4)
 
     @Test
-    fun `entry 1 iterable is correct`() {
+    fun entry_1_iterable_is_correct() {
         assertEquals(
             listOf(entry1),
             entry1.iterator().asSequence().toList(),
@@ -40,7 +40,7 @@ class BackstackEntryTests {
     }
 
     @Test
-    fun `entry 2 iterable is correct`() {
+    fun entry_2_iterable_is_correct() {
         assertEquals(
             listOf(entry2, entry1),
             entry2.iterator().asSequence().toList(),
@@ -48,7 +48,7 @@ class BackstackEntryTests {
     }
 
     @Test
-    fun `entry 3 iterable is correct`() {
+    fun entry_3_iterable_is_correct() {
         assertEquals(
             listOf(entry3, entry2, entry1),
             entry3.iterator().asSequence().toList(),
@@ -56,7 +56,7 @@ class BackstackEntryTests {
     }
 
     @Test
-    fun `entry 4 iterable is correct`() {
+    fun entry_4_iterable_is_correct() {
         assertEquals(
             listOf(entry4, entry3, entry2, entry1),
             entry4.iterator().asSequence().toList(),

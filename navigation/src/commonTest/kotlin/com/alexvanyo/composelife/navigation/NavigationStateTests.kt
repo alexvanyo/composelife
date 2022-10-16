@@ -16,14 +16,14 @@
 
 package com.alexvanyo.composelife.navigation
 
-import org.junit.jupiter.api.Test
 import java.util.UUID
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class NavigationStateTests {
 
     @Test
-    fun `current entry is correct`() {
+    fun current_entry_is_correct() {
         val id1 = UUID.randomUUID()
         val id2 = UUID.randomUUID()
         val entry1 = object : NavigationEntry {
