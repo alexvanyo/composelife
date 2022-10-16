@@ -17,8 +17,8 @@
 package com.alexvanyo.composelife.navigation
 
 import androidx.compose.runtime.mutableStateMapOf
-import org.junit.jupiter.api.Test
 import java.util.UUID
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -42,7 +42,7 @@ class BackstackNavigationTests {
     )
 
     @Test
-    fun `pop backstack is correct`() {
+    fun pop_backstack_is_correct() {
         val newId = mutableBackstackMap.popBackstack(id4)
 
         assertEquals(
@@ -57,7 +57,7 @@ class BackstackNavigationTests {
     }
 
     @Test
-    fun `pop backstack with one entry throws exception`() {
+    fun pop_backstack_with_one_entry_throws_exception() {
         mutableBackstackMap.popBackstack(id4)
         mutableBackstackMap.popBackstack(id3)
         mutableBackstackMap.popBackstack(id2)
@@ -68,7 +68,7 @@ class BackstackNavigationTests {
     }
 
     @Test
-    fun `pop up to with id non inclusive is correct`() {
+    fun pop_up_to_with_id_non_inclusive_is_correct() {
         val newId = mutableBackstackMap.popUpTo(
             currentEntryId = id4,
             id = id2,
@@ -85,7 +85,7 @@ class BackstackNavigationTests {
     }
 
     @Test
-    fun `pop up to with id inclusive is correct`() {
+    fun pop_up_to_with_id_inclusive_is_correct() {
         val newId = mutableBackstackMap.popUpTo(
             currentEntryId = id4,
             id = id2,
@@ -102,7 +102,7 @@ class BackstackNavigationTests {
     }
 
     @Test
-    fun `pop up to with no matching id throws exception`() {
+    fun pop_up_to_with_no_matching_id_throws_exception() {
         assertFailsWith<IllegalStateException> {
             mutableBackstackMap.popUpTo(
                 currentEntryId = id4,
@@ -112,7 +112,7 @@ class BackstackNavigationTests {
     }
 
     @Test
-    fun `pop up to inclusive on last entry throws exception`() {
+    fun pop_up_to_inclusive_on_last_entry_throws_exception() {
         assertFailsWith<IllegalStateException> {
             mutableBackstackMap.popUpTo(
                 currentEntryId = id4,
@@ -123,7 +123,7 @@ class BackstackNavigationTests {
     }
 
     @Test
-    fun `pop up to with value predicate non inclusive is correct`() {
+    fun pop_up_to_with_value_predicate_non_inclusive_is_correct() {
         val newId = mutableBackstackMap.popUpTo(
             currentEntryId = id4,
             predicate = { it == "b" },
@@ -140,7 +140,7 @@ class BackstackNavigationTests {
     }
 
     @Test
-    fun `pop up to with value inclusive is correct`() {
+    fun pop_up_to_with_value_inclusive_is_correct() {
         val newId = mutableBackstackMap.popUpTo(
             currentEntryId = id4,
             predicate = { it == "b" },
@@ -157,7 +157,7 @@ class BackstackNavigationTests {
     }
 
     @Test
-    fun `pop up to with entry predicate non inclusive is correct`() {
+    fun pop_up_to_with_entry_predicate_non_inclusive_is_correct() {
         val newId = mutableBackstackMap.popUpTo(
             currentEntryId = id4,
             entryPredicate = { it.value == "b" },
@@ -174,7 +174,7 @@ class BackstackNavigationTests {
     }
 
     @Test
-    fun `pop up to with entry predicate inclusive is correct`() {
+    fun pop_up_to_with_entry_predicate_inclusive_is_correct() {
         val newId = mutableBackstackMap.popUpTo(
             currentEntryId = id4,
             entryPredicate = { it.value == "b" },
@@ -191,7 +191,7 @@ class BackstackNavigationTests {
     }
 
     @Test
-    fun `navigate with raw value is correct`() {
+    fun navigate_with_raw_value_is_correct() {
         val id5 = UUID.randomUUID()
         val newId = mutableBackstackMap.navigate(
             currentEntryId = id4,
@@ -219,7 +219,7 @@ class BackstackNavigationTests {
     }
 
     @Test
-    fun `navigate with value factory is correct`() {
+    fun navigate_with_value_factory_is_correct() {
         val id5 = UUID.randomUUID()
         val newId = mutableBackstackMap.navigate(
             currentEntryId = id4,

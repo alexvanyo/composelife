@@ -25,14 +25,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.test.junit4.StateRestorationTester
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.junit.Rule
-import org.junit.Test
+import androidx.compose.ui.test.runComposeUiTest
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
 import org.junit.runner.RunWith
+import kotlin.test.Test
 
 private class TestScreenState(
     private val previous: TestScreenState?,
@@ -67,16 +67,13 @@ private class TestScreenState(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
-@RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalTestApi::class)
+@RunWith(KmpAndroidJUnit4::class)
 class ModifyPreviousDestinationUseCaseTests {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
-
     @Test
-    fun can_increment_count_on_previous_screen() {
-        composeTestRule.setContent {
+    fun can_increment_count_on_previous_screen() = runComposeUiTest {
+        setContent {
             val navController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
@@ -86,7 +83,7 @@ class ModifyPreviousDestinationUseCaseTests {
                         previous = null,
                     ),
                 ),
-                backstackValueSaverFactory = TestScreenState.Companion,
+                backstackValueSaverFactory = TestScreenState,
             )
 
             NavigationHost(
@@ -136,31 +133,35 @@ class ModifyPreviousDestinationUseCaseTests {
             }
         }
 
-        composeTestRule.onNodeWithText("count: 0").assertExists()
-        composeTestRule.onNodeWithText("navigate back").assertDoesNotExist()
-        composeTestRule.onNodeWithText("increment previous").assertDoesNotExist()
+        onNodeWithText("count: 0").assertExists()
+        onNodeWithText("navigate back").assertDoesNotExist()
+        onNodeWithText("increment previous").assertDoesNotExist()
 
-        composeTestRule.onNodeWithText("increment current").performClick()
+        onNodeWithText("increment current").performClick()
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("count: 1").assertExists()
+        onNodeWithText("count: 1").assertExists()
 
-        composeTestRule.onNodeWithText("navigate forward").performClick()
+        onNodeWithText("navigate forward").performClick()
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("count: 0").assertExists()
-        composeTestRule.onNodeWithText("navigate back").assertExists()
+        onNodeWithText("count: 0").assertExists()
+        onNodeWithText("navigate back").assertExists()
 
-        composeTestRule.onNodeWithText("increment previous").performClick()
+        onNodeWithText("increment previous").performClick()
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("count: 0").assertExists()
+        onNodeWithText("count: 0").assertExists()
 
-        composeTestRule.onNodeWithText("navigate back").performClick()
+        onNodeWithText("navigate back").performClick()
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("count: 2").assertExists()
+        onNodeWithText("count: 2").assertExists()
     }
 
     @Test
-    fun can_increment_count_on_previous_screen_after_recreation() {
-        val stateRestorationTester = StateRestorationTester(composeTestRule)
+    fun can_increment_count_on_previous_screen_after_recreation() = runComposeUiTest {
+        val stateRestorationTester = KmpStateRestorationTester(this)
 
         stateRestorationTester.setContent {
             val navController = rememberMutableBackstackNavigationController(
@@ -172,7 +173,7 @@ class ModifyPreviousDestinationUseCaseTests {
                         previous = null,
                     ),
                 ),
-                backstackValueSaverFactory = TestScreenState.Companion,
+                backstackValueSaverFactory = TestScreenState,
             )
 
             NavigationHost(
@@ -222,27 +223,31 @@ class ModifyPreviousDestinationUseCaseTests {
             }
         }
 
-        composeTestRule.onNodeWithText("count: 0").assertExists()
-        composeTestRule.onNodeWithText("navigate back").assertDoesNotExist()
-        composeTestRule.onNodeWithText("increment previous").assertDoesNotExist()
+        onNodeWithText("count: 0").assertExists()
+        onNodeWithText("navigate back").assertDoesNotExist()
+        onNodeWithText("increment previous").assertDoesNotExist()
 
-        composeTestRule.onNodeWithText("increment current").performClick()
+        onNodeWithText("increment current").performClick()
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("count: 1").assertExists()
+        onNodeWithText("count: 1").assertExists()
 
-        composeTestRule.onNodeWithText("navigate forward").performClick()
+        onNodeWithText("navigate forward").performClick()
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("count: 0").assertExists()
-        composeTestRule.onNodeWithText("navigate back").assertExists()
+        onNodeWithText("count: 0").assertExists()
+        onNodeWithText("navigate back").assertExists()
 
         stateRestorationTester.emulateSavedInstanceStateRestore()
 
-        composeTestRule.onNodeWithText("increment previous").performClick()
+        onNodeWithText("increment previous").performClick()
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("count: 0").assertExists()
+        onNodeWithText("count: 0").assertExists()
 
-        composeTestRule.onNodeWithText("navigate back").performClick()
+        onNodeWithText("navigate back").performClick()
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("count: 2").assertExists()
+        onNodeWithText("count: 2").assertExists()
     }
 }

@@ -17,18 +17,18 @@
 package com.alexvanyo.composelife.navigation
 
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import org.junit.Rule
-import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.UUID
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @Suppress("TooManyFunctions")
-@RunWith(AndroidJUnit4::class)
+@RunWith(KmpAndroidJUnit4::class)
 class MutableBackstackNavigationControllerTests {
 
     private val id1 = UUID.randomUUID()

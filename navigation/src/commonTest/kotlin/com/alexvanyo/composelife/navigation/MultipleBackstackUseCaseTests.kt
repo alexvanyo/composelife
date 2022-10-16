@@ -26,14 +26,14 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.junit.Rule
-import org.junit.Test
+import androidx.compose.ui.test.runComposeUiTest
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import org.junit.runner.RunWith
 import java.util.UUID
+import kotlin.test.Test
 
 enum class BackstackType {
     First,
@@ -116,16 +116,13 @@ class MultipleMutableBackstackNavigationController(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
-@RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalTestApi::class)
+@RunWith(KmpAndroidJUnit4::class)
 class MultipleBackstackUseCaseTests {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
-
     @Test
-    fun can_increment_count_on_previous_screen() {
-        composeTestRule.setContent {
+    fun can_increment_count_on_previous_screen() = runComposeUiTest {
+        setContent {
             val firstNavController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
@@ -208,27 +205,32 @@ class MultipleBackstackUseCaseTests {
             }
         }
 
-        composeTestRule.onNodeWithText("value: first 1, count: 0").assertExists()
-        composeTestRule.onNodeWithText("navigate back").assertDoesNotExist()
+        onNodeWithText("value: first 1, count: 0").assertExists()
+        onNodeWithText("navigate back").assertDoesNotExist()
 
-        composeTestRule.onNodeWithText("increment").performClick()
+        onNodeWithText("increment").performClick()
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("value: first 1, count: 1").assertExists()
+        onNodeWithText("value: first 1, count: 1").assertExists()
 
-        composeTestRule.onNodeWithText("navigate to second").performClick()
+        onNodeWithText("navigate to second").performClick()
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("value: second 1, count: 0").assertExists()
+        onNodeWithText("value: second 1, count: 0").assertExists()
 
-        composeTestRule.onNodeWithText("increment").performClick()
+        onNodeWithText("increment").performClick()
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("value: second 1, count: 1").assertExists()
+        onNodeWithText("value: second 1, count: 1").assertExists()
 
-        composeTestRule.onNodeWithText("navigate back").performClick()
+        onNodeWithText("navigate back").performClick()
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("value: first 1, count: 1").assertExists()
+        onNodeWithText("value: first 1, count: 1").assertExists()
 
-        composeTestRule.onNodeWithText("navigate to second").performClick()
+        onNodeWithText("navigate to second").performClick()
+        waitForIdle()
 
-        composeTestRule.onNodeWithText("value: second 1, count: 1").assertExists()
+        onNodeWithText("value: second 1, count: 1").assertExists()
     }
 }
