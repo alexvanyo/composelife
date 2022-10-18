@@ -22,7 +22,7 @@ import kotlin.test.assertEquals
 class CellStateFormatTests {
 
     @Test
-    fun `from file extension null is unknown`() {
+    fun from_file_extension_null_is_unknown() {
         assertEquals(
             CellStateFormat.Unknown,
             CellStateFormat.fromFileExtension(null),
@@ -30,7 +30,7 @@ class CellStateFormatTests {
     }
 
     @Test
-    fun `from file extension cells is plaintext`() {
+    fun from_file_extension_cells_is_plaintext() {
         assertEquals(
             CellStateFormat.FixedFormat.Plaintext,
             CellStateFormat.fromFileExtension("cells"),
@@ -38,7 +38,7 @@ class CellStateFormatTests {
     }
 
     @Test
-    fun `from file extension rle is run length encoding`() {
+    fun from_file_extension_rle_is_run_length_encoding() {
         assertEquals(
             CellStateFormat.FixedFormat.RunLengthEncoding,
             CellStateFormat.fromFileExtension("rle"),
@@ -46,7 +46,7 @@ class CellStateFormatTests {
     }
 
     @Test
-    fun `from file extension lif is life`() {
+    fun from_file_extension_lif_is_life() {
         assertEquals(
             CellStateFormat.Life,
             CellStateFormat.fromFileExtension("lif"),
@@ -54,7 +54,7 @@ class CellStateFormatTests {
     }
 
     @Test
-    fun `from file extension life is life`() {
+    fun from_file_extension_life_is_life() {
         assertEquals(
             CellStateFormat.Life,
             CellStateFormat.fromFileExtension("life"),
@@ -62,7 +62,7 @@ class CellStateFormatTests {
     }
 
     @Test
-    fun `from file extension txt is unknown`() {
+    fun from_file_extension_txt_is_unknown() {
         assertEquals(
             CellStateFormat.Unknown,
             CellStateFormat.fromFileExtension("txt"),
@@ -70,7 +70,7 @@ class CellStateFormatTests {
     }
 
     @Test
-    fun `from file extension empty is unknown`() {
+    fun from_file_extension_empty_is_unknown() {
         assertEquals(
             CellStateFormat.Unknown,
             CellStateFormat.fromFileExtension(""),

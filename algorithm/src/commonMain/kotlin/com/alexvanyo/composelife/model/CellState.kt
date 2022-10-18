@@ -125,28 +125,6 @@ fun emptyCellState(): CellState = CellState(emptySet())
 
 fun Set<Pair<Int, Int>>.toCellState(): CellState = CellState(map(Pair<Int, Int>::toIntOffset).toSet())
 
-fun String.toCellState(
-    topLeftOffset: IntOffset = IntOffset.Zero,
-    fixedFormatCellStateSerializer: FixedFormatCellStateSerializer = PlaintextCellStateSerializer,
-    throwOnWarnings: Boolean = true,
-): CellState {
-    val deserializationResult = trimMargin()
-        .split("\n")
-        .asSequence()
-        .run(fixedFormatCellStateSerializer::deserializeToCellState)
-
-    return when (deserializationResult) {
-        is DeserializationResult.Successful -> {
-            check(deserializationResult.warnings.isEmpty() || !throwOnWarnings) {
-                "Warnings when parsing cell state!"
-            }
-            deserializationResult.cellState.offsetBy(topLeftOffset)
-        }
-        is DeserializationResult.Unsuccessful ->
-            error("Could not parse cell state!")
-    }
-}
-
 /**
  * A simple implementation of [CellState] backed by a normal [Set].
  */

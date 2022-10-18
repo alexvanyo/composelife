@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.algorithm.R
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
-import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -44,37 +43,6 @@ interface CellStateSerializer {
         cellState: CellState,
     ): Sequence<String>
 }
-
-sealed interface CellStateFormat {
-
-    object Unknown : CellStateFormat
-    object Life : CellStateFormat
-
-    /**
-     * A "fixed" format for a cell state. Any serialization or deserialization of a cell state should eventually
-     * be done with one of these formats, and other [CellStateFormat]s might delegate to here.
-     */
-    sealed interface FixedFormat : CellStateFormat {
-        object Plaintext : FixedFormat
-        object Life105 : FixedFormat
-        object Life106 : FixedFormat
-        object RunLengthEncoding : FixedFormat
-
-        @GenSealedEnum(generateEnum = true)
-        companion object
-    }
-
-    @GenSealedEnum(generateEnum = true)
-    companion object
-}
-
-fun CellStateFormat.Companion.fromFileExtension(fileExtension: String?): CellStateFormat =
-    when (fileExtension) {
-        "cells" -> CellStateFormat.FixedFormat.Plaintext
-        "lif", "life" -> CellStateFormat.Life
-        "rle" -> CellStateFormat.FixedFormat.RunLengthEncoding
-        else -> CellStateFormat.Unknown
-    }
 
 class FlexibleCellStateSerializer @Inject constructor(
     private val dispatchers: ComposeLifeDispatchers,
@@ -454,5 +422,27 @@ object Life105CellStateSerializer : FixedFormatCellStateSerializer {
                 )
             }
         }
+    }
+}
+
+fun String.toCellState(
+    topLeftOffset: IntOffset = IntOffset.Zero,
+    fixedFormatCellStateSerializer: FixedFormatCellStateSerializer = PlaintextCellStateSerializer,
+    throwOnWarnings: Boolean = true,
+): CellState {
+    val deserializationResult = trimMargin()
+        .split("\n")
+        .asSequence()
+        .run(fixedFormatCellStateSerializer::deserializeToCellState)
+
+    return when (deserializationResult) {
+        is DeserializationResult.Successful -> {
+            check(deserializationResult.warnings.isEmpty() || !throwOnWarnings) {
+                "Warnings when parsing cell state!"
+            }
+            deserializationResult.cellState.offsetBy(topLeftOffset)
+        }
+        is DeserializationResult.Unsuccessful ->
+            error("Could not parse cell state!")
     }
 }
