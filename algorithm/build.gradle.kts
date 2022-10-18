@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.SharedTestConfig
 import com.alexvanyo.composelife.buildlogic.useSharedTest
+import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
 
 plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
@@ -27,6 +28,7 @@ plugins {
     id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
     kotlin("kapt")
+    alias(libs.plugins.jetbrainsCompose)
 }
 
 android {
@@ -39,45 +41,56 @@ android {
 
 kotlin {
     android()
+    jvm()
 
     sourceSets {
         val commonMain by getting {
+            kotlin.srcDir("$buildDir/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
-                api(projects.parameterizedString)
-                api(projects.preferences)
                 api(projects.dispatchers)
+                api(projects.updatable)
 
+                implementation(libs.androidx.annotation)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.jetbrains.compose.ui)
+                implementation(libs.jetbrains.compose.runtime)
+                implementation(libs.sealedEnum.runtime)
+                implementation(libs.guava.android)
+                project.dependencies.add("kspCommonMainMetadata", libs.sealedEnum.ksp.get())
+                implementation(libs.dagger.hilt.core)
+                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }
         val androidMain by getting {
             dependencies {
-                implementation(libs.androidx.compose.foundation)
-                implementation(libs.androidx.compose.runtime)
+                api(projects.parameterizedString)
+                api(projects.preferences)
+
                 implementation(libs.kotlinx.coroutines.android)
-                implementation(libs.guava.android)
-                implementation(libs.sealedEnum.runtime)
-                configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
-                implementation(libs.dagger.hilt.android)
-                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }
         val commonTest by getting {
             dependencies {
                 implementation(projects.dispatchersTest)
-                implementation(projects.patterns)
-                implementation(projects.preferencesTest)
-                implementation(projects.testActivity)
 
-                implementation(kotlin("test"))
+                implementation(kotlin("test-junit5"))
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
+            }
+        }
+        val jvmTest by getting {
+            dependencies {
+                implementation(libs.testParameterInjector.junit5)
             }
         }
         val androidSharedTest by creating {
             dependsOn(commonTest)
             dependencies {
+                implementation(projects.patterns)
+                implementation(projects.preferencesTest)
+                implementation(projects.testActivity)
+
                 implementation(libs.androidx.compose.uiTestJunit4)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
@@ -109,4 +122,16 @@ dependencies {
 
 kapt {
     correctErrorTypes = true
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().configureEach {
+    if (name != "kspCommonMainKotlinMetadata") {
+        dependsOn("kspCommonMainKotlinMetadata")
+    }
+}
+
+tasks {
+    getByName<KotlinJvmTest>("jvmTest") {
+        useJUnitPlatform()
+    }
 }
