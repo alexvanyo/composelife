@@ -14,15 +14,9 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.SharedTestConfig
-import com.alexvanyo.composelife.buildlogic.useSharedTest
-
 plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
-    id("com.alexvanyo.composelife.android.library.gradlemanageddevices")
-    id("com.alexvanyo.composelife.android.library.jacoco")
-    id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
     kotlin("kapt")
 }
@@ -36,49 +30,22 @@ android {
 }
 
 kotlin {
+    jvm()
     android()
 
     sourceSets {
         val commonMain by getting {
             dependencies {
                 api(projects.preferences)
+                api(libs.dagger.hilt.core)
+                implementation(libs.jetbrains.compose.runtime)
             }
         }
         val androidMain by getting {
             dependencies {
-                api(libs.dagger.hilt.android)
                 api(libs.dagger.hilt.test)
-                implementation(libs.androidx.compose.runtime)
                 api(libs.androidx.test.junit)
                 configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
-            }
-        }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-            }
-        }
-        val androidSharedTest by creating {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.androidx.test.core)
-                implementation(libs.androidx.test.junit)
-            }
-        }
-        val androidTest by getting {
-            if (useSharedTest != SharedTestConfig.Instrumentation) {
-                dependsOn(androidSharedTest)
-            }
-            dependencies {
-                configurations["kaptTest"].dependencies.add(libs.dagger.hilt.compiler.get())
-            }
-        }
-        val androidAndroidTest by getting {
-            if (useSharedTest != SharedTestConfig.Robolectric) {
-                dependsOn(androidSharedTest)
-            }
-            dependencies {
-                configurations["kaptAndroidTest"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }
     }

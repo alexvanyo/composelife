@@ -28,8 +28,8 @@ import dagger.hilt.EntryPoints
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import leakcanary.SkipLeakDetection
-import org.junit.Before
-import org.junit.Test
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -41,7 +41,7 @@ class GameOfLifeProgressIndicatorTests : BaseHiltTest<TestActivity>(TestActivity
         override val preferences = LoadedComposeLifePreferences.Defaults
     }
 
-    @Before
+    @BeforeTest
     fun setup() {
         gameOfLifeProgressIndicatorHiltEntryPoint =
             EntryPoints.get(composeTestRule.activity, GameOfLifeProgressIndicatorHiltEntryPoint::class.java)

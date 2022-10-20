@@ -37,10 +37,12 @@ android {
 }
 
 kotlin {
+    jvm()
     android()
 
     sourceSets {
         val commonMain by getting {
+            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 api(projects.dispatchers)
                 implementation(projects.preferencesProto)
@@ -48,20 +50,26 @@ kotlin {
                 api(projects.updatable)
 
                 api(libs.kotlinx.coroutines.core)
+                api(libs.jetbrains.compose.runtime)
+                api(libs.androidx.dataStore)
+                implementation(libs.androidx.dataStore.core.okio)
+                implementation(libs.okio)
+                api(libs.sealedEnum.runtime)
+
+                implementation(libs.dagger.hilt.core)
             }
         }
         val androidMain by getting {
+            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
                 api(libs.kotlinx.coroutines.android)
-                api(libs.androidx.compose.runtime)
-                api(libs.androidx.dataStore)
                 implementation(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.androidx.lifecycle.viewmodel.savedstate)
-                api(libs.sealedEnum.runtime)
-                configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
                 implementation(libs.dagger.hilt.android)
-                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
+        }
+        val jvmMain by getting {
+            configurations["kspJvm"].dependencies.add(libs.sealedEnum.ksp.get())
         }
         val commonTest by getting {
             dependencies {
@@ -71,6 +79,7 @@ kotlin {
                 implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
+                implementation(libs.okio.fakefilesystem)
             }
         }
         val androidSharedTest by creating {
@@ -85,17 +94,15 @@ kotlin {
             if (useSharedTest != SharedTestConfig.Instrumentation) {
                 dependsOn(androidSharedTest)
             }
-            dependencies {
-                configurations["kaptTest"].dependencies.add(libs.dagger.hilt.compiler.get())
-            }
         }
         val androidAndroidTest by getting {
             if (useSharedTest != SharedTestConfig.Robolectric) {
                 dependsOn(androidSharedTest)
             }
-            dependencies {
-                configurations["kaptAndroidTest"].dependencies.add(libs.dagger.hilt.compiler.get())
-            }
         }
     }
+}
+
+kapt {
+    correctErrorTypes = true
 }

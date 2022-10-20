@@ -52,9 +52,9 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
 import leakcanary.SkipLeakDetection
-import org.junit.Before
-import org.junit.Test
 import javax.inject.Inject
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @HiltAndroidTest
@@ -75,7 +75,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
         override val preferences = LoadedComposeLifePreferences.Defaults
     }
 
-    @Before
+    @BeforeTest
     fun setup() {
         interactiveCellUniverseHiltEntryPoint =
             EntryPoints.get(composeTestRule.activity, InteractiveCellUniverseHiltEntryPoint::class.java)

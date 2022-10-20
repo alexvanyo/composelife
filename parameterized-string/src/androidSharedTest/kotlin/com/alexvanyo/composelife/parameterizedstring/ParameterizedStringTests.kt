@@ -22,9 +22,9 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.parameterizedstring.test.R
 import org.junit.Rule
-import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.MissingFormatArgumentException
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @RunWith(AndroidJUnit4::class)

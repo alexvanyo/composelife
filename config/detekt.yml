@@ -16,6 +16,8 @@ complexity:
       '**/jsTest/**',
       '**/iosTest/**'
     ]
+  LongParameterList:
+    excludes: [ '**/generated/**' ]
   TooManyFunctions:
     excludes: [
       '**/generated/**',
@@ -37,6 +39,8 @@ empty-blocks:
     excludes: [ '**/generated/**' ]
 
 formatting:
+  ArgumentListWrapping:
+    excludes: [ '**/generated/**' ]
   CommentSpacing:
     excludes: [ '**/generated/**' ]
   EnumEntryNameCase:
@@ -45,9 +49,13 @@ formatting:
     excludes: [ '**/generated/**' ]
   FunKeywordSpacing:
     active: true
+  ImportOrdering:
+    excludes: [ '**/generated/**' ]
   Indentation:
     excludes: [ '**/generated/**' ]
   MaximumLineLength:
+    excludes: [ '**/generated/**' ]
+  MultiLineIfElse:
     excludes: [ '**/generated/**' ]
   ModifierListSpacing:
     active: true
@@ -57,7 +65,13 @@ formatting:
     active: true
   NoLineBreakBeforeAssignment:
     excludes: [ '**/generated/**' ]
+  NoMultipleSpaces:
+    excludes: [ '**/generated/**' ]
   NoSemicolons:
+    excludes: [ '**/generated/**' ]
+  NoTrailingSpaces:
+    excludes: [ '**/generated/**' ]
+  NoUnitReturn:
     excludes: [ '**/generated/**' ]
   ParameterListWrapping:
     excludes: [ '**/generated/**' ]
@@ -87,11 +101,15 @@ naming:
     excludes: [ '**/generated/**' ]
   FunctionNaming:
     active: false
+  FunctionParameterNaming:
+    excludes: [ '**/generated/**' ]
   MatchingDeclarationName:
     excludes: [ '**/generated/**' ]
   ObjectPropertyNaming:
     excludes: [ '**/generated/**' ]
   TopLevelPropertyNaming:
+    excludes: [ '**/generated/**' ]
+  VariableNaming:
     excludes: [ '**/generated/**' ]
 
 style:
@@ -103,11 +121,13 @@ style:
   ForbiddenImport:
     active: true
     imports:
-      # Disallow JUnit5 assertions in favor of kotlin.test
+      # Disallow JUnit5 imports in favor of kotlin.test
       - 'org.junit.jupiter.api.Assertions.*'
+      - 'org.junit.jupiter.api.Test'
       - 'org.junit.jupiter.api.fail'
       - 'org.junit.jupiter.api.assert*'
-      # Disallow JUnit4 assertions in favor of kotlin.test
+      # Disallow JUnit4 imports in favor of kotlin.test
+      - 'org.junit.Test'
       - 'org.junit.Assert.*'
       # Disallow JUnit5 parameterized tests in favor of TestParameterInjector
       - 'org.junit.jupiter.params.*'

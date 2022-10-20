@@ -19,11 +19,11 @@ package com.alexvanyo.composelife.database
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import org.junit.Before
 import org.junit.Rule
-import org.junit.Test
 import org.junit.runner.RunWith
 import javax.inject.Inject
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlin.test.assertIs
 
 @HiltAndroidTest
@@ -36,7 +36,7 @@ class AppDatabaseTests {
     @Inject
     lateinit var appDatabase: AppDatabase
 
-    @Before
+    @BeforeTest
     fun setup() {
         hiltAndroidRule.inject()
     }

@@ -16,17 +16,19 @@
 
 package com.alexvanyo.composelife.wear
 
-import com.google.testing.junit.testparameterinjector.junit5.TestParameter
-import com.google.testing.junit.testparameterinjector.junit5.TestParameter.TestParameterValuesProvider
-import com.google.testing.junit.testparameterinjector.junit5.TestParameterInjectorTest
+import com.google.testing.junit.testparameterinjector.TestParameter
+import com.google.testing.junit.testparameterinjector.TestParameterInjector
+import org.junit.runner.RunWith
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@RunWith(TestParameterInjector::class)
 class TimeDigitsTests {
 
-    class LocalTimeProvider : TestParameterValuesProvider {
+    class LocalTimeProvider : TestParameter.TestParameterValuesProvider {
         override fun provideValues() =
             (0..23).flatMap { hour ->
                 (0..59).map { minute ->
@@ -35,7 +37,7 @@ class TimeDigitsTests {
             }
     }
 
-    @TestParameterInjectorTest
+    @Test
     fun `time digits are correct`(
         @TestParameter(valuesProvider = LocalTimeProvider::class) localTime: LocalTime,
         @TestParameter use24HourFormat: Boolean,

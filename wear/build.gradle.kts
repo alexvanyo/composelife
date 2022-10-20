@@ -111,8 +111,7 @@ kotlin {
 }
 
 dependencies {
-    // TODO: Needing to do this is strange, putting it in androidTest above seems to leak it to androidAndroidTest
-    testImplementation(libs.testParameterInjector.junit5)
+    testImplementation(libs.testParameterInjector.junit4)
 }
 
 kapt {

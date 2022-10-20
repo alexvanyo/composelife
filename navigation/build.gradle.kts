@@ -69,7 +69,7 @@ kotlin {
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
 
-                implementation(kotlin("test-junit"))
+                implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.jetbrains.compose.uiTestJunit4)
                 api(libs.jetbrains.compose.foundation)
@@ -94,11 +94,5 @@ kotlin {
                 dependsOn(androidSharedTest)
             }
         }
-    }
-}
-
-tasks {
-    named<KotlinJvmTest>("jvmTest") {
-        useJUnit()
     }
 }

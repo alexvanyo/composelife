@@ -35,11 +35,11 @@ import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.android.resources.NightMode
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
-import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
+import kotlin.test.BeforeTest
 
 private val globalPaparazzi = Paparazzi(
     environment = detectEnvironment().copy(
@@ -79,7 +79,7 @@ abstract class BasePaparazziTest {
     @get:Rule
     val paparazzi = globalPaparazzi
 
-    @Before
+    @BeforeTest
     fun setup() {
         // TODO: Remove when support is added for API 33 directly. Forces codename to release
         val buildVersionClass = Paparazzi::class.java.classLoader!!.loadClass("android.os.Build\$VERSION")

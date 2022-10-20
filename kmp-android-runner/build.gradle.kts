@@ -35,7 +35,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(kotlin("test-junit"))
+                implementation(libs.junit4)
             }
         }
         val androidMain by getting {
