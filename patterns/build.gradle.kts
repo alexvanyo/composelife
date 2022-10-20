@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+import com.alexvanyo.composelife.buildlogic.SharedTestConfig
+import com.alexvanyo.composelife.buildlogic.useSharedTest
+
 plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
@@ -34,38 +37,40 @@ android {
 
 kotlin {
     android()
+    jvm()
 
     sourceSets {
         val commonMain by getting {
             dependencies {
                 api(projects.algorithm)
+                api(libs.jetbrains.compose.ui)
+                api(libs.sealedEnum.runtime)
             }
         }
         val androidMain by getting {
-            dependencies {
-                api(libs.androidx.compose.foundation)
-                api(libs.sealedEnum.runtime)
-                configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
-            }
+            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
+        }
+        val jvmMain by getting {
+            configurations["kspJvm"].dependencies.add(libs.sealedEnum.ksp.get())
         }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation(libs.testParameterInjector.junit4)
             }
         }
         val sharedAndroidTest by creating {
             dependsOn(commonTest)
         }
         val androidTest by getting {
-            dependsOn(sharedAndroidTest)
+            if (useSharedTest != SharedTestConfig.Instrumentation) {
+                dependsOn(sharedAndroidTest)
+            }
         }
         val androidAndroidTest by getting {
-            dependsOn(sharedAndroidTest)
+            if (useSharedTest != SharedTestConfig.Robolectric) {
+                dependsOn(sharedAndroidTest)
+            }
         }
     }
-}
-
-dependencies {
-    // TODO: Needing to do this is strange, putting it in androidTest above seems to leak it to androidAndroidTest
-    testImplementation(libs.testParameterInjector.junit5)
 }

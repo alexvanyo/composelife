@@ -16,7 +16,7 @@
 
 package com.alexvanyo.composelife.model
 
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class CellStateFormatTests {

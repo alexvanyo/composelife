@@ -45,9 +45,11 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
-            kotlin.srcDir("$buildDir/generated/ksp/metadata/commonMain/kotlin")
+            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 api(projects.dispatchers)
+                api(projects.parameterizedString)
+                api(projects.preferences)
                 api(projects.updatable)
 
                 implementation(libs.androidx.annotation)
@@ -57,37 +59,32 @@ kotlin {
                 implementation(libs.jetbrains.compose.runtime)
                 implementation(libs.sealedEnum.runtime)
                 implementation(libs.guava.android)
-                project.dependencies.add("kspCommonMainMetadata", libs.sealedEnum.ksp.get())
                 implementation(libs.dagger.hilt.core)
-                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }
         val androidMain by getting {
+            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
-                api(projects.parameterizedString)
-                api(projects.preferences)
-
                 implementation(libs.kotlinx.coroutines.android)
             }
+        }
+        val jvmMain by getting {
+            configurations["kspJvm"].dependencies.add(libs.sealedEnum.ksp.get())
         }
         val commonTest by getting {
             dependencies {
                 implementation(projects.dispatchersTest)
+                implementation(projects.patterns)
 
-                implementation(kotlin("test-junit5"))
+                implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
-            }
-        }
-        val jvmTest by getting {
-            dependencies {
-                implementation(libs.testParameterInjector.junit5)
+                implementation(libs.testParameterInjector.junit4)
             }
         }
         val androidSharedTest by creating {
             dependsOn(commonTest)
             dependencies {
-                implementation(projects.patterns)
                 implementation(projects.preferencesTest)
                 implementation(projects.testActivity)
 
@@ -115,23 +112,6 @@ kotlin {
     }
 }
 
-dependencies {
-    // TODO: Needing to do this is strange, putting it in androidTest above seems to leak it to androidAndroidTest
-    testImplementation(libs.testParameterInjector.junit5)
-}
-
 kapt {
     correctErrorTypes = true
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().configureEach {
-    if (name != "kspCommonMainKotlinMetadata") {
-        dependsOn("kspCommonMainKotlinMetadata")
-    }
-}
-
-tasks {
-    getByName<KotlinJvmTest>("jvmTest") {
-        useJUnitPlatform()
-    }
 }

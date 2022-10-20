@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.ui.action
 
 import com.alexvanyo.composelife.ui.util.BasePaparazziTest
-import org.junit.Test
+import kotlin.test.Test
 
 class InlineEditScreenSnapshotTests : BasePaparazziTest() {
 

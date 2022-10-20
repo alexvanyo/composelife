@@ -37,20 +37,8 @@ fun Project.configureTesting(
         }
     }
 
-    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-
     dependencies {
-        add("testImplementation", libs.findLibrary("junit5.jupiter").get())
-        add("testRuntimeOnly", libs.findLibrary("junit5.vintageEngine").get())
-
-        add("androidTestImplementation", libs.findLibrary("junit4").get())
-        add("androidTestRuntimeOnly", libs.findLibrary("junit5.vintageEngine").get())
-
         sharedTestImplementation(kotlin("test"))
-    }
-
-    tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
-        useJUnitPlatform()
     }
 }
 

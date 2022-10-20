@@ -24,11 +24,11 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.Before
 import org.junit.Rule
-import org.junit.Test
 import org.junit.runner.RunWith
 import javax.inject.Inject
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.time.Duration.Companion.seconds
@@ -47,7 +47,7 @@ class CellStateDaoTests {
     @Inject
     lateinit var testDispatcher: TestDispatcher
 
-    @Before
+    @BeforeTest
     fun setup() {
         hiltAndroidRule.inject()
     }

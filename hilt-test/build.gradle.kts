@@ -38,6 +38,7 @@ kotlin {
                 api(projects.databaseTest)
                 api(projects.preferencesTest)
 
+                implementation(kotlin("test-junit"))
                 api(libs.kotlinx.coroutines.test)
             }
         }

@@ -28,7 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 /**
  * A nestable representation of a string resource or a quantity string resource.
  */
-sealed class ParameterizedString {
+actual sealed class ParameterizedString {
     internal abstract val args: List<Any>
 
     internal data class NormalString(
@@ -108,7 +108,7 @@ fun Resources.getParameterizedString(parameterizedString: ParameterizedString): 
  */
 @Composable
 @ReadOnlyComposable
-fun parameterizedStringResource(parameterizedString: ParameterizedString): String {
+actual fun parameterizedStringResource(parameterizedString: ParameterizedString): String {
     LocalConfiguration.current
     return LocalContext.current.getParameterizedString(parameterizedString)
 }

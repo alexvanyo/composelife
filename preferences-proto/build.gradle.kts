@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
+
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -14,13 +17,11 @@
  * limitations under the License.
  */
 
-import com.android.build.api.dsl.AndroidSourceSet
-
 plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.detekt")
-    alias(libs.plugins.protobuf)
+    alias(libs.plugins.wire)
 }
 
 android {
@@ -29,50 +30,29 @@ android {
     defaultConfig {
         minSdk = 21
     }
-
-    sourceSets {
-        getByName("main") {
-            proto {
-                srcDir("src/androidMain/proto")
-            }
-        }
-    }
 }
 
-fun AndroidSourceSet.proto(action: SourceDirectorySet.() -> Unit) {
-    (this as? ExtensionAware)
-        ?.extensions
-        ?.getByName("proto")
-        ?.let { it as? SourceDirectorySet }
-        ?.apply(action)
+wire {
+    sourcePath {
+        srcDir("src/commonMain/proto")
+    }
+    kotlin {}
 }
 
 kotlin {
+    jvm()
     android()
 
     sourceSets {
-        val androidMain by getting {
+        val commonMain by getting {
+            kotlin.srcDir("$buildDir/generated/source/wire/commonCommonMain")
             dependencies {
-                api(libs.protobuf.runtime)
+                api(libs.wire.runtime)
             }
         }
     }
 }
 
-protobuf {
-    protoc {
-        artifact = libs.protobuf.protoc.get().toString()
-    }
-    generateProtoTasks {
-        all().forEach { task ->
-            task.builtins {
-                val java by registering {
-                    option("lite")
-                }
-                val kotlin by registering {
-                    option("lite")
-                }
-            }
-        }
-    }
+tasks.withType<KotlinCompile>().configureEach {
+    dependsOn("generateCommonCommonMainProtos")
 }

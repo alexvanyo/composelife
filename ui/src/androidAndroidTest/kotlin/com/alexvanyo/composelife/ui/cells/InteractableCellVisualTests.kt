@@ -32,8 +32,8 @@ import com.alexvanyo.composelife.screenshot.assertPixels
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
-import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.Test
 
 @RunWith(AndroidJUnit4::class)
 class InteractableCellVisualTests {

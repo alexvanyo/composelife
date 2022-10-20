@@ -31,12 +31,12 @@ import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import leakcanary.DetectLeaksAfterTestSuccess
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import javax.inject.Inject
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 
 @Suppress("UnnecessaryAbstractClass")
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -66,12 +66,12 @@ abstract class BaseHiltTest<T : ComponentActivity>(clazz: Class<T>) {
 
     val context: Context get() = composeTestRule.activity
 
-    @Before
+    @BeforeTest
     fun baseHiltTestSetup() {
         hiltAndroidRule.inject()
     }
 
-    @After
+    @AfterTest
     fun baseHiltTestTeardown() {
         appDatabase.close()
     }

@@ -65,16 +65,10 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(projects.kmpAndroidRunner)
-                implementation(kotlin("test-junit"))
+                implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
                 implementation(libs.jetbrains.compose.uiTestJunit4)
-            }
-        }
-        val jvmTest by getting {
-            dependencies {
-                implementation(libs.junit5.jupiter)
-                runtimeOnly(libs.junit5.vintageEngine)
             }
         }
         val androidSharedTest by creating {
@@ -97,11 +91,5 @@ kotlin {
                 dependsOn(androidSharedTest)
             }
         }
-    }
-}
-
-tasks {
-    getByName<KotlinJvmTest>("jvmTest") {
-        useJUnitPlatform()
     }
 }

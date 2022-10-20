@@ -32,9 +32,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
-import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.UUID
+import kotlin.test.Test
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)

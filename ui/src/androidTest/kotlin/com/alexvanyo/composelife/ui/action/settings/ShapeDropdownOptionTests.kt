@@ -16,7 +16,7 @@
 
 package com.alexvanyo.composelife.ui.action.settings
 
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ShapeDropdownOptionTests {

@@ -47,7 +47,7 @@ kotlin {
     sourceSets {
         val androidMain by getting {
             dependencies {
-                implementation(libs.junit4)
+                implementation(kotlin("test"))
                 implementation(libs.androidx.benchmark.macro.junit4)
                 implementation(libs.androidx.test.runner)
                 implementation(libs.androidx.test.junit)

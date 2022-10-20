@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.ui
 
 import com.alexvanyo.composelife.ui.util.BasePaparazziTest
-import org.junit.Test
+import kotlin.test.Test
 
 class InteractiveCellUniverseSnapshotTests : BasePaparazziTest() {
 

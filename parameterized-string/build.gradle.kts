@@ -36,18 +36,19 @@ android {
 }
 
 kotlin {
+    jvm()
     android()
 
     sourceSets {
         val commonMain by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.core)
+                api(libs.jetbrains.compose.runtime)
             }
         }
         val androidMain by getting {
             dependencies {
                 api(libs.androidx.compose.foundation)
-                api(libs.androidx.compose.runtime)
                 implementation(libs.androidx.core)
                 implementation(libs.kotlinx.coroutines.android)
             }
