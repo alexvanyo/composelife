@@ -74,8 +74,9 @@ fun Project.configureJacocoMerge() {
                     subprojects
                         .flatMap {
                             listOf(
-                                it.projectDir.resolve("src/main/java"),
-                                it.projectDir.resolve("src/main/kotlin"),
+                                it.projectDir.resolve("src/commonMain/kotlin"),
+                                it.projectDir.resolve("src/androidMain/kotlin"),
+                                it.projectDir.resolve("src/jvmMain/kotlin"),
                             )
                         },
                 ),
