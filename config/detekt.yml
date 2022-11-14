@@ -65,11 +65,15 @@ formatting:
     active: true
   SpacingAroundCurly:
     excludes: [ '**/generated/**' ]
-  TrailingComma:
-    active: true
-    autocorrect: true
-    allowTrailingComma: true
-    allowTrailingCommaOnCallSite: true
+  TrailingCommaOnCallSite:
+    active: false
+    autoCorrect: true
+    useTrailingCommaOnCallSite: false
+    excludes: [ '**/generated/**' ]
+  TrailingCommaOnDeclarationSite:
+    active: false
+    autoCorrect: true
+    useTrailingCommaOnDeclarationSite: false
     excludes: [ '**/generated/**' ]
   UnnecessaryParenthesesBeforeTrailingLambda:
     active: true

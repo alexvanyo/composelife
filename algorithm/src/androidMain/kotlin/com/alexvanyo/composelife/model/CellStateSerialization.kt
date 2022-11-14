@@ -50,7 +50,8 @@ class FlexibleCellStateSerializer @Inject constructor(
     override suspend fun deserializeToCellState(
         format: CellStateFormat,
         lines: Sequence<String>,
-    ): DeserializationResult = @Suppress("InjectDispatcher") withContext(dispatchers.Default) {
+    ): DeserializationResult = @Suppress("InjectDispatcher")
+    withContext(dispatchers.Default) {
         val targetedSerializer = when (format) {
             CellStateFormat.FixedFormat.Plaintext -> PlaintextCellStateSerializer
             CellStateFormat.FixedFormat.Life105 -> Life105CellStateSerializer
