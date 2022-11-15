@@ -109,7 +109,7 @@ class TemporalGameOfLifeStateTests {
 
                 runCurrent()
                 Snapshot.sendApplyNotifications()
-                assertEquals(SixLongLinePattern.seedCellState, asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.seedCellState, awaitItem())
 
                 SixLongLinePattern.cellStates.dropLastWhile { it == emptyCellState() }.forEach { cellState ->
                     advanceTimeBy(8)
@@ -122,7 +122,7 @@ class TemporalGameOfLifeStateTests {
                     runCurrent()
                     Snapshot.sendApplyNotifications()
                     runCurrent()
-                    assertEquals(cellState, asChannel().tryReceive().getOrThrow())
+                    assertEquals(cellState, awaitItem())
                 }
 
                 mutatorJob.cancel()
@@ -153,7 +153,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.seedCellState, asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.seedCellState, awaitItem())
 
                 advanceTimeBy(8)
                 runCurrent()
@@ -165,7 +165,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.cellStates[0], asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.cellStates[0], awaitItem())
 
                 advanceTimeBy(8)
                 runCurrent()
@@ -207,7 +207,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.cellStates[1], asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.cellStates[1], awaitItem())
 
                 mutatorJob.cancel()
                 cancel()
@@ -238,7 +238,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.seedCellState, asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.seedCellState, awaitItem())
 
                 advanceTimeBy(8)
                 runCurrent()
@@ -250,7 +250,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.cellStates[0], asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.cellStates[0], awaitItem())
 
                 advanceTimeBy(8)
                 runCurrent()
@@ -274,7 +274,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.cellStates[2], asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.cellStates[2], awaitItem())
 
                 advanceTimeBy(8)
                 runCurrent()
@@ -298,7 +298,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.cellStates[6], asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.cellStates[6], awaitItem())
 
                 mutatorJob.cancel()
             }
@@ -328,7 +328,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.seedCellState, asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.seedCellState, awaitItem())
 
                 advanceTimeBy(8)
                 runCurrent()
@@ -340,7 +340,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.cellStates[0], asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.cellStates[0], awaitItem())
 
                 advanceTimeBy(8)
                 runCurrent()
@@ -364,7 +364,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.cellStates[1], asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.cellStates[1], awaitItem())
 
                 advanceTimeBy(50)
                 runCurrent()
@@ -388,7 +388,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.cellStates[2], asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.cellStates[2], awaitItem())
 
                 mutatorJob.cancel()
             }
@@ -418,7 +418,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.seedCellState, asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.seedCellState, awaitItem())
 
                 advanceTimeBy(8)
                 runCurrent()
@@ -430,7 +430,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.cellStates[0], asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.cellStates[0], awaitItem())
 
                 advanceTimeBy(8)
                 runCurrent()
@@ -442,7 +442,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SingleCellPattern.seedCellState, asChannel().tryReceive().getOrThrow())
+                assertEquals(SingleCellPattern.seedCellState, awaitItem())
 
                 advanceTimeBy(8)
                 runCurrent()
@@ -454,7 +454,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SingleCellPattern.cellStates[0], asChannel().tryReceive().getOrThrow())
+                assertEquals(SingleCellPattern.cellStates[0], awaitItem())
 
                 mutatorJob.cancel()
             }
@@ -484,7 +484,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.seedCellState, asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.seedCellState, awaitItem())
 
                 advanceTimeBy(8)
                 runCurrent()
@@ -496,7 +496,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.cellStates[0], asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.cellStates[0], awaitItem())
 
                 val mutatorJob2 = launch(testDispatcher) {
                     with(NaiveGameOfLifeAlgorithm(dispatchers)) {
@@ -518,7 +518,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.cellStates[1], asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.cellStates[1], awaitItem())
 
                 advanceTimeBy(8)
                 runCurrent()
@@ -530,7 +530,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.cellStates[2], asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.cellStates[2], awaitItem())
 
                 advanceTimeBy(8)
                 runCurrent()
@@ -555,7 +555,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.cellStates[3], asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.cellStates[3], awaitItem())
 
                 advanceTimeBy(8)
                 runCurrent()
@@ -567,7 +567,7 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
-                assertEquals(SixLongLinePattern.cellStates[4], asChannel().tryReceive().getOrThrow())
+                assertEquals(SixLongLinePattern.cellStates[4], awaitItem())
 
                 mutatorJob2.cancel()
             }
