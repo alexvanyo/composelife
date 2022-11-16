@@ -132,7 +132,17 @@ jobs:
               {"api-level": "30", "target": "aospatd", "device": "pixel2"}
             '
           fi
-          echo ::set-output name=matrix::{\"include\":[$MATRIX]}
+          echo "matrix={\"include\":[${MATRIX//$'\n'/}]}" >> $GITHUB_OUTPUT
+
+  android-test-gmd-cfg-check:
+    needs: android-test-gmd-cfg
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check matrix configuration
+        run: |
+          matrix='${{ needs.android-test-gmd-cfg.outputs.matrix }}'
+          echo $matrix
+          echo $matrix | jq .
 
   android-test-gmd:
     needs: android-test-gmd-cfg
