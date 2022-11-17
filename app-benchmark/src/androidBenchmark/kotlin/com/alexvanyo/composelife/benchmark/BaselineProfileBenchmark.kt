@@ -23,8 +23,8 @@ import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
-import kotlin.test.Test
 import org.junit.runner.RunWith
+import kotlin.test.Test
 
 @RunWith(AndroidJUnit4::class)
 class BaselineProfileBenchmark {

@@ -80,6 +80,10 @@ jobs:
           cp $ANDROID_HOME/platforms/android-33/build.prop $ANDROID_HOME/platforms/android-33-paparazzi
           sed -i -E "s/ro\.build\.version\.known_codenames=.*(Base.*)/ro\.build\.version\.known_codenames=ro\.,\1/" $ANDROID_HOME/platforms/android-33-paparazzi/build.prop
 
+      - name: Assemble
+        # Assemble with running benchmarks and generating baseline profile to ensure those compile
+        run: ./gradlew assemble -Pcom.alexvanyo.composelife.runBenchmarks=true -Pcom.alexvanyo.composelife.generateBaselineProfile=true
+
       - name: Run checks
         run: ./gradlew check --stacktrace
 
