@@ -183,6 +183,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
 
+      - name: Package for tests
+        run: ./gradlew packageDebugAndroidTest packageStagingAndroidTest
+
       - name: Run device checks
         run: |
           # run the tests, with one retry attempt
