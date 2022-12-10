@@ -122,7 +122,7 @@ private val fragmentShaderCode = """
             cellCoordinates.y / 2.0 / metaCellWindowSize.y
         );
 
-        float metaCell = texture2D(cells, metaCellCoordinates).a * 255.0;
+        float metaCell = floor(texture2D(cells, metaCellCoordinates).a * 255.0 + 0.5);
         float mask = pow(2.0, floor(mod(cellCoordinates.y, 2.0)) * 4.0 + floor(mod(cellCoordinates.x, 4.0)));
 
         if (mod(floor(metaCell / mask), 2.0) != 0.0) {
