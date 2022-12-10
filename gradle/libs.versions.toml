@@ -2,6 +2,7 @@
 accompanist = "0.28.0"
 androidDesugarJdkLibs = "2.0.0"
 androidGradlePlugin = "8.0.0-alpha08"
+androidTools = "31.0.0-alpha08"
 androidR8 = "3.3.75"
 androidxActivity = "1.7.0-alpha02"
 androidxAnnotation = "1.5.0"
@@ -54,6 +55,7 @@ accompanist-systemuicontroller = { group = "com.google.accompanist", name = "acc
 android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "androidDesugarJdkLibs" }
 android-r8 = { group = "com.android.tools", name = "r8", version.ref = "androidR8" }
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
+android-tools-common = { group = "com.android.tools", name = "common", version.ref = "androidTools" }
 androidx-activityCompose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
 androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "androidxAnnotation" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppcompat" }

@@ -28,6 +28,7 @@ java {
 dependencies {
     implementation(libs.android.r8)
     implementation(libs.android.gradlePlugin)
+    implementation(libs.android.tools.common)
     implementation(kotlin("gradle-plugin", libs.versions.kotlin.get()))
     implementation(libs.detekt.gradlePlugin)
     implementation(libs.keeper.gradlePlugin)
