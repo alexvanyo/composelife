@@ -34,7 +34,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.consumedWindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -108,7 +108,7 @@ interface FullscreenSettingsScreenLocalEntryPoint :
 
 context(FullscreenSettingsScreenHiltEntryPoint, FullscreenSettingsScreenLocalEntryPoint)
 @Suppress("LongMethod")
-@OptIn(ExperimentalLayoutApi::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun FullscreenSettingsScreen(
     windowSizeClass: WindowSizeClass,
@@ -179,7 +179,7 @@ fun FullscreenSettingsScreen(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .consumedWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.End)),
+                    .consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.End)),
             ) {
                 listContent()
             }
@@ -189,7 +189,7 @@ fun FullscreenSettingsScreen(
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .weight(1f)
-                    .consumedWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Start))
+                    .consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Start))
                     .safeDrawingPadding()
                     .padding(
                         top = 4.dp,
@@ -302,7 +302,7 @@ private fun SettingsCategoryList(
                 .fillMaxSize()
                 .verticalScroll(listScrollState)
                 .padding(innerPadding)
-                .consumedWindowInsets(innerPadding)
+                .consumeWindowInsets(innerPadding)
                 .padding(horizontal = 8.dp)
                 .safeDrawingPadding(),
             verticalArrangement = Arrangement.spacedBy(16.dp),
