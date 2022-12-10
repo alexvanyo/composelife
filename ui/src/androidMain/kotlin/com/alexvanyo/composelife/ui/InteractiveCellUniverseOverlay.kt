@@ -24,14 +24,13 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.consumedWindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -90,7 +89,6 @@ interface InteractiveCellUniverseOverlayLocalEntryPoint :
     CellUniverseActionCardLocalEntryPoint
 
 context(InteractiveCellUniverseOverlayHiltEntryPoint, InteractiveCellUniverseOverlayLocalEntryPoint)
-@OptIn(ExperimentalLayoutApi::class)
 @Suppress("LongMethod", "ComplexMethod", "LongParameterList")
 @Composable
 fun InteractiveCellUniverseOverlay(
@@ -260,7 +258,7 @@ fun InteractiveCellUniverseOverlay(
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .consumedWindowInsets(consumedWindowInsets)
+                    .consumeWindowInsets(consumedWindowInsets)
                     .animatePlacement(
                         // If we are showing fullscreen, avoid animating placement at this level, since the card
                         // should effectively be fixed to be full screen
