@@ -106,8 +106,10 @@ fun Project.configureGradleManagedDevices(
             }
     }
     // TODO: This shouldn't be necessary, there seems to be some issue with configuration caching with GMD
-    afterEvaluate {
-        Environment.initialize()
+    tasks.configureEach {
+        doFirst {
+            Environment.initialize()
+        }
     }
 }
 
