@@ -52,6 +52,7 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.android)
+                api(libs.androidx.compose.runtime)
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.lifecycle.viewmodel.savedstate)
             }
