@@ -66,18 +66,15 @@ fun Project.configureAndroidTesting(
 
         sourceSets {
             // Setup a shared test directory for instrumentation tests and Robolectric tests
-            val sharedTestDir = "src/androidSharedTest/kotlin"
             val sharedResDir = "src/androidSharedTest/res"
             if (useSharedTest != SharedTestConfig.Instrumentation) {
                 getByName("test") {
-                    java.srcDir(sharedTestDir)
                     res.srcDir(sharedResDir)
-                    resources.srcDirs("src/sharedTest/resources", "src/androidSharedTest/resources")
+                    resources.srcDirs("src/androidSharedTest/resources")
                 }
             }
             if (useSharedTest != SharedTestConfig.Robolectric) {
                 getByName("androidTest") {
-                    java.srcDir(sharedTestDir)
                     res.srcDir(sharedResDir)
                 }
             }

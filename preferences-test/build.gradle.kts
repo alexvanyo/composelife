@@ -17,7 +17,6 @@
 plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
-    id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
     kotlin("kapt")
 }
