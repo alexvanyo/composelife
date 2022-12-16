@@ -32,29 +32,28 @@ import androidx.compose.runtime.snapshotFlow
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.updatable.Updatable
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.zip
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import java.util.UUID
-import kotlin.time.Duration
+import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
@@ -102,7 +101,7 @@ sealed interface TemporalGameOfLifeState : MutableGameOfLifeState {
     /**
      * Evolves the cell state using the given [GameOfLifeAlgorithm] automatically through time
      */
-    context(GameOfLifeAlgorithm, Clock, ComposeLifeDispatchers)
+    context(GameOfLifeAlgorithm, Clock, ComposeLifeDispatchers, TimeTickerFactory)
     suspend fun evolve()
 
     /**
@@ -171,6 +170,7 @@ private class GameOfLifeGenealogy(
             .zip(stepTicker) { newCellState, _ -> newCellState }
             .collect { cellState ->
                 computedCellState = cellState
+                println("computedCellState: $cellState")
                 onNewCellState(generationsPerStep)
             }
     }
@@ -207,6 +207,36 @@ fun TemporalGameOfLifeState(
     generationsPerStep = generationsPerStep,
     targetStepsPerSecond = targetStepsPerSecond,
 )
+
+data class TimeTickerConfig(
+    val isRunning: Boolean,
+    val targetStepsPerSecond: Double
+)
+
+interface TimeTickerFactory {
+    fun timeTicker(configFlow: Flow<TimeTickerConfig>): Flow<Unit>
+}
+
+class DefaultTimeTickerFactory @Inject constructor() : TimeTickerFactory {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun timeTicker(configFlow: Flow<TimeTickerConfig>): Flow<Unit> =
+        configFlow
+            .flatMapLatest { (isRunning, targetStepsPerSecond) ->
+                if (isRunning) {
+                    channelFlow {
+                        while (isActive) {
+                            val targetDelay = 1.seconds / targetStepsPerSecond
+                            delay(targetDelay)
+                            send(Unit)
+                        }
+                    }
+                        .buffer(0) // No buffer, so the ticks are only consumed upon a cell state being computed
+                } else {
+                    emptyFlow()
+                }
+            }
+            .buffer(0) // No buffer, so the ticks are only consumed upon a cell state being computed
+}
 
 private class TemporalGameOfLifeStateImpl(
     seedCellState: CellState,
@@ -283,7 +313,7 @@ private class TemporalGameOfLifeStateImpl(
         stepManualTicker.send(Unit)
     }
 
-    context(GameOfLifeAlgorithm, Clock, ComposeLifeDispatchers)
+    context(GameOfLifeAlgorithm, Clock, ComposeLifeDispatchers, TimeTickerFactory)
     override suspend fun evolve() {
         @Suppress("InjectDispatcher") // Dispatchers are injected via dispatchers
         withContext(Default) {
@@ -305,36 +335,21 @@ private class TemporalGameOfLifeStateImpl(
     /**
      * The implementation of [evolve] guarded by [evolveMutex].
      */
-    context(GameOfLifeAlgorithm, Clock, ComposeLifeDispatchers)
-    @OptIn(ExperimentalCoroutinesApi::class)
+    context(GameOfLifeAlgorithm, Clock, ComposeLifeDispatchers, TimeTickerFactory)
     suspend fun evolveImpl() {
-        val lastTickFlow = MutableSharedFlow<Instant>(replay = 1)
-
-        val stepTimeTicker = snapshotFlow {
-            isRunning to targetStepsPerSecond
-        }
-            .flatMapLatest { (isRunning, targetStepsPerSecond) ->
-                if (isRunning) {
-                    lastTickFlow.tryEmit(now())
-                    lastTickFlow.map { lastTick ->
-                        val targetDelay = 1.seconds / targetStepsPerSecond
-                        val remainingDelay = (targetDelay - (now() - lastTick)).coerceAtLeast(Duration.ZERO)
-                        delay(remainingDelay)
-                    }
-                } else {
-                    emptyFlow()
-                }
-            }
-            .buffer(0) // No buffer, so the ticks are only consumed upon a cell state being computed
-
         val stepTicker = merge(
-            stepTimeTicker,
+            snapshotFlow {
+                TimeTickerConfig(
+                    isRunning = isRunning,
+                    targetStepsPerSecond = targetStepsPerSecond
+                )
+            }.let { timeTicker(it) },
             stepManualTicker.receiveAsFlow(),
         )
             .buffer(0) // No buffer, so the ticks are only consumed upon a cell state being computed
 
         snapshotFlow { cellStateGenealogy }
-            .flowOn(Dispatchers.Main)
+            .flowOn(Main)
             .collectLatest { cellStateGenealogy ->
                 completedGenerationTracker = completedGenerationTracker + ComputationRecord(
                     computedGenerations = 0,
@@ -342,7 +357,6 @@ private class TemporalGameOfLifeStateImpl(
                 )
                 cellStateGenealogy.evolve(stepTicker) { generationsPerStep ->
                     val lastTick = now()
-                    lastTickFlow.tryEmit(lastTick)
                     val newRecord = ComputationRecord(
                         computedGenerations = generationsPerStep,
                         computedTime = lastTick,
@@ -410,11 +424,13 @@ fun rememberTemporalGameOfLifeStateMutator(
     dispatchers: ComposeLifeDispatchers,
     gameOfLifeAlgorithm: GameOfLifeAlgorithm,
     clock: Clock,
+    timeTickerFactory: TimeTickerFactory,
 ): TemporalGameOfLifeStateMutator =
-    remember(temporalGameOfLifeState, dispatchers, gameOfLifeAlgorithm, clock) {
+    remember(temporalGameOfLifeState, dispatchers, gameOfLifeAlgorithm, clock, timeTickerFactory) {
         TemporalGameOfLifeStateMutator(
             gameOfLifeAlgorithm = gameOfLifeAlgorithm,
             clock = clock,
+            timeTickerFactory = timeTickerFactory,
             dispatchers = dispatchers,
             temporalGameOfLifeState = temporalGameOfLifeState,
         )
@@ -423,6 +439,7 @@ fun rememberTemporalGameOfLifeStateMutator(
 class TemporalGameOfLifeStateMutator(
     private val gameOfLifeAlgorithm: GameOfLifeAlgorithm,
     private val clock: Clock,
+    private val timeTickerFactory: TimeTickerFactory,
     private val dispatchers: ComposeLifeDispatchers,
     private val temporalGameOfLifeState: TemporalGameOfLifeState,
 ) : Updatable {
@@ -430,7 +447,9 @@ class TemporalGameOfLifeStateMutator(
         with(gameOfLifeAlgorithm) {
             with(dispatchers) {
                 with(clock) {
-                    temporalGameOfLifeState.evolve()
+                    with(timeTickerFactory) {
+                        temporalGameOfLifeState.evolve()
+                    }
                 }
             }
         }

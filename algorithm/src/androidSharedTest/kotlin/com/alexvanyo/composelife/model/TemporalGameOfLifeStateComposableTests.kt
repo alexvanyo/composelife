@@ -98,7 +98,7 @@ class TemporalGameOfLifeStateComposableTests {
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
             generationsPerStep = 1,
-            targetStepsPerSecond = 60.0,
+            targetStepsPerSecond = 100.0,
         )
 
         val hashLifeAlgorithm = HashLifeAlgorithm(
@@ -110,6 +110,7 @@ class TemporalGameOfLifeStateComposableTests {
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = hashLifeAlgorithm,
                 clock = testDispatcher.scheduler.clock,
+                timeTickerFactory = DefaultTimeTickerFactory(),
                 dispatchers = dispatchers,
             )
 
@@ -129,14 +130,14 @@ class TemporalGameOfLifeStateComposableTests {
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
             testDispatcher.scheduler.runCurrent()
             composeTestRule.waitForIdle()
-            testDispatcher.scheduler.advanceTimeBy(16)
+            testDispatcher.scheduler.advanceTimeBy(10)
             testDispatcher.scheduler.runCurrent()
             composeTestRule.waitForIdle()
 
             assertEquals(expectedCellState, temporalGameOfLifeState.cellState)
             temporalGameOfLifeState.status.let { status ->
                 assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+                assertEquals(100.0, status.averageGenerationsPerSecond, 0.001)
             }
         }
     }
@@ -159,6 +160,7 @@ class TemporalGameOfLifeStateComposableTests {
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = hashLifeAlgorithm,
                 clock = testDispatcher.scheduler.clock,
+                timeTickerFactory = DefaultTimeTickerFactory(),
                 dispatchers = dispatchers,
             )
 

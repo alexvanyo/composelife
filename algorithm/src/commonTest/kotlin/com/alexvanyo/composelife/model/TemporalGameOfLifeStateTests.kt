@@ -26,6 +26,13 @@ import com.alexvanyo.composelife.patterns.SingleCellPattern
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
@@ -34,10 +41,12 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.Clock
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TemporalGameOfLifeStateTests {
@@ -91,7 +100,9 @@ class TemporalGameOfLifeStateTests {
         val gameOfLifeState = TemporalGameOfLifeState(
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
+            targetStepsPerSecond = 100.0,
         )
+        val testTimeTickerFactory = TestTimeTickerFactory(schedulerClock)
 
         snapshotFlow {
             gameOfLifeState.cellState
@@ -101,27 +112,34 @@ class TemporalGameOfLifeStateTests {
                     with(NaiveGameOfLifeAlgorithm(dispatchers)) {
                         with(dispatchers) {
                             with(schedulerClock) {
-                                gameOfLifeState.evolve()
+                                with(testTimeTickerFactory) {
+                                    gameOfLifeState.evolve()
+                                }
                             }
                         }
                     }
                 }
 
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 assertEquals(SixLongLinePattern.seedCellState, awaitItem())
 
                 SixLongLinePattern.cellStates.dropLastWhile { it == emptyCellState() }.forEach { cellState ->
-                    advanceTimeBy(8)
+                    advanceTimeBy(5)
+                    testTimeTickerFactory.updateTime()
                     runCurrent()
                     Snapshot.sendApplyNotifications()
                     runCurrent()
+                    println("checking at ${schedulerClock.now()}")
                     expectNoEvents()
 
-                    advanceTimeBy(8)
+                    advanceTimeBy(5)
+                    testTimeTickerFactory.updateTime()
                     runCurrent()
                     Snapshot.sendApplyNotifications()
                     runCurrent()
+                    println("checking at ${schedulerClock.now()}")
                     assertEquals(cellState, awaitItem())
                 }
 
@@ -134,7 +152,9 @@ class TemporalGameOfLifeStateTests {
         val gameOfLifeState = TemporalGameOfLifeState(
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
+            targetStepsPerSecond = 100.0,
         )
+        val testTimeTickerFactory = TestTimeTickerFactory(schedulerClock)
 
         snapshotFlow {
             gameOfLifeState.cellState
@@ -144,73 +164,86 @@ class TemporalGameOfLifeStateTests {
                     with(NaiveGameOfLifeAlgorithm(dispatchers)) {
                         with(dispatchers) {
                             with(schedulerClock) {
-                                gameOfLifeState.evolve()
+                                with(testTimeTickerFactory) {
+                                    gameOfLifeState.evolve()
+                                }
                             }
                         }
                     }
                 }
 
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 assertEquals(SixLongLinePattern.seedCellState, awaitItem())
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 expectNoEvents()
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 assertEquals(SixLongLinePattern.cellStates[0], awaitItem())
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 expectNoEvents()
 
                 gameOfLifeState.setIsRunning(false)
+
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 expectNoEvents()
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 expectNoEvents()
 
                 advanceTimeBy(1000)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 expectNoEvents()
 
                 gameOfLifeState.setIsRunning(true)
+
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 expectNoEvents()
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 expectNoEvents()
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 assertEquals(SixLongLinePattern.cellStates[1], awaitItem())
 
                 mutatorJob.cancel()
-                cancel()
             }
     }
 
@@ -219,7 +252,9 @@ class TemporalGameOfLifeStateTests {
         val gameOfLifeState = TemporalGameOfLifeState(
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
+            targetStepsPerSecond = 100.0,
         )
+        val testTimeTickerFactory = TestTimeTickerFactory(schedulerClock)
 
         snapshotFlow {
             gameOfLifeState.cellState
@@ -229,54 +264,65 @@ class TemporalGameOfLifeStateTests {
                     with(NaiveGameOfLifeAlgorithm(dispatchers)) {
                         with(dispatchers) {
                             with(schedulerClock) {
-                                gameOfLifeState.evolve()
+                                with(testTimeTickerFactory) {
+                                    gameOfLifeState.evolve()
+                                }
                             }
                         }
                     }
                 }
 
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 assertEquals(SixLongLinePattern.seedCellState, awaitItem())
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 expectNoEvents()
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 assertEquals(SixLongLinePattern.cellStates[0], awaitItem())
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 expectNoEvents()
 
                 gameOfLifeState.generationsPerStep = 2
+
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 expectNoEvents()
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 expectNoEvents()
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 assertEquals(SixLongLinePattern.cellStates[2], awaitItem())
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
@@ -288,13 +334,15 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 expectNoEvents()
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 expectNoEvents()
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
@@ -309,7 +357,9 @@ class TemporalGameOfLifeStateTests {
         val gameOfLifeState = TemporalGameOfLifeState(
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
+            targetStepsPerSecond = 100.0,
         )
+        val testTimeTickerFactory = TestTimeTickerFactory(schedulerClock)
 
         snapshotFlow {
             gameOfLifeState.cellState
@@ -319,75 +369,98 @@ class TemporalGameOfLifeStateTests {
                     with(NaiveGameOfLifeAlgorithm(dispatchers)) {
                         with(dispatchers) {
                             with(schedulerClock) {
-                                gameOfLifeState.evolve()
+                                with(testTimeTickerFactory) {
+                                    gameOfLifeState.evolve()
+                                }
                             }
                         }
                     }
                 }
 
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 assertEquals(SixLongLinePattern.seedCellState, awaitItem())
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
+                println("checking at ${schedulerClock.now()}")
                 expectNoEvents()
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
+                println("checking at ${schedulerClock.now()}")
                 assertEquals(SixLongLinePattern.cellStates[0], awaitItem())
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
+                println("checking at ${schedulerClock.now()}")
                 expectNoEvents()
 
                 gameOfLifeState.targetStepsPerSecond = 10.0
+
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
+                println("checking at ${schedulerClock.now()}")
                 expectNoEvents()
 
                 advanceTimeBy(50)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
+                println("checking at ${schedulerClock.now()}")
                 expectNoEvents()
 
                 advanceTimeBy(50)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
+                println("checking at ${schedulerClock.now()}")
                 assertEquals(SixLongLinePattern.cellStates[1], awaitItem())
 
                 advanceTimeBy(50)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
+                println("checking at ${schedulerClock.now()}")
                 expectNoEvents()
 
                 gameOfLifeState.targetStepsPerSecond = 1.0
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
+                println("checking at ${schedulerClock.now()}")
                 expectNoEvents()
 
                 advanceTimeBy(500)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
+                println("checking at ${schedulerClock.now()}")
                 expectNoEvents()
 
                 advanceTimeBy(500)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
+                println("checking at ${schedulerClock.now()}")
                 assertEquals(SixLongLinePattern.cellStates[2], awaitItem())
 
                 mutatorJob.cancel()
@@ -399,7 +472,9 @@ class TemporalGameOfLifeStateTests {
         val gameOfLifeState = TemporalGameOfLifeState(
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
+            targetStepsPerSecond = 100.0,
         )
+        val testTimeTickerFactory = TestTimeTickerFactory(schedulerClock)
 
         snapshotFlow {
             gameOfLifeState.cellState
@@ -409,51 +484,68 @@ class TemporalGameOfLifeStateTests {
                     with(NaiveGameOfLifeAlgorithm(dispatchers)) {
                         with(dispatchers) {
                             with(schedulerClock) {
-                                gameOfLifeState.evolve()
+                                with(testTimeTickerFactory) {
+                                    gameOfLifeState.evolve()
+                                }
                             }
                         }
                     }
                 }
 
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
+                println("checking at ${schedulerClock.now()}")
                 assertEquals(SixLongLinePattern.seedCellState, awaitItem())
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
+                println("checking at ${schedulerClock.now()}")
                 expectNoEvents()
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
+                println("checking at ${schedulerClock.now()}")
                 assertEquals(SixLongLinePattern.cellStates[0], awaitItem())
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
+                println("checking at ${schedulerClock.now()}")
                 expectNoEvents()
 
                 gameOfLifeState.cellState = SingleCellPattern.seedCellState
+
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
+                println("checking at ${schedulerClock.now()}")
                 assertEquals(SingleCellPattern.seedCellState, awaitItem())
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
+                println("checking at ${schedulerClock.now()}")
                 expectNoEvents()
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
+                println("checking at ${schedulerClock.now()}")
                 assertEquals(SingleCellPattern.cellStates[0], awaitItem())
 
                 mutatorJob.cancel()
@@ -465,7 +557,9 @@ class TemporalGameOfLifeStateTests {
         val gameOfLifeState = TemporalGameOfLifeState(
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
+            targetStepsPerSecond = 100.0,
         )
+        val testTimeTickerFactory = TestTimeTickerFactory(schedulerClock)
 
         snapshotFlow {
             gameOfLifeState.cellState
@@ -475,24 +569,29 @@ class TemporalGameOfLifeStateTests {
                     with(NaiveGameOfLifeAlgorithm(dispatchers)) {
                         with(dispatchers) {
                             with(schedulerClock) {
-                                gameOfLifeState.evolve()
+                                with(testTimeTickerFactory) {
+                                    gameOfLifeState.evolve()
+                                }
                             }
                         }
                     }
                 }
 
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 assertEquals(SixLongLinePattern.seedCellState, awaitItem())
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 expectNoEvents()
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
@@ -502,37 +601,44 @@ class TemporalGameOfLifeStateTests {
                     with(NaiveGameOfLifeAlgorithm(dispatchers)) {
                         with(dispatchers) {
                             with(schedulerClock) {
-                                gameOfLifeState.evolve()
+                                with(testTimeTickerFactory) {
+                                    gameOfLifeState.evolve()
+                                }
                             }
                         }
                     }
                 }
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 expectNoEvents()
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 assertEquals(SixLongLinePattern.cellStates[1], awaitItem())
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 expectNoEvents()
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 assertEquals(SixLongLinePattern.cellStates[2], awaitItem())
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
@@ -545,25 +651,29 @@ class TemporalGameOfLifeStateTests {
                 runCurrent()
                 expectNoEvents()
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 expectNoEvents()
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 assertEquals(SixLongLinePattern.cellStates[3], awaitItem())
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
                 expectNoEvents()
 
-                advanceTimeBy(8)
+                advanceTimeBy(5)
+                testTimeTickerFactory.updateTime()
                 runCurrent()
                 Snapshot.sendApplyNotifications()
                 runCurrent()
@@ -572,4 +682,36 @@ class TemporalGameOfLifeStateTests {
                 mutatorJob2.cancel()
             }
     }
+}
+
+class TestTimeTickerFactory(
+    private val clock: Clock,
+) : TimeTickerFactory {
+    private val tickChannel = Channel<Unit>(capacity = Channel.CONFLATED)
+
+    suspend fun updateTime() {
+        tickChannel.send(Unit)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun timeTicker(configFlow: Flow<TimeTickerConfig>): Flow<Unit> =
+        configFlow
+            .flatMapLatest { (isRunning, targetStepsPerSecond) ->
+                if (isRunning) {
+                    channelFlow {
+                        while (isActive) {
+                            val targetDelay = 1.seconds / targetStepsPerSecond
+                            val targetTime = clock.now() + targetDelay
+                            while (clock.now() < targetTime) {
+                                tickChannel.receive()
+                            }
+                            send(Unit)
+                        }
+                    }
+                        .buffer(0) // No buffer, so the ticks are only consumed upon a cell state being computed
+                } else {
+                    emptyFlow()
+                }
+            }
+            .buffer(0) // No buffer, so the ticks are only consumed upon a cell state being computed
 }

@@ -27,6 +27,7 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.model.DefaultTimeTickerFactory
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.emptyCellState
 import dagger.hilt.android.AndroidEntryPoint
@@ -63,7 +64,9 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
             with(gameOfLifeAlgorithm) {
                 with(dispatchers) {
                     with(Clock.System) {
-                        temporalGameOfLifeState.evolve()
+                        with(DefaultTimeTickerFactory()) {
+                            temporalGameOfLifeState.evolve()
+                        }
                     }
                 }
             }
