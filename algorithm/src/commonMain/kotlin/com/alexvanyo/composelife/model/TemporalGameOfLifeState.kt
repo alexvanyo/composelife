@@ -32,7 +32,6 @@ import androidx.compose.runtime.snapshotFlow
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.updatable.Updatable
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
@@ -334,7 +333,7 @@ private class TemporalGameOfLifeStateImpl(
             .buffer(0) // No buffer, so the ticks are only consumed upon a cell state being computed
 
         snapshotFlow { cellStateGenealogy }
-            .flowOn(Dispatchers.Main)
+            .flowOn(Main)
             .collectLatest { cellStateGenealogy ->
                 completedGenerationTracker = completedGenerationTracker + ComputationRecord(
                     computedGenerations = 0,
