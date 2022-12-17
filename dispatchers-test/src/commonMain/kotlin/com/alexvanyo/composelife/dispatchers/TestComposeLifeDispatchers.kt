@@ -37,7 +37,8 @@ class TestComposeLifeDispatchers @Inject constructor(
     testDispatcher: TestDispatcher,
 ) : ComposeLifeDispatchers {
     override val Default: CoroutineDispatcher = testDispatcher
-    override val Main: MainCoroutineDispatcher = Dispatchers.Main
+    override val Main: CoroutineDispatcher = testDispatcher
+    override val immediateMain: MainCoroutineDispatcher = Dispatchers.Main
     override val Unconfined: CoroutineDispatcher = Dispatchers.Unconfined
     override val IO: CoroutineDispatcher = testDispatcher
 }

@@ -34,7 +34,12 @@ interface ComposeLifeDispatchers {
     /**
      * @see Dispatchers.Main
      */
-    val Main: MainCoroutineDispatcher
+    val Main: CoroutineDispatcher
+
+    /**
+     * @see MainCoroutineDispatcher.immediate
+     */
+    val immediateMain: MainCoroutineDispatcher
 
     /**
      * @see Dispatchers.Unconfined
@@ -54,6 +59,7 @@ interface ComposeLifeDispatchers {
 class DefaultComposeLifeDispatchers @Inject constructor() : ComposeLifeDispatchers {
     override val Default: CoroutineDispatcher = Dispatchers.Default
     override val Main: MainCoroutineDispatcher = Dispatchers.Main
+    override val immediateMain: MainCoroutineDispatcher = Dispatchers.Main.immediate
     override val Unconfined: CoroutineDispatcher = Dispatchers.Unconfined
     override val IO: CoroutineDispatcher = Dispatchers.IO
 }
