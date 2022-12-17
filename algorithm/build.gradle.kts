@@ -74,6 +74,8 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(projects.dispatchersTest)
+                implementation(projects.kmpAndroidRunner)
+                implementation(projects.kmpStateRestorationTester)
                 implementation(projects.patterns)
 
                 implementation(kotlin("test"))
