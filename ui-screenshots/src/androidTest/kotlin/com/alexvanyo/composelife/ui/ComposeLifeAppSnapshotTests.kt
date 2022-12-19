@@ -19,12 +19,26 @@ package com.alexvanyo.composelife.ui
 import com.alexvanyo.composelife.ui.util.BasePaparazziTest
 import kotlin.test.Test
 
-class InteractiveCellUniverseSnapshotTests : BasePaparazziTest() {
+class ComposeLifeAppSnapshotTests : BasePaparazziTest() {
 
     @Test
-    fun interactive_cell_universe_preview() {
+    fun loading_preferences_compose_life_app_preview() {
         snapshot {
-            InteractiveCellUniversePreview()
+            LoadingPreferencesComposeLifeAppPreview()
+        }
+    }
+
+    @Test
+    fun loading_cell_state_compose_life_app_preview() {
+        snapshot {
+            LoadingCellStateComposeLifeAppPreview()
+        }
+    }
+
+    @Test
+    fun loaded_compose_life_app_preview() {
+        snapshot {
+            LoadedComposeLifeAppPreview()
         }
     }
 }

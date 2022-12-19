@@ -37,10 +37,13 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
+import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.clock.di.ClockProvider
 import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
 import com.alexvanyo.composelife.data.model.CellStateMetadata
 import com.alexvanyo.composelife.data.model.SaveableCellState
+import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
+import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.model.toCellState
@@ -74,116 +77,46 @@ interface ComposeLifeAppHiltEntryPoint :
     ClockProvider
 
 context(ComposeLifeAppHiltEntryPoint)
-@Suppress("LongMethod")
 @Composable
 fun ComposeLifeApp(
     windowSizeClass: WindowSizeClass,
+    composeLifeAppState: ComposeLifeAppState = rememberComposeLifeAppState(),
 ) {
-    val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-
     Surface(modifier = Modifier.fillMaxSize()) {
-        Box(
-            contentAlignment = Alignment.Center,
-        ) {
-            when (loadedPreferencesState) {
-                is ResourceState.Failure -> Unit
-                ResourceState.Loading -> {
-                    CircularProgressIndicator()
-                }
-                is ResourceState.Success -> {
-                    val currentLoadedPreferences by rememberUpdatedState(loadedPreferencesState.value)
-
-                    val loadedPreferencesProvider = remember {
-                        object : LoadedComposeLifePreferencesProvider {
-                            override val preferences: LoadedComposeLifePreferences
-                                get() = currentLoadedPreferences
-                        }
+        Crossfade(composeLifeAppState) { targetComposeLifeAppState ->
+            when (targetComposeLifeAppState) {
+                ComposeLifeAppState.ErrorLoadingPreferences -> Unit
+                ComposeLifeAppState.LoadingPreferences -> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        CircularProgressIndicator()
                     }
-
+                }
+                is ComposeLifeAppState.LoadedPreferences -> {
                     val localEntryPoint = remember {
                         object :
                             InteractiveCellUniverseLocalEntryPoint,
                             GameOfLifeProgressIndicatorLocalEntryPoint,
-                            LoadedComposeLifePreferencesProvider by loadedPreferencesProvider {}
+                            LoadedComposeLifePreferencesProvider by targetComposeLifeAppState {}
                     }
+
                     with(localEntryPoint) {
-                        var initialSaveableCellState by remember { mutableStateOf<SaveableCellState?>(null) }
-
-                        if (initialSaveableCellState == null) {
-                            LaunchedEffect(cellStateRepository) {
-                                initialSaveableCellState = cellStateRepository.getAutosavedCellState()
-                                    ?: SaveableCellState(
-                                        gosperGliderGun,
-                                        CellStateMetadata(null, null, null, 0, false),
-                                    )
-                            }
-                        }
-
-                        Crossfade(initialSaveableCellState) { targetSaveableCellState ->
-                            if (targetSaveableCellState == null) {
+                        when (targetComposeLifeAppState) {
+                            is ComposeLifeAppState.LoadedPreferences.LoadingCellState -> {
                                 Box(
                                     contentAlignment = Alignment.Center,
                                     modifier = Modifier.fillMaxSize(),
                                 ) {
                                     GameOfLifeProgressIndicator()
                                 }
-                            } else {
-                                val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                                    seedCellState = targetSaveableCellState.cellState,
-                                    isRunning = false,
-                                )
-
-                                var isViewportTracking by rememberSaveable { mutableStateOf(false) }
-
-                                val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                                    temporalGameOfLifeState = temporalGameOfLifeState,
-                                    gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                                    dispatchers = dispatchers,
-                                    clock = clock,
-                                )
-
-                                LaunchedEffect(temporalGameOfLifeStateMutator) {
-                                    temporalGameOfLifeStateMutator.update()
-                                }
-
-                                var cellStateMetadataId by remember {
-                                    mutableStateOf(targetSaveableCellState.cellStateMetadata.id)
-                                }
-
-                                LaunchedEffect(temporalGameOfLifeState) {
-                                    snapshotFlow { temporalGameOfLifeState.cellState }
-                                        .conflate()
-                                        .transform {
-                                            emit(it)
-                                            delay(5.seconds)
-                                        }
-                                        .onEach { cellState ->
-                                            cellStateMetadataId = cellStateRepository.autosaveCellState(
-                                                saveableCellState = SaveableCellState(
-                                                    cellState = cellState,
-                                                    cellStateMetadata = CellStateMetadata(
-                                                        id = cellStateMetadataId,
-                                                        name = targetSaveableCellState.cellStateMetadata.name,
-                                                        description = targetSaveableCellState
-                                                            .cellStateMetadata
-                                                            .description,
-                                                        generation = targetSaveableCellState
-                                                            .cellStateMetadata
-                                                            .generation,
-                                                        wasAutosaved = targetSaveableCellState
-                                                            .cellStateMetadata
-                                                            .wasAutosaved,
-                                                    ),
-                                                ),
-                                            )
-                                        }
-                                        .collect()
-                                }
-
+                            }
+                            is ComposeLifeAppState.LoadedPreferences.LoadedCellState -> {
                                 InteractiveCellUniverse(
-                                    temporalGameOfLifeState = temporalGameOfLifeState,
-                                    isViewportTracking = isViewportTracking,
-                                    setIsViewportTracking = { isViewportTracking = it },
+                                    temporalGameOfLifeState = targetComposeLifeAppState.temporalGameOfLifeState,
+                                    isViewportTracking = targetComposeLifeAppState.isViewportTracking,
+                                    setIsViewportTracking = { targetComposeLifeAppState.isViewportTracking = it },
                                     windowSizeClass = windowSizeClass,
                                 )
                             }
@@ -191,6 +124,140 @@ fun ComposeLifeApp(
                     }
                 }
             }
+        }
+    }
+}
+
+context(
+    ComposeLifePreferencesProvider, CellStateRepositoryProvider, GameOfLifeAlgorithmProvider,
+    ComposeLifeDispatchersProvider, ClockProvider
+)
+@Suppress("LongMethod")
+@Composable
+fun rememberComposeLifeAppState(): ComposeLifeAppState {
+    val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+
+    var initialSaveableCellState by remember { mutableStateOf<SaveableCellState?>(null) }
+    val currentInitialSaveableCellState = initialSaveableCellState
+
+    if (currentInitialSaveableCellState == null) {
+        LaunchedEffect(cellStateRepository) {
+            initialSaveableCellState = cellStateRepository.getAutosavedCellState()
+                ?: SaveableCellState(
+                    gosperGliderGun,
+                    CellStateMetadata(null, null, null, 0, false),
+                )
+        }
+    }
+
+    return when (loadedPreferencesState) {
+        is ResourceState.Failure -> ComposeLifeAppState.ErrorLoadingPreferences
+        ResourceState.Loading -> ComposeLifeAppState.LoadingPreferences
+        is ResourceState.Success -> {
+            val currentLoadedPreferences by rememberUpdatedState(loadedPreferencesState.value)
+
+            if (currentInitialSaveableCellState == null) {
+                remember {
+                    object : ComposeLifeAppState.LoadedPreferences.LoadingCellState {
+                        override val preferences get() = currentLoadedPreferences
+                    }
+                }
+            } else {
+                val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
+                    seedCellState = currentInitialSaveableCellState.cellState,
+                    isRunning = false,
+                )
+
+                var isViewportTracking by rememberSaveable { mutableStateOf(false) }
+
+                val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                    dispatchers = dispatchers,
+                    clock = clock,
+                )
+
+                LaunchedEffect(temporalGameOfLifeStateMutator) {
+                    temporalGameOfLifeStateMutator.update()
+                }
+
+                var cellStateMetadataId by remember {
+                    mutableStateOf(currentInitialSaveableCellState.cellStateMetadata.id)
+                }
+
+                LaunchedEffect(temporalGameOfLifeState) {
+                    snapshotFlow { temporalGameOfLifeState.cellState }
+                        .conflate()
+                        .transform {
+                            emit(it)
+                            delay(5.seconds)
+                        }
+                        .onEach { cellState ->
+                            cellStateMetadataId = cellStateRepository.autosaveCellState(
+                                saveableCellState = SaveableCellState(
+                                    cellState = cellState,
+                                    cellStateMetadata = CellStateMetadata(
+                                        id = cellStateMetadataId,
+                                        name = currentInitialSaveableCellState.cellStateMetadata.name,
+                                        description = currentInitialSaveableCellState
+                                            .cellStateMetadata
+                                            .description,
+                                        generation = currentInitialSaveableCellState
+                                            .cellStateMetadata
+                                            .generation,
+                                        wasAutosaved = currentInitialSaveableCellState
+                                            .cellStateMetadata
+                                            .wasAutosaved,
+                                    ),
+                                ),
+                            )
+                        }
+                        .collect()
+                }
+
+                remember(temporalGameOfLifeState) {
+                    object : ComposeLifeAppState.LoadedPreferences.LoadedCellState {
+                        override val preferences: LoadedComposeLifePreferences get() = currentLoadedPreferences
+                        override val temporalGameOfLifeState = temporalGameOfLifeState
+                        override var isViewportTracking
+                            get() = isViewportTracking
+                            set(value) {
+                                isViewportTracking = value
+                            }
+                    }
+                }
+            }
+        }
+    }
+}
+
+sealed interface ComposeLifeAppState {
+    /**
+     * The user's preferences are loading.
+     */
+    object LoadingPreferences : ComposeLifeAppState
+
+    /**
+     * There was an error loading the user's preferences.
+     */
+    object ErrorLoadingPreferences : ComposeLifeAppState
+
+    /**
+     * The user's preferences are loaded, so the state can be a [LoadedComposeLifePreferencesProvider].
+     */
+    sealed interface LoadedPreferences : ComposeLifeAppState, LoadedComposeLifePreferencesProvider {
+
+        /**
+         * The initial cell state is loading
+         */
+        interface LoadingCellState : LoadedPreferences
+
+        /**
+         * The cell state is loaded
+         */
+        interface LoadedCellState : LoadedPreferences {
+            val temporalGameOfLifeState: TemporalGameOfLifeState
+            var isViewportTracking: Boolean
         }
     }
 }
@@ -210,22 +277,61 @@ private val gosperGliderGun = """
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @SizePreviews
 @Composable
-fun InteractiveCellUniversePreview() {
+fun LoadingPreferencesComposeLifeAppPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             BoxWithConstraints {
                 val size = DpSize(maxWidth, maxHeight)
-                Surface {
-                    InteractiveCellUniverse(
-                        temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                            seedCellState = gosperGliderGun,
-                            isRunning = false,
-                        ),
-                        isViewportTracking = false,
-                        setIsViewportTracking = {},
-                        windowSizeClass = WindowSizeClass.calculateFromSize(size),
-                    )
-                }
+                ComposeLifeApp(
+                    windowSizeClass = WindowSizeClass.calculateFromSize(size),
+                    composeLifeAppState = ComposeLifeAppState.LoadingPreferences
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@SizePreviews
+@Composable
+fun LoadingCellStateComposeLifeAppPreview() {
+    WithPreviewDependencies {
+        val preferences = preferences
+        ComposeLifeTheme {
+            BoxWithConstraints {
+                val size = DpSize(maxWidth, maxHeight)
+                ComposeLifeApp(
+                    windowSizeClass = WindowSizeClass.calculateFromSize(size),
+                    composeLifeAppState = object : ComposeLifeAppState.LoadedPreferences.LoadingCellState {
+                        override val preferences = preferences
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@SizePreviews
+@Composable
+fun LoadedComposeLifeAppPreview() {
+    WithPreviewDependencies {
+        val preferences = preferences
+        ComposeLifeTheme {
+            BoxWithConstraints {
+                val size = DpSize(maxWidth, maxHeight)
+                val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
+                    seedCellState = gosperGliderGun,
+                    isRunning = false,
+                )
+                ComposeLifeApp(
+                    windowSizeClass = WindowSizeClass.calculateFromSize(size),
+                    composeLifeAppState = object : ComposeLifeAppState.LoadedPreferences.LoadedCellState {
+                        override val preferences = preferences
+                        override val temporalGameOfLifeState = temporalGameOfLifeState
+                        override var isViewportTracking = false
+                    }
+                )
             }
         }
     }
