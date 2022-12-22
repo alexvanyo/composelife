@@ -23,9 +23,7 @@ import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.processlifecycle.ProcessLifecycle
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.updatable.Updatable
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 import kotlin.system.exitProcess
@@ -44,16 +42,15 @@ class DoNotKeepProcess @Inject constructor(
             }
         }.collectLatest { doNotKeepProcess ->
             if (doNotKeepProcess) {
-                callbackFlow<Nothing> {
-                    val observer = object : DefaultLifecycleObserver {
-                        override fun onStop(owner: LifecycleOwner) = exitProcess(0)
-                    }
-                    lifecycleOwner.lifecycle.addObserver(observer)
-                    awaitClose {
-                        lifecycleOwner.lifecycle.removeObserver(observer)
-                    }
+                val observer = object : DefaultLifecycleObserver {
+                    override fun onStop(owner: LifecycleOwner) = exitProcess(0)
                 }
-                    .collect()
+                lifecycleOwner.lifecycle.addObserver(observer)
+                try {
+                    awaitCancellation()
+                } finally {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
             }
         }
     }
