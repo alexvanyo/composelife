@@ -18,6 +18,8 @@
 package com.alexvanyo.composelife.ui
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
@@ -77,13 +79,24 @@ interface ComposeLifeAppHiltEntryPoint :
     ClockProvider
 
 context(ComposeLifeAppHiltEntryPoint)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ComposeLifeApp(
     windowSizeClass: WindowSizeClass,
     composeLifeAppState: ComposeLifeAppState = rememberComposeLifeAppState(),
 ) {
     Surface(modifier = Modifier.fillMaxSize()) {
-        Crossfade(composeLifeAppState) { targetComposeLifeAppState ->
+        val transition = updateTransition(composeLifeAppState, "ComposeLifeAppState Crossfade")
+        transition.Crossfade(
+            contentKey = {
+                when (it) {
+                    ComposeLifeAppState.ErrorLoadingPreferences -> 0
+                    is ComposeLifeAppState.LoadedPreferences.LoadedCellState -> 1
+                    is ComposeLifeAppState.LoadedPreferences.LoadingCellState -> 2
+                    ComposeLifeAppState.LoadingPreferences -> 3
+                }
+            }
+        ) { targetComposeLifeAppState ->
             when (targetComposeLifeAppState) {
                 ComposeLifeAppState.ErrorLoadingPreferences -> Unit
                 ComposeLifeAppState.LoadingPreferences -> {
