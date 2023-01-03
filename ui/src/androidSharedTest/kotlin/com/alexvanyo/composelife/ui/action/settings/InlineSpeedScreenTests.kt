@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.action
+package com.alexvanyo.composelife.ui.action.settings
 
 import android.content.Context
 import androidx.activity.ComponentActivity
@@ -31,6 +31,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.ui.R
+import com.alexvanyo.composelife.ui.action.InlineSpeedScreen
 import org.junit.Rule
 import org.junit.runner.RunWith
 import kotlin.math.log2
