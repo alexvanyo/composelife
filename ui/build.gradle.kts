@@ -106,6 +106,7 @@ kotlin {
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
                 implementation(libs.androidx.test.junit)
+                implementation(libs.accompanist.testharness)
             }
         }
         val androidTest by getting {
