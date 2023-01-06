@@ -28,9 +28,15 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 
 class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
+    val enableKeeperProperty = findProperty("com.alexvanyo.composelife.enableKeeper") as String?
+    val enableKeeper = when (enableKeeperProperty) {
+        null, "true" -> true
+        "false" -> false
+        else -> throw GradleException("Unexpected value $enableKeeperProperty for enableKeeper!")
+    }
+
     with(pluginManager) {
         apply("com.android.application")
-        apply("com.slack.keeper")
     }
 
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
@@ -48,20 +54,26 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
         configureAndroidTesting(this)
     }
 
-    extensions.configure<ApplicationAndroidComponentsExtension> {
-        beforeVariants { builder ->
-            if (builder.buildType == "staging") {
-                builder.optInToKeeper()
+    if (enableKeeper) {
+        with(pluginManager) {
+            apply("com.slack.keeper")
+        }
+
+        extensions.configure<ApplicationAndroidComponentsExtension> {
+            beforeVariants { builder ->
+                if (builder.buildType == "staging") {
+                    builder.optInToKeeper()
+                }
             }
         }
-    }
 
-    extensions.configure<KeeperExtension> {
-        automaticR8RepoManagement.set(false)
-        traceReferences {}
-    }
+        extensions.configure<KeeperExtension> {
+            automaticR8RepoManagement.set(false)
+            traceReferences {}
+        }
 
-    dependencies {
-        add("keeperR8", libs.findLibrary("android.r8").get())
+        dependencies {
+            add("keeperR8", libs.findLibrary("android.r8").get())
+        }
     }
 },)
