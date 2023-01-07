@@ -50,3 +50,13 @@ kotlin {
         }
     }
 }
+
+// Run tests with JDK 11, since Paparazzi currently doesn't work with 17:
+// https://github.com/cashapp/paparazzi/issues/384
+tasks.withType<Test>().configureEach {
+    javaLauncher.set(
+        javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(11))
+        }
+    )
+}
