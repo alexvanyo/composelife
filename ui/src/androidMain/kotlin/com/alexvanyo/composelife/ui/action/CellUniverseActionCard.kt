@@ -51,8 +51,6 @@ import com.alexvanyo.composelife.ui.action.settings.FullscreenSettingsScreenLoca
 import com.alexvanyo.composelife.ui.action.settings.InlineSettingsScreen
 import com.alexvanyo.composelife.ui.action.settings.InlineSettingsScreenHiltEntryPoint
 import com.alexvanyo.composelife.ui.action.settings.InlineSettingsScreenLocalEntryPoint
-import com.alexvanyo.composelife.ui.util.canScrollDown
-import com.alexvanyo.composelife.ui.util.canScrollUp
 import com.livefront.sealedenum.GenSealedEnum
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -161,7 +159,7 @@ fun CellUniverseActionCard(
         ) {
             AnimatedVisibility(visible = !actionCardState.isFullscreen) {
                 ActionControlRow(
-                    isElevated = actionCardState.isExpanded && currentScrollState.canScrollUp,
+                    isElevated = actionCardState.isExpanded && currentScrollState.canScrollBackward,
                     isRunning = isRunning,
                     setIsRunning = setIsRunning,
                     onStep = onStep,
@@ -263,7 +261,7 @@ fun CellUniverseActionCard(
                         ) {
                             ActionCardNavigationBar(
                                 actionCardState = actionCardState,
-                                isElevated = currentScrollState.canScrollDown,
+                                isElevated = currentScrollState.canScrollForward,
                             )
                         }
                     }
