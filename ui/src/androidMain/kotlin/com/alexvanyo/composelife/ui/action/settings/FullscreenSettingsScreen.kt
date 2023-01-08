@@ -92,7 +92,6 @@ import com.alexvanyo.composelife.ui.action.ActionCardNavigation
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.SizePreviews
-import com.alexvanyo.composelife.ui.util.canScrollUp
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
@@ -241,7 +240,7 @@ private fun SettingsCategoryList(
 ) {
     Scaffold(
         topBar = {
-            val isElevated = listScrollState.canScrollUp
+            val isElevated = listScrollState.canScrollBackward
             val elevation by animateDpAsState(targetValue = if (isElevated) 3.dp else 0.dp)
 
             Surface(
@@ -382,7 +381,7 @@ private fun SettingsCategoryDetail(
         modifier = Modifier.fillMaxSize(),
     ) {
         if (showAppBar) {
-            val isElevated = detailScrollState.canScrollUp
+            val isElevated = detailScrollState.canScrollBackward
             val elevation by animateDpAsState(targetValue = if (isElevated) 3.dp else 0.dp)
 
             Surface(
