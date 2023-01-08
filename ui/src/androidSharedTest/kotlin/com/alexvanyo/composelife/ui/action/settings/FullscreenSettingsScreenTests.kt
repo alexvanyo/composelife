@@ -58,7 +58,7 @@ import kotlin.test.assertNull
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
-class FullscreenSettingsScreenUiTests : BaseHiltTest<TestActivity>(TestActivity::class.java) {
+class FullscreenSettingsScreenTests : BaseHiltTest<TestActivity>(TestActivity::class.java) {
 
     private val fullscreenSettingsScreenLocalEntryPoint = object : FullscreenSettingsScreenLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults
