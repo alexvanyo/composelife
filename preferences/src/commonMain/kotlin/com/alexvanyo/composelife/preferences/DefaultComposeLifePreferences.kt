@@ -31,6 +31,7 @@ import com.alexvanyo.composelife.resourcestate.map
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.retry
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -66,8 +67,9 @@ class DefaultComposeLifePreferences @Inject constructor(
             private set
 
     @Suppress("LongMethod", "ComplexMethod")
-    override suspend fun update() {
+    override suspend fun update(): Nothing {
         dataStore.data
+            .retry()
             .onEach { preferencesProto ->
                 val quickAccessSettings =
                     preferencesProto.quick_access_settings.mapNotNull { quickAccessSettingProto ->
@@ -136,6 +138,8 @@ class DefaultComposeLifePreferences @Inject constructor(
                 }
             }
             .collect()
+
+        error("data can not complete normally")
     }
 
     override suspend fun setAlgorithmChoice(algorithm: AlgorithmType) {

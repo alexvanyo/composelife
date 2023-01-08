@@ -32,7 +32,7 @@ class DoNotKeepProcess @Inject constructor(
     @ProcessLifecycle private val lifecycleOwner: LifecycleOwner,
     private val composeLifePreferences: ComposeLifePreferences,
 ) : Updatable {
-    override suspend fun update() {
+    override suspend fun update(): Nothing {
         snapshotFlow {
             when (val doNotKeepProcessState = composeLifePreferences.doNotKeepProcessState) {
                 is ResourceState.Failure,
@@ -53,5 +53,7 @@ class DoNotKeepProcess @Inject constructor(
                 }
             }
         }
+
+        error("snapshotFlow can not complete normally")
     }
 }

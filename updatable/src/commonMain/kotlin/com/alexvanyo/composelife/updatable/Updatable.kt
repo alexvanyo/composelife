@@ -26,5 +26,5 @@ interface Updatable {
      *
      * It is the responsibility of the component to handle multiple consumers calling [update] concurrently.
      */
-    suspend fun update()
+    suspend fun update(): Nothing
 }
