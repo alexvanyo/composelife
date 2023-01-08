@@ -102,7 +102,7 @@ sealed interface TemporalGameOfLifeState : MutableGameOfLifeState {
      * Evolves the cell state using the given [GameOfLifeAlgorithm] automatically through time
      */
     context(GameOfLifeAlgorithm, Clock, ComposeLifeDispatchers)
-    suspend fun evolve()
+    suspend fun evolve(): Nothing
 
     /**
      * A description of the current status of evolution.
@@ -283,7 +283,7 @@ private class TemporalGameOfLifeStateImpl(
     }
 
     context(GameOfLifeAlgorithm, Clock, ComposeLifeDispatchers)
-    override suspend fun evolve() {
+    override suspend fun evolve(): Nothing {
         @Suppress("InjectDispatcher") // Dispatchers are injected via dispatchers
         withContext(Default) {
             evolveMutex.withLock {
@@ -306,7 +306,7 @@ private class TemporalGameOfLifeStateImpl(
      */
     context(GameOfLifeAlgorithm, Clock, ComposeLifeDispatchers)
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun evolveImpl() {
+    suspend fun evolveImpl(): Nothing {
         val lastTickFlow = MutableSharedFlow<Instant>(replay = 1)
 
         val stepTimeTicker = snapshotFlow {
@@ -353,6 +353,8 @@ private class TemporalGameOfLifeStateImpl(
                         .dropWhile { lastTick - it.computedTime > 1010.milliseconds }
                 }
             }
+
+        error("snapshotFlow can not complete normally")
     }
 
     /**
@@ -425,7 +427,7 @@ class TemporalGameOfLifeStateMutator(
     private val dispatchers: ComposeLifeDispatchers,
     private val temporalGameOfLifeState: TemporalGameOfLifeState,
 ) : Updatable {
-    override suspend fun update() {
+    override suspend fun update(): Nothing {
         with(gameOfLifeAlgorithm) {
             with(dispatchers) {
                 with(clock) {

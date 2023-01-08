@@ -24,6 +24,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.combine
 import com.alexvanyo.composelife.resourcestate.firstSuccess
+import kotlinx.coroutines.awaitCancellation
 
 @Suppress("TooManyFunctions")
 class TestComposeLifePreferences : ComposeLifePreferences {
@@ -83,7 +84,7 @@ class TestComposeLifePreferences : ComposeLifePreferences {
             )
         }
 
-    override suspend fun update() = Unit
+    override suspend fun update() = awaitCancellation()
 
     override suspend fun setAlgorithmChoice(algorithm: AlgorithmType) {
         Snapshot.withMutableSnapshot {
