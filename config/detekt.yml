@@ -2,6 +2,7 @@ comments:
   AbsentOrWrongFileLicense:
     active: true
     excludes: [ '**/generated/**' ]
+    licenseTemplateIsRegex: true
 
 complexity:
   LongMethod:
