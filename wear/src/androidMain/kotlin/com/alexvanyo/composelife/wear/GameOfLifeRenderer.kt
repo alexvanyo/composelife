@@ -39,11 +39,9 @@ import com.alexvanyo.composelife.openglrenderer.GameOfLifeShape
 import com.alexvanyo.composelife.openglrenderer.GameOfLifeShapeParameters
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.util.containedPoints
-import java.nio.ByteBuffer
+import java.nio.IntBuffer
 import java.time.LocalTime
 import java.time.ZonedDateTime
-import kotlin.experimental.or
-import kotlin.math.ceil
 import kotlin.properties.Delegates
 import kotlin.random.Random
 
@@ -110,17 +108,12 @@ class GameOfLifeRenderer(
 
         val cellState = temporalGameOfLifeState.cellState
 
-        val metaWidth = ceil((cellWindow.width + 1) / 4f).toInt()
-        val metaHeight = ceil((cellWindow.height + 1) / 2f).toInt()
-
-        val cellsBuffer = ByteBuffer.allocate(metaWidth * metaHeight)
+        val cellWindowSize = IntSize(cellWindow.width + 1, cellWindow.height + 1)
+        val cellsBuffer = IntBuffer.allocate(cellWindowSize.width * cellWindowSize.height)
 
         cellState.getAliveCellsInWindow(cellWindow).forEach { cell ->
-            val index = (cellWindow.bottom - cell.y) / 2 * metaWidth + (cell.x - cellWindow.left) / 4
-            val prev = cellsBuffer.get(index)
-            val offsetX = (cell.x - cellWindow.left).mod(4)
-            val offsetY = (cellWindow.bottom - cell.y).mod(2)
-            cellsBuffer.put(index, prev or (1 shl (offsetY * 4 + offsetX)).toByte())
+            val index = (cellWindow.bottom - cell.y) * cellWindowSize.width + cell.x - cellWindow.left
+            cellsBuffer.put(index, android.graphics.Color.WHITE)
         }
 
         val screenShapeParameters = when (shape) {
