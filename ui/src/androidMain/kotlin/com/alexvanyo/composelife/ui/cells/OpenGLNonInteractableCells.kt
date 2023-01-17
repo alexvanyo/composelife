@@ -47,12 +47,10 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.nio.ByteBuffer
+import java.nio.IntBuffer
 import java.util.concurrent.Executor
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
-import kotlin.experimental.or
-import kotlin.math.ceil
 
 @Composable
 fun openGLSupported(): Boolean {
@@ -79,18 +77,16 @@ fun OpenGLNonInteractableCells(
     val aliveColor = ComposeLifeTheme.aliveCellColor
     val deadColor = ComposeLifeTheme.deadCellColor
 
-    val cellsBuffer = remember(cellWindow, gameOfLifeState.cellState) {
-        val metaWidth = ceil((cellWindow.width + 1) / 4f).toInt()
-        val metaHeight = ceil((cellWindow.height + 1) / 2f).toInt()
+    val cellWindowSize = remember(cellWindow) {
+        IntSize(cellWindow.width + 1, cellWindow.height + 1)
+    }
 
-        val buffer = ByteBuffer.allocate(metaWidth * metaHeight)
+    val cellsBuffer = remember(cellWindow, cellWindowSize, gameOfLifeState.cellState) {
+        val buffer = IntBuffer.allocate(cellWindowSize.width * cellWindowSize.height)
 
         gameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).forEach { cell ->
-            val index = (cellWindow.bottom - cell.y) / 2 * metaWidth + (cell.x - cellWindow.left) / 4
-            val prev = buffer.get(index)
-            val offsetX = (cell.x - cellWindow.left).mod(4)
-            val offsetY = (cellWindow.bottom - cell.y).mod(2)
-            buffer.put(index, prev or (1 shl (offsetY * 4 + offsetX)).toByte())
+            val index = (cellWindow.bottom - cell.y) * cellWindowSize.width + cell.x - cellWindow.left
+            buffer.put(index, android.graphics.Color.WHITE)
         }
 
         buffer
@@ -102,7 +98,7 @@ fun OpenGLNonInteractableCells(
                 cells = cellsBuffer,
                 aliveColor = aliveColor,
                 deadColor = deadColor,
-                cellWindowSize = IntSize(cellWindow.width + 1, cellWindow.height + 1),
+                cellWindowSize = cellWindowSize,
                 scaledCellPixelSize = scaledCellPixelSize,
                 pixelOffsetFromCenter = pixelOffsetFromCenter,
                 sizeFraction = shape.sizeFraction,
