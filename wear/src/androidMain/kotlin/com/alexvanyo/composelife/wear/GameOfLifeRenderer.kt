@@ -23,11 +23,13 @@ import android.text.format.DateFormat
 import android.view.SurfaceHolder
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toOffset
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -49,6 +51,7 @@ class GameOfLifeRenderer(
     context: Context,
     surfaceHolder: SurfaceHolder,
     currentUserStyleRepository: CurrentUserStyleRepository,
+    private val complicationSlotsManager: ComplicationSlotsManager,
     private val watchState: WatchState,
     private val temporalGameOfLifeState: TemporalGameOfLifeState,
 ) : Renderer.GlesRenderer2<Renderer.SharedAssets>(
@@ -76,20 +79,31 @@ class GameOfLifeRenderer(
     private val mvpMatrix = FloatArray(16)
     private val viewMatrix = FloatArray(16)
 
+    init {
+        Matrix.orthoM(projectionMatrix, 0, 0f, 1f, 0f, 1f, 0.5f, 2f)
+        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f, 0f)
+        Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
+    }
+
     lateinit var gameOfLifeShape: GameOfLifeShape
+    lateinit var complicationShapes: List<ComplicationShape>
 
     override suspend fun onUiThreadGlSurfaceCreated(width: Int, height: Int) {
         cellSize = width.toFloat() / (cellWindow.width + 1)
 
         GLES20.glClearColor(0f, 0f, 0f, 0f)
-        GLES20.glViewport(0, 0, width, height)
 
-        Matrix.orthoM(projectionMatrix, 0, 0f, 1f, 0f, 1f, 0.5f, 2f)
-        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f, 0f)
-        Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
-
-        gameOfLifeShape = GameOfLifeShape()
+        gameOfLifeShape = GameOfLifeShape(
+            texture = 10
+        )
         gameOfLifeShape.setSize(width, height)
+        complicationShapes = complicationSlotsManager.complicationSlots.values.mapIndexed { index, complicationSlot ->
+            ComplicationShape(
+                screenSize = IntSize(width, height),
+                complicationSlot = complicationSlot,
+                texture = 11 + index
+            )
+        }
     }
 
     override fun render(zonedDateTime: ZonedDateTime, sharedAssets: SharedAssets) {
@@ -131,8 +145,15 @@ class GameOfLifeRenderer(
             }
         }
 
+        GLES20.glEnable(GLES20.GL_BLEND)
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
+
         gameOfLifeShape.setScreenShapeParameters(screenShapeParameters)
         gameOfLifeShape.draw(mvpMatrix)
+
+        complicationShapes.forEach { complicationShape ->
+            complicationShape.draw(zonedDateTime, renderParameters, mvpMatrix)
+        }
 
         if (zonedDateTime.toEpochSecond() * 1000 == watchState.digitalPreviewReferenceTimeMillis) {
             Snapshot.withMutableSnapshot {
@@ -143,14 +164,32 @@ class GameOfLifeRenderer(
         }
     }
 
-    override fun renderHighlightLayer(zonedDateTime: ZonedDateTime, sharedAssets: SharedAssets) {
-        // TODO
-    }
+    override fun renderHighlightLayer(zonedDateTime: ZonedDateTime, sharedAssets: SharedAssets) = Unit
 
     override suspend fun createSharedAssets(): SharedAssets = object : SharedAssets {
         override fun onDestroy() = Unit
     }
 }
+
+/**
+ * Converts an [IntRect] to a [android.graphics.Rect].
+ */
+fun IntRect.toAndroidRect() = android.graphics.Rect(
+    left,
+    top,
+    right,
+    bottom,
+)
+
+/**
+ * Converts an [IntRect] to a [Rect].
+ */
+fun android.graphics.Rect.toComposeIntRect() = IntRect(
+    left = left,
+    top = top,
+    right = right,
+    bottom = bottom,
+)
 
 private fun createTimeCellState(
     isRound: Boolean,

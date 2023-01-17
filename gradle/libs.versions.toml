@@ -91,6 +91,13 @@ androidx-test-junit = { group = "androidx.test.ext", name = "junit-ktx", version
 androidx-test-orchestrator = { group = "androidx.test", name = "orchestrator", version.ref = "androidxTestOrchestrator" }
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
 androidx-wear-watchface = { group = "androidx.wear.watchface", name = "watchface", version.ref = "androidxWearWatchface" }
+androidx-wear-watchface-client = { group = "androidx.wear.watchface", name = "watchface-client", version.ref = "androidxWearWatchface" }
+androidx-wear-watchface-complications-data = { group = "androidx.wear.watchface", name = "watchface-complications-data", version.ref = "androidxWearWatchface" }
+androidx-wear-watchface-complications-dataSource = { group = "androidx.wear.watchface", name = "watchface-complications-data-source", version.ref = "androidxWearWatchface" }
+androidx-wear-watchface-complications-rendering = { group = "androidx.wear.watchface", name = "watchface-complications-rendering", version.ref = "androidxWearWatchface" }
+androidx-wear-watchface-data = { group = "androidx.wear.watchface", name = "watchface-data", version.ref = "androidxWearWatchface" }
+androidx-wear-watchface-editor = { group = "androidx.wear.watchface", name = "watchface-editor", version.ref = "androidxWearWatchface" }
+androidx-wear-watchface-style = { group = "androidx.wear.watchface", name = "watchface-style", version.ref = "androidxWearWatchface" }
 androidx-window = { group = "androidx.window", name = "window", version.ref = "androidxWindow" }
 apiGuardian-api = { group = "org.apiguardian", name = "apiguardian-api", version.ref = "apiGuardian" }
 dagger-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "dagger" }

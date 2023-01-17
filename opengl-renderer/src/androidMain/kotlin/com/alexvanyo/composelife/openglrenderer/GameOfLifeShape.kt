@@ -127,7 +127,9 @@ private val fragmentShaderCode = """
     }
 """.trimIndent()
 
-class GameOfLifeShape {
+class GameOfLifeShape(
+    private val texture: Int = 0,
+) {
 
     private val coords = floatArrayOf(
         0f, 1f, 0f,
@@ -206,9 +208,9 @@ class GameOfLifeShape {
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT)
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST)
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST)
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
+        GLES20.glActiveTexture(getTextureReference(texture))
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle)
-        GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 1)
+        GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 4)
         checkOpenGLError()
         GLES20.glTexImage2D(
             GLES20.GL_TEXTURE_2D,
@@ -222,7 +224,7 @@ class GameOfLifeShape {
             parameters.cells,
         )
         checkOpenGLError()
-        GLES20.glUniform1i(cellsHandle, 0)
+        GLES20.glUniform1i(cellsHandle, texture)
         GLES20.glUniform4f(
             aliveColorHandle,
             parameters.aliveColor.red,
@@ -285,16 +287,3 @@ class GameOfLifeShape {
         checkOpenGLError()
     }
 }
-
-private fun checkOpenGLError() {
-    val error = GLES20.glGetError()
-    if (error != GLES20.GL_NO_ERROR) {
-        error("OpenGL error: $error")
-    }
-}
-
-private fun loadShader(type: Int, shaderCode: String) =
-    GLES20.glCreateShader(type).apply {
-        GLES20.glShaderSource(this, shaderCode)
-        GLES20.glCompileShader(this)
-    }

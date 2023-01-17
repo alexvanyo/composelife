@@ -61,7 +61,28 @@
                 android:name="com.google.android.wearable.watchface.preview_circular"
                 android:resource="@drawable/ic_launcher_foreground" />
 
+            <meta-data
+                android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
+                android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR" />
+
+            <meta-data
+                android:name="com.google.android.wearable.watchface.companionBuiltinConfigurationEnabled"
+                android:value="true" />
+
         </service>
+
+        <activity
+            android:name=".WatchFaceConfigActivity"
+            android:exported="true"
+            android:label="Test">
+
+            <intent-filter>
+                <action android:name="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR" />
+
+                <category android:name="com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
