@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-     Copyright 2022 The Android Open Source Project
+     Copyright 2023 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -15,7 +15,10 @@
      limitations under the License.
 -->
 <resources>
-
-    <style name="Theme.ComposeLife" parent="Theme.AppCompat.NoActionBar" />
-
+    <color name="black">#000</color>
+    <color name="white_30">#4DFFFFFF</color>
+    <color name="white_50">#80FFFFFF</color>
+    <color name="white_70">#B3FFFFFF</color>
+    <color name="white_90">#E6FFFFFF</color>
+    <color name="white">#FFF</color>
 </resources>

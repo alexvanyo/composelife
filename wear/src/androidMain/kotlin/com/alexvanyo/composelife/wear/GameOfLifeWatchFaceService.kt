@@ -76,6 +76,13 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
         }
     }
 
+    override fun createComplicationSlotsManager(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ): ComplicationSlotsManager = createGameOfLifeComplicationSlotsManager(
+        context = applicationContext,
+        currentUserStyleRepository = currentUserStyleRepository,
+    )
+
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
@@ -109,6 +116,7 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
                 context = this,
                 surfaceHolder = surfaceHolder,
                 currentUserStyleRepository = currentUserStyleRepository,
+                complicationSlotsManager = complicationSlotsManager,
                 watchState = watchState,
                 temporalGameOfLifeState = temporalGameOfLifeState,
             ),

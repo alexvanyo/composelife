@@ -52,12 +52,22 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
+                implementation(libs.androidx.activityCompose)
+                implementation(libs.androidx.appcompat)
                 implementation(libs.androidx.compose.foundation)
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.lifecycle.process)
                 implementation(libs.androidx.lifecycle.runtime)
                 implementation(libs.androidx.wear.watchface)
+                implementation(libs.androidx.wear.watchface.client)
+                implementation(libs.androidx.wear.watchface.client)
+                implementation(libs.androidx.wear.watchface.complications.data)
+                implementation(libs.androidx.wear.watchface.complications.dataSource)
+                implementation(libs.androidx.wear.watchface.complications.rendering)
+                implementation(libs.androidx.wear.watchface.data)
+                implementation(libs.androidx.wear.watchface.editor)
+                implementation(libs.androidx.wear.watchface.style)
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.sealedEnum.runtime)
                 configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
