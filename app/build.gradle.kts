@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.useSharedTest
-
 plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.application")
@@ -29,9 +27,6 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife"
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    sourceSets["debug"].manifest.srcFile("src/androidDebug/AndroidManifest.xml")
-    sourceSets["staging"].manifest.srcFile("src/androidStaging/AndroidManifest.xml")
     defaultConfig {
         applicationId = "com.alexvanyo.composelife"
         minSdk = 21
@@ -67,13 +62,15 @@ kotlin {
                 configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }
-        val androidDebug by getting {
+        val androidDebug by creating {
+            dependsOn(androidMain)
             dependencies {
                 implementation(libs.androidx.compose.uiTooling)
                 implementation(libs.leakCanary.android)
             }
         }
-        val androidStaging by getting {
+        val androidStaging by creating {
+            dependsOn(androidMain)
             dependencies {
                 implementation(libs.leakCanary.android)
             }
@@ -84,11 +81,9 @@ kotlin {
                 implementation(projects.dispatchersTest)
                 implementation(projects.patterns)
                 implementation(projects.preferencesTest)
-
-                implementation(kotlin("test"))
             }
         }
-        val androidSharedTest by creating {
+        val androidSharedTest by getting {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.androidx.test.core)
@@ -96,22 +91,14 @@ kotlin {
                 implementation(libs.androidx.window)
             }
         }
-        val androidTest by getting {
-            if (useSharedTest != com.alexvanyo.composelife.buildlogic.SharedTestConfig.Instrumentation) {
-                dependsOn(androidSharedTest)
-            }
-            dependencies {
-                configurations["kaptTest"].dependencies.add(libs.dagger.hilt.compiler.get())
-            }
+        val androidUnitTest by getting {
+            configurations["kaptTest"].dependencies.add(libs.dagger.hilt.compiler.get())
         }
-        val androidAndroidTest by getting {
-            if (useSharedTest != com.alexvanyo.composelife.buildlogic.SharedTestConfig.Robolectric) {
-                dependsOn(androidSharedTest)
-            }
+        val androidInstrumentedTest by getting {
+            configurations["kaptAndroidTest"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 compileOnly(libs.apiGuardian.api)
                 compileOnly(libs.google.autoValue.annotations)
-                configurations["kaptAndroidTest"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }
     }

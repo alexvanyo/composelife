@@ -1,6 +1,3 @@
-import com.alexvanyo.composelife.buildlogic.useSharedTest
-import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
-
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -28,7 +25,6 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife.snapshotstateset"
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
     }
@@ -60,28 +56,16 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(projects.kmpAndroidRunner)
-                implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.jetbrains.compose.uiTestJunit4)
             }
         }
-        val androidSharedTest by creating {
-            dependsOn(commonTest)
+        val androidSharedTest by getting {
             dependencies {
                 implementation(projects.testActivity)
 
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
-            }
-        }
-        val androidTest by getting {
-            if (useSharedTest != com.alexvanyo.composelife.buildlogic.SharedTestConfig.Instrumentation) {
-                dependsOn(androidSharedTest)
-            }
-        }
-        val androidAndroidTest by getting {
-            if (useSharedTest != com.alexvanyo.composelife.buildlogic.SharedTestConfig.Robolectric) {
-                dependsOn(androidSharedTest)
             }
         }
     }

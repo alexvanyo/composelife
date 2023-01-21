@@ -19,14 +19,17 @@ import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureTesting
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.testing.Test
+import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 class AndroidLibraryPaparazziConventionPlugin : ConventionPlugin({
     with(pluginManager) {
@@ -48,9 +51,17 @@ class AndroidLibraryPaparazziConventionPlugin : ConventionPlugin({
         }
     }
 
-    dependencies {
-        // Ensure we use the jre version of guava, since layoutlib requires it
-        add("testImplementation", libs.findLibrary("guava.jre").get())
+    extensions.configure<KotlinMultiplatformExtension> {
+        android()
+
+        sourceSets.configure(closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
+            getByName("androidUnitTest") {
+                dependencies {
+                    // Ensure we use the jre version of guava, since layoutlib requires it
+                    implementation(libs.findLibrary("guava.jre").get())
+                }
+            }
+        })
     }
 
     tasks.named("check") {

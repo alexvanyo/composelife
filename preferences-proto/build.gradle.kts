@@ -27,7 +27,6 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife.preferencesproto"
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
     }

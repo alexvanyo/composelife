@@ -18,13 +18,15 @@ package com.alexvanyo.composelife.buildlogic
 
 import com.android.build.gradle.TestedExtension
 import org.gradle.api.GradleException
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
-import org.gradle.kotlin.dsl.DependencyHandlerScope
-import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.closureOf
+import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.kotlin
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 fun Project.configureTesting(
     testedExtension: TestedExtension,
@@ -37,8 +39,14 @@ fun Project.configureTesting(
         }
     }
 
-    dependencies {
-        sharedTestImplementation(kotlin("test"))
+    extensions.configure<KotlinMultiplatformExtension> {
+        sourceSets.configure(closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
+            getByName("commonTest") {
+                dependencies {
+                    implementation(kotlin("test"))
+                }
+            }
+        })
     }
 }
 
@@ -48,7 +56,7 @@ enum class SharedTestConfig {
     Both
 }
 
-val Project.useSharedTest: SharedTestConfig get() =
+private val Project.useSharedTest: SharedTestConfig get() =
     when (val useSharedTest = findProperty("com.alexvanyo.composelife.useSharedTest")) {
         null, "true" -> SharedTestConfig.Both
         "robolectric" -> SharedTestConfig.Robolectric
@@ -93,9 +101,31 @@ fun Project.configureAndroidTesting(
 
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
-    dependencies {
-        add("testImplementation", libs.findLibrary("robolectric").get())
-        sharedTestImplementation(project(":hilt-test"))
+    extensions.configure<KotlinMultiplatformExtension> {
+        android()
+
+        sourceSets.configure(closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
+            val commonTest = getByName("commonTest")
+            val androidSharedTest = create("androidSharedTest") {
+                dependsOn(commonTest)
+                dependencies {
+                    implementation(project(":hilt-test"))
+                }
+            }
+            getByName("androidUnitTest") {
+                if (useSharedTest != SharedTestConfig.Instrumentation) {
+                    dependsOn(androidSharedTest)
+                }
+                dependencies {
+                    implementation(libs.findLibrary("robolectric").get())
+                }
+            }
+            getByName("androidInstrumentedTest") {
+                if (useSharedTest != SharedTestConfig.Robolectric) {
+                    dependsOn(androidSharedTest)
+                }
+            }
+        })
     }
 
     tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
@@ -108,12 +138,4 @@ fun Project.configureAndroidTesting(
             }
         }
     }
-}
-
-/**
- * Adds the given dependency to both `testImplementation` and `androidTestImplementation`.
- */
-fun DependencyHandlerScope.sharedTestImplementation(dependencyNotation: Any) {
-    add("testImplementation", dependencyNotation)
-    add("androidTestImplementation", dependencyNotation)
 }

@@ -23,7 +23,6 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife.baselineprofilegenerator"
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     targetProjectPath = ":app"
 }
 
