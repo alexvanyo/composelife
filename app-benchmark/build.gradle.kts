@@ -22,7 +22,6 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife.benchmark"
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     targetProjectPath = ":app"
 }
 

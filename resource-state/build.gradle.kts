@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.SharedTestConfig
-import com.alexvanyo.composelife.buildlogic.useSharedTest
-import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
-
 plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
@@ -31,7 +27,6 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife.resourcestate"
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
     }
@@ -65,30 +60,18 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(projects.kmpAndroidRunner)
-                implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
                 implementation(libs.jetbrains.compose.uiTestJunit4)
             }
         }
-        val androidSharedTest by creating {
-            dependsOn(commonTest)
+        val androidSharedTest by getting {
             dependencies {
                 implementation(projects.testActivity)
 
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
                 implementation(libs.androidx.compose.uiTestJunit4)
-            }
-        }
-        val androidTest by getting {
-            if (useSharedTest != SharedTestConfig.Instrumentation) {
-                dependsOn(androidSharedTest)
-            }
-        }
-        val androidAndroidTest by getting {
-            if (useSharedTest != SharedTestConfig.Robolectric) {
-                dependsOn(androidSharedTest)
             }
         }
     }
