@@ -55,11 +55,11 @@
 
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview"
-                android:resource="@drawable/ic_launcher_foreground" />
+                android:resource="@drawable/watchface_square" />
 
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview_circular"
-                android:resource="@drawable/ic_launcher_foreground" />
+                android:resource="@drawable/watchface_round" />
 
             <meta-data
                 android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
