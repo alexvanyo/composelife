@@ -41,10 +41,10 @@ kotlin {
             }
         }
         val androidMain by getting {
+            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 api(libs.dagger.hilt.test)
                 api(libs.androidx.test.junit)
-                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }
     }

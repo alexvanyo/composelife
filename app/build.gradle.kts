@@ -49,6 +49,7 @@ kotlin {
             }
         }
         val androidMain by getting {
+            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 implementation(libs.accompanist.systemuicontroller)
                 implementation(libs.androidx.activityCompose)
@@ -59,7 +60,6 @@ kotlin {
                 implementation(libs.androidx.profileInstaller)
                 implementation(libs.androidx.room.runtime)
                 implementation(libs.dagger.hilt.android)
-                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }
         val androidDebug by creating {

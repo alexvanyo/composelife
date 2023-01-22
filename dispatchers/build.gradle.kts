@@ -34,10 +34,10 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
+            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 api(libs.kotlinx.coroutines.core)
                 implementation(libs.dagger.hilt.core)
-                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }
         val androidMain by getting {

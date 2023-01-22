@@ -58,6 +58,8 @@ kotlin {
             }
         }
         val androidMain by getting {
+            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
+            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.material3)
@@ -72,9 +74,7 @@ kotlin {
                 implementation(libs.androidx.window)
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.sealedEnum.runtime)
-                configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
                 implementation(libs.dagger.hilt.android)
-                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }
         val androidDebug by creating {

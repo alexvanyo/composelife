@@ -34,9 +34,9 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
+            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 implementation(libs.dagger.hilt.core)
-                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }
     }

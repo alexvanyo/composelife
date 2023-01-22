@@ -47,12 +47,12 @@ kotlin {
             }
         }
         val androidMain by getting {
+            configurations["kspAndroid"].dependencies.add(libs.androidx.room.compiler.get())
+            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 api(libs.kotlinx.coroutines.android)
                 implementation(libs.androidx.room.runtime)
-                configurations["kspAndroid"].dependencies.add(libs.androidx.room.compiler.get())
                 implementation(libs.dagger.hilt.android)
-                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }
         val commonTest by getting {
