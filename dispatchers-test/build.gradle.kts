@@ -34,6 +34,7 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
+            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 api(projects.dispatchers)
 
@@ -42,7 +43,6 @@ kotlin {
                 api(libs.kotlinx.datetime)
                 api(libs.dagger.hilt.core)
                 implementation(libs.androidx.lifecycle.viewmodel)
-                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }
         val androidMain by getting {

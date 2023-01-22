@@ -41,12 +41,12 @@ kotlin {
             }
         }
         val androidMain by getting {
+            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 api(libs.kotlinx.coroutines.android)
                 api(libs.androidx.room.runtime)
                 implementation(libs.dagger.hilt.android)
                 api(libs.dagger.hilt.test)
-                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }
     }

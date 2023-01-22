@@ -42,13 +42,13 @@ kotlin {
             }
         }
         val androidMain by getting {
+            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 api(libs.dagger.hilt.test)
                 api(libs.androidx.test.runner)
                 api(libs.androidx.compose.uiTestJunit4)
                 implementation(libs.leakCanary.android)
                 api(libs.leakCanary.instrumentation)
-                configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             }
         }
     }
