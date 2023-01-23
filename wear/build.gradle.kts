@@ -43,7 +43,9 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.algorithm)
+                implementation(projects.navigation)
                 implementation(projects.openglRenderer)
+                implementation(projects.snapshotStateSet)
 
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.coroutines.core)
@@ -58,9 +60,12 @@ kotlin {
                 implementation(libs.androidx.appcompat)
                 implementation(libs.androidx.compose.foundation)
                 implementation(libs.androidx.compose.runtime)
+                implementation(libs.androidx.compose.uiToolingPreview)
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.lifecycle.process)
                 implementation(libs.androidx.lifecycle.runtime)
+                implementation(libs.androidx.wear.compose.foundation)
+                implementation(libs.androidx.wear.compose.material)
                 implementation(libs.androidx.wear.watchface)
                 implementation(libs.androidx.wear.watchface.client)
                 implementation(libs.androidx.wear.watchface.client)
@@ -79,6 +84,7 @@ kotlin {
             dependsOn(androidMain)
             dependencies {
                 implementation(libs.leakCanary.android)
+                implementation(libs.androidx.compose.uiTooling)
             }
         }
         val androidStaging by creating {
