@@ -24,6 +24,7 @@ androidxTestEspresso = "3.5.1"
 androidxTestExt = "1.1.5"
 androidxTestOrchestrator = "1.4.2"
 androidxTestRunner = "1.5.2"
+androidxWearCompose = "1.2.0-alpha02"
 androidxWearWatchface = "1.2.0-alpha06"
 androidxWindow = "1.1.0-alpha04"
 apiGuardian = "1.1.2"
@@ -90,6 +91,8 @@ androidx-test-espresso = { group = "androidx.test.espresso", name = "espresso-co
 androidx-test-junit = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "androidxTestExt" }
 androidx-test-orchestrator = { group = "androidx.test", name = "orchestrator", version.ref = "androidxTestOrchestrator" }
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
+androidx-wear-compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "androidxWearCompose" }
+androidx-wear-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "androidxWearCompose" }
 androidx-wear-watchface = { group = "androidx.wear.watchface", name = "watchface", version.ref = "androidxWearWatchface" }
 androidx-wear-watchface-client = { group = "androidx.wear.watchface", name = "watchface-client", version.ref = "androidxWearWatchface" }
 androidx-wear-watchface-complications-data = { group = "androidx.wear.watchface", name = "watchface-complications-data", version.ref = "androidxWearWatchface" }
