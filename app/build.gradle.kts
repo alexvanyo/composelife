@@ -44,7 +44,7 @@ kotlin {
             dependencies {
                 implementation(projects.doNotKeepProcess)
                 implementation(projects.resources)
-                implementation(projects.ui)
+                implementation(projects.uiApp)
                 implementation(libs.kotlinx.serialization.core)
             }
         }
