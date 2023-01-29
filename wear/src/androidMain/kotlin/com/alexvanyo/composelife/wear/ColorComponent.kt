@@ -22,6 +22,7 @@ import androidx.core.graphics.alpha
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
+import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.alexvanyo.composelife.wear.ColorComponent.RgbIntComponent
 import com.livefront.sealedenum.GenSealedEnum
 

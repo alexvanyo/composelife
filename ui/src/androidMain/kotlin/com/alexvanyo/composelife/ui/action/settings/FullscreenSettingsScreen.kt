@@ -91,7 +91,7 @@ import com.alexvanyo.composelife.ui.R
 import com.alexvanyo.composelife.ui.action.ActionCardNavigation
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.SizePreviews
+import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
@@ -474,7 +474,7 @@ private val SettingsCategory.outlinedIcon: ImageVector
     }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@SizePreviews
+@MobileDevicePreviews
 @Composable
 fun FullscreenSettingsScreenListPreview() {
     WithPreviewDependencies {
@@ -499,7 +499,7 @@ fun FullscreenSettingsScreenListPreview() {
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@SizePreviews
+@MobileDevicePreviews
 @Composable
 fun FullscreenSettingsScreenAlgorithmPreview() {
     WithPreviewDependencies {
@@ -524,7 +524,7 @@ fun FullscreenSettingsScreenAlgorithmPreview() {
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@SizePreviews
+@MobileDevicePreviews
 @Composable
 fun FullscreenSettingsScreenVisualPreview() {
     WithPreviewDependencies {
@@ -549,7 +549,7 @@ fun FullscreenSettingsScreenVisualPreview() {
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@SizePreviews
+@MobileDevicePreviews
 @Composable
 fun FullscreenSettingsScreenFeatureFlagsPreview() {
     WithPreviewDependencies {

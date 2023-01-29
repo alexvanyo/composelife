@@ -50,7 +50,17 @@ import androidx.compose.ui.tooling.preview.Preview
     uiMode = Configuration.UI_MODE_NIGHT_YES,
     device = Devices.TABLET,
 )
-annotation class SizePreviews
+annotation class MobileDevicePreviews
+
+@Preview(
+    name = "Square",
+    device = Devices.WEAR_OS_SQUARE,
+)
+@Preview(
+    name = "Large round",
+    device = Devices.WEAR_OS_LARGE_ROUND,
+)
+annotation class WearDevicePreviews
 
 @Preview(
     name = "Light mode",

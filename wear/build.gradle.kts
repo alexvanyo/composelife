@@ -46,6 +46,7 @@ kotlin {
                 implementation(projects.navigation)
                 implementation(projects.openglRenderer)
                 implementation(projects.snapshotStateSet)
+                implementation(projects.uiCommon)
 
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.coroutines.core)

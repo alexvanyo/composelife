@@ -95,6 +95,8 @@ import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
 import com.alexvanyo.composelife.snapshotstateset.mutableStateSetOf
+import com.alexvanyo.composelife.ui.util.WearDevicePreviews
+import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.wear.theme.ComposeLifeTheme
 import com.google.android.horologist.compose.rotaryinput.onRotaryInputAccumulated
@@ -453,7 +455,7 @@ fun WatchFaceConfigList(
     }
 }
 
-@DevicePreviews
+@WearDevicePreviews
 @Composable
 fun WatchFaceConfigScreenPreview() {
     ComposeLifeTheme {
@@ -536,7 +538,7 @@ fun WatchFacePreview(
     }
 }
 
-@DevicePreviews
+@WearDevicePreviews
 @Composable
 fun WatchFacePreviewPreview() {
     WatchFacePreview(
