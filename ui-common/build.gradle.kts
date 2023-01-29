@@ -20,6 +20,7 @@ plugins {
     id("com.alexvanyo.composelife.android.library.compose")
     id("com.alexvanyo.composelife.android.library.gradlemanageddevices")
     id("com.alexvanyo.composelife.android.library.jacoco")
+    id("com.alexvanyo.composelife.android.library.ksp")
     id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
 }
@@ -37,6 +38,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {}
         val androidMain by getting {
+            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
                 implementation(libs.androidx.compose.animation)
                 implementation(libs.androidx.compose.foundation)

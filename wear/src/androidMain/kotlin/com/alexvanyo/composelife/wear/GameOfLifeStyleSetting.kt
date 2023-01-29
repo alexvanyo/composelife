@@ -24,6 +24,8 @@ import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.WatchFaceLayer
+import com.alexvanyo.composelife.ui.util.ColorComponent
+import com.alexvanyo.composelife.ui.util.get
 import com.livefront.sealedenum.GenSealedEnum
 
 sealed interface GameOfLifeStyleSetting {
