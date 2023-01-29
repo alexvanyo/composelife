@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.util
+package com.alexvanyo.composelife.wear
 
 import androidx.compose.runtime.saveable.Saver
 import com.livefront.sealedenum.SealedEnum

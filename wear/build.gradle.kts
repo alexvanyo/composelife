@@ -76,6 +76,7 @@ kotlin {
                 implementation(libs.androidx.wear.watchface.editor)
                 implementation(libs.androidx.wear.watchface.style)
                 implementation(libs.kotlinx.coroutines.android)
+                implementation(libs.horologist.composeLayout)
                 implementation(libs.sealedEnum.runtime)
                 implementation(libs.dagger.hilt.android)
             }

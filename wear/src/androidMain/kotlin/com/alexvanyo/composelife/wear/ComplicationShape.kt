@@ -19,8 +19,11 @@ package com.alexvanyo.composelife.wear
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.PorterDuff
 import android.opengl.GLES20
 import android.opengl.GLUtils
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toIntRect
 import androidx.wear.watchface.ComplicationSlot
@@ -62,20 +65,51 @@ class ComplicationShape(
     private val complicationSlot: ComplicationSlot,
     private val texture: Int,
 ) {
+    val id = complicationSlot.id
+
     private val bounds = complicationSlot.computeBounds(screenSize.toIntRect().toAndroidRect()).toComposeIntRect()
 
+    /**
+     * The amount of extra padding around the real bounds to allow for overdraw
+     */
+    private val extraBoundsPadding = 16
+
+    /**
+     * The expanded bounds
+     */
+    private val expandedBounds = bounds.inflate(extraBoundsPadding)
+
+    /**
+     * The bounds within the prepared bitmap to render the complication
+     */
+    private val renderBounds = IntRect(IntOffset(extraBoundsPadding, extraBoundsPadding), bounds.size).toAndroidRect()
+
+    /**
+     * Prepare a bitmap with slightly larger bounds than the real bounds of the complication
+     */
     private val bitmap = Bitmap.createBitmap(
-        bounds.width,
-        bounds.height,
+        expandedBounds.width,
+        expandedBounds.height,
         Bitmap.Config.ARGB_8888
     )
     private val canvas = Canvas(bitmap)
 
+    /**
+     * Calculate the normalized OpenGL coords for where the expanded bitmap will be placed
+     */
     private val coords = floatArrayOf(
-        bounds.left.toFloat() / screenSize.width, 1f - (bounds.bottom.toFloat() / screenSize.height), 0f,
-        bounds.left.toFloat() / screenSize.width, 1f - (bounds.top.toFloat() / screenSize.height), 0f,
-        bounds.right.toFloat() / screenSize.width, 1f - (bounds.top.toFloat() / screenSize.height), 0f,
-        bounds.right.toFloat() / screenSize.width, 1f - (bounds.bottom.toFloat() / screenSize.height), 0f,
+        expandedBounds.left.toFloat() / screenSize.width,
+        1f - (expandedBounds.bottom.toFloat() / screenSize.height),
+        0f,
+        expandedBounds.left.toFloat() / screenSize.width,
+        1f - (expandedBounds.top.toFloat() / screenSize.height),
+        0f,
+        expandedBounds.right.toFloat() / screenSize.width,
+        1f - (expandedBounds.top.toFloat() / screenSize.height),
+        0f,
+        expandedBounds.right.toFloat() / screenSize.width,
+        1f - (expandedBounds.bottom.toFloat() / screenSize.height),
+        0f,
     )
 
     private val textureCoords = floatArrayOf(
@@ -157,10 +191,38 @@ class ComplicationShape(
     fun draw(
         zonedDateTime: ZonedDateTime,
         renderParameters: RenderParameters,
-        mvpMatrix: FloatArray
+        mvpMatrix: FloatArray,
+        drawHighlightLayer: Boolean,
     ) {
+        // STEP 1: Render the complication or its highlight layer into the bitmap using the canvas
+        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
+
+        if (drawHighlightLayer) {
+            val highlightLayer = requireNotNull(renderParameters.highlightLayer) {
+                "Trying to render highlight layer, but it was null!"
+            }
+            complicationSlot.renderer.drawHighlight(
+                canvas = canvas,
+                bounds = renderBounds,
+                boundsType = complicationSlot.boundsType,
+                zonedDateTime = zonedDateTime,
+                color = highlightLayer.highlightTint,
+            )
+        } else {
+            complicationSlot.renderer.render(
+                canvas = canvas,
+                bounds = renderBounds,
+                zonedDateTime = zonedDateTime,
+                renderParameters = renderParameters,
+                slotId = complicationSlot.id,
+            )
+        }
+
         GLES20.glUseProgram(program)
+
+        // STEP 2: Setup the texture with the bitmap
         checkOpenGLError()
+        GLES20.glActiveTexture(getTextureReference(texture))
         GLES20.glTexParameteri(
             GLES20.GL_TEXTURE_2D,
             GLES20.GL_TEXTURE_WRAP_S,
@@ -181,26 +243,17 @@ class ComplicationShape(
             GLES20.GL_TEXTURE_MIN_FILTER,
             GLES20.GL_LINEAR
         )
-        GLES20.glActiveTexture(getTextureReference(texture))
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle)
-
-        canvas.drawColor(Color.TRANSPARENT)
-        complicationSlot.renderer.render(
-            canvas,
-            bounds.size.toIntRect().toAndroidRect(),
-            zonedDateTime,
-            renderParameters,
-            complicationSlot.id
-        )
         checkOpenGLError()
 
-        GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 4)
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0)
         checkOpenGLError()
 
+        // STEP 3: Update the uniforms
         GLES20.glUniform1i(complicationHandle, texture)
         checkOpenGLError()
 
+        // STEP 4: Draw the textured shape
         GLES20.glEnableVertexAttribArray(positionHandle)
         GLES20.glEnableVertexAttribArray(textureCoordinateHandle)
 
