@@ -204,13 +204,12 @@ class GameOfLifeShape(
 
     fun setScreenShapeParameters(parameters: GameOfLifeShapeParameters) {
         GLES20.glUseProgram(program)
+        GLES20.glActiveTexture(getTextureReference(texture))
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT)
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT)
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST)
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST)
-        GLES20.glActiveTexture(getTextureReference(texture))
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle)
-        GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 4)
         checkOpenGLError()
         GLES20.glTexImage2D(
             GLES20.GL_TEXTURE_2D,

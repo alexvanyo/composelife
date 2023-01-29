@@ -25,14 +25,18 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toOffset
 import androidx.wear.watchface.ComplicationSlotsManager
+import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.WatchFaceLayer
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.emptyCellState
@@ -50,7 +54,7 @@ import kotlin.random.Random
 class GameOfLifeRenderer(
     context: Context,
     surfaceHolder: SurfaceHolder,
-    currentUserStyleRepository: CurrentUserStyleRepository,
+    private val currentUserStyleRepository: CurrentUserStyleRepository,
     private val complicationSlotsManager: ComplicationSlotsManager,
     private val watchState: WatchState,
     private val temporalGameOfLifeState: TemporalGameOfLifeState,
@@ -106,6 +110,7 @@ class GameOfLifeRenderer(
         }
     }
 
+    @Suppress("LongMethod", "NestedBlockDepth")
     override fun render(zonedDateTime: ZonedDateTime, sharedAssets: SharedAssets) {
         val previousSeedCellState = temporalGameOfLifeState.seedCellState
 
@@ -130,11 +135,15 @@ class GameOfLifeRenderer(
             cellsBuffer.put(index, android.graphics.Color.WHITE)
         }
 
+        val gameOfLifeColor = with(currentUserStyleRepository.schema) {
+            currentUserStyleRepository.userStyle.value.getGameOfLifeColor()
+        }
+
         val screenShapeParameters = when (shape) {
             is CurrentShape.RoundRectangle -> {
                 GameOfLifeShapeParameters.RoundRectangle(
                     cells = cellsBuffer,
-                    aliveColor = Color.White,
+                    aliveColor = gameOfLifeColor,
                     deadColor = Color.Black,
                     cellWindowSize = IntSize(cellWindow.width + 1, cellWindow.height + 1),
                     scaledCellPixelSize = cellSize,
@@ -145,14 +154,41 @@ class GameOfLifeRenderer(
             }
         }
 
+        GLES20.glClearColor(0f, 0f, 0f, 1f)
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+
         GLES20.glEnable(GLES20.GL_BLEND)
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
 
-        gameOfLifeShape.setScreenShapeParameters(screenShapeParameters)
-        gameOfLifeShape.draw(mvpMatrix)
+        if (WatchFaceLayer.BASE in renderParameters.watchFaceLayers) {
+            gameOfLifeShape.setScreenShapeParameters(screenShapeParameters)
+            gameOfLifeShape.draw(mvpMatrix)
+        }
 
-        complicationShapes.forEach { complicationShape ->
-            complicationShape.draw(zonedDateTime, renderParameters, mvpMatrix)
+        if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS)) {
+            complicationSlotsManager.complicationSlots.values.forEach {
+                (it.renderer as? CanvasComplicationDrawable)?.drawable?.apply {
+                    activeStyle.apply {
+                        borderColor = gameOfLifeColor.copy(alpha = 0.9f).toArgb()
+                        highlightColor = gameOfLifeColor.copy(alpha = 0.3f).toArgb()
+                        iconColor = gameOfLifeColor.toArgb()
+                        rangedValuePrimaryColor = gameOfLifeColor.copy(alpha = 0.9f).toArgb()
+                        rangedValueSecondaryColor = gameOfLifeColor.copy(alpha = 0.7f).toArgb()
+                        textColor = gameOfLifeColor.copy(alpha = 0.9f).toArgb()
+                        titleColor = gameOfLifeColor.copy(alpha = 0.9f).toArgb()
+                    }
+                    ambientStyle.apply {
+                        borderColor = gameOfLifeColor.copy(alpha = 0.5f).toArgb()
+                        iconColor = gameOfLifeColor.toArgb()
+                        textColor = gameOfLifeColor.toArgb()
+                        titleColor = gameOfLifeColor.copy(alpha = 0.7f).toArgb()
+                        rangedValuePrimaryColor = gameOfLifeColor.toArgb()
+                    }
+                }
+            }
+            complicationShapes.forEach { complicationShape ->
+                complicationShape.draw(zonedDateTime, renderParameters, mvpMatrix, false)
+            }
         }
 
         if (zonedDateTime.toEpochSecond() * 1000 == watchState.digitalPreviewReferenceTimeMillis) {
@@ -164,7 +200,37 @@ class GameOfLifeRenderer(
         }
     }
 
-    override fun renderHighlightLayer(zonedDateTime: ZonedDateTime, sharedAssets: SharedAssets) = Unit
+    override fun renderHighlightLayer(zonedDateTime: ZonedDateTime, sharedAssets: SharedAssets) {
+        val highlightLayer = requireNotNull(renderParameters.highlightLayer) {
+            "Trying to render highlight layer, but it was null!"
+        }
+        val highlightedElement = highlightLayer.highlightedElement
+        val backgroundTint = Color(highlightLayer.backgroundTint)
+        GLES20.glClearColor(
+            backgroundTint.red,
+            backgroundTint.green,
+            backgroundTint.blue,
+            backgroundTint.alpha,
+        )
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+
+        if (WatchFaceLayer.COMPLICATIONS in renderParameters.watchFaceLayers) {
+            GLES20.glEnable(GLES20.GL_BLEND)
+            GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)
+
+            complicationShapes.forEach { complicationShape ->
+                val shouldDrawComplicationHighlight = when (highlightedElement) {
+                    RenderParameters.HighlightedElement.AllComplicationSlots -> true
+                    is RenderParameters.HighlightedElement.ComplicationSlot ->
+                        highlightedElement.id == complicationShape.id
+                    is RenderParameters.HighlightedElement.UserStyle -> false
+                }
+                if (shouldDrawComplicationHighlight) {
+                    complicationShape.draw(zonedDateTime, renderParameters, mvpMatrix, true)
+                }
+            }
+        }
+    }
 
     override suspend fun createSharedAssets(): SharedAssets = object : SharedAssets {
         override fun onDestroy() = Unit

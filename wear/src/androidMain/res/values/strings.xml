@@ -16,4 +16,11 @@
 -->
 <resources>
     <string name="app_name">ComposeLife</string>
+    <string name="color">Color</string>
+    <string name="color_red_value">Red Component</string>
+    <string name="color_red_value_description">Red part of RGB color</string>
+    <string name="color_green_value">Green Component</string>
+    <string name="color_green_value_description">Green part of RGB color</string>
+    <string name="color_blue_value">Blue Component</string>
+    <string name="color_blue_value_description">Blue part of RGB color</string>
 </resources>

@@ -24,7 +24,7 @@ androidxTestEspresso = "3.5.1"
 androidxTestExt = "1.1.5"
 androidxTestOrchestrator = "1.4.2"
 androidxTestRunner = "1.5.2"
-androidxWearCompose = "1.2.0-alpha02"
+androidxWearCompose = "1.2.0-alpha03"
 androidxWearWatchface = "1.2.0-alpha06"
 androidxWindow = "1.1.0-alpha04"
 apiGuardian = "1.1.2"
@@ -33,6 +33,7 @@ detekt = "1.22.0"
 googleAutoValue = "1.9"
 guavaAndroid = "31.1-android"
 guavaJre = "31.1-jre"
+horologist = "0.3.0"
 keeper = "0.13.0"
 kotlin = "1.8.0"
 kotlinxCoroutines = "1.6.4"
@@ -112,6 +113,7 @@ detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gr
 google-autoValue-annotations = { group = "com.google.auto.value", name = "auto-value-annotations", version.ref = "googleAutoValue" }
 guava-android = { group = "com.google.guava", name = "guava", version.ref = "guavaAndroid" }
 guava-jre = { group = "com.google.guava", name = "guava", version.ref = "guavaJre" }
+horologist-composeLayout = { group = "com.google.android.horologist", name = "horologist-compose-layout", version.ref = "horologist" }
 jetbrains-compose-animation = { group = "org.jetbrains.compose.animation", name = "animation", version.ref = "jetbrainsCompose" }
 jetbrains-compose-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "jetbrainsCompose" }
 jetbrains-compose-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime", version.ref = "jetbrainsCompose" }
