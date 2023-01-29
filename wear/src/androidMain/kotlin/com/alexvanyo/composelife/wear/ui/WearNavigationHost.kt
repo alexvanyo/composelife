@@ -24,6 +24,7 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
+import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
 import androidx.wear.compose.material.SwipeToDismissBox
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
@@ -81,7 +82,11 @@ fun <T> WearNavigationHost(
 
         key(entry.id) {
             stateHolder.SaveableStateProvider(key = entry.id) {
-                content(entry)
+                HierarchicalFocusCoordinator(
+                    requiresFocus = { backstackState.currentEntryId == entry.id }
+                ) {
+                    content(entry)
+                }
             }
         }
     }
