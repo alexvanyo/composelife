@@ -14,19 +14,26 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.wear
+package com.alexvanyo.composelife.ui.util
 
+import androidx.annotation.IntRange
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.alpha
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
-import com.alexvanyo.composelife.ui.util.sealedEnumSaver
-import com.alexvanyo.composelife.wear.ColorComponent.RgbIntComponent
+import com.alexvanyo.composelife.ui.util.ColorComponent.RgbIntComponent
 import com.livefront.sealedenum.GenSealedEnum
 
+/**
+ * A specific component of a [Color].
+ */
 sealed interface ColorComponent {
+
+    /**
+     * An RGB integer component of a [Color].
+     */
     sealed interface RgbIntComponent {
         object Red : RgbIntComponent
         object Green : RgbIntComponent
@@ -37,15 +44,15 @@ sealed interface ColorComponent {
             val Saver = sealedEnumSaver(sealedEnum)
         }
     }
-    object Alpha : ColorComponent
-
-    @GenSealedEnum
-    companion object {
-        val Saver = sealedEnumSaver(sealedEnum)
-    }
 }
 
-fun Color.withComponent(component: RgbIntComponent, value: Int): Color =
+/**
+ * Modifies the given [color] with updating the given [component] with the given [value].
+ */
+fun Color.withComponent(
+    component: RgbIntComponent,
+    @IntRange(from = 0, to = 255) value: Int,
+): Color =
     Color(
         red = if (component == RgbIntComponent.Red) value else get(RgbIntComponent.Red),
         green = if (component == RgbIntComponent.Green) value else get(RgbIntComponent.Green),
@@ -53,6 +60,13 @@ fun Color.withComponent(component: RgbIntComponent, value: Int): Color =
         alpha = toArgb().alpha
     )
 
+/**
+ * Returns the given [component] of the [Color] as an integer value (from 0 to 255).
+ *
+ * This implies a color space conversion is applied, if needed.
+ *
+ * @see Color.toArgb
+ */
 fun Color.get(component: RgbIntComponent): Int =
     toArgb().let {
         when (component) {

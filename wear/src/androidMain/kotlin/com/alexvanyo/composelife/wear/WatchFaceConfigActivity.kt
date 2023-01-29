@@ -95,8 +95,12 @@ import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
 import com.alexvanyo.composelife.snapshotstateset.mutableStateSetOf
+import com.alexvanyo.composelife.ui.util.ColorComponent
 import com.alexvanyo.composelife.ui.util.WearDevicePreviews
+import com.alexvanyo.composelife.ui.util.get
 import com.alexvanyo.composelife.ui.util.sealedEnumSaver
+import com.alexvanyo.composelife.ui.util.values
+import com.alexvanyo.composelife.ui.util.withComponent
 import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.wear.theme.ComposeLifeTheme
 import com.google.android.horologist.compose.rotaryinput.onRotaryInputAccumulated
