@@ -58,7 +58,7 @@ import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorHiltEnt
 import com.alexvanyo.composelife.ui.component.GameOfLifeProgressIndicatorLocalEntryPoint
 import com.alexvanyo.composelife.ui.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.SizePreviews
+import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
@@ -288,7 +288,7 @@ private val gosperGliderGun = """
 """.toCellState()
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@SizePreviews
+@MobileDevicePreviews
 @Composable
 fun LoadingPreferencesComposeLifeAppPreview() {
     WithPreviewDependencies {
@@ -305,7 +305,7 @@ fun LoadingPreferencesComposeLifeAppPreview() {
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@SizePreviews
+@MobileDevicePreviews
 @Composable
 fun LoadingCellStateComposeLifeAppPreview() {
     WithPreviewDependencies {
@@ -325,7 +325,7 @@ fun LoadingCellStateComposeLifeAppPreview() {
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@SizePreviews
+@MobileDevicePreviews
 @Composable
 fun LoadedComposeLifeAppPreview() {
     WithPreviewDependencies {

@@ -52,6 +52,7 @@ kotlin {
                 api(projects.random)
                 implementation(projects.resourceState)
                 implementation(projects.snapshotStateSet)
+                implementation(projects.uiCommon)
 
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.coroutines.core)
