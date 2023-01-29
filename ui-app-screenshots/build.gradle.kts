@@ -36,7 +36,7 @@ kotlin {
     sourceSets {
         val androidMain by getting {
             dependencies {
-                implementation(projects.ui)
+                implementation(projects.uiApp)
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.foundation)
                 implementation(libs.androidx.compose.ui)
