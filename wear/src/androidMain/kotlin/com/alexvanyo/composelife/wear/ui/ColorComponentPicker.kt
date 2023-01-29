@@ -67,9 +67,13 @@ fun ColorComponentPicker(
             }
     }
 
+    // TODO: This rememberUpdatedState should not be necessary
+    val currentIsSelected by rememberUpdatedState(isSelected)
+
     HierarchicalFocusCoordinator(
-        requiresFocus = { isSelected }
+        requiresFocus = { currentIsSelected }
     ) {
+        val focusRequester = rememberActiveFocusRequester()
         Picker(
             state = pickerState,
             contentDescription = contentDescription,
@@ -81,7 +85,7 @@ fun ColorComponentPicker(
                         pickerState.scrollToOption(pickerState.selectedOption + if (it > 0) 1 else -1)
                     }
                 }
-                .focusRequester(rememberActiveFocusRequester())
+                .focusRequester(focusRequester)
                 .focusable(),
         ) { optionIndex ->
             Box(

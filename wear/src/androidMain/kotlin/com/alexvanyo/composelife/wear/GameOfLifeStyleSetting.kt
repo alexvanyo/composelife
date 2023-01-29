@@ -28,9 +28,19 @@ import com.alexvanyo.composelife.ui.util.ColorComponent
 import com.alexvanyo.composelife.ui.util.get
 import com.livefront.sealedenum.GenSealedEnum
 
+/**
+ * A style setting used for the watchface configuration.
+ */
 sealed interface GameOfLifeStyleSetting {
+
+    /**
+     * The id for the [UserStyleSetting].
+     */
     val id: UserStyleSetting.Id
 
+    /**
+     * Creates the [UserStyleSetting] using the given [resources].
+     */
     fun createUserStyleSetting(resources: Resources): UserStyleSetting
 
     object ColorRedValue : GameOfLifeStyleSetting {
@@ -97,6 +107,11 @@ sealed interface GameOfLifeStyleSetting {
     companion object
 }
 
+/**
+ * Returns the [Color] for the [UserStyle] given the [UserStyleSchema].
+ *
+ * The color is stored as 3 underlying [Long] settings representing the RGB color components.
+ */
 context(UserStyleSchema)
 fun UserStyle.getGameOfLifeColor(): Color {
     val colorRedValueUserSetting = rootUserStyleSettings.find {
@@ -125,6 +140,11 @@ fun UserStyle.getGameOfLifeColor(): Color {
     )
 }
 
+/**
+ * Sets the preferred [Color] to the [UserStyle] given the [UserStyleSchema].
+ *
+ * The color is stored as 3 underlying [Long] settings representing the RGB color components.
+ */
 context(UserStyleSchema)
 fun MutableUserStyle.setGameOfLifeColor(color: Color) {
     val colorRedValueUserSetting = rootUserStyleSettings.find {
@@ -151,5 +171,8 @@ fun MutableUserStyle.setGameOfLifeColor(color: Color) {
         )
 }
 
+/**
+ * Creates the [UserStyleSchema] with the defined settings.
+ */
 fun createGameOfLifeStyleSchema(context: Context): UserStyleSchema =
     UserStyleSchema(GameOfLifeStyleSetting.values.map { it.createUserStyleSetting(context.resources) })

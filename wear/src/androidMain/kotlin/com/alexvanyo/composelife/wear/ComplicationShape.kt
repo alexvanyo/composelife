@@ -60,13 +60,33 @@ private val fragmentShaderCode = """
     }
 """.trimIndent()
 
+/**
+ * The OpenGL shape describing a specific [complicationSlot].
+ */
 class ComplicationShape(
+    /**
+     * The overall size of the screen, to use to properly place the complication shape.
+     */
     screenSize: IntSize,
+
+    /**
+     * The complication slot to display a complication for.
+     */
     private val complicationSlot: ComplicationSlot,
+
+    /**
+     * The OpenGL texture index to use for this complication shape.
+     */
     private val texture: Int,
 ) {
+    /**
+     * The id of the complication slot.
+     */
     val id = complicationSlot.id
 
+    /**
+     * The bounds of the complication in screen-based window coordinates.
+     */
     private val bounds = complicationSlot.computeBounds(screenSize.toIntRect().toAndroidRect()).toComposeIntRect()
 
     /**
@@ -75,7 +95,7 @@ class ComplicationShape(
     private val extraBoundsPadding = 16
 
     /**
-     * The expanded bounds
+     * The expanded bounds to allow for overdraw
      */
     private val expandedBounds = bounds.inflate(extraBoundsPadding)
 
@@ -92,6 +112,10 @@ class ComplicationShape(
         expandedBounds.height,
         Bitmap.Config.ARGB_8888
     )
+
+    /**
+     * The [Canvas] backed by the [bitmap].
+     */
     private val canvas = Canvas(bitmap)
 
     /**

@@ -28,13 +28,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.foundation.rememberActiveFocusRequester
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import com.alexvanyo.composelife.wear.R
+import com.google.android.horologist.compose.navscaffold.ExperimentalHorologistComposeLayoutApi
+import com.google.android.horologist.compose.rotaryinput.rotaryWithScroll
 
+@OptIn(ExperimentalHorologistComposeLayoutApi::class)
 @Composable
 fun WatchFaceConfigList(
     state: WatchFaceConfigState,
@@ -42,8 +46,11 @@ fun WatchFaceConfigList(
     modifier: Modifier = Modifier,
     scalingLazyListState: ScalingLazyListState,
 ) {
+    val focusRequester = rememberActiveFocusRequester()
+
     ScalingLazyColumn(
-        modifier = modifier,
+        modifier = modifier
+            .rotaryWithScroll(focusRequester, scalingLazyListState),
         state = scalingLazyListState,
         autoCentering = AutoCenteringParams(itemIndex = 0)
     ) {
