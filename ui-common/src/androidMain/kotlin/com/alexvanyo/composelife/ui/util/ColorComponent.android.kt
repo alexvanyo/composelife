@@ -24,27 +24,6 @@ import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
 import com.alexvanyo.composelife.ui.util.ColorComponent.RgbIntComponent
-import com.livefront.sealedenum.GenSealedEnum
-
-/**
- * A specific component of a [Color].
- */
-sealed interface ColorComponent {
-
-    /**
-     * An RGB integer component of a [Color].
-     */
-    sealed interface RgbIntComponent {
-        object Red : RgbIntComponent
-        object Green : RgbIntComponent
-        object Blue : RgbIntComponent
-
-        @GenSealedEnum
-        companion object {
-            val Saver = sealedEnumSaver(sealedEnum)
-        }
-    }
-}
 
 /**
  * Modifies the given [color] with updating the given [component] with the given [value].
