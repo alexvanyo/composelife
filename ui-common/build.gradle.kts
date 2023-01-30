@@ -23,6 +23,7 @@ plugins {
     id("com.alexvanyo.composelife.android.library.ksp")
     id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
+    alias(libs.plugins.jetbrainsCompose)
 }
 
 android {
@@ -34,25 +35,46 @@ android {
 
 kotlin {
     android()
+    jvm()
 
     sourceSets {
-        val commonMain by getting {}
-        val androidMain by getting {
-            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
+        val commonMain by getting {
             dependencies {
-                implementation(libs.androidx.compose.animation)
-                implementation(libs.androidx.compose.foundation)
-                implementation(libs.androidx.compose.ui)
-                implementation(libs.androidx.compose.uiToolingPreview)
-                implementation(libs.androidx.core)
-                implementation(libs.kotlinx.coroutines.android)
+                implementation(libs.androidx.annotation)
+                implementation(libs.jetbrains.compose.animation)
+                implementation(libs.jetbrains.compose.foundation)
+                implementation(libs.jetbrains.compose.ui)
+                implementation(libs.jetbrains.compose.uiToolingPreview)
+                implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.sealedEnum.runtime)
             }
         }
-        val androidDebug by creating {
-            dependsOn(androidMain)
+        val jvmMain by getting {
+            configurations["kspJvm"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
-                implementation(libs.androidx.compose.uiTooling)
+                implementation(compose.desktop.currentOs)
+            }
+        }
+        val androidMain by getting {
+            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
+            dependencies {
+                implementation(libs.androidx.compose.foundation)
+                implementation(libs.androidx.core)
+                implementation(libs.kotlinx.coroutines.android)
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(projects.kmpAndroidRunner)
+                implementation(projects.kmpStateRestorationTester)
+
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.jetbrains.compose.uiTestJunit4)
+            }
+        }
+        val androidSharedTest by getting {
+            dependencies {
+                implementation(projects.testActivity)
             }
         }
     }
