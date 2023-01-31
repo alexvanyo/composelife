@@ -16,15 +16,19 @@
 
 package com.alexvanyo.composelife.wear.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
@@ -32,7 +36,6 @@ import androidx.wear.compose.foundation.rememberActiveFocusRequester
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CircularProgressIndicator
-import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import com.alexvanyo.composelife.wear.R
 import com.google.android.horologist.compose.navscaffold.ExperimentalHorologistComposeLayoutApi
@@ -86,13 +89,11 @@ fun WatchFaceConfigList(
                 label = {
                     Text(text = stringResource(id = R.string.color))
                 },
+                icon = {
+                    Spacer(modifier = Modifier.size(16.dp).background(state.color, CircleShape))
+                },
+                colors = ChipDefaults.secondaryChipColors(),
                 onClick = onEditColorClicked,
-                colors = ChipDefaults.gradientBackgroundChipColors(
-                    startBackgroundColor = MaterialTheme.colors.surface.copy(alpha = 0f)
-                        .compositeOver(MaterialTheme.colors.surface),
-                    endBackgroundColor = state.color.copy(alpha = 0.5f)
-                        .compositeOver(MaterialTheme.colors.surface),
-                ),
                 modifier = Modifier.fillMaxWidth()
             )
         }

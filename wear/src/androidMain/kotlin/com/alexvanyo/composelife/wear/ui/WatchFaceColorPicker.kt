@@ -16,24 +16,30 @@
 
 package com.alexvanyo.composelife.wear.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.PickerDefaults
 import com.alexvanyo.composelife.ui.util.ColorComponent
+import com.alexvanyo.composelife.ui.util.WearDevicePreviews
 import com.alexvanyo.composelife.ui.util.get
 import com.alexvanyo.composelife.ui.util.values
 import com.alexvanyo.composelife.ui.util.withComponent
@@ -51,32 +57,20 @@ fun WatchFaceColorPicker(
         mutableStateOf(ColorComponent.RgbIntComponent.Red)
     }
 
-    val gradientColor = MaterialTheme.colors.background
-    val gradientRatio = PickerDefaults.DefaultGradientRatio
-
     Row(
-        modifier
+        horizontalArrangement = Arrangement.Center,
+        modifier = modifier
             .fillMaxSize()
-            .drawWithContent {
-                drawRect(color.copy(alpha = 0.5f))
-                drawContent()
-                drawRect(
-                    Brush.linearGradient(
-                        colors = listOf(gradientColor, Color.Transparent),
-                        start = Offset(size.width / 2, 0f),
-                        end = Offset(size.width / 2, size.height * gradientRatio)
-                    )
-                )
-                drawRect(
-                    Brush.linearGradient(
-                        colors = listOf(Color.Transparent, gradientColor),
-                        start = Offset(size.width / 2, size.height * (1 - gradientRatio)),
-                        end = Offset(size.width / 2, size.height)
-                    )
-                )
-            }
+            .background(color)
+            .padding(12.dp)
+            .background(
+                MaterialTheme.colors.background,
+                if (LocalConfiguration.current.isScreenRound) CircleShape else RectangleShape,
+            )
+            .clip(
+                if (LocalConfiguration.current.isScreenRound) CircleShape else RectangleShape
+            )
     ) {
-        Spacer(Modifier.weight(1f))
         ColorComponent.RgbIntComponent.values.forEach { component ->
             key(component) {
                 ColorComponentPicker(
@@ -93,10 +87,19 @@ fun WatchFaceColorPicker(
                             ColorComponent.RgbIntComponent.Blue -> R.string.color_blue_value
                         }
                     ),
-                    modifier = Modifier.weight(2f),
+                    modifier = Modifier.weight(1f, fill = false).widthIn(max = 48.dp),
                 )
             }
         }
-        Spacer(Modifier.weight(1f))
     }
+}
+
+@WearDevicePreviews
+@Composable
+fun WatchFaceColorPickerPreview() {
+    var color by remember { mutableStateOf(Color.Cyan) }
+    WatchFaceColorPicker(
+        color = color,
+        setColor = { color = it },
+    )
 }
