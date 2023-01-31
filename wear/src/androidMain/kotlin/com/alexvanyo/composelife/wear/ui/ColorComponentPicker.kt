@@ -78,7 +78,6 @@ fun ColorComponentPicker(
             state = pickerState,
             contentDescription = contentDescription,
             onSelected = onSelected,
-            gradientRatio = 0f,
             modifier = modifier
                 .onRotaryInputAccumulated {
                     coroutineScope.launch {

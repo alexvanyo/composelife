@@ -16,14 +16,18 @@
 
 package com.alexvanyo.composelife.wear
 
+import android.util.Log
 import android.view.SurfaceHolder
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.TapEvent
 import androidx.wear.watchface.TapType
 import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.WatchFaceColors
+import androidx.wear.watchface.WatchFaceExperimental
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
@@ -45,6 +49,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import javax.inject.Inject
 
+@OptIn(WatchFaceExperimental::class)
 @AndroidEntryPoint(WatchFaceService::class)
 class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
 
@@ -104,27 +109,45 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
             }
             .launchIn(scope)
 
+        val renderer = GameOfLifeRenderer(
+            context = this,
+            surfaceHolder = surfaceHolder,
+            currentUserStyleRepository = currentUserStyleRepository,
+            complicationSlotsManager = complicationSlotsManager,
+            watchState = watchState,
+            temporalGameOfLifeState = temporalGameOfLifeState,
+        )
+
         combine(
             watchState.isVisible,
             watchState.isAmbient,
             isBeingTappedState,
         ) { isVisible, isAmbient, isBeingTapped ->
+            val isRunning = isVisible == true && isAmbient == false && !isBeingTapped
+            Log.d("vanyo", "isRunning: $isRunning")
+            renderer.interactiveDrawModeUpdateDelayMillis = if (isRunning) 50 else 1000
             Snapshot.withMutableSnapshot {
-                temporalGameOfLifeState.setIsRunning(isVisible == true && isAmbient == false && !isBeingTapped)
+                temporalGameOfLifeState.setIsRunning(isRunning)
             }
         }
             .launchIn(scope)
 
+        currentUserStyleRepository.userStyle
+            .onEach { userStyle ->
+                val color = with(currentUserStyleRepository.schema) {
+                    android.graphics.Color.valueOf(userStyle.getGameOfLifeColor().toArgb())
+                }
+                renderer.watchfaceColors = WatchFaceColors(
+                    primaryColor = color,
+                    secondaryColor = color,
+                    tertiaryColor = color,
+                )
+            }
+            .launchIn(scope)
+
         return WatchFace(
             watchFaceType = WatchFaceType.DIGITAL,
-            renderer = GameOfLifeRenderer(
-                context = this,
-                surfaceHolder = surfaceHolder,
-                currentUserStyleRepository = currentUserStyleRepository,
-                complicationSlotsManager = complicationSlotsManager,
-                watchState = watchState,
-                temporalGameOfLifeState = temporalGameOfLifeState,
-            ),
+            renderer = renderer,
         ).apply {
             setTapListener(object : WatchFace.TapListener {
                 override fun onTapEvent(tapType: Int, tapEvent: TapEvent, complicationSlot: ComplicationSlot?) {

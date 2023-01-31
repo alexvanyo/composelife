@@ -57,6 +57,10 @@ annotation class MobileDevicePreviews
     device = Devices.WEAR_OS_SQUARE,
 )
 @Preview(
+    name = "Small round",
+    device = Devices.WEAR_OS_SMALL_ROUND,
+)
+@Preview(
     name = "Large round",
     device = Devices.WEAR_OS_LARGE_ROUND,
 )
