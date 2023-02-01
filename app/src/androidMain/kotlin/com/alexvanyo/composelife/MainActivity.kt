@@ -29,9 +29,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import com.alexvanyo.composelife.resourcestate.isSuccess
-import com.alexvanyo.composelife.ui.ComposeLifeApp
-import com.alexvanyo.composelife.ui.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.theme.shouldUseDarkTheme
+import com.alexvanyo.composelife.ui.app.ComposeLifeApp
+import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.app.theme.shouldUseDarkTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.EntryPoints
 import dagger.hilt.android.AndroidEntryPoint

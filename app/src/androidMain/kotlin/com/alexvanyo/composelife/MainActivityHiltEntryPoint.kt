@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife
 
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.ui.ComposeLifeAppHiltEntryPoint
+import com.alexvanyo.composelife.ui.app.ComposeLifeAppHiltEntryPoint
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent

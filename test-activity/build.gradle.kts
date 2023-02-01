@@ -33,7 +33,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.resources)
+                implementation(projects.resourcesApp)
             }
         }
         val androidMain by getting {
