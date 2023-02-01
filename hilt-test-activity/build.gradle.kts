@@ -34,7 +34,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.resources)
+                implementation(projects.resourcesApp)
                 api(projects.testActivity)
             }
         }

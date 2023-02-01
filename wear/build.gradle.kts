@@ -18,9 +18,6 @@ plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.application")
     id("com.alexvanyo.composelife.android.application.compose")
-    id("com.alexvanyo.composelife.android.application.jacoco")
-    id("com.alexvanyo.composelife.android.application.ksp")
-    id("com.alexvanyo.composelife.android.application.testing")
     id("com.alexvanyo.composelife.detekt")
     kotlin("kapt")
 }
@@ -42,43 +39,20 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.algorithm)
-                implementation(projects.navigation)
-                implementation(projects.openglRenderer)
-                implementation(projects.snapshotStateSet)
-                implementation(projects.uiCommon)
+                implementation(projects.wearWatchface)
 
-                implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.serialization.core)
             }
         }
         val androidMain by getting {
-            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.appcompat)
-                implementation(libs.androidx.compose.foundation)
-                implementation(libs.androidx.compose.runtime)
-                implementation(libs.androidx.compose.uiToolingPreview)
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.lifecycle.process)
                 implementation(libs.androidx.lifecycle.runtime)
-                implementation(libs.androidx.wear.compose.foundation)
-                implementation(libs.androidx.wear.compose.material)
-                implementation(libs.androidx.wear.watchface)
-                implementation(libs.androidx.wear.watchface.client)
-                implementation(libs.androidx.wear.watchface.client)
-                implementation(libs.androidx.wear.watchface.complications.data)
-                implementation(libs.androidx.wear.watchface.complications.dataSource)
-                implementation(libs.androidx.wear.watchface.complications.rendering)
-                implementation(libs.androidx.wear.watchface.data)
-                implementation(libs.androidx.wear.watchface.editor)
-                implementation(libs.androidx.wear.watchface.style)
                 implementation(libs.kotlinx.coroutines.android)
-                implementation(libs.horologist.composeLayout)
-                implementation(libs.sealedEnum.runtime)
                 implementation(libs.dagger.hilt.android)
             }
         }
@@ -86,36 +60,12 @@ kotlin {
             dependsOn(androidMain)
             dependencies {
                 implementation(libs.leakCanary.android)
-                implementation(libs.androidx.compose.uiTooling)
             }
         }
         val androidStaging by creating {
             dependsOn(androidMain)
             dependencies {
                 implementation(libs.leakCanary.android)
-            }
-        }
-        val commonTest by getting {
-            dependencies {
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.turbine)
-            }
-        }
-        val androidSharedTest by getting {
-            dependencies {
-                implementation(libs.androidx.compose.uiTestJunit4)
-                implementation(libs.androidx.test.espresso)
-            }
-        }
-        val androidUnitTest by getting {
-            dependencies {
-                implementation(libs.testParameterInjector.junit4)
-            }
-        }
-        val androidInstrumentedTest by getting {
-            dependencies {
-                compileOnly(libs.apiGuardian.api)
-                compileOnly(libs.google.autoValue.annotations)
             }
         }
     }
