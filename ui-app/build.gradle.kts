@@ -67,6 +67,7 @@ kotlin {
                 api(libs.androidx.compose.material3.windowSizeClass)
                 implementation(libs.androidx.compose.materialIconsExtended)
                 implementation(libs.androidx.compose.ui)
+                implementation(libs.androidx.compose.uiUtil)
                 implementation(libs.androidx.poolingContainer)
                 implementation(libs.androidx.compose.uiToolingPreview)
                 implementation(libs.androidx.core)
