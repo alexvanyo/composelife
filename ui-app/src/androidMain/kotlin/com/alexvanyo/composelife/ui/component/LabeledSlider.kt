@@ -35,7 +35,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.unit.dp
-import com.alexvanyo.composelife.ui.util.lerp
+import androidx.compose.ui.util.lerp
 import kotlin.math.abs
 
 /**
