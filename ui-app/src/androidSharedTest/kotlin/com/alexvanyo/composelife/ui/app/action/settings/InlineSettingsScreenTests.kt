@@ -136,7 +136,7 @@ class InlineSettingsScreenTests : BaseHiltTest<TestActivity>(TestActivity::class
         composeTestRule
             .onNode(
                 hasContentDescription(context.getString(R.string.remove_setting_from_quick_access)) and
-                        hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}"))
+                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}"))
             )
             .performScrollTo()
             .assertIsDisplayed()
@@ -146,7 +146,7 @@ class InlineSettingsScreenTests : BaseHiltTest<TestActivity>(TestActivity::class
         composeTestRule
             .onNode(
                 hasContentDescription(context.getString(R.string.open_in_settings)) and
-                        hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}"))
+                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}"))
             )
             .performScrollTo()
             .assertIsDisplayed()
@@ -195,7 +195,7 @@ class InlineSettingsScreenTests : BaseHiltTest<TestActivity>(TestActivity::class
         composeTestRule
             .onNode(
                 hasContentDescription(context.getString(R.string.open_in_settings)) and
-                        hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}"))
+                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}"))
             )
             .performScrollTo()
             .assertIsDisplayed()
@@ -233,7 +233,7 @@ class InlineSettingsScreenTests : BaseHiltTest<TestActivity>(TestActivity::class
         composeTestRule
             .onNode(
                 hasContentDescription(context.getString(R.string.remove_setting_from_quick_access)) and
-                        hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}"))
+                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}"))
             )
             .performScrollTo()
             .assertIsDisplayed()
