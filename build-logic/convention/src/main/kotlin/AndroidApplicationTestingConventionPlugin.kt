@@ -30,8 +30,8 @@ import org.gradle.kotlin.dsl.getByType
 class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
     val enableKeeperProperty = findProperty("com.alexvanyo.composelife.enableKeeper") as String?
     val enableKeeper = when (enableKeeperProperty) {
-        null, "true" -> true
-        "false" -> false
+        "true" -> true
+        null, "false" -> false
         else -> throw GradleException("Unexpected value $enableKeeperProperty for enableKeeper!")
     }
 
