@@ -31,7 +31,10 @@ These include:
 
 ## Setup
 
-Download the latest (canary) version of Android Studio.
+Requirements:
+
+- Android Studio Flamingo Beta 1
+- JDK 17+
 
 Clone the project, and build! (no API keys or other setup necessary)
 
