@@ -111,7 +111,7 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
         composeTestRule
             .onNode(
                 hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                        hasContentDescription(context.getString(R.string.expand)),
+                    hasContentDescription(context.getString(R.string.expand)),
             )
             .performClick()
 
@@ -173,7 +173,7 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
         composeTestRule
             .onNode(
                 hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                        hasContentDescription(context.getString(R.string.expand)),
+                    hasContentDescription(context.getString(R.string.expand)),
             )
             .assertExists()
     }
@@ -201,7 +201,7 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
         composeTestRule
             .onNode(
                 hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                        hasContentDescription(context.getString(R.string.expand)),
+                    hasContentDescription(context.getString(R.string.expand)),
             )
             .performClick()
 
@@ -224,7 +224,7 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
         composeTestRule
             .onNode(
                 hasAnyAncestor(hasTestTag("SettingUi:Setting_DarkThemeConfig")) and
-                        hasContentDescription(context.getString(R.string.add_setting_to_quick_access)),
+                    hasContentDescription(context.getString(R.string.add_setting_to_quick_access)),
             )
             .performScrollTo()
             .performClick()
@@ -268,7 +268,7 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
         composeTestRule
             .onNode(
                 hasAnyAncestor(hasTestTag("SettingUi:Setting_DarkThemeConfig")) and
-                        hasContentDescription(context.getString(R.string.open_in_settings)),
+                    hasContentDescription(context.getString(R.string.open_in_settings)),
             )
             .performScrollTo()
             .performClick()
@@ -276,7 +276,7 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
         composeTestRule
             .onNode(
                 hasAnyAncestor(hasTestTag("SettingUi:Setting_DarkThemeConfig")) and
-                        hasContentDescription(context.getString(R.string.open_in_settings)),
+                    hasContentDescription(context.getString(R.string.open_in_settings)),
             )
             .assertDoesNotExist()
 
@@ -307,7 +307,7 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
         composeTestRule
             .onNode(
                 hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                        hasContentDescription(context.getString(R.string.expand)),
+                    hasContentDescription(context.getString(R.string.expand)),
             )
             .assertExists()
     }
@@ -335,7 +335,7 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
         composeTestRule
             .onNode(
                 hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                        hasContentDescription(context.getString(R.string.expand)),
+                    hasContentDescription(context.getString(R.string.expand)),
             )
             .performClick()
 
@@ -397,7 +397,7 @@ class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java)
         composeTestRule
             .onNode(
                 hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                        hasContentDescription(context.getString(R.string.expand)),
+                    hasContentDescription(context.getString(R.string.expand)),
             )
             .assertExists()
     }

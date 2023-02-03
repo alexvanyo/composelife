@@ -35,21 +35,18 @@ class DetektConventionPlugin : ConventionPlugin({
         autoCorrect = System.getenv("CI") != "true"
         config.setFrom("$rootDir/config/detekt.yml")
         source = files(
-            "src/main/kotlin",
-            "src/debug/kotlin",
-            "src/release/kotlin",
-            "src/staging/kotlin",
-            "src/benchmark/kotlin",
-            "src/test/kotlin",
-            "src/androidTest/kotlin",
-            "src/sharedTest/kotlin",
             "src/commonMain/kotlin",
             "src/commonTest/kotlin",
             "src/jvmMain/kotlin",
             "src/jvmTest/kotlin",
             "src/androidMain/kotlin",
-            "src/androidTest/kotlin",
-            "src/androidAndroidTest/kotlin",
+            "src/androidDebug/kotlin",
+            "src/androidRelease/kotlin",
+            "src/androidStaging/kotlin",
+            "src/androidBenchmark/kotlin",
+            "src/androidUnitTest/kotlin",
+            "src/androidSharedTest/kotlin",
+            "src/androidInstrumentedTest/kotlin",
         )
     }
 

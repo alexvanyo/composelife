@@ -427,7 +427,6 @@ class FullscreenSettingsScreenTests : BaseHiltTest<TestActivity>(TestActivity::c
             .assertIsDisplayed()
             .assertIsSelectable()
             .assertIsSelected()
-
     }
 
     @Test
@@ -469,10 +468,12 @@ class FullscreenSettingsScreenTests : BaseHiltTest<TestActivity>(TestActivity::c
                     )
                 )
             )
-            .assert(SemanticsMatcher("IsScrolledToTop") {
-                val range = it.config.getOrElseNullable(SemanticsProperties.VerticalScrollAxisRange) { null }
-                range != null && range.value.invoke() == 0f
-            })
+            .assert(
+                SemanticsMatcher("IsScrolledToTop") {
+                    val range = it.config.getOrElseNullable(SemanticsProperties.VerticalScrollAxisRange) { null }
+                    range != null && range.value.invoke() == 0f
+                }
+            )
     }
 
     @Test
@@ -518,10 +519,12 @@ class FullscreenSettingsScreenTests : BaseHiltTest<TestActivity>(TestActivity::c
                     )
                 )
             )
-            .assert(SemanticsMatcher("IsNotScrolledToTop") {
-                val range = it.config.getOrElseNullable(SemanticsProperties.VerticalScrollAxisRange) { null }
-                range != null && range.value.invoke() > 0f
-            })
+            .assert(
+                SemanticsMatcher("IsNotScrolledToTop") {
+                    val range = it.config.getOrElseNullable(SemanticsProperties.VerticalScrollAxisRange) { null }
+                    range != null && range.value.invoke() > 0f
+                }
+            )
     }
 
     @Test

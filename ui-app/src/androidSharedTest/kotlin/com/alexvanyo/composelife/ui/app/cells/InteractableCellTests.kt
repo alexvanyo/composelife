@@ -26,7 +26,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.preferences.CurrentShape
-import com.alexvanyo.composelife.ui.app.cells.InteractableCell
 import org.junit.Rule
 import org.junit.runner.RunWith
 import kotlin.test.Test
