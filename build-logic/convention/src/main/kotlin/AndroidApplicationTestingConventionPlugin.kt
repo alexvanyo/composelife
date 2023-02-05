@@ -31,7 +31,8 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
     val enableKeeperProperty = findProperty("com.alexvanyo.composelife.enableKeeper") as String?
     val enableKeeper = when (enableKeeperProperty) {
         "true" -> true
-        null, "false" -> false
+        "false" -> false
+        null -> defaultEnableKeeper
         else -> throw GradleException("Unexpected value $enableKeeperProperty for enableKeeper!")
     }
 
@@ -47,7 +48,7 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
             if (testBuildTypeProperty !in setOf(null, "staging", "debug")) {
                 throw GradleException("Unexpected value $testBuildTypeProperty for testBuildType!")
             }
-            testBuildType = testBuildTypeProperty ?: "staging"
+            testBuildType = testBuildTypeProperty ?: defaultTestBuildType
         }
 
         configureTesting(this)
@@ -77,3 +78,14 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
         }
     }
 },)
+
+/**
+ * The default value to enable Keeper or not, if none is specified by the property
+ * "com.alexvanyo.composelife.enableKeeper".
+ */
+private const val defaultEnableKeeper = false
+
+/**
+ * The default test build type, if none is specified by the property "com.alexvanyo.composelife.testBuildType".
+ */
+private const val defaultTestBuildType = "debug"
