@@ -37,6 +37,7 @@ import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.emptyCellState
+import com.alexvanyo.composelife.random.di.RandomProvider
 import com.alexvanyo.composelife.wear.watchface.configuration.createGameOfLifeComplicationSlotsManager
 import com.alexvanyo.composelife.wear.watchface.configuration.createGameOfLifeStyleSchema
 import com.alexvanyo.composelife.wear.watchface.configuration.getGameOfLifeColor
@@ -51,16 +52,20 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import javax.inject.Inject
+import kotlin.random.Random
 
 @OptIn(WatchFaceExperimental::class)
 @AndroidEntryPoint(WatchFaceService::class)
-class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
+open class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
 
     @Inject
     lateinit var gameOfLifeAlgorithm: GameOfLifeAlgorithm
 
     @Inject
     lateinit var dispatchers: ComposeLifeDispatchers
+
+    @Inject
+    lateinit var random: Random
 
     private val scope = CoroutineScope(SupervisorJob() + AndroidUiDispatcher.Main)
 
@@ -73,6 +78,7 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
     private val isBeingTappedState = MutableStateFlow(false)
 
     override fun onCreate() {
+        Log.d("vanyo", "GameOfLifeWatchFaceService onCreate")
         super.onCreate()
         scope.launch {
             with(gameOfLifeAlgorithm) {
@@ -85,23 +91,24 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
         }
     }
 
-    override fun createUserStyleSchema(): UserStyleSchema = createGameOfLifeStyleSchema(
+    public override fun createUserStyleSchema(): UserStyleSchema = createGameOfLifeStyleSchema(
         context = applicationContext
     )
 
-    override fun createComplicationSlotsManager(
+    public override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
     ): ComplicationSlotsManager = createGameOfLifeComplicationSlotsManager(
         context = applicationContext,
         currentUserStyleRepository = currentUserStyleRepository,
     )
 
-    override suspend fun createWatchFace(
+    public override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository,
     ): WatchFace {
+        Log.d("vanyo", "GameOfLifeWatchFaceService createWatchFace")
         watchState.isAmbient
             .onEach {
                 if (it == true) {
@@ -119,6 +126,9 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
             complicationSlotsManager = complicationSlotsManager,
             watchState = watchState,
             temporalGameOfLifeState = temporalGameOfLifeState,
+            randomProvider = object : RandomProvider {
+                override val random = this@GameOfLifeWatchFaceService.random
+            },
         )
 
         combine(

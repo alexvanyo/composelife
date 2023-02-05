@@ -40,6 +40,7 @@ kotlin {
             dependencies {
                 api(projects.algorithm)
                 implementation(projects.openglRenderer)
+                api(projects.random)
                 implementation(projects.uiWear)
                 implementation(projects.wearWatchfaceConfiguration)
 
@@ -87,6 +88,7 @@ kotlin {
             }
         }
         val androidInstrumentedTest by getting {
+            configurations["kaptAndroidTest"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 compileOnly(libs.apiGuardian.api)
                 compileOnly(libs.google.autoValue.annotations)

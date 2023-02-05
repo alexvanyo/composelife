@@ -20,6 +20,7 @@ import android.content.Context
 import android.opengl.GLES20
 import android.opengl.Matrix
 import android.text.format.DateFormat
+import android.util.Log
 import android.view.SurfaceHolder
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.Offset
@@ -44,13 +45,13 @@ import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.openglrenderer.GameOfLifeShape
 import com.alexvanyo.composelife.openglrenderer.GameOfLifeShapeParameters
 import com.alexvanyo.composelife.preferences.CurrentShape
+import com.alexvanyo.composelife.random.di.RandomProvider
 import com.alexvanyo.composelife.util.containedPoints
 import com.alexvanyo.composelife.wear.watchface.configuration.getGameOfLifeColor
 import java.nio.IntBuffer
 import java.time.LocalTime
 import java.time.ZonedDateTime
 import kotlin.properties.Delegates
-import kotlin.random.Random
 
 class GameOfLifeRenderer(
     context: Context,
@@ -59,6 +60,7 @@ class GameOfLifeRenderer(
     private val complicationSlotsManager: ComplicationSlotsManager,
     private val watchState: WatchState,
     private val temporalGameOfLifeState: TemporalGameOfLifeState,
+    private val randomProvider: RandomProvider,
 ) : Renderer.GlesRenderer2<Renderer.SharedAssets>(
     surfaceHolder = surfaceHolder,
     currentUserStyleRepository = currentUserStyleRepository,
@@ -94,6 +96,7 @@ class GameOfLifeRenderer(
     lateinit var complicationShapes: List<ComplicationShape>
 
     override suspend fun onUiThreadGlSurfaceCreated(width: Int, height: Int) {
+        Log.d("vanyo", "onUiThreadGlSurfaceCreated: $width, $height")
         cellSize = width.toFloat() / (cellWindow.width + 1)
 
         GLES20.glClearColor(0f, 0f, 0f, 0f)
@@ -118,11 +121,14 @@ class GameOfLifeRenderer(
         val localTime = zonedDateTime.toLocalTime()
 
         if (previousLocalTime.hour != localTime.hour || previousLocalTime.minute != localTime.minute) {
-            Snapshot.withMutableSnapshot {
-                temporalGameOfLifeState.cellState = createTimeCellState(
+            val newCellState = with(randomProvider) {
+                createTimeCellState(
                     isRound = isRound,
                     timeDigits = createTimeDigits(localTime, use24HourFormat),
                 )
+            }
+            Snapshot.withMutableSnapshot {
+                temporalGameOfLifeState.cellState = newCellState
             }
         }
 
@@ -258,6 +264,7 @@ fun android.graphics.Rect.toComposeIntRect() = IntRect(
     bottom = bottom,
 )
 
+context(RandomProvider)
 private fun createTimeCellState(
     isRound: Boolean,
     timeDigits: TimeDigits,
@@ -285,7 +292,7 @@ private fun createTimeCellState(
     }
 
     val randomPoints = CellState(
-        randomPointPool.filter { Random.nextFloat() < 0.2 }.toSet(),
+        randomPointPool.filter { random.nextFloat() < 0.2 }.toSet(),
     )
 
     return timeCellState.union(randomPoints)
