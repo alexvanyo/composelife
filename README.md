@@ -1,6 +1,8 @@
 ![CI](https://github.com/alexvanyo/composelife/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/alexvanyo/composelife/branch/main/graph/badge.svg?token=z7yP8Z8xqC)](https://codecov.io/gh/alexvanyo/composelife)
 
+![Icon](app/src/androidMain/ic_launcher-playstore.png)
+
 # ComposeLife
 
 **This is not an official Google product**
@@ -14,6 +16,7 @@ These include:
 
 - Written in [Kotlin](https://kotlinlang.org/)
 - UI written in [Jetpack Compose](https://developer.android.com/jetpack/compose)
+- Watchface for Wear OS with configuration
 - Dependency injection using [Hilt](https://dagger.dev/hilt/) and [context receivers](https://github.com/Kotlin/KEEP/blob/master/proposals/context-receivers.md)
 - [AGSL](https://developer.android.com/develop/ui/views/graphics/agsl) and [OpenGL](https://developer.android.com/develop/ui/views/graphics/opengl/about-opengl) rendering
 - Fully functional CI system with GitHub Actions with:
@@ -31,6 +34,16 @@ These include:
 Download the latest (canary) version of Android Studio.
 
 Clone the project, and build! (no API keys or other setup necessary)
+
+## Runnable Modules
+
+[app](app) contains the mobile app simulator for running, editing, and exploring Game of Life
+patterns.
+
+[wear](wear) contains a Game of Life watchface, with a stable pattern displaying the time with a
+surrounding random soup potentially destroying it while the watchface is active.
+
+![Round Watchface](resources-wear/src/androidMain/res/drawable-nodpi/watchface_round.png)
 
 ## License
 
