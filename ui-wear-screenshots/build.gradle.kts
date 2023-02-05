@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@ plugins {
 }
 
 android {
-    namespace = "com.alexvanyo.composelife.ui.app.screenshots"
+    namespace = "com.alexvanyo.composelife.ui.wear.screenshots"
     defaultConfig {
-        minSdk = 21
+        minSdk = 26
     }
 }
 
@@ -36,7 +36,7 @@ kotlin {
     sourceSets {
         val androidMain by getting {
             dependencies {
-                implementation(projects.uiApp)
+                implementation(projects.uiWear)
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.foundation)
                 implementation(libs.androidx.compose.ui)
