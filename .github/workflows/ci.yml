@@ -184,5 +184,5 @@ jobs:
       - name: Run device checks
         run: |
           # run the tests, with one retry attempt
-          run_tests () { ./gradlew ${{ matrix.target }}${{ matrix.device }}api${{ matrix.api-level }}Check --no-parallel -Dorg.gradle.workers.max=2 --stacktrace -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect"; }
+          run_tests () { ./gradlew ${{ matrix.target }}${{ matrix.device }}api${{ matrix.api-level }}Check --no-parallel -Dorg.gradle.workers.max=1 --stacktrace -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect"; }
           (echo "==== Attempt 1 ====" && run_tests) || (echo "==== Attempt 2 ====" && run_tests) || (echo "==== Both attempts failed ====" && exit 1)

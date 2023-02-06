@@ -32,3 +32,6 @@ buildscript {
 task<Delete>("clean") {
     delete(rootProject.buildDir)
 }
+
+tasks.register("packageStagingAndroidTest")
+tasks.register("packageDebugAndroidTest")
