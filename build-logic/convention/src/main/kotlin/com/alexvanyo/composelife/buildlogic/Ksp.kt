@@ -25,12 +25,21 @@ fun Project.configureKsp(
     androidComponentsExtension: AndroidComponentsExtension<*, *, *>,
 ) {
     androidComponentsExtension.onVariants { applicationVariant ->
+        val variantNameCapitalized = applicationVariant.name.capitalizeForTaskName()
         commonExtension.sourceSets {
             getByName(applicationVariant.name) {
-                java.srcDir(file("build/generated/ksp/android/android${applicationVariant.name.capitalize()}/kotlin"))
+                java.srcDir(
+                    file(
+                        "build/generated/ksp/android/android$variantNameCapitalized/kotlin"
+                    )
+                )
             }
-            getByName("test${applicationVariant.name.capitalize()}") {
-                java.srcDir(file("build/generated/ksp/android/android${applicationVariant.name.capitalize()}UnitTest/kotlin"))
+            getByName("test$variantNameCapitalized") {
+                java.srcDir(
+                    file(
+                        "build/generated/ksp/android/android${variantNameCapitalized}UnitTest/kotlin"
+                    )
+                )
             }
         }
     }

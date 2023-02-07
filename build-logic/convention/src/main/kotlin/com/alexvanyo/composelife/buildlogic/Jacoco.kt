@@ -27,6 +27,7 @@ import org.gradle.kotlin.dsl.withType
 import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
+import java.util.Locale
 
 private val coverageExclusions = listOf(
     // Android
@@ -52,10 +53,10 @@ fun Project.configureJacocoMerge() {
     val variants = listOf("debug", "release")
 
     val variantJacocoTestReports = variants.map { variant ->
-        tasks.register("jacocoTest${variant.capitalize()}UnitTestReport", JacocoReport::class) {
+        tasks.register("jacocoTest${variant.capitalizeForTaskName()}UnitTestReport", JacocoReport::class) {
             dependsOn(
                 subprojects.mapNotNull {
-                    it.tasks.findByName("create${variant.capitalize()}UnitTestCoverageReport")
+                    it.tasks.findByName("create${variant.capitalizeForTaskName()}UnitTestCoverageReport")
                 },
             )
 
@@ -84,12 +85,12 @@ fun Project.configureJacocoMerge() {
             executionData.setFrom(
                 subprojects
                     .filter {
-                        it.tasks.findByName("create${variant.capitalize()}UnitTestCoverageReport") != null
+                        it.tasks.findByName("create${variant.capitalizeForTaskName()}UnitTestCoverageReport") != null
                     }
                     .map {
                         file(
                             "${it.buildDir}/outputs/unit_test_code_coverage/" +
-                                "${variant}UnitTest/test${variant.capitalize()}UnitTest.exec",
+                                "${variant}UnitTest/test${variant.capitalizeForTaskName()}UnitTest.exec",
                         )
                     },
             )
