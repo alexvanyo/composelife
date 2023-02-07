@@ -106,6 +106,7 @@ fun Project.configureGradleManagedDevices(
             }
     }
     // TODO: This shouldn't be necessary, there seems to be some issue with configuration caching with GMD
+    //       https://issuetracker.google.com/issues/262270582
     tasks.configureEach {
         doFirst {
             Environment.initialize()
@@ -116,6 +117,6 @@ fun Project.configureGradleManagedDevices(
 private fun String.toLowerCaseAsciiOnly(): String =
     buildString {
         for (c in this@toLowerCaseAsciiOnly) {
-            append(if (c in 'A'..'Z') c.toLowerCase() else c)
+            append(if (c in 'A'..'Z') c.lowercaseChar() else c)
         }
     }

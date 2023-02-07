@@ -28,6 +28,7 @@ class AndroidLibraryConventionPlugin : ConventionPlugin({
         configureAndroid(this)
 
         defaultConfig {
+            @Suppress("DEPRECATION") // targetSdk required for tests
             targetSdk = 33
             consumerProguardFiles("consumer-rules.pro")
         }
