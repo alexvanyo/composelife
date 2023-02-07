@@ -27,7 +27,6 @@ import org.gradle.kotlin.dsl.withType
 import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
-import java.util.Locale
 
 private val coverageExclusions = listOf(
     // Android
@@ -52,6 +51,7 @@ fun Project.configureJacocoMerge() {
 
     val variants = listOf("debug", "release")
 
+    @Suppress("NoNameShadowing")
     val variantJacocoTestReports = variants.map { variant ->
         tasks.register("jacocoTest${variant.capitalizeForTaskName()}UnitTestReport", JacocoReport::class) {
             dependsOn(

@@ -31,22 +31,22 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 fun Project.configureTesting(
     testedExtension: TestedExtension,
 ) {
-    testedExtension.apply {
-        testOptions {
-            unitTests {
-                isIncludeAndroidResources = true
-            }
+    testedExtension.testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
         }
     }
 
     extensions.configure<KotlinMultiplatformExtension> {
-        sourceSets.configure(closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
-            getByName("commonTest") {
-                dependencies {
-                    implementation(kotlin("test"))
+        sourceSets.configure(
+            closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
+                getByName("commonTest") {
+                    dependencies {
+                        implementation(kotlin("test"))
+                    }
                 }
             }
-        })
+        )
     }
 }
 
@@ -64,6 +64,7 @@ private val Project.useSharedTest: SharedTestConfig get() =
         else -> throw GradleException("Unexpected value $useSharedTest for useSharedTest!")
     }
 
+@Suppress("LongMethod")
 fun Project.configureAndroidTesting(
     testedExtension: TestedExtension,
 ) {
@@ -104,28 +105,30 @@ fun Project.configureAndroidTesting(
     extensions.configure<KotlinMultiplatformExtension> {
         android()
 
-        sourceSets.configure(closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
-            val commonTest = getByName("commonTest")
-            val androidSharedTest = create("androidSharedTest") {
-                dependsOn(commonTest)
-                dependencies {
-                    implementation(project(":hilt-test"))
+        sourceSets.configure(
+            closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
+                val commonTest = getByName("commonTest")
+                val androidSharedTest = create("androidSharedTest") {
+                    dependsOn(commonTest)
+                    dependencies {
+                        implementation(project(":hilt-test"))
+                    }
+                }
+                getByName("androidUnitTest") {
+                    if (useSharedTest != SharedTestConfig.Instrumentation) {
+                        dependsOn(androidSharedTest)
+                    }
+                    dependencies {
+                        implementation(libs.findLibrary("robolectric").get())
+                    }
+                }
+                getByName("androidInstrumentedTest") {
+                    if (useSharedTest != SharedTestConfig.Robolectric) {
+                        dependsOn(androidSharedTest)
+                    }
                 }
             }
-            getByName("androidUnitTest") {
-                if (useSharedTest != SharedTestConfig.Instrumentation) {
-                    dependsOn(androidSharedTest)
-                }
-                dependencies {
-                    implementation(libs.findLibrary("robolectric").get())
-                }
-            }
-            getByName("androidInstrumentedTest") {
-                if (useSharedTest != SharedTestConfig.Robolectric) {
-                    dependsOn(androidSharedTest)
-                }
-            }
-        })
+        )
     }
 
     tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {

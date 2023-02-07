@@ -142,5 +142,6 @@ turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine
 wire-runtime = { group = "com.squareup.wire", name = "wire-runtime", version.ref = "wire" }
 
 [plugins]
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "jetbrainsCompose" }
 wire = { id = "com.squareup.wire", version.ref = "wire" }
