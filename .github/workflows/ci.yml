@@ -75,6 +75,9 @@ jobs:
         # Assemble with running benchmarks and generating baseline profile to ensure those compile
         run: ./gradlew assemble -Pcom.alexvanyo.composelife.runBenchmarks=true -Pcom.alexvanyo.composelife.generateBaselineProfile=true
 
+      - name: Run build-logic checks
+        run: ./gradlew check -p build-logic --stacktrace
+
       - name: Run checks
         run: ./gradlew check --stacktrace
 

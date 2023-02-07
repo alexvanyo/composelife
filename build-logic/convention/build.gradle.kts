@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `kotlin-dsl`
+    alias(libs.plugins.detekt)
 }
 
 group = "com.alexvanyo.composelife.buildlogic"
@@ -30,7 +32,23 @@ java {
 tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
+        allWarningsAsErrors = true
     }
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = true
+    autoCorrect = System.getenv("CI") != "true"
+    config.setFrom("$rootDir/../config/detekt.yml")
+}
+
+tasks.withType<Detekt>().configureEach {
+    jvmTarget = JavaVersion.VERSION_11.toString()
+}
+
+tasks.withType<Detekt>().all {
+    tasks.getByName("check").dependsOn(this)
 }
 
 dependencies {
@@ -42,6 +60,7 @@ dependencies {
     implementation(libs.keeper.gradlePlugin)
     implementation(libs.ksp.gradlePlugin)
     implementation(libs.paparazzi.gradlePlugin)
+    detektPlugins(libs.detekt.formatting)
 }
 
 gradlePlugin {

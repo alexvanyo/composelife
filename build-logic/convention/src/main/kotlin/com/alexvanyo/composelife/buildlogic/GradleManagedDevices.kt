@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.buildlogic
 
 import com.android.build.api.dsl.CommonExtension
+import com.android.build.api.dsl.ManagedVirtualDevice
 import com.android.utils.Environment
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -29,6 +30,7 @@ private data class GradleManagedDeviceConfig(
     val systemImageSource: String,
 )
 
+@Suppress("LongMethod", "CyclomaticComplexMethod", "NoNameShadowing")
 fun Project.configureGradleManagedDevices(
     commonExtension: CommonExtension<*, *, *, *>,
 ) {
@@ -79,7 +81,7 @@ fun Project.configureGradleManagedDevices(
                     (it.systemImageSource == "android-desktop" && it.apiLevel != 32)
             }
             .forEach { config ->
-                create<com.android.build.api.dsl.ManagedVirtualDevice>(
+                create<ManagedVirtualDevice>(
                     buildString {
                         append(
                             when (config.systemImageSource) {
