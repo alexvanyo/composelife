@@ -33,6 +33,7 @@ fun Project.configureAndroid(
 
         lint {
             warningsAsErrors = true
+            disable.add("GradleDependency")
         }
 
         defaultConfig {
