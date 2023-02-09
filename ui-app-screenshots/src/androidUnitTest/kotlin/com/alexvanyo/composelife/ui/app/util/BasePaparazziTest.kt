@@ -26,7 +26,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.Density
-import androidx.lifecycle.Lifecycle
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
@@ -83,7 +82,8 @@ abstract class BasePaparazziTest {
                 LocalOnBackPressedDispatcherOwner provides object : OnBackPressedDispatcherOwner {
                     override fun getOnBackPressedDispatcher(): OnBackPressedDispatcher =
                         OnBackPressedDispatcher()
-                    override fun getLifecycle(): Lifecycle = lifecycleOwner.lifecycle
+
+                    override val lifecycle = lifecycleOwner.lifecycle
                 },
             ) {
                 ComposeLifeTheme(darkTheme = nightMode == NightMode.NIGHT) {
