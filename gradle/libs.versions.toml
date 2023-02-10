@@ -1,7 +1,7 @@
 [versions]
 accompanist = "0.28.0"
 androidDesugarJdkLibs = "2.0.2"
-androidGradlePlugin = "8.1.0-alpha03"
+androidGradlePlugin = "8.1.0-alpha04"
 androidTools = "31.1.0-alpha03"
 androidR8 = "4.0.48"
 androidxActivity = "1.7.0-alpha04"
