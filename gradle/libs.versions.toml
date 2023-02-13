@@ -50,7 +50,7 @@ robolectric = "4.9.2"
 sealedEnum = "0.5.0"
 testParameterInjector = "1.10"
 turbine = "0.12.1"
-wire = "4.5.0"
+wire = "4.5.1"
 
 [libraries]
 accompanist-systemuicontroller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist" }
