@@ -33,6 +33,9 @@ import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import org.junit.Rule
 import org.junit.runner.RunWith
+import java.lang.reflect.Field
+import java.lang.reflect.Modifier
+import kotlin.test.BeforeTest
 
 private val globalPaparazzi = Paparazzi(
     maxPercentDifference = 0.0,
@@ -61,6 +64,18 @@ abstract class BasePaparazziTest {
 
     @get:Rule
     val paparazzi = globalPaparazzi
+
+    @BeforeTest
+    fun setup() {
+        // TODO: Remove when support is added for API 34 directly. Forces codename to release
+        val buildVersionClass = Paparazzi::class.java.classLoader!!.loadClass("android.os.Build\$VERSION")
+        val codenameField = buildVersionClass.getDeclaredField("CODENAME")
+        codenameField.isAccessible = true
+        val modifiersField = Field::class.java.getDeclaredField("modifiers")
+        modifiersField.isAccessible = true
+        modifiersField.set(codenameField, codenameField.modifiers and Modifier.FINAL.inv())
+        codenameField.set(null, "REL")
+    }
 
     fun snapshot(composable: @Composable () -> Unit) {
         paparazzi.unsafeUpdateConfig(deviceConfig = deviceConfig)

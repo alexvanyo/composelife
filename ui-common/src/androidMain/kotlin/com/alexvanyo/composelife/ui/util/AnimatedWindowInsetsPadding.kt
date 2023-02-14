@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.util
 
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector1D
@@ -79,7 +78,6 @@ fun Modifier.animatedWindowInsetsPadding(
                 } else {
                     currentAnimatable.apply {
                         if (targetValue != target) {
-                            Log.d("vanyo", "animating to $target")
                             scope.launch {
                                 animateTo(target, animationSpec)
                             }

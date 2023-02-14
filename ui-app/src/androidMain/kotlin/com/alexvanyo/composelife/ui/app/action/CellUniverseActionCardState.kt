@@ -30,10 +30,14 @@ import com.alexvanyo.composelife.navigation.canNavigateBack
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.navigate
 import com.alexvanyo.composelife.navigation.popBackstack
+import com.alexvanyo.composelife.navigation.previousEntry
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
+import com.alexvanyo.composelife.ui.util.PredictiveBackState
+import com.alexvanyo.composelife.ui.util.TargetState
+import com.alexvanyo.composelife.ui.util.predictiveBackHandler
 import java.util.UUID
 
 /**
@@ -42,19 +46,29 @@ import java.util.UUID
 interface CellUniverseActionCardState {
 
     /**
-     * `true` if the card is expanded.
+     * Sets if the card is expanded.
      */
-    var isExpanded: Boolean
+    fun setIsExpanded(isExpanded: Boolean)
 
     /**
-     * `true` if the card is fullscreen.
+     * The target state for whether the card is expanded.
      */
-    val isFullscreen: Boolean
+    val expandedTargetState: TargetState<Boolean>
+
+    /**
+     * The [TargetState] for whether the card is fullscreen.
+     */
+    val fullscreenTargetState: TargetState<Boolean>
 
     /**
      * The navigation state of the card.
      */
     val navigationState: BackstackState<out ActionCardNavigation>
+
+    /**
+     * The [PredictiveBackState] for the internal navigation of the [CellUniverseActionCard].
+     */
+    val predictiveBackState: PredictiveBackState
 
     /**
      * `true` if the card can navigate back.
@@ -75,22 +89,18 @@ interface CellUniverseActionCardState {
     )
 
     fun onBackPressed(actorBackstackEntryId: UUID? = null)
-
-    companion object {
-        const val defaultIsExpanded: Boolean = false
-    }
 }
 
 /**
  * Remembers the a default implementation of [CellUniverseActionCardState].
  */
-@Suppress("LongMethod")
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun rememberCellUniverseActionCardState(
-    initialIsExpanded: Boolean = CellUniverseActionCardState.defaultIsExpanded,
+    enableBackHandler: Boolean,
+    setIsExpanded: (Boolean) -> Unit,
+    expandedTargetState: TargetState<Boolean>,
 ): CellUniverseActionCardState {
-    val isExpanded = rememberSaveable { mutableStateOf(initialIsExpanded) }
-
     var currentBackstack by rememberSaveable(
         stateSaver = ActionCardBackstack.Saver,
     ) {
@@ -137,84 +147,143 @@ fun rememberCellUniverseActionCardState(
         }
     }
 
-    return remember {
-        object : CellUniverseActionCardState {
-            override var isExpanded: Boolean by isExpanded
-
-            override val navigationState = object : BackstackState<ActionCardNavigation> {
-                override val entryMap: BackstackMap<out ActionCardNavigation>
-                    get() = speedNavController.entryMap +
-                        editNavController.entryMap +
-                        settingsNavController.entryMap
-
-                override val currentEntryId: UUID
-                    get() = currentNavController.currentEntryId
+    val canNavigateBack by remember {
+        derivedStateOf {
+            currentNavController.canNavigateBack || when (currentBackstack) {
+                ActionCardBackstack.Speed -> false
+                ActionCardBackstack.Edit,
+                ActionCardBackstack.Settings,
+                -> true
             }
+        }
+    }
 
-            override val canNavigateBack: Boolean get() =
-                currentNavController.canNavigateBack || when (currentBackstack) {
-                    ActionCardBackstack.Speed -> false
-                    ActionCardBackstack.Edit,
-                    ActionCardBackstack.Settings,
-                    -> true
-                }
+    val navigationState = remember {
+        object : BackstackState<ActionCardNavigation> {
+            override val entryMap: BackstackMap<out ActionCardNavigation>
+                get() = speedNavController.entryMap +
+                    editNavController.entryMap +
+                    settingsNavController.entryMap
 
-            override val isFullscreen: Boolean get() =
-                this.isExpanded && navigationState.currentEntry.value.isFullscreen
+            override val currentEntryId: UUID
+                get() = currentNavController.currentEntryId
 
-            override fun onSpeedClicked(actorBackstackEntryId: UUID?) {
-                currentNavController.withExpectedActor(actorBackstackEntryId) {
-                    currentBackstack = ActionCardBackstack.Speed
-                }
-            }
-
-            override fun onEditClicked(actorBackstackEntryId: UUID?) {
-                currentNavController.withExpectedActor(actorBackstackEntryId) {
-                    currentBackstack = ActionCardBackstack.Edit
-                }
-            }
-
-            override fun onSettingsClicked(actorBackstackEntryId: UUID?) {
-                currentNavController.withExpectedActor(actorBackstackEntryId) {
-                    currentBackstack = ActionCardBackstack.Settings
-                }
-            }
-
-            override fun onSeeMoreSettingsClicked(actorBackstackEntryId: UUID?) {
-                currentNavController.withExpectedActor(actorBackstackEntryId) {
-                    check(currentNavController === settingsNavController)
-                    settingsNavController.navigate(
-                        ActionCardNavigation.Settings.Fullscreen(
-                            initialSettingsCategory = SettingsCategory.Algorithm,
-                            initialShowDetails = false,
-                            initialSettingToScrollTo = null,
-                        ),
-                    )
-                }
-            }
-
-            override fun onOpenInSettingsClicked(setting: Setting, actorBackstackEntryId: UUID?) {
-                currentNavController.withExpectedActor(actorBackstackEntryId) {
-                    check(currentNavController === settingsNavController)
-                    settingsNavController.navigate(
-                        ActionCardNavigation.Settings.Fullscreen(
-                            initialSettingsCategory = setting.category,
-                            initialShowDetails = true,
-                            initialSettingToScrollTo = setting,
-                        ),
-                    )
-                }
-            }
-
-            override fun onBackPressed(actorBackstackEntryId: UUID?) {
-                currentNavController.withExpectedActor(actorBackstackEntryId) {
-                    if (currentNavController.canNavigateBack) {
-                        currentNavController.popBackstack()
-                    } else {
-                        currentBackstack = ActionCardBackstack.Speed
+            override val previousEntryId: UUID?
+                get() = if (currentNavController.canNavigateBack) {
+                    currentNavController.previousEntryId
+                } else {
+                    when (currentBackstack) {
+                        ActionCardBackstack.Speed -> null
+                        ActionCardBackstack.Edit,
+                        ActionCardBackstack.Settings,
+                        -> speedNavController.currentEntryId
                     }
                 }
+        }
+    }
+
+    val onBackPressed = { actorBackstackEntryId: UUID? ->
+        currentNavController.withExpectedActor(actorBackstackEntryId) {
+            if (currentNavController.canNavigateBack) {
+                currentNavController.popBackstack()
+            } else {
+                currentBackstack = ActionCardBackstack.Speed
             }
+        }
+    }
+
+    val predictiveBackState = if (enableBackHandler && expandedTargetState.current && canNavigateBack) {
+        predictiveBackHandler {
+            onBackPressed(navigationState.currentEntryId)
+        }
+    } else {
+        PredictiveBackState.NotRunning
+    }
+
+    return object : CellUniverseActionCardState {
+
+        override fun setIsExpanded(isExpanded: Boolean) {
+            setIsExpanded(isExpanded)
+        }
+
+        override val expandedTargetState: TargetState<Boolean>
+            get() = expandedTargetState
+
+        override val navigationState get() = navigationState
+
+        override val predictiveBackState get() = predictiveBackState
+
+        override val canNavigateBack: Boolean get() = canNavigateBack
+
+        override val fullscreenTargetState: TargetState<Boolean> get() =
+            when (predictiveBackState) {
+                PredictiveBackState.NotRunning ->
+                    TargetState.Single(
+                        this.expandedTargetState.current && navigationState.currentEntry.value.isFullscreen
+                    )
+                is PredictiveBackState.Running ->
+                    if (this.expandedTargetState.current) {
+                        val currentIsFullscreen = navigationState.currentEntry.value.isFullscreen
+                        when (val previousIsFullscreen = navigationState.previousEntry?.value?.isFullscreen) {
+                            null -> TargetState.Single(currentIsFullscreen)
+                            currentIsFullscreen -> TargetState.Single(currentIsFullscreen)
+                            else -> TargetState.InProgress(
+                                current = currentIsFullscreen,
+                                provisional = previousIsFullscreen,
+                                progress = predictiveBackState.progress,
+                            )
+                        }
+                    } else {
+                        TargetState.Single(false)
+                    }
+            }
+
+        override fun onSpeedClicked(actorBackstackEntryId: UUID?) {
+            currentNavController.withExpectedActor(actorBackstackEntryId) {
+                currentBackstack = ActionCardBackstack.Speed
+            }
+        }
+
+        override fun onEditClicked(actorBackstackEntryId: UUID?) {
+            currentNavController.withExpectedActor(actorBackstackEntryId) {
+                currentBackstack = ActionCardBackstack.Edit
+            }
+        }
+
+        override fun onSettingsClicked(actorBackstackEntryId: UUID?) {
+            currentNavController.withExpectedActor(actorBackstackEntryId) {
+                currentBackstack = ActionCardBackstack.Settings
+            }
+        }
+
+        override fun onSeeMoreSettingsClicked(actorBackstackEntryId: UUID?) {
+            currentNavController.withExpectedActor(actorBackstackEntryId) {
+                check(currentNavController === settingsNavController)
+                settingsNavController.navigate(
+                    ActionCardNavigation.Settings.Fullscreen(
+                        initialSettingsCategory = SettingsCategory.Algorithm,
+                        initialShowDetails = false,
+                        initialSettingToScrollTo = null,
+                    ),
+                )
+            }
+        }
+
+        override fun onOpenInSettingsClicked(setting: Setting, actorBackstackEntryId: UUID?) {
+            currentNavController.withExpectedActor(actorBackstackEntryId) {
+                check(currentNavController === settingsNavController)
+                settingsNavController.navigate(
+                    ActionCardNavigation.Settings.Fullscreen(
+                        initialSettingsCategory = setting.category,
+                        initialShowDetails = true,
+                        initialSettingToScrollTo = setting,
+                    ),
+                )
+            }
+        }
+
+        override fun onBackPressed(actorBackstackEntryId: UUID?) {
+            onBackPressed(actorBackstackEntryId)
         }
     }
 }

@@ -4,7 +4,7 @@ androidDesugarJdkLibs = "2.0.2"
 androidGradlePlugin = "8.0.0-beta05"
 androidTools = "31.0.0-beta05"
 androidR8 = "4.0.52"
-androidxActivity = "1.7.0-beta02"
+androidxActivity = "1.8.0-alpha01"
 androidxAnnotation = "1.6.0"
 androidxAppcompat = "1.7.0-alpha02"
 androidxBenchmark = "1.2.0-alpha11"
@@ -122,6 +122,7 @@ jetbrains-compose-runtime = { group = "org.jetbrains.compose.runtime", name = "r
 jetbrains-compose-ui = { group = "org.jetbrains.compose.ui", name = "ui", version.ref = "jetbrainsCompose" }
 jetbrains-compose-uiTestJunit4 = { group = "org.jetbrains.compose.ui", name = "ui-test-junit4", version.ref = "jetbrainsCompose" }
 jetbrains-compose-uiToolingPreview = { group = "org.jetbrains.compose.ui", name = "ui-tooling-preview", version.ref = "jetbrainsCompose" }
+jetbrains-compose-uiUtil = { group = "org.jetbrains.compose.ui", name = "ui-util", version.ref = "jetbrainsCompose" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 keeper-gradlePlugin = { group = "com.slack.keeper", name = "keeper", version.ref = "keeper" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }

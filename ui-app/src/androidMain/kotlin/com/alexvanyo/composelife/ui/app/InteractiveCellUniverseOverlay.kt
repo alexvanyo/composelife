@@ -16,14 +16,12 @@
 
 package com.alexvanyo.composelife.ui.app
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
@@ -51,6 +49,7 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.sp
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.BottomInsets
@@ -60,17 +59,20 @@ import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutType
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCard
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardHiltEntryPoint
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardState
 import com.alexvanyo.composelife.ui.app.action.rememberCellUniverseActionCardState
 import com.alexvanyo.composelife.ui.app.cells.CellWindowState
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
-import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.util.Layout
+import com.alexvanyo.composelife.ui.util.PredictiveBackState
+import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.WindowInsets
 import com.alexvanyo.composelife.ui.util.Zero
 import com.alexvanyo.composelife.ui.util.animatePlacement
 import com.alexvanyo.composelife.ui.util.animatedWindowInsetsPadding
+import com.alexvanyo.composelife.ui.util.lerp
+import com.alexvanyo.composelife.ui.util.predictiveBackHandler
+import com.alexvanyo.composelife.ui.util.progressToTrue
 import com.livefront.sealedenum.GenSealedEnum
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -97,55 +99,86 @@ fun InteractiveCellUniverseOverlay(
 ) {
     var isActionCardTopCard by rememberSaveable { mutableStateOf(true) }
 
-    val delegateInfoCardState = rememberCellUniverseInfoCardState()
-    val delegateActionCardState = rememberCellUniverseActionCardState()
+    val isInfoCardExpandedState = rememberSaveable { mutableStateOf(false) }
+    val isActionCardExpandedState = rememberSaveable { mutableStateOf(false) }
 
-    val infoCardState = remember(delegateInfoCardState) {
-        object : CellUniverseInfoCardState by delegateInfoCardState {
-            override var isExpanded: Boolean
-                get() = delegateInfoCardState.isExpanded
-                set(value) {
-                    delegateInfoCardState.isExpanded = value
-                    if (value) {
-                        delegateActionCardState.isExpanded = false
-                        isActionCardTopCard = false
-                    }
-                }
-        }
-    }
-    val actionCardState = remember(delegateActionCardState) {
-        object : CellUniverseActionCardState by delegateActionCardState {
-            override var isExpanded: Boolean
-                get() = delegateActionCardState.isExpanded
-                set(value) {
-                    delegateActionCardState.isExpanded = value
-                    if (value) {
-                        delegateInfoCardState.isExpanded = false
-                        isActionCardTopCard = true
-                    }
-                }
+    val isInfoCardExpanded = isInfoCardExpandedState.value
+    fun setIsInfoCardExpanded(value: Boolean) {
+        isInfoCardExpandedState.value = value
+        if (value) {
+            isActionCardExpandedState.value = false
+            isActionCardTopCard = false
         }
     }
 
-    if (infoCardState.isExpanded || actionCardState.isExpanded) {
-        check(!(infoCardState.isExpanded && actionCardState.isExpanded))
+    val isActionCardExpanded = isActionCardExpandedState.value
+    fun setIsActionCardExpanded(value: Boolean) {
+        isActionCardExpandedState.value = value
+        if (value) {
+            isInfoCardExpandedState.value = false
+            isActionCardTopCard = true
+        }
+    }
 
-        BackHandler {
-            if (!infoCardState.isExpanded || isActionCardTopCard) {
-                actionCardState.isExpanded = false
-            } else {
-                check(infoCardState.isExpanded)
-                infoCardState.isExpanded = false
+    val infoCardExpandedPredictiveBackState = if (isInfoCardExpanded && !isActionCardTopCard) {
+        predictiveBackHandler {
+            setIsInfoCardExpanded(false)
+        }
+    } else {
+        PredictiveBackState.NotRunning
+    }
+    val actionCardExpandedPredictiveBackState = if (isActionCardExpanded) {
+        predictiveBackHandler {
+            setIsActionCardExpanded(false)
+        }
+    } else {
+        PredictiveBackState.NotRunning
+    }
+
+    val infoCardState = rememberCellUniverseInfoCardState(
+        setIsExpanded = ::setIsInfoCardExpanded,
+        expandedTargetState = when (infoCardExpandedPredictiveBackState) {
+            PredictiveBackState.NotRunning -> TargetState.Single(isInfoCardExpanded)
+            is PredictiveBackState.Running -> {
+                check(isInfoCardExpanded)
+                TargetState.InProgress(
+                    current = true,
+                    provisional = false,
+                    progress = infoCardExpandedPredictiveBackState.progress,
+                )
             }
-        }
-    }
+        },
+    )
+    val actionCardState = rememberCellUniverseActionCardState(
+        setIsExpanded = ::setIsActionCardExpanded,
+        enableBackHandler = isActionCardTopCard,
+        expandedTargetState = when (actionCardExpandedPredictiveBackState) {
+            PredictiveBackState.NotRunning -> TargetState.Single(isActionCardExpanded)
+            is PredictiveBackState.Running -> {
+                check(isActionCardExpanded)
+                TargetState.InProgress(
+                    current = true,
+                    provisional = false,
+                    progress = actionCardExpandedPredictiveBackState.progress,
+                )
+            }
+        },
+    )
+
+    val progressToFullscreen = actionCardState.fullscreenTargetState.progressToTrue
+
+    val targetWindowInsets = lerp(
+        WindowInsets.safeDrawing.add(WindowInsets(all = 8.dp)),
+        WindowInsets.Zero,
+        progressToFullscreen
+    )
 
     val cornerSize by animateDpAsState(
-        targetValue = if (actionCardState.isFullscreen) {
-            0.dp
-        } else {
-            12.dp
-        },
+        targetValue = lerp(
+            12.dp,
+            0.dp,
+            progressToFullscreen,
+        ),
     )
 
     /**
@@ -154,7 +187,11 @@ fun InteractiveCellUniverseOverlay(
      */
     val isShowingFullscreen by remember {
         derivedStateOf {
-            cornerSize == 0.dp && actionCardState.isFullscreen
+            cornerSize == 0.dp &&
+                when (val fullscreenTargetState = actionCardState.fullscreenTargetState) {
+                    is TargetState.InProgress -> false
+                    is TargetState.Single -> fullscreenTargetState.current
+                }
         }
     }
 
@@ -193,7 +230,7 @@ fun InteractiveCellUniverseOverlay(
                 )
             }
 
-            BoxWithConstraints(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .animatePlacement(
@@ -208,15 +245,13 @@ fun InteractiveCellUniverseOverlay(
                     )
                     .layoutId(CellUniverseActionCard),
             ) {
-                val confinedWidth by animateDpAsState(if (actionCardState.isFullscreen) maxWidth else 480.dp)
-
                 // TODO: Calling order is weird here, but required due to https://youtrack.jetbrains.com/issue/KT-51863
                 CellUniverseActionCard(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = windowSizeClass,
-                    enableBackHandler = isActionCardTopCard,
                     isViewportTracking = isViewportTracking,
                     setIsViewportTracking = setIsViewportTracking,
+                    actionCardState = actionCardState,
                     modifier = Modifier
                         .align(
                             if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) {
@@ -225,17 +260,9 @@ fun InteractiveCellUniverseOverlay(
                                 Alignment.CenterEnd
                             },
                         )
-                        .animatedWindowInsetsPadding(
-                            if (actionCardState.isFullscreen) {
-                                WindowInsets.Zero
-                            } else {
-                                WindowInsets.safeDrawing.add(WindowInsets(all = 8.dp))
-                            }
-                        )
-                        .sizeIn(maxWidth = confinedWidth)
+                        .animatedWindowInsetsPadding(targetWindowInsets)
                         .testTag("CellUniverseActionCard"),
                     shape = RoundedCornerShape(cornerSize),
-                    actionCardState = actionCardState,
                 )
             }
         },

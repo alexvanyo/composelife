@@ -16,12 +16,8 @@
 
 package com.alexvanyo.composelife.ui.app.info
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.with
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,13 +36,9 @@ import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -56,7 +48,10 @@ import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.cells.CellWindowState
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.util.AnimatedContent
+import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.ThemePreviews
+import com.alexvanyo.composelife.ui.util.or
 
 /**
  * The persistable state describing the [CellUniverseInfoCard].
@@ -64,13 +59,14 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 interface CellUniverseInfoCardState {
 
     /**
-     * `true` if the card is expanded.
+     * Sets if the card is expanded.
      */
-    var isExpanded: Boolean
+    fun setIsExpanded(isExpanded: Boolean)
 
-    companion object {
-        const val defaultIsExpanded: Boolean = false
-    }
+    /**
+     * The target state for whether the card is expanded.
+     */
+    val expandedTargetState: TargetState<Boolean>
 }
 
 /**
@@ -78,44 +74,42 @@ interface CellUniverseInfoCardState {
  */
 @Composable
 fun rememberCellUniverseInfoCardState(
-    initialIsExpanded: Boolean = CellUniverseInfoCardState.defaultIsExpanded,
-): CellUniverseInfoCardState {
-    var isExpanded by rememberSaveable { mutableStateOf(initialIsExpanded) }
-
-    return remember {
-        object : CellUniverseInfoCardState {
-            override var isExpanded: Boolean
-                get() = isExpanded
-                set(value) {
-                    isExpanded = value
-                }
+    setIsExpanded: (Boolean) -> Unit,
+    expandedTargetState: TargetState<Boolean>,
+): CellUniverseInfoCardState =
+    object : CellUniverseInfoCardState {
+        override fun setIsExpanded(isExpanded: Boolean) {
+            setIsExpanded(isExpanded)
         }
+
+        override val expandedTargetState: TargetState<Boolean>
+            get() = expandedTargetState
     }
-}
 
 class CellUniverseInfoCardContent(
     private val cellUniverseInfoCardState: CellUniverseInfoCardState,
     val cellUniverseInfoItemContents: List<CellUniverseInfoItemContent>,
 ) {
-    var isExpanded by cellUniverseInfoCardState::isExpanded
-
-    val isEditing by derivedStateOf {
-        cellUniverseInfoCardState.isExpanded ||
-            cellUniverseInfoItemContents.none { it.isChecked }
+    fun setIsExpanded(isExpanded: Boolean) {
+        cellUniverseInfoCardState.setIsExpanded(isExpanded)
     }
 
-    val showColumn by derivedStateOf {
-        cellUniverseInfoCardState.isExpanded ||
-            cellUniverseInfoItemContents.any { it.isChecked }
-    }
+    val expandedTargetState: TargetState<Boolean> get() =
+        cellUniverseInfoCardState.expandedTargetState
+
+    val editingTargetState: TargetState<Boolean> get() =
+        expandedTargetState or cellUniverseInfoItemContents.none { it.isChecked }
+
+    val showColumnTargetState: TargetState<Boolean> get() =
+        expandedTargetState or cellUniverseInfoItemContents.any { it.isChecked }
 }
 
 @Composable
 fun CellUniverseInfoCard(
     cellWindowState: CellWindowState,
     evolutionStatus: TemporalGameOfLifeState.EvolutionStatus,
+    infoCardState: CellUniverseInfoCardState,
     modifier: Modifier = Modifier,
-    infoCardState: CellUniverseInfoCardState = rememberCellUniverseInfoCardState(),
 ) {
     val currentEvolutionStatus by rememberUpdatedState(newValue = evolutionStatus)
 
@@ -158,8 +152,8 @@ fun CellUniverseInfoCard(
 @Composable
 fun CellUniverseInfoCard(
     infoItemTexts: List<@Composable (isEditing: Boolean) -> String>,
+    infoCardState: CellUniverseInfoCardState,
     modifier: Modifier = Modifier,
-    infoCardState: CellUniverseInfoCardState = rememberCellUniverseInfoCardState(),
 ) {
     val infoItemContents = infoItemTexts.map { text ->
         val infoItemState = rememberCellUniverseInfoItemState()
@@ -184,7 +178,6 @@ fun CellUniverseInfoCard(
     )
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CellUniverseInfoCard(
     cellUniverseInfoCardContent: CellUniverseInfoCardContent,
@@ -200,12 +193,11 @@ fun CellUniverseInfoCard(
         ),
     ) {
         AnimatedContent(
-            targetState = cellUniverseInfoCardContent.showColumn,
-            transitionSpec = {
-                fadeIn(animationSpec = tween(220, delayMillis = 90)) with
-                    fadeOut(animationSpec = tween(90))
-            },
+            targetState = cellUniverseInfoCardContent.showColumnTargetState,
             contentAlignment = Alignment.TopEnd,
+            contentSizeAnimationSpec = spring(
+                stiffness = Spring.StiffnessMedium,
+            ),
             modifier = Modifier.padding(8.dp),
         ) { showColumn ->
             Row(
@@ -225,15 +217,15 @@ fun CellUniverseInfoCard(
                             .forEach { cellUniverseInfoItemContent ->
                                 InfoItem(
                                     cellUniverseInfoItemContent = cellUniverseInfoItemContent,
-                                    isEditing = cellUniverseInfoCardContent.isEditing,
+                                    editingTargetState = cellUniverseInfoCardContent.editingTargetState,
                                 )
                             }
                     }
                 }
 
                 CellUniverseInfoExpandButton(
-                    isExpanded = cellUniverseInfoCardContent.isExpanded,
-                    setIsExpanded = { cellUniverseInfoCardContent.isExpanded = it },
+                    isExpanded = cellUniverseInfoCardContent.expandedTargetState.current,
+                    setIsExpanded = cellUniverseInfoCardContent::setIsExpanded,
                 )
             }
         }
@@ -276,7 +268,10 @@ fun CellUniverseInfoCardCollapsedPreview() {
         ComposeLifeTheme {
             CellUniverseInfoCard(
                 cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                    rememberCellUniverseInfoCardState(initialIsExpanded = false),
+                    cellUniverseInfoCardState = rememberCellUniverseInfoCardState(
+                        setIsExpanded = {},
+                        expandedTargetState = TargetState.Single(false),
+                    ),
                     cellUniverseInfoItemContents = listOf(
                         CellUniverseInfoItemContent(
                             rememberCellUniverseInfoItemState(isChecked = true),
@@ -301,7 +296,10 @@ fun CellUniverseInfoCardCollapsedSingleSelectionPreview() {
         ComposeLifeTheme {
             CellUniverseInfoCard(
                 cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                    rememberCellUniverseInfoCardState(initialIsExpanded = false),
+                    cellUniverseInfoCardState = rememberCellUniverseInfoCardState(
+                        setIsExpanded = {},
+                        expandedTargetState = TargetState.Single(false),
+                    ),
                     cellUniverseInfoItemContents = listOf(
                         CellUniverseInfoItemContent(
                             rememberCellUniverseInfoItemState(isChecked = false),
@@ -326,7 +324,10 @@ fun CellUniverseInfoCardFullyCollapsedPreview() {
         ComposeLifeTheme {
             CellUniverseInfoCard(
                 cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                    rememberCellUniverseInfoCardState(initialIsExpanded = false),
+                    cellUniverseInfoCardState = rememberCellUniverseInfoCardState(
+                        setIsExpanded = {},
+                        expandedTargetState = TargetState.Single(false),
+                    ),
                     cellUniverseInfoItemContents = listOf(
                         CellUniverseInfoItemContent(
                             rememberCellUniverseInfoItemState(isChecked = false),
@@ -351,7 +352,10 @@ fun CellUniverseInfoCardExpandedPreview() {
         ComposeLifeTheme {
             CellUniverseInfoCard(
                 cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                    rememberCellUniverseInfoCardState(initialIsExpanded = true),
+                    cellUniverseInfoCardState = rememberCellUniverseInfoCardState(
+                        setIsExpanded = {},
+                        expandedTargetState = TargetState.Single(true),
+                    ),
                     cellUniverseInfoItemContents = listOf(
                         CellUniverseInfoItemContent(
                             rememberCellUniverseInfoItemState(),
