@@ -16,22 +16,6 @@
 
 package com.alexvanyo.composelife.ui.app.info
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.core.AnimationConstants
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.keyframes
-import androidx.compose.animation.expandIn
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.with
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -61,7 +45,11 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.util.AnimatedContent
+import com.alexvanyo.composelife.ui.util.AnimatedVisibility
+import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.ThemePreviews
+import com.alexvanyo.composelife.ui.util.or
 
 class CellUniverseInfoItemState(
     isChecked: Boolean = defaultIsChecked,
@@ -98,22 +86,20 @@ class CellUniverseInfoItemContent(
 }
 
 @Suppress("LongMethod")
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ColumnScope.InfoItem(
     cellUniverseInfoItemContent: CellUniverseInfoItemContent,
-    isEditing: Boolean,
+    editingTargetState: TargetState<Boolean>,
     modifier: Modifier = Modifier,
 ) {
     // Animate the appearance and disappearance of this item.
     AnimatedVisibility(
-        visible = cellUniverseInfoItemContent.isChecked || isEditing,
-        enter = fadeIn() + expandVertically(expandFrom = Alignment.CenterVertically),
-        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.CenterVertically),
+        targetState = editingTargetState or cellUniverseInfoItemContent.isChecked,
+        contentAlignment = Alignment.Center,
         modifier = modifier,
     ) {
         Box(
-            modifier = if (isEditing) {
+            modifier = if (editingTargetState.current) {
                 Modifier.triStateToggleable(
                     state = ToggleableState(cellUniverseInfoItemContent.isChecked),
                     onClick = {
@@ -134,7 +120,7 @@ fun ColumnScope.InfoItem(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = cellUniverseInfoItemContent.text(isEditing),
+                    text = cellUniverseInfoItemContent.text(editingTargetState.current),
                     modifier = Modifier.weight(1f),
                 )
 
@@ -143,21 +129,7 @@ fun ColumnScope.InfoItem(
                 // not overlap the checkbox.
                 // The animated spacer's absence will allow the text to expand as needed within the row.
                 AnimatedContent(
-                    targetState = isEditing,
-                    transitionSpec = {
-                        (EnterTransition.None with ExitTransition.None)
-                            .using(
-                                SizeTransform { initialSize, targetSize ->
-                                    keyframes {
-                                        if (false isTransitioningTo true) {
-                                            targetSize
-                                        } else {
-                                            initialSize
-                                        } at AnimationConstants.DefaultDurationMillis / 2 with FastOutLinearInEasing
-                                    }
-                                },
-                            )
-                    },
+                    targetState = editingTargetState,
                     contentAlignment = Alignment.Center,
                 ) { targetIsEditing ->
                     if (targetIsEditing) {
@@ -170,11 +142,7 @@ fun ColumnScope.InfoItem(
             // This content remains a constant width, allowing for more graceful animations without horizontal
             // movement
             AnimatedContent(
-                targetState = isEditing,
-                transitionSpec = {
-                    fadeIn() + expandIn(expandFrom = Alignment.Center) with
-                        fadeOut() + shrinkOut(shrinkTowards = Alignment.Center)
-                },
+                targetState = editingTargetState,
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.align(Alignment.CenterEnd),
             ) { targetIsEditing ->
@@ -202,7 +170,7 @@ fun CellUniverseInfoItemNotEditingPreview() {
                     cellUniverseInfoItemContent = CellUniverseInfoItemContent(
                         cellUniverseInfoCardState = rememberCellUniverseInfoItemState(),
                     ) { "isEditing: $it" },
-                    isEditing = false,
+                    editingTargetState = TargetState.Single(false),
                 )
             }
         }
@@ -219,7 +187,7 @@ fun CellUniverseInfoItemEditingPreview() {
                     cellUniverseInfoItemContent = CellUniverseInfoItemContent(
                         cellUniverseInfoCardState = rememberCellUniverseInfoItemState(),
                     ) { "isEditing: $it" },
-                    isEditing = true,
+                    editingTargetState = TargetState.Single(true),
                 )
             }
         }

@@ -18,6 +18,10 @@ package com.alexvanyo.composelife.ui.app.info
 
 import android.content.Context
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
@@ -31,6 +35,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.ui.app.R
+import com.alexvanyo.composelife.ui.util.TargetState
 import org.junit.Rule
 import org.junit.runner.RunWith
 import kotlin.test.Test
@@ -46,9 +51,13 @@ class CellUniverseInfoCardTests {
     @Test
     fun card_is_collapsed_by_default() {
         composeTestRule.setContent {
+            var isExpanded by rememberSaveable { mutableStateOf(false) }
             CellUniverseInfoCard(
                 cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                    rememberCellUniverseInfoCardState(),
+                    cellUniverseInfoCardState = rememberCellUniverseInfoCardState(
+                        setIsExpanded = { isExpanded = it },
+                        expandedTargetState = TargetState.Single(isExpanded),
+                    ),
                     cellUniverseInfoItemContents = listOf(
                         CellUniverseInfoItemContent(
                             rememberCellUniverseInfoItemState(),
@@ -76,9 +85,13 @@ class CellUniverseInfoCardTests {
     @Test
     fun card_becomes_expanded_when_expand_button_is_clicked() {
         composeTestRule.setContent {
+            var isExpanded by rememberSaveable { mutableStateOf(false) }
             CellUniverseInfoCard(
                 cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                    rememberCellUniverseInfoCardState(),
+                    cellUniverseInfoCardState = rememberCellUniverseInfoCardState(
+                        setIsExpanded = { isExpanded = it },
+                        expandedTargetState = TargetState.Single(isExpanded),
+                    ),
                     cellUniverseInfoItemContents = listOf(
                         CellUniverseInfoItemContent(
                             rememberCellUniverseInfoItemState(),
@@ -109,9 +122,13 @@ class CellUniverseInfoCardTests {
     @Test
     fun card_hides_checkboxes_when_collapsed() {
         composeTestRule.setContent {
+            var isExpanded by rememberSaveable { mutableStateOf(false) }
             CellUniverseInfoCard(
                 cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                    rememberCellUniverseInfoCardState(initialIsExpanded = false),
+                    cellUniverseInfoCardState = rememberCellUniverseInfoCardState(
+                        setIsExpanded = { isExpanded = it },
+                        expandedTargetState = TargetState.Single(isExpanded),
+                    ),
                     cellUniverseInfoItemContents = listOf(
                         CellUniverseInfoItemContent(
                             rememberCellUniverseInfoItemState(),
@@ -140,9 +157,13 @@ class CellUniverseInfoCardTests {
     @Test
     fun card_show_checkboxes_when_expanded() {
         composeTestRule.setContent {
+            var isExpanded by rememberSaveable { mutableStateOf(true) }
             CellUniverseInfoCard(
                 cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                    rememberCellUniverseInfoCardState(initialIsExpanded = true),
+                    cellUniverseInfoCardState = rememberCellUniverseInfoCardState(
+                        setIsExpanded = { isExpanded = it },
+                        expandedTargetState = TargetState.Single(isExpanded),
+                    ),
                     cellUniverseInfoItemContents = listOf(
                         CellUniverseInfoItemContent(
                             rememberCellUniverseInfoItemState(),

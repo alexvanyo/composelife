@@ -16,18 +16,14 @@
 
 package com.alexvanyo.composelife.ui.app.action
 
-import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandIn
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkOut
-import androidx.compose.animation.with
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -41,16 +37,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
-import com.alexvanyo.composelife.navigation.NavigationHost
 import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreen
 import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenHiltEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreen
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenHiltEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenLocalEntryPoint
+import com.alexvanyo.composelife.ui.util.AnimatedContent
+import com.alexvanyo.composelife.ui.util.PredictiveNavigationHost
+import com.alexvanyo.composelife.ui.util.isInProgress
 import com.livefront.sealedenum.GenSealedEnum
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -74,17 +71,15 @@ context(CellUniverseActionCardHiltEntryPoint, CellUniverseActionCardLocalEntryPo
 fun CellUniverseActionCard(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     windowSizeClass: WindowSizeClass,
-    enableBackHandler: Boolean,
     isViewportTracking: Boolean,
     setIsViewportTracking: (Boolean) -> Unit,
+    actionCardState: CellUniverseActionCardState,
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(12.0.dp),
-    actionCardState: CellUniverseActionCardState = rememberCellUniverseActionCardState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ) {
     CellUniverseActionCard(
         windowSizeClass = windowSizeClass,
-        enableBackHandler = enableBackHandler,
         isRunning = when (temporalGameOfLifeState.status) {
             TemporalGameOfLifeState.EvolutionStatus.Paused -> false
             is TemporalGameOfLifeState.EvolutionStatus.Running -> true
@@ -101,19 +96,17 @@ fun CellUniverseActionCard(
         setGenerationsPerStep = { temporalGameOfLifeState.generationsPerStep = it },
         isViewportTracking = isViewportTracking,
         setIsViewportTracking = setIsViewportTracking,
+        actionCardState = actionCardState,
         modifier = modifier,
         shape = shape,
-        actionCardState = actionCardState,
     )
 }
 
 context(CellUniverseActionCardHiltEntryPoint, CellUniverseActionCardLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod", "ComplexMethod")
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CellUniverseActionCard(
     windowSizeClass: WindowSizeClass,
-    enableBackHandler: Boolean,
     isRunning: Boolean,
     setIsRunning: (Boolean) -> Unit,
     onStep: () -> Unit,
@@ -123,16 +116,10 @@ fun CellUniverseActionCard(
     setGenerationsPerStep: (Int) -> Unit,
     isViewportTracking: Boolean,
     setIsViewportTracking: (Boolean) -> Unit,
+    actionCardState: CellUniverseActionCardState,
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(12.0.dp),
-    actionCardState: CellUniverseActionCardState = rememberCellUniverseActionCardState(),
 ) {
-    if (actionCardState.isExpanded && actionCardState.canNavigateBack) {
-        BackHandler(enabled = enableBackHandler) {
-            actionCardState.onBackPressed(actionCardState.navigationState.currentEntryId)
-        }
-    }
-
     Card(
         shape = shape,
         colors = CardDefaults.cardColors(
@@ -157,112 +144,139 @@ fun CellUniverseActionCard(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            AnimatedVisibility(visible = !actionCardState.isFullscreen) {
-                ActionControlRow(
-                    isElevated = actionCardState.isExpanded && currentScrollState.canScrollBackward,
-                    isRunning = isRunning,
-                    setIsRunning = setIsRunning,
-                    onStep = onStep,
-                    isExpanded = actionCardState.isExpanded,
-                    setIsExpanded = { actionCardState.isExpanded = it },
-                    isViewportTracking = isViewportTracking,
-                    setIsViewportTracking = setIsViewportTracking,
-                )
+            AnimatedContent(
+                targetState = actionCardState.fullscreenTargetState,
+                contentAlignment = Alignment.BottomCenter,
+            ) { isFullscreen ->
+                Box(
+                    modifier = Modifier.widthIn(max = 480.dp).wrapContentSize(),
+                ) {
+                    if (isFullscreen) {
+                        Spacer(modifier = Modifier.fillMaxWidth())
+                    } else {
+                        ActionControlRow(
+                            isElevated = !actionCardState.expandedTargetState.isInProgress() &&
+                                actionCardState.expandedTargetState.current &&
+                                currentScrollState.canScrollBackward,
+                            isRunning = isRunning,
+                            setIsRunning = setIsRunning,
+                            onStep = onStep,
+                            isExpanded = actionCardState.expandedTargetState.current,
+                            setIsExpanded = actionCardState::setIsExpanded,
+                            isViewportTracking = isViewportTracking,
+                            setIsViewportTracking = setIsViewportTracking,
+                        )
+                    }
+                }
             }
 
             AnimatedContent(
-                targetState = actionCardState.isExpanded,
-                transitionSpec = {
-                    fadeIn(animationSpec = tween(220, delayMillis = 90)) with
-                        fadeOut(animationSpec = tween(90))
-                },
+                targetState = actionCardState.expandedTargetState,
                 contentAlignment = Alignment.BottomCenter,
+                contentSizeAnimationSpec = spring(
+                    stiffness = Spring.StiffnessMedium,
+                ),
             ) { isExpanded ->
                 if (isExpanded) {
-                    Column {
-                        NavigationHost(
-                            navigationState = actionCardState.navigationState,
-                            transitionSpec = {
-                                fadeIn(animationSpec = tween(220, delayMillis = 90)) with
-                                    fadeOut(animationSpec = tween(90))
-                            },
-                            contentAlignment = Alignment.BottomCenter,
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        PredictiveNavigationHost(
+                            predictiveBackState = actionCardState.predictiveBackState,
+                            backstackState = actionCardState.navigationState,
                             modifier = Modifier.weight(1f, fill = false),
+                            contentAlignment = Alignment.BottomCenter,
                         ) { entry ->
                             // Cache the scroll state based for the target entry id.
                             // This value won't change normally, but it will ensure we keep using the old state
                             // while being removed from the backstack
                             val scrollState = remember { contentScrollStateMap.getValue(entry.id) }
 
-                            when (val value = entry.value) {
-                                is ActionCardNavigation.Speed -> {
-                                    when (value) {
-                                        ActionCardNavigation.Speed.Inline -> {
-                                            InlineSpeedScreen(
-                                                targetStepsPerSecond = targetStepsPerSecond,
-                                                setTargetStepsPerSecond = setTargetStepsPerSecond,
-                                                generationsPerStep = generationsPerStep,
-                                                setGenerationsPerStep = setGenerationsPerStep,
-                                                scrollState = scrollState,
-                                                modifier = Modifier.fillMaxWidth(),
-                                            )
+                            Box(
+                                modifier = if (entry.value.isFullscreen) {
+                                    Modifier
+                                } else {
+                                    Modifier.widthIn(max = 480.dp)
+                                }
+                            ) {
+                                when (val value = entry.value) {
+                                    is ActionCardNavigation.Speed -> {
+                                        when (value) {
+                                            ActionCardNavigation.Speed.Inline -> {
+                                                InlineSpeedScreen(
+                                                    targetStepsPerSecond = targetStepsPerSecond,
+                                                    setTargetStepsPerSecond = setTargetStepsPerSecond,
+                                                    generationsPerStep = generationsPerStep,
+                                                    setGenerationsPerStep = setGenerationsPerStep,
+                                                    scrollState = scrollState,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                )
+                                            }
                                         }
                                     }
-                                }
-                                is ActionCardNavigation.Edit -> {
-                                    when (value) {
-                                        ActionCardNavigation.Edit.Inline -> {
-                                            InlineEditScreen(modifier = Modifier.fillMaxWidth())
+
+                                    is ActionCardNavigation.Edit -> {
+                                        when (value) {
+                                            ActionCardNavigation.Edit.Inline -> {
+                                                InlineEditScreen(modifier = Modifier.fillMaxWidth())
+                                            }
                                         }
                                     }
-                                }
-                                is ActionCardNavigation.Settings -> {
-                                    when (value) {
-                                        ActionCardNavigation.Settings.Inline -> {
-                                            InlineSettingsScreen(
-                                                onSeeMoreClicked = {
-                                                    actionCardState.onSeeMoreSettingsClicked(
-                                                        actorBackstackEntryId = entry.id,
-                                                    )
-                                                },
-                                                onOpenInSettingsClicked = { setting ->
-                                                    actionCardState.onOpenInSettingsClicked(
-                                                        setting = setting,
-                                                        actorBackstackEntryId = entry.id,
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth(),
-                                                scrollState = scrollState,
-                                            )
-                                        }
-                                        is ActionCardNavigation.Settings.Fullscreen -> {
-                                            FullscreenSettingsScreen(
-                                                windowSizeClass = windowSizeClass,
-                                                fullscreen = value,
-                                                onBackButtonPressed = {
-                                                    actionCardState.onBackPressed(
-                                                        actorBackstackEntryId = entry.id,
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth(),
-                                            )
+
+                                    is ActionCardNavigation.Settings -> {
+                                        when (value) {
+                                            ActionCardNavigation.Settings.Inline -> {
+                                                InlineSettingsScreen(
+                                                    onSeeMoreClicked = {
+                                                        actionCardState.onSeeMoreSettingsClicked(
+                                                            actorBackstackEntryId = entry.id,
+                                                        )
+                                                    },
+                                                    onOpenInSettingsClicked = { setting ->
+                                                        actionCardState.onOpenInSettingsClicked(
+                                                            setting = setting,
+                                                            actorBackstackEntryId = entry.id,
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    scrollState = scrollState,
+                                                )
+                                            }
+
+                                            is ActionCardNavigation.Settings.Fullscreen -> {
+                                                FullscreenSettingsScreen(
+                                                    windowSizeClass = windowSizeClass,
+                                                    fullscreen = value,
+                                                    onBackButtonPressed = {
+                                                        actionCardState.onBackPressed(
+                                                            actorBackstackEntryId = entry.id,
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                )
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
 
-                        AnimatedVisibility(
-                            visible = !actionCardState.isFullscreen,
-                            enter = expandIn(expandFrom = Alignment.Center) { IntSize(it.width, 0) } +
-                                fadeIn(animationSpec = tween(220, delayMillis = 90)),
-                            exit = shrinkOut(shrinkTowards = Alignment.Center) { IntSize(it.width, 0) } +
-                                fadeOut(animationSpec = tween(90)),
-                        ) {
-                            ActionCardNavigationBar(
-                                actionCardState = actionCardState,
-                                isElevated = currentScrollState.canScrollForward,
-                            )
+                        AnimatedContent(
+                            targetState = actionCardState.fullscreenTargetState,
+                            contentAlignment = Alignment.BottomCenter,
+                        ) { isFullscreen ->
+                            Box(
+                                modifier = Modifier.widthIn(max = 480.dp),
+                            ) {
+                                if (isFullscreen) {
+                                    Spacer(modifier = Modifier.fillMaxWidth())
+                                } else {
+                                    ActionCardNavigationBar(
+                                        actionCardState = actionCardState,
+                                        isElevated = currentScrollState.canScrollForward,
+                                    )
+                                }
+                            }
                         }
                     }
                 }

@@ -17,14 +17,7 @@
 
 package com.alexvanyo.composelife.ui.app.action.settings
 
-import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.with
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,6 +25,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -43,7 +37,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -91,7 +87,12 @@ import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.action.ActionCardNavigation
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.util.AnimatedContent
+import com.alexvanyo.composelife.ui.util.Crossfade
 import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
+import com.alexvanyo.composelife.ui.util.PredictiveBackState
+import com.alexvanyo.composelife.ui.util.TargetState
+import com.alexvanyo.composelife.ui.util.predictiveBackHandler
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
@@ -106,8 +107,7 @@ interface FullscreenSettingsScreenLocalEntryPoint :
     SettingUiLocalEntryPoint
 
 context(FullscreenSettingsScreenHiltEntryPoint, FullscreenSettingsScreenLocalEntryPoint)
-@Suppress("LongMethod")
-@OptIn(ExperimentalAnimationApi::class)
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun FullscreenSettingsScreen(
     windowSizeClass: WindowSizeClass,
@@ -136,10 +136,12 @@ fun FullscreenSettingsScreen(
 
     fun showListAndDetail() = showList() && showDetail()
 
-    if (showDetail() && !showList()) {
-        BackHandler {
+    val predictiveBackState = if (showDetail() && !showList()) {
+        predictiveBackHandler {
             fullscreen.showDetails = false
         }
+    } else {
+        PredictiveBackState.NotRunning
     }
 
     val listContent = remember(fullscreen) {
@@ -154,6 +156,7 @@ fun FullscreenSettingsScreen(
                 },
                 showFloatingAppBar = showListAndDetail(),
                 onBackButtonPressed = onBackButtonPressed,
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }
@@ -169,6 +172,7 @@ fun FullscreenSettingsScreen(
                 onBackButtonPressed = { fullscreen.showDetails = false },
                 settingToScrollTo = fullscreen.settingToScrollTo,
                 onFinishedScrollingToSetting = { fullscreen.onFinishedScrollingToSetting() },
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }
@@ -183,45 +187,50 @@ fun FullscreenSettingsScreen(
                 listContent()
             }
 
-            Surface(
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier
+            Column(
+                Modifier
                     .weight(1f)
                     .consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Start))
-                    .safeDrawingPadding()
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
                     .padding(
                         top = 4.dp,
                         start = 8.dp,
                         end = 8.dp,
                         bottom = 16.dp,
-                    ),
+                    )
             ) {
-                AnimatedContent(
-                    targetState = fullscreen.settingsCategory,
-                    transitionSpec = {
-                        fadeIn(animationSpec = tween(220, delayMillis = 90)) with
-                            fadeOut(animationSpec = tween(90))
-                    },
-                ) { settingsCategory ->
-                    detailContent(settingsCategory)
+                Spacer(Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
+                Surface(
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical)),
+                ) {
+                    Crossfade(targetState = TargetState.Single(fullscreen.settingsCategory)) { settingsCategory ->
+                        detailContent(settingsCategory)
+                    }
                 }
+                Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
             }
         }
     } else {
-        Box(modifier = modifier) {
-            AnimatedContent(
-                targetState = showList(),
-                transitionSpec = {
-                    fadeIn(animationSpec = tween(220, delayMillis = 90)) with
-                        fadeOut(animationSpec = tween(90))
-                },
-            ) { showList ->
-                if (showList) {
-                    listContent()
-                } else {
-                    detailContent(fullscreen.settingsCategory)
-                }
+        AnimatedContent(
+            targetState = when (predictiveBackState) {
+                PredictiveBackState.NotRunning -> TargetState.Single(showList())
+                is PredictiveBackState.Running ->
+                    TargetState.InProgress(
+                        current = false,
+                        provisional = true,
+                        progress = predictiveBackState.progress
+                    )
+            },
+            modifier = modifier,
+        ) { showList ->
+            if (showList) {
+                listContent()
+            } else {
+                detailContent(fullscreen.settingsCategory)
             }
         }
     }
@@ -237,6 +246,7 @@ private fun SettingsCategoryList(
     setSettingsCategory: (SettingsCategory) -> Unit,
     showFloatingAppBar: Boolean,
     onBackButtonPressed: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
         topBar = {
@@ -295,6 +305,7 @@ private fun SettingsCategoryList(
                 }
             }
         },
+        modifier = modifier,
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -376,9 +387,10 @@ private fun SettingsCategoryDetail(
     onBackButtonPressed: () -> Unit,
     settingToScrollTo: Setting?,
     onFinishedScrollingToSetting: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier,
     ) {
         if (showAppBar) {
             val isElevated = detailScrollState.canScrollBackward

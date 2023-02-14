@@ -40,11 +40,14 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(projects.navigation)
+                implementation(projects.snapshotStateSet)
                 implementation(libs.androidx.annotation)
                 implementation(libs.jetbrains.compose.animation)
                 implementation(libs.jetbrains.compose.foundation)
                 implementation(libs.jetbrains.compose.ui)
                 implementation(libs.jetbrains.compose.uiToolingPreview)
+                implementation(libs.jetbrains.compose.uiUtil)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.sealedEnum.runtime)
             }
@@ -58,7 +61,9 @@ kotlin {
         val androidMain by getting {
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
+                implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.foundation)
+                implementation(libs.androidx.lifecycle.runtime)
                 implementation(libs.androidx.core)
                 implementation(libs.kotlinx.coroutines.android)
             }

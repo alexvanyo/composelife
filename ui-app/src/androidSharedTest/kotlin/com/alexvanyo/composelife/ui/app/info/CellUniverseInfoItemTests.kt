@@ -27,6 +27,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.alexvanyo.composelife.ui.util.TargetState
 import org.junit.Rule
 import org.junit.runner.RunWith
 import kotlin.test.Test
@@ -47,7 +48,7 @@ class CellUniverseInfoItemTests {
             Column {
                 InfoItem(
                     cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
-                    isEditing = true,
+                    editingTargetState = TargetState.Single(true),
                 )
             }
         }
@@ -70,7 +71,7 @@ class CellUniverseInfoItemTests {
             Column {
                 InfoItem(
                     cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
-                    isEditing = true,
+                    editingTargetState = TargetState.Single(true),
                 )
             }
         }
@@ -93,7 +94,7 @@ class CellUniverseInfoItemTests {
             Column {
                 InfoItem(
                     cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
-                    isEditing = false,
+                    editingTargetState = TargetState.Single(false),
                 )
             }
         }
@@ -109,7 +110,7 @@ class CellUniverseInfoItemTests {
             Column {
                 InfoItem(
                     cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
-                    isEditing = false,
+                    editingTargetState = TargetState.Single(false),
                 )
             }
         }
@@ -128,7 +129,7 @@ class CellUniverseInfoItemTests {
             Column {
                 InfoItem(
                     cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
-                    isEditing = true,
+                    editingTargetState = TargetState.Single(true),
                 )
             }
         }
