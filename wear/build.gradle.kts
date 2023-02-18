@@ -39,6 +39,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(projects.processLifecycle)
                 implementation(projects.wearWatchface)
 
                 implementation(libs.kotlinx.coroutines.core)
