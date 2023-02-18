@@ -18,9 +18,10 @@ package com.alexvanyo.composelife.wear
 
 import android.app.Application
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.alexvanyo.composelife.processlifecycle.ProcessLifecycle
 import com.alexvanyo.composelife.updatable.Updatable
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.launch
@@ -33,12 +34,15 @@ class ComposeLifeApplication : Hilt_ComposeLifeApplication() {
     @Inject
     lateinit var updatables: Set<@JvmSuppressWildcards Updatable>
 
+    @ProcessLifecycle
+    @Inject
+    lateinit var processLifecycleOwner: LifecycleOwner
+
     override fun onCreate() {
         super.onCreate()
 
         // Update all singleton scoped updatables in the process lifecycle scope, when its created.
         // Effectively, this is just a permanently running coroutine scope.
-        val processLifecycleOwner = ProcessLifecycleOwner.get()
         processLifecycleOwner.lifecycleScope.launch {
             processLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
                 supervisorScope {
