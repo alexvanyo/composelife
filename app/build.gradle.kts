@@ -43,6 +43,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.doNotKeepProcess)
+                implementation(projects.appCompatSync)
                 implementation(projects.resourcesApp)
                 implementation(projects.uiApp)
                 implementation(libs.kotlinx.serialization.core)
