@@ -84,10 +84,10 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
  * "com.alexvanyo.composelife.enableKeeper".
  */
 @Suppress("TopLevelPropertyNaming")
-private const val defaultEnableKeeper = false
+private const val defaultEnableKeeper = true
 
 /**
  * The default test build type, if none is specified by the property "com.alexvanyo.composelife.testBuildType".
  */
 @Suppress("TopLevelPropertyNaming")
-private const val defaultTestBuildType = "debug"
+private const val defaultTestBuildType = "staging"
