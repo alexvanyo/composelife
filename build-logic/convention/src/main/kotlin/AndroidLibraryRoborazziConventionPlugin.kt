@@ -16,7 +16,6 @@
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureTesting
-import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.artifacts.VersionCatalogsExtension
@@ -42,14 +41,6 @@ class AndroidLibraryRoborazziConventionPlugin : ConventionPlugin({
     libraryExtension.testOptions {
         unitTests.all { test ->
             test.systemProperty("robolectric.graphicsMode", "NATIVE")
-        }
-    }
-
-    extensions.configure<LibraryAndroidComponentsExtension> {
-        // Disable release builds for this test-only library, no need to run screenshot tests more than
-        // once
-        beforeVariants(selector().withBuildType("release")) { builder ->
-            builder.enable = false
         }
     }
 
