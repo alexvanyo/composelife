@@ -18,6 +18,7 @@ import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureAndroid
 import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.exclude
 
 class AndroidApplicationConventionPlugin : ConventionPlugin({
     with(pluginManager) {
@@ -44,6 +45,7 @@ class AndroidApplicationConventionPlugin : ConventionPlugin({
             release {
                 isMinifyEnabled = true
                 isShrinkResources = true
+                matchingFallbacks.add("debug") // fallback to debug for dependencies
                 proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             }
 
@@ -51,7 +53,7 @@ class AndroidApplicationConventionPlugin : ConventionPlugin({
             create("staging") {
                 isMinifyEnabled = true // minify like a release build
                 isShrinkResources = true // shrink resources like a release build
-                matchingFallbacks.add("release") // fallback to release for dependencies
+                matchingFallbacks.addAll(listOf("release", "debug")) // fallback to release and debug for dependencies
                 signingConfig = signingConfigs.getByName("debug") // sign with debug for testing
                 // Use the normal proguard rules, as well as some additional staging ones just for tests (when needed)
                 proguardFiles(
@@ -65,7 +67,7 @@ class AndroidApplicationConventionPlugin : ConventionPlugin({
             create("benchmark") {
                 isMinifyEnabled = true // minify like a release build
                 isShrinkResources = true // shrink resources like a release build
-                matchingFallbacks.add("release") // fallback to release for dependencies
+                matchingFallbacks.addAll(listOf("release", "debug")) // fallback to release and debug for dependencies
                 signingConfig = signingConfigs.getByName("debug") // sign with debug for testing
                 // Use the normal proguard rules, as well as some additional benchmarking ones
                 proguardFiles(
@@ -75,5 +77,15 @@ class AndroidApplicationConventionPlugin : ConventionPlugin({
                 )
             }
         }
+    }
+
+    @Suppress("NoNameShadowing")
+    afterEvaluate {
+        configurations
+            .matching { it.name.contains("debug", ignoreCase = true).not() }
+            .configureEach {
+                exclude(group = "androidx.compose.ui", module = "ui-tooling")
+                exclude(group = "androidx.compose.ui", module = "ui-tooling-data")
+            }
     }
 },)

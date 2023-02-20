@@ -45,6 +45,9 @@ class AndroidTestConventionPlugin : ConventionPlugin({
         experimentalProperties["android.experimental.self-instrumenting"] = true
 
         buildTypes {
+            debug {
+                signingConfig = signingConfigs.getByName("debug")
+            }
             create("benchmark") {
                 matchingFallbacks.add("release") // fallback to release for dependencies
                 signingConfig = signingConfigs.getByName("debug") // sign with debug for testing
