@@ -80,8 +80,7 @@ abstract class BasePaparazziTest {
                 ),
                 // Provide a fake OnBackPressedDispatcherOwner
                 LocalOnBackPressedDispatcherOwner provides object : OnBackPressedDispatcherOwner {
-                    override fun getOnBackPressedDispatcher(): OnBackPressedDispatcher =
-                        OnBackPressedDispatcher()
+                    override val onBackPressedDispatcher = OnBackPressedDispatcher()
 
                     override val lifecycle = lifecycleOwner.lifecycle
                 },
