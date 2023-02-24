@@ -19,9 +19,6 @@ package com.alexvanyo.composelife
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.DisposableEffect
@@ -39,7 +36,6 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint(AppCompatActivity::class)
 class MainActivity : Hilt_MainActivity() {
 
-    @OptIn(ExperimentalLayoutApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -66,9 +62,6 @@ class MainActivity : Hilt_MainActivity() {
                         )
                         onDispose {}
                     }
-
-                    // Check if the ime is visible here as a side-effect to ensure we're always listening for insets
-                    WindowInsets.isImeVisible
 
                     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
                     ComposeLifeApp(calculateWindowSizeClass(this@MainActivity))

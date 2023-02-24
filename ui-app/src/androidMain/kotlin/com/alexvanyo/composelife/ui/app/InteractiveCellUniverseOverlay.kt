@@ -24,13 +24,9 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -53,10 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
@@ -74,7 +67,10 @@ import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.util.Layout
+import com.alexvanyo.composelife.ui.util.WindowInsets
+import com.alexvanyo.composelife.ui.util.Zero
 import com.alexvanyo.composelife.ui.util.animatePlacement
+import com.alexvanyo.composelife.ui.util.animatedWindowInsetsPadding
 import com.livefront.sealedenum.GenSealedEnum
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -144,60 +140,6 @@ fun InteractiveCellUniverseOverlay(
         }
     }
 
-    val windowInsets = WindowInsets.safeDrawing
-    val windowInsetsPaddingValues = windowInsets.asPaddingValues()
-
-    val outerPaddingStart by animateDpAsState(
-        targetValue = if (actionCardState.isFullscreen) {
-            0.dp
-        } else {
-            8.dp + windowInsetsPaddingValues.calculateStartPadding(LocalLayoutDirection.current)
-        },
-    )
-    val outerPaddingTop by animateDpAsState(
-        targetValue = if (actionCardState.isFullscreen) {
-            0.dp
-        } else {
-            8.dp + windowInsetsPaddingValues.calculateTopPadding()
-        },
-    )
-    val outerPaddingEnd by animateDpAsState(
-        targetValue = if (actionCardState.isFullscreen) {
-            0.dp
-        } else {
-            8.dp + windowInsetsPaddingValues.calculateEndPadding(LocalLayoutDirection.current)
-        },
-    )
-    val outerPaddingBottom by animateDpAsState(
-        targetValue = if (actionCardState.isFullscreen) {
-            0.dp
-        } else {
-            8.dp + windowInsetsPaddingValues.calculateBottomPadding()
-        },
-    )
-    val outerPaddingLeft: Dp
-    val outerPaddingRight: Dp
-    if (LocalLayoutDirection.current == LayoutDirection.Ltr) {
-        outerPaddingLeft = outerPaddingStart
-        outerPaddingRight = outerPaddingEnd
-    } else {
-        outerPaddingLeft = outerPaddingEnd
-        outerPaddingRight = outerPaddingStart
-    }
-
-    val outerPadding = PaddingValues(
-        start = outerPaddingStart,
-        top = outerPaddingTop,
-        end = outerPaddingEnd,
-        bottom = outerPaddingBottom,
-    )
-    val consumedWindowInsets = WindowInsets(
-        left = outerPaddingLeft,
-        top = outerPaddingTop,
-        right = outerPaddingRight,
-        bottom = outerPaddingBottom,
-    )
-
     val cornerSize by animateDpAsState(
         targetValue = if (actionCardState.isFullscreen) {
             0.dp
@@ -207,16 +149,12 @@ fun InteractiveCellUniverseOverlay(
     )
 
     /**
-     * `true` if we are currently showing a full-screen card, which is inferred to be the case if the outer padding
-     * is 0 and we are still wanting to show the card as full-screen.
+     * `true` if we are currently showing a full-screen card, which is inferred to be the case if the corner size is 0
+     * and we are still wanting to show the card as full-screen.
      */
     val isShowingFullscreen by remember {
         derivedStateOf {
-            outerPaddingStart == 0.dp &&
-                outerPaddingTop == 0.dp &&
-                outerPaddingEnd == 0.dp &&
-                outerPaddingBottom == 0.dp &&
-                actionCardState.isFullscreen
+            cornerSize == 0.dp && actionCardState.isFullscreen
         }
     }
 
@@ -258,7 +196,6 @@ fun InteractiveCellUniverseOverlay(
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .consumeWindowInsets(consumedWindowInsets)
                     .animatePlacement(
                         // If we are showing fullscreen, avoid animating placement at this level, since the card
                         // should effectively be fixed to be full screen
@@ -288,7 +225,13 @@ fun InteractiveCellUniverseOverlay(
                                 Alignment.CenterEnd
                             },
                         )
-                        .padding(outerPadding)
+                        .animatedWindowInsetsPadding(
+                            if (actionCardState.isFullscreen) {
+                                WindowInsets.Zero
+                            } else {
+                                WindowInsets.safeDrawing.add(WindowInsets(all = 8.dp))
+                            }
+                        )
                         .sizeIn(maxWidth = confinedWidth)
                         .testTag("CellUniverseActionCard"),
                     shape = RoundedCornerShape(cornerSize),
