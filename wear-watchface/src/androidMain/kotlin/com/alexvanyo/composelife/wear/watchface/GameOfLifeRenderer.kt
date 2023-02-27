@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toOffset
 import androidx.wear.watchface.ComplicationSlotsManager
+import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchState
@@ -46,6 +47,7 @@ import com.alexvanyo.composelife.openglrenderer.GameOfLifeShapeParameters
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.util.containedPoints
 import com.alexvanyo.composelife.wear.watchface.configuration.getGameOfLifeColor
+import com.alexvanyo.composelife.wear.watchface.configuration.getShowComplicationsInAmbient
 import java.nio.IntBuffer
 import java.time.LocalTime
 import java.time.ZonedDateTime
@@ -111,7 +113,7 @@ class GameOfLifeRenderer(
         }
     }
 
-    @Suppress("LongMethod", "NestedBlockDepth")
+    @Suppress("LongMethod", "NestedBlockDepth", "CyclomaticComplexMethod")
     override fun render(zonedDateTime: ZonedDateTime, sharedAssets: SharedAssets) {
         val previousSeedCellState = temporalGameOfLifeState.seedCellState
 
@@ -166,7 +168,15 @@ class GameOfLifeRenderer(
             gameOfLifeShape.draw(mvpMatrix)
         }
 
-        if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS)) {
+        if (
+            renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS) &&
+            (
+                renderParameters.drawMode != DrawMode.AMBIENT ||
+                    with(currentUserStyleRepository.schema) {
+                        currentUserStyleRepository.userStyle.value.getShowComplicationsInAmbient()
+                    }
+                )
+        ) {
             complicationSlotsManager.complicationSlots.values.forEach {
                 (it.renderer as? CanvasComplicationDrawable)?.drawable?.apply {
                     activeStyle.apply {

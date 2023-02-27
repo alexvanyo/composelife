@@ -104,6 +104,23 @@ sealed interface GameOfLifeStyleSetting {
             )
     }
 
+    object ShowComplicationsInAmbient : GameOfLifeStyleSetting {
+        override val id = UserStyleSetting.Id("show_complications_in_ambient")
+
+        override fun createUserStyleSetting(resources: Resources): UserStyleSetting.BooleanUserStyleSetting =
+            UserStyleSetting.BooleanUserStyleSetting(
+                id = id,
+                resources = resources,
+                displayNameResourceId = R.string.show_complications_in_ambient,
+                descriptionResourceId = R.string.show_complications_in_ambient_description,
+                icon = null,
+                affectsWatchFaceLayers = listOf(
+                    WatchFaceLayer.COMPLICATIONS,
+                ),
+                defaultValue = true,
+            )
+    }
+
     @GenSealedEnum
     companion object
 }
@@ -142,7 +159,7 @@ fun UserStyle.getGameOfLifeColor(): Color {
 }
 
 /**
- * Sets the preferred [Color] to the [UserStyle] given the [UserStyleSchema].
+ * Sets the preferred [Color] to the [MutableUserStyle] given the [UserStyleSchema].
  *
  * The color is stored as 3 underlying [Long] settings representing the RGB color components.
  */
@@ -170,6 +187,32 @@ fun MutableUserStyle.setGameOfLifeColor(color: Color) {
         UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption(
             color.get(ColorComponent.RgbIntComponent.Blue).toLong()
         )
+}
+
+/**
+ * Gets the preferred setting to show complications in ambient from the [UserStyle] given the [UserStyleSchema].
+ */
+context(UserStyleSchema)
+fun UserStyle.getShowComplicationsInAmbient(): Boolean {
+    val showComplicationsInAmbientSetting = rootUserStyleSettings.find {
+        it.id == GameOfLifeStyleSetting.ShowComplicationsInAmbient.id
+    } as UserStyleSetting.BooleanUserStyleSetting
+    return (this[showComplicationsInAmbientSetting] as UserStyleSetting.BooleanUserStyleSetting.BooleanOption).value
+}
+
+/**
+ * Sets the preferred setting to show complications in ambient to the [MutableUserStyle] given the [UserStyleSchema].
+ */
+context(UserStyleSchema)
+fun MutableUserStyle.setShowComplicationsInAmbient(value: Boolean) {
+    val showComplicationsInAmbientSetting = rootUserStyleSettings.find {
+        it.id == GameOfLifeStyleSetting.ShowComplicationsInAmbient.id
+    } as UserStyleSetting.BooleanUserStyleSetting
+    this[showComplicationsInAmbientSetting] = if (value) {
+        UserStyleSetting.BooleanUserStyleSetting.BooleanOption.TRUE
+    } else {
+        UserStyleSetting.BooleanUserStyleSetting.BooleanOption.FALSE
+    }
 }
 
 /**

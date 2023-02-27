@@ -31,17 +31,35 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.editor.EditorSession
 import androidx.wear.watchface.style.WatchFaceLayer
+import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.wear.watchface.configuration.getGameOfLifeColor
+import com.alexvanyo.composelife.wear.watchface.configuration.getShowComplicationsInAmbient
 import com.alexvanyo.composelife.wear.watchface.configuration.setGameOfLifeColor
+import com.alexvanyo.composelife.wear.watchface.configuration.setShowComplicationsInAmbient
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 
+/**
+ * The state for the watchface configuration.
+ */
 interface WatchFaceConfigState : Updatable {
-    val preview: ImageBitmap?
+    /**
+     * The preview as an [ImageBitmap]
+     */
+    val preview: ResourceState<ImageBitmap>
 
+    /**
+     * The [Color] of the watchface
+     */
     var color: Color
+
+    /**
+     * If `true`, show the complications in ambient mode
+     */
+    var showComplicationsInAmbient: Boolean
 
     fun openComplicationDataSourceChooser(id: Int)
 }
@@ -52,15 +70,21 @@ fun rememberWatchFaceConfigState(
 ): WatchFaceConfigState {
     val coroutineScope = rememberCoroutineScope()
 
-    var preview: ImageBitmap? by remember { mutableStateOf(null) }
+    var preview: ResourceState<ImageBitmap> by remember { mutableStateOf(ResourceState.Loading) }
 
     return remember(editorSession) {
         object : WatchFaceConfigState {
-            override val preview: ImageBitmap? get() = preview
+            override val preview get() = preview
 
             override var color: Color by mutableStateOf(
                 with(editorSession.userStyleSchema) {
                     editorSession.userStyle.value.getGameOfLifeColor()
+                }
+            )
+
+            override var showComplicationsInAmbient: Boolean by mutableStateOf(
+                with(editorSession.userStyleSchema) {
+                    editorSession.userStyle.value.getShowComplicationsInAmbient()
                 }
             )
 
@@ -70,26 +94,28 @@ fun rememberWatchFaceConfigState(
                 }
             }
 
-            override suspend fun update(): Nothing = kotlinx.coroutines.coroutineScope {
+            override suspend fun update(): Nothing = coroutineScope {
                 launch {
                     combine(
                         editorSession.userStyle,
                         editorSession.complicationsPreviewData,
                     ) { _, complicationsPreviewData ->
                         yield()
-                        preview = editorSession.renderWatchFaceToBitmap(
-                            renderParameters = RenderParameters(
-                                DrawMode.INTERACTIVE,
-                                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                                RenderParameters.HighlightLayer(
-                                    RenderParameters.HighlightedElement.AllComplicationSlots,
-                                    Color.Red.toArgb(),
-                                    Color(0, 0, 0, 128).toArgb(),
-                                )
-                            ),
-                            instant = editorSession.previewReferenceInstant,
-                            slotIdToComplicationData = complicationsPreviewData,
-                        ).asImageBitmap()
+                        preview = ResourceState.Success(
+                            editorSession.renderWatchFaceToBitmap(
+                                renderParameters = RenderParameters(
+                                    DrawMode.INTERACTIVE,
+                                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                                    RenderParameters.HighlightLayer(
+                                        RenderParameters.HighlightedElement.AllComplicationSlots,
+                                        Color.Red.toArgb(),
+                                        Color(0, 0, 0, 128).toArgb(),
+                                    )
+                                ),
+                                instant = editorSession.previewReferenceInstant,
+                                slotIdToComplicationData = complicationsPreviewData,
+                            ).asImageBitmap()
+                        )
                     }
                         .collect {}
                 }
@@ -101,6 +127,18 @@ fun rememberWatchFaceConfigState(
                                 editorSession.userStyle.value.toMutableUserStyle().apply {
                                     with(editorSession.userStyleSchema) {
                                         setGameOfLifeColor(newColor)
+                                    }
+                                }.toUserStyle()
+                        }
+                }
+
+                launch {
+                    snapshotFlow { showComplicationsInAmbient }
+                        .collect { newShowComplicationsInAmbient ->
+                            editorSession.userStyle.value =
+                                editorSession.userStyle.value.toMutableUserStyle().apply {
+                                    with(editorSession.userStyleSchema) {
+                                        setShowComplicationsInAmbient(newShowComplicationsInAmbient)
                                     }
                                 }.toUserStyle()
                         }
