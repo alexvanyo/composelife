@@ -37,6 +37,7 @@ import com.alexvanyo.composelife.resourcestate.ResourceState
 /**
  * A composition local tracking whether or not the [ComposeLifeTheme] has already been applied.
  */
+@Suppress("ComposeCompositionLocalUsage")
 private val LocalAppliedComposeLifeTheme = compositionLocalOf { false }
 
 /**
