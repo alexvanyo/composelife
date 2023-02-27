@@ -138,7 +138,7 @@ private fun CellWindowImpl(
     centerOffset: Offset,
     viewportInteractionConfig: ViewportInteractionConfig,
     inOverlay: Boolean,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
 ) {
     require(centerOffset.x in 0f..1f)
     require(centerOffset.y in 0f..1f)

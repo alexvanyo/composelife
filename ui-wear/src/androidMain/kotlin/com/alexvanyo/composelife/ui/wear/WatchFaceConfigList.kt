@@ -50,8 +50,8 @@ import com.alexvanyo.composelife.resources.wear.R as resourcesWearR
 fun WatchFaceConfigList(
     state: WatchFaceConfigState,
     onEditColorClicked: () -> Unit,
-    modifier: Modifier = Modifier,
     scalingLazyListState: ScalingLazyListState,
+    modifier: Modifier = Modifier,
 ) {
     val focusRequester = rememberActiveFocusRequester()
 

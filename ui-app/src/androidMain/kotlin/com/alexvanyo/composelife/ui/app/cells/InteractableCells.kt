@@ -80,7 +80,7 @@ fun InteractableCells(
         val numRows = cellWindow.height + 1
 
         Layout(
-            modifier = modifier
+            modifier = Modifier
                 .requiredSize(
                     scaledCellDpSize * numColumns,
                     scaledCellDpSize * numRows,

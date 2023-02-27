@@ -48,6 +48,7 @@ okio = "3.3.0"
 paparazzi = "1.2.0"
 robolectric = "4.9.2"
 sealedEnum = "0.5.0"
+slackComposeLintChecks = "1.0.1"
 testParameterInjector = "1.10"
 turbine = "0.12.1"
 wire = "4.5.1"
@@ -137,6 +138,7 @@ paparazzi-gradlePlugin = { group = "app.cash.paparazzi", name = "paparazzi-gradl
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 sealedEnum-ksp = { group = "com.github.livefront.sealed-enum", name = "ksp", version.ref = "sealedEnum" }
 sealedEnum-runtime = { group = "com.github.livefront.sealed-enum", name = "runtime", version.ref = "sealedEnum" }
+slackComposeLintChecks = { group = "com.slack.lint.compose", name = "compose-lint-checks", version.ref = "slackComposeLintChecks" }
 testParameterInjector-junit4 = { group = "com.google.testparameterinjector", name = "test-parameter-injector", version.ref = "testParameterInjector" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 wire-runtime = { group = "com.squareup.wire", name = "wire-runtime", version.ref = "wire" }

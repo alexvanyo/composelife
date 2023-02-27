@@ -83,9 +83,10 @@ context(ComposeLifeAppHiltEntryPoint)
 @Composable
 fun ComposeLifeApp(
     windowSizeClass: WindowSizeClass,
+    modifier: Modifier = Modifier,
     composeLifeAppState: ComposeLifeAppState = rememberComposeLifeAppState(),
 ) {
-    Surface(modifier = Modifier.fillMaxSize()) {
+    Surface(modifier = modifier.fillMaxSize()) {
         val transition = updateTransition(composeLifeAppState, "ComposeLifeAppState Crossfade")
         transition.Crossfade(
             contentKey = {
