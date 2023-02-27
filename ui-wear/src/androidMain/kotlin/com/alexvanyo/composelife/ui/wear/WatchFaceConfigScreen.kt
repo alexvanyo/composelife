@@ -29,6 +29,7 @@ import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.navigate
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
+import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.util.WearDevicePreviews
 import com.alexvanyo.composelife.ui.wear.theme.ComposeLifeTheme
 import kotlinx.coroutines.awaitCancellation
@@ -103,7 +104,9 @@ fun WatchFaceConfigScreenPreview() {
 
                 override var color: Color = Color.White
 
-                override val preview get() = preview
+                override var showComplicationsInAmbient: Boolean = true
+
+                override val preview get() = ResourceState.Success(preview)
 
                 override fun openComplicationDataSourceChooser(id: Int) = Unit
             }

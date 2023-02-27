@@ -39,6 +39,7 @@ kotlin {
                 implementation(projects.snapshotStateSet)
                 implementation(projects.uiCommon)
                 implementation(projects.wearWatchfaceConfiguration)
+                implementation(projects.resourceState)
                 implementation(projects.resourcesWear)
                 api(projects.updatable)
 

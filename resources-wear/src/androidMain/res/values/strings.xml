@@ -23,4 +23,6 @@
     <string name="color_green_value_description">Green part of RGB color</string>
     <string name="color_blue_value">Blue Component</string>
     <string name="color_blue_value_description">Blue part of RGB color</string>
+    <string name="show_complications_in_ambient">Show complications in ambient</string>
+    <string name="show_complications_in_ambient_description">Enables or disables drawing the complications in ambient mode</string>
 </resources>

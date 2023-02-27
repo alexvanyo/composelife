@@ -36,12 +36,16 @@ import androidx.wear.compose.foundation.rememberActiveFocusRequester
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CircularProgressIndicator
+import androidx.wear.compose.material.Switch
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.ToggleChip
+import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.google.android.horologist.compose.navscaffold.ExperimentalHorologistComposeLayoutApi
 import com.google.android.horologist.compose.rotaryinput.rotaryWithScroll
 import com.alexvanyo.composelife.resources.wear.R as resourcesWearR
 
 @OptIn(ExperimentalHorologistComposeLayoutApi::class)
+@Suppress("LongMethod")
 @Composable
 fun WatchFaceConfigList(
     state: WatchFaceConfigState,
@@ -63,23 +67,26 @@ fun WatchFaceConfigList(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 val currentPreview = state.preview
-                if (currentPreview != null) {
-                    WatchFacePreview(
-                        previewImageBitmap = currentPreview,
-                        onComplicationClicked = { id ->
-                            state.openComplicationDataSourceChooser(id)
-                        },
-                        modifier = Modifier.fillMaxWidth(0.8f)
-                    )
-                } else {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillMaxWidth(0.8f)
-                            .aspectRatio(1f)
-                            .fillMaxHeight()
-                    ) {
-                        CircularProgressIndicator()
+                when (currentPreview) {
+                    is ResourceState.Failure, ResourceState.Loading -> {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .fillMaxWidth(0.8f)
+                                .aspectRatio(1f)
+                                .fillMaxHeight()
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                    is ResourceState.Success -> {
+                        WatchFacePreview(
+                            previewImageBitmap = currentPreview.value,
+                            onComplicationClicked = { id ->
+                                state.openComplicationDataSourceChooser(id)
+                            },
+                            modifier = Modifier.fillMaxWidth(0.8f)
+                        )
                     }
                 }
             }
@@ -90,10 +97,31 @@ fun WatchFaceConfigList(
                     Text(text = stringResource(id = resourcesWearR.string.color))
                 },
                 icon = {
-                    Spacer(modifier = Modifier.size(16.dp).background(state.color, CircleShape))
+                    Spacer(
+                        modifier = Modifier
+                            .size(16.dp)
+                            .background(state.color, CircleShape)
+                    )
                 },
                 colors = ChipDefaults.secondaryChipColors(),
                 onClick = onEditColorClicked,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        item {
+            ToggleChip(
+                checked = state.showComplicationsInAmbient,
+                onCheckedChange = {
+                    state.showComplicationsInAmbient = it
+                },
+                label = {
+                    Text(text = stringResource(id = resourcesWearR.string.show_complications_in_ambient))
+                },
+                toggleControl = {
+                    Switch(
+                        checked = state.showComplicationsInAmbient,
+                    )
+                },
                 modifier = Modifier.fillMaxWidth()
             )
         }
