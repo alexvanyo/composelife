@@ -35,6 +35,11 @@ jobs:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.PAT }}
 
+      - name: Copy ci-gradle.properties
+        run: |
+          mkdir -p ~/.gradle
+          cp .github/ci-gradle.properties ~/.gradle/gradle.properties
+
       - name: Cache AVD
         uses: actions/cache@v3
         id: avd-cache
