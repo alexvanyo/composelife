@@ -16,6 +16,13 @@
 
 package com.alexvanyo.composelife.ui.app.cells
 
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.AnimationVector
+import androidx.compose.animation.core.SnapSpec
+import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.animation.core.animateValueAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.size
@@ -162,37 +169,81 @@ private fun CellWindowImpl(
         modifier = modifier,
     ) {
         /**
-         * The [CellWindowViewport] to use to display the cell universe.
+         * The target [CellWindowViewport] to use to display the cell universe.
          *
-         * This will either be driven by the [viewportInteractionConfig].
+         * This will be driven by the [viewportInteractionConfig].
          */
-        val cellWindowViewport: CellWindowViewport
+        val targetCellWindowViewport: CellWindowViewport
 
+        /**
+         * The animation spec to animate to the [targetCellWindowViewport].
+         *
+         * This will be driven by the [viewportInteractionConfig].
+         */
+        val cellWindowViewportAnimationSpec: AnimationSpec<CellWindowViewport>
+
+        // Determine the target viewport and animation spec based on the viewportInteractionConfig
         when (viewportInteractionConfig) {
             is ViewportInteractionConfig.Fixed -> {
-                cellWindowViewport = viewportInteractionConfig.cellWindowState.cellWindowViewport
+                targetCellWindowViewport = viewportInteractionConfig.cellWindowState.cellWindowViewport
+                cellWindowViewportAnimationSpec = spring()
             }
+
             is ViewportInteractionConfig.Navigable -> {
-                cellWindowViewport = viewportInteractionConfig.mutableCellWindowState.cellWindowViewport
+                targetCellWindowViewport = viewportInteractionConfig.mutableCellWindowState.cellWindowViewport
+                cellWindowViewportAnimationSpec = snap()
             }
+
             is ViewportInteractionConfig.Tracking -> {
-                cellWindowViewport = viewportInteractionConfig.trackingCellWindowState.calculateCellWindowViewport(
-                    baseCellWidth = maxWidth / cellDpSize,
-                    baseCellHeight = maxHeight / cellDpSize,
-                    centerOffset = centerOffset,
-                )
-
-                val mutableCellWindowState = viewportInteractionConfig.mutableCellWindowState
-
-                // Sync the calculated tracking viewport back to the mutable cell window viewport to preserve
-                // the viewport when disabling auto tracking
-                DisposableEffect(cellWindowViewport, mutableCellWindowState) {
-                    mutableCellWindowState?.offset = cellWindowViewport.offset
-                    mutableCellWindowState?.scale = cellWindowViewport.scale
-
-                    onDispose {}
-                }
+                targetCellWindowViewport =
+                    viewportInteractionConfig.trackingCellWindowState.calculateCellWindowViewport(
+                        baseCellWidth = maxWidth / cellDpSize,
+                        baseCellHeight = maxHeight / cellDpSize,
+                        centerOffset = centerOffset,
+                    )
+                cellWindowViewportAnimationSpec = spring()
             }
+        }
+
+        /**
+         * The animated [CellWindowViewport] to the [targetCellWindowViewport] using the
+         * [cellWindowViewportAnimationSpec].
+         */
+        val animatingCellWindowViewport by animateValueAsState(
+            targetValue = targetCellWindowViewport,
+            typeConverter = TwoWayConverter(
+                { AnimationVector(it.offset.x, it.offset.y, it.scale) },
+                {
+                    CellWindowViewport(
+                        offset = Offset(it.v1, it.v2),
+                        scale = it.v3
+                    )
+                }
+            ),
+            animationSpec = cellWindowViewportAnimationSpec,
+            visibilityThreshold = CellWindowViewport(Offset(0.01f, 0.01f), 0.01f),
+            label = "CellWindowViewport Animation",
+        )
+
+        // If the animation spec is an immediate snap, use the targetCellWindowViewport immediately to avoid a single
+        // frame delay
+        val cellWindowViewport = if (
+            cellWindowViewportAnimationSpec is SnapSpec<CellWindowViewport> &&
+            cellWindowViewportAnimationSpec.delay == 0
+        ) {
+            targetCellWindowViewport
+        } else {
+            animatingCellWindowViewport
+        }
+
+        // Sync the currently displayed cell window viewport back to any syncable cell window states
+        val syncableMutableCellWindowStates = viewportInteractionConfig.syncableMutableCellWindowStates
+        DisposableEffect(cellWindowViewport, syncableMutableCellWindowStates) {
+            syncableMutableCellWindowStates.forEach {
+                it.setTo(cellWindowViewport)
+            }
+
+            onDispose {}
         }
 
         val scaledCellDpSize = cellDpSize * cellWindowViewport.scale
@@ -228,6 +279,7 @@ private fun CellWindowImpl(
             is ViewportInteractionConfig.Fixed,
             is ViewportInteractionConfig.Tracking,
             -> Modifier
+
             is ViewportInteractionConfig.Navigable -> {
                 val mutableCellWindowState = viewportInteractionConfig.mutableCellWindowState
 
@@ -304,6 +356,7 @@ private fun CellWindowImpl(
                         is ViewportInteractionConfig.Fixed,
                         is ViewportInteractionConfig.Tracking,
                         -> false
+
                         is ViewportInteractionConfig.Navigable -> true
                     } && isGesturing,
                     scale = cellWindowViewport.scale,

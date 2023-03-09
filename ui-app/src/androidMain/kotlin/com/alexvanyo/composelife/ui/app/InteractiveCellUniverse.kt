@@ -81,7 +81,7 @@ fun InteractiveCellUniverse(
         if (isViewportTracking) {
             ViewportInteractionConfig.Tracking(
                 trackingCellWindowState = trackingCellWindowState,
-                mutableCellWindowState = mutableCellWindowState,
+                syncableMutableCellWindowStates = listOf(mutableCellWindowState),
             )
         } else {
             ViewportInteractionConfig.Navigable(

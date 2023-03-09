@@ -58,6 +58,16 @@ interface MutableCellWindowState : CellWindowState {
 }
 
 /**
+ * Sets this [MutableCellWindowState] to match the given [cellWindowViewport].
+ */
+fun MutableCellWindowState.setTo(
+    cellWindowViewport: CellWindowViewport,
+) {
+    offset = cellWindowViewport.offset
+    scale = cellWindowViewport.scale
+}
+
+/**
  * Remembers a [MutableCellWindowState], with the given default
  */
 @Composable
