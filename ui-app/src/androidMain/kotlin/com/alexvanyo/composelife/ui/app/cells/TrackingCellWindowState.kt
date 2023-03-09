@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.app.cells
 
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
@@ -106,19 +105,14 @@ fun rememberTrackingCellWindowState(
         )
     }
 
-    val targetBoundingBoxLeft by animateFloatAsState(maxBoundingBox.left - cellPadding)
-    val targetBoundingBoxRight by animateFloatAsState(maxBoundingBox.right + cellPadding)
-    val targetBoundingBoxTop by animateFloatAsState(maxBoundingBox.top - cellPadding)
-    val targetBoundingBoxBottom by animateFloatAsState(maxBoundingBox.bottom + cellPadding)
-
     /**
      * Create the target bounding box to display in cell coordinates.
      */
-    val targetBoundingBox = Rect(
-        left = targetBoundingBoxLeft,
-        right = targetBoundingBoxRight,
-        top = targetBoundingBoxTop,
-        bottom = targetBoundingBoxBottom,
+    val boundingBox = Rect(
+        left = maxBoundingBox.left - cellPadding,
+        right = maxBoundingBox.right + cellPadding,
+        top = maxBoundingBox.top - cellPadding,
+        bottom = maxBoundingBox.bottom + cellPadding,
     )
 
     return object : TrackingCellWindowState {
@@ -131,16 +125,16 @@ fun rememberTrackingCellWindowState(
              * Compute the scale as the smallest (more zoomed out) to show the necessary height and width.
              */
             val scale = min(
-                baseCellHeight / targetBoundingBox.height,
-                baseCellWidth / targetBoundingBox.width,
+                baseCellHeight / boundingBox.height,
+                baseCellWidth / boundingBox.width,
             )
 
             /**
              * Compute the offset so that the entire target bounding box will be shown.
              */
-            val offset = targetBoundingBox.topLeft + Offset(
-                targetBoundingBox.width * centerOffset.x,
-                targetBoundingBox.height * centerOffset.y,
+            val offset = boundingBox.topLeft + Offset(
+                boundingBox.width * centerOffset.x,
+                boundingBox.height * centerOffset.y,
             )
 
             return CellWindowViewport(

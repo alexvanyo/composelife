@@ -22,11 +22,17 @@ package com.alexvanyo.composelife.ui.app.cells
 sealed interface ViewportInteractionConfig {
 
     /**
+     * The [MutableCellWindowState]s (if any) to sync the currently displayed cell window state back to.
+     */
+    val syncableMutableCellWindowStates: List<MutableCellWindowState>
+
+    /**
      * The viewport is fixed, and can only be changed programmatically and not by the user (via gestures or
      * accessibility actions)
      */
     class Fixed(
         val cellWindowState: CellWindowState,
+        override val syncableMutableCellWindowStates: List<MutableCellWindowState> = emptyList(),
     ) : ViewportInteractionConfig
 
     /**
@@ -34,14 +40,16 @@ sealed interface ViewportInteractionConfig {
      */
     class Navigable(
         val mutableCellWindowState: MutableCellWindowState,
+        override val syncableMutableCellWindowStates: List<MutableCellWindowState> = emptyList(),
     ) : ViewportInteractionConfig
 
     /**
      * The viewport is tracking the pattern in an auto-fit manner driven by [trackingCellWindowState].
-     * The resulting offset and scale will be synced back to [mutableCellWindowState] (if not null) to keep consistency.
+     * The resulting offset and scale will be synced back to [syncableMutableCellWindowStates] to keep
+     * consistency.
      */
     class Tracking(
         val trackingCellWindowState: TrackingCellWindowState,
-        val mutableCellWindowState: MutableCellWindowState? = null,
+        override val syncableMutableCellWindowStates: List<MutableCellWindowState> = emptyList(),
     ) : ViewportInteractionConfig
 }
