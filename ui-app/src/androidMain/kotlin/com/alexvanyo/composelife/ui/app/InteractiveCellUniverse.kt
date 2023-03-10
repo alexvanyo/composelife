@@ -39,6 +39,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.testTag
+import com.alexvanyo.composelife.contextreceiverentrypoint.ContextReceiverEntryPoint
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.isRunning
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardState
@@ -59,11 +60,13 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 
+@ContextReceiverEntryPoint
 @EntryPoint
 @InstallIn(ActivityComponent::class)
 interface InteractiveCellUniverseHiltEntryPoint :
     InteractiveCellUniverseOverlayHiltEntryPoint
 
+@ContextReceiverEntryPoint
 interface InteractiveCellUniverseLocalEntryPoint :
     CellWindowLocalEntryPoint,
     InteractiveCellUniverseOverlayLocalEntryPoint

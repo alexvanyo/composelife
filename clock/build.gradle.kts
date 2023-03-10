@@ -36,6 +36,7 @@ kotlin {
         val commonMain by getting {
             configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
+                implementation(projects.contextReceiverEntryPoint)
                 api(libs.kotlinx.datetime)
                 implementation(libs.dagger.hilt.core)
             }

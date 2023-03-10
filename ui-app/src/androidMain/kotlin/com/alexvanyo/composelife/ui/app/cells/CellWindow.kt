@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
+import com.alexvanyo.composelife.contextreceiverentrypoint.ContextReceiverEntryPoint
 import com.alexvanyo.composelife.geometry.floor
 import com.alexvanyo.composelife.geometry.toRingOffset
 import com.alexvanyo.composelife.model.GameOfLifeState
@@ -80,6 +81,7 @@ object CellWindow {
     const val defaultInOverlay = false
 }
 
+@ContextReceiverEntryPoint
 interface CellWindowLocalEntryPoint :
     InteractableCellsLocalEntryPoint,
     NonInteractableCellsLocalEntryPoint

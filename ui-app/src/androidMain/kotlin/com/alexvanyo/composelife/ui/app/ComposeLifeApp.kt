@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.DpSize
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.clock.di.ClockProvider
+import com.alexvanyo.composelife.contextreceiverentrypoint.ContextReceiverEntryPoint
 import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
 import com.alexvanyo.composelife.data.model.CellStateMetadata
 import com.alexvanyo.composelife.data.model.SaveableCellState
@@ -74,6 +75,7 @@ import kotlinx.coroutines.flow.transform
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
+@ContextReceiverEntryPoint
 @EntryPoint
 @InstallIn(ActivityComponent::class)
 interface ComposeLifeAppHiltEntryPoint :

@@ -48,6 +48,7 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
+import com.alexvanyo.composelife.contextreceiverentrypoint.ContextReceiverEntryPoint
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.ActionControlRow
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.NavContainer
@@ -73,12 +74,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.max
 
+@ContextReceiverEntryPoint
 @EntryPoint
 @InstallIn(ActivityComponent::class)
 interface CellUniverseActionCardHiltEntryPoint :
     FullscreenSettingsScreenHiltEntryPoint,
     InlineSettingsScreenHiltEntryPoint
 
+@ContextReceiverEntryPoint
 interface CellUniverseActionCardLocalEntryPoint :
     FullscreenSettingsScreenLocalEntryPoint,
     InlineSettingsScreenLocalEntryPoint

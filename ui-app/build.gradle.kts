@@ -44,14 +44,17 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
+            configurations["detektPlugins"].dependencies.add(projects.contextReceiverEntryPointDetekt)
             dependencies {
                 api(projects.algorithm)
                 api(projects.clock)
+                implementation(projects.contextReceiverEntryPoint)
                 api(projects.data)
                 api(projects.dispatchers)
                 implementation(projects.navigation)
                 implementation(projects.openglRenderer)
                 implementation(projects.patterns)
+                implementation(projects.preferences)
                 api(projects.random)
                 implementation(projects.resourceState)
                 implementation(projects.snapshotStateSet)
@@ -93,7 +96,6 @@ kotlin {
             dependencies {
                 implementation(projects.dispatchersTest)
                 implementation(projects.hiltTestActivity)
-                implementation(projects.patterns)
                 implementation(projects.preferencesTest)
                 implementation(projects.screenshotTest)
 
@@ -122,4 +124,8 @@ kotlin {
 
 kapt {
     correctErrorTypes = true
+}
+
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().all {
+    dependsOn(":context-receiver-entry-point-detekt:assemble")
 }

@@ -43,6 +43,7 @@ kotlin {
         val commonMain by getting {
             configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
+                implementation(projects.contextReceiverEntryPoint)
                 api(projects.dispatchers)
                 implementation(projects.preferencesProto)
                 api(projects.resourceState)

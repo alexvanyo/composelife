@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.contextreceiverentrypoint.ContextReceiverEntryPoint
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.CurrentShape
@@ -53,11 +54,13 @@ import dagger.hilt.android.components.ActivityComponent
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 
+@ContextReceiverEntryPoint
 @EntryPoint
 @InstallIn(ActivityComponent::class)
 interface CellShapeConfigUiHiltEntryPoint :
     ComposeLifePreferencesProvider
 
+@ContextReceiverEntryPoint
 interface CellShapeConfigUiLocalEntryPoint :
     LoadedComposeLifePreferencesProvider
 

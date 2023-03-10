@@ -29,8 +29,10 @@ androidxWearCompose = "1.3.0-alpha01"
 androidxWearWatchface = "1.2.0-alpha09"
 androidxWindow = "1.2.0-alpha03"
 apiGuardian = "1.1.2"
+autoServiceKsp = "1.0.0"
 dagger = "2.47"
 detekt = "1.23.0"
+googleAutoService = "1.0"
 googleAutoValue = "1.10.2"
 guavaAndroid = "32.0.0-android"
 guavaJre = "32.0.0-jre"
@@ -61,6 +63,7 @@ android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs
 android-r8 = { group = "com.android.tools", name = "r8", version.ref = "androidR8" }
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
 android-tools-common = { group = "com.android.tools", name = "common", version.ref = "androidTools" }
+android-tools-lint-api = { group = "com.android.tools.lint", name = "lint-api", version.ref = "androidTools" }
 androidx-activityCompose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
 androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "androidxAnnotation" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppcompat" }
@@ -110,12 +113,15 @@ androidx-wear-watchface-editor = { group = "androidx.wear.watchface", name = "wa
 androidx-wear-watchface-style = { group = "androidx.wear.watchface", name = "watchface-style", version.ref = "androidxWearWatchface" }
 androidx-window = { group = "androidx.window", name = "window", version.ref = "androidxWindow" }
 apiGuardian-api = { group = "org.apiguardian", name = "apiguardian-api", version.ref = "apiGuardian" }
+autoServiceKsp = { group = "dev.zacsweers.autoservice", name = "auto-service-ksp", version.ref = "autoServiceKsp" }
 dagger-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "dagger" }
 dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "dagger" }
 dagger-hilt-core = { group = "com.google.dagger", name = "hilt-core", version.ref = "dagger" }
 dagger-hilt-test = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "dagger" }
+detekt-api = { group = "io.gitlab.arturbosch.detekt", name = "detekt-api", version.ref = "detekt" }
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
 detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
+google-autoService-annotations = { group = "com.google.auto.service", name = "auto-service-annotations", version.ref = "googleAutoService" }
 google-autoValue-annotations = { group = "com.google.auto.value", name = "auto-value-annotations", version.ref = "googleAutoValue" }
 guava-android = { group = "com.google.guava", name = "guava", version.ref = "guavaAndroid" }
 guava-jre = { group = "com.google.guava", name = "guava", version.ref = "guavaJre" }

@@ -16,7 +16,9 @@
 
 package com.alexvanyo.composelife
 
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -47,6 +49,8 @@ class MainActivity : Hilt_MainActivity() {
         }
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        Log.d("vanyo", "model: ${Build.DEVICE}")
 
         setContent {
             with(mainActivityEntryPoint) {

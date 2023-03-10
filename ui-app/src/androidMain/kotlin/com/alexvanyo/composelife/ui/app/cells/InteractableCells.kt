@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.contextreceiverentrypoint.ContextReceiverEntryPoint
 import com.alexvanyo.composelife.geometry.LineSegmentPath
 import com.alexvanyo.composelife.geometry.cellIntersections
 import com.alexvanyo.composelife.geometry.containedPoints
@@ -61,6 +62,7 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
+@ContextReceiverEntryPoint
 interface InteractableCellsLocalEntryPoint : LoadedComposeLifePreferencesProvider
 
 /**

@@ -84,6 +84,7 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.contextreceiverentrypoint.ContextReceiverEntryPoint
 import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.action.ActionCardNavigation
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
@@ -99,11 +100,13 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import kotlin.math.roundToInt
 
+@ContextReceiverEntryPoint
 @EntryPoint
 @InstallIn(ActivityComponent::class)
 interface FullscreenSettingsScreenHiltEntryPoint :
     SettingUiHiltEntryPoint
 
+@ContextReceiverEntryPoint
 interface FullscreenSettingsScreenLocalEntryPoint :
     SettingUiLocalEntryPoint
 

@@ -22,14 +22,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import com.alexvanyo.composelife.contextreceiverentrypoint.ContextReceiverEntryPoint
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import kotlinx.coroutines.launch
 
+@ContextReceiverEntryPoint
 @EntryPoint
 @InstallIn(ActivityComponent::class)
 interface SettingUiHiltEntryPoint :
@@ -41,6 +42,7 @@ interface SettingUiHiltEntryPoint :
     DisableOpenGLUiHiltEntryPoint,
     DoNotKeepProcessUiHiltEntryPoint
 
+@ContextReceiverEntryPoint
 interface SettingUiLocalEntryPoint :
     AlgorithmImplementationUiLocalEntryPoint,
     CellShapeConfigUiLocalEntryPoint,
@@ -48,8 +50,7 @@ interface SettingUiLocalEntryPoint :
     DarkThemeConfigUiLocalEntryPoint,
     DisableAGSLUiLocalEntryPoint,
     DisableOpenGLUiLocalEntryPoint,
-    DoNotKeepProcessUiLocalEntryPoint,
-    LoadedComposeLifePreferencesProvider
+    DoNotKeepProcessUiLocalEntryPoint
 
 /**
  * Displays the setting UI for the given [setting].

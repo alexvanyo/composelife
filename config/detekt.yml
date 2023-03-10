@@ -153,3 +153,7 @@ style:
     excludes: [ '**/generated/**' ]
   VarCouldBeVal:
     excludes: [ '**/generated/**' ]
+
+context-receiver-entry-point-rules:
+  ContextReceiverEntryPoint:
+    active: true

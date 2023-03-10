@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import com.alexvanyo.composelife.contextreceiverentrypoint.ContextReceiverEntryPoint
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
@@ -38,11 +39,13 @@ import dagger.hilt.android.components.ActivityComponent
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 
+@ContextReceiverEntryPoint
 @EntryPoint
 @InstallIn(ActivityComponent::class)
 interface AlgorithmImplementationUiHiltEntryPoint :
     ComposeLifePreferencesProvider
 
+@ContextReceiverEntryPoint
 interface AlgorithmImplementationUiLocalEntryPoint :
     LoadedComposeLifePreferencesProvider
 

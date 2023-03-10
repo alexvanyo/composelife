@@ -34,6 +34,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.clock.di.ClockProvider
+import com.alexvanyo.composelife.contextreceiverentrypoint.ContextReceiverEntryPoint
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
@@ -55,6 +56,7 @@ import kotlinx.coroutines.awaitCancellation
 import kotlin.math.max
 import kotlin.random.Random
 
+@ContextReceiverEntryPoint
 @EntryPoint
 @InstallIn(ActivityComponent::class)
 interface GameOfLifeProgressIndicatorHiltEntryPoint :
@@ -63,6 +65,7 @@ interface GameOfLifeProgressIndicatorHiltEntryPoint :
     RandomProvider,
     ClockProvider
 
+@ContextReceiverEntryPoint
 interface GameOfLifeProgressIndicatorLocalEntryPoint :
     CellWindowLocalEntryPoint
 

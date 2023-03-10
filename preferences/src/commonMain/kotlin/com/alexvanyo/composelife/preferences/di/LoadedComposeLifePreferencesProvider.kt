@@ -16,8 +16,10 @@
 
 package com.alexvanyo.composelife.preferences.di
 
+import com.alexvanyo.composelife.contextreceiverentrypoint.ContextReceiverEntryPoint
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 
+@ContextReceiverEntryPoint
 interface LoadedComposeLifePreferencesProvider {
     val preferences: LoadedComposeLifePreferences
 }

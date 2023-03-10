@@ -16,8 +16,10 @@
 
 package com.alexvanyo.composelife.clock.di
 
+import com.alexvanyo.composelife.contextreceiverentrypoint.ContextReceiverEntryPoint
 import kotlinx.datetime.Clock
 
+@ContextReceiverEntryPoint
 interface ClockProvider {
     val clock: Clock
 }
