@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
@@ -44,7 +45,7 @@ import com.google.android.horologist.compose.navscaffold.ExperimentalHorologistC
 import com.google.android.horologist.compose.rotaryinput.rotaryWithScroll
 import com.alexvanyo.composelife.resources.wear.R as resourcesWearR
 
-@OptIn(ExperimentalHorologistComposeLayoutApi::class)
+@OptIn(ExperimentalHorologistComposeLayoutApi::class, ExperimentalWearFoundationApi::class)
 @Suppress("LongMethod")
 @Composable
 fun WatchFaceConfigList(

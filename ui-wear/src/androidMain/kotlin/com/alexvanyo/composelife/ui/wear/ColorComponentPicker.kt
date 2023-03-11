@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
 import androidx.wear.compose.foundation.rememberActiveFocusRequester
 import androidx.wear.compose.material.MaterialTheme
@@ -42,6 +43,7 @@ import androidx.wear.compose.material.rememberPickerState
 import com.google.android.horologist.compose.rotaryinput.onRotaryInputAccumulated
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 @Suppress("LongParameterList")
 fun ColorComponentPicker(
@@ -67,11 +69,8 @@ fun ColorComponentPicker(
             }
     }
 
-    // TODO: This rememberUpdatedState should not be necessary
-    val currentIsSelected by rememberUpdatedState(isSelected)
-
     HierarchicalFocusCoordinator(
-        requiresFocus = { currentIsSelected }
+        requiresFocus = { isSelected }
     ) {
         val focusRequester = rememberActiveFocusRequester()
         Picker(

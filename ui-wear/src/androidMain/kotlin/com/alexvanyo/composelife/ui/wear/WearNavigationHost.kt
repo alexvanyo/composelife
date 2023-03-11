@@ -24,6 +24,7 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
+import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
 import androidx.wear.compose.material.SwipeToDismissBox
 import com.alexvanyo.composelife.navigation.BackstackEntry
@@ -46,6 +47,7 @@ fun <T> WearNavigationHost(
     content = content,
 )
 
+@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 fun <T> WearNavigationHost(
     backstackState: BackstackState<T>,
