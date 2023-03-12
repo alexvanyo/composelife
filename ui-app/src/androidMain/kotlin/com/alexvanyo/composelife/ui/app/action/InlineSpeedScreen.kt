@@ -50,6 +50,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.component.LabeledSlider
+import com.alexvanyo.composelife.ui.app.component.SliderBijection
+import com.alexvanyo.composelife.ui.app.component.toSlider
+import com.alexvanyo.composelife.ui.app.component.toValue
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
@@ -86,6 +89,11 @@ fun InlineSpeedScreen(
     }
 }
 
+private object TargetStepsPerSecondSliderBijection : SliderBijection<Double> {
+    override fun valueToSlider(value: Double): Float = log2(value).toFloat()
+    override fun sliderToValue(sliderValue: Float): Double = 2.0.pow(sliderValue.toDouble())
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongMethod")
 @Composable
@@ -106,8 +114,11 @@ fun TargetStepsPerSecondControl(
         mutableStateOf(TextFieldValue(generationsPerStepValue))
     }
 
+    val valueRange = with(TargetStepsPerSecondSliderBijection) {
+        (minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat()).toValue()
+    }
     val transientTargetStepsPerSecond = transientTextFieldValue.text.toDoubleOrNull()
-        ?.takeIf { it in 2.0.pow(minTargetStepsPerSecondPowerOfTwo)..2.0.pow(maxTargetStepsPerSecondPowerOfTwo) }
+        ?.takeIf { it in valueRange }
 
     val currentTargetStepsPerSecond = transientTargetStepsPerSecond ?: targetStepsPerSecond
     val sliderFocusRequester = remember { FocusRequester() }
@@ -115,11 +126,10 @@ fun TargetStepsPerSecondControl(
 
     LabeledSlider(
         label = stringResource(id = R.string.target_steps_per_second_label_and_value, currentTargetStepsPerSecond),
-        value = log2(currentTargetStepsPerSecond).toFloat(),
-        onValueChange = {
-            setTargetStepsPerSecond(2.0.pow(it.toDouble()))
-        },
-        valueRange = minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat(),
+        value = currentTargetStepsPerSecond,
+        onValueChange = setTargetStepsPerSecond,
+        valueRange = valueRange,
+        sliderBijection = TargetStepsPerSecondSliderBijection,
         modifier = modifier.focusRequester(sliderFocusRequester).focusable(),
         labelSlot = {
             TextField(
@@ -177,6 +187,11 @@ fun TargetStepsPerSecondControl(
     )
 }
 
+private object GenerationsPerStepSliderBijection : SliderBijection<Int> {
+    override fun valueToSlider(value: Int): Float = log2(value.toFloat())
+    override fun sliderToValue(sliderValue: Float): Int = 2.0.pow(sliderValue.toDouble()).roundToInt()
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongMethod")
 @Composable
@@ -184,8 +199,8 @@ fun GenerationsPerStepControl(
     generationsPerStep: Int,
     setGenerationsPerStep: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    minTargetStepsPerSecondPowerOfTwo: Int = 0,
-    maxTargetStepsPerSecondPowerOfTwo: Int = 8,
+    minGenerationsPerStepPowerOfTwo: Int = 0,
+    maxGenerationsPerStepPowerOfTwo: Int = 8,
 ) {
     var isTextEditing by rememberSaveable { mutableStateOf(false) }
     val generationsPerStepValue = stringResource(id = R.string.generations_per_step_value, generationsPerStep)
@@ -197,10 +212,11 @@ fun GenerationsPerStepControl(
         mutableStateOf(TextFieldValue(generationsPerStepValue))
     }
 
+    val valueRange = with(GenerationsPerStepSliderBijection) {
+        (minGenerationsPerStepPowerOfTwo.toFloat()..maxGenerationsPerStepPowerOfTwo.toFloat()).toValue()
+    }
     val transientGenerationsPerStep = transientTextFieldValue.text.toIntOrNull()
-        ?.takeIf {
-            it in 2.0.pow(minTargetStepsPerSecondPowerOfTwo).toInt()..2.0.pow(maxTargetStepsPerSecondPowerOfTwo).toInt()
-        }
+        ?.takeIf { it in valueRange }
 
     val currentGenerationsPerStep = transientGenerationsPerStep ?: generationsPerStep
     val sliderFocusRequester = remember { FocusRequester() }
@@ -208,14 +224,17 @@ fun GenerationsPerStepControl(
 
     LabeledSlider(
         label = stringResource(id = R.string.generations_per_step_label_and_value, currentGenerationsPerStep),
-        value = log2(currentGenerationsPerStep.toFloat()),
-        valueRange = minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat(),
-        steps = maxTargetStepsPerSecondPowerOfTwo - minTargetStepsPerSecondPowerOfTwo - 1,
-        onValueChange = {
-            setGenerationsPerStep(2.0.pow(it.toDouble()).roundToInt())
-        },
+        value = generationsPerStep,
+        valueRange = valueRange,
+        sliderBijection = GenerationsPerStepSliderBijection,
+        steps = maxGenerationsPerStepPowerOfTwo - minGenerationsPerStepPowerOfTwo - 1,
+        onValueChange = setGenerationsPerStep,
         onValueChangeFinished = {
-            setGenerationsPerStep(2.0.pow(log2(generationsPerStep.toDouble()).roundToInt()).roundToInt())
+            setGenerationsPerStep(
+                with(GenerationsPerStepSliderBijection) {
+                    generationsPerStep.toSlider().roundToInt().toFloat().toValue()
+                }
+            )
         },
         modifier = modifier.focusRequester(sliderFocusRequester).focusable(),
         labelSlot = {
