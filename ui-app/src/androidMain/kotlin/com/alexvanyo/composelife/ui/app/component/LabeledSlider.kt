@@ -64,44 +64,45 @@ fun LabeledSlider(
     }
 
     Column(
-        modifier = modifier
-            .progressSemantics(
-                value = value,
-                valueRange = valueRange,
-                steps = steps,
-            )
-            .clearAndSetSemantics {
-                contentDescription = label
-                setProgress(label) { targetValue ->
-                    val newValue = targetValue.coerceIn(valueRange.start, valueRange.endInclusive)
-                    val resolvedValue = if (steps > 0) {
-                        tickFractions
-                            .map {
-                                lerp(
-                                    valueRange.start,
-                                    valueRange.endInclusive,
-                                    it,
-                                )
-                            }
-                            .minByOrNull { abs(it - newValue) } ?: newValue
-                    } else {
-                        newValue
-                    }
-                    // This is to keep it consistent with AbsSeekbar.java: return false if no
-                    // change from current.
-                    if (resolvedValue == value) {
-                        false
-                    } else {
-                        onValueChange(resolvedValue)
-                        true
-                    }
-                }
-            },
+        modifier = modifier,
     ) {
         labelSlot()
 
         Box(
             contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .progressSemantics(
+                    value = value,
+                    valueRange = valueRange,
+                    steps = steps,
+                )
+                .clearAndSetSemantics {
+                    contentDescription = label
+                    setProgress(label) { targetValue ->
+                        val newValue = targetValue.coerceIn(valueRange.start, valueRange.endInclusive)
+                        val resolvedValue = if (steps > 0) {
+                            tickFractions
+                                .map {
+                                    lerp(
+                                        valueRange.start,
+                                        valueRange.endInclusive,
+                                        it,
+                                    )
+                                }
+                                .minByOrNull { abs(it - newValue) } ?: newValue
+                        } else {
+                            newValue
+                        }
+                        // This is to keep it consistent with AbsSeekbar.java: return false if no
+                        // change from current.
+                        if (resolvedValue == value) {
+                            false
+                        } else {
+                            onValueChange(resolvedValue)
+                            true
+                        }
+                    }
+                },
         ) {
             Slider(
                 value = value,

@@ -65,7 +65,7 @@ fun ActionControlRow(
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Spacer(modifier = Modifier.weight(1f, fill = false))
+            Spacer(modifier = Modifier.weight(1f, fill = isExpanded))
 
             IconToggleButton(
                 checked = isRunning,
@@ -132,7 +132,7 @@ fun ActionControlRow(
                 )
             }
 
-            Spacer(modifier = Modifier.weight(1f, fill = false))
+            Spacer(modifier = Modifier.weight(1f, fill = isExpanded))
         }
     }
 }

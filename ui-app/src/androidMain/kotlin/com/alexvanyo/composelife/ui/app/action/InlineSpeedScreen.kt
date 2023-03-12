@@ -18,17 +18,35 @@ package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.component.LabeledSlider
@@ -68,6 +86,8 @@ fun InlineSpeedScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Suppress("LongMethod")
 @Composable
 fun TargetStepsPerSecondControl(
     targetStepsPerSecond: Double,
@@ -76,14 +96,64 @@ fun TargetStepsPerSecondControl(
     minTargetStepsPerSecondPowerOfTwo: Int = 0,
     maxTargetStepsPerSecondPowerOfTwo: Int = 8,
 ) {
+    var isTextEditing by rememberSaveable { mutableStateOf(false) }
+    val generationsPerStepValue = stringResource(id = R.string.target_steps_per_second_value, targetStepsPerSecond)
+    var transientTextFieldValue by rememberSaveable(
+        isTextEditing,
+        targetStepsPerSecond,
+        stateSaver = TextFieldValue.Saver,
+    ) {
+        mutableStateOf(TextFieldValue(generationsPerStepValue))
+    }
+
+    val transientTargetStepsPerSecond = transientTextFieldValue.text.toDoubleOrNull()
+        ?.takeIf { it in 2.0.pow(minTargetStepsPerSecondPowerOfTwo)..2.0.pow(maxTargetStepsPerSecondPowerOfTwo) }
+
+    val currentTargetStepsPerSecond = transientTargetStepsPerSecond ?: targetStepsPerSecond
+    val sliderFocusRequester = remember { FocusRequester() }
+    val textFieldFocusRequester = remember { FocusRequester() }
+
     LabeledSlider(
-        label = stringResource(id = R.string.target_steps_per_second, targetStepsPerSecond),
-        value = log2(targetStepsPerSecond).toFloat(),
+        label = stringResource(id = R.string.target_steps_per_second_label_and_value, currentTargetStepsPerSecond),
+        value = log2(currentTargetStepsPerSecond).toFloat(),
         onValueChange = {
             setTargetStepsPerSecond(2.0.pow(it.toDouble()))
         },
         valueRange = minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat(),
-        modifier = modifier,
+        modifier = modifier.focusRequester(sliderFocusRequester).focusable(),
+        labelSlot = {
+            TextField(
+                value = transientTextFieldValue,
+                onValueChange = {
+                    transientTextFieldValue = it
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(textFieldFocusRequester)
+                    .onFocusChanged {
+                        isTextEditing = !it.isFocused
+                        if (!it.isFocused && transientTargetStepsPerSecond != null) {
+                            setTargetStepsPerSecond(transientTargetStepsPerSecond)
+                        }
+                    },
+                label = {
+                    Text(stringResource(id = R.string.target_steps_per_second_label))
+                },
+                placeholder = {
+                    Text(generationsPerStepValue)
+                },
+                isError = transientTargetStepsPerSecond == null,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal,
+                    imeAction = ImeAction.Done,
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        sliderFocusRequester.requestFocus()
+                    }
+                )
+            )
+        },
         sliderOverlay = {
             val tickColor = MaterialTheme.colorScheme.onSurfaceVariant
 
@@ -107,6 +177,8 @@ fun TargetStepsPerSecondControl(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Suppress("LongMethod")
 @Composable
 fun GenerationsPerStepControl(
     generationsPerStep: Int,
@@ -115,9 +187,28 @@ fun GenerationsPerStepControl(
     minTargetStepsPerSecondPowerOfTwo: Int = 0,
     maxTargetStepsPerSecondPowerOfTwo: Int = 8,
 ) {
+    var isTextEditing by rememberSaveable { mutableStateOf(false) }
+    val generationsPerStepValue = stringResource(id = R.string.generations_per_step_value, generationsPerStep)
+    var transientTextFieldValue by rememberSaveable(
+        isTextEditing,
+        generationsPerStep,
+        stateSaver = TextFieldValue.Saver,
+    ) {
+        mutableStateOf(TextFieldValue(generationsPerStepValue))
+    }
+
+    val transientGenerationsPerStep = transientTextFieldValue.text.toIntOrNull()
+        ?.takeIf {
+            it in 2.0.pow(minTargetStepsPerSecondPowerOfTwo).toInt()..2.0.pow(maxTargetStepsPerSecondPowerOfTwo).toInt()
+        }
+
+    val currentGenerationsPerStep = transientGenerationsPerStep ?: generationsPerStep
+    val sliderFocusRequester = remember { FocusRequester() }
+    val textFieldFocusRequester = remember { FocusRequester() }
+
     LabeledSlider(
-        label = stringResource(id = R.string.generations_per_step, generationsPerStep),
-        value = log2(generationsPerStep.toFloat()),
+        label = stringResource(id = R.string.generations_per_step_label_and_value, currentGenerationsPerStep),
+        value = log2(currentGenerationsPerStep.toFloat()),
         valueRange = minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat(),
         steps = maxTargetStepsPerSecondPowerOfTwo - minTargetStepsPerSecondPowerOfTwo - 1,
         onValueChange = {
@@ -126,7 +217,40 @@ fun GenerationsPerStepControl(
         onValueChangeFinished = {
             setGenerationsPerStep(2.0.pow(log2(generationsPerStep.toDouble()).roundToInt()).roundToInt())
         },
-        modifier = modifier,
+        modifier = modifier.focusRequester(sliderFocusRequester).focusable(),
+        labelSlot = {
+            TextField(
+                value = transientTextFieldValue,
+                onValueChange = {
+                    transientTextFieldValue = it
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(textFieldFocusRequester)
+                    .onFocusChanged {
+                        isTextEditing = !it.isFocused
+                        if (!it.isFocused && transientGenerationsPerStep != null) {
+                            setGenerationsPerStep(transientGenerationsPerStep)
+                        }
+                    },
+                label = {
+                    Text(stringResource(id = R.string.generations_per_step_label))
+                },
+                placeholder = {
+                    Text(generationsPerStepValue)
+                },
+                isError = transientGenerationsPerStep == null,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done,
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        sliderFocusRequester.requestFocus()
+                    }
+                )
+            )
+        },
     )
 }
 
