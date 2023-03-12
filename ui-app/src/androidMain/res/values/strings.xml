@@ -19,8 +19,12 @@
     <string name="play">Play</string>
     <string name="pause">Pause</string>
     <string name="step">Step</string>
-    <string name="target_steps_per_second">Target steps per second: %1$.2f</string>
-    <string name="generations_per_step">Generations per step: %1$d</string>
+    <string name="target_steps_per_second_label">Target steps per second</string>
+    <string name="target_steps_per_second_label_and_value">Target steps per second: %1$.2f</string>
+    <string name="target_steps_per_second_value">%1$.2f</string>
+    <string name="generations_per_step_label">Generations per step</string>
+    <string name="generations_per_step_label_and_value">Generations per step: %1$d</string>
+    <string name="generations_per_step_value">%1$d</string>
     <string name="expand">Expand</string>
     <string name="collapse">Collapse</string>
     <string name="enable_autofit">Enable autofit</string>

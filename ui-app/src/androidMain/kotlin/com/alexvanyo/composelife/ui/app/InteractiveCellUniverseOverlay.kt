@@ -24,8 +24,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.add
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.sizeIn
@@ -50,6 +53,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
+import androidx.compose.ui.unit.offset
 import androidx.compose.ui.unit.sp
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.BottomInsets
@@ -69,7 +73,6 @@ import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.WindowInsets
 import com.alexvanyo.composelife.ui.util.Zero
 import com.alexvanyo.composelife.ui.util.animatePlacement
-import com.alexvanyo.composelife.ui.util.animatedWindowInsetsPadding
 import com.alexvanyo.composelife.ui.util.lerp
 import com.alexvanyo.composelife.ui.util.predictiveBackHandler
 import com.alexvanyo.composelife.ui.util.progressToTrue
@@ -195,25 +198,45 @@ fun InteractiveCellUniverseOverlay(
         }
     }
 
+    val topInsets = if (actionCardState.fullscreenTargetState.current) {
+        WindowInsets.Zero
+    } else {
+        WindowInsets.safeDrawing.only(WindowInsetsSides.Top)
+    }
+    val bottomInsets = if (actionCardState.fullscreenTargetState.current) {
+        WindowInsets.Zero
+    } else {
+        WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)
+    }
+
     Layout(
         layoutIdTypes = InteractiveCellUniverseOverlayLayoutTypes.sealedEnum,
         content = {
             Spacer(
                 modifier = Modifier
-                    .windowInsetsTopHeight(WindowInsets.safeDrawing)
+                    .windowInsetsTopHeight(topInsets)
                     .layoutId(TopInsets),
             )
             Spacer(
                 modifier = Modifier
-                    .windowInsetsBottomHeight(WindowInsets.safeDrawing)
+                    .windowInsetsBottomHeight(bottomInsets)
                     .layoutId(BottomInsets),
             )
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .consumeWindowInsets(topInsets)
+                    .consumeWindowInsets(bottomInsets)
                     .windowInsetsPadding(WindowInsets.safeDrawing)
                     .animatePlacement(
+                        // Only animate placement if the action card is on top, where the info card might be
+                        // animating out
+                        animationSpec = if (isActionCardTopCard) {
+                            spring(stiffness = Spring.StiffnessMedium)
+                        } else {
+                            snap()
+                        },
                         alignment = Alignment.TopCenter,
                     )
                     .layoutId(CellUniverseInfoCard),
@@ -233,10 +256,12 @@ fun InteractiveCellUniverseOverlay(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .consumeWindowInsets(topInsets)
+                    .consumeWindowInsets(bottomInsets)
                     .animatePlacement(
-                        // If we are showing fullscreen, avoid animating placement at this level, since the card
-                        // should effectively be fixed to be full screen
-                        animationSpec = if (isShowingFullscreen) {
+                        // Only animate placement if the info card is on top, where the action card might be
+                        // animating out
+                        animationSpec = if (isActionCardTopCard) {
                             snap()
                         } else {
                             spring(stiffness = Spring.StiffnessMedium)
@@ -260,42 +285,50 @@ fun InteractiveCellUniverseOverlay(
                                 Alignment.CenterEnd
                             },
                         )
-                        .animatedWindowInsetsPadding(targetWindowInsets)
+                        .windowInsetsPadding(targetWindowInsets)
                         .testTag("CellUniverseActionCard"),
                     shape = RoundedCornerShape(cornerSize),
                 )
             }
         },
         measurePolicy = { measurables, constraints ->
-            val placeables = measurables.mapValues { (_, measurable) -> measurable.measure(constraints) }
-            val topInsetsPlaceable = placeables.getValue(TopInsets)
-            val bottomInsetsPlaceable = placeables.getValue(BottomInsets)
-            val infoCardPlaceable = placeables.getValue(CellUniverseInfoCard)
-            val actionCardPlaceable = placeables.getValue(CellUniverseActionCard)
+            val topInsetsMeasurable = measurables.getValue(TopInsets)
+            val bottomInsetsMeasurable = measurables.getValue(BottomInsets)
+            val infoCardMeasurable = measurables.getValue(CellUniverseInfoCard)
+            val actionCardMeasurable = measurables.getValue(CellUniverseActionCard)
+
+            val topInsetsPlaceable = topInsetsMeasurable.measure(constraints)
+            val bottomInsetsPlaceable = bottomInsetsMeasurable.measure(constraints)
+
+            val contentConstraints = constraints.offset(
+                vertical = -topInsetsPlaceable.height - bottomInsetsPlaceable.height
+            )
+            val infoCardPlaceable = infoCardMeasurable.measure(contentConstraints)
+            val actionCardPlaceable = actionCardMeasurable.measure(contentConstraints)
 
             layout(constraints.maxWidth, constraints.maxHeight) {
                 topInsetsPlaceable.place(0, 0)
-                bottomInsetsPlaceable.place(0, constraints.maxHeight - bottomInsetsPlaceable.measuredHeight)
+                bottomInsetsPlaceable.place(0, constraints.maxHeight - bottomInsetsPlaceable.height)
 
                 // If we can fit both cards, place them both on screen.
                 // Otherwise, place the top-card (as determined by isActionCardTopCard) only aligned to the correct
                 // side of the screen, and align the hidden card just off-screen.
-                if (infoCardPlaceable.measuredHeight + actionCardPlaceable.measuredHeight -
-                    topInsetsPlaceable.height - bottomInsetsPlaceable.height <= constraints.maxHeight
+                if (infoCardPlaceable.height + actionCardPlaceable.height +
+                    topInsetsPlaceable.height + bottomInsetsPlaceable.height <= constraints.maxHeight
                 ) {
-                    infoCardPlaceable.place(0, 0)
+                    infoCardPlaceable.place(0, topInsetsPlaceable.height)
                     actionCardPlaceable.place(
                         0,
-                        constraints.maxHeight - actionCardPlaceable.measuredHeight,
+                        constraints.maxHeight - actionCardPlaceable.height - bottomInsetsPlaceable.height
                     )
                 } else if (isActionCardTopCard) {
-                    infoCardPlaceable.place(0, bottomInsetsPlaceable.height - infoCardPlaceable.measuredHeight)
+                    infoCardPlaceable.place(0, -infoCardPlaceable.height)
                     actionCardPlaceable.place(
                         0,
-                        constraints.maxHeight - actionCardPlaceable.measuredHeight,
+                        constraints.maxHeight - bottomInsetsPlaceable.height - actionCardPlaceable.height,
                     )
                 } else {
-                    infoCardPlaceable.place(0, 0)
+                    infoCardPlaceable.place(0, topInsetsPlaceable.height)
                     actionCardPlaceable.place(0, constraints.maxHeight - topInsetsPlaceable.height)
                 }
             }

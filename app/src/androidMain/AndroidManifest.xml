@@ -48,6 +48,7 @@
         <activity
             android:name=".MainActivity"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
     </application>
 
