@@ -36,8 +36,12 @@
     <string name="generations_per_second_long">Generations per second: %1$.2f</string>
     <string name="speed">Speed</string>
     <string name="edit">Edit</string>
-    <string name="corner_fraction">Corner fraction: %1$.2f</string>
-    <string name="size_fraction">Size fraction: %1$.2f</string>
+    <string name="corner_fraction_label">Corner fraction</string>
+    <string name="corner_fraction_label_and_value">Corner fraction: %1$.2f</string>
+    <string name="corner_fraction_value">%1$.2f</string>
+    <string name="size_fraction_label">Size fraction</string>
+    <string name="size_fraction_label_and_value">Size fraction: %1$.2f</string>
+    <string name="size_fraction_value">%1$.2f</string>
     <string name="settings">Settings</string>
     <string name="shape">Shape</string>
     <string name="round_rectangle">Round Rectangle</string>
