@@ -39,7 +39,8 @@ import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.component.DropdownOption
-import com.alexvanyo.composelife.ui.app.component.LabeledSlider
+import com.alexvanyo.composelife.ui.app.component.EditableSlider
+import com.alexvanyo.composelife.ui.app.component.IdentitySliderBijection
 import com.alexvanyo.composelife.ui.app.component.TextFieldDropdown
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
@@ -119,18 +120,26 @@ fun CellShapeConfigUi(
                     }
                 }
 
-                LabeledSlider(
-                    label = stringResource(id = R.string.size_fraction, sizeFraction),
+                EditableSlider(
+                    labelAndValueText = { stringResource(id = R.string.size_fraction_label_and_value, it) },
+                    valueText = { stringResource(id = R.string.size_fraction_value, it) },
+                    labelText = stringResource(id = R.string.size_fraction_label),
+                    textToValue = { it.toFloatOrNull() },
                     value = sizeFraction,
                     onValueChange = { sizeFraction = it },
                     valueRange = 0.1f..1f,
+                    sliderBijection = Float.IdentitySliderBijection,
                 )
 
-                LabeledSlider(
-                    label = stringResource(id = R.string.corner_fraction, cornerFraction),
+                EditableSlider(
+                    labelAndValueText = { stringResource(id = R.string.corner_fraction_label_and_value, it) },
+                    valueText = { stringResource(id = R.string.corner_fraction_value, it) },
+                    labelText = stringResource(id = R.string.corner_fraction_label),
+                    textToValue = { it.toFloatOrNull() },
                     value = cornerFraction,
                     onValueChange = { cornerFraction = it },
                     valueRange = 0f..0.5f,
+                    sliderBijection = Float.IdentitySliderBijection,
                 )
             }
         }

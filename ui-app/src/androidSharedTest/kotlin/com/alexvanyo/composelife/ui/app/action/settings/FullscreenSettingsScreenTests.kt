@@ -463,7 +463,7 @@ class FullscreenSettingsScreenTests : BaseHiltTest<TestActivity>(TestActivity::c
                 hasScrollAction().and(
                     hasAnyDescendant(
                         hasContentDescription(
-                            context.getString(R.string.corner_fraction, 0f)
+                            context.getString(R.string.corner_fraction_label_and_value, 0f)
                         )
                     )
                 )
@@ -514,7 +514,7 @@ class FullscreenSettingsScreenTests : BaseHiltTest<TestActivity>(TestActivity::c
                 hasScrollAction().and(
                     hasAnyDescendant(
                         hasContentDescription(
-                            context.getString(R.string.corner_fraction, 0f)
+                            context.getString(R.string.corner_fraction_label_and_value, 0f)
                         )
                     )
                 )
@@ -565,7 +565,7 @@ class FullscreenSettingsScreenTests : BaseHiltTest<TestActivity>(TestActivity::c
 
         composeTestRule
             .onNodeWithContentDescription(
-                context.getString(R.string.corner_fraction, 0f),
+                context.getString(R.string.corner_fraction_label_and_value, 0f),
             )
             .performScrollTo()
             .assertIsDisplayed()
@@ -609,7 +609,7 @@ class FullscreenSettingsScreenTests : BaseHiltTest<TestActivity>(TestActivity::c
 
         composeTestRule
             .onNodeWithContentDescription(
-                context.getString(R.string.corner_fraction, 0f),
+                context.getString(R.string.corner_fraction_label_and_value, 0f),
             )
             .performScrollTo()
             .assertIsDisplayed()
