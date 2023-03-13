@@ -16,17 +16,14 @@
 
 package com.alexvanyo.composelife.ui.app
 
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.snap
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.add
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -48,13 +45,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
-import androidx.compose.ui.unit.offset
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.toIntRect
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.BottomInsets
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseActionCard
@@ -73,9 +72,11 @@ import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.WindowInsets
 import com.alexvanyo.composelife.ui.util.Zero
 import com.alexvanyo.composelife.ui.util.animatePlacement
+import com.alexvanyo.composelife.ui.util.bottomEnd
 import com.alexvanyo.composelife.ui.util.lerp
 import com.alexvanyo.composelife.ui.util.predictiveBackHandler
 import com.alexvanyo.composelife.ui.util.progressToTrue
+import com.alexvanyo.composelife.ui.util.realBoundsInParent
 import com.livefront.sealedenum.GenSealedEnum
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -170,10 +171,12 @@ fun InteractiveCellUniverseOverlay(
 
     val progressToFullscreen = actionCardState.fullscreenTargetState.progressToTrue
 
+    val targetWindowInsetsProgressToFullscreen by animateFloatAsState(progressToFullscreen)
+
     val targetWindowInsets = lerp(
         WindowInsets.safeDrawing.add(WindowInsets(all = 8.dp)),
         WindowInsets.Zero,
-        progressToFullscreen
+        targetWindowInsetsProgressToFullscreen
     )
 
     val cornerSize by animateDpAsState(
@@ -198,46 +201,31 @@ fun InteractiveCellUniverseOverlay(
         }
     }
 
-    val topInsets = if (actionCardState.fullscreenTargetState.current) {
-        WindowInsets.Zero
-    } else {
-        WindowInsets.safeDrawing.only(WindowInsetsSides.Top)
-    }
-    val bottomInsets = if (actionCardState.fullscreenTargetState.current) {
-        WindowInsets.Zero
-    } else {
-        WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)
-    }
-
     Layout(
         layoutIdTypes = InteractiveCellUniverseOverlayLayoutTypes.sealedEnum,
         content = {
             Spacer(
                 modifier = Modifier
-                    .windowInsetsTopHeight(topInsets)
-                    .layoutId(TopInsets),
+                    .windowInsetsTopHeight(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
+                    .layoutId(TopInsets)
             )
             Spacer(
                 modifier = Modifier
-                    .windowInsetsBottomHeight(bottomInsets)
-                    .layoutId(BottomInsets),
+                    .windowInsetsBottomHeight(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
+                    .layoutId(BottomInsets)
             )
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .consumeWindowInsets(topInsets)
-                    .consumeWindowInsets(bottomInsets)
                     .windowInsetsPadding(WindowInsets.safeDrawing)
                     .animatePlacement(
-                        // Only animate placement if the action card is on top, where the info card might be
-                        // animating out
-                        animationSpec = if (isActionCardTopCard) {
-                            spring(stiffness = Spring.StiffnessMedium)
-                        } else {
-                            snap()
+                        fixedPoint = { layoutCoordinates, _ ->
+                            layoutCoordinates.boundsInParent().topCenter.round()
                         },
-                        alignment = Alignment.TopCenter,
+                        parentFixedPoint = { parentLayoutCoordinates, _ ->
+                            parentLayoutCoordinates.size.toIntRect().topCenter
+                        }
                     )
                     .layoutId(CellUniverseInfoCard),
             ) {
@@ -256,18 +244,27 @@ fun InteractiveCellUniverseOverlay(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .consumeWindowInsets(topInsets)
-                    .consumeWindowInsets(bottomInsets)
                     .animatePlacement(
-                        // Only animate placement if the info card is on top, where the action card might be
-                        // animating out
-                        animationSpec = if (isActionCardTopCard) {
-                            snap()
-                        } else {
-                            spring(stiffness = Spring.StiffnessMedium)
+                        fixedPoint = { layoutCoordinates, layoutDirection ->
+                            if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) {
+                                layoutCoordinates.realBoundsInParent().bottomCenter.round()
+                            } else {
+                                with(layoutDirection) {
+                                    layoutCoordinates.realBoundsInParent().bottomEnd.round()
+                                }
+                            }
                         },
-                        alignment = Alignment.BottomCenter,
+                        parentFixedPoint = { parentLayoutCoordinates, layoutDirection ->
+                            if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) {
+                                parentLayoutCoordinates.size.toIntRect().bottomCenter
+                            } else {
+                                with(layoutDirection) {
+                                    parentLayoutCoordinates.size.toIntRect().bottomEnd
+                                }
+                            }
+                        }
                     )
+                    .windowInsetsPadding(targetWindowInsets)
                     .layoutId(CellUniverseActionCard),
             ) {
                 // TODO: Calling order is weird here, but required due to https://youtrack.jetbrains.com/issue/KT-51863
@@ -285,26 +282,17 @@ fun InteractiveCellUniverseOverlay(
                                 Alignment.CenterEnd
                             },
                         )
-                        .windowInsetsPadding(targetWindowInsets)
                         .testTag("CellUniverseActionCard"),
                     shape = RoundedCornerShape(cornerSize),
                 )
             }
         },
         measurePolicy = { measurables, constraints ->
-            val topInsetsMeasurable = measurables.getValue(TopInsets)
-            val bottomInsetsMeasurable = measurables.getValue(BottomInsets)
-            val infoCardMeasurable = measurables.getValue(CellUniverseInfoCard)
-            val actionCardMeasurable = measurables.getValue(CellUniverseActionCard)
-
-            val topInsetsPlaceable = topInsetsMeasurable.measure(constraints)
-            val bottomInsetsPlaceable = bottomInsetsMeasurable.measure(constraints)
-
-            val contentConstraints = constraints.offset(
-                vertical = -topInsetsPlaceable.height - bottomInsetsPlaceable.height
-            )
-            val infoCardPlaceable = infoCardMeasurable.measure(contentConstraints)
-            val actionCardPlaceable = actionCardMeasurable.measure(contentConstraints)
+            val placeables = measurables.mapValues { (_, measurable) -> measurable.measure(constraints) }
+            val topInsetsPlaceable = placeables.getValue(TopInsets)
+            val bottomInsetsPlaceable = placeables.getValue(BottomInsets)
+            val infoCardPlaceable = placeables.getValue(CellUniverseInfoCard)
+            val actionCardPlaceable = placeables.getValue(CellUniverseActionCard)
 
             layout(constraints.maxWidth, constraints.maxHeight) {
                 topInsetsPlaceable.place(0, 0)
@@ -313,22 +301,23 @@ fun InteractiveCellUniverseOverlay(
                 // If we can fit both cards, place them both on screen.
                 // Otherwise, place the top-card (as determined by isActionCardTopCard) only aligned to the correct
                 // side of the screen, and align the hidden card just off-screen.
-                if (infoCardPlaceable.height + actionCardPlaceable.height +
-                    topInsetsPlaceable.height + bottomInsetsPlaceable.height <= constraints.maxHeight
+                if (
+                    infoCardPlaceable.height + actionCardPlaceable.height -
+                    topInsetsPlaceable.height - bottomInsetsPlaceable.height <= constraints.maxHeight
                 ) {
-                    infoCardPlaceable.place(0, topInsetsPlaceable.height)
+                    infoCardPlaceable.place(0, 0)
                     actionCardPlaceable.place(
                         0,
-                        constraints.maxHeight - actionCardPlaceable.height - bottomInsetsPlaceable.height
+                        constraints.maxHeight - actionCardPlaceable.height
                     )
                 } else if (isActionCardTopCard) {
-                    infoCardPlaceable.place(0, -infoCardPlaceable.height)
+                    infoCardPlaceable.place(0, -infoCardPlaceable.height + bottomInsetsPlaceable.height)
                     actionCardPlaceable.place(
                         0,
-                        constraints.maxHeight - bottomInsetsPlaceable.height - actionCardPlaceable.height,
+                        constraints.maxHeight - actionCardPlaceable.height,
                     )
                 } else {
-                    infoCardPlaceable.place(0, topInsetsPlaceable.height)
+                    infoCardPlaceable.place(0, 0)
                     actionCardPlaceable.place(0, constraints.maxHeight - topInsetsPlaceable.height)
                 }
             }
