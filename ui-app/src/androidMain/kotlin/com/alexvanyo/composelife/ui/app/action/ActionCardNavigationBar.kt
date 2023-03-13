@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
@@ -35,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.ui.app.R
+import com.alexvanyo.composelife.ui.util.Zero
 
 @Suppress("LongMethod")
 @Composable
@@ -48,6 +50,7 @@ fun ActionCardNavigationBar(
     NavigationBar(
         modifier = modifier,
         tonalElevation = elevation,
+        windowInsets = WindowInsets.Zero,
     ) {
         val speedSelected =
             actionCardState.navigationState.currentEntry.value is ActionCardNavigation.Speed

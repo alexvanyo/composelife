@@ -431,9 +431,9 @@ private fun SettingsCategoryDetail(
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier
+                .safeDrawingPadding()
                 .verticalScroll(detailScrollState)
-                .padding(vertical = 16.dp)
-                .safeDrawingPadding(),
+                .padding(vertical = 16.dp),
         ) {
             settingsCategory.settings.forEach { setting ->
                 var layoutCoordinates: LayoutCoordinates? by remember { mutableStateOf(null) }

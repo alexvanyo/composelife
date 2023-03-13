@@ -101,15 +101,7 @@ val TargetState<Boolean>.progressToTrue: Float get() =
  * Negates the [TargetState]. This negation is transitive for [TargetState.current]: that is,
  * `targetState.not().current` will be equal to `targetState.current.not()`.
  */
-operator fun TargetState<Boolean>.not(): TargetState<Boolean> =
-    when (this) {
-        is TargetState.Single -> TargetState.Single(!current)
-        is TargetState.InProgress -> TargetState.InProgress(
-            current = !current,
-            provisional = !provisional,
-            progress = progress,
-        )
-    }
+operator fun TargetState<Boolean>.not(): TargetState<Boolean> = map(Boolean::not)
 
 /**
  * Applies an and operation on a [TargetState] with a non-[TargetState] [Boolean] value.
@@ -135,4 +127,17 @@ infix fun TargetState<Boolean>.or(value: Boolean): TargetState<Boolean> =
         TargetState.Single(true)
     } else {
         this
+    }
+
+/**
+ * Maps this [TargetState] of type [T] to the [TargetState] of type [R] using [lambda].
+ */
+fun <T, R> TargetState<T>.map(lambda: (T) -> R): TargetState<R> =
+    when (this) {
+        is TargetState.Single -> TargetState.Single(current.let(lambda))
+        is TargetState.InProgress -> TargetState.InProgress(
+            current = current.let(lambda),
+            provisional = provisional.let(lambda),
+            progress = progress,
+        )
     }
