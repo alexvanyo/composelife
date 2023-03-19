@@ -150,38 +150,34 @@ fun AnimatePlacementPreview() {
                     Spacer(
                         Modifier
                             .animatePlacement(
-                                fixedPoint = { layoutCoordinates, layoutDirection ->
+                                fixedPoint = { layoutCoordinates ->
                                     val bounds = layoutCoordinates.boundsInParent()
-                                    with(layoutDirection) {
-                                        when (animatePlacementAlignment) {
-                                            Alignment.TopStart -> bounds.topStart
-                                            Alignment.TopCenter -> bounds.topCenter
-                                            Alignment.TopEnd -> bounds.topEnd
-                                            Alignment.CenterStart -> bounds.centerStart
-                                            Alignment.Center -> bounds.center
-                                            Alignment.CenterEnd -> bounds.centerEnd
-                                            Alignment.BottomStart -> bounds.bottomStart
-                                            Alignment.BottomCenter -> bounds.bottomCenter
-                                            Alignment.BottomEnd -> bounds.bottomEnd
-                                            else -> error("invalid alignment")
-                                        }.round()
-                                    }
+                                    when (animatePlacementAlignment) {
+                                        Alignment.TopStart -> bounds.topStart
+                                        Alignment.TopCenter -> bounds.topCenter
+                                        Alignment.TopEnd -> bounds.topEnd
+                                        Alignment.CenterStart -> bounds.centerStart
+                                        Alignment.Center -> bounds.center
+                                        Alignment.CenterEnd -> bounds.centerEnd
+                                        Alignment.BottomStart -> bounds.bottomStart
+                                        Alignment.BottomCenter -> bounds.bottomCenter
+                                        Alignment.BottomEnd -> bounds.bottomEnd
+                                        else -> error("invalid alignment")
+                                    }.round()
                                 },
-                                parentFixedPoint = { parentLayoutCoordinates, layoutDirection ->
+                                parentFixedPoint = { parentLayoutCoordinates ->
                                     val bounds = parentLayoutCoordinates.size.toIntRect()
-                                    with(layoutDirection) {
-                                        when (animatePlacementParentAlignment) {
-                                            Alignment.TopStart -> bounds.topStart
-                                            Alignment.TopCenter -> bounds.topCenter
-                                            Alignment.TopEnd -> bounds.topEnd
-                                            Alignment.CenterStart -> bounds.centerStart
-                                            Alignment.Center -> bounds.center
-                                            Alignment.CenterEnd -> bounds.centerEnd
-                                            Alignment.BottomStart -> bounds.bottomStart
-                                            Alignment.BottomCenter -> bounds.bottomCenter
-                                            Alignment.BottomEnd -> bounds.bottomEnd
-                                            else -> error("invalid alignment")
-                                        }
+                                    when (animatePlacementParentAlignment) {
+                                        Alignment.TopStart -> bounds.topStart
+                                        Alignment.TopCenter -> bounds.topCenter
+                                        Alignment.TopEnd -> bounds.topEnd
+                                        Alignment.CenterStart -> bounds.centerStart
+                                        Alignment.Center -> bounds.center
+                                        Alignment.CenterEnd -> bounds.centerEnd
+                                        Alignment.BottomStart -> bounds.bottomStart
+                                        Alignment.BottomCenter -> bounds.bottomCenter
+                                        Alignment.BottomEnd -> bounds.bottomEnd
+                                        else -> error("invalid alignment")
                                     }
                                 }
                             )

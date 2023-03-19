@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
@@ -120,9 +121,11 @@ fun CellShapeConfigUi(
                     }
                 }
 
+                val resolver = parameterizedStringResolver()
+
                 EditableSlider(
                     labelAndValueText = { stringResource(id = R.string.size_fraction_label_and_value, it) },
-                    valueText = { stringResource(id = R.string.size_fraction_value, it) },
+                    valueText = { resolver(ParameterizedString(R.string.size_fraction_value, it)) },
                     labelText = stringResource(id = R.string.size_fraction_label),
                     textToValue = { it.toFloatOrNull() },
                     value = sizeFraction,
@@ -133,7 +136,7 @@ fun CellShapeConfigUi(
 
                 EditableSlider(
                     labelAndValueText = { stringResource(id = R.string.corner_fraction_label_and_value, it) },
-                    valueText = { stringResource(id = R.string.corner_fraction_value, it) },
+                    valueText = { resolver(ParameterizedString(R.string.corner_fraction_value, it)) },
                     labelText = stringResource(id = R.string.corner_fraction_label),
                     textToValue = { it.toFloatOrNull() },
                     value = cornerFraction,

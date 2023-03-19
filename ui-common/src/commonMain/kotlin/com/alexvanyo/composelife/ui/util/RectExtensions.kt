@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("TooManyFunctions")
 
 package com.alexvanyo.composelife.ui.util
 
@@ -22,74 +23,62 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
 
-context(LayoutDirection)
-val Rect.topStart get(): Offset = when (this@LayoutDirection) {
+fun Rect.topStart(layoutDirection: LayoutDirection): Offset = when (layoutDirection) {
     LayoutDirection.Ltr -> topLeft
     LayoutDirection.Rtl -> topRight
 }
 
-context(LayoutDirection)
-val Rect.topEnd get(): Offset = when (this@LayoutDirection) {
+fun Rect.topEnd(layoutDirection: LayoutDirection): Offset = when (layoutDirection) {
     LayoutDirection.Ltr -> topRight
     LayoutDirection.Rtl -> topLeft
 }
 
-context(LayoutDirection)
-val Rect.centerStart get(): Offset = when (this@LayoutDirection) {
+fun Rect.centerStart(layoutDirection: LayoutDirection): Offset = when (layoutDirection) {
     LayoutDirection.Ltr -> centerLeft
     LayoutDirection.Rtl -> centerRight
 }
 
-context(LayoutDirection)
-val Rect.centerEnd get(): Offset = when (this@LayoutDirection) {
+fun Rect.centerEnd(layoutDirection: LayoutDirection): Offset = when (layoutDirection) {
     LayoutDirection.Ltr -> centerRight
     LayoutDirection.Rtl -> centerLeft
 }
 
-context(LayoutDirection)
-val Rect.bottomStart get(): Offset = when (this@LayoutDirection) {
+fun Rect.bottomStart(layoutDirection: LayoutDirection): Offset = when (layoutDirection) {
     LayoutDirection.Ltr -> bottomLeft
     LayoutDirection.Rtl -> bottomRight
 }
 
-context(LayoutDirection)
-val Rect.bottomEnd get(): Offset = when (this@LayoutDirection) {
+fun Rect.bottomEnd(layoutDirection: LayoutDirection): Offset = when (layoutDirection) {
     LayoutDirection.Ltr -> bottomRight
     LayoutDirection.Rtl -> bottomLeft
 }
 
-context(LayoutDirection)
-val IntRect.topStart get(): IntOffset = when (this@LayoutDirection) {
+fun IntRect.topStart(layoutDirection: LayoutDirection): IntOffset = when (layoutDirection) {
     LayoutDirection.Ltr -> topLeft
     LayoutDirection.Rtl -> topRight
 }
 
-context(LayoutDirection)
-val IntRect.topEnd get(): IntOffset = when (this@LayoutDirection) {
+fun IntRect.topEnd(layoutDirection: LayoutDirection): IntOffset = when (layoutDirection) {
     LayoutDirection.Ltr -> topRight
     LayoutDirection.Rtl -> topLeft
 }
 
-context(LayoutDirection)
-val IntRect.centerStart get(): IntOffset = when (this@LayoutDirection) {
+fun IntRect.centerStart(layoutDirection: LayoutDirection): IntOffset = when (layoutDirection) {
     LayoutDirection.Ltr -> centerLeft
     LayoutDirection.Rtl -> centerRight
 }
 
-context(LayoutDirection)
-val IntRect.centerEnd get(): IntOffset = when (this@LayoutDirection) {
+fun IntRect.centerEnd(layoutDirection: LayoutDirection): IntOffset = when (layoutDirection) {
     LayoutDirection.Ltr -> centerRight
     LayoutDirection.Rtl -> centerLeft
 }
 
-context(LayoutDirection)
-val IntRect.bottomStart get(): IntOffset = when (this@LayoutDirection) {
+fun IntRect.bottomStart(layoutDirection: LayoutDirection): IntOffset = when (layoutDirection) {
     LayoutDirection.Ltr -> bottomLeft
     LayoutDirection.Rtl -> bottomRight
 }
 
-context(LayoutDirection)
-val IntRect.bottomEnd get(): IntOffset = when (this@LayoutDirection) {
+fun IntRect.bottomEnd(layoutDirection: LayoutDirection): IntOffset = when (layoutDirection) {
     LayoutDirection.Ltr -> bottomRight
     LayoutDirection.Rtl -> bottomLeft
 }
