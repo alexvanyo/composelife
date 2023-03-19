@@ -220,10 +220,10 @@ fun InteractiveCellUniverseOverlay(
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.safeDrawing)
                     .animatePlacement(
-                        fixedPoint = { layoutCoordinates, _ ->
+                        fixedPoint = { layoutCoordinates ->
                             layoutCoordinates.boundsInParent().topCenter.round()
                         },
-                        parentFixedPoint = { parentLayoutCoordinates, _ ->
+                        parentFixedPoint = { parentLayoutCoordinates ->
                             parentLayoutCoordinates.size.toIntRect().topCenter
                         }
                     )
@@ -244,24 +244,28 @@ fun InteractiveCellUniverseOverlay(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .animatePlacement(
-                        fixedPoint = { layoutCoordinates, layoutDirection ->
-                            if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) {
-                                layoutCoordinates.realBoundsInParent().bottomCenter.round()
-                            } else {
-                                with(layoutDirection) {
-                                    layoutCoordinates.realBoundsInParent().bottomEnd.round()
+                    .then(
+                        // If we are showing fullscreen, avoid animating placement at this level, since the card
+                        // should effectively be fixed to be full screen
+                        if (isShowingFullscreen) {
+                            Modifier
+                        } else {
+                            Modifier.animatePlacement(
+                                fixedPoint = { layoutCoordinates ->
+                                    if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) {
+                                        layoutCoordinates.realBoundsInParent().bottomCenter.round()
+                                    } else {
+                                        layoutCoordinates.realBoundsInParent().bottomEnd.round()
+                                    }
+                                },
+                                parentFixedPoint = { parentLayoutCoordinates ->
+                                    if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) {
+                                        parentLayoutCoordinates.size.toIntRect().bottomCenter
+                                    } else {
+                                        parentLayoutCoordinates.size.toIntRect().bottomEnd
+                                    }
                                 }
-                            }
-                        },
-                        parentFixedPoint = { parentLayoutCoordinates, layoutDirection ->
-                            if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) {
-                                parentLayoutCoordinates.size.toIntRect().bottomCenter
-                            } else {
-                                with(layoutDirection) {
-                                    parentLayoutCoordinates.size.toIntRect().bottomEnd
-                                }
-                            }
+                            )
                         }
                     )
                     .windowInsetsPadding(targetWindowInsets)
