@@ -27,14 +27,20 @@ import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasImeAction
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.IntOffset
 import androidx.test.espresso.Espresso
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
@@ -294,7 +300,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             .performClick()
 
         composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.target_steps_per_second, 60.0))
+            .onNodeWithContentDescription(context.getString(R.string.target_steps_per_second_label_and_value, 60.0))
             .performSemanticsAction(SemanticsActions.SetProgress) { it(0f) }
 
         composeTestRule
@@ -381,7 +387,7 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
 
     @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun six_long_line_evolves_correctly_with_double_step() = runAppTest {
+    fun six_long_line_evolves_correctly_with_double_step_via_slider() = runAppTest {
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 0.001,
@@ -433,8 +439,95 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
             .performClick()
 
         composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.generations_per_step, 1))
+            .onNodeWithContentDescription(context.getString(R.string.generations_per_step_label_and_value, 1))
             .performSemanticsAction(SemanticsActions.SetProgress) { it(1f) }
+
+        composeTestRule
+            .onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(context.getString(R.string.collapse)),
+            )
+            .performClick()
+
+        SixLongLinePattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 }.forEach { expectedCellState ->
+            composeTestRule
+                .onNodeWithContentDescription(context.getString(R.string.step))
+                .performClick()
+
+            testDispatcher.scheduler.runCurrent()
+            composeTestRule.waitForIdle()
+            testDispatcher.scheduler.runCurrent()
+            composeTestRule.waitForIdle()
+
+            assertNodesAreAlive(expectedCellState.aliveCells)
+        }
+    }
+
+    @SkipLeakDetection("appliedChanges", "Outer")
+    @Test
+    fun six_long_line_evolves_correctly_with_double_step_via_text() = runAppTest {
+        composeTestRule.setContent {
+            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
+                targetStepsPerSecond = 0.001,
+            )
+
+            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
+                temporalGameOfLifeState = temporalGameOfLifeState,
+                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                clock = testDispatcher.scheduler.clock,
+                dispatchers = dispatchers,
+            )
+
+            LaunchedEffect(temporalGameOfLifeStateMutator) {
+                temporalGameOfLifeStateMutator.update()
+            }
+
+            with(interactiveCellUniverseHiltEntryPoint) {
+                with(interactiveCellUniverseLocalEntryPoint) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        isViewportTracking = false,
+                        setIsViewportTracking = {},
+                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+        }
+
+        composeTestRule
+            .onNodeWithContentDescription(context.getString(R.string.pause))
+            .performClick()
+
+        SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
+            scrollToCell(cell)
+
+            composeTestRule
+                .onNodeWithContentDescription(
+                    context.getString(R.string.cell_content_description, cell.x, cell.y),
+                )
+                .performTouchInput { click(topLeft) }
+        }
+
+        composeTestRule
+            .onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(context.getString(R.string.expand)),
+            )
+            .performClick()
+
+        composeTestRule
+            .onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(context.getString(R.string.generations_per_step_label)),
+            )
+            .performTextReplacement("2")
+        composeTestRule
+            .onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(context.getString(R.string.generations_per_step_label)),
+            )
+            .performImeAction()
 
         composeTestRule
             .onNode(

@@ -29,9 +29,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.ui.app.R
-import com.alexvanyo.composelife.ui.app.component.LabeledSlider
+import com.alexvanyo.composelife.ui.app.component.EditableSlider
+import com.alexvanyo.composelife.ui.app.component.SliderBijection
+import com.alexvanyo.composelife.ui.app.component.toValue
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
@@ -68,6 +73,11 @@ fun InlineSpeedScreen(
     }
 }
 
+private object TargetStepsPerSecondSliderBijection : SliderBijection<Double> {
+    override fun valueToSlider(value: Double): Float = log2(value).toFloat()
+    override fun sliderToValue(sliderValue: Float): Double = 2.0.pow(sliderValue.toDouble())
+}
+
 @Composable
 fun TargetStepsPerSecondControl(
     targetStepsPerSecond: Double,
@@ -76,14 +86,22 @@ fun TargetStepsPerSecondControl(
     minTargetStepsPerSecondPowerOfTwo: Int = 0,
     maxTargetStepsPerSecondPowerOfTwo: Int = 8,
 ) {
-    LabeledSlider(
-        label = stringResource(id = R.string.target_steps_per_second, targetStepsPerSecond),
-        value = log2(targetStepsPerSecond).toFloat(),
-        onValueChange = {
-            setTargetStepsPerSecond(2.0.pow(it.toDouble()))
+    val valueRange = with(TargetStepsPerSecondSliderBijection) {
+        (minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat()).toValue()
+    }
+
+    val resolver = parameterizedStringResolver()
+    EditableSlider(
+        labelAndValueText = {
+            stringResource(id = R.string.target_steps_per_second_label_and_value, it)
         },
-        valueRange = minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat(),
-        modifier = modifier,
+        valueText = { resolver(ParameterizedString(R.string.target_steps_per_second_value, it)) },
+        labelText = stringResource(id = R.string.target_steps_per_second_label),
+        textToValue = { it.toDoubleOrNull() },
+        value = targetStepsPerSecond,
+        onValueChange = setTargetStepsPerSecond,
+        valueRange = valueRange,
+        sliderBijection = TargetStepsPerSecondSliderBijection,
         sliderOverlay = {
             val tickColor = MaterialTheme.colorScheme.onSurfaceVariant
 
@@ -104,7 +122,13 @@ fun TargetStepsPerSecondControl(
                 }
             }
         },
+        modifier = modifier,
     )
+}
+
+private object GenerationsPerStepSliderBijection : SliderBijection<Int> {
+    override fun valueToSlider(value: Int): Float = log2(value.toFloat())
+    override fun sliderToValue(sliderValue: Float): Int = 2.0.pow(sliderValue.toDouble()).roundToInt()
 }
 
 @Composable
@@ -112,20 +136,27 @@ fun GenerationsPerStepControl(
     generationsPerStep: Int,
     setGenerationsPerStep: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    minTargetStepsPerSecondPowerOfTwo: Int = 0,
-    maxTargetStepsPerSecondPowerOfTwo: Int = 8,
+    minGenerationsPerStepPowerOfTwo: Int = 0,
+    maxGenerationsPerStepPowerOfTwo: Int = 8,
 ) {
-    LabeledSlider(
-        label = stringResource(id = R.string.generations_per_step, generationsPerStep),
-        value = log2(generationsPerStep.toFloat()),
-        valueRange = minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat(),
-        steps = maxTargetStepsPerSecondPowerOfTwo - minTargetStepsPerSecondPowerOfTwo - 1,
+    val valueRange = with(GenerationsPerStepSliderBijection) {
+        (minGenerationsPerStepPowerOfTwo.toFloat()..maxGenerationsPerStepPowerOfTwo.toFloat()).toValue()
+    }
+
+    val resolver = parameterizedStringResolver()
+    EditableSlider(
+        labelAndValueText = { stringResource(id = R.string.generations_per_step_label_and_value, it) },
+        valueText = { resolver(ParameterizedString(R.string.generations_per_step_value, it)) },
+        labelText = stringResource(id = R.string.generations_per_step_label),
+        textToValue = { it.toIntOrNull() },
+        value = generationsPerStep,
+        valueRange = valueRange,
+        sliderBijection = GenerationsPerStepSliderBijection,
+        steps = maxGenerationsPerStepPowerOfTwo - minGenerationsPerStepPowerOfTwo - 1,
         onValueChange = {
-            setGenerationsPerStep(2.0.pow(it.toDouble()).roundToInt())
+            setGenerationsPerStep(it)
         },
-        onValueChangeFinished = {
-            setGenerationsPerStep(2.0.pow(log2(generationsPerStep.toDouble()).roundToInt()).roundToInt())
-        },
+        keyboardType = KeyboardType.Number,
         modifier = modifier,
     )
 }

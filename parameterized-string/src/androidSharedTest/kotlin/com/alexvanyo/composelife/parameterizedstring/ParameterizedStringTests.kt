@@ -214,4 +214,44 @@ class ParameterizedStringTests {
             string,
         )
     }
+
+    @Test
+    fun composable_resolver_is_correct() {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        composeTestRule.setContent {
+            resolver = parameterizedStringResolver()
+        }
+
+        assertEquals(
+            "Three: (Two: (a) (b)) (One: (One: (c))) (One: (One: (One: (d))))",
+            resolver.invoke(
+                ParameterizedString(
+                    R.string.three_arg_string,
+                    ParameterizedString(
+                        R.string.two_arg_string,
+                        "a",
+                        "b",
+                    ),
+                    ParameterizedString(
+                        R.string.one_arg_string,
+                        ParameterizedString(
+                            R.string.one_arg_string,
+                            "c",
+                        ),
+                    ),
+                    ParameterizedString(
+                        R.string.one_arg_string,
+                        ParameterizedString(
+                            R.string.one_arg_string,
+                            ParameterizedString(
+                                R.string.one_arg_string,
+                                "d",
+                            ),
+                        ),
+                    ),
+                )
+            ),
+        )
+    }
 }

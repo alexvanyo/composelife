@@ -26,8 +26,12 @@ import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsNotFocused
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasImeAction
 import androidx.compose.ui.test.hasProgressBarRangeInfo
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -35,6 +39,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.text.input.ImeAction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
@@ -75,14 +80,28 @@ class CellShapeConfigUiTests {
             .assertHasClickAction()
 
         composeTestRule
+            .onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(context.getString(R.string.size_fraction_label)),
+            )
+            .assertTextContains(context.getString(R.string.size_fraction_value, 0.8f))
+            .assertIsNotFocused()
+        composeTestRule
             .onNodeWithContentDescription(
-                context.getString(R.string.size_fraction, 0.8f),
+                context.getString(R.string.size_fraction_label_and_value, 0.8f),
             )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.8f, range = 0.1f..1f)))
 
         composeTestRule
+            .onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(context.getString(R.string.corner_fraction_label)),
+            )
+            .assertTextContains(context.getString(R.string.corner_fraction_value, 0.4f))
+            .assertIsNotFocused()
+        composeTestRule
             .onNodeWithContentDescription(
-                context.getString(R.string.corner_fraction, 0.4f),
+                context.getString(R.string.corner_fraction_label_and_value, 0.4f),
             )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.4f, range = 0f..0.5f)))
     }
@@ -113,7 +132,7 @@ class CellShapeConfigUiTests {
 
         composeTestRule
             .onNodeWithContentDescription(
-                context.getString(R.string.size_fraction, 0.8f),
+                context.getString(R.string.size_fraction_label_and_value, 0.8f),
             )
             .performSemanticsAction(SemanticsActions.SetProgress) {
                 it(0.5f)
@@ -121,7 +140,7 @@ class CellShapeConfigUiTests {
 
         composeTestRule
             .onNodeWithContentDescription(
-                context.getString(R.string.size_fraction, 0.5f),
+                context.getString(R.string.size_fraction_label_and_value, 0.5f),
             )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0.1f..1f)))
     }
@@ -152,7 +171,7 @@ class CellShapeConfigUiTests {
 
         composeTestRule
             .onNodeWithContentDescription(
-                context.getString(R.string.corner_fraction, 0.4f),
+                context.getString(R.string.corner_fraction_label_and_value, 0.4f),
             )
             .performSemanticsAction(SemanticsActions.SetProgress) {
                 it(0f)
@@ -160,7 +179,7 @@ class CellShapeConfigUiTests {
 
         composeTestRule
             .onNodeWithContentDescription(
-                context.getString(R.string.corner_fraction, 0f),
+                context.getString(R.string.corner_fraction_label_and_value, 0f),
             )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0f, range = 0f..0.5f)))
     }

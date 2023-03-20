@@ -24,6 +24,8 @@ import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -66,7 +68,9 @@ fun Modifier.animatedWindowInsetsPadding(
 
     val scope = rememberCoroutineScope()
 
-    val animatedInsets = remember(targetWindowInsets, animationSpec) {
+    val consumedWindowInsetsState = remember { mutableStateOf(WindowInsets.Zero) }
+
+    val animatedInsets = remember(targetWindowInsets, consumedWindowInsetsState, animationSpec) {
         object : WindowInsets {
             private fun MutableState<Animatable<Int, AnimationVector1D>?>.animateTo(target: Int): Int {
                 val currentAnimatable = value
@@ -89,20 +93,31 @@ fun Modifier.animatedWindowInsetsPadding(
             }
 
             override fun getBottom(density: Density): Int =
-                bottomAnimatable.animateTo(targetWindowInsets.getBottom(density))
+                bottomAnimatable.animateTo(
+                    targetWindowInsets.exclude(consumedWindowInsetsState.value).getBottom(density)
+                )
 
             override fun getLeft(density: Density, layoutDirection: LayoutDirection): Int =
-                leftAnimatable.animateTo(targetWindowInsets.getLeft(density, layoutDirection))
+                leftAnimatable.animateTo(
+                    targetWindowInsets.exclude(consumedWindowInsetsState.value).getLeft(density, layoutDirection)
+                )
 
             override fun getRight(density: Density, layoutDirection: LayoutDirection): Int =
-                rightAnimatable.animateTo(targetWindowInsets.getRight(density, layoutDirection))
+                rightAnimatable.animateTo(
+                    targetWindowInsets.exclude(consumedWindowInsetsState.value).getRight(density, layoutDirection)
+                )
 
             override fun getTop(density: Density): Int =
-                topAnimatable.animateTo(targetWindowInsets.getBottom(density))
+                topAnimatable.animateTo(
+                    targetWindowInsets.exclude(consumedWindowInsetsState.value).getTop(density)
+                )
         }
     }
 
     this
         .onPlaced { isPlaced = true }
+        .onConsumedWindowInsetsChanged {
+            consumedWindowInsetsState.value = it
+        }
         .windowInsetsPadding(animatedInsets)
 }

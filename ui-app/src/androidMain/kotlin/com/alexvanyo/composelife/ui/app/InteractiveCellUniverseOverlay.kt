@@ -16,16 +16,16 @@
 
 package com.alexvanyo.composelife.ui.app
 
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.snap
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.sizeIn
@@ -45,12 +45,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.toIntRect
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.BottomInsets
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseActionCard
@@ -69,10 +72,11 @@ import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.WindowInsets
 import com.alexvanyo.composelife.ui.util.Zero
 import com.alexvanyo.composelife.ui.util.animatePlacement
-import com.alexvanyo.composelife.ui.util.animatedWindowInsetsPadding
+import com.alexvanyo.composelife.ui.util.bottomEnd
 import com.alexvanyo.composelife.ui.util.lerp
 import com.alexvanyo.composelife.ui.util.predictiveBackHandler
 import com.alexvanyo.composelife.ui.util.progressToTrue
+import com.alexvanyo.composelife.ui.util.realBoundsInParent
 import com.livefront.sealedenum.GenSealedEnum
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -167,10 +171,12 @@ fun InteractiveCellUniverseOverlay(
 
     val progressToFullscreen = actionCardState.fullscreenTargetState.progressToTrue
 
+    val targetWindowInsetsProgressToFullscreen by animateFloatAsState(progressToFullscreen)
+
     val targetWindowInsets = lerp(
         WindowInsets.safeDrawing.add(WindowInsets(all = 8.dp)),
         WindowInsets.Zero,
-        progressToFullscreen
+        targetWindowInsetsProgressToFullscreen
     )
 
     val cornerSize by animateDpAsState(
@@ -200,13 +206,13 @@ fun InteractiveCellUniverseOverlay(
         content = {
             Spacer(
                 modifier = Modifier
-                    .windowInsetsTopHeight(WindowInsets.safeDrawing)
-                    .layoutId(TopInsets),
+                    .windowInsetsTopHeight(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
+                    .layoutId(TopInsets)
             )
             Spacer(
                 modifier = Modifier
-                    .windowInsetsBottomHeight(WindowInsets.safeDrawing)
-                    .layoutId(BottomInsets),
+                    .windowInsetsBottomHeight(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
+                    .layoutId(BottomInsets)
             )
 
             Box(
@@ -214,7 +220,12 @@ fun InteractiveCellUniverseOverlay(
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.safeDrawing)
                     .animatePlacement(
-                        alignment = Alignment.TopCenter,
+                        fixedPoint = { layoutCoordinates ->
+                            layoutCoordinates.boundsInParent().topCenter.round()
+                        },
+                        parentFixedPoint = { parentLayoutCoordinates ->
+                            parentLayoutCoordinates.size.toIntRect().topCenter
+                        }
                     )
                     .layoutId(CellUniverseInfoCard),
             ) {
@@ -233,16 +244,31 @@ fun InteractiveCellUniverseOverlay(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .animatePlacement(
+                    .then(
                         // If we are showing fullscreen, avoid animating placement at this level, since the card
                         // should effectively be fixed to be full screen
-                        animationSpec = if (isShowingFullscreen) {
-                            snap()
+                        if (isShowingFullscreen) {
+                            Modifier
                         } else {
-                            spring(stiffness = Spring.StiffnessMedium)
-                        },
-                        alignment = Alignment.BottomCenter,
+                            Modifier.animatePlacement(
+                                fixedPoint = { layoutCoordinates ->
+                                    if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) {
+                                        layoutCoordinates.realBoundsInParent().bottomCenter.round()
+                                    } else {
+                                        layoutCoordinates.realBoundsInParent().bottomEnd.round()
+                                    }
+                                },
+                                parentFixedPoint = { parentLayoutCoordinates ->
+                                    if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) {
+                                        parentLayoutCoordinates.size.toIntRect().bottomCenter
+                                    } else {
+                                        parentLayoutCoordinates.size.toIntRect().bottomEnd
+                                    }
+                                }
+                            )
+                        }
                     )
+                    .windowInsetsPadding(targetWindowInsets)
                     .layoutId(CellUniverseActionCard),
             ) {
                 // TODO: Calling order is weird here, but required due to https://youtrack.jetbrains.com/issue/KT-51863
@@ -260,7 +286,6 @@ fun InteractiveCellUniverseOverlay(
                                 Alignment.CenterEnd
                             },
                         )
-                        .animatedWindowInsetsPadding(targetWindowInsets)
                         .testTag("CellUniverseActionCard"),
                     shape = RoundedCornerShape(cornerSize),
                 )
@@ -275,24 +300,25 @@ fun InteractiveCellUniverseOverlay(
 
             layout(constraints.maxWidth, constraints.maxHeight) {
                 topInsetsPlaceable.place(0, 0)
-                bottomInsetsPlaceable.place(0, constraints.maxHeight - bottomInsetsPlaceable.measuredHeight)
+                bottomInsetsPlaceable.place(0, constraints.maxHeight - bottomInsetsPlaceable.height)
 
                 // If we can fit both cards, place them both on screen.
                 // Otherwise, place the top-card (as determined by isActionCardTopCard) only aligned to the correct
                 // side of the screen, and align the hidden card just off-screen.
-                if (infoCardPlaceable.measuredHeight + actionCardPlaceable.measuredHeight -
+                if (
+                    infoCardPlaceable.height + actionCardPlaceable.height -
                     topInsetsPlaceable.height - bottomInsetsPlaceable.height <= constraints.maxHeight
                 ) {
                     infoCardPlaceable.place(0, 0)
                     actionCardPlaceable.place(
                         0,
-                        constraints.maxHeight - actionCardPlaceable.measuredHeight,
+                        constraints.maxHeight - actionCardPlaceable.height
                     )
                 } else if (isActionCardTopCard) {
-                    infoCardPlaceable.place(0, bottomInsetsPlaceable.height - infoCardPlaceable.measuredHeight)
+                    infoCardPlaceable.place(0, -infoCardPlaceable.height + bottomInsetsPlaceable.height)
                     actionCardPlaceable.place(
                         0,
-                        constraints.maxHeight - actionCardPlaceable.measuredHeight,
+                        constraints.maxHeight - actionCardPlaceable.height,
                     )
                 } else {
                     infoCardPlaceable.place(0, 0)

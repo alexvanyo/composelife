@@ -28,14 +28,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onPlaced
-import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.toIntRect
 import kotlinx.coroutines.launch
 
 /**
@@ -43,7 +44,14 @@ import kotlinx.coroutines.launch
  */
 fun Modifier.animatePlacement(
     animationSpec: AnimationSpec<IntOffset> = spring(stiffness = Spring.StiffnessMedium),
-    alignment: Alignment = Alignment.Center,
+    fixedPoint: LayoutDirectionAwareScope.(layoutCoordinates: LayoutCoordinates) -> IntOffset =
+        { layoutCoordinates ->
+            layoutCoordinates.boundsInParent().topStart.round()
+        },
+    parentFixedPoint: LayoutDirectionAwareScope.(parentLayoutCoordinates: LayoutCoordinates) -> IntOffset =
+        { parentLayoutCoordinates ->
+            parentLayoutCoordinates.size.toIntRect().topStart
+        }
 ): Modifier = composed {
     val scope = rememberCoroutineScope()
     var targetOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -51,20 +59,34 @@ fun Modifier.animatePlacement(
         mutableStateOf<Animatable<IntOffset, AnimationVector2D>?>(null)
     }
     val layoutDirection = LocalLayoutDirection.current
-    this.onPlaced {
-        // Calculate the alignment's position in the parent layout
-        targetOffset = it.positionInParent().round() + alignment.align(it.size, it.size * 2, layoutDirection)
-    }.offset {
-        // Animate to the new target offset when alignment changes.
-        val anim = animatable ?: Animatable(targetOffset, IntOffset.VectorConverter)
-            .also { animatable = it }
-        if (anim.targetValue != targetOffset) {
-            scope.launch {
-                anim.animateTo(targetOffset, animationSpec)
+    val layoutDirectionAwareScope = remember(layoutDirection) {
+        object : LayoutDirectionAwareScope {
+            override val layoutDirection = layoutDirection
+        }
+    }
+    this
+        .onPlaced { layoutCoordinates ->
+            with(layoutDirectionAwareScope) {
+                // Calculate the alignment coordinate of this node in the parent coordinates, and calculate the offset
+                // from that to the fixed point in the parent
+                val currentFixedPoint = fixedPoint(layoutCoordinates)
+                val currentParentFixedPoint = parentFixedPoint(
+                    requireNotNull(layoutCoordinates.parentLayoutCoordinates)
+                )
+                targetOffset = currentFixedPoint - currentParentFixedPoint
             }
         }
-        // Offset the child in the opposite direction to the targetOffset, and slowly catch
-        // up to zero offset via an animation to achieve an overall animated movement.
-        animatable?.let { it.value - targetOffset } ?: IntOffset.Zero
-    }
+        .offset {
+            // Animate to the new target offset when alignment changes.
+            val anim = animatable ?: Animatable(targetOffset, IntOffset.VectorConverter)
+                .also { animatable = it }
+            if (anim.targetValue != targetOffset) {
+                scope.launch {
+                    anim.animateTo(targetOffset, animationSpec)
+                }
+            }
+            // Offset the child in the opposite direction to the targetOffset, and slowly catch
+            // up to zero offset via an animation to achieve an overall animated movement.
+            animatable?.let { it.value - targetOffset } ?: IntOffset.Zero
+        }
 }

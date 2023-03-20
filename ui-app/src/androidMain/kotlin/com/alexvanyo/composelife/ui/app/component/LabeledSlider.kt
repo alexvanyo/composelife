@@ -50,6 +50,47 @@ fun LabeledSlider(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    sliderBijection: SliderBijection<Float> = Float.IdentitySliderBijection,
+    steps: Int = 0,
+    onValueChangeFinished: (() -> Unit)? = null,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    colors: SliderColors = SliderDefaults.colors(),
+    labelSlot: @Composable () -> Unit = {
+        Text(text = label, Modifier.fillMaxWidth())
+    },
+    sliderOverlay: @Composable () -> Unit = {},
+) = LabeledSlider<Float>(
+    label = label,
+    value = value,
+    onValueChange = onValueChange,
+    modifier = modifier,
+    enabled = enabled,
+    valueRange = valueRange,
+    sliderBijection = sliderBijection,
+    steps = steps,
+    onValueChangeFinished = onValueChangeFinished,
+    interactionSource = interactionSource,
+    colors = colors,
+    labelSlot = labelSlot,
+    sliderOverlay = sliderOverlay,
+)
+
+/**
+ * A wrapper around [Slider] to label it with the given [label].
+ *
+ * This overload allows using a comparable [T], with a [sliderBijection] to map the values in space [T] to the
+ * underlying floating-point range and steps represented by the slider.
+ */
+@Suppress("LongParameterList", "LongMethod")
+@Composable
+fun <T : Comparable<T>> LabeledSlider(
+    label: String,
+    value: T,
+    onValueChange: (T) -> Unit,
+    valueRange: ClosedRange<T>,
+    sliderBijection: SliderBijection<T>,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
@@ -62,52 +103,59 @@ fun LabeledSlider(
     val tickFractions = remember(steps) {
         stepsToTickFractions(steps)
     }
+    val sliderValue = with(sliderBijection) { value.toSlider() }
+    val sliderValueRange = with(sliderBijection) { valueRange.toSlider() }
 
     Column(
-        modifier = modifier
-            .progressSemantics(
-                value = value,
-                valueRange = valueRange,
-                steps = steps,
-            )
-            .clearAndSetSemantics {
-                contentDescription = label
-                setProgress(label) { targetValue ->
-                    val newValue = targetValue.coerceIn(valueRange.start, valueRange.endInclusive)
-                    val resolvedValue = if (steps > 0) {
-                        tickFractions
-                            .map {
-                                lerp(
-                                    valueRange.start,
-                                    valueRange.endInclusive,
-                                    it,
-                                )
-                            }
-                            .minByOrNull { abs(it - newValue) } ?: newValue
-                    } else {
-                        newValue
-                    }
-                    // This is to keep it consistent with AbsSeekbar.java: return false if no
-                    // change from current.
-                    if (resolvedValue == value) {
-                        false
-                    } else {
-                        onValueChange(resolvedValue)
-                        true
-                    }
-                }
-            },
+        modifier = modifier,
     ) {
         labelSlot()
 
         Box(
             contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .progressSemantics(
+                    value = sliderValue,
+                    valueRange = sliderValueRange,
+                    steps = steps,
+                )
+                .clearAndSetSemantics {
+                    contentDescription = label
+                    setProgress(label) { targetValue ->
+                        val newValue = targetValue.coerceIn(sliderValueRange.start, sliderValueRange.endInclusive)
+                        val resolvedValue = if (steps > 0) {
+                            tickFractions
+                                .map {
+                                    lerp(
+                                        sliderValueRange.start,
+                                        sliderValueRange.endInclusive,
+                                        it,
+                                    )
+                                }
+                                .minByOrNull { abs(it - newValue) } ?: newValue
+                        } else {
+                            newValue
+                        }
+                        // This is to keep it consistent with AbsSeekbar.java: return false if no
+                        // change from current.
+                        if (resolvedValue == sliderValue) {
+                            false
+                        } else {
+                            with(sliderBijection) {
+                                onValueChange(resolvedValue.toValue())
+                            }
+                            true
+                        }
+                    }
+                },
         ) {
             Slider(
-                value = value,
-                onValueChange = onValueChange,
+                value = sliderValue,
+                onValueChange = {
+                    onValueChange(with(sliderBijection) { it.toValue() })
+                },
                 enabled = enabled,
-                valueRange = valueRange,
+                valueRange = sliderValueRange,
                 steps = steps,
                 onValueChangeFinished = onValueChangeFinished,
                 interactionSource = interactionSource,
@@ -125,6 +173,50 @@ fun LabeledSlider(
         }
     }
 }
+
+/**
+ * A bijection between the space of [T] and the floating point space for a slider.
+ */
+interface SliderBijection<T : Comparable<T>> {
+    fun valueToSlider(value: T): Float
+    fun sliderToValue(sliderValue: Float): T
+}
+
+/**
+ * The identity bijection for a type of [Float].
+ */
+val Float.Companion.IdentitySliderBijection get(): SliderBijection<Float> = object : SliderBijection<Float> {
+    override fun valueToSlider(value: Float): Float = value
+    override fun sliderToValue(sliderValue: Float): Float = sliderValue
+}
+
+/**
+ * Converts the value [T] into the slider [Float] space using the [SliderBijection].
+ */
+context(SliderBijection<T>)
+fun <T : Comparable<T>> T.toSlider(): Float = valueToSlider(this)
+
+/**
+ * Converts the value in the slider [Float] space into the type [T] using the [SliderBijection].
+ */
+context(SliderBijection<T>)
+fun <T : Comparable<T>> Float.toValue(): T = sliderToValue(this)
+
+/**
+ * Converts the [ClosedRange] of type [T] into a [ClosedFloatingPointRange] in the slider [Float] space using the
+ * [SliderBijection].
+ */
+context(SliderBijection<T>)
+fun <T : Comparable<T>> ClosedRange<T>.toSlider(): ClosedFloatingPointRange<Float> =
+    valueToSlider(start)..valueToSlider(endInclusive)
+
+/**
+ * Converts the [ClosedFloatingPointRange] in the slider [Float] space into a [ClosedRange] of type [T] using the
+ * [SliderBijection].
+ */
+context(SliderBijection<T>)
+fun <T : Comparable<T>> ClosedFloatingPointRange<Float>.toValue(): ClosedRange<T> =
+    sliderToValue(start)..sliderToValue(endInclusive)
 
 private fun stepsToTickFractions(steps: Int): List<Float> =
     if (steps == 0) emptyList() else List(steps + 2) { it.toFloat() / (steps + 1) }
