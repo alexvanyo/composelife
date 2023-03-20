@@ -17,14 +17,29 @@
 
 package com.alexvanyo.composelife.ui.app
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.testTag
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
+import com.alexvanyo.composelife.model.isRunning
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.MutableCellWindow
 import com.alexvanyo.composelife.ui.app.cells.MutableCellWindowState
@@ -50,6 +65,7 @@ interface InteractiveCellUniverseLocalEntryPoint :
  * evolves.
  */
 context(InteractiveCellUniverseHiltEntryPoint, InteractiveCellUniverseLocalEntryPoint)
+@OptIn(ExperimentalComposeUiApi::class)
 @Suppress("LongParameterList")
 @Composable
 fun InteractiveCellUniverse(
@@ -74,7 +90,32 @@ fun InteractiveCellUniverse(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    // Force focus to allow listening to key events
+    var hasFocus by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+    if (!hasFocus) {
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .focusRequester(focusRequester)
+            .onFocusChanged {
+                hasFocus = it.hasFocus
+            }
+            .focusable()
+            .onKeyEvent { keyEvent ->
+                if (keyEvent.key == Key.Spacebar && keyEvent.type == KeyEventType.KeyUp) {
+                    temporalGameOfLifeState.setIsRunning(!temporalGameOfLifeState.isRunning)
+                    true
+                } else {
+                    false
+                }
+            }
+    ) {
         MutableCellWindow(
             gameOfLifeState = temporalGameOfLifeState,
             modifier = Modifier.testTag("MutableCellWindow"),
