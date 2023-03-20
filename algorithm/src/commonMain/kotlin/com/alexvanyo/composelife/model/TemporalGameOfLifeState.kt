@@ -131,6 +131,15 @@ sealed interface TemporalGameOfLifeState : MutableGameOfLifeState {
 }
 
 /**
+ * `true` if the [TemporalGameOfLifeState.status] is [TemporalGameOfLifeState.EvolutionStatus.Running].
+ */
+val TemporalGameOfLifeState.isRunning get() =
+    when (status) {
+        TemporalGameOfLifeState.EvolutionStatus.Paused -> false
+        is TemporalGameOfLifeState.EvolutionStatus.Running -> true
+    }
+
+/**
  * A description of a particular "genealogy" of cell states.
  *
  * A "genealogy" can be identified as a specific sequence of cell states to be displayed to the user. In particular,
