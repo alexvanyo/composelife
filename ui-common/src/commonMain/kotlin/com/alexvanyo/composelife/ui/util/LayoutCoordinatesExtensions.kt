@@ -18,9 +18,16 @@ package com.alexvanyo.composelife.ui.util
 
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.unit.toSize
 
+/**
+ * Returns the [Rect] corresponding to the "real" bounds in the parent.
+ *
+ * This will return the actual bounds in parent when the resulting bounds are empty, unlike
+ * [LayoutCoordinates.boundsInParent].
+ */
 fun LayoutCoordinates.realBoundsInParent(): Rect =
     Rect(
         positionInParent(),
