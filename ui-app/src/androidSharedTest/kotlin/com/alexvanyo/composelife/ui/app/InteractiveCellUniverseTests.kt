@@ -20,9 +20,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsActions.ScrollToIndex
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasAnyAncestor
@@ -35,11 +38,14 @@ import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.IntOffset
 import androidx.test.espresso.Espresso
@@ -234,6 +240,72 @@ class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::cl
         composeTestRule
             .onNodeWithContentDescription(context.getString(R.string.play))
             .performClick()
+
+        SixLongLinePattern.cellStates.forEach { expectedCellState ->
+            testDispatcher.scheduler.runCurrent()
+            composeTestRule.waitForIdle()
+            testDispatcher.scheduler.advanceTimeBy(16)
+            testDispatcher.scheduler.runCurrent()
+            composeTestRule.waitForIdle()
+
+            assertNodesAreAlive(expectedCellState.aliveCells)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @SkipLeakDetection("appliedChanges", "Outer")
+    @Test
+    fun six_long_line_evolves_correctly_with_spacebar() = runAppTest {
+        composeTestRule.setContent {
+            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
+                targetStepsPerSecond = 60.0,
+            )
+
+            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
+                temporalGameOfLifeState = temporalGameOfLifeState,
+                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                clock = testDispatcher.scheduler.clock,
+                dispatchers = dispatchers,
+            )
+
+            LaunchedEffect(temporalGameOfLifeStateMutator) {
+                temporalGameOfLifeStateMutator.update()
+            }
+
+            with(interactiveCellUniverseHiltEntryPoint) {
+                with(interactiveCellUniverseLocalEntryPoint) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        isViewportTracking = false,
+                        setIsViewportTracking = {},
+                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+        }
+
+        composeTestRule
+            .onRoot()
+            .performKeyInput {
+                pressKey(Key.Spacebar)
+            }
+
+        SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
+            scrollToCell(cell)
+
+            composeTestRule
+                .onNodeWithContentDescription(
+                    context.getString(R.string.cell_content_description, cell.x, cell.y),
+                )
+                .performTouchInput { click(topLeft) }
+        }
+
+        composeTestRule
+            .onRoot()
+            .performKeyInput {
+                pressKey(Key.Spacebar)
+            }
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
             testDispatcher.scheduler.runCurrent()

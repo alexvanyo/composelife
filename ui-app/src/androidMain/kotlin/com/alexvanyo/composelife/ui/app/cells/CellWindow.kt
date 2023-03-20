@@ -130,7 +130,7 @@ fun MutableCellWindow(
 }
 
 context(CellWindowLocalEntryPoint)
-@Suppress("LongMethod", "LongParameterList")
+@Suppress("LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 @Composable
 private fun CellWindowImpl(
     cellWindowUiState: CellWindowUiState,
