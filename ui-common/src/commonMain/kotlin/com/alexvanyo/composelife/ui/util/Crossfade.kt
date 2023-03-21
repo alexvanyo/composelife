@@ -114,7 +114,8 @@ fun <T> Crossfade(
     }
 
     Box(
-        modifier = modifier
+        modifier = modifier,
+        propagateMinConstraints = true,
     ) {
         targetsWithTransitions.forEach { (target, transition) ->
             key(target) {
@@ -124,7 +125,8 @@ fun <T> Crossfade(
                 ) { alphaEasing.transform(it) }
 
                 Box(
-                    modifier = Modifier.graphicsLayer { alpha = smoothedAlpha }
+                    modifier = Modifier.graphicsLayer { alpha = smoothedAlpha },
+                    propagateMinConstraints = true,
                 ) {
                     content(target)
                 }

@@ -18,8 +18,8 @@ package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoMode
 import androidx.compose.material.icons.filled.ExpandLess
@@ -35,6 +35,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -62,77 +63,77 @@ fun ActionControlRow(
         tonalElevation = elevation,
         modifier = modifier,
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        Box(
+            contentAlignment = Alignment.Center
         ) {
-            Spacer(modifier = Modifier.weight(1f, fill = isExpanded))
-
-            IconToggleButton(
-                checked = isRunning,
-                onCheckedChange = setIsRunning,
-                colors = IconButtonDefaults.iconToggleButtonColors(
-                    checkedContentColor = LocalContentColor.current,
-                ),
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Icon(
-                    imageVector = if (isRunning) {
-                        Icons.Filled.Pause
-                    } else {
-                        Icons.Filled.PlayArrow
-                    },
-                    contentDescription = if (isRunning) {
-                        stringResource(id = R.string.pause)
-                    } else {
-                        stringResource(id = R.string.play)
-                    },
-                )
-            }
+                IconToggleButton(
+                    checked = isRunning,
+                    onCheckedChange = setIsRunning,
+                    colors = IconButtonDefaults.iconToggleButtonColors(
+                        checkedContentColor = LocalContentColor.current,
+                    ),
+                ) {
+                    Icon(
+                        imageVector = if (isRunning) {
+                            Icons.Filled.Pause
+                        } else {
+                            Icons.Filled.PlayArrow
+                        },
+                        contentDescription = if (isRunning) {
+                            stringResource(id = R.string.pause)
+                        } else {
+                            stringResource(id = R.string.play)
+                        },
+                    )
+                }
 
-            IconButton(
-                onClick = onStep,
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.SkipNext,
-                    contentDescription = stringResource(id = R.string.step),
-                )
-            }
+                IconButton(
+                    onClick = onStep,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.SkipNext,
+                        contentDescription = stringResource(id = R.string.step),
+                    )
+                }
 
-            IconToggleButton(
-                checked = isViewportTracking,
-                onCheckedChange = setIsViewportTracking,
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.AutoMode,
-                    contentDescription = if (isViewportTracking) {
-                        stringResource(id = R.string.disable_autofit)
-                    } else {
-                        stringResource(id = R.string.enable_autofit)
-                    },
-                )
-            }
+                IconToggleButton(
+                    checked = isViewportTracking,
+                    onCheckedChange = setIsViewportTracking,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.AutoMode,
+                        contentDescription = if (isViewportTracking) {
+                            stringResource(id = R.string.disable_autofit)
+                        } else {
+                            stringResource(id = R.string.enable_autofit)
+                        },
+                    )
+                }
 
-            IconToggleButton(
-                checked = isExpanded,
-                onCheckedChange = setIsExpanded,
-                colors = IconButtonDefaults.iconToggleButtonColors(
-                    checkedContentColor = LocalContentColor.current,
-                ),
-            ) {
-                Icon(
-                    imageVector = if (isExpanded) {
-                        Icons.Filled.ExpandMore
-                    } else {
-                        Icons.Filled.ExpandLess
-                    },
-                    contentDescription = if (isExpanded) {
-                        stringResource(id = R.string.collapse)
-                    } else {
-                        stringResource(id = R.string.expand)
-                    },
-                )
+                IconToggleButton(
+                    checked = isExpanded,
+                    onCheckedChange = setIsExpanded,
+                    colors = IconButtonDefaults.iconToggleButtonColors(
+                        checkedContentColor = LocalContentColor.current,
+                    ),
+                ) {
+                    Icon(
+                        imageVector = if (isExpanded) {
+                            Icons.Filled.ExpandMore
+                        } else {
+                            Icons.Filled.ExpandLess
+                        },
+                        contentDescription = if (isExpanded) {
+                            stringResource(id = R.string.collapse)
+                        } else {
+                            stringResource(id = R.string.expand)
+                        },
+                    )
+                }
             }
-
-            Spacer(modifier = Modifier.weight(1f, fill = isExpanded))
         }
     }
 }
