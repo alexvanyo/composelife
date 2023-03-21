@@ -134,7 +134,8 @@ fun <T> AnimatedContent(
                     Box(
                         modifier = Modifier
                             .layoutId(TargetStateLayoutId(target))
-                            .graphicsLayer { alpha = smoothedAlpha }
+                            .graphicsLayer { alpha = smoothedAlpha },
+                        propagateMinConstraints = true,
                     ) {
                         content(target)
                     }
