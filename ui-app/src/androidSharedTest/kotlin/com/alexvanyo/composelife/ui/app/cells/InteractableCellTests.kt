@@ -45,7 +45,7 @@ class InteractableCellTests {
             InteractableCell(
                 modifier = Modifier
                     .size(32.dp),
-                isAlive = true,
+                drawState = DrawState.Alive,
                 shape = CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
                     cornerFraction = 0f,
@@ -70,7 +70,7 @@ class InteractableCellTests {
             InteractableCell(
                 modifier = Modifier
                     .size(32.dp),
-                isAlive = false,
+                drawState = DrawState.Dead,
                 shape = CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
                     cornerFraction = 0f,

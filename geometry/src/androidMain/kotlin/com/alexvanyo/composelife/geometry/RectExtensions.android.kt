@@ -14,16 +14,27 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.util
+package com.alexvanyo.composelife.geometry
 
-import androidx.annotation.FloatRange
-import androidx.compose.runtime.Stable
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.util.lerp
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.unit.IntRect
 
-@Stable
-fun lerp(start: IntSize, stop: IntSize, @FloatRange(from = 0.0, to = 1.0) fraction: Float): IntSize =
-    IntSize(
-        lerp(start.width, stop.width, fraction),
-        lerp(start.height, stop.height, fraction),
-    )
+/**
+ * Converts an [IntRect] to a [android.graphics.Rect].
+ */
+fun IntRect.toAndroidRect() = android.graphics.Rect(
+    left,
+    top,
+    right,
+    bottom,
+)
+
+/**
+ * Converts an [IntRect] to a [Rect].
+ */
+fun android.graphics.Rect.toComposeIntRect() = IntRect(
+    left = left,
+    top = top,
+    right = right,
+    bottom = bottom,
+)

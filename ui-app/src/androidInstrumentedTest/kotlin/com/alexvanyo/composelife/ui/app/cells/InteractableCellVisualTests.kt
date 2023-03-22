@@ -50,7 +50,7 @@ class InteractableCellVisualTests {
         composeTestRule.setContent {
             ComposeLifeTheme(darkTheme = true) {
                 InteractableCell(
-                    isAlive = true,
+                    drawState = DrawState.Alive,
                     shape = CurrentShape.RoundRectangle(
                         sizeFraction = 1f,
                         cornerFraction = 0f,
@@ -83,7 +83,7 @@ class InteractableCellVisualTests {
         composeTestRule.setContent {
             ComposeLifeTheme(darkTheme = false) {
                 InteractableCell(
-                    isAlive = true,
+                    drawState = DrawState.Alive,
                     shape = CurrentShape.RoundRectangle(
                         sizeFraction = 1f,
                         cornerFraction = 0f,
@@ -116,7 +116,7 @@ class InteractableCellVisualTests {
         composeTestRule.setContent {
             ComposeLifeTheme(darkTheme = true) {
                 InteractableCell(
-                    isAlive = false,
+                    drawState = DrawState.Dead,
                     shape = CurrentShape.RoundRectangle(
                         sizeFraction = 1f,
                         cornerFraction = 0f,
@@ -149,7 +149,7 @@ class InteractableCellVisualTests {
         composeTestRule.setContent {
             ComposeLifeTheme(darkTheme = false) {
                 InteractableCell(
-                    isAlive = false,
+                    drawState = DrawState.Dead,
                     shape = CurrentShape.RoundRectangle(
                         sizeFraction = 1f,
                         cornerFraction = 0f,
