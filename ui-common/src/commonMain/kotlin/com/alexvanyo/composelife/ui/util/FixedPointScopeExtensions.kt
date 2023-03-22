@@ -20,6 +20,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
+import com.alexvanyo.composelife.geometry.bottomEnd
+import com.alexvanyo.composelife.geometry.bottomStart
+import com.alexvanyo.composelife.geometry.centerEnd
+import com.alexvanyo.composelife.geometry.centerStart
+import com.alexvanyo.composelife.geometry.topEnd
+import com.alexvanyo.composelife.geometry.topStart
 
 context(LayoutDirectionAwareScope)
 val Rect.topStart get(): Offset = topStart(layoutDirection)

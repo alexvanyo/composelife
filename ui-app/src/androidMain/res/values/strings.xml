@@ -36,6 +36,17 @@
     <string name="generations_per_second_long">Generations per second: %1$.2f</string>
     <string name="speed">Speed</string>
     <string name="edit">Edit</string>
+    <string name="touch">Touch</string>
+    <string name="touch_tool">Touch tool</string>
+    <string name="stylus">Stylus</string>
+    <string name="stylus_tool">Stylus tool</string>
+    <string name="mouse">Mouse</string>
+    <string name="mouse_tool">Mouse tool</string>
+    <string name="pan">Pan</string>
+    <string name="draw">Draw</string>
+    <string name="erase">Erase</string>
+    <string name="select">Select</string>
+    <string name="none">None</string>
     <string name="corner_fraction_label">Corner fraction</string>
     <string name="corner_fraction_label_and_value">Corner fraction: %1$.2f</string>
     <string name="corner_fraction_value">%1$.2f</string>

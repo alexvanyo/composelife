@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,45 +14,14 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.util
+package com.alexvanyo.composelife.geometry
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class BoundsExtensionsTests {
-
-    @Test
-    fun empty_IntRect_returns_single_point() {
-        assertEquals(
-            listOf(IntOffset(2, 2)),
-            IntRect(IntOffset(2, 2), 0).containedPoints(),
-        )
-    }
-
-    @Test
-    fun non_empty_IntRect_returns_correct_order() {
-        assertEquals(
-            listOf(
-                IntOffset(2, 11),
-                IntOffset(3, 11),
-                IntOffset(4, 11),
-                IntOffset(2, 12),
-                IntOffset(3, 12),
-                IntOffset(4, 12),
-                IntOffset(2, 13),
-                IntOffset(3, 13),
-                IntOffset(4, 13),
-            ),
-            IntRect(
-                IntOffset(2, 11),
-                IntOffset(4, 13),
-            ).containedPoints(),
-        )
-    }
+class OffsetExtensionsTests {
 
     @Test
     fun pair_to_int_offset_is_correct() {
@@ -100,24 +69,6 @@ class BoundsExtensionsTests {
         assertEquals(
             IntOffset(-20, -7),
             floor(Offset(-19.3f, -6.8f)),
-        )
-    }
-
-    @Test
-    fun int_rect_to_rect_is_correct() {
-        assertEquals(
-            Rect(
-                -3f,
-                2f,
-                -1f,
-                4f,
-            ),
-            IntRect(
-                -3,
-                2,
-                -1,
-                4,
-            ).toRect(),
         )
     }
 

@@ -115,10 +115,20 @@ object ComposeLifeTheme {
         @ReadOnlyComposable
         get() = MaterialTheme.colorScheme.onSurface
 
+    val pendingAliveCellColor
+        @Composable
+        @ReadOnlyComposable
+        get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+
     val deadCellColor
         @Composable
         @ReadOnlyComposable
         get() = MaterialTheme.colorScheme.surface
+
+    val pendingDeadCellColor
+        @Composable
+        @ReadOnlyComposable
+        get() = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)
 }
 
 @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.S)

@@ -19,8 +19,8 @@ package com.alexvanyo.composelife.model
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
-import com.alexvanyo.composelife.util.containedPoints
-import com.alexvanyo.composelife.util.toIntOffset
+import com.alexvanyo.composelife.geometry.containedPoints
+import com.alexvanyo.composelife.geometry.toIntOffset
 
 /**
  * The cell state for a single generation.
