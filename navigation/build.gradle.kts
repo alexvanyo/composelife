@@ -55,6 +55,7 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
+                implementation(libs.androidx.compose.ui)
                 implementation(libs.androidx.core)
                 implementation(libs.kotlinx.coroutines.android)
             }
@@ -75,6 +76,7 @@ kotlin {
 
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
+                implementation(libs.androidx.compose.uiTestJunit4)
             }
         }
     }
