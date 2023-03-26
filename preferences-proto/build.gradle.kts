@@ -45,18 +45,9 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
-            kotlin.srcDir("$buildDir/generated/source/wire/commonCommonMain")
             dependencies {
                 api(libs.wire.runtime)
             }
         }
     }
-}
-
-tasks.withType<KotlinCompile>().configureEach {
-    dependsOn("generateCommonCommonMainProtos")
-}
-
-tasks.withType<Detekt>().configureEach {
-    dependsOn("generateCommonCommonMainProtos")
 }
