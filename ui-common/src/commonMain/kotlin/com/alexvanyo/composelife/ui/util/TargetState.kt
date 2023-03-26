@@ -38,7 +38,7 @@ sealed interface TargetState<T> {
      * The target state is the single [current] value.
      */
     data class Single<T>(
-        override val current: T
+        override val current: T,
     ) : TargetState<T>
 
     /**

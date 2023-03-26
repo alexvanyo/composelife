@@ -94,22 +94,22 @@ fun Modifier.animatedWindowInsetsPadding(
 
             override fun getBottom(density: Density): Int =
                 bottomAnimatable.animateTo(
-                    targetWindowInsets.exclude(consumedWindowInsetsState.value).getBottom(density)
+                    targetWindowInsets.exclude(consumedWindowInsetsState.value).getBottom(density),
                 )
 
             override fun getLeft(density: Density, layoutDirection: LayoutDirection): Int =
                 leftAnimatable.animateTo(
-                    targetWindowInsets.exclude(consumedWindowInsetsState.value).getLeft(density, layoutDirection)
+                    targetWindowInsets.exclude(consumedWindowInsetsState.value).getLeft(density, layoutDirection),
                 )
 
             override fun getRight(density: Density, layoutDirection: LayoutDirection): Int =
                 rightAnimatable.animateTo(
-                    targetWindowInsets.exclude(consumedWindowInsetsState.value).getRight(density, layoutDirection)
+                    targetWindowInsets.exclude(consumedWindowInsetsState.value).getRight(density, layoutDirection),
                 )
 
             override fun getTop(density: Density): Int =
                 topAnimatable.animateTo(
-                    targetWindowInsets.exclude(consumedWindowInsetsState.value).getTop(density)
+                    targetWindowInsets.exclude(consumedWindowInsetsState.value).getTop(density),
                 )
         }
     }

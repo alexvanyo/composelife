@@ -89,27 +89,27 @@ fun AnimatePlacementPreview() {
 
     Column {
         Button(
-            onClick = { animatePlacementAlignmentIndex++ }
+            onClick = { animatePlacementAlignmentIndex++ },
         ) {
             Text("animatePlacement alignment: $animatePlacementAlignmentName")
         }
         Button(
-            onClick = { animatePlacementParentAlignmentIndex++ }
+            onClick = { animatePlacementParentAlignmentIndex++ },
         ) {
             Text("animatePlacementParent alignment: $animatePlacementParentAlignmentName")
         }
         Button(
-            onClick = { alignmentInBoxIndex++ }
+            onClick = { alignmentInBoxIndex++ },
         ) {
             Text("alignment in box: $alignmentInBoxName")
         }
         Button(
-            onClick = { animateContentSizeAlignmentIndex++ }
+            onClick = { animateContentSizeAlignmentIndex++ },
         ) {
             Text("animateContentSize alignment: $animateContentSizeAlignmentName")
         }
         Button(
-            onClick = { isExpanded = !isExpanded }
+            onClick = { isExpanded = !isExpanded },
         ) {
             Text("Toggle box size")
         }
@@ -145,7 +145,7 @@ fun AnimatePlacementPreview() {
                     Modifier
                         .weight(1f)
                         .fillMaxWidth()
-                        .border(1.dp, Color.Red)
+                        .border(1.dp, Color.Red),
                 ) {
                     Spacer(
                         Modifier
@@ -179,12 +179,12 @@ fun AnimatePlacementPreview() {
                                         Alignment.BottomEnd -> bounds.bottomEnd
                                         else -> error("invalid alignment")
                                     }
-                                }
+                                },
                             )
                             .align(alignmentInBox)
                             .background(Color.Blue)
                             .animateContentSize(alignment = animateContentSizeAlignment)
-                            .size(if (isExpanded) 128.dp else 64.dp)
+                            .size(if (isExpanded) 128.dp else 64.dp),
                     )
                 }
 

@@ -86,11 +86,11 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
     }
 
     override fun createUserStyleSchema(): UserStyleSchema = createGameOfLifeStyleSchema(
-        context = applicationContext
+        context = applicationContext,
     )
 
     override fun createComplicationSlotsManager(
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ): ComplicationSlotsManager = createGameOfLifeComplicationSlotsManager(
         context = applicationContext,
         currentUserStyleRepository = currentUserStyleRepository,
@@ -152,19 +152,21 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
             watchFaceType = WatchFaceType.DIGITAL,
             renderer = renderer,
         ).apply {
-            setTapListener(object : WatchFace.TapListener {
-                override fun onTapEvent(tapType: Int, tapEvent: TapEvent, complicationSlot: ComplicationSlot?) {
-                    when (tapType) {
-                        TapType.DOWN -> {
-                            temporalGameOfLifeState.cellState = temporalGameOfLifeState.seedCellState
-                            isBeingTappedState.value = true
-                        }
-                        else -> {
-                            isBeingTappedState.value = false
+            setTapListener(
+                object : WatchFace.TapListener {
+                    override fun onTapEvent(tapType: Int, tapEvent: TapEvent, complicationSlot: ComplicationSlot?) {
+                        when (tapType) {
+                            TapType.DOWN -> {
+                                temporalGameOfLifeState.cellState = temporalGameOfLifeState.seedCellState
+                                isBeingTappedState.value = true
+                            }
+                            else -> {
+                                isBeingTappedState.value = false
+                            }
                         }
                     }
-                }
-            })
+                },
+            )
         }
     }
 

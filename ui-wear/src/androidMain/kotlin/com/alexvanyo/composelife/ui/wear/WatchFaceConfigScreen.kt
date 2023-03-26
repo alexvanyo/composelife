@@ -48,7 +48,7 @@ fun WatchFaceConfigScreen(
                     previous = null,
                 ),
             ),
-            saver = WatchFaceConfigNavigation.Saver
+            saver = WatchFaceConfigNavigation.Saver,
         )
 
     val listScalingLazyColumnState = rememberScalingLazyListState(
@@ -67,7 +67,7 @@ fun WatchFaceConfigScreen(
         modifier = modifier,
     ) {
         WearNavigationHost(
-            navigationController = navigationController
+            navigationController = navigationController,
         ) { entry ->
             when (entry.value) {
                 WatchFaceConfigNavigation.List -> {
@@ -78,13 +78,13 @@ fun WatchFaceConfigScreen(
                                 navigate(WatchFaceConfigNavigation.ColorPicker)
                             }
                         },
-                        scalingLazyListState = listScalingLazyColumnState
+                        scalingLazyListState = listScalingLazyColumnState,
                     )
                 }
                 WatchFaceConfigNavigation.ColorPicker -> {
                     WatchFaceColorPicker(
                         color = state.color,
-                        setColor = { state.color = it }
+                        setColor = { state.color = it },
                     )
                 }
             }
@@ -109,7 +109,7 @@ fun WatchFaceConfigScreenPreview() {
                 override val preview get() = ResourceState.Success(preview)
 
                 override fun openComplicationDataSourceChooser(id: Int) = Unit
-            }
+            },
         )
     }
 }

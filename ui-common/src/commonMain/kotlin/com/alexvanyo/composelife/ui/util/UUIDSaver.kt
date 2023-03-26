@@ -24,5 +24,5 @@ import java.util.UUID
  */
 val uuidSaver: Saver<UUID, *> = Saver(
     save = { it.toString() },
-    restore = UUID::fromString
+    restore = UUID::fromString,
 )

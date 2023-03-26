@@ -56,7 +56,7 @@ fun ColorComponentPicker(
 ) {
     val pickerState = rememberPickerState(
         initialNumberOfOptions = 256,
-        initiallySelectedOption = remember { initialComponentValue }
+        initiallySelectedOption = remember { initialComponentValue },
     )
     val currentSetComponentValue by rememberUpdatedState(setComponentValue)
 
@@ -70,7 +70,7 @@ fun ColorComponentPicker(
     }
 
     HierarchicalFocusCoordinator(
-        requiresFocus = { isSelected }
+        requiresFocus = { isSelected },
     ) {
         val focusRequester = rememberActiveFocusRequester()
         Picker(
@@ -100,7 +100,7 @@ fun ColorComponentPicker(
                 Text(
                     text = "%02X".format(optionIndex),
                     style = MaterialTheme.typography.display2,
-                    modifier = Modifier.alpha(if (isSelected) 1f else 0.5f)
+                    modifier = Modifier.alpha(if (isSelected) 1f else 0.5f),
                 )
             }
         }
