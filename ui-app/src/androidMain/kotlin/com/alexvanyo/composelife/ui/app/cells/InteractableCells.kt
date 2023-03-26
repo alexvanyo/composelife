@@ -200,7 +200,7 @@ private fun Modifier.drawingCellInput(
                             listOf(change.position)
                         )
                         .filter(Offset::isSpecified)
-                        .map { it / currentScaledCellPixelSize }
+                        .map { it / currentScaledCellPixelSize },
                 )
                 val isAlive = when (change.type) {
                     PointerType.Mouse, PointerType.Stylus -> true
@@ -210,7 +210,7 @@ private fun Modifier.drawingCellInput(
                 path.cellIntersections().forEach { localCoordinate ->
                     pendingCellChanges[localCoordinate + currentCellWindow.topLeft] = isAlive
                 }
-            }
+            },
         )
     }
 }

@@ -178,7 +178,7 @@ fun InteractiveCellUniverseOverlay(
     val targetWindowInsets = lerp(
         WindowInsets.safeDrawing.add(WindowInsets(all = 8.dp)),
         WindowInsets.Zero,
-        targetWindowInsetsProgressToFullscreen
+        targetWindowInsetsProgressToFullscreen,
     )
 
     val cornerSize by animateDpAsState(
@@ -219,12 +219,12 @@ fun InteractiveCellUniverseOverlay(
             Spacer(
                 modifier = Modifier
                     .windowInsetsTopHeight(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
-                    .layoutId(TopInsets)
+                    .layoutId(TopInsets),
             )
             Spacer(
                 modifier = Modifier
                     .windowInsetsBottomHeight(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
-                    .layoutId(BottomInsets)
+                    .layoutId(BottomInsets),
             )
 
             Box(
@@ -237,7 +237,7 @@ fun InteractiveCellUniverseOverlay(
                         },
                         parentFixedPoint = { parentLayoutCoordinates ->
                             parentLayoutCoordinates.size.toIntRect().topCenter
-                        }
+                        },
                     )
                     .layoutId(CellUniverseInfoCard),
             ) {
@@ -276,9 +276,9 @@ fun InteractiveCellUniverseOverlay(
                                     } else {
                                         parentLayoutCoordinates.size.toIntRect().bottomEnd
                                     }
-                                }
+                                },
                             )
-                        }
+                        },
                     )
                     .windowInsetsPadding(targetWindowInsets)
                     .layoutId(CellUniverseActionCard),
@@ -328,7 +328,7 @@ fun InteractiveCellUniverseOverlay(
                     infoCardPlaceable.place(0, 0)
                     actionCardPlaceable.place(
                         0,
-                        constraints.maxHeight - actionCardPlaceable.height
+                        constraints.maxHeight - actionCardPlaceable.height,
                     )
                 } else if (isActionCardTopCard) {
                     infoCardPlaceable.place(0, -infoCardPlaceable.height + bottomInsetsPlaceable.height)

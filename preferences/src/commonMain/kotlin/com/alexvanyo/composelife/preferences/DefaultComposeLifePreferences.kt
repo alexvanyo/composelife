@@ -110,7 +110,8 @@ class DefaultComposeLifePreferences @Inject constructor(
                 val darkThemeConfig =
                     when (preferencesProto.dark_theme_config) {
                         DarkThemeConfigProto.DARK_THEME_UNKNOWN,
-                        DarkThemeConfigProto.SYSTEM, -> DarkThemeConfig.FollowSystem
+                        DarkThemeConfigProto.SYSTEM,
+                        -> DarkThemeConfig.FollowSystem
                         DarkThemeConfigProto.DARK -> DarkThemeConfig.Dark
                         DarkThemeConfigProto.LIGHT -> DarkThemeConfig.Light
                     }

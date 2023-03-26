@@ -24,6 +24,6 @@ fun ComposeLifeTheme(
     content: @Composable () -> Unit,
 ) {
     MaterialTheme(
-        content = content
+        content = content,
     )
 }
