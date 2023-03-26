@@ -21,16 +21,13 @@ import com.alexvanyo.composelife.data.CellStateRepository
 import com.alexvanyo.composelife.data.model.CellStateMetadata
 import com.alexvanyo.composelife.data.model.SaveableCellState
 import com.alexvanyo.composelife.model.toCellState
-import dagger.hilt.android.testing.HiltAndroidRule
+import com.alexvanyo.composelife.test.BaseHiltTest
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestDispatcher
-import kotlinx.coroutines.test.runTest
-import org.junit.Rule
 import org.junit.runner.RunWith
 import javax.inject.Inject
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -39,10 +36,7 @@ import kotlin.test.assertNull
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class CellStateRepositoryTests {
-
-    @get:Rule
-    val hiltAndroidRule = HiltAndroidRule(this)
+class CellStateRepositoryTests : BaseHiltTest() {
 
     @Inject
     lateinit var cellStateRepository: CellStateRepository
@@ -53,18 +47,13 @@ class CellStateRepositoryTests {
     @Inject
     lateinit var testDispatcher: TestDispatcher
 
-    @BeforeTest
-    fun setup() {
-        hiltAndroidRule.inject()
-    }
-
     @Test
-    fun get_autosaved_cell_state_returns_null_initially() = runTest(testDispatcher) {
+    fun get_autosaved_cell_state_returns_null_initially() = runAppTest(testDispatcher) {
         assertNull(cellStateRepository.getAutosavedCellState())
     }
 
     @Test
-    fun save_autosaved_cell_state_then_get_returns_new_cell_state() = runTest(testDispatcher) {
+    fun save_autosaved_cell_state_then_get_returns_new_cell_state() = runAppTest(testDispatcher) {
         val insertedId = cellStateRepository.autosaveCellState(
             SaveableCellState(
                 cellState = "O".toCellState(),

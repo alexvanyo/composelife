@@ -41,7 +41,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.test.BaseHiltTest
+import com.alexvanyo.composelife.test.BaseUiHiltTest
 import com.alexvanyo.composelife.test.TestActivity
 import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.action.ActionCardNavigation
@@ -59,7 +59,7 @@ import kotlin.test.assertNull
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
-class FullscreenSettingsScreenTests : BaseHiltTest<TestActivity>(TestActivity::class.java) {
+class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity::class.java) {
 
     private val fullscreenSettingsScreenLocalEntryPoint = object : FullscreenSettingsScreenLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults
