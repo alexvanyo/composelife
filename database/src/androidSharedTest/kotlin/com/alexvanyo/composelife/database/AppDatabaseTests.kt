@@ -22,6 +22,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Rule
 import org.junit.runner.RunWith
 import javax.inject.Inject
+import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertIs
@@ -39,6 +40,11 @@ class AppDatabaseTests {
     @BeforeTest
     fun setup() {
         hiltAndroidRule.inject()
+    }
+
+    @AfterTest
+    fun teardown() {
+        appDatabase.close()
     }
 
     @Test

@@ -27,6 +27,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.runner.RunWith
 import javax.inject.Inject
+import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -42,6 +43,9 @@ class CellStateDaoTests {
     val hiltAndroidRule = HiltAndroidRule(this)
 
     @Inject
+    lateinit var appDatabase: AppDatabase
+
+    @Inject
     lateinit var cellStateDao: CellStateDao
 
     @Inject
@@ -50,6 +54,11 @@ class CellStateDaoTests {
     @BeforeTest
     fun setup() {
         hiltAndroidRule.inject()
+    }
+
+    @AfterTest
+    fun teardown() {
+        appDatabase.close()
     }
 
     @Test
