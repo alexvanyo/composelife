@@ -110,7 +110,7 @@ class ModifyPreviousDestinationUseCaseTests {
                             "navigate back",
                             Modifier.clickable {
                                 navController.withExpectedActor(entry.id) {
-                                    navController.popBackstack()
+                                    popBackstack()
                                 }
                             },
                         )
@@ -119,7 +119,7 @@ class ModifyPreviousDestinationUseCaseTests {
                         "navigate forward",
                         Modifier.clickable {
                             navController.withExpectedActor(entry.id) {
-                                navController.navigate(
+                                navigate(
                                     valueFactory = { previous ->
                                         TestScreenState(
                                             previous = previous.value,
@@ -200,7 +200,7 @@ class ModifyPreviousDestinationUseCaseTests {
                             "navigate back",
                             Modifier.clickable {
                                 navController.withExpectedActor(entry.id) {
-                                    navController.popBackstack()
+                                    popBackstack()
                                 }
                             },
                         )
@@ -209,7 +209,7 @@ class ModifyPreviousDestinationUseCaseTests {
                         "navigate forward",
                         Modifier.clickable {
                             navController.withExpectedActor(entry.id) {
-                                navController.navigate(
+                                navigate(
                                     valueFactory = { previous ->
                                         TestScreenState(
                                             previous = previous.value,
