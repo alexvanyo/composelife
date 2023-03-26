@@ -258,7 +258,7 @@ fun rememberCellUniverseActionCardState(
 
         override fun onSeeMoreSettingsClicked(actorBackstackEntryId: UUID?) {
             currentNavController.withExpectedActor(actorBackstackEntryId) {
-                check(currentNavController === settingsNavController)
+                check(this === settingsNavController)
                 settingsNavController.navigate(
                     ActionCardNavigation.Settings.Fullscreen(
                         initialSettingsCategory = SettingsCategory.Algorithm,
@@ -271,7 +271,7 @@ fun rememberCellUniverseActionCardState(
 
         override fun onOpenInSettingsClicked(setting: Setting, actorBackstackEntryId: UUID?) {
             currentNavController.withExpectedActor(actorBackstackEntryId) {
-                check(currentNavController === settingsNavController)
+                check(this === settingsNavController)
                 settingsNavController.navigate(
                     ActionCardNavigation.Settings.Fullscreen(
                         initialSettingsCategory = setting.category,
