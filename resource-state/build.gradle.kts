@@ -54,6 +54,7 @@ kotlin {
             dependencies {
                 api(libs.kotlinx.coroutines.android)
                 implementation(libs.androidx.core)
+                implementation(libs.androidx.compose.ui)
                 implementation(libs.androidx.lifecycle.viewmodel.savedstate)
             }
         }
