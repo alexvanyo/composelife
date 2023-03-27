@@ -36,6 +36,8 @@ complexity:
 empty-blocks:
   EmptyDefaultConstructor:
     excludes: [ '**/generated/**' ]
+  EmptyFunctionBlock:
+    excludes: [ '**/generated/**' ]
   EmptyKtFile:
     excludes: [ '**/generated/**' ]
 
@@ -60,6 +62,7 @@ formatting:
     excludes: [ '**/generated/**' ]
   ModifierListSpacing:
     active: true
+    excludes: [ '**/generated/**' ]
   NoConsecutiveBlankLines:
     excludes: [ '**/generated/**' ]
   NoEmptyFirstLineInMethodBlock:
@@ -79,6 +82,8 @@ formatting:
   SpacingAroundAngleBrackets:
     active: true
   SpacingAroundCurly:
+    excludes: [ '**/generated/**' ]
+  SpacingAroundComma:
     excludes: [ '**/generated/**' ]
   TrailingCommaOnCallSite:
     active: false
@@ -136,3 +141,7 @@ style:
     excludes: [ '**/generated/**' ]
   MagicNumber:
     active: false
+  ObjectLiteralToLambda:
+    excludes: [ '**/generated/**' ]
+  VarCouldBeVal:
+    excludes: [ '**/generated/**' ]
