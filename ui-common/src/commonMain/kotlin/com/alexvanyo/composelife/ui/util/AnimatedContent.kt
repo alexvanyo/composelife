@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.IntSize
+import com.alexvanyo.composelife.geometry.lerp
 import com.alexvanyo.composelife.snapshotstateset.mutableStateSetOf
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter

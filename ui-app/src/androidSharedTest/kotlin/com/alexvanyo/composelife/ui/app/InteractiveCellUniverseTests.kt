@@ -52,13 +52,13 @@ import androidx.test.espresso.Espresso
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.clock
+import com.alexvanyo.composelife.geometry.toRingIndex
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseHiltTest
 import com.alexvanyo.composelife.test.TestActivity
-import com.alexvanyo.composelife.util.toRingIndex
 import dagger.hilt.EntryPoints
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi

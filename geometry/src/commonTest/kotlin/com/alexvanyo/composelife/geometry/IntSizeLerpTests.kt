@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.util
+package com.alexvanyo.composelife.geometry
 
 import androidx.compose.ui.unit.IntSize
 import kotlin.test.Test

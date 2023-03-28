@@ -40,6 +40,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(projects.geometry)
                 implementation(projects.navigation)
                 implementation(projects.snapshotStateSet)
                 implementation(libs.androidx.annotation)
