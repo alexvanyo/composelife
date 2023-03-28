@@ -19,16 +19,24 @@ package com.alexvanyo.composelife.ui.app.cells
 import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.dragAndDrop
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.alexvanyo.composelife.geometry.toPx
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
@@ -203,6 +211,67 @@ class InteractableCellsTests {
                 0 to 4,
                 2 to 0,
                 2 to 2,
+                4 to 0,
+                4 to 2,
+                4 to 4,
+            ).toCellState(),
+            mutableGameOfLifeState.cellState,
+        )
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun drawing_on_cells_with_mouse_updates_state() {
+        val mutableGameOfLifeState = MutableGameOfLifeState(
+            cellState = setOf(
+                0 to 0,
+                0 to 2,
+                0 to 4,
+                2 to 0,
+                2 to 2,
+                2 to 4,
+                4 to 0,
+                4 to 2,
+                4 to 4,
+            ).toCellState(),
+        )
+
+        lateinit var density: Density
+
+        composeTestRule.setContent {
+            density = LocalDensity.current
+            with(interactableCellsLocalEntryPoint) {
+                InteractableCells(
+                    gameOfLifeState = mutableGameOfLifeState,
+                    scaledCellDpSize = 10.dp,
+                    cellWindow = IntRect(
+                        IntOffset(0, 0),
+                        IntOffset(8, 8),
+                    ),
+                    pixelOffsetFromCenter = Offset.Zero,
+                )
+            }
+        }
+
+        composeTestRule
+            .onNodeWithTag("CellCanvas")
+            .performMouseInput {
+                dragAndDrop(
+                    with(density) { DpOffset(25.dp, 5.dp).toPx() },
+                    with(density) { DpOffset(25.dp, 45.dp).toPx() },
+                )
+            }
+
+        assertEquals(
+            setOf(
+                0 to 0,
+                0 to 2,
+                0 to 4,
+                2 to 0,
+                2 to 1,
+                2 to 2,
+                2 to 3,
+                2 to 4,
                 4 to 0,
                 4 to 2,
                 4 to 4,

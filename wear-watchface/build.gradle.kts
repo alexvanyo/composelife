@@ -39,6 +39,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(projects.algorithm)
+                implementation(projects.geometry)
                 implementation(projects.openglRenderer)
                 implementation(projects.uiWear)
                 implementation(projects.wearWatchfaceConfiguration)
