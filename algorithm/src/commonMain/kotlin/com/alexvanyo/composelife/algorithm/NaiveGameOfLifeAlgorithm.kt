@@ -19,8 +19,8 @@ package com.alexvanyo.composelife.algorithm
 import androidx.annotation.IntRange
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.geometry.getNeighbors
 import com.alexvanyo.composelife.model.CellState
-import com.alexvanyo.composelife.util.getNeighbors
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 

@@ -26,6 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -45,18 +47,19 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 @Composable
 fun InteractableCell(
     modifier: Modifier,
-    isAlive: Boolean,
+    drawState: DrawState,
     shape: CurrentShape,
     contentDescription: String,
     onValueChange: (isAlive: Boolean) -> Unit,
 ) {
     val aliveColor = ComposeLifeTheme.aliveCellColor
+    val pendingAliveColor = ComposeLifeTheme.pendingAliveCellColor
     val deadColor = ComposeLifeTheme.deadCellColor
+    val pendingDeadColor = ComposeLifeTheme.pendingAliveCellColor
 
-    val rippleColor = if (isAlive) {
-        deadColor
-    } else {
-        aliveColor
+    val rippleColor = when (drawState) {
+        DrawState.Alive, DrawState.PendingAlive -> deadColor
+        DrawState.Dead, DrawState.PendingDead -> aliveColor
     }
 
     Canvas(
@@ -65,18 +68,27 @@ fun InteractableCell(
                 this.contentDescription = contentDescription
             }
             .toggleable(
-                value = isAlive,
+                value = when (drawState) {
+                    DrawState.Alive, DrawState.PendingAlive -> true
+                    DrawState.Dead, DrawState.PendingDead -> false
+                },
                 interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple(color = rippleColor),
                 role = Role.Switch,
                 onValueChange = onValueChange,
             ),
     ) {
-        if (isAlive) {
+        val drawColor = when (drawState) {
+            DrawState.Alive -> aliveColor
+            DrawState.PendingAlive -> pendingAliveColor
+            DrawState.Dead -> Color.Unspecified
+            DrawState.PendingDead -> pendingDeadColor
+        }
+        if (drawColor.isSpecified) {
             when (shape) {
                 is CurrentShape.RoundRectangle -> {
                     drawRoundRect(
-                        color = aliveColor,
+                        color = drawColor,
                         topLeft = Offset(
                             size.width * (1f - shape.sizeFraction) / 2f,
                             size.height * (1f - shape.sizeFraction) / 2f,
@@ -92,6 +104,13 @@ fun InteractableCell(
     }
 }
 
+sealed interface DrawState {
+    object Alive : DrawState
+    object Dead : DrawState
+    object PendingAlive : DrawState
+    object PendingDead : DrawState
+}
+
 @ThemePreviews
 @Composable
 fun AliveCellPreview() {
@@ -99,7 +118,26 @@ fun AliveCellPreview() {
         ComposeLifeTheme {
             InteractableCell(
                 modifier = Modifier.size(50.dp),
-                isAlive = true,
+                drawState = DrawState.Alive,
+                shape = CurrentShape.RoundRectangle(
+                    sizeFraction = 1f,
+                    cornerFraction = 0f,
+                ),
+                contentDescription = "test cell",
+                onValueChange = {},
+            )
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun PendingAliveCellPreview() {
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            InteractableCell(
+                modifier = Modifier.size(50.dp),
+                drawState = DrawState.PendingAlive,
                 shape = CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
                     cornerFraction = 0f,
@@ -118,7 +156,26 @@ fun DeadCellPreview() {
         ComposeLifeTheme {
             InteractableCell(
                 modifier = Modifier.size(50.dp),
-                isAlive = false,
+                drawState = DrawState.Dead,
+                shape = CurrentShape.RoundRectangle(
+                    sizeFraction = 1f,
+                    cornerFraction = 0f,
+                ),
+                contentDescription = "test cell",
+                onValueChange = {},
+            )
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun PendingDeadCellPreview() {
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            InteractableCell(
+                modifier = Modifier.size(50.dp),
+                drawState = DrawState.PendingDead,
                 shape = CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
                     cornerFraction = 0f,

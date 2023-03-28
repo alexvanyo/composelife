@@ -48,6 +48,11 @@ interface DropdownOption {
      * The text to display for the [DropdownOption].
      */
     val displayText: ParameterizedString
+
+    /**
+     * The leading icon (if any) to display for the [DropdownOption].
+     */
+    val leadingIcon: (@Composable () -> Unit)? get() = null
 }
 
 /**
@@ -73,6 +78,7 @@ fun <T : DropdownOption> TextFieldDropdown(
             label = {
                 Text(text = label)
             },
+            leadingIcon = currentValue.leadingIcon,
             trailingIcon = {
                 Icon(
                     if (isShowingDropdownMenu) {
@@ -90,6 +96,7 @@ fun <T : DropdownOption> TextFieldDropdown(
                 disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
             ),
+            singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
@@ -104,6 +111,7 @@ fun <T : DropdownOption> TextFieldDropdown(
             allValues.forEach { value ->
                 DropdownMenuItem(
                     text = { Text(parameterizedStringResource(value.displayText)) },
+                    leadingIcon = value.leadingIcon,
                     onClick = {
                         setValue(value)
                         isShowingDropdownMenu = false

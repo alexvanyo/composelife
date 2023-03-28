@@ -226,7 +226,10 @@ fun CellUniverseActionCard(
                                         is ActionCardNavigation.Edit -> {
                                             when (value) {
                                                 ActionCardNavigation.Edit.Inline -> {
-                                                    InlineEditScreen(modifier = Modifier.fillMaxWidth())
+                                                    InlineEditScreen(
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        scrollState = scrollState,
+                                                    )
                                                 }
                                             }
                                         }

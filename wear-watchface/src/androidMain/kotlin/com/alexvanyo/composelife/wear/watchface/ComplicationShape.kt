@@ -22,6 +22,8 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.opengl.GLES20
 import android.opengl.GLUtils
+import androidx.compose.ui.graphics.toAndroidRect
+import androidx.compose.ui.graphics.toComposeIntRect
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
