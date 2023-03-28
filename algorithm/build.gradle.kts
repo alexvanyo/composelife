@@ -43,6 +43,7 @@ kotlin {
             configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 api(projects.dispatchers)
+                api(projects.geometry)
                 api(projects.parameterizedString)
                 api(projects.preferences)
                 api(projects.updatable)
