@@ -35,6 +35,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.ScrollAxisRange
@@ -49,6 +50,8 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
+import com.alexvanyo.composelife.geometry.floor
+import com.alexvanyo.composelife.geometry.toRingOffset
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
@@ -56,8 +59,6 @@ import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import com.alexvanyo.composelife.ui.util.detectTransformGestures
-import com.alexvanyo.composelife.util.floor
-import com.alexvanyo.composelife.util.toRingOffset
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.math.ceil
@@ -326,6 +327,11 @@ private fun CellWindowImpl(
                     }
                     .pointerInput(Unit) {
                         detectTransformGestures(
+                            excludedPointerTypes = setOf(
+                                PointerType.Mouse,
+                                PointerType.Stylus,
+                                PointerType.Eraser,
+                            ),
                             onGestureStart = { isGesturing = true },
                             onGestureEnd = { isGesturing = false },
                             onGesture = { centroid: Offset, pan: Offset, zoom: Float, rotation: Float ->

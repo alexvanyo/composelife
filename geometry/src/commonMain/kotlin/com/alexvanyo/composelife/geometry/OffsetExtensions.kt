@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,56 +14,18 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.util
+package com.alexvanyo.composelife.geometry
 
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.toOffset
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.sqrt
-
-/**
- * Returns all [IntOffset]s that are contained in the [IntRect].
- *
- * This includes all [IntOffset] on the border of the [IntRect] ([IntRect.topLeft], [IntRect.bottomRight], etc.).
- *
- * The points are returned in row-major order.
- */
-fun IntRect.containedPoints(): List<IntOffset> =
-    (top..bottom).flatMap { row ->
-        (left..right).map { column ->
-            IntOffset(column, row)
-        }
-    }
-
-/**
- * Converts a pair of [Int] to an [IntOffset].
- */
-fun Pair<Int, Int>.toIntOffset() = IntOffset(first, second)
-
-/**
- * Converts an [IntOffset] to a pair of [Int].
- */
-fun IntOffset.toPair() = x to y
-
-/**
- * Returns the 8 diagonal and orthogonal neighbors to the [IntOffset].
- */
-fun IntOffset.getNeighbors(): Set<IntOffset> = neighborOffsets.map { it + this }.toSet()
-
-private val neighborOffsets = listOf(
-    IntOffset(-1, -1),
-    IntOffset(0, -1),
-    IntOffset(1, -1),
-    IntOffset(-1, 0),
-    IntOffset(1, 0),
-    IntOffset(-1, 1),
-    IntOffset(0, 1),
-    IntOffset(1, 1),
-)
 
 /**
  * Floors an [Offset] into an [IntOffset], taking the [floor] of both coordinates.
@@ -71,14 +33,32 @@ private val neighborOffsets = listOf(
 fun floor(offset: Offset): IntOffset = IntOffset(floor(offset.x).toInt(), floor(offset.y).toInt())
 
 /**
- * Converts an [IntRect] to a [Rect].
+ * Calculates the [Chebyshev distance](https://en.wikipedia.org/wiki/Chebyshev_distance) represented by this
+ * [IntOffset].
  */
-fun IntRect.toRect() = Rect(
-    left = left.toFloat(),
-    top = top.toFloat(),
-    right = right.toFloat(),
-    bottom = bottom.toFloat(),
-)
+@Stable
+fun IntOffset.chebyshevDistance(): Int =
+    max(abs(x), abs(y))
+
+/**
+ * Calculates the [Manhattan distance](https://en.wikipedia.org/wiki/Taxicab_geometry) represented by this
+ * [IntOffset].
+ */
+@Stable
+fun IntOffset.manhattanDistance(): Int =
+    abs(x) + abs(y)
+
+/**
+ * Calculates the [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance) represented by this
+ * [IntOffset].
+ */
+@Stable
+fun IntOffset.euclideanDistance(): Float =
+    toOffset().getDistance()
+
+context(Density)
+fun DpOffset.toPx(): Offset =
+    Offset(x.toPx(), y.toPx())
 
 /**
  * Maps an [IntOffset] into an [Int] to enumerate the 2d plane.
@@ -149,3 +129,29 @@ fun Int.toRingOffset(): IntOffset {
         IntOffset(-ring, ring - this + ringQ3)
     }
 }
+
+/**
+ * Converts a pair of [Int] to an [IntOffset].
+ */
+fun Pair<Int, Int>.toIntOffset() = IntOffset(first, second)
+
+/**
+ * Converts an [IntOffset] to a pair of [Int].
+ */
+fun IntOffset.toPair() = x to y
+
+/**
+ * Returns the 8 diagonal and orthogonal neighbors to the [IntOffset].
+ */
+fun IntOffset.getNeighbors(): Set<IntOffset> = neighborOffsets.map { it + this }.toSet()
+
+private val neighborOffsets = listOf(
+    IntOffset(-1, -1),
+    IntOffset(0, -1),
+    IntOffset(1, -1),
+    IntOffset(-1, 0),
+    IntOffset(1, 0),
+    IntOffset(-1, 1),
+    IntOffset(0, 1),
+    IntOffset(1, 1),
+)

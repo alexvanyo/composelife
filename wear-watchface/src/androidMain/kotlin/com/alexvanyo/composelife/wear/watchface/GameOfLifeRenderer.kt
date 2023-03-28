@@ -23,7 +23,6 @@ import android.text.format.DateFormat
 import android.view.SurfaceHolder
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.IntOffset
@@ -38,6 +37,7 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.WatchFaceLayer
+import com.alexvanyo.composelife.geometry.containedPoints
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.emptyCellState
@@ -45,7 +45,6 @@ import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.openglrenderer.GameOfLifeShape
 import com.alexvanyo.composelife.openglrenderer.GameOfLifeShapeParameters
 import com.alexvanyo.composelife.preferences.CurrentShape
-import com.alexvanyo.composelife.util.containedPoints
 import com.alexvanyo.composelife.wear.watchface.configuration.getGameOfLifeColor
 import com.alexvanyo.composelife.wear.watchface.configuration.getShowComplicationsInAmbient
 import java.nio.IntBuffer
@@ -247,26 +246,6 @@ class GameOfLifeRenderer(
         override fun onDestroy() = Unit
     }
 }
-
-/**
- * Converts an [IntRect] to a [android.graphics.Rect].
- */
-fun IntRect.toAndroidRect() = android.graphics.Rect(
-    left,
-    top,
-    right,
-    bottom,
-)
-
-/**
- * Converts an [IntRect] to a [Rect].
- */
-fun android.graphics.Rect.toComposeIntRect() = IntRect(
-    left = left,
-    top = top,
-    right = right,
-    bottom = bottom,
-)
 
 private fun createTimeCellState(
     isRound: Boolean,
