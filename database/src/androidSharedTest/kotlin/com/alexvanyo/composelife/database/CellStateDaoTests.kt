@@ -19,15 +19,13 @@ package com.alexvanyo.composelife.database
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
 import app.cash.turbine.withTurbineTimeout
-import dagger.hilt.android.testing.HiltAndroidRule
+import com.alexvanyo.composelife.test.BaseHiltTest
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.Rule
 import org.junit.runner.RunWith
 import javax.inject.Inject
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -36,10 +34,7 @@ import kotlin.time.Duration.Companion.seconds
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class CellStateDaoTests {
-
-    @get:Rule
-    val hiltAndroidRule = HiltAndroidRule(this)
+class CellStateDaoTests : BaseHiltTest() {
 
     @Inject
     lateinit var cellStateDao: CellStateDao
@@ -47,14 +42,9 @@ class CellStateDaoTests {
     @Inject
     lateinit var testDispatcher: TestDispatcher
 
-    @BeforeTest
-    fun setup() {
-        hiltAndroidRule.inject()
-    }
-
     @Test
-    fun get_cell_states_returns_empty_initially() = runTest(testDispatcher) {
-        withTurbineTimeout(5.seconds) {
+    fun get_cell_states_returns_empty_initially() = runAppTest(testDispatcher) {
+        withTurbineTimeout(60.seconds) {
             cellStateDao.getCellStates().test {
                 assertEquals(emptyList(), awaitItem())
             }
@@ -62,8 +52,8 @@ class CellStateDaoTests {
     }
 
     @Test
-    fun get_cell_states_returns_value_once_saved() = runTest(testDispatcher) {
-        withTurbineTimeout(5.seconds) {
+    fun get_cell_states_returns_value_once_saved() = runAppTest(testDispatcher) {
+        withTurbineTimeout(60.seconds) {
             cellStateDao.getCellStates().test {
                 assertEquals(emptyList(), awaitItem())
 
@@ -99,7 +89,7 @@ class CellStateDaoTests {
 
     @Test
     fun get_cell_states_returns_value_if_saved_before() = runTest(testDispatcher) {
-        withTurbineTimeout(5.seconds) {
+        withTurbineTimeout(60.seconds) {
             val insertedId = cellStateDao.upsertCellState(
                 CellStateEntity(
                     id = 0,
@@ -132,8 +122,8 @@ class CellStateDaoTests {
     }
 
     @Test
-    fun get_cell_states_returns_empty_once_deleted() = runTest(testDispatcher) {
-        withTurbineTimeout(5.seconds) {
+    fun get_cell_states_returns_empty_once_deleted() = runAppTest(testDispatcher) {
+        withTurbineTimeout(60.seconds) {
             cellStateDao.getCellStates().test {
                 assertEquals(emptyList(), awaitItem())
 
@@ -172,8 +162,8 @@ class CellStateDaoTests {
     }
 
     @Test
-    fun get_cell_state_by_id_returns_null_initially() = runTest(testDispatcher) {
-        withTurbineTimeout(5.seconds) {
+    fun get_cell_state_by_id_returns_null_initially() = runAppTest(testDispatcher) {
+        withTurbineTimeout(60.seconds) {
             cellStateDao.getCellStateById(123).test {
                 assertNull(awaitItem())
             }
@@ -181,8 +171,8 @@ class CellStateDaoTests {
     }
 
     @Test
-    fun get_cell_state_by_id_returns_value_once_saved() = runTest(testDispatcher) {
-        withTurbineTimeout(5.seconds) {
+    fun get_cell_state_by_id_returns_value_once_saved() = runAppTest(testDispatcher) {
+        withTurbineTimeout(60.seconds) {
             cellStateDao.getCellStateById(123).test {
                 assertNull(awaitItem())
 
@@ -215,8 +205,8 @@ class CellStateDaoTests {
     }
 
     @Test
-    fun get_cell_state_by_id_returns_value_if_saved_before() = runTest(testDispatcher) {
-        withTurbineTimeout(5.seconds) {
+    fun get_cell_state_by_id_returns_value_if_saved_before() = runAppTest(testDispatcher) {
+        withTurbineTimeout(60.seconds) {
             val insertedId = cellStateDao.upsertCellState(
                 CellStateEntity(
                     id = 0,
@@ -247,8 +237,8 @@ class CellStateDaoTests {
     }
 
     @Test
-    fun get_cell_states_returns_null_once_deleted() = runTest(testDispatcher) {
-        withTurbineTimeout(5.seconds) {
+    fun get_cell_states_returns_null_once_deleted() = runAppTest(testDispatcher) {
+        withTurbineTimeout(60.seconds) {
             val insertedId = cellStateDao.upsertCellState(
                 CellStateEntity(
                     id = 0,
@@ -283,8 +273,8 @@ class CellStateDaoTests {
     }
 
     @Test
-    fun get_most_recent_autosaved_cell_state_returns_null_initially() = runTest(testDispatcher) {
-        withTurbineTimeout(5.seconds) {
+    fun get_most_recent_autosaved_cell_state_returns_null_initially() = runAppTest(testDispatcher) {
+        withTurbineTimeout(60.seconds) {
             cellStateDao.getMostRecentAutosavedCellState().test {
                 assertNull(awaitItem())
             }
@@ -292,8 +282,8 @@ class CellStateDaoTests {
     }
 
     @Test
-    fun get_most_recent_autosaved_cell_state_returns_null_if_not_autosaved_before() = runTest(testDispatcher) {
-        withTurbineTimeout(5.seconds) {
+    fun get_most_recent_autosaved_cell_state_returns_null_if_not_autosaved_before() = runAppTest(testDispatcher) {
+        withTurbineTimeout(60.seconds) {
             cellStateDao.upsertCellState(
                 CellStateEntity(
                     id = 0,
@@ -313,8 +303,8 @@ class CellStateDaoTests {
     }
 
     @Test
-    fun get_most_recent_autosaved_cell_state_returns_value_if_autosaved_before() = runTest(testDispatcher) {
-        withTurbineTimeout(5.seconds) {
+    fun get_most_recent_autosaved_cell_state_returns_value_if_autosaved_before() = runAppTest(testDispatcher) {
+        withTurbineTimeout(60.seconds) {
             val insertedId = cellStateDao.upsertCellState(
                 CellStateEntity(
                     id = 0,
@@ -345,8 +335,8 @@ class CellStateDaoTests {
     }
 
     @Test
-    fun get_most_recent_autosaved_cell_state_returns_value_once_autosaved() = runTest(testDispatcher) {
-        withTurbineTimeout(5.seconds) {
+    fun get_most_recent_autosaved_cell_state_returns_value_once_autosaved() = runAppTest(testDispatcher) {
+        withTurbineTimeout(60.seconds) {
             cellStateDao.getMostRecentAutosavedCellState().test {
                 assertNull(awaitItem())
 

@@ -57,7 +57,7 @@ import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.test.BaseHiltTest
+import com.alexvanyo.composelife.test.BaseUiHiltTest
 import com.alexvanyo.composelife.test.TestActivity
 import dagger.hilt.EntryPoints
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -70,7 +70,7 @@ import kotlin.test.Test
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @HiltAndroidTest
-class InteractiveCellUniverseTests : BaseHiltTest<TestActivity>(TestActivity::class.java) {
+class InteractiveCellUniverseTests : BaseUiHiltTest<TestActivity>(TestActivity::class.java) {
 
     @Inject
     lateinit var testDispatcher: TestDispatcher
