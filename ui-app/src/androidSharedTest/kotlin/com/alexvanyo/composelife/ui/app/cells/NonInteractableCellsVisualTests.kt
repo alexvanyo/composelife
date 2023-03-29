@@ -22,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.IntOffset
@@ -33,6 +32,7 @@ import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.screenshot.assertPixels
+import com.alexvanyo.composelife.screenshot.captureToImage
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
