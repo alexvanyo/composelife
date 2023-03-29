@@ -51,7 +51,6 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import leakcanary.SkipLeakDetection
 import kotlin.test.BeforeTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -528,11 +527,7 @@ class FullscreenSettingsScreenTests : BaseHiltTest<TestActivity>(TestActivity::c
             )
     }
 
-    /**
-     * TODO: Renable once https://issuetracker.google.com/issues/267506001 is fixed
-     */
     @Test
-    @Ignore("https://issuetracker.google.com/issues/267506001")
     @SkipLeakDetection("appliedChanges", "Outer")
     fun reducing_size_keeps_selected_detail() = runAppTest {
         val fullscreen = ActionCardNavigation.Settings.Fullscreen(
@@ -576,11 +571,7 @@ class FullscreenSettingsScreenTests : BaseHiltTest<TestActivity>(TestActivity::c
             .assertIsDisplayed()
     }
 
-    /**
-     * TODO: Renable once https://issuetracker.google.com/issues/267506001 is fixed
-     */
     @Test
-    @Ignore("https://issuetracker.google.com/issues/267506001")
     @SkipLeakDetection("appliedChanges", "Outer")
     fun expanding_size_keeps_selected_detail() = runAppTest {
         val fullscreen = ActionCardNavigation.Settings.Fullscreen(
