@@ -35,6 +35,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(projects.database)
+                implementation(projects.updatable)
 
                 api(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.coroutines.test)
