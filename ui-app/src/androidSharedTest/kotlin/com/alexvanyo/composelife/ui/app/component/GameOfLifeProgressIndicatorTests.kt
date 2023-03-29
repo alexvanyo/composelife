@@ -22,7 +22,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.test.BaseHiltTest
+import com.alexvanyo.composelife.test.BaseUiHiltTest
 import com.alexvanyo.composelife.test.TestActivity
 import dagger.hilt.EntryPoints
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -33,7 +33,7 @@ import kotlin.test.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
-class GameOfLifeProgressIndicatorTests : BaseHiltTest<TestActivity>(TestActivity::class.java) {
+class GameOfLifeProgressIndicatorTests : BaseUiHiltTest<TestActivity>(TestActivity::class.java) {
 
     private lateinit var gameOfLifeProgressIndicatorHiltEntryPoint: GameOfLifeProgressIndicatorHiltEntryPoint
 

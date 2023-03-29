@@ -19,13 +19,16 @@ package com.alexvanyo.composelife.database.di
 import android.content.Context
 import androidx.room.Room
 import com.alexvanyo.composelife.database.AppDatabase
+import com.alexvanyo.composelife.updatable.Updatable
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
+import dagger.multibindings.IntoSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.test.TestDispatcher
 import javax.inject.Singleton
 
@@ -37,6 +40,20 @@ import javax.inject.Singleton
 interface TestDatabaseModule {
 
     companion object {
+
+        @Provides
+        @Singleton
+        @IntoSet
+        fun providesDatabaseClosingIntoUpdatable(
+            appDatabase: AppDatabase,
+        ): Updatable = object : Updatable {
+            override suspend fun update(): Nothing =
+                try {
+                    awaitCancellation()
+                } finally {
+                    appDatabase.close()
+                }
+        }
 
         @OptIn(ExperimentalCoroutinesApi::class)
         @Provides
