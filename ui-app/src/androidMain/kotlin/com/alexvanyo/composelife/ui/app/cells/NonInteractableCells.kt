@@ -55,7 +55,7 @@ fun NonInteractableCells(
     modifier: Modifier = Modifier,
     inOverlay: Boolean = false,
 ) {
-    if (!preferences.disableAGSL && Build.VERSION.SDK_INT >= 33) {
+    if (!preferences.disableAGSL && Build.VERSION.SDK_INT >= 33 && Build.FINGERPRINT?.lowercase() != "robolectric") {
         AGSLNonInteractableCells(
             gameOfLifeState = gameOfLifeState,
             scaledCellDpSize = scaledCellDpSize,
