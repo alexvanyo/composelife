@@ -36,7 +36,7 @@ import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.firstSuccess
-import com.alexvanyo.composelife.test.BaseHiltTest
+import com.alexvanyo.composelife.test.BaseUiHiltTest
 import com.alexvanyo.composelife.test.TestActivity
 import com.alexvanyo.composelife.ui.app.R
 import dagger.hilt.EntryPoints
@@ -50,7 +50,7 @@ import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
-class InlineSettingsScreenTests : BaseHiltTest<TestActivity>(TestActivity::class.java) {
+class InlineSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity::class.java) {
 
     @Inject
     lateinit var composeLifePreferences: ComposeLifePreferences

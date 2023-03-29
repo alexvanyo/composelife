@@ -38,10 +38,11 @@ import androidx.test.espresso.Espresso
 import androidx.window.layout.WindowMetricsCalculator
 import com.alexvanyo.composelife.MainActivity
 import com.alexvanyo.composelife.preferences.AlgorithmType
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.test.BaseHiltTest
+import com.alexvanyo.composelife.test.BaseUiHiltTest
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
@@ -55,10 +56,13 @@ import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @HiltAndroidTest
-class ComposeLifeAppTests : BaseHiltTest<MainActivity>(MainActivity::class.java) {
+class ComposeLifeAppTests : BaseUiHiltTest<MainActivity>(MainActivity::class.java) {
 
     @Inject
     lateinit var testDispatcher: TestDispatcher
+
+    @Inject
+    lateinit var preferences: ComposeLifePreferences
 
     @SkipLeakDetection("recomposer", "Outer")
     @Test
