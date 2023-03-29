@@ -89,6 +89,12 @@ fun Project.configureAndroidTesting(
             }
         }
 
+        testOptions {
+            unitTests.all { test ->
+                test.systemProperty("robolectric.graphicsMode", "NATIVE")
+            }
+        }
+
         if (useSharedTest == SharedTestConfig.Robolectric) {
             testVariants.configureEach {
                 connectedInstrumentTestProvider.configure {
