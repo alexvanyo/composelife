@@ -17,6 +17,9 @@
 plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
+    id("com.alexvanyo.composelife.android.library.gradlemanageddevices")
+    id("com.alexvanyo.composelife.android.library.jacoco")
+    id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
     kotlin("kapt")
 }
@@ -36,7 +39,14 @@ kotlin {
         val commonMain by getting {
             configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
+                implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.dagger.hilt.core)
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.turbine)
             }
         }
     }
