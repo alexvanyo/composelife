@@ -44,6 +44,7 @@ class InteractableCellVisualTests {
     @Test
     fun alive_interactable_cell_draws_correctly_dark_mode() {
         assumeTrue(Build.VERSION.SDK_INT >= 26)
+        if (Build.VERSION.SDK_INT < 26) return
 
         var aliveCellColor: Color? = null
 
@@ -77,6 +78,7 @@ class InteractableCellVisualTests {
     @Test
     fun alive_interactable_cell_draws_correctly_light_mode() {
         assumeTrue(Build.VERSION.SDK_INT >= 26)
+        if (Build.VERSION.SDK_INT < 26) return
 
         var aliveCellColor: Color? = null
 
@@ -110,6 +112,7 @@ class InteractableCellVisualTests {
     @Test
     fun dead_interactable_cell_draws_correctly_dark_mode() {
         assumeTrue(Build.VERSION.SDK_INT >= 26)
+        if (Build.VERSION.SDK_INT < 26) return
 
         var deadCellColor: Color? = null
 
@@ -143,6 +146,7 @@ class InteractableCellVisualTests {
     @Test
     fun dead_interactable_cell_draws_correctly_light_mode() {
         assumeTrue(Build.VERSION.SDK_INT >= 26)
+        if (Build.VERSION.SDK_INT < 26) return
 
         var deadCellColor: Color? = null
 

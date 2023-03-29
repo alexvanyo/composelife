@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("TooManyFunctions")
 
 package com.alexvanyo.composelife.screenshot
 
@@ -29,6 +30,7 @@ import android.view.View
 import android.view.Window
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -37,13 +39,13 @@ import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.captureToImage as androidxCaptureToImage
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.platform.graphics.HardwareRendererCompat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
+import androidx.compose.ui.test.captureToImage as androidxCaptureToImage
 
 /**
  * Captures the underlying semantics node's surface into bitmap. This can be used to capture
@@ -70,6 +72,7 @@ fun SemanticsNodeInteraction.captureToImage(): ImageBitmap =
  * @throws IllegalArgumentException if we attempt to capture a bitmap of a dialog before API 28.
  */
 @OptIn(ExperimentalTestApi::class)
+@VisibleForTesting
 @RequiresApi(Build.VERSION_CODES.O)
 fun SemanticsNodeInteraction.robolectricCaptureToImage(): ImageBitmap {
     val node = fetchSemanticsNode("Failed to capture a node to bitmap.")
@@ -89,15 +92,14 @@ fun SemanticsNodeInteraction.robolectricCaptureToImage(): ImageBitmap {
     }
     var dialogWindow: Window? = null
     if (dialogParentNodeMaybe != null) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            // TODO(b/163023027)
-            throw IllegalArgumentException("Cannot currently capture dialogs on API lower than 28!")
+        // TODO(b/163023027)
+        require(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            "Cannot currently capture dialogs on API lower than 28!"
         }
 
-        dialogWindow = findDialogWindowProviderInParent(view)?.window
-            ?: throw IllegalArgumentException(
-                "Could not find a dialog window provider to capture its bitmap"
-            )
+        dialogWindow = requireNotNull(findDialogWindowProviderInParent(view)?.window) {
+            "Could not find a dialog window provider to capture its bitmap"
+        }
     }
 
     val windowToUse = dialogWindow ?: view.context.getActivityWindow()
@@ -144,6 +146,7 @@ private fun processMultiWindowScreenshot(
     return finalBitmap.asImageBitmap()
 }
 
+@VisibleForTesting
 private fun findNodePosition(
     node: SemanticsNode
 ): Offset {
@@ -161,15 +164,16 @@ private fun Context.getActivityWindow(): Window {
         return when (this) {
             is Activity -> this
             is ContextWrapper -> this.baseContext.getActivity()
-            else -> throw IllegalStateException(
+            else -> error(
                 "Context is not an Activity context, but a ${javaClass.simpleName} context. " +
-                        "An Activity context is required to get a Window instance"
+                    "An Activity context is required to get a Window instance"
             )
         }
     }
     return getActivity().window
 }
 
+@Suppress("ReturnCount")
 private fun findDialogWindowProviderInParent(view: View): DialogWindowProvider? {
     if (view is DialogWindowProvider) {
         return view
