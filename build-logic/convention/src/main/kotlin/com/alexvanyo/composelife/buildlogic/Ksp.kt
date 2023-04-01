@@ -21,7 +21,7 @@ import com.android.build.api.variant.AndroidComponentsExtension
 import org.gradle.api.Project
 
 fun Project.configureKsp(
-    commonExtension: CommonExtension<*, *, *, *>,
+    commonExtension: CommonExtension<*, *, *, *, *>,
     androidComponentsExtension: AndroidComponentsExtension<*, *, *>,
 ) {
     androidComponentsExtension.onVariants { applicationVariant ->
