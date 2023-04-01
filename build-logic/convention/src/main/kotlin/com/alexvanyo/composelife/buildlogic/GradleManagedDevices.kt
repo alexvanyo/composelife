@@ -32,7 +32,7 @@ private data class GradleManagedDeviceConfig(
 
 @Suppress("LongMethod", "CyclomaticComplexMethod", "NoNameShadowing")
 fun Project.configureGradleManagedDevices(
-    commonExtension: CommonExtension<*, *, *, *>,
+    commonExtension: CommonExtension<*, *, *, *, *>,
 ) {
     commonExtension.testOptions.managedDevices.devices {
         val deviceNames = listOf(

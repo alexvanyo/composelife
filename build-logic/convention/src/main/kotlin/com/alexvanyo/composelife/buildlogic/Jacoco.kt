@@ -108,7 +108,7 @@ fun Project.configureJacocoMerge() {
 }
 
 fun Project.configureJacoco(
-    commonExtension: CommonExtension<*, *, *, *>,
+    commonExtension: CommonExtension<*, *, *, *, *>,
 ) {
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
