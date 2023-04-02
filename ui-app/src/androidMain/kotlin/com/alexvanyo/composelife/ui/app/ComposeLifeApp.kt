@@ -17,6 +17,7 @@
 
 package com.alexvanyo.composelife.ui.app
 
+import androidx.activity.compose.ReportDrawn
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.updateTransition
@@ -127,6 +128,8 @@ fun ComposeLifeApp(
                                 }
                             }
                             is ComposeLifeAppState.LoadedPreferences.LoadedCellState -> {
+                                ReportDrawn()
+
                                 InteractiveCellUniverse(
                                     temporalGameOfLifeState = targetComposeLifeAppState.temporalGameOfLifeState,
                                     isViewportTracking = targetComposeLifeAppState.isViewportTracking,
