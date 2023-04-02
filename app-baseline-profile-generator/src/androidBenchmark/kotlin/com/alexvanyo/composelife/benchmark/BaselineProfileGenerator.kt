@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.benchmark
 
+import androidx.benchmark.macro.ExperimentalStableBaselineProfilesApi
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import org.junit.Rule
 import kotlin.test.Test
@@ -25,9 +26,13 @@ class BaselineProfileGenerator {
     @get:Rule
     val baselineProfileRule = BaselineProfileRule()
 
+    @OptIn(ExperimentalStableBaselineProfilesApi::class)
     @Test
     fun startup() {
-        baselineProfileRule.collectBaselineProfile("com.alexvanyo.composelife") {
+        baselineProfileRule.collectStableBaselineProfile(
+            packageName = "com.alexvanyo.composelife",
+            maxIterations = 10,
+        ) {
             pressHome()
             startActivityAndWait()
         }
