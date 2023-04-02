@@ -45,8 +45,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
@@ -187,17 +189,27 @@ fun InteractiveCellUniverseOverlay(
         ),
     )
 
+    var actionCardLayoutCoordinates: LayoutCoordinates? by remember { mutableStateOf(null) }
+
     /**
-     * `true` if we are currently showing a full-screen card, which is inferred to be the case if the corner size is 0
-     * and we are still wanting to show the card as full-screen.
+     * `true` if we are currently showing a full-screen card, which is inferred to be the case if:
+     * - the corner size is 0, and
+     * - we are wanting to show the card as full-screen, and
+     * - we haven't placed the card yet, or the card is sized full-screen
      */
-    val isShowingFullscreen by remember {
+    val isShowingFullscreen by remember(actionCardState) {
         derivedStateOf {
-            cornerSize == 0.dp &&
-                when (val fullscreenTargetState = actionCardState.fullscreenTargetState) {
-                    is TargetState.InProgress -> false
-                    is TargetState.Single -> fullscreenTargetState.current
-                }
+            val currentActionCardLayoutCoordinates = actionCardLayoutCoordinates
+            val isTargetingFullscreen = when (val fullscreenTargetState = actionCardState.fullscreenTargetState) {
+                is TargetState.InProgress -> false
+                is TargetState.Single -> fullscreenTargetState.current
+            }
+            val isInitialPlacement = currentActionCardLayoutCoordinates == null
+            val isSizedFullscreen = currentActionCardLayoutCoordinates != null &&
+                currentActionCardLayoutCoordinates.size ==
+                requireNotNull(currentActionCardLayoutCoordinates.parentLayoutCoordinates).size
+
+            cornerSize == 0.dp && isTargetingFullscreen && (isInitialPlacement || isSizedFullscreen)
         }
     }
 
@@ -275,6 +287,7 @@ fun InteractiveCellUniverseOverlay(
                 CellUniverseActionCard(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = windowSizeClass,
+                    isShowingFullscreen = isShowingFullscreen,
                     isViewportTracking = isViewportTracking,
                     setIsViewportTracking = setIsViewportTracking,
                     actionCardState = actionCardState,
@@ -286,6 +299,9 @@ fun InteractiveCellUniverseOverlay(
                                 Alignment.CenterEnd
                             },
                         )
+                        .onPlaced {
+                            actionCardLayoutCoordinates = it
+                        }
                         .testTag("CellUniverseActionCard"),
                     shape = RoundedCornerShape(cornerSize),
                 )
