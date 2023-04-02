@@ -20,8 +20,52 @@ jobs:
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
 
-  build:
+  build-cfg:
     needs: validate-wrapper
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+
+    steps:
+      - id: set-matrix
+        run: |
+          if ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch') }}
+          then
+            MATRIX='
+              {"sdk": "21"},
+              {"sdk": "22"},
+              {"sdk": "23"},
+              {"sdk": "24"},
+              {"sdk": "25"},
+              {"sdk": "26"},
+              {"sdk": "27"},
+              {"sdk": "28"},
+              {"sdk": "29"},
+              {"sdk": "30"},
+              {"sdk": "31"},
+              {"sdk": "32"},
+              {"sdk": "33"}
+            '
+          else
+            MATRIX='
+              {"sdk": "21"},
+              {"sdk": "33"}
+            '
+          fi
+          echo "matrix={\"include\":[${MATRIX//$'\n'/}]}" >> $GITHUB_OUTPUT
+
+  build-cfg-check:
+    needs: build-cfg
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check matrix configuration
+        run: |
+          matrix='${{ needs.build-cfg.outputs.matrix }}'
+          echo $matrix
+          echo $matrix | jq .
+
+  build:
+    needs: build-cfg
     runs-on: ubuntu-latest
 
     concurrency:
@@ -30,21 +74,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      matrix:
-        sdk:
-          - 21
-          - 22
-          - 23
-          - 24
-          - 25
-          - 26
-          - 27
-          - 28
-          - 29
-          - 30
-          - 31
-          - 32
-          - 33
+      matrix: ${{ fromJson(needs.build-cfg.outputs.matrix) }}
 
     steps:
       - name: Checkout
@@ -101,7 +131,7 @@ jobs:
           files: jacocoTestDebugUnitTestReport/jacocoTestDebugUnitTestReport.xml,jacocoTestReleaseUnitTestReport/jacocoTestReleaseUnitTestReport.xml
 
   android-test-gmd-cfg:
-    needs: validate-wrapper
+    needs: build
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
