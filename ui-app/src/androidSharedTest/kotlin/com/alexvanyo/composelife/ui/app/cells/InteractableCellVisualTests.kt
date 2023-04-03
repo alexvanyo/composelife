@@ -22,13 +22,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.IntSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.screenshot.assertPixels
+import com.alexvanyo.composelife.screenshot.captureToImage
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
@@ -44,6 +44,7 @@ class InteractableCellVisualTests {
     @Test
     fun alive_interactable_cell_draws_correctly_dark_mode() {
         assumeTrue(Build.VERSION.SDK_INT >= 26)
+        if (Build.VERSION.SDK_INT < 26) return
 
         var aliveCellColor: Color? = null
 
@@ -77,6 +78,7 @@ class InteractableCellVisualTests {
     @Test
     fun alive_interactable_cell_draws_correctly_light_mode() {
         assumeTrue(Build.VERSION.SDK_INT >= 26)
+        if (Build.VERSION.SDK_INT < 26) return
 
         var aliveCellColor: Color? = null
 
@@ -110,6 +112,7 @@ class InteractableCellVisualTests {
     @Test
     fun dead_interactable_cell_draws_correctly_dark_mode() {
         assumeTrue(Build.VERSION.SDK_INT >= 26)
+        if (Build.VERSION.SDK_INT < 26) return
 
         var deadCellColor: Color? = null
 
@@ -143,6 +146,7 @@ class InteractableCellVisualTests {
     @Test
     fun dead_interactable_cell_draws_correctly_light_mode() {
         assumeTrue(Build.VERSION.SDK_INT >= 26)
+        if (Build.VERSION.SDK_INT < 26) return
 
         var deadCellColor: Color? = null
 
