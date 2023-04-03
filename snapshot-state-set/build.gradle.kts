@@ -50,6 +50,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.android)
                 api(libs.androidx.compose.runtime)
                 implementation(libs.androidx.core)
+                implementation(libs.androidx.tracing)
                 implementation(libs.androidx.lifecycle.viewmodel.savedstate)
             }
         }
