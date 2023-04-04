@@ -57,6 +57,7 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.compose.ui)
                 implementation(libs.androidx.core)
+                implementation(libs.androidx.tracing)
                 implementation(libs.kotlinx.coroutines.android)
             }
         }
