@@ -38,6 +38,7 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
+                implementation(libs.androidx.test.core)
                 implementation(libs.androidx.compose.foundation)
                 implementation(libs.androidx.compose.uiTestJunit4)
             }

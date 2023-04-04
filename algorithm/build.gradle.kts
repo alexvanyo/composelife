@@ -61,6 +61,7 @@ kotlin {
         val androidMain by getting {
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
+                implementation(libs.androidx.tracing)
                 implementation(libs.kotlinx.coroutines.android)
             }
         }
