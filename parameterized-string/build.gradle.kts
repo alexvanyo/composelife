@@ -46,6 +46,7 @@ kotlin {
             dependencies {
                 api(libs.androidx.compose.foundation)
                 implementation(libs.androidx.core)
+                implementation(libs.androidx.tracing)
                 implementation(libs.kotlinx.coroutines.android)
             }
         }
