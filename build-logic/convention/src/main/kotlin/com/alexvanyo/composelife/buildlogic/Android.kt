@@ -58,6 +58,7 @@ fun Project.configureAndroid(
                     "/META-INF/LGPL2.1",
                     "/META-INF/LICENSE.md",
                     "/META-INF/LICENSE-notice.md",
+                    "/META-INF/com.google.dagger_dagger.version",
                 ),
             )
         }
