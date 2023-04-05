@@ -219,7 +219,7 @@ fun rememberCellUniverseActionCardState(
             when (predictiveBackState) {
                 PredictiveBackState.NotRunning ->
                     TargetState.Single(
-                        this.expandedTargetState.current && navigationState.currentEntry.value.isFullscreen
+                        this.expandedTargetState.current && navigationState.currentEntry.value.isFullscreen,
                     )
                 is PredictiveBackState.Running ->
                     if (this.expandedTargetState.current) {

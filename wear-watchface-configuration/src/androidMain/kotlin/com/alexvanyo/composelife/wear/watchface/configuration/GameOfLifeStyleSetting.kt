@@ -177,15 +177,15 @@ fun MutableUserStyle.setGameOfLifeColor(color: Color) {
 
     this[colorRedValueUserSetting] =
         UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption(
-            color.get(ColorComponent.RgbIntComponent.Red).toLong()
+            color.get(ColorComponent.RgbIntComponent.Red).toLong(),
         )
     this[colorGreenValueUserSetting] =
         UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption(
-            color.get(ColorComponent.RgbIntComponent.Green).toLong()
+            color.get(ColorComponent.RgbIntComponent.Green).toLong(),
         )
     this[colorBlueValueUserSetting] =
         UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption(
-            color.get(ColorComponent.RgbIntComponent.Blue).toLong()
+            color.get(ColorComponent.RgbIntComponent.Blue).toLong(),
         )
 }
 

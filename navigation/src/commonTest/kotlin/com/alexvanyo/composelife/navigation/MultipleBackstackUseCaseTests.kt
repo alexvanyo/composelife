@@ -38,7 +38,7 @@ import kotlin.test.Test
 enum class BackstackType {
     First,
     Second,
-    Third
+    Third,
 }
 
 class MultipleMutableBackstackNavigationController(

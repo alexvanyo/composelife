@@ -89,14 +89,14 @@ fun <T> AnimatedContent(
                         targetAlpha
                     } else {
                         0f
-                    }
+                    },
                 )
             }
             updateTransition(
                 transitionState = transitionState.apply {
                     this.targetState = targetAlpha
                 },
-                label = "AnimatedContent"
+                label = "AnimatedContent",
             )
         }
     }
@@ -129,7 +129,7 @@ fun <T> AnimatedContent(
                 key(target) {
                     val smoothedAlpha by transition.animateFloat(
                         transitionSpec = { spring(stiffness = Spring.StiffnessMediumLow) },
-                        label = "smoothedProgressToTarget"
+                        label = "smoothedProgressToTarget",
                     ) { alphaEasing.transform(it) }
 
                     Box(
@@ -158,7 +158,7 @@ fun <T> AnimatedContent(
                     lerp(
                         placeablesMaps.getValue(targetState.current).size,
                         placeablesMaps.getValue(targetState.provisional).size,
-                        targetState.progress
+                        targetState.progress,
                     )
                 }
                 is TargetState.Single -> placeablesMaps.getValue(targetState.current).size
@@ -170,8 +170,8 @@ fun <T> AnimatedContent(
                         contentAlignment.align(
                             size = it.size,
                             space = targetSize,
-                            layoutDirection = layoutDirection
-                        )
+                            layoutDirection = layoutDirection,
+                        ),
                     )
                 }
             }
@@ -179,6 +179,6 @@ fun <T> AnimatedContent(
         modifier = modifier.animateContentSize(
             animationSpec = contentSizeAnimationSpec,
             alignment = contentAlignment,
-        )
+        ),
     )
 }

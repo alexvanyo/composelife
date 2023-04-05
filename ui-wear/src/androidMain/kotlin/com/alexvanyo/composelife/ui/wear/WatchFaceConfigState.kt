@@ -66,7 +66,7 @@ interface WatchFaceConfigState : Updatable {
 
 @Composable
 fun rememberWatchFaceConfigState(
-    editorSession: EditorSession
+    editorSession: EditorSession,
 ): WatchFaceConfigState {
     val coroutineScope = rememberCoroutineScope()
 
@@ -79,13 +79,13 @@ fun rememberWatchFaceConfigState(
             override var color: Color by mutableStateOf(
                 with(editorSession.userStyleSchema) {
                     editorSession.userStyle.value.getGameOfLifeColor()
-                }
+                },
             )
 
             override var showComplicationsInAmbient: Boolean by mutableStateOf(
                 with(editorSession.userStyleSchema) {
                     editorSession.userStyle.value.getShowComplicationsInAmbient()
-                }
+                },
             )
 
             override fun openComplicationDataSourceChooser(id: Int) {
@@ -110,11 +110,11 @@ fun rememberWatchFaceConfigState(
                                         RenderParameters.HighlightedElement.AllComplicationSlots,
                                         Color.Red.toArgb(),
                                         Color(0, 0, 0, 128).toArgb(),
-                                    )
+                                    ),
                                 ),
                                 instant = editorSession.previewReferenceInstant,
                                 slotIdToComplicationData = complicationsPreviewData,
-                            ).asImageBitmap()
+                            ).asImageBitmap(),
                         )
                     }
                         .collect {}

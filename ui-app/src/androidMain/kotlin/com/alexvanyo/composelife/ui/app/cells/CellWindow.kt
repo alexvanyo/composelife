@@ -217,9 +217,9 @@ private fun CellWindowImpl(
                 {
                     CellWindowViewport(
                         offset = Offset(it.v1, it.v2),
-                        scale = it.v3
+                        scale = it.v3,
                     )
-                }
+                },
             ),
             animationSpec = cellWindowViewportAnimationSpec,
             visibilityThreshold = CellWindowViewport(Offset(0.01f, 0.01f), 0.01f),

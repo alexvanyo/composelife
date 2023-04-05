@@ -114,7 +114,7 @@ fun InteractiveCellUniverse(
                 } else {
                     false
                 }
-            }
+            },
     ) {
         MutableCellWindow(
             gameOfLifeState = temporalGameOfLifeState,

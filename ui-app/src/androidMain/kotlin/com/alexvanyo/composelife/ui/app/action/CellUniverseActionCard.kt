@@ -155,7 +155,7 @@ fun CellUniverseActionCard(
                 Modifier.fillMaxSize()
             } else {
                 Modifier
-            }
+            },
         ) {
             Layout(
                 layoutIdTypes = CellUniverseActionCardLayoutTypes.sealedEnum,
@@ -216,7 +216,7 @@ fun CellUniverseActionCard(
                                             Modifier
                                         } else {
                                             Modifier.widthIn(max = 480.dp)
-                                        }
+                                        },
                                     ) {
                                         when (val value = entry.value) {
                                             is ActionCardNavigation.Speed -> {
@@ -311,12 +311,12 @@ fun CellUniverseActionCard(
                     // Measure the nav container after removing the height that the action control row will take up
                     val navContainerPlaceable = navContainerMeasurable.measure(
                         constraints.offset(
-                            vertical = -actionControlRowMeasurable.minIntrinsicHeight(constraints.maxWidth)
-                        )
+                            vertical = -actionControlRowMeasurable.minIntrinsicHeight(constraints.maxWidth),
+                        ),
                     )
                     // Measure the action control row to at least as big as the nav container
                     val actionControlRowPlaceable = actionControlRowMeasurable.measure(
-                        constraints.copy(minWidth = navContainerPlaceable.width)
+                        constraints.copy(minWidth = navContainerPlaceable.width),
                     )
 
                     layout(

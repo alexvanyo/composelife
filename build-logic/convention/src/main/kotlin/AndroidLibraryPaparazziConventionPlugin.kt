@@ -75,7 +75,7 @@ class AndroidLibraryPaparazziConventionPlugin : ConventionPlugin({
                         implementation(libs.findLibrary("guava.jre").get())
                     }
                 }
-            }
+            },
         )
     }
 
@@ -106,7 +106,7 @@ class AndroidLibraryPaparazziConventionPlugin : ConventionPlugin({
         javaLauncher.set(
             javaToolchains.launcherFor {
                 languageVersion.set(JavaLanguageVersion.of(11))
-            }
+            },
         )
     }
 },)

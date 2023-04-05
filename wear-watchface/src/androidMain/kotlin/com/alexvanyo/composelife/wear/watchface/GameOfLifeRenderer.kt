@@ -100,14 +100,14 @@ class GameOfLifeRenderer(
         GLES20.glClearColor(0f, 0f, 0f, 0f)
 
         gameOfLifeShape = GameOfLifeShape(
-            texture = 10
+            texture = 10,
         )
         gameOfLifeShape.setSize(width, height)
         complicationShapes = complicationSlotsManager.complicationSlots.values.mapIndexed { index, complicationSlot ->
             ComplicationShape(
                 screenSize = IntSize(width, height),
                 complicationSlot = complicationSlot,
-                texture = 11 + index
+                texture = 11 + index,
             )
         }
     }

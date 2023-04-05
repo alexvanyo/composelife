@@ -109,7 +109,7 @@ fun SemanticsNodeInteraction.robolectricCaptureToImage(): ImageBitmap {
         nodeBounds.left.roundToInt(),
         nodeBounds.top.roundToInt(),
         nodeBounds.right.roundToInt(),
-        nodeBounds.bottom.roundToInt()
+        nodeBounds.bottom.roundToInt(),
     )
 
     val locationInWindow = intArrayOf(0, 0)
@@ -141,14 +141,14 @@ private fun processMultiWindowScreenshot(
         (nodePositionInScreen.x + nodeBoundsInRoot.left).roundToInt(),
         (nodePositionInScreen.y + nodeBoundsInRoot.top).roundToInt(),
         nodeBoundsInRoot.width.roundToInt(),
-        nodeBoundsInRoot.height.roundToInt()
+        nodeBoundsInRoot.height.roundToInt(),
     )
     return finalBitmap.asImageBitmap()
 }
 
 @VisibleForTesting
 private fun findNodePosition(
-    node: SemanticsNode
+    node: SemanticsNode,
 ): Offset {
     val view = (node.root as ViewRootForTest).view
     val locationOnScreen = intArrayOf(0, 0)
@@ -166,7 +166,7 @@ private fun Context.getActivityWindow(): Window {
             is ContextWrapper -> this.baseContext.getActivity()
             else -> error(
                 "Context is not an Activity context, but a ${javaClass.simpleName} context. " +
-                    "An Activity context is required to get a Window instance"
+                    "An Activity context is required to get a Window instance",
             )
         }
     }
@@ -194,7 +194,7 @@ private fun findDialogWindowProviderInParent(view: View): DialogWindowProvider? 
  */
 private fun SemanticsNode.findClosestParentNode(
     includeSelf: Boolean = false,
-    selector: (SemanticsNode) -> Boolean
+    selector: (SemanticsNode) -> Boolean,
 ): SemanticsNode? {
     var currentParent = if (includeSelf) this else parent
     while (currentParent != null) {
@@ -243,7 +243,7 @@ private fun Window.generateBitmap(boundsInWindow: Rect): Bitmap {
         Bitmap.createBitmap(
             boundsInWindow.width(),
             boundsInWindow.height(),
-            Bitmap.Config.ARGB_8888
+            Bitmap.Config.ARGB_8888,
         )
     generateBitmapFromPixelCopy(boundsInWindow, destBitmap)
     return destBitmap
@@ -262,7 +262,7 @@ private fun Window.generateBitmapFromPixelCopy(boundsInWindow: Rect, destBitmap:
         boundsInWindow,
         destBitmap,
         onCopyFinished,
-        Handler(Looper.getMainLooper())
+        Handler(Looper.getMainLooper()),
     )
 
     if (!latch.await(1, TimeUnit.SECONDS)) {
@@ -281,7 +281,7 @@ private object PixelCopyHelper {
         srcRect: Rect?,
         dest: Bitmap,
         listener: PixelCopy.OnPixelCopyFinishedListener,
-        listenerThread: Handler
+        listenerThread: Handler,
     ) {
         PixelCopy.request(source, srcRect, dest, listener, listenerThread)
     }

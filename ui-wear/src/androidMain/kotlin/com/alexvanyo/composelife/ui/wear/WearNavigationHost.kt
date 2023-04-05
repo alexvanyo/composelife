@@ -85,7 +85,7 @@ fun <T> WearNavigationHost(
         key(entry.id) {
             stateHolder.SaveableStateProvider(key = entry.id) {
                 HierarchicalFocusCoordinator(
-                    requiresFocus = { backstackState.currentEntryId == entry.id }
+                    requiresFocus = { backstackState.currentEntryId == entry.id },
                 ) {
                     content(entry)
                 }

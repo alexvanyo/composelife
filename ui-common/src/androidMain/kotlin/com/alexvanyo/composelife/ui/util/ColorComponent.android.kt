@@ -36,7 +36,7 @@ fun Color.withComponent(
         red = if (component == RgbIntComponent.Red) value else get(RgbIntComponent.Red),
         green = if (component == RgbIntComponent.Green) value else get(RgbIntComponent.Green),
         blue = if (component == RgbIntComponent.Blue) value else get(RgbIntComponent.Blue),
-        alpha = toArgb().alpha
+        alpha = toArgb().alpha,
     )
 
 /**

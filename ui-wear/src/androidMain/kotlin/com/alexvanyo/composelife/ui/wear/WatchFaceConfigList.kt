@@ -60,7 +60,7 @@ fun WatchFaceConfigList(
         modifier = modifier
             .rotaryWithScroll(focusRequester, scalingLazyListState),
         state = scalingLazyListState,
-        autoCentering = AutoCenteringParams(itemIndex = 0)
+        autoCentering = AutoCenteringParams(itemIndex = 0),
     ) {
         item {
             Box(
@@ -75,7 +75,7 @@ fun WatchFaceConfigList(
                             modifier = Modifier
                                 .fillMaxWidth(0.8f)
                                 .aspectRatio(1f)
-                                .fillMaxHeight()
+                                .fillMaxHeight(),
                         ) {
                             CircularProgressIndicator()
                         }
@@ -86,7 +86,7 @@ fun WatchFaceConfigList(
                             onComplicationClicked = { id ->
                                 state.openComplicationDataSourceChooser(id)
                             },
-                            modifier = Modifier.fillMaxWidth(0.8f)
+                            modifier = Modifier.fillMaxWidth(0.8f),
                         )
                     }
                 }
@@ -101,12 +101,12 @@ fun WatchFaceConfigList(
                     Spacer(
                         modifier = Modifier
                             .size(16.dp)
-                            .background(state.color, CircleShape)
+                            .background(state.color, CircleShape),
                     )
                 },
                 colors = ChipDefaults.secondaryChipColors(),
                 onClick = onEditColorClicked,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
         }
         item {
@@ -123,7 +123,7 @@ fun WatchFaceConfigList(
                         checked = state.showComplicationsInAmbient,
                     )
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }

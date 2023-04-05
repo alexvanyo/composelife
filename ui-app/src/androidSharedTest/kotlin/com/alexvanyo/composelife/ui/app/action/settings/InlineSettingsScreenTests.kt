@@ -78,9 +78,9 @@ class InlineSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity::cla
                     object : InlineSettingsScreenLocalEntryPoint {
                         override val preferences get() =
                             assertIs<ResourceState.Success<LoadedComposeLifePreferences>>(
-                                composeLifePreferences.loadedPreferencesState
+                                composeLifePreferences.loadedPreferencesState,
                             ).value
-                    }
+                    },
                 ) {
                     InlineSettingsScreen(
                         onSeeMoreClicked = {
@@ -111,7 +111,7 @@ class InlineSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity::cla
     @Test
     fun saved_opengl_setting_is_displayed_correctly() = runAppTest {
         testComposeLifePreferences.testSetQuickAccessSetting(
-            setOf(QuickAccessSetting.DisableOpenGL)
+            setOf(QuickAccessSetting.DisableOpenGL),
         )
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
@@ -121,9 +121,9 @@ class InlineSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity::cla
                     object : InlineSettingsScreenLocalEntryPoint {
                         override val preferences get() =
                             assertIs<ResourceState.Success<LoadedComposeLifePreferences>>(
-                                composeLifePreferences.loadedPreferencesState
+                                composeLifePreferences.loadedPreferencesState,
                             ).value
-                    }
+                    },
                 ) {
                     InlineSettingsScreen(
                         onSeeMoreClicked = {},
@@ -136,7 +136,7 @@ class InlineSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity::cla
         composeTestRule
             .onNode(
                 hasContentDescription(context.getString(R.string.remove_setting_from_quick_access)) and
-                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}"))
+                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}")),
             )
             .performScrollTo()
             .assertIsDisplayed()
@@ -146,7 +146,7 @@ class InlineSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity::cla
         composeTestRule
             .onNode(
                 hasContentDescription(context.getString(R.string.open_in_settings)) and
-                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}"))
+                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}")),
             )
             .performScrollTo()
             .assertIsDisplayed()
@@ -164,7 +164,7 @@ class InlineSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity::cla
     @Test
     fun opening_saved_setting_functions_correctly() = runAppTest {
         testComposeLifePreferences.testSetQuickAccessSetting(
-            setOf(QuickAccessSetting.DisableOpenGL)
+            setOf(QuickAccessSetting.DisableOpenGL),
         )
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
@@ -177,9 +177,9 @@ class InlineSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity::cla
                     object : InlineSettingsScreenLocalEntryPoint {
                         override val preferences get() =
                             assertIs<ResourceState.Success<LoadedComposeLifePreferences>>(
-                                composeLifePreferences.loadedPreferencesState
+                                composeLifePreferences.loadedPreferencesState,
                             ).value
-                    }
+                    },
                 ) {
                     InlineSettingsScreen(
                         onSeeMoreClicked = {},
@@ -195,7 +195,7 @@ class InlineSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity::cla
         composeTestRule
             .onNode(
                 hasContentDescription(context.getString(R.string.open_in_settings)) and
-                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}"))
+                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}")),
             )
             .performScrollTo()
             .assertIsDisplayed()
@@ -208,7 +208,7 @@ class InlineSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity::cla
     @Test
     fun removing_saved_setting_functions_correctly() = runAppTest {
         testComposeLifePreferences.testSetQuickAccessSetting(
-            setOf(QuickAccessSetting.DisableOpenGL)
+            setOf(QuickAccessSetting.DisableOpenGL),
         )
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
@@ -218,9 +218,9 @@ class InlineSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity::cla
                     object : InlineSettingsScreenLocalEntryPoint {
                         override val preferences get() =
                             assertIs<ResourceState.Success<LoadedComposeLifePreferences>>(
-                                composeLifePreferences.loadedPreferencesState
+                                composeLifePreferences.loadedPreferencesState,
                             ).value
-                    }
+                    },
                 ) {
                     InlineSettingsScreen(
                         onSeeMoreClicked = {},
@@ -233,7 +233,7 @@ class InlineSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity::cla
         composeTestRule
             .onNode(
                 hasContentDescription(context.getString(R.string.remove_setting_from_quick_access)) and
-                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}"))
+                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}")),
             )
             .performScrollTo()
             .assertIsDisplayed()
