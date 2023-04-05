@@ -587,7 +587,7 @@ class TemporalGameOfLifeStateComposableTests {
                     coroutineScope.launch {
                         temporalGameOfLifeState.step()
                     }
-                }
+                },
             )
         }
 

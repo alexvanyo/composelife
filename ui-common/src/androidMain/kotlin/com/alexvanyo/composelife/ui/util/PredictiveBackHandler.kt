@@ -46,14 +46,14 @@ sealed interface PredictiveBackState {
     data class Running
     @RequiresApi(34)
     constructor(
-        val progress: Float
+        val progress: Float,
     ) : PredictiveBackState
 }
 
 @Composable
 fun predictiveBackHandler(
     enabled: Boolean = true,
-    onBack: () -> Unit
+    onBack: () -> Unit,
 ): PredictiveBackState {
     // Safely update the current `onBack` lambda when a new one is provided
     val currentOnBack by rememberUpdatedState(onBack)

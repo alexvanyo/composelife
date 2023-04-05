@@ -69,7 +69,7 @@ suspend fun PointerInputScope.detectTransformGestures(
 
                     val centroidSize = event.calculateCentroidSize(
                         excludedPointerTypes = excludedPointerTypes,
-                        useCurrent = false
+                        useCurrent = false,
                     )
                     val zoomMotion = abs(1 - zoom) * centroidSize
                     val rotationMotion = abs(rotation * PI.toFloat() * centroidSize / 180f)

@@ -45,7 +45,7 @@ fun Project.configureTesting(
                         implementation(kotlin("test"))
                     }
                 }
-            }
+            },
         )
     }
 }
@@ -53,7 +53,7 @@ fun Project.configureTesting(
 enum class SharedTestConfig {
     Robolectric,
     Instrumentation,
-    Both
+    Both,
 }
 
 private val Project.useSharedTest: SharedTestConfig get() =
@@ -133,7 +133,7 @@ fun Project.configureAndroidTesting(
                         dependsOn(androidSharedTest)
                     }
                 }
-            }
+            },
         )
     }
 

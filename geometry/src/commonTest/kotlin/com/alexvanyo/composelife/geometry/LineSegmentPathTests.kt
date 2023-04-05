@@ -35,9 +35,9 @@ class LineSegmentPathTests {
             setOf(IntOffset(5, 5)),
             LineSegmentPath(
                 listOf(
-                    Offset(5.3f, 5.3f)
-                )
-            ).cellIntersections()
+                    Offset(5.3f, 5.3f),
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -47,9 +47,9 @@ class LineSegmentPathTests {
             setOf(IntOffset(5, 5)),
             LineSegmentPath(
                 listOf(
-                    Offset(5f, 5f)
-                )
-            ).cellIntersections()
+                    Offset(5f, 5f),
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -61,8 +61,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(5.3f, 5.3f),
                     Offset(5.7f, 5.7f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -77,8 +77,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(5.3f, 5.3f),
                     Offset(6.7f, 5.7f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -93,8 +93,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(5.3f, 5.3f),
                     Offset(4.7f, 5.7f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -109,8 +109,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(5.3f, 5.3f),
                     Offset(5.7f, 6.7f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -125,8 +125,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(5.3f, 5.3f),
                     Offset(5.7f, 4.7f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -142,8 +142,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(5.1f, 5.9f),
                     Offset(6.1f, 6.9f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -159,8 +159,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(5.9f, 5.1f),
                     Offset(6.9f, 6.1f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -177,8 +177,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(5.5f, 5.5f),
                     Offset(6.5f, 6.5f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -194,8 +194,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(5.9f, 5.9f),
                     Offset(6.9f, 4.9f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -211,8 +211,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(5.1f, 5.1f),
                     Offset(6.1f, 4.1f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -229,8 +229,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(5.5f, 5.5f),
                     Offset(6.5f, 4.5f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -246,8 +246,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(6.1f, 6.9f),
                     Offset(5.1f, 5.9f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -263,8 +263,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(5.9f, 5.1f),
                     Offset(6.9f, 6.1f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -281,8 +281,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(6.5f, 6.5f),
                     Offset(5.5f, 5.5f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -298,8 +298,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(6.9f, 4.9f),
                     Offset(5.9f, 5.9f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -315,8 +315,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(6.1f, 4.1f),
                     Offset(5.1f, 5.1f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -333,8 +333,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(6.5f, 4.5f),
                     Offset(5.5f, 5.5f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -352,8 +352,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(5.1f, 5.1f),
                     Offset(9.5f, 5.8f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -371,8 +371,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(5.1f, 5.1f),
                     Offset(9.5f, 5.8f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -398,8 +398,8 @@ class LineSegmentPathTests {
                 listOf(
                     Offset(2.1f, -1.2f),
                     Offset(-4.9f, 3.3f),
-                )
-            ).cellIntersections()
+                ),
+            ).cellIntersections(),
         )
     }
 
@@ -460,7 +460,7 @@ private fun bruteForceCellIntersections(start: Offset, end: Offset): Set<IntOffs
                     IntOffset(x, y)
                 }
             }
-                .filter { it.intersectsLine(start, end) }
+                .filter { it.intersectsLine(start, end) },
         )
     }
 

@@ -52,7 +52,7 @@ fun WatchFaceColorPicker(
     modifier: Modifier = Modifier,
 ) {
     var selectedComponent: ColorComponent.RgbIntComponent by rememberSaveable(
-        stateSaver = ColorComponent.RgbIntComponent.Saver
+        stateSaver = ColorComponent.RgbIntComponent.Saver,
     ) {
         mutableStateOf(ColorComponent.RgbIntComponent.Red)
     }
@@ -68,8 +68,8 @@ fun WatchFaceColorPicker(
                 if (LocalConfiguration.current.isScreenRound) CircleShape else RectangleShape,
             )
             .clip(
-                if (LocalConfiguration.current.isScreenRound) CircleShape else RectangleShape
-            )
+                if (LocalConfiguration.current.isScreenRound) CircleShape else RectangleShape,
+            ),
     ) {
         ColorComponent.RgbIntComponent.values.forEach { component ->
             key(component) {
@@ -85,7 +85,7 @@ fun WatchFaceColorPicker(
                             ColorComponent.RgbIntComponent.Red -> resourcesWearR.string.color_red_value
                             ColorComponent.RgbIntComponent.Green -> resourcesWearR.string.color_green_value
                             ColorComponent.RgbIntComponent.Blue -> resourcesWearR.string.color_blue_value
-                        }
+                        },
                     ),
                     modifier = Modifier.weight(1f, fill = false).widthIn(max = 48.dp),
                 )

@@ -197,7 +197,7 @@ fun FullscreenSettingsScreen(
                         start = 8.dp,
                         end = 8.dp,
                         bottom = 16.dp,
-                    )
+                    ),
             ) {
                 Spacer(Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
                 Surface(
@@ -222,7 +222,7 @@ fun FullscreenSettingsScreen(
                     TargetState.InProgress(
                         current = false,
                         provisional = true,
-                        progress = predictiveBackState.progress
+                        progress = predictiveBackState.progress,
                     )
             },
             modifier = modifier,

@@ -64,7 +64,7 @@ fun ActionControlRow(
         modifier = modifier,
     ) {
         Box(
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
