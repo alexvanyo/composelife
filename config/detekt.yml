@@ -86,14 +86,14 @@ formatting:
   SpacingAroundComma:
     excludes: [ '**/generated/**' ]
   TrailingCommaOnCallSite:
-    active: false
+    active: true
     autoCorrect: true
-    useTrailingCommaOnCallSite: false
+    useTrailingCommaOnCallSite: true
     excludes: [ '**/generated/**' ]
   TrailingCommaOnDeclarationSite:
-    active: false
+    active: true
     autoCorrect: true
-    useTrailingCommaOnDeclarationSite: false
+    useTrailingCommaOnDeclarationSite: true
     excludes: [ '**/generated/**' ]
   UnnecessaryParenthesesBeforeTrailingLambda:
     active: true

@@ -186,7 +186,7 @@ fun <T : Comparable<T>> EditableSlider(
                     onDone = {
                         // Move focus to the overall slider to remove it from the TextField
                         sliderFocusRequester.requestFocus()
-                    }
+                    },
                 ),
                 singleLine = true,
             )

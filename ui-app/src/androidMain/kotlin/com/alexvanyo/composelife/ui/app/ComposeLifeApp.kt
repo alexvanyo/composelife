@@ -97,7 +97,7 @@ fun ComposeLifeApp(
                     is ComposeLifeAppState.LoadedPreferences.LoadingCellState -> 2
                     ComposeLifeAppState.LoadingPreferences -> 3
                 }
-            }
+            },
         ) { targetComposeLifeAppState ->
             when (targetComposeLifeAppState) {
                 ComposeLifeAppState.ErrorLoadingPreferences -> Unit
@@ -301,7 +301,7 @@ fun LoadingPreferencesComposeLifeAppPreview() {
                 val size = DpSize(maxWidth, maxHeight)
                 ComposeLifeApp(
                     windowSizeClass = WindowSizeClass.calculateFromSize(size),
-                    composeLifeAppState = ComposeLifeAppState.LoadingPreferences
+                    composeLifeAppState = ComposeLifeAppState.LoadingPreferences,
                 )
             }
         }
@@ -321,7 +321,7 @@ fun LoadingCellStateComposeLifeAppPreview() {
                     windowSizeClass = WindowSizeClass.calculateFromSize(size),
                     composeLifeAppState = object : ComposeLifeAppState.LoadedPreferences.LoadingCellState {
                         override val preferences = preferences
-                    }
+                    },
                 )
             }
         }
@@ -347,7 +347,7 @@ fun LoadedComposeLifeAppPreview() {
                         override val preferences = preferences
                         override val temporalGameOfLifeState = temporalGameOfLifeState
                         override var isViewportTracking = false
-                    }
+                    },
                 )
             }
         }

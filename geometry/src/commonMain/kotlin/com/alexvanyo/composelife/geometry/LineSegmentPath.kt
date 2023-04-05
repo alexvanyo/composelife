@@ -27,7 +27,7 @@ import kotlin.math.roundToInt
 import kotlin.math.sign
 
 data class LineSegmentPath(
-    val points: List<Offset>
+    val points: List<Offset>,
 ) {
     init {
         require(points.isNotEmpty())
@@ -97,14 +97,14 @@ private fun cellIntersections(start: Offset, end: Offset): Set<IntOffset> =
                 floor(start.x) - start.x
             } else {
                 ceil(start.x) - start.x
-            }
+            },
         ) { it + abs(xStep) }
         val tYSequence = generateSequence(
             yStep * if (isNorth > 0f) {
                 floor(start.y) - start.y
             } else {
                 ceil(start.y) - start.y
-            }
+            },
         ) { it + abs(yStep) }
 
         val tSequence = sequence {
@@ -134,7 +134,7 @@ private fun cellIntersections(start: Offset, end: Offset): Set<IntOffset> =
                         listOf(
                             IntOffset(
                                 offset.x.roundToInt(),
-                                floor(offset.y).roundToInt()
+                                floor(offset.y).roundToInt(),
                             ),
                             IntOffset(
                                 offset.x.roundToInt() - 1,
@@ -153,7 +153,7 @@ private fun cellIntersections(start: Offset, end: Offset): Set<IntOffset> =
                             ),
                         )
                     }
-                }
+                },
         )
     }
 

@@ -81,14 +81,14 @@ fun <T> Crossfade(
                         targetAlpha
                     } else {
                         0f
-                    }
+                    },
                 )
             }
             updateTransition(
                 transitionState = transitionState.apply {
                     this.targetState = targetAlpha
                 },
-                label = "AnimatedContent"
+                label = "AnimatedContent",
             )
         }
     }
@@ -121,7 +121,7 @@ fun <T> Crossfade(
             key(target) {
                 val smoothedAlpha by transition.animateFloat(
                     transitionSpec = { spring(stiffness = Spring.StiffnessMediumLow) },
-                    label = "smoothedProgressToTarget"
+                    label = "smoothedProgressToTarget",
                 ) { alphaEasing.transform(it) }
 
                 Box(

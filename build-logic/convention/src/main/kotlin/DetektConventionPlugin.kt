@@ -18,7 +18,9 @@ import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.gradle.api.JavaVersion
+import org.gradle.api.Task
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
@@ -58,7 +60,9 @@ class DetektConventionPlugin : ConventionPlugin({
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 
-    tasks.withType<Detekt>().all {
-        tasks.getByName("check").dependsOn(this)
-    }
+    tasks.getByName("check").configure(
+        closureOf<Task> {
+            dependsOn(tasks.withType<Detekt>())
+        },
+    )
 },)

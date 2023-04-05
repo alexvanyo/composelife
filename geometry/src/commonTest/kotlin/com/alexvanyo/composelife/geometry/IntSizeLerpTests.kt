@@ -26,7 +26,7 @@ class IntSizeLerpTests {
     fun progress_zero_is_start() {
         assertEquals(
             IntSize(5, 5),
-            lerp(IntSize(5, 5), IntSize(9, 9), 0f)
+            lerp(IntSize(5, 5), IntSize(9, 9), 0f),
         )
     }
 
@@ -34,7 +34,7 @@ class IntSizeLerpTests {
     fun progress_one_is_stop() {
         assertEquals(
             IntSize(5, 5),
-            lerp(IntSize(5, 5), IntSize(9, 9), 0f)
+            lerp(IntSize(5, 5), IntSize(9, 9), 0f),
         )
     }
 
@@ -42,7 +42,7 @@ class IntSizeLerpTests {
     fun progress_one_quarter_is_correct() {
         assertEquals(
             IntSize(6, 6),
-            lerp(IntSize(5, 5), IntSize(9, 9), 0.25f)
+            lerp(IntSize(5, 5), IntSize(9, 9), 0.25f),
         )
     }
 }
