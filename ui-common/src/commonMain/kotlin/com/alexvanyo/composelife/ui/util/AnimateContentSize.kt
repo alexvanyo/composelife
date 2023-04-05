@@ -51,13 +51,13 @@ import kotlinx.coroutines.launch
 fun Modifier.animateContentSize(
     animationSpec: FiniteAnimationSpec<IntSize> = spring(),
     alignment: Alignment = Alignment.TopStart,
-    finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null
+    finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null,
 ): Modifier = composed(
     inspectorInfo = debugInspectorInfo {
         name = "animateContentSize"
         properties["animationSpec"] = animationSpec
         properties["finishedListener"] = finishedListener
-    }
+    },
 ) {
     // TODO: Listener could be a fun interface after 1.4
     val scope = rememberCoroutineScope()
@@ -81,14 +81,14 @@ private class SizeAnimationModifier(
 
     data class AnimData(
         val anim: Animatable<IntSize, AnimationVector2D>,
-        var startSize: IntSize
+        var startSize: IntSize,
     )
 
     var animData: AnimData? by mutableStateOf(null)
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
         val measuredSize = IntSize(placeable.width, placeable.height)
@@ -98,8 +98,8 @@ private class SizeAnimationModifier(
                 alignment.align(
                     size = placeable.size,
                     space = targetSize,
-                    layoutDirection = layoutDirection
-                )
+                    layoutDirection = layoutDirection,
+                ),
             )
         }
     }
@@ -119,9 +119,9 @@ private class SizeAnimationModifier(
             Animatable(
                 targetSize,
                 IntSize.VectorConverter,
-                IntSize(1, 1)
+                IntSize(1, 1),
             ),
-            targetSize
+            targetSize,
         )
 
         animData = data
@@ -132,21 +132,21 @@ private class SizeAnimationModifier(
 internal abstract class LayoutModifierWithPassThroughIntrinsics : LayoutModifier {
     final override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ) = measurable.minIntrinsicWidth(height)
 
     final override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ) = measurable.minIntrinsicHeight(width)
 
     final override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ) = measurable.maxIntrinsicWidth(height)
 
     final override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ) = measurable.maxIntrinsicHeight(width)
 }

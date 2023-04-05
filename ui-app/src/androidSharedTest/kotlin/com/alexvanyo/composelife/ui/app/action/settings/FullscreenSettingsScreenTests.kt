@@ -84,7 +84,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
 
         composeTestRule.setContent {
             TestHarness(
-                size = DpSize(500.dp, 500.dp)
+                size = DpSize(500.dp, 500.dp),
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
@@ -96,7 +96,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
                                 fullscreen = fullscreen,
                                 onBackButtonPressed = {
                                     onBackButtonPressedCount++
-                                }
+                                },
                             )
                         }
                     }
@@ -149,7 +149,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
 
         composeTestRule.setContent {
             TestHarness(
-                size = DpSize(700.dp, 500.dp)
+                size = DpSize(700.dp, 500.dp),
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
@@ -161,7 +161,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
                                 fullscreen = fullscreen,
                                 onBackButtonPressed = {
                                     onBackButtonPressedCount++
-                                }
+                                },
                             )
                         }
                     }
@@ -218,7 +218,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
 
         composeTestRule.setContent {
             TestHarness(
-                size = DpSize(500.dp, 500.dp)
+                size = DpSize(500.dp, 500.dp),
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
@@ -230,7 +230,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
                                 fullscreen = fullscreen,
                                 onBackButtonPressed = {
                                     onBackButtonPressedCount++
-                                }
+                                },
                             )
                         }
                     }
@@ -271,7 +271,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
 
         composeTestRule.setContent {
             TestHarness(
-                size = DpSize(700.dp, 500.dp)
+                size = DpSize(700.dp, 500.dp),
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
@@ -283,7 +283,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
                                 fullscreen = fullscreen,
                                 onBackButtonPressed = {
                                     onBackButtonPressedCount++
-                                }
+                                },
                             )
                         }
                     }
@@ -333,7 +333,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
 
         composeTestRule.setContent {
             TestHarness(
-                size = DpSize(500.dp, 500.dp)
+                size = DpSize(500.dp, 500.dp),
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
@@ -380,7 +380,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
 
         composeTestRule.setContent {
             TestHarness(
-                size = DpSize(700.dp, 500.dp)
+                size = DpSize(700.dp, 500.dp),
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
@@ -441,7 +441,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
 
         composeTestRule.setContent {
             TestHarness(
-                size = DpSize(300.dp, 300.dp)
+                size = DpSize(300.dp, 300.dp),
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
@@ -451,7 +451,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
                                 fullscreen = fullscreen,
-                                onBackButtonPressed = {}
+                                onBackButtonPressed = {},
                             )
                         }
                     }
@@ -464,16 +464,16 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
                 hasScrollAction().and(
                     hasAnyDescendant(
                         hasContentDescription(
-                            context.getString(R.string.corner_fraction_label_and_value, 0f)
-                        )
-                    )
-                )
+                            context.getString(R.string.corner_fraction_label_and_value, 0f),
+                        ),
+                    ),
+                ),
             )
             .assert(
                 SemanticsMatcher("IsScrolledToTop") {
                     val range = it.config.getOrElseNullable(SemanticsProperties.VerticalScrollAxisRange) { null }
                     range != null && range.value.invoke() == 0f
-                }
+                },
             )
     }
 
@@ -488,7 +488,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
 
         composeTestRule.setContent {
             TestHarness(
-                size = DpSize(300.dp, 300.dp)
+                size = DpSize(300.dp, 300.dp),
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
@@ -515,16 +515,16 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
                 hasScrollAction().and(
                     hasAnyDescendant(
                         hasContentDescription(
-                            context.getString(R.string.corner_fraction_label_and_value, 0f)
-                        )
-                    )
-                )
+                            context.getString(R.string.corner_fraction_label_and_value, 0f),
+                        ),
+                    ),
+                ),
             )
             .assert(
                 SemanticsMatcher("IsNotScrolledToTop") {
                     val range = it.config.getOrElseNullable(SemanticsProperties.VerticalScrollAxisRange) { null }
                     range != null && range.value.invoke() > 0f
-                }
+                },
             )
     }
 
@@ -544,7 +544,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
 
         composeTestRule.setContent {
             TestHarness(
-                size = size
+                size = size,
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
@@ -592,7 +592,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
 
         composeTestRule.setContent {
             TestHarness(
-                size = size
+                size = size,
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))

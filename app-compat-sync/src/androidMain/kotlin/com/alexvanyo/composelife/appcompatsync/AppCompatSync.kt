@@ -48,7 +48,7 @@ class AppCompatSync @Inject constructor(
                         DarkThemeConfig.Dark -> AppCompatDelegate.MODE_NIGHT_YES
                         DarkThemeConfig.FollowSystem -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
                         DarkThemeConfig.Light -> AppCompatDelegate.MODE_NIGHT_NO
-                    }
+                    },
                 )
                 // If we can, update and persist the application-defined night mode
                 if (Build.VERSION.SDK_INT >= 31) {
@@ -57,7 +57,7 @@ class AppCompatSync @Inject constructor(
                             DarkThemeConfig.Dark -> UiModeManager.MODE_NIGHT_YES
                             DarkThemeConfig.FollowSystem -> UiModeManager.MODE_NIGHT_AUTO
                             DarkThemeConfig.Light -> UiModeManager.MODE_NIGHT_NO
-                        }
+                        },
                     )
                 }
             }

@@ -30,15 +30,15 @@ fun Project.configureKsp(
             getByName(applicationVariant.name) {
                 java.srcDir(
                     file(
-                        "build/generated/ksp/android/android$variantNameCapitalized/kotlin"
-                    )
+                        "build/generated/ksp/android/android$variantNameCapitalized/kotlin",
+                    ),
                 )
             }
             getByName("test$variantNameCapitalized") {
                 java.srcDir(
                     file(
-                        "build/generated/ksp/android/android${variantNameCapitalized}UnitTest/kotlin"
-                    )
+                        "build/generated/ksp/android/android${variantNameCapitalized}UnitTest/kotlin",
+                    ),
                 )
             }
         }

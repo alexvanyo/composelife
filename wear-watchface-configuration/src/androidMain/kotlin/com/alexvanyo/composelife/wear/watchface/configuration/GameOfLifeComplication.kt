@@ -45,7 +45,7 @@ sealed class GameOfLifeComplication(
     val rawBounds: Rect,
 ) {
     val bounds: ComplicationSlotBounds = ComplicationSlotBounds(
-        rawBounds.toAndroidRectF()
+        rawBounds.toAndroidRectF(),
     )
 
     object TopLeft : GameOfLifeComplication(
@@ -116,7 +116,7 @@ fun createGameOfLifeComplicationSlotsManager(
         CanvasComplicationDrawable(
             drawable = checkNotNull(ComplicationDrawable.getDrawable(context, R.drawable.complication_style)),
             watchState = watchState,
-            invalidateCallback = invalidateCallback
+            invalidateCallback = invalidateCallback,
         )
     }
 
@@ -132,6 +132,6 @@ fun createGameOfLifeComplicationSlotsManager(
                 )
                 .build()
         },
-        currentUserStyleRepository
+        currentUserStyleRepository,
     )
 }

@@ -45,7 +45,7 @@ fun WatchFacePreview(
 ) {
     val aspectRatio = previewImageBitmap.width.toFloat() / previewImageBitmap.height
     Box(
-        modifier = modifier.aspectRatio(aspectRatio)
+        modifier = modifier.aspectRatio(aspectRatio),
     ) {
         Image(
             bitmap = previewImageBitmap,
@@ -57,25 +57,25 @@ fun WatchFacePreview(
                         Modifier.clip(CircleShape)
                     } else {
                         Modifier
-                    }
-                )
+                    },
+                ),
         )
 
         GameOfLifeComplication.values.forEach { gameOfLifeComplication ->
             Column(
-                Modifier.fillMaxSize()
+                Modifier.fillMaxSize(),
             ) {
                 Spacer(
-                    modifier = Modifier.weight(gameOfLifeComplication.rawBounds.top)
+                    modifier = Modifier.weight(gameOfLifeComplication.rawBounds.top),
                 )
 
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .weight(gameOfLifeComplication.rawBounds.height)
+                        .weight(gameOfLifeComplication.rawBounds.height),
                 ) {
                     Spacer(
-                        modifier = Modifier.weight(gameOfLifeComplication.rawBounds.left)
+                        modifier = Modifier.weight(gameOfLifeComplication.rawBounds.left),
                     )
 
                     Box(
@@ -84,16 +84,16 @@ fun WatchFacePreview(
                             .weight(gameOfLifeComplication.rawBounds.width)
                             .clickable {
                                 onComplicationClicked(gameOfLifeComplication.id)
-                            }
+                            },
                     )
 
                     Spacer(
-                        modifier = Modifier.weight(1f - gameOfLifeComplication.rawBounds.right)
+                        modifier = Modifier.weight(1f - gameOfLifeComplication.rawBounds.right),
                     )
                 }
 
                 Spacer(
-                    modifier = Modifier.weight(1f - gameOfLifeComplication.rawBounds.bottom)
+                    modifier = Modifier.weight(1f - gameOfLifeComplication.rawBounds.bottom),
                 )
             }
         }

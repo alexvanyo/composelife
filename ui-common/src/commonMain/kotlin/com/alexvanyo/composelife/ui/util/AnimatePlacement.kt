@@ -51,7 +51,7 @@ fun Modifier.animatePlacement(
     parentFixedPoint: LayoutDirectionAwareScope.(parentLayoutCoordinates: LayoutCoordinates) -> IntOffset =
         { parentLayoutCoordinates ->
             parentLayoutCoordinates.size.toIntRect().topStart
-        }
+        },
 ): Modifier = composed {
     val scope = rememberCoroutineScope()
     var targetOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -71,7 +71,7 @@ fun Modifier.animatePlacement(
                 // from that to the fixed point in the parent
                 val currentFixedPoint = fixedPoint(layoutCoordinates)
                 val currentParentFixedPoint = parentFixedPoint(
-                    requireNotNull(layoutCoordinates.parentLayoutCoordinates)
+                    requireNotNull(layoutCoordinates.parentLayoutCoordinates),
                 )
                 targetOffset = currentFixedPoint - currentParentFixedPoint
             }
