@@ -21,4 +21,4 @@ class MergeJacocoConventionPlugin : ConventionPlugin({
     pluginManager.apply("jacoco")
 
     configureJacocoMerge()
-},)
+})

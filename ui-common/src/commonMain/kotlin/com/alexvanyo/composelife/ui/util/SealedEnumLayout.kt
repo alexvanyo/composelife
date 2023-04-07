@@ -40,9 +40,9 @@ import com.livefront.sealedenum.SealedEnum
 inline fun <T> Layout(
     layoutIdTypes: SealedEnum<T>,
     content:
-        @Composable
-        @UiComposable
-        () -> Unit,
+    @Composable
+    @UiComposable
+    () -> Unit,
     modifier: Modifier = Modifier,
     measurePolicy: SealedEnumMeasurePolicy<T>,
 ) {

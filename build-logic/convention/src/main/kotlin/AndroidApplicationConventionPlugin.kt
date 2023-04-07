@@ -76,4 +76,4 @@ class AndroidApplicationConventionPlugin : ConventionPlugin({
             }
         }
     }
-},)
+})

@@ -36,7 +36,7 @@ class DetektConventionPlugin : ConventionPlugin({
         allRules = true
         autoCorrect = System.getenv("CI") != "true"
         config.setFrom("$rootDir/config/detekt.yml")
-        source = files(
+        source.setFrom(
             "src/commonMain/kotlin",
             "src/commonTest/kotlin",
             "src/jvmMain/kotlin",
@@ -65,4 +65,4 @@ class DetektConventionPlugin : ConventionPlugin({
             dependsOn(tasks.withType<Detekt>())
         },
     )
-},)
+})
