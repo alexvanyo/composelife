@@ -77,7 +77,7 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
             add("keeperR8", libs.findLibrary("android.r8").get())
         }
     }
-},)
+})
 
 /**
  * The default value to enable Keeper or not, if none is specified by the property

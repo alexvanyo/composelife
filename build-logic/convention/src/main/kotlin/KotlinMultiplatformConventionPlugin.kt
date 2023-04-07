@@ -21,4 +21,4 @@ class KotlinMultiplatformConventionPlugin : ConventionPlugin({
     pluginManager.apply("org.jetbrains.kotlin.multiplatform")
 
     configureKotlin()
-},)
+})

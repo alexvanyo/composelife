@@ -33,4 +33,4 @@ class AndroidLibraryConventionPlugin : ConventionPlugin({
             consumerProguardFiles("consumer-rules.pro")
         }
     }
-},)
+})

@@ -51,4 +51,4 @@ class AndroidTestConventionPlugin : ConventionPlugin({
             }
         }
     }
-},)
+})

@@ -30,4 +30,4 @@ class AndroidApplicationKspConventionPlugin : ConventionPlugin({
         extensions.getByType<BaseAppModuleExtension>(),
         extensions.getByType<ApplicationAndroidComponentsExtension>(),
     )
-},)
+})
