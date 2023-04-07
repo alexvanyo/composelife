@@ -26,4 +26,4 @@ class AndroidApplicationJacocoConventionPlugin : ConventionPlugin({
     }
 
     configureJacoco(extensions.getByType<BaseAppModuleExtension>())
-},)
+})

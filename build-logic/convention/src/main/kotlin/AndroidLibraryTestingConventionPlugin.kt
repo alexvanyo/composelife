@@ -26,4 +26,4 @@ class AndroidLibraryTestingConventionPlugin : ConventionPlugin({
     val libraryExtension = extensions.getByType<LibraryExtension>()
     configureTesting(libraryExtension)
     configureAndroidTesting(libraryExtension)
-},)
+})
