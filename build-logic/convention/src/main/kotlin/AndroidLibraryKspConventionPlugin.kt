@@ -30,4 +30,4 @@ class AndroidLibraryKspConventionPlugin : ConventionPlugin({
         extensions.getByType<LibraryExtension>(),
         extensions.getByType<LibraryAndroidComponentsExtension>(),
     )
-},)
+})

@@ -69,15 +69,15 @@ class HashLifeAlgorithm @Inject constructor(
      */
     private val canonicalCellMap:
         LoadingCache<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode> =
-            CacheBuilder.newBuilder()
-                .ticker(computedGenerationTicker)
-                .expireAfterAccess(256, TimeUnit.NANOSECONDS)
-                .build(
-                    object : CacheLoader<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode>() {
-                        override fun load(key: Equivalence.Wrapper<MacroCell.CellNode>): MacroCell.CellNode =
-                            key.get().makeCanonical(false)
-                    },
-                )
+        CacheBuilder.newBuilder()
+            .ticker(computedGenerationTicker)
+            .expireAfterAccess(256, TimeUnit.NANOSECONDS)
+            .build(
+                object : CacheLoader<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode>() {
+                    override fun load(key: Equivalence.Wrapper<MacroCell.CellNode>): MacroCell.CellNode =
+                        key.get().makeCanonical(false)
+                },
+            )
 
     /**
      * The memoization map for [MacroCell.CellNode.computeNextGeneration].
