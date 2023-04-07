@@ -109,4 +109,4 @@ class AndroidLibraryPaparazziConventionPlugin : ConventionPlugin({
             },
         )
     }
-},)
+})

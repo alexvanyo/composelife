@@ -23,4 +23,4 @@ class AndroidLibraryGradleManagedDevicesConventionPlugin : ConventionPlugin({
     pluginManager.apply("com.android.library")
 
     configureGradleManagedDevices(extensions.getByType<LibraryExtension>())
-},)
+})

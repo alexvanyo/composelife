@@ -30,7 +30,7 @@ import kotlinx.coroutines.awaitCancellation
 class TestComposeLifePreferences : ComposeLifePreferences {
     override var quickAccessSettingsState:
         ResourceState<Set<QuickAccessSetting>> by mutableStateOf(ResourceState.Loading)
-            private set
+        private set
 
     override var algorithmChoiceState: ResourceState<AlgorithmType> by mutableStateOf(ResourceState.Loading)
         private set
