@@ -64,7 +64,7 @@ class DefaultComposeLifePreferences @Inject constructor(
 
     override var loadedPreferencesState:
         ResourceState<LoadedComposeLifePreferences> by mutableStateOf(ResourceState.Loading)
-            private set
+        private set
 
     @Suppress("LongMethod", "ComplexMethod")
     override suspend fun update(): Nothing {

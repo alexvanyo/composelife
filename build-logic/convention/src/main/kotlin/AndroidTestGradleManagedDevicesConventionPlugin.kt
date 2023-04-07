@@ -23,4 +23,4 @@ class AndroidTestGradleManagedDevicesConventionPlugin : ConventionPlugin({
     pluginManager.apply("com.android.test")
 
     configureGradleManagedDevices(extensions.getByType<TestExtension>())
-},)
+})
