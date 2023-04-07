@@ -49,11 +49,11 @@ fun Project.configureAndroidCompose(
                         freeCompilerArgs = freeCompilerArgs + listOf(
                             "-P",
                             "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=${
-                            metricsFolder.absolutePath
+                                metricsFolder.absolutePath
                             }",
                             "-P",
                             "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=${
-                            reportsFolder.absolutePath
+                                reportsFolder.absolutePath
                             }",
                         )
                     }
