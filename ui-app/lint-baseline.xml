@@ -1,37 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.&#xA;See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/com/alexvanyo/composelife/ui/app/cells/InteractableCell.kt"
-            line="48"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeUnstableCollections"
-        message="The Compose Compiler cannot infer the stability of a parameter if a List&lt;@Composable (isEditing: Boolean) -> String> is used in it, even if the item type is stable.&#xA;You should use Kotlinx Immutable Collections instead: `infoItemTexts: ImmutableList&lt;@Composable (isEditing: Boolean) -> String>` or create an `@Immutable` wrapper for this class: `@Immutable data class InfoItemTextsList(val items: List&lt;@Composable (isEditing: Boolean) -> String>)`&#xA;See https://slackhq.github.io/compose-lints/rules/#avoid-using-unstable-collections for more information."
-        errorLine1="    infoItemTexts: List&lt;@Composable (isEditing: Boolean) -> String>,"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/com/alexvanyo/composelife/ui/app/info/CellUniverseInfoCard.kt"
-            line="160"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="ComposeUnstableCollections"
-        message="The Compose Compiler cannot infer the stability of a parameter if a List&lt;T> is used in it, even if the item type is stable.&#xA;You should use Kotlinx Immutable Collections instead: `allValues: ImmutableList&lt;T>` or create an `@Immutable` wrapper for this class: `@Immutable data class AllValuesList(val items: List&lt;T>)`&#xA;See https://slackhq.github.io/compose-lints/rules/#avoid-using-unstable-collections for more information."
-        errorLine1="    allValues: List&lt;T>,"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/com/alexvanyo/composelife/ui/app/component/TextFieldDropdown.kt"
-            line="62"
-            column="16"/>
-    </issue>
+<issues format="6" by="lint 8.0.0-rc01" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-rc01)" variant="all" version="8.0.0-rc01">
 
 </issues>

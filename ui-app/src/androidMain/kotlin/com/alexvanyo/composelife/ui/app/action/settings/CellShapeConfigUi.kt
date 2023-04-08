@@ -50,6 +50,7 @@ import com.livefront.sealedenum.GenSealedEnum
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 
 @EntryPoint
@@ -92,7 +93,7 @@ fun CellShapeConfigUi(
             currentValue = when (currentShape) {
                 is CurrentShape.RoundRectangle -> ShapeDropdownOption.RoundRectangle
             },
-            allValues = ShapeDropdownOption.values,
+            allValues = ShapeDropdownOption.values.toImmutableList(),
             setValue = { option ->
                 coroutineScope.launch {
                     setCurrentShapeType(
