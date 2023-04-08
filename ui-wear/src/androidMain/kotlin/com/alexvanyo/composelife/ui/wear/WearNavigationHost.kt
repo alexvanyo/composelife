@@ -35,9 +35,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
-import androidx.wear.compose.material.SwipeToDismissBox
+import androidx.wear.compose.material3.SwipeToDismissBox
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.MutableBackstackNavigationController
@@ -72,7 +71,6 @@ fun <T> WearNavigationHost(
     modifier = modifier,
 )
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Suppress("LongMethod")
 @Composable
 fun <T> WearNavigationFrame(
@@ -110,7 +108,7 @@ fun <T> WearNavigationFrame(
         onDismissed = onNavigateBack,
         backgroundKey = previousEntry?.id ?: remember { Uuid.random() },
         contentKey = currentEntry.id,
-        hasBackground = previousEntry != null,
+        userSwipeEnabled = previousEntry != null,
         modifier = modifier,
     ) { isBackground ->
         val entry = if (isBackground) {
