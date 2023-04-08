@@ -25,7 +25,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
-import androidx.wear.compose.material.SwipeToDismissBox
+import androidx.wear.compose.material3.SwipeToDismissBox
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.MutableBackstackNavigationController
@@ -82,7 +82,7 @@ fun <T> WearNavigationFrame(
         onDismissed = onNavigateBack,
         backgroundKey = currentEntry.previous?.id ?: remember { UUID.randomUUID() },
         contentKey = currentEntry.id,
-        hasBackground = currentEntry.previous != null,
+        userSwipeEnabled = currentEntry.previous != null,
         modifier = modifier,
     ) { isBackground ->
         val entry = if (isBackground) {

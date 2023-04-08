@@ -32,12 +32,11 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
-import androidx.wear.compose.material.Chip
-import androidx.wear.compose.material.ChipDefaults
-import androidx.wear.compose.material.CircularProgressIndicator
-import androidx.wear.compose.material.Switch
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.ToggleChip
+import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.CircularProgressIndicator
+import androidx.wear.compose.material3.Switch
+import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.ToggleButton
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resources.wear.R as resourcesWearR
 
@@ -84,7 +83,7 @@ fun WatchFaceConfigList(
             }
         }
         item {
-            Chip(
+            Button(
                 label = {
                     Text(text = stringResource(id = resourcesWearR.string.color))
                 },
@@ -95,13 +94,12 @@ fun WatchFaceConfigList(
                             .background(state.color, CircleShape),
                     )
                 },
-                colors = ChipDefaults.secondaryChipColors(),
                 onClick = onEditColorClicked,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
         item {
-            ToggleChip(
+            ToggleButton(
                 checked = state.showComplicationsInAmbient,
                 onCheckedChange = {
                     state.showComplicationsInAmbient = it
@@ -110,9 +108,7 @@ fun WatchFaceConfigList(
                     Text(text = stringResource(id = resourcesWearR.string.show_complications_in_ambient))
                 },
                 toggleControl = {
-                    Switch(
-                        checked = state.showComplicationsInAmbient,
-                    )
+                    Switch()
                 },
                 modifier = Modifier.fillMaxWidth(),
             )

@@ -21,8 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
-import androidx.wear.compose.material.PositionIndicator
-import androidx.wear.compose.material.Scaffold
+import androidx.wear.compose.material3.PositionIndicator
+import androidx.wear.compose.material3.Scaffold
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.currentEntry
