@@ -36,10 +36,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
 import androidx.wear.compose.foundation.rememberActiveFocusRequester
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.Picker
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.rememberPickerState
+import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.Picker
+import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.rememberPickerState
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.rotaryinput.onRotaryInputAccumulated
 import kotlinx.coroutines.launch

@@ -148,6 +148,8 @@ style:
       - 'org.junit.Assert.*'
       # Disallow JUnit5 parameterized tests in favor of TestParameterInjector
       - 'org.junit.jupiter.params.*'
+      # Disallow Wear Material 2 imports
+      - 'androidx.wear.compose.material.*'
   MaxLineLength:
     excludes: [ '**/generated/**' ]
   MagicNumber:
