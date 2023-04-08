@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import kotlinx.collections.immutable.ImmutableList
 
 /**
  * An option in a [TextFieldDropdown].
@@ -63,7 +64,7 @@ interface DropdownOption {
 fun <T : DropdownOption> TextFieldDropdown(
     label: String,
     currentValue: T,
-    allValues: List<T>,
+    allValues: ImmutableList<T>,
     setValue: (T) -> Unit,
     modifier: Modifier = Modifier,
 ) {

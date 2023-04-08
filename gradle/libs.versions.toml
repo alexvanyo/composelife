@@ -37,6 +37,7 @@ guavaJre = "31.1-jre"
 horologist = "0.3.3"
 keeper = "0.14.0-alpha04"
 kotlin = "1.8.10"
+kotlinxCollectionsImmutable = "0.3.5"
 kotlinxCoroutines = "1.6.4"
 kotlinxDatetime = "0.4.0"
 kotlinxSerialization = "1.5.0"
@@ -131,6 +132,7 @@ jetbrains-compose-uiUnit = { group = "org.jetbrains.compose.ui", name = "ui-unit
 jetbrains-compose-uiUtil = { group = "org.jetbrains.compose.ui", name = "ui-util", version.ref = "jetbrainsCompose" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 keeper-gradlePlugin = { group = "com.slack.keeper", name = "keeper", version.ref = "keeper" }
+kotlinx-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
