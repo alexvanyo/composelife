@@ -117,8 +117,6 @@ class InteractiveCellUniverseTests : BaseUiHiltTest<TestActivity>(TestActivity::
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        isViewportTracking = false,
-                        setIsViewportTracking = {},
                         windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -166,8 +164,6 @@ class InteractiveCellUniverseTests : BaseUiHiltTest<TestActivity>(TestActivity::
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        isViewportTracking = false,
-                        setIsViewportTracking = {},
                         windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -214,8 +210,6 @@ class InteractiveCellUniverseTests : BaseUiHiltTest<TestActivity>(TestActivity::
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        isViewportTracking = false,
-                        setIsViewportTracking = {},
                         windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -276,8 +270,6 @@ class InteractiveCellUniverseTests : BaseUiHiltTest<TestActivity>(TestActivity::
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        isViewportTracking = false,
-                        setIsViewportTracking = {},
                         windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -341,8 +333,6 @@ class InteractiveCellUniverseTests : BaseUiHiltTest<TestActivity>(TestActivity::
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        isViewportTracking = false,
-                        setIsViewportTracking = {},
                         windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -420,8 +410,6 @@ class InteractiveCellUniverseTests : BaseUiHiltTest<TestActivity>(TestActivity::
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        isViewportTracking = false,
-                        setIsViewportTracking = {},
                         windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -480,8 +468,6 @@ class InteractiveCellUniverseTests : BaseUiHiltTest<TestActivity>(TestActivity::
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        isViewportTracking = false,
-                        setIsViewportTracking = {},
                         windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -558,8 +544,6 @@ class InteractiveCellUniverseTests : BaseUiHiltTest<TestActivity>(TestActivity::
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        isViewportTracking = false,
-                        setIsViewportTracking = {},
                         windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
                         modifier = Modifier.fillMaxSize(),
                     )
