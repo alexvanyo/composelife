@@ -34,7 +34,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -132,8 +131,6 @@ fun ComposeLifeApp(
 
                                 InteractiveCellUniverse(
                                     temporalGameOfLifeState = targetComposeLifeAppState.temporalGameOfLifeState,
-                                    isViewportTracking = targetComposeLifeAppState.isViewportTracking,
-                                    setIsViewportTracking = { targetComposeLifeAppState.isViewportTracking = it },
                                     windowSizeClass = windowSizeClass,
                                 )
                             }
@@ -185,8 +182,6 @@ fun rememberComposeLifeAppState(): ComposeLifeAppState {
                     isRunning = false,
                 )
 
-                var isViewportTracking by rememberSaveable { mutableStateOf(false) }
-
                 val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     gameOfLifeAlgorithm = gameOfLifeAlgorithm,
@@ -236,11 +231,6 @@ fun rememberComposeLifeAppState(): ComposeLifeAppState {
                     object : ComposeLifeAppState.LoadedPreferences.LoadedCellState {
                         override val preferences: LoadedComposeLifePreferences get() = currentLoadedPreferences
                         override val temporalGameOfLifeState = temporalGameOfLifeState
-                        override var isViewportTracking
-                            get() = isViewportTracking
-                            set(value) {
-                                isViewportTracking = value
-                            }
                     }
                 }
             }
@@ -274,7 +264,6 @@ sealed interface ComposeLifeAppState {
          */
         interface LoadedCellState : LoadedPreferences {
             val temporalGameOfLifeState: TemporalGameOfLifeState
-            var isViewportTracking: Boolean
         }
     }
 }
@@ -346,7 +335,6 @@ fun LoadedComposeLifeAppPreview() {
                     composeLifeAppState = object : ComposeLifeAppState.LoadedPreferences.LoadedCellState {
                         override val preferences = preferences
                         override val temporalGameOfLifeState = temporalGameOfLifeState
-                        override var isViewportTracking = false
                     },
                 )
             }
