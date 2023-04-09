@@ -23,9 +23,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -37,9 +39,13 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.platform.testTag
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.isRunning
+import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardState
+import com.alexvanyo.composelife.ui.app.action.rememberCellUniverseActionCardState
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.MutableCellWindow
 import com.alexvanyo.composelife.ui.app.cells.MutableCellWindowState
@@ -47,6 +53,11 @@ import com.alexvanyo.composelife.ui.app.cells.TrackingCellWindowState
 import com.alexvanyo.composelife.ui.app.cells.ViewportInteractionConfig
 import com.alexvanyo.composelife.ui.app.cells.rememberMutableCellWindowState
 import com.alexvanyo.composelife.ui.app.cells.rememberTrackingCellWindowState
+import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCardState
+import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
+import com.alexvanyo.composelife.ui.util.PredictiveBackState
+import com.alexvanyo.composelife.ui.util.TargetState
+import com.alexvanyo.composelife.ui.util.predictiveBackHandler
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
@@ -70,26 +81,11 @@ context(InteractiveCellUniverseHiltEntryPoint, InteractiveCellUniverseLocalEntry
 @Composable
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
-    isViewportTracking: Boolean,
-    setIsViewportTracking: (Boolean) -> Unit,
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
-    mutableCellWindowState: MutableCellWindowState = rememberMutableCellWindowState(),
-    trackingCellWindowState: TrackingCellWindowState = rememberTrackingCellWindowState(temporalGameOfLifeState),
+    interactiveCellUniverseState: InteractiveCellUniverseState =
+        rememberInteractiveCellUniverseState(temporalGameOfLifeState),
 ) {
-    val viewportInteractionConfig = remember(isViewportTracking, mutableCellWindowState, trackingCellWindowState) {
-        if (isViewportTracking) {
-            ViewportInteractionConfig.Tracking(
-                trackingCellWindowState = trackingCellWindowState,
-                syncableMutableCellWindowStates = listOf(mutableCellWindowState),
-            )
-        } else {
-            ViewportInteractionConfig.Navigable(
-                mutableCellWindowState = mutableCellWindowState,
-            )
-        }
-    }
-
     // Force focus to allow listening to key events
     var hasFocus by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
@@ -107,27 +103,210 @@ fun InteractiveCellUniverse(
                 hasFocus = it.hasFocus
             }
             .focusable()
-            .onKeyEvent { keyEvent ->
-                if (keyEvent.key == Key.Spacebar && keyEvent.type == KeyEventType.KeyUp) {
-                    temporalGameOfLifeState.setIsRunning(!temporalGameOfLifeState.isRunning)
-                    true
+            .then(
+                if (interactiveCellUniverseState.isOverlayShowingFullscreen) {
+                    Modifier
                 } else {
-                    false
-                }
-            },
+                    Modifier.onKeyEvent { keyEvent ->
+                        if (keyEvent.key == Key.Spacebar && keyEvent.type == KeyEventType.KeyUp) {
+                            temporalGameOfLifeState.setIsRunning(!temporalGameOfLifeState.isRunning)
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                },
+            ),
     ) {
-        MutableCellWindow(
-            gameOfLifeState = temporalGameOfLifeState,
-            modifier = Modifier.testTag("MutableCellWindow"),
-            viewportInteractionConfig = viewportInteractionConfig,
-        )
+        if (!interactiveCellUniverseState.isOverlayShowingFullscreen) {
+            MutableCellWindow(
+                gameOfLifeState = temporalGameOfLifeState,
+                modifier = Modifier.testTag("MutableCellWindow"),
+                viewportInteractionConfig = interactiveCellUniverseState.viewportInteractionConfig,
+            )
+        }
 
         InteractiveCellUniverseOverlay(
             temporalGameOfLifeState = temporalGameOfLifeState,
-            cellWindowState = mutableCellWindowState,
-            isViewportTracking = isViewportTracking,
-            setIsViewportTracking = setIsViewportTracking,
+            interactiveCellUniverseState = interactiveCellUniverseState,
+            cellWindowState = interactiveCellUniverseState.mutableCellWindowState,
             windowSizeClass = windowSizeClass,
         )
+    }
+}
+
+interface InteractiveCellUniverseState {
+
+    /**
+     * `true` if the viewport is tracking the alive cells.
+     */
+    var isViewportTracking: Boolean
+
+    /**
+     * The [MutableCellWindowState] for use when [isViewportTracking] is `false`.
+     */
+    val mutableCellWindowState: MutableCellWindowState
+
+    /**
+     * The [TrackingCellWindowState] for use when [isViewportTracking] is `true`.
+     */
+    val trackingCellWindowState: TrackingCellWindowState
+
+    /**
+     * The [ViewportInteractionConfig].
+     */
+    val viewportInteractionConfig: ViewportInteractionConfig
+
+    /**
+     * `true` if the action card is the "top card", meaning that it should be preferred to be shown if there isn't
+     * enough space to show both.
+     */
+    val isActionCardTopCard: Boolean
+
+    /**
+     * The info card state.
+     */
+    val infoCardState: CellUniverseInfoCardState
+
+    /**
+     * The action card state.
+     */
+    val actionCardState: CellUniverseActionCardState
+
+    /**
+     * `true` if the overlay is showing fullscreen. If this is the case, then the main cell window is entirely
+     * obscured.
+     */
+    val isOverlayShowingFullscreen: Boolean
+
+    /**
+     * Reports the action card's coordinates. The singular action card must call this method with the layout
+     * coordinates from [Modifier.onPlaced].
+     */
+    fun reportActionCardCoordinates(layoutCoordinates: LayoutCoordinates)
+}
+
+@Suppress("LongMethod", "CyclomaticComplexMethod")
+@Composable
+fun rememberInteractiveCellUniverseState(
+    temporalGameOfLifeState: TemporalGameOfLifeState,
+): InteractiveCellUniverseState {
+    val mutableCellWindowState = rememberMutableCellWindowState()
+    val trackingCellWindowState = rememberTrackingCellWindowState(temporalGameOfLifeState)
+
+    var isViewportTracking by rememberSaveable { mutableStateOf(false) }
+
+    var isActionCardTopCard by rememberSaveable { mutableStateOf(true) }
+
+    val isInfoCardExpandedState = rememberSaveable { mutableStateOf(false) }
+    val isActionCardExpandedState = rememberSaveable { mutableStateOf(false) }
+
+    val isInfoCardExpanded = isInfoCardExpandedState.value
+    fun setIsInfoCardExpanded(value: Boolean) {
+        isInfoCardExpandedState.value = value
+        if (value) {
+            isActionCardExpandedState.value = false
+            isActionCardTopCard = false
+        }
+    }
+
+    val isActionCardExpanded = isActionCardExpandedState.value
+    fun setIsActionCardExpanded(value: Boolean) {
+        isActionCardExpandedState.value = value
+        if (value) {
+            isInfoCardExpandedState.value = false
+            isActionCardTopCard = true
+        }
+    }
+
+    val infoCardExpandedPredictiveBackState = if (isInfoCardExpanded && !isActionCardTopCard) {
+        predictiveBackHandler {
+            setIsInfoCardExpanded(false)
+        }
+    } else {
+        PredictiveBackState.NotRunning
+    }
+    val actionCardExpandedPredictiveBackState = if (isActionCardExpanded) {
+        predictiveBackHandler {
+            setIsActionCardExpanded(false)
+        }
+    } else {
+        PredictiveBackState.NotRunning
+    }
+
+    val infoCardState = rememberCellUniverseInfoCardState(
+        setIsExpanded = ::setIsInfoCardExpanded,
+        expandedTargetState = when (infoCardExpandedPredictiveBackState) {
+            PredictiveBackState.NotRunning -> TargetState.Single(isInfoCardExpanded)
+            is PredictiveBackState.Running -> {
+                check(isInfoCardExpanded)
+                TargetState.InProgress(
+                    current = true,
+                    provisional = false,
+                    progress = infoCardExpandedPredictiveBackState.progress,
+                )
+            }
+        },
+    )
+    val actionCardState = rememberCellUniverseActionCardState(
+        setIsExpanded = ::setIsActionCardExpanded,
+        enableBackHandler = isActionCardTopCard,
+        expandedTargetState = when (actionCardExpandedPredictiveBackState) {
+            PredictiveBackState.NotRunning -> TargetState.Single(isActionCardExpanded)
+            is PredictiveBackState.Running -> {
+                check(isActionCardExpanded)
+                TargetState.InProgress(
+                    current = true,
+                    provisional = false,
+                    progress = actionCardExpandedPredictiveBackState.progress,
+                )
+            }
+        },
+    )
+
+    var isActionCardSizedFullscreen: Boolean by remember { mutableStateOf(true) }
+
+    return remember(mutableCellWindowState, trackingCellWindowState, infoCardState, actionCardState) {
+        object : InteractiveCellUniverseState {
+            override var isViewportTracking: Boolean
+                get() = isViewportTracking
+                set(value) {
+                    isViewportTracking = value
+                }
+            override val mutableCellWindowState: MutableCellWindowState = mutableCellWindowState
+            override val trackingCellWindowState: TrackingCellWindowState = trackingCellWindowState
+
+            override val viewportInteractionConfig: ViewportInteractionConfig by derivedStateOf {
+                if (isViewportTracking) {
+                    ViewportInteractionConfig.Tracking(
+                        trackingCellWindowState = trackingCellWindowState,
+                        syncableMutableCellWindowStates = listOf(mutableCellWindowState),
+                    )
+                } else {
+                    ViewportInteractionConfig.Navigable(
+                        mutableCellWindowState = mutableCellWindowState,
+                    )
+                }
+            }
+            override val isActionCardTopCard: Boolean
+                get() = isActionCardTopCard
+            override val infoCardState: CellUniverseInfoCardState = infoCardState
+            override val actionCardState: CellUniverseActionCardState = actionCardState
+
+            override val isOverlayShowingFullscreen: Boolean by derivedStateOf {
+                val isTargetingFullscreen = when (
+                    val fullscreenTargetState = actionCardState.fullscreenTargetState
+                ) {
+                    is TargetState.InProgress -> false
+                    is TargetState.Single -> fullscreenTargetState.current
+                }
+                isTargetingFullscreen && isActionCardSizedFullscreen
+            }
+
+            override fun reportActionCardCoordinates(layoutCoordinates: LayoutCoordinates) {
+                isActionCardSizedFullscreen = layoutCoordinates.size ==
+                    requireNotNull(layoutCoordinates.findRootCoordinates()).size
+            }
+        }
     }
 }

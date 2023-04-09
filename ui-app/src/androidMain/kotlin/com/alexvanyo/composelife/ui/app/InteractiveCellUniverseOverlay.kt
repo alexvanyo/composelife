@@ -18,7 +18,6 @@ package com.alexvanyo.composelife.ui.app
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -33,19 +32,12 @@ import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onPlaced
@@ -64,19 +56,15 @@ import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutType
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCard
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardHiltEntryPoint
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.action.rememberCellUniverseActionCardState
 import com.alexvanyo.composelife.ui.app.cells.CellWindowState
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
-import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.util.Layout
-import com.alexvanyo.composelife.ui.util.PredictiveBackState
-import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.WindowInsets
 import com.alexvanyo.composelife.ui.util.Zero
 import com.alexvanyo.composelife.ui.util.animatePlacement
 import com.alexvanyo.composelife.ui.util.bottomEnd
+import com.alexvanyo.composelife.ui.util.isInProgress
 import com.alexvanyo.composelife.ui.util.lerp
-import com.alexvanyo.composelife.ui.util.predictiveBackHandler
 import com.alexvanyo.composelife.ui.util.progressToTrue
 import com.alexvanyo.composelife.ui.util.realBoundsInParent
 import com.livefront.sealedenum.GenSealedEnum
@@ -97,81 +85,12 @@ context(InteractiveCellUniverseOverlayHiltEntryPoint, InteractiveCellUniverseOve
 @Composable
 fun InteractiveCellUniverseOverlay(
     temporalGameOfLifeState: TemporalGameOfLifeState,
+    interactiveCellUniverseState: InteractiveCellUniverseState,
     cellWindowState: CellWindowState,
-    isViewportTracking: Boolean,
-    setIsViewportTracking: (Boolean) -> Unit,
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
 ) {
-    var isActionCardTopCard by rememberSaveable { mutableStateOf(true) }
-
-    val isInfoCardExpandedState = rememberSaveable { mutableStateOf(false) }
-    val isActionCardExpandedState = rememberSaveable { mutableStateOf(false) }
-
-    val isInfoCardExpanded = isInfoCardExpandedState.value
-    fun setIsInfoCardExpanded(value: Boolean) {
-        isInfoCardExpandedState.value = value
-        if (value) {
-            isActionCardExpandedState.value = false
-            isActionCardTopCard = false
-        }
-    }
-
-    val isActionCardExpanded = isActionCardExpandedState.value
-    fun setIsActionCardExpanded(value: Boolean) {
-        isActionCardExpandedState.value = value
-        if (value) {
-            isInfoCardExpandedState.value = false
-            isActionCardTopCard = true
-        }
-    }
-
-    val infoCardExpandedPredictiveBackState = if (isInfoCardExpanded && !isActionCardTopCard) {
-        predictiveBackHandler {
-            setIsInfoCardExpanded(false)
-        }
-    } else {
-        PredictiveBackState.NotRunning
-    }
-    val actionCardExpandedPredictiveBackState = if (isActionCardExpanded) {
-        predictiveBackHandler {
-            setIsActionCardExpanded(false)
-        }
-    } else {
-        PredictiveBackState.NotRunning
-    }
-
-    val infoCardState = rememberCellUniverseInfoCardState(
-        setIsExpanded = ::setIsInfoCardExpanded,
-        expandedTargetState = when (infoCardExpandedPredictiveBackState) {
-            PredictiveBackState.NotRunning -> TargetState.Single(isInfoCardExpanded)
-            is PredictiveBackState.Running -> {
-                check(isInfoCardExpanded)
-                TargetState.InProgress(
-                    current = true,
-                    provisional = false,
-                    progress = infoCardExpandedPredictiveBackState.progress,
-                )
-            }
-        },
-    )
-    val actionCardState = rememberCellUniverseActionCardState(
-        setIsExpanded = ::setIsActionCardExpanded,
-        enableBackHandler = isActionCardTopCard,
-        expandedTargetState = when (actionCardExpandedPredictiveBackState) {
-            PredictiveBackState.NotRunning -> TargetState.Single(isActionCardExpanded)
-            is PredictiveBackState.Running -> {
-                check(isActionCardExpanded)
-                TargetState.InProgress(
-                    current = true,
-                    provisional = false,
-                    progress = actionCardExpandedPredictiveBackState.progress,
-                )
-            }
-        },
-    )
-
-    val progressToFullscreen = actionCardState.fullscreenTargetState.progressToTrue
+    val progressToFullscreen = interactiveCellUniverseState.actionCardState.fullscreenTargetState.progressToTrue
 
     val targetWindowInsetsProgressToFullscreen by animateFloatAsState(progressToFullscreen)
 
@@ -188,30 +107,6 @@ fun InteractiveCellUniverseOverlay(
             progressToFullscreen,
         ),
     )
-
-    var actionCardLayoutCoordinates: LayoutCoordinates? by remember { mutableStateOf(null) }
-
-    /**
-     * `true` if we are currently showing a full-screen card, which is inferred to be the case if:
-     * - the corner size is 0, and
-     * - we are wanting to show the card as full-screen, and
-     * - we haven't placed the card yet, or the card is sized full-screen
-     */
-    val isShowingFullscreen by remember(actionCardState) {
-        derivedStateOf {
-            val currentActionCardLayoutCoordinates = actionCardLayoutCoordinates
-            val isTargetingFullscreen = when (val fullscreenTargetState = actionCardState.fullscreenTargetState) {
-                is TargetState.InProgress -> false
-                is TargetState.Single -> fullscreenTargetState.current
-            }
-            val isInitialPlacement = currentActionCardLayoutCoordinates == null
-            val isSizedFullscreen = currentActionCardLayoutCoordinates != null &&
-                currentActionCardLayoutCoordinates.size ==
-                requireNotNull(currentActionCardLayoutCoordinates.parentLayoutCoordinates).size
-
-            cornerSize == 0.dp && isTargetingFullscreen && (isInitialPlacement || isSizedFullscreen)
-        }
-    }
 
     Layout(
         layoutIdTypes = InteractiveCellUniverseOverlayLayoutTypes.sealedEnum,
@@ -244,7 +139,7 @@ fun InteractiveCellUniverseOverlay(
                 CellUniverseInfoCard(
                     cellWindowState = cellWindowState,
                     evolutionStatus = temporalGameOfLifeState.status,
-                    infoCardState = infoCardState,
+                    infoCardState = interactiveCellUniverseState.infoCardState,
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .padding(8.dp)
@@ -259,7 +154,7 @@ fun InteractiveCellUniverseOverlay(
                     .then(
                         // If we are showing fullscreen, avoid animating placement at this level, since the card
                         // should effectively be fixed to be full screen
-                        if (isShowingFullscreen) {
+                        if (interactiveCellUniverseState.isOverlayShowingFullscreen) {
                             Modifier
                         } else {
                             Modifier.animatePlacement(
@@ -287,10 +182,10 @@ fun InteractiveCellUniverseOverlay(
                 CellUniverseActionCard(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = windowSizeClass,
-                    isShowingFullscreen = isShowingFullscreen,
-                    isViewportTracking = isViewportTracking,
-                    setIsViewportTracking = setIsViewportTracking,
-                    actionCardState = actionCardState,
+                    isShowingFullscreen = interactiveCellUniverseState.isOverlayShowingFullscreen,
+                    isViewportTracking = interactiveCellUniverseState.isViewportTracking,
+                    setIsViewportTracking = { interactiveCellUniverseState.isViewportTracking = it },
+                    actionCardState = interactiveCellUniverseState.actionCardState,
                     modifier = Modifier
                         .align(
                             if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) {
@@ -299,9 +194,7 @@ fun InteractiveCellUniverseOverlay(
                                 Alignment.CenterEnd
                             },
                         )
-                        .onPlaced {
-                            actionCardLayoutCoordinates = it
-                        }
+                        .onPlaced(interactiveCellUniverseState::reportActionCardCoordinates)
                         .testTag("CellUniverseActionCard"),
                     shape = RoundedCornerShape(cornerSize),
                 )
@@ -318,10 +211,13 @@ fun InteractiveCellUniverseOverlay(
                 topInsetsPlaceable.place(0, 0)
                 bottomInsetsPlaceable.place(0, constraints.maxHeight - bottomInsetsPlaceable.height)
 
-                // If we can fit both cards, place them both on screen.
+                // If we aren't trying to show fullscreen and we can fit both cards, place them both on screen.
                 // Otherwise, place the top-card (as determined by isActionCardTopCard) only aligned to the correct
                 // side of the screen, and align the hidden card just off-screen.
+                val fullscreenTargetState =
+                    interactiveCellUniverseState.actionCardState.fullscreenTargetState
                 if (
+                    (fullscreenTargetState.isInProgress() || !fullscreenTargetState.current) &&
                     infoCardPlaceable.height + actionCardPlaceable.height -
                     topInsetsPlaceable.height - bottomInsetsPlaceable.height <= constraints.maxHeight
                 ) {
@@ -330,7 +226,7 @@ fun InteractiveCellUniverseOverlay(
                         0,
                         constraints.maxHeight - actionCardPlaceable.height,
                     )
-                } else if (isActionCardTopCard) {
+                } else if (interactiveCellUniverseState.isActionCardTopCard) {
                     infoCardPlaceable.place(0, -infoCardPlaceable.height + bottomInsetsPlaceable.height)
                     actionCardPlaceable.place(
                         0,
@@ -342,17 +238,7 @@ fun InteractiveCellUniverseOverlay(
                 }
             }
         },
-        modifier = modifier
-            .then(
-                // If we are showing a card fullscreen, put an opaque background on the overlay (between the cards
-                // and the content underneath) to ensure content underneath is masked completely during animations
-                // while remaining fullscreen.
-                if (isShowingFullscreen) {
-                    Modifier.background(MaterialTheme.colorScheme.surface)
-                } else {
-                    Modifier
-                },
-            ),
+        modifier = modifier,
     )
 }
 
