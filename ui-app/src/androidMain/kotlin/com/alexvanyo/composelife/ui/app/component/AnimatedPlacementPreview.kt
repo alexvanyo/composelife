@@ -150,6 +150,8 @@ fun AnimatePlacementPreview() {
                     Spacer(
                         Modifier
                             .animatePlacement(
+                                animatePlacementAlignment,
+                                animatePlacementParentAlignment,
                                 fixedPoint = { layoutCoordinates ->
                                     val bounds = layoutCoordinates.boundsInParent()
                                     when (animatePlacementAlignment) {
