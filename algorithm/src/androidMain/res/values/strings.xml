@@ -22,4 +22,5 @@
     <string name="unexpected_header">Unexpected header, found %1$s</string>
     <string name="rule_not_supported">Ruleset not supported</string>
     <string name="unexpected_input">Unexpected input "%1$s" starting on line %2$d, character %3$d</string>
+    <string name="duplicate_top_left_coordinate">Duplicate top-left coordinate instruction, overwriting with (%1$d, %2$d)</string>
 </resources>
