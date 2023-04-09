@@ -41,8 +41,20 @@ import kotlinx.coroutines.launch
 
 /**
  * A [Modifier] that animates placement using the given [animationSpec].
+ *
+ * The [fixedPoint] calculates the coordinate of the content being animated (in the parent's coordinate system) that
+ * the placement should be animating with respect to. This is useful, for instance, if the size of the content being
+ * animated is changing too. By default, this calculates the top-start corner of the content being animated.
+ *
+ * The [parentFixedPoint] calculates the coordinate of the parent (in the parent's coordinate system) that the
+ * placement should be animating with respect to. This is useful, for instance, if the size of the parent is changing
+ * too. By default, this calculates the top-start corner of the parent.
+ *
+ * The [keys] are a set of keys used to reset that animation. This is useful to reset the animation, if the fixed
+ * point calculation is changing.
  */
 fun Modifier.animatePlacement(
+    vararg keys: Any,
     animationSpec: AnimationSpec<IntOffset> = spring(stiffness = Spring.StiffnessMedium),
     fixedPoint: LayoutDirectionAwareScope.(layoutCoordinates: LayoutCoordinates) -> IntOffset =
         { layoutCoordinates ->
@@ -55,7 +67,7 @@ fun Modifier.animatePlacement(
 ): Modifier = composed {
     val scope = rememberCoroutineScope()
     var targetOffset by remember { mutableStateOf(IntOffset.Zero) }
-    var animatable by remember {
+    var animatable by remember(keys = keys) {
         mutableStateOf<Animatable<IntOffset, AnimationVector2D>?>(null)
     }
     val layoutDirection = LocalLayoutDirection.current
