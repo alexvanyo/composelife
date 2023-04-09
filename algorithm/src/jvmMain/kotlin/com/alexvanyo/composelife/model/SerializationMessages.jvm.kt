@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.model
 
+import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 
 actual fun UnexpectedInputMessage(
@@ -52,3 +53,14 @@ actual fun UnexpectedEmptyFileMessage(): ParameterizedString =
 
 actual fun RuleNotSupportedMessage(): ParameterizedString =
     ParameterizedString("Ruleset not supported")
+
+actual fun DuplicateTopLeftCoordinate(
+    overwritingOffset: IntOffset,
+): ParameterizedString =
+    ParameterizedString(
+        "Duplicate top-left coordinate instruction, overwriting with (${
+            overwritingOffset.x
+        }, ${
+            overwritingOffset.y
+        })",
+    )
