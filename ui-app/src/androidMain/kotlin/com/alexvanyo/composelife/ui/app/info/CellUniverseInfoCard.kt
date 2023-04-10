@@ -52,6 +52,8 @@ import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import com.alexvanyo.composelife.ui.util.or
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 /**
  * The persistable state describing the [CellUniverseInfoCard].
@@ -114,7 +116,7 @@ fun CellUniverseInfoCard(
     val currentEvolutionStatus by rememberUpdatedState(newValue = evolutionStatus)
 
     CellUniverseInfoCard(
-        infoItemTexts = listOf(
+        infoItemTexts = persistentListOf(
             {
                 stringResource(
                     id = R.string.offset,
@@ -151,7 +153,7 @@ fun CellUniverseInfoCard(
 
 @Composable
 fun CellUniverseInfoCard(
-    infoItemTexts: List<@Composable (isEditing: Boolean) -> String>,
+    infoItemTexts: ImmutableList<@Composable (isEditing: Boolean) -> String>,
     infoCardState: CellUniverseInfoCardState,
     modifier: Modifier = Modifier,
 ) {

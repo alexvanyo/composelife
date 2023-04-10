@@ -35,6 +35,7 @@ import com.livefront.sealedenum.GenSealedEnum
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 
 @EntryPoint
@@ -71,7 +72,7 @@ fun AlgorithmImplementationUi(
             AlgorithmType.HashLifeAlgorithm -> AlgorithmImplementationDropdownOption.HashLifeAlgorithm
             AlgorithmType.NaiveAlgorithm -> AlgorithmImplementationDropdownOption.NaiveAlgorithm
         },
-        allValues = AlgorithmImplementationDropdownOption.values,
+        allValues = AlgorithmImplementationDropdownOption.values.toImmutableList(),
         setValue = { option ->
             coroutineScope.launch {
                 setAlgorithmChoice(
