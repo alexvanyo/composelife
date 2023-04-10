@@ -46,6 +46,7 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
  */
 @Composable
 fun InteractableCell(
+    // noinspection ComposeModifierWithoutDefault
     modifier: Modifier,
     drawState: DrawState,
     shape: CurrentShape,

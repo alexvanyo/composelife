@@ -36,6 +36,7 @@ import com.livefront.sealedenum.GenSealedEnum
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 
 @EntryPoint
@@ -74,7 +75,7 @@ fun DarkThemeConfigUi(
                 DarkThemeConfig.Dark -> DarkThemeConfigDropdownOption.Dark
                 DarkThemeConfig.Light -> DarkThemeConfigDropdownOption.Light
             },
-            allValues = DarkThemeConfigDropdownOption.values,
+            allValues = DarkThemeConfigDropdownOption.values.toImmutableList(),
             setValue = { option ->
                 coroutineScope.launch {
                     setDarkThemeConfig(

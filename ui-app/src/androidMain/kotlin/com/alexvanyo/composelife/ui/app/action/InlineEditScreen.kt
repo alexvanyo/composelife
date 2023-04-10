@@ -47,6 +47,7 @@ import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import com.livefront.sealedenum.GenSealedEnum
+import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun InlineEditScreen(
@@ -71,7 +72,7 @@ fun InlineEditScreen(
             TextFieldDropdown(
                 label = stringResource(R.string.touch_tool),
                 currentValue = ToolDropdownOption.Pan,
-                allValues = ToolDropdownOption.values,
+                allValues = ToolDropdownOption.values.toImmutableList(),
                 setValue = {},
             )
         }
@@ -88,7 +89,7 @@ fun InlineEditScreen(
             TextFieldDropdown(
                 label = stringResource(R.string.stylus_tool),
                 currentValue = ToolDropdownOption.Draw,
-                allValues = ToolDropdownOption.values,
+                allValues = ToolDropdownOption.values.toImmutableList(),
                 setValue = {},
             )
         }
@@ -105,7 +106,7 @@ fun InlineEditScreen(
             TextFieldDropdown(
                 label = stringResource(R.string.mouse_tool),
                 currentValue = ToolDropdownOption.Draw,
-                allValues = ToolDropdownOption.values,
+                allValues = ToolDropdownOption.values.toImmutableList(),
                 setValue = {},
             )
         }
