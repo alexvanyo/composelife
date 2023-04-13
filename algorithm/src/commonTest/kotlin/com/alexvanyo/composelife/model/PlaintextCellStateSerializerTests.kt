@@ -39,6 +39,7 @@ class PlaintextCellStateSerializerTests {
                     2 to 4,
                     4 to 4,
                 ).toCellState(),
+                format = CellStateFormat.FixedFormat.Plaintext,
             ),
             serializer.deserializeToCellState(
                 """
@@ -70,6 +71,7 @@ class PlaintextCellStateSerializerTests {
                     2 to 4,
                     4 to 4,
                 ).toCellState(),
+                format = CellStateFormat.FixedFormat.Plaintext,
             ),
             serializer.deserializeToCellState(
                 """
@@ -120,6 +122,7 @@ class PlaintextCellStateSerializerTests {
                     2 to 4,
                     4 to 4,
                 ).toCellState(),
+                format = CellStateFormat.FixedFormat.Plaintext,
             ),
             serializer.deserializeToCellState(
                 """
