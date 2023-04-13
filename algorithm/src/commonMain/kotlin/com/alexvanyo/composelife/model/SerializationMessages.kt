@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.model
 
+import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 
 expect fun UnexpectedInputMessage(
@@ -45,3 +46,7 @@ expect fun UnexpectedBlankLineMessage(
 expect fun UnexpectedEmptyFileMessage(): ParameterizedString
 
 expect fun RuleNotSupportedMessage(): ParameterizedString
+
+expect fun DuplicateTopLeftCoordinate(
+    overwritingOffset: IntOffset,
+): ParameterizedString
