@@ -92,8 +92,12 @@ class CellStateRepositoryTests : BaseHiltTest() {
                 id = insertedId,
                 name = "name",
                 description = "description",
-                formatExtension = "cells",
-                serializedCellState = "O",
+                formatExtension = "rle",
+                serializedCellState = """
+                |#R 0 0
+                |x = 1, y = 1, rule = B3/S23
+                |o!
+                """.trimMargin(),
                 generation = 123,
                 wasAutosaved = true,
             ),

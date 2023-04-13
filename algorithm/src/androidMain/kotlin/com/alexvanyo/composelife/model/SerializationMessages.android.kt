@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.model
 
+import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.algorithm.R
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 
@@ -67,3 +68,8 @@ actual fun UnexpectedEmptyFileMessage(): ParameterizedString =
 
 actual fun RuleNotSupportedMessage(): ParameterizedString =
     ParameterizedString(R.string.rule_not_supported)
+
+actual fun DuplicateTopLeftCoordinate(
+    overwritingOffset: IntOffset,
+): ParameterizedString =
+    ParameterizedString(R.string.duplicate_top_left_coordinate, overwritingOffset.x, overwritingOffset.y)

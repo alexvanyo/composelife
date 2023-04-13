@@ -33,6 +33,7 @@ class SerializerTests {
     class CellStateSerializerFactory(
         private val name: String,
         val trueEquals: Boolean,
+        val format: CellStateFormat.FixedFormat,
         val factory: () -> FixedFormatCellStateSerializer,
     ) {
         override fun toString(): String = name
@@ -43,14 +44,23 @@ class SerializerTests {
                     CellStateSerializerFactory(
                         name = "Plaintext",
                         trueEquals = false,
+                        format = CellStateFormat.FixedFormat.Plaintext,
                     ) {
                         PlaintextCellStateSerializer
                     },
                     CellStateSerializerFactory(
                         name = "Life 1.05",
                         trueEquals = true,
+                        format = CellStateFormat.FixedFormat.Life105,
                     ) {
                         Life105CellStateSerializer
+                    },
+                    CellStateSerializerFactory(
+                        name = "Run length encoding",
+                        trueEquals = true,
+                        format = CellStateFormat.FixedFormat.RunLengthEncoding,
+                    ) {
+                        RunLengthEncodedCellStateSerializer
                     },
                 )
         }
@@ -86,5 +96,6 @@ class SerializerTests {
         } else {
             assertTrue(testPattern.seedCellState.equalsModuloOffset(deserializationResult.cellState))
         }
+        assertEquals(serializerFactory.format, deserializationResult.format)
     }
 }

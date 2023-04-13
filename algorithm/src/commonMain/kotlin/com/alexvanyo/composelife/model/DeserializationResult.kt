@@ -18,14 +18,28 @@ package com.alexvanyo.composelife.model
 
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 
+/**
+ * A result of deserializing into a [CellState].
+ */
 sealed interface DeserializationResult {
+
+    /**
+     * A list of warnings encountered while deserializing.
+     */
     val warnings: List<ParameterizedString>
 
+    /**
+     * A successful deserialization with [format] into the given [cellState].
+     */
     data class Successful(
         override val warnings: List<ParameterizedString>,
         val cellState: CellState,
+        val format: CellStateFormat.FixedFormat,
     ) : DeserializationResult
 
+    /**
+     * An unsuccessful deserialization, with the given [errors].
+     */
     data class Unsuccessful(
         override val warnings: List<ParameterizedString>,
         val errors: List<ParameterizedString>,
