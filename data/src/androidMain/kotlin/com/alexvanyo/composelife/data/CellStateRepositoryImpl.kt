@@ -33,11 +33,11 @@ class CellStateRepositoryImpl @Inject constructor(
     private val cellStateDao: CellStateDao,
 ) : CellStateRepository {
     override suspend fun autosaveCellState(saveableCellState: SaveableCellState): Long {
-        val fileExtension = "cells"
+        val fileExtension = "rle"
         val serializedCellState =
             flexibleCellStateSerializer
                 .serializeToString(
-                    CellStateFormat.FixedFormat.Plaintext,
+                    CellStateFormat.FixedFormat.RunLengthEncoding,
                     saveableCellState.cellState,
                 )
                 .joinToString("\n")

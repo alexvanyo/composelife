@@ -17,26 +17,50 @@
 package com.alexvanyo.composelife.model
 
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+/**
+ * A serializer for a [CellStateFormat.FixedFormat].
+ *
+ * This can directly and synchronously deserialize a sequence of lines into a [DeserializationResult] with
+ * [deserializeToCellState], and serialize a [CellState] into a sequence of lines with [serializeToString].
+ */
 interface FixedFormatCellStateSerializer {
     fun deserializeToCellState(lines: Sequence<String>): DeserializationResult
 
     fun serializeToString(cellState: CellState): Sequence<String>
 }
 
+/**
+ * A general [CellStateSerializer] that can asynchronously serialize and deserialize with a given format.
+ */
 interface CellStateSerializer {
+
+    /**
+     * Attempts to deserialize the sequence of lines into a [DeserializationResult] for the given [CellStateFormat].
+     *
+     * If format is not a [CellStateFormat.FixedFormat], or if deserialization with the given
+     * [CellStateFormat.FixedFormat] fails, then an attempt will be made to deserialize lines with
+     * multiple formats.
+     */
     suspend fun deserializeToCellState(
         format: CellStateFormat,
         lines: Sequence<String>,
     ): DeserializationResult
 
+    /**
+     * Serializes the [CellState] into a sequence of lines with the given [CellStateFormat.FixedFormat].
+     *
+     * Note that format
+     */
     suspend fun serializeToString(
         format: CellStateFormat.FixedFormat,
         cellState: CellState,
@@ -54,14 +78,15 @@ class FlexibleCellStateSerializer @Inject constructor(
         val targetedSerializer = when (format) {
             CellStateFormat.FixedFormat.Plaintext -> PlaintextCellStateSerializer
             CellStateFormat.FixedFormat.Life105 -> Life105CellStateSerializer
+            CellStateFormat.FixedFormat.RunLengthEncoding -> RunLengthEncodedCellStateSerializer
             CellStateFormat.FixedFormat.Life106,
-            CellStateFormat.FixedFormat.RunLengthEncoding,
             CellStateFormat.Life,
             CellStateFormat.Unknown,
             -> null
         }
 
-        when (val targetedResult = targetedSerializer?.deserializeToCellState(lines)) {
+        val targetedResult = targetedSerializer?.deserializeToCellState(lines)
+        when (targetedResult) {
             is DeserializationResult.Successful -> return@withContext targetedResult
             is DeserializationResult.Unsuccessful,
             null,
@@ -71,13 +96,18 @@ class FlexibleCellStateSerializer @Inject constructor(
         val allSerializers = listOf(
             PlaintextCellStateSerializer,
             Life105CellStateSerializer,
+            RunLengthEncodedCellStateSerializer,
         )
 
         coroutineScope {
             allSerializers
                 .map {
-                    async {
-                        it.deserializeToCellState(lines)
+                    if (it == targetedSerializer) {
+                        CompletableDeferred(checkNotNull(targetedResult))
+                    } else {
+                        async {
+                            it.deserializeToCellState(lines)
+                        }
                     }
                 }
                 .awaitAll()
@@ -106,9 +136,8 @@ class FlexibleCellStateSerializer @Inject constructor(
         when (format) {
             CellStateFormat.FixedFormat.Plaintext -> PlaintextCellStateSerializer
             CellStateFormat.FixedFormat.Life105 -> Life105CellStateSerializer
-            CellStateFormat.FixedFormat.Life106,
-            CellStateFormat.FixedFormat.RunLengthEncoding,
-            -> TODO("Format not implemented yet!")
+            CellStateFormat.FixedFormat.RunLengthEncoding -> RunLengthEncodedCellStateSerializer
+            CellStateFormat.FixedFormat.Life106 -> TODO("Format not implemented yet!")
         }.serializeToString(cellState)
 }
 
@@ -193,6 +222,7 @@ object PlaintextCellStateSerializer : FixedFormatCellStateSerializer {
         return DeserializationResult.Successful(
             warnings = warnings,
             cellState = CellState(points),
+            format = CellStateFormat.FixedFormat.Plaintext,
         )
     }
 
@@ -237,6 +267,7 @@ object Life105CellStateSerializer : FixedFormatCellStateSerializer {
             return DeserializationResult.Successful(
                 warnings = warnings,
                 cellState = emptyCellState(),
+                format = CellStateFormat.FixedFormat.Life105,
             )
         }
 
@@ -386,6 +417,7 @@ object Life105CellStateSerializer : FixedFormatCellStateSerializer {
         return DeserializationResult.Successful(
             warnings = warnings,
             cellState = CellState(points),
+            format = CellStateFormat.FixedFormat.Life105,
         )
     }
 
@@ -419,6 +451,281 @@ object Life105CellStateSerializer : FixedFormatCellStateSerializer {
                 )
             }
         }
+    }
+}
+
+object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
+
+    @Suppress("LongMethod", "ReturnCount", "CyclomaticComplexMethod", "NestedBlockDepth")
+    override fun deserializeToCellState(lines: Sequence<String>): DeserializationResult {
+        val warnings = mutableListOf<ParameterizedString>()
+        var lineIndex = 0
+
+        val iterator = lines.iterator()
+
+        if (!iterator.hasNext()) {
+            warnings.add(UnexpectedEmptyFileMessage())
+
+            return DeserializationResult.Successful(
+                warnings = warnings,
+                cellState = emptyCellState(),
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            )
+        }
+
+        var offset: IntOffset? = null
+
+        var lineAfterComments: String?
+        while (
+            run {
+                if (iterator.hasNext()) {
+                    val line = iterator.next()
+                    lineAfterComments = line
+
+                    val offsetRegex = Regex("""#[RP] (-?\d+) (-?\d+)""")
+                    val matchResult = offsetRegex.matchEntire(line)
+                    if (matchResult != null) {
+                        val x = matchResult.groupValues[1].toInt()
+                        val y = matchResult.groupValues[2].toInt()
+                        val newOffset = IntOffset(x, y)
+                        if (offset != null) {
+                            warnings.add(DuplicateTopLeftCoordinate(newOffset))
+                        }
+                        offset = newOffset
+                    }
+
+                    line.startsWith("#")
+                } else {
+                    lineAfterComments = null
+                    false
+                }
+            }
+        ) {
+            lineIndex++
+        }
+
+        val headerLine = lineAfterComments
+        val headerRegexWithoutRule = Regex("""x = (\d+), y = (\d+)""")
+        val headerRegexWithRule = Regex("""x = (\d+), y = (\d+), rule = B(\d+)/S(\d+)""")
+
+        if (headerLine == null) {
+            return DeserializationResult.Unsuccessful(
+                warnings = warnings,
+                errors = listOf(UnexpectedHeaderMessage("none")),
+            )
+        }
+
+        val withoutRuleMatchResult = headerRegexWithoutRule.matchEntire(headerLine)
+        val withRuleMatchResult = headerRegexWithRule.matchEntire(headerLine)
+
+        @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+        val size: IntSize
+
+        if (withoutRuleMatchResult != null) {
+            val width = withoutRuleMatchResult.groupValues[1].toInt()
+            val height = withoutRuleMatchResult.groupValues[2].toInt()
+            @Suppress("UNUSED_VALUE")
+            size = IntSize(width, height)
+        } else if (withRuleMatchResult != null) {
+            val width = withRuleMatchResult.groupValues[1].toInt()
+            val height = withRuleMatchResult.groupValues[2].toInt()
+            @Suppress("UNUSED_VALUE")
+            size = IntSize(width, height)
+
+            val birth = withRuleMatchResult.groupValues[3].map { it.digitToInt() }.toSet()
+            val survival = withRuleMatchResult.groupValues[4].map { it.digitToInt() }.toSet()
+
+            if (survival != setOf(2, 3) || birth != setOf(3)) {
+                return DeserializationResult.Unsuccessful(
+                    warnings = warnings,
+                    errors = listOf(RuleNotSupportedMessage()),
+                )
+            }
+        } else {
+            return DeserializationResult.Unsuccessful(
+                warnings = warnings,
+                errors = listOf(UnexpectedHeaderMessage(headerLine)),
+            )
+        }
+        lineIndex++
+
+        val itemSequence = sequence {
+            while (iterator.hasNext()) {
+                val line = iterator.next()
+                val charIterator = line.asSequence().withIndex().iterator()
+                var countString = StringBuilder()
+
+                while (charIterator.hasNext()) {
+                    val (charIndex, char) = charIterator.next()
+                    if (char.isDigit()) {
+                        countString.append(char)
+                    } else if (char == '$') {
+                        if (countString.isNotEmpty()) {
+                            warnings.add(
+                                UnexpectedInputMessage(
+                                    input = "$countString$char",
+                                    lineIndex = lineIndex + 1,
+                                    characterIndex = charIndex + 1 - countString.length,
+                                ),
+                            )
+                        }
+
+                        yield(RunItem.RowEnd)
+                    } else if (char == '!') {
+                        if (countString.isNotEmpty()) {
+                            warnings.add(
+                                UnexpectedInputMessage(
+                                    input = "$countString$char",
+                                    lineIndex = lineIndex + 1,
+                                    characterIndex = charIndex + 1 - countString.length,
+                                ),
+                            )
+                        }
+                        if (charIterator.hasNext()) {
+                            warnings.add(
+                                UnexpectedInputMessage(
+                                    input = "${charIterator.next()}",
+                                    lineIndex = lineIndex + 1,
+                                    characterIndex = charIndex + 2,
+                                ),
+                            )
+                        } else if (iterator.hasNext()) {
+                            warnings.add(
+                                UnexpectedInputMessage(
+                                    input = iterator.next(),
+                                    lineIndex = lineIndex + 2,
+                                    characterIndex = 1,
+                                ),
+                            )
+                        }
+                        yield(RunItem.RowEnd)
+                        return@sequence
+                    } else if (char == 'b') {
+                        yield(RunItem.DeadRun(if (countString.isEmpty()) 1 else countString.toString().toInt()))
+                        countString = StringBuilder()
+                    } else {
+                        if (char != 'o') {
+                            warnings.add(
+                                UnexpectedCharacterMessage(
+                                    character = char,
+                                    lineIndex = lineIndex + 1,
+                                    characterIndex = charIndex + 1,
+                                ),
+                            )
+                        }
+                        yield(RunItem.AliveRun(if (countString.isEmpty()) 1 else countString.toString().toInt()))
+                        countString = StringBuilder()
+                    }
+                }
+
+                lineIndex++
+            }
+        }
+
+        val points = mutableSetOf<IntOffset>()
+        var y = offset?.y ?: 0
+        var x = offset?.x ?: 0
+
+        val itemIterator = itemSequence.iterator()
+        while (itemIterator.hasNext()) {
+            val item = itemIterator.next()
+            if (item.value == null) {
+                y++
+                x = offset?.x ?: 0
+            } else {
+                val (state, count) = item.value
+                if (state) {
+                    (x until x + count).forEach {
+                        points.add(IntOffset(it, y))
+                    }
+                }
+                x += count
+            }
+        }
+
+        return DeserializationResult.Successful(
+            warnings = warnings,
+            cellState = CellState(points),
+            format = CellStateFormat.FixedFormat.RunLengthEncoding,
+        )
+    }
+
+    @JvmInline
+    private value class RunItem private constructor(val value: Pair<Boolean, Int>?) {
+        companion object {
+            val RowEnd = RunItem(null)
+            fun AliveRun(count: Int) = RunItem(true to count)
+            fun DeadRun(count: Int) = RunItem(false to count)
+        }
+    }
+
+    override fun serializeToString(cellState: CellState): Sequence<String> = sequence {
+        val boundingBox = cellState.boundingBox
+
+        yield("#R ${boundingBox.topLeft.x} ${boundingBox.topLeft.y}")
+        yield("x = ${boundingBox.width + 1}, y = ${boundingBox.height + 1}, rule = B3/S23")
+
+        /**
+         * The sequence of items that can't be broken apart with line breaks
+         */
+        val itemSequence = sequence {
+            (boundingBox.top..boundingBox.bottom).forEach { y ->
+                val iterator = (boundingBox.left..boundingBox.right).map { x -> IntOffset(x, y) }.iterator()
+                var currentState = iterator.next() in cellState.aliveCells
+                var currentCount = 1
+
+                suspend fun SequenceScope<String>.yieldRun() {
+                    yield(
+                        buildString {
+                            // We can omit the number if the run count is 1
+                            if (currentCount > 1) {
+                                append("$currentCount")
+                            }
+                            append(if (currentState) "o" else "b")
+                        },
+                    )
+                }
+
+                while (iterator.hasNext()) {
+                    val state = iterator.next() in cellState.aliveCells
+                    if (state == currentState) {
+                        // If the run continues, increment the count and continue
+                        currentCount++
+                    } else {
+                        // If the run stopped, yield it, and swap to the new state with 1 entry seen
+                        yieldRun()
+                        currentState = state
+                        currentCount = 1
+                    }
+                }
+
+                // If the last state was on, yield the run. We can skip yielding dead cells at the end of the line
+                if (currentState) {
+                    yieldRun()
+                }
+                // Yield the line end, or the pattern end if on the last line
+                yield(if (y == boundingBox.bottom) "!" else "$")
+            }
+        }
+
+        val lineSequence = sequence {
+            val itemIterator = itemSequence.iterator()
+            var line = StringBuilder()
+
+            while (itemIterator.hasNext()) {
+                val item = itemIterator.next()
+                // If the new item would make us exceed a line length of 70, yield the line
+                if (item.length + line.length > 70) {
+                    yield(line.toString())
+                    line = StringBuilder()
+                }
+                line.append(item)
+            }
+            // Yield the last line
+            yield(line.toString())
+        }
+
+        yieldAll(lineSequence)
     }
 }
 
