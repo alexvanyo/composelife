@@ -33,7 +33,7 @@ These include:
 
 Requirements:
 
-- Android Studio Flamingo Beta 4
+- Android Studio Flamingo+
 - JDK 17+
 
 Clone the project, and build! (no API keys or other setup necessary)
