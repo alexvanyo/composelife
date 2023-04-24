@@ -26,6 +26,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -47,6 +48,8 @@ import kotlinx.coroutines.flow.onEach
 /**
  * A version of AnimatedContent that can animate between [TargetState]s, a target of either one state or
  * between two states.
+ *
+ * For all [content] that is not [TargetState.current], [LocalGhostElement] will be `true`.
  */
 @Suppress("LongMethod", "CyclomaticComplexMethod", "LongParameterList")
 @Composable
@@ -127,18 +130,24 @@ fun <T> AnimatedContent(
         content = {
             targetsWithTransitions.forEach { (target, transition) ->
                 key(target) {
-                    val smoothedAlpha by transition.animateFloat(
-                        transitionSpec = { spring(stiffness = Spring.StiffnessMediumLow) },
-                        label = "smoothedProgressToTarget",
-                    ) { alphaEasing.transform(it) }
+                    /**
+                     * Preserve the existing ghost element value, or if this is not the current value
+                     */
+                    val isGhostElement = LocalGhostElement.current || target != targetState.current
+                    CompositionLocalProvider(LocalGhostElement provides isGhostElement) {
+                        val smoothedAlpha by transition.animateFloat(
+                            transitionSpec = { spring(stiffness = Spring.StiffnessMediumLow) },
+                            label = "smoothedProgressToTarget",
+                        ) { alphaEasing.transform(it) }
 
-                    Box(
-                        modifier = Modifier
-                            .layoutId(TargetStateLayoutId(target))
-                            .graphicsLayer { alpha = smoothedAlpha },
-                        propagateMinConstraints = true,
-                    ) {
-                        content(target)
+                        Box(
+                            modifier = Modifier
+                                .layoutId(TargetStateLayoutId(target))
+                                .graphicsLayer { alpha = smoothedAlpha },
+                            propagateMinConstraints = true,
+                        ) {
+                            content(target)
+                        }
                     }
                 }
             }
