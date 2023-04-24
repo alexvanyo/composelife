@@ -25,6 +25,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -119,16 +120,22 @@ fun <T> Crossfade(
     ) {
         targetsWithTransitions.forEach { (target, transition) ->
             key(target) {
-                val smoothedAlpha by transition.animateFloat(
-                    transitionSpec = { spring(stiffness = Spring.StiffnessMediumLow) },
-                    label = "smoothedProgressToTarget",
-                ) { alphaEasing.transform(it) }
+                /**
+                 * Preserve the existing ghost element value, or if this is not the current value
+                 */
+                val isGhostElement = LocalGhostElement.current || target != targetState.current
+                CompositionLocalProvider(LocalGhostElement provides isGhostElement) {
+                    val smoothedAlpha by transition.animateFloat(
+                        transitionSpec = { spring(stiffness = Spring.StiffnessMediumLow) },
+                        label = "smoothedProgressToTarget",
+                    ) { alphaEasing.transform(it) }
 
-                Box(
-                    modifier = Modifier.graphicsLayer { alpha = smoothedAlpha },
-                    propagateMinConstraints = true,
-                ) {
-                    content(target)
+                    Box(
+                        modifier = Modifier.graphicsLayer { alpha = smoothedAlpha },
+                        propagateMinConstraints = true,
+                    ) {
+                        content(target)
+                    }
                 }
             }
         }
