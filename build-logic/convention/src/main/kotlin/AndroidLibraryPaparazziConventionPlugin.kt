@@ -59,16 +59,6 @@ class AndroidLibraryPaparazziConventionPlugin : ConventionPlugin({
 
         sourceSets.configure(
             closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
-                getByName("androidMain") {
-                    dependencies {
-                        // Force core to render Paparazzi with https://issuetracker.google.com/issues/265335689
-                        implementation("androidx.core:core") {
-                            version {
-                                strictly("1.9.0")
-                            }
-                        }
-                    }
-                }
                 getByName("androidUnitTest") {
                     dependencies {
                         // Ensure we use the jre version of guava, since layoutlib requires it
