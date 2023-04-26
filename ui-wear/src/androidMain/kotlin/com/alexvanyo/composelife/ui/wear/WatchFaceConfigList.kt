@@ -41,11 +41,11 @@ import androidx.wear.compose.material.Switch
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleChip
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.google.android.horologist.compose.navscaffold.ExperimentalHorologistComposeLayoutApi
+import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.rotaryinput.rotaryWithScroll
 import com.alexvanyo.composelife.resources.wear.R as resourcesWearR
 
-@OptIn(ExperimentalHorologistComposeLayoutApi::class, ExperimentalWearFoundationApi::class)
+@OptIn(ExperimentalWearFoundationApi::class, ExperimentalHorologistApi::class)
 @Suppress("LongMethod")
 @Composable
 fun WatchFaceConfigList(
