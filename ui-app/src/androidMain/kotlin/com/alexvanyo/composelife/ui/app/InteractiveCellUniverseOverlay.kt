@@ -125,7 +125,6 @@ fun InteractiveCellUniverseOverlay(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.safeDrawing)
                     .animatePlacement(
                         fixedPoint = { layoutCoordinates ->
                             layoutCoordinates.boundsInParent().topCenter.round()
@@ -134,6 +133,7 @@ fun InteractiveCellUniverseOverlay(
                             parentLayoutCoordinates.size.toIntRect().topCenter
                         },
                     )
+                    .windowInsetsPadding(WindowInsets.safeDrawing)
                     .layoutId(CellUniverseInfoCard),
             ) {
                 CellUniverseInfoCard(
