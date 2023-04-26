@@ -18,18 +18,17 @@ package com.alexvanyo.composelife
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.ui.graphics.Color
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.app.theme.shouldUseDarkTheme
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.EntryPoints
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -52,17 +51,12 @@ class MainActivity : Hilt_MainActivity() {
         setContent {
             with(mainActivityEntryPoint) {
                 val darkTheme = shouldUseDarkTheme()
+                DisposableEffect(darkTheme) {
+                    enableEdgeToEdge()
+                    onDispose {}
+                }
+
                 ComposeLifeTheme(darkTheme) {
-                    val systemUiController = rememberSystemUiController()
-
-                    DisposableEffect(systemUiController, darkTheme) {
-                        systemUiController.setSystemBarsColor(
-                            color = Color.Transparent,
-                            darkIcons = !darkTheme,
-                        )
-                        onDispose {}
-                    }
-
                     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
                     ComposeLifeApp(calculateWindowSizeClass(this@MainActivity))
                 }
