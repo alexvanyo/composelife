@@ -40,10 +40,11 @@ import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Picker
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.rememberPickerState
+import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.rotaryinput.onRotaryInputAccumulated
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalWearFoundationApi::class)
+@OptIn(ExperimentalWearFoundationApi::class, ExperimentalHorologistApi::class)
 @Composable
 @Suppress("LongParameterList")
 fun ColorComponentPicker(
