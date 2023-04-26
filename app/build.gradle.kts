@@ -52,7 +52,6 @@ kotlin {
         val androidMain by getting {
             configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
-                implementation(libs.accompanist.systemuicontroller)
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.appcompat)
                 implementation(libs.androidx.core)
