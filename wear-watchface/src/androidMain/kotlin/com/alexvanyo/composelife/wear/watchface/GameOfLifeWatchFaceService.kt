@@ -149,14 +149,16 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
             .launchIn(scope)
 
         return WatchFace(
-            watchFaceType = WatchFaceType.DIGITAL,
+            watchFaceType = @Suppress("RestrictedApi") WatchFaceType.DIGITAL,
             renderer = renderer,
         ).apply {
             setTapListener(
                 object : WatchFace.TapListener {
                     override fun onTapEvent(tapType: Int, tapEvent: TapEvent, complicationSlot: ComplicationSlot?) {
                         when (tapType) {
-                            TapType.DOWN -> {
+                            @Suppress("RestrictedApi")
+                            TapType.DOWN,
+                            -> {
                                 temporalGameOfLifeState.cellState = temporalGameOfLifeState.seedCellState
                                 isBeingTappedState.value = true
                             }
