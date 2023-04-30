@@ -51,11 +51,11 @@ interface PreferencesDataStoreModule {
 
         @Provides
         @Singleton
+        @Suppress("InjectDispatcher") // Dispatchers are injected via dispatchers
         @PreferencesCoroutineScope
         fun providesPreferencesCoroutineScope(
             dispatchers: ComposeLifeDispatchers,
         ): CoroutineScope = CoroutineScope(
-            @Suppress("InjectDispatcher") // Dispatchers are injected via dispatchers
             dispatchers.IO + SupervisorJob(),
         )
     }
