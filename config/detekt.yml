@@ -50,6 +50,10 @@ formatting:
     excludes: [ '**/generated/**' ]
   Filename:
     excludes: [ '**/generated/**' ]
+  FunctionReturnTypeSpacing:
+    excludes: [ '**/generated/**' ]
+  FunctionStartOfBodySpacing:
+    excludes: [ '**/generated/**' ]
   FunKeywordSpacing:
     active: true
   ImportOrdering:
