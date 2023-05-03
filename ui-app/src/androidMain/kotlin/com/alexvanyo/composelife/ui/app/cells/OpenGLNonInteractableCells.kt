@@ -21,8 +21,10 @@ import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
@@ -33,6 +35,7 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.getSystemService
+import androidx.core.view.isInvisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.alexvanyo.composelife.model.GameOfLifeState
@@ -40,6 +43,7 @@ import com.alexvanyo.composelife.openglrenderer.GameOfLifeShape
 import com.alexvanyo.composelife.openglrenderer.GameOfLifeShapeParameters
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.util.LocalGhostElement
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -109,6 +113,8 @@ fun OpenGLNonInteractableCells(
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val coroutineScope = rememberCoroutineScope()
+
+    val isGhostElement by rememberUpdatedState(LocalGhostElement.current)
 
     AndroidView(
         factory = { context ->
@@ -180,6 +186,9 @@ fun OpenGLNonInteractableCells(
         update = {
             it.parametersState.value = parameters
             it.setZOrderMediaOverlay(inOverlay)
+            // The GLSurfaceView may not handling animating in and out well with externally applied alphas.
+            // If we are in a ghost element, skip showing it.
+            it.isInvisible = isGhostElement
         },
         modifier = modifier,
     )
