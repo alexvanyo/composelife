@@ -73,61 +73,62 @@ class FlexibleCellStateSerializer @Inject constructor(
     override suspend fun deserializeToCellState(
         format: CellStateFormat,
         lines: Sequence<String>,
-    ): DeserializationResult = @Suppress("InjectDispatcher")
-    withContext(dispatchers.Default) {
-        val targetedSerializer = when (format) {
-            CellStateFormat.FixedFormat.Plaintext -> PlaintextCellStateSerializer
-            CellStateFormat.FixedFormat.Life105 -> Life105CellStateSerializer
-            CellStateFormat.FixedFormat.RunLengthEncoding -> RunLengthEncodedCellStateSerializer
-            CellStateFormat.FixedFormat.Life106,
-            CellStateFormat.Life,
-            CellStateFormat.Unknown,
-            -> null
-        }
+    ): DeserializationResult =
+        @Suppress("InjectDispatcher")
+        withContext(dispatchers.Default) {
+            val targetedSerializer = when (format) {
+                CellStateFormat.FixedFormat.Plaintext -> PlaintextCellStateSerializer
+                CellStateFormat.FixedFormat.Life105 -> Life105CellStateSerializer
+                CellStateFormat.FixedFormat.RunLengthEncoding -> RunLengthEncodedCellStateSerializer
+                CellStateFormat.FixedFormat.Life106,
+                CellStateFormat.Life,
+                CellStateFormat.Unknown,
+                -> null
+            }
 
-        val targetedResult = targetedSerializer?.deserializeToCellState(lines)
-        when (targetedResult) {
-            is DeserializationResult.Successful -> return@withContext targetedResult
-            is DeserializationResult.Unsuccessful,
-            null,
-            -> Unit
-        }
+            val targetedResult = targetedSerializer?.deserializeToCellState(lines)
+            when (targetedResult) {
+                is DeserializationResult.Successful -> return@withContext targetedResult
+                is DeserializationResult.Unsuccessful,
+                null,
+                -> Unit
+            }
 
-        val allSerializers = listOf(
-            PlaintextCellStateSerializer,
-            Life105CellStateSerializer,
-            RunLengthEncodedCellStateSerializer,
-        )
+            val allSerializers = listOf(
+                PlaintextCellStateSerializer,
+                Life105CellStateSerializer,
+                RunLengthEncodedCellStateSerializer,
+            )
 
-        coroutineScope {
-            allSerializers
-                .map {
-                    if (it == targetedSerializer) {
-                        CompletableDeferred(checkNotNull(targetedResult))
-                    } else {
-                        async {
-                            it.deserializeToCellState(lines)
-                        }
-                    }
-                }
-                .awaitAll()
-                .reduce { a, b ->
-                    when (a) {
-                        is DeserializationResult.Unsuccessful -> b
-                        is DeserializationResult.Successful -> {
-                            when (b) {
-                                is DeserializationResult.Successful -> if (a.warnings.isEmpty()) {
-                                    a
-                                } else {
-                                    b
-                                }
-                                is DeserializationResult.Unsuccessful -> a
+            coroutineScope {
+                allSerializers
+                    .map {
+                        if (it == targetedSerializer) {
+                            CompletableDeferred(checkNotNull(targetedResult))
+                        } else {
+                            async {
+                                it.deserializeToCellState(lines)
                             }
                         }
                     }
-                }
+                    .awaitAll()
+                    .reduce { a, b ->
+                        when (a) {
+                            is DeserializationResult.Unsuccessful -> b
+                            is DeserializationResult.Successful -> {
+                                when (b) {
+                                    is DeserializationResult.Successful -> if (a.warnings.isEmpty()) {
+                                        a
+                                    } else {
+                                        b
+                                    }
+                                    is DeserializationResult.Unsuccessful -> a
+                                }
+                            }
+                        }
+                    }
+            }
         }
-    }
 
     override suspend fun serializeToString(
         format: CellStateFormat.FixedFormat,
