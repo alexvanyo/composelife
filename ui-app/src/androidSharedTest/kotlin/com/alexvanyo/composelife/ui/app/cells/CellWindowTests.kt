@@ -22,11 +22,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.ScrollWheel
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.Density
@@ -41,6 +44,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.runner.RunWith
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
@@ -173,10 +177,85 @@ class CellWindowTests {
             }
         }
 
-        composeTestRule.mainClock.advanceTimeBy(1000)
         composeTestRule.waitForIdle()
 
         assertTrue(mutableCellWindowState.offset.x > 3f)
         assertTrue(mutableCellWindowState.offset.y > 3f)
+    }
+
+    @Test
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
+    fun cells_are_displayed_correctly_after_zooming_in_with_mouse_wheel() = runTest {
+        val mutableGameOfLifeState = MutableGameOfLifeState(
+            cellState = setOf(
+                0 to 0,
+                0 to 2,
+                0 to 4,
+                2 to 0,
+                2 to 2,
+                2 to 4,
+                4 to 0,
+                4 to 2,
+                4 to 4,
+            ).toCellState(),
+        )
+
+        val mutableCellWindowState = MutableCellWindowState()
+
+        composeTestRule.setContent {
+            with(cellWindowLocalEntryPoint) {
+                MutableCellWindow(
+                    gameOfLifeState = mutableGameOfLifeState,
+                    modifier = Modifier.size(150.dp),
+                    viewportInteractionConfig = ViewportInteractionConfig.Navigable(mutableCellWindowState),
+                    cellDpSize = 30.dp,
+                )
+            }
+        }
+
+        composeTestRule.onRoot().performMouseInput {
+            scroll(-1f, ScrollWheel.Vertical)
+        }
+        composeTestRule.waitForIdle()
+
+        assertEquals(10f / 9f, mutableCellWindowState.scale)
+    }
+
+    @Test
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
+    fun cells_are_displayed_correctly_after_zooming_out_with_mouse_wheel() = runTest {
+        val mutableGameOfLifeState = MutableGameOfLifeState(
+            cellState = setOf(
+                0 to 0,
+                0 to 2,
+                0 to 4,
+                2 to 0,
+                2 to 2,
+                2 to 4,
+                4 to 0,
+                4 to 2,
+                4 to 4,
+            ).toCellState(),
+        )
+
+        val mutableCellWindowState = MutableCellWindowState()
+
+        composeTestRule.setContent {
+            with(cellWindowLocalEntryPoint) {
+                MutableCellWindow(
+                    gameOfLifeState = mutableGameOfLifeState,
+                    modifier = Modifier.size(150.dp),
+                    viewportInteractionConfig = ViewportInteractionConfig.Navigable(mutableCellWindowState),
+                    cellDpSize = 30.dp,
+                )
+            }
+        }
+
+        composeTestRule.onRoot().performMouseInput {
+            scroll(1f, ScrollWheel.Vertical)
+        }
+        composeTestRule.waitForIdle()
+
+        assertEquals(9f / 10f, mutableCellWindowState.scale)
     }
 }
