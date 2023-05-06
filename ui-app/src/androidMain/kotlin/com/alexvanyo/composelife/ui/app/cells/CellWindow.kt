@@ -35,6 +35,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -59,6 +60,8 @@ import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import com.alexvanyo.composelife.ui.util.detectTransformGestures
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.isActive
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.math.ceil
@@ -264,12 +267,12 @@ private fun CellWindowImpl(
         val rowsToTop = ceil(constraints.maxHeight * centerOffset.y / scaledCellPixelSize).toInt()
         val rowsToBottom = ceil(constraints.maxHeight * (1 - centerOffset.y) / scaledCellPixelSize).toInt()
 
-        // Compute the offset from the main offset to the top left corner, in cell coordinates
-        val topLeftOffset = IntOffset(-columnsToLeft, -rowsToTop)
+        // Compute the offset from the main offset to the top left displayed cell
+        val topLeftCellOffset = IntOffset(-columnsToLeft, -rowsToTop)
 
         // Compute the cell window, describing all of the cells that will be drawn
         val cellWindow = IntRect(
-            intOffset + topLeftOffset,
+            intOffset + topLeftCellOffset,
             IntSize(
                 columnsToLeft + 1 + columnsToRight,
                 rowsToTop + 1 + rowsToBottom,
@@ -284,25 +287,14 @@ private fun CellWindowImpl(
             is ViewportInteractionConfig.Navigable -> {
                 val mutableCellWindowState = viewportInteractionConfig.mutableCellWindowState
 
-                val currentOnGesture by rememberUpdatedState { centroid: Offset, pan: Offset, zoom: Float, _: Float ->
-                    val oldScale = cellWindowViewport.scale
-
-                    // Compute the offset from the centroid to the underlying offset, in cell coordinates
-                    val centroidOffset = centroid / scaledCellPixelSize + topLeftOffset.toOffset()
-
-                    // Compute the offset update due to panning
-                    val panDiff = pan / scaledCellPixelSize
-
-                    // Update the scale
-                    mutableCellWindowState.scale = oldScale * zoom
-
-                    // Compute offset update due to zooming. We adjust the offset by the distance it moved relative to
-                    // the centroid, which allows the centroid to be the point that remains fixed while zooming.
-                    val zoomDiff = centroidOffset * (mutableCellWindowState.scale / oldScale - 1)
-
-                    // Update the offset
-                    mutableCellWindowState.offset += zoomDiff - panDiff
-                }
+                val currentOnGesture by rememberOnGesture(
+                    cellPixelSize = cellPixelSize,
+                    topLeftOffset = Offset(
+                        constraints.maxWidth * centerOffset.x,
+                        constraints.maxHeight * centerOffset.y,
+                    ),
+                    mutableCellWindowState = mutableCellWindowState,
+                )
 
                 Modifier
                     .semantics {
@@ -338,6 +330,25 @@ private fun CellWindowImpl(
                                 currentOnGesture(centroid, pan, zoom, rotation)
                             },
                         )
+                    }
+                    .pointerInput(Unit) {
+                        // Zoom in and out with vertical scroll wheel events
+                        val coroutineContext = currentCoroutineContext()
+                        awaitPointerEventScope {
+                            while (coroutineContext.isActive) {
+                                val event = awaitPointerEvent()
+                                if (event.type == PointerEventType.Scroll && event.changes.isNotEmpty()) {
+                                    currentOnGesture(
+                                        event.changes.first().position,
+                                        Offset.Zero,
+                                        event.changes.fold(1f) { factor, change ->
+                                            factor * if (change.scrollDelta.y > 0) 9f / 10f else 10f / 9f
+                                        },
+                                        0f,
+                                    )
+                                }
+                            }
+                        }
                     }
             }
         }
@@ -377,6 +388,33 @@ private fun CellWindowImpl(
             }
         }
     }
+}
+
+@Composable
+private fun rememberOnGesture(
+    cellPixelSize: Float,
+    topLeftOffset: Offset,
+    mutableCellWindowState: MutableCellWindowState,
+) = rememberUpdatedState { centroid: Offset, pan: Offset, zoom: Float, _: Float ->
+    // Note: it is possible for the currentOnGesture to run multiple times before recomposition
+    // Therefore, these calculations should refer to the most up to date values available, and not
+    // ones captured by the previous recomposition.
+    // For example, we recalculate cellPixelSize * oldScale instead of using scaledCellPixelSize
+    val oldScale = mutableCellWindowState.scale
+
+    // Compute the offset update due to panning
+    val panDiff = pan / (cellPixelSize * oldScale)
+
+    // Update the scale
+    mutableCellWindowState.scale = oldScale * zoom
+
+    // Compute offset update due to zooming. We adjust the offset by the distance it moved relative to
+    // the centroid, which allows the centroid to be the point that remains fixed while zooming.
+    val zoomDiff = (centroid - topLeftOffset) / cellPixelSize *
+        (1 / oldScale - 1 / mutableCellWindowState.scale)
+
+    // Update the offset
+    mutableCellWindowState.offset += zoomDiff - panDiff
 }
 
 private sealed interface CellWindowUiState {
