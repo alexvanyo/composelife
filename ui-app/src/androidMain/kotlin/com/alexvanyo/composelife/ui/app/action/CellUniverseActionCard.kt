@@ -204,7 +204,7 @@ fun CellUniverseActionCard(
                                     predictiveBackState = actionCardState.predictiveBackState,
                                     backstackState = actionCardState.navigationState,
                                     modifier = Modifier.weight(1f, fill = false),
-                                    contentAlignment = Alignment.BottomCenter,
+                                    contentAlignment = Alignment.TopCenter,
                                 ) { entry ->
                                     // Cache the scroll state based for the target entry id.
                                     // This value won't change normally, but it will ensure we keep using the old state

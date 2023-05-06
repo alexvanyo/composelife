@@ -16,8 +16,10 @@
 
 package com.alexvanyo.composelife.ui.app
 
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -92,7 +94,10 @@ fun InteractiveCellUniverseOverlay(
 ) {
     val progressToFullscreen = interactiveCellUniverseState.actionCardState.fullscreenTargetState.progressToTrue
 
-    val targetWindowInsetsProgressToFullscreen by animateFloatAsState(progressToFullscreen)
+    val targetWindowInsetsProgressToFullscreen by animateFloatAsState(
+        progressToFullscreen,
+        animationSpec = spring(stiffness = Spring.StiffnessHigh),
+    )
 
     val targetWindowInsets = lerp(
         WindowInsets.safeDrawing.add(WindowInsets(all = 8.dp)),

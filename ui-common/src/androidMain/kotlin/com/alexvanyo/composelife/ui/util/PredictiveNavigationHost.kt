@@ -16,6 +16,8 @@
 
 package com.alexvanyo.composelife.ui.util
 
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
@@ -24,6 +26,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.IntSize
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.currentEntry
@@ -32,11 +35,13 @@ import com.alexvanyo.composelife.snapshotstateset.mutableStateSetOf
 import java.util.UUID
 
 @Composable
+@Suppress("LongParameterList")
 fun <T> PredictiveNavigationHost(
     predictiveBackState: PredictiveBackState,
     backstackState: BackstackState<T>,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
+    contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = 800f),
     content: @Composable (BackstackEntry<out T>) -> Unit,
 ) {
     val stateHolder = rememberSaveableStateHolder()
@@ -68,6 +73,7 @@ fun <T> PredictiveNavigationHost(
             }
         },
         contentAlignment = contentAlignment,
+        contentSizeAnimationSpec = contentSizeAnimationSpec,
         modifier = modifier,
     ) { entry ->
         key(entry.id) {
