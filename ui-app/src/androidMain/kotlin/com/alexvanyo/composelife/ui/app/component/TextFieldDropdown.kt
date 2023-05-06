@@ -18,16 +18,17 @@
 package com.alexvanyo.composelife.ui.app.component
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +37,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import kotlinx.collections.immutable.ImmutableList
@@ -58,6 +61,8 @@ interface DropdownOption {
 /**
  * A styled drop-down menu to select between [allValues], with the given [currentValue].
  */
+@OptIn(ExperimentalMaterial3Api::class)
+@Suppress("LongMethod")
 @Composable
 fun <T : DropdownOption> TextFieldDropdown(
     label: String,
@@ -68,12 +73,27 @@ fun <T : DropdownOption> TextFieldDropdown(
 ) {
     var isShowingDropdownMenu by remember { mutableStateOf(false) }
 
-    Box(modifier = modifier) {
-        OutlinedTextField(
+    Box(
+        modifier = modifier
+            .padding(top = 8.dp)
+            .clickable {
+                isShowingDropdownMenu = true
+            },
+    ) {
+        val interactionSource = remember { MutableInteractionSource() }
+
+        OutlinedTextFieldDefaults.DecorationBox(
             value = parameterizedStringResource(currentValue.displayText),
-            onValueChange = {},
-            enabled = false,
-            readOnly = true,
+            innerTextField = {
+                Text(
+                    parameterizedStringResource(currentValue.displayText),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            },
+            enabled = true,
+            singleLine = true,
+            visualTransformation = VisualTransformation.None,
+            interactionSource = interactionSource,
             label = {
                 Text(text = label)
             },
@@ -88,36 +108,32 @@ fun <T : DropdownOption> TextFieldDropdown(
                     contentDescription = null,
                 )
             },
-            colors = OutlinedTextFieldDefaults.colors(
-                disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                disabledBorderColor = MaterialTheme.colorScheme.outline,
-                disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    isShowingDropdownMenu = true
-                },
-        )
-
-        DropdownMenu(
-            expanded = isShowingDropdownMenu,
-            onDismissRequest = { isShowingDropdownMenu = false },
         ) {
-            allValues.forEach { value ->
-                DropdownMenuItem(
-                    text = { Text(parameterizedStringResource(value.displayText)) },
-                    leadingIcon = value.leadingIcon,
-                    onClick = {
-                        setValue(value)
-                        isShowingDropdownMenu = false
-                    },
+            Box(
+                propagateMinConstraints = true,
+            ) {
+                OutlinedTextFieldDefaults.ContainerBox(
+                    enabled = true,
+                    isError = false,
+                    interactionSource = interactionSource,
+                    colors = OutlinedTextFieldDefaults.colors(),
                 )
+
+                DropdownMenu(
+                    expanded = isShowingDropdownMenu,
+                    onDismissRequest = { isShowingDropdownMenu = false },
+                ) {
+                    allValues.forEach { value ->
+                        DropdownMenuItem(
+                            text = { Text(parameterizedStringResource(value.displayText)) },
+                            leadingIcon = value.leadingIcon,
+                            onClick = {
+                                setValue(value)
+                                isShowingDropdownMenu = false
+                            },
+                        )
+                    }
+                }
             }
         }
     }
