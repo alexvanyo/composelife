@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+import com.alexvanyo.composelife.buildlogic.FormFactor
+import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+
 plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.application")
@@ -31,6 +34,7 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
+    configureGradleManagedDevices(setOf(FormFactor.Wear), this)
 }
 
 kotlin {
