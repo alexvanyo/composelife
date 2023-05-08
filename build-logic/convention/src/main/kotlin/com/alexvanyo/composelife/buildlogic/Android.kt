@@ -33,7 +33,7 @@ fun Project.configureAndroid(
 
         lint {
             warningsAsErrors = true
-            disable.addAll(listOf("GradleDependency", "OldTargetApi"))
+            disable.addAll(listOf("GradleDependency", "OldTargetApi", "AndroidGradlePluginVersion"))
             baseline = file("lint-baseline.xml")
         }
 
