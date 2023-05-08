@@ -60,7 +60,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
 
-      - name: Generate baseline profile
+      - name: Generate baseline profile for app
         run: |
           # generate the baseline profile, with one retry attempt
           generate_profile () { ./gradlew :app-baseline-profile-generator:aosppixel2api31Check --no-parallel -Dorg.gradle.workers.max=2 --stacktrace -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect" -Pcom.alexvanyo.composelife.generateBaselineProfile=true; }
@@ -68,6 +68,15 @@ jobs:
 
       - name: Copy baseline profile to app
         run: cp app-baseline-profile-generator/build/intermediates/managed_device_android_test_additional_output/benchmark/aosppixel2api31BenchmarkAndroidTest/BaselineProfileGenerator_startup-baseline-prof.txt app/src/androidMain/baseline-prof.txt
+
+      - name: Generate baseline profile for wear
+        run: |
+          # generate the baseline profile, with one retry attempt
+          generate_profile () { ./gradlew :wear-baseline-profile-generator:wearwearoslargeroundapi28 --no-parallel -Dorg.gradle.workers.max=2 --stacktrace -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect" -Pcom.alexvanyo.composelife.generateBaselineProfile=true; }
+          (echo "==== Attempt 1 ====" && generate_profile) || (echo "==== Attempt 2 ====" && generate_profile) || (echo "==== Both attempts failed ====" && exit 1)
+
+      - name: Copy baseline profile to wear
+        run: cp wear-baseline-profile-generator/build/intermediates/managed_device_android_test_additional_output/benchmark/wearwearoslargeroundapi28/BaselineProfileGenerator_startup-baseline-prof.txt wear/src/androidMain/baseline-prof.txt
 
       - name: Auto-commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
