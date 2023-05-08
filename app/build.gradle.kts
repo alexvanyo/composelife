@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+import com.alexvanyo.composelife.buildlogic.FormFactor
+import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+
 plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.application")
     id("com.alexvanyo.composelife.android.application.compose")
-    id("com.alexvanyo.composelife.android.application.gradlemanageddevices")
     id("com.alexvanyo.composelife.android.application.jacoco")
     id("com.alexvanyo.composelife.android.application.testing")
     id("com.alexvanyo.composelife.detekt")
@@ -34,6 +36,7 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
+    configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
 }
 
 kotlin {

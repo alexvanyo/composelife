@@ -30,56 +30,29 @@ private data class GradleManagedDeviceConfig(
     val systemImageSource: String,
 )
 
+sealed interface FormFactor {
+    object Mobile : FormFactor
+    object Wear : FormFactor
+
+    companion object {
+        val All get() = setOf(Mobile, Wear)
+    }
+}
+
 @Suppress("LongMethod", "CyclomaticComplexMethod", "NoNameShadowing")
 fun Project.configureGradleManagedDevices(
+    formFactors: Set<FormFactor>,
     commonExtension: CommonExtension<*, *, *, *, *>,
 ) {
     commonExtension.testOptions.managedDevices.devices {
-        val deviceNames = listOf(
-            "Nexus 4",
-            "Nexus 5",
-            "Pixel C",
-            "Pixel 2",
-            "Pixel 3 XL",
-            "Pixel 6 Pro",
-            "Medium Desktop",
-        )
-        val apiLevels = 21..33
-        val systemImageSources = listOf(
-            "aosp",
-            "aosp-atd",
-            "google",
-            "google-atd",
-            "google_apis_playstore",
-            "android-desktop",
-        )
-
-        deviceNames.flatMap { deviceName ->
-            apiLevels.flatMap { apiLevel ->
-                systemImageSources.map { systemImageSource ->
-                    GradleManagedDeviceConfig(
-                        deviceName = deviceName,
-                        apiLevel = apiLevel,
-                        systemImageSource = systemImageSource,
-                    )
+        formFactors
+            .map {
+                when (it) {
+                    FormFactor.Mobile -> mobileDevices
+                    FormFactor.Wear -> wearDevices
                 }
             }
-        }
-            .filterNot {
-                // ATD is only supported on some versions
-                "atd" in it.systemImageSource && it.apiLevel !in 30..31
-            }
-            .filterNot {
-                // aosp images are only supported on some versions
-                it.systemImageSource == "aosp" && it.apiLevel > 31
-            }
-            .filterNot {
-                // Desktop images only make sense on desktop devices
-                (it.systemImageSource == "android-desktop" && "Desktop" !in it.deviceName) ||
-                    (it.systemImageSource != "android-desktop" && "Desktop" in it.deviceName) ||
-                    // Desktop images are only supported on some versions
-                    (it.systemImageSource == "android-desktop" && it.apiLevel != 32)
-            }
+            .flatten()
             .forEach { config ->
                 create<ManagedVirtualDevice>(
                     buildString {
@@ -91,6 +64,7 @@ fun Project.configureGradleManagedDevices(
                                 "google-atd" -> "googleatd"
                                 "google_apis_playstore" -> "googleplaystore"
                                 "android-desktop" -> "desktop"
+                                "android-wear" -> "wear"
                                 else -> throw GradleException("Unknown system image source!")
                             },
                         )
@@ -112,6 +86,78 @@ fun Project.configureGradleManagedDevices(
     tasks.configureEach {
         doFirst {
             Environment.initialize()
+        }
+    }
+}
+
+private val mobileDevices = run {
+    val deviceNames = listOf(
+        "Nexus 4",
+        "Nexus 5",
+        "Pixel C",
+        "Pixel 2",
+        "Pixel 3 XL",
+        "Pixel 6 Pro",
+        "Medium Desktop",
+    )
+    val apiLevels = 21..33
+    val systemImageSources = listOf(
+        "aosp",
+        "aosp-atd",
+        "google",
+        "google-atd",
+        "google_apis_playstore",
+        "android-desktop",
+    )
+
+    deviceNames.flatMap { deviceName ->
+        apiLevels.flatMap { apiLevel ->
+            systemImageSources.map { systemImageSource ->
+                GradleManagedDeviceConfig(
+                    deviceName = deviceName,
+                    apiLevel = apiLevel,
+                    systemImageSource = systemImageSource,
+                )
+            }
+        }
+    }
+        .filterNot {
+            // ATD is only supported on some versions
+            "atd" in it.systemImageSource && it.apiLevel !in 30..31
+        }
+        .filterNot {
+            // aosp images are only supported on some versions
+            it.systemImageSource == "aosp" && it.apiLevel > 31
+        }
+        .filterNot {
+            // Desktop images only make sense on desktop devices
+            (it.systemImageSource == "android-desktop" && "Desktop" !in it.deviceName) ||
+                    (it.systemImageSource != "android-desktop" && "Desktop" in it.deviceName) ||
+                    // Desktop images are only supported on some versions
+                    (it.systemImageSource == "android-desktop" && it.apiLevel != 32)
+        }
+}
+
+private val wearDevices = run {
+    val deviceNames = listOf(
+        "Wear OS Square",
+        "Wear OS Small Round",
+        "Wear OS Large Round",
+    )
+    val apiLevels = setOf(28, 30)
+    val systemImageSources = listOf(
+        "android-wear"
+    )
+
+    deviceNames.flatMap { deviceName ->
+        apiLevels.flatMap { apiLevel ->
+            systemImageSources.map { systemImageSource ->
+                GradleManagedDeviceConfig(
+                    deviceName = deviceName,
+                    apiLevel = apiLevel,
+                    systemImageSource = systemImageSource,
+                )
+            }
         }
     }
 }
