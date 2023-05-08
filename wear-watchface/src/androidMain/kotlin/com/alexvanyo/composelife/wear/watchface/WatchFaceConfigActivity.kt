@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.wear.watchface
 
+import android.content.ComponentName
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
@@ -24,7 +25,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.watchface.editor.EditorRequest
 import androidx.wear.watchface.editor.EditorSession
+import androidx.wear.watchface.editor.WatchFaceEditorContract
 import com.alexvanyo.composelife.ui.wear.WatchFaceConfigScreen
 import com.alexvanyo.composelife.ui.wear.rememberWatchFaceConfigState
 import com.alexvanyo.composelife.ui.wear.theme.ComposeLifeTheme
@@ -36,6 +39,22 @@ class WatchFaceConfigActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // If we don't have the proper intent provided, set a default one for generating baseline profiles and
+        // benchmarks
+        if (!intent.hasExtra("COMPONENT_NAME_KEY")) {
+            intent = WatchFaceEditorContract().createIntent(
+                this,
+                EditorRequest(
+                    watchFaceComponentName = ComponentName(
+                        "com.alexvanyo.composelife.wear",
+                        "com.alexvanyo.composelife.wear.watchface.GameOfLifeWatchFaceService",
+                    ),
+                    editorPackageName = "com.alexvanyo.composelife.wear",
+                    initialUserStyle = null,
+                ),
+            )
+        }
 
         lifecycleScope.launch {
             editorSession = EditorSession.createOnWatchEditorSession(this@WatchFaceConfigActivity)
