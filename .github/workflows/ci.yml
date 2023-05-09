@@ -153,9 +153,13 @@ jobs:
               {"api-level": "26", "target": "aosp", "device": "nexus4"},
               {"api-level": "27", "target": "aosp", "device": "pixel2"},
               {"api-level": "28", "target": "aosp", "device": "pixel2"},
+              {"api-level": "28", "target": "wear", "device": "wearoslargeround"},
+              {"api-level": "28", "target": "wear", "device": "wearossquare"},
               {"api-level": "29", "target": "aosp", "device": "pixel2"},
               {"api-level": "30", "target": "aosp", "device": "pixel3xl"},
               {"api-level": "30", "target": "aospatd", "device": "pixel2"},
+              {"api-level": "30", "target": "wear", "device": "wearoslargeround"},
+              {"api-level": "30", "target": "wear", "device": "wearossquare"},
               {"api-level": "31", "target": "aosp", "device": "pixel3xl"},
               {"api-level": "31", "target": "aospatd", "device": "pixel2"},
               {"api-level": "32", "target": "google", "device": "pixel6pro"},
@@ -167,7 +171,8 @@ jobs:
           else
             MATRIX='
               {"api-level": "23", "target": "aosp", "device": "nexus4"},
-              {"api-level": "30", "target": "aospatd", "device": "pixel2"}
+              {"api-level": "30", "target": "aospatd", "device": "pixel2"},
+              {"api-level": "30", "target": "wear", "device": "wearoslargeround"}
             '
           fi
           echo "matrix={\"include\":[${MATRIX//$'\n'/}]}" >> $GITHUB_OUTPUT
