@@ -53,7 +53,7 @@ sealedEnum = "0.6.0"
 slackComposeLintChecks = "1.2.0"
 testParameterInjector = "1.11"
 turbine = "0.12.3"
-wire = "4.6.1"
+wire = "4.6.2"
 
 [libraries]
 accompanist-testharness = { group = "com.google.accompanist", name = "accompanist-testharness", version.ref = "accompanist" }
