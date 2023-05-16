@@ -9,7 +9,7 @@ androidxAnnotation = "1.7.0-alpha02"
 androidxAppcompat = "1.7.0-alpha02"
 androidxBenchmark = "1.2.0-alpha14"
 androidxCompose = "1.5.0-alpha04"
-androidxComposeCompiler = "1.4.5"
+androidxComposeCompiler = "1.4.7"
 androidxComposeMaterial3 = "1.2.0-alpha01"
 androidxCore = "1.12.0-alpha04"
 androidxCoreSplashscreen = "1.1.0-alpha01"
@@ -36,12 +36,12 @@ guavaAndroid = "31.1-android"
 guavaJre = "31.1-jre"
 horologist = "0.4.6"
 keeper = "0.14.0"
-kotlin = "1.8.20"
+kotlin = "1.8.21"
 kotlinxCollectionsImmutable = "0.3.5"
 kotlinxCoroutines = "1.7.1"
 kotlinxDatetime = "0.4.0"
 kotlinxSerialization = "1.5.1"
-ksp = "1.8.20-1.0.11"
+ksp = "1.8.21-1.0.11"
 jacoco = "0.8.8"
 jetbrainsCompose = "1.5.0-dev1049"
 junit4 = "4.13.2"
@@ -122,6 +122,7 @@ guava-jre = { group = "com.google.guava", name = "guava", version.ref = "guavaJr
 horologist-composeLayout = { group = "com.google.android.horologist", name = "horologist-compose-layout", version.ref = "horologist" }
 jetbrains-compose-animation = { group = "org.jetbrains.compose.animation", name = "animation", version.ref = "jetbrainsCompose" }
 jetbrains-compose-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "jetbrainsCompose" }
+jetbrains-compose-gradlePlugin = { group = "org.jetbrains.compose", name = "compose-gradle-plugin", version.ref = "jetbrainsCompose" }
 jetbrains-compose-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime", version.ref = "jetbrainsCompose" }
 jetbrains-compose-ui = { group = "org.jetbrains.compose.ui", name = "ui", version.ref = "jetbrainsCompose" }
 jetbrains-compose-uiGeometry = { group = "org.jetbrains.compose.ui", name = "ui-geometry", version.ref = "jetbrainsCompose" }
@@ -153,5 +154,4 @@ wire-runtime = { group = "com.squareup.wire", name = "wire-runtime", version.ref
 
 [plugins]
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
-jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "jetbrainsCompose" }
 wire = { id = "com.squareup.wire", version.ref = "wire" }

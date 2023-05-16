@@ -20,7 +20,7 @@ plugins {
     id("com.alexvanyo.composelife.android.library.compose")
     id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
-    alias(libs.plugins.jetbrainsCompose)
+    id("com.alexvanyo.composelife.kotlin.multiplatform.compose")
 }
 
 android {

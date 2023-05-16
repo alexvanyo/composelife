@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.keeper.gradlePlugin)
     implementation(libs.ksp.gradlePlugin)
     implementation(libs.paparazzi.gradlePlugin)
+    implementation(libs.jetbrains.compose.gradlePlugin)
     detektPlugins(libs.detekt.formatting)
 }
 
@@ -132,6 +133,10 @@ gradlePlugin {
         register("kotlinMultiplatformConventionPlugin") {
             id = "com.alexvanyo.composelife.kotlin.multiplatform"
             implementationClass = "KotlinMultiplatformConventionPlugin"
+        }
+        register("kotlinMultiplatformComposeConventionPlugin") {
+            id = "com.alexvanyo.composelife.kotlin.multiplatform.compose"
+            implementationClass = "KotlinMultiplatformComposeConventionPlugin"
         }
         register("mergeJacoco") {
             id = "com.alexvanyo.composelife.mergejacoco"
