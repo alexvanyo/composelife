@@ -19,7 +19,6 @@ package com.alexvanyo.composelife.test
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.updatable.Updatable
 import dagger.hilt.android.testing.HiltAndroidRule
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
@@ -30,6 +29,8 @@ import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.BeforeTest
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * A base class for testing components that depend on Hilt injected classes.
@@ -37,7 +38,6 @@ import kotlin.test.BeforeTest
  * Subclasses must call [runAppTest] instead of [runTest] to properly initialize dependencies.
  */
 @Suppress("UnnecessaryAbstractClass")
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 abstract class BaseHiltTest {
 
@@ -54,8 +54,12 @@ abstract class BaseHiltTest {
 
     fun runAppTest(
         context: CoroutineContext = EmptyCoroutineContext,
+        timeout: Duration = 60.seconds,
         testBody: suspend TestScope.() -> Unit,
-    ): TestResult = runTest(context) {
+    ): TestResult = runTest(
+        context = context,
+        timeout = timeout,
+    ) {
         updatables.forEach { updatable ->
             backgroundScope.launch {
                 updatable.update()
