@@ -27,8 +27,12 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-        maven(url = "https://oss.sonatype.org/content/repositories/snapshots/")
+        maven(url = "https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        maven(url = "https://oss.sonatype.org/content/repositories/snapshots/") {
+            content {
+                includeGroup("app.cash.paparazzi")
+            }
+        }
     }
 }
 
@@ -48,7 +52,11 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-        maven(url = "https://oss.sonatype.org/content/repositories/snapshots/")
+        maven(url = "https://oss.sonatype.org/content/repositories/snapshots/") {
+            content {
+                includeGroup("app.cash.paparazzi")
+            }
+        }
     }
 }
 
