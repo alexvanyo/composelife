@@ -90,7 +90,7 @@ class AndroidLibraryPaparazziConventionPlugin : ConventionPlugin({
     tasks.withType<Test>().configureEach {
         // Increase memory and parallelize Paparazzi tests
         maxHeapSize = "2g"
-        maxParallelForks = 2
+        maxParallelForks = if (System.getenv("CI") == "true") 1 else 2
         // Run tests with JDK 11, since Paparazzi currently doesn't work with 17:
         // https://github.com/cashapp/paparazzi/issues/384
         javaLauncher.set(

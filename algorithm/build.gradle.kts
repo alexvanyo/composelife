@@ -24,7 +24,7 @@ plugins {
     id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
     kotlin("kapt")
-    alias(libs.plugins.jetbrainsCompose)
+    id("com.alexvanyo.composelife.kotlin.multiplatform.compose")
 }
 
 android {
