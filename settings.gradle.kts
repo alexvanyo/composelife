@@ -51,7 +51,7 @@ dependencyResolutionManagement {
         }
         google()
         mavenCentral()
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        maven(url = "https://maven.pkg.jetbrains.space/public/p/compose/dev")
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots/") {
             content {
                 includeGroup("app.cash.paparazzi")
