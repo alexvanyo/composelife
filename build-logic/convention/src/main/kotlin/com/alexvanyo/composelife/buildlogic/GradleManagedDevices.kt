@@ -132,9 +132,9 @@ private val mobileDevices = run {
         .filterNot {
             // Desktop images only make sense on desktop devices
             (it.systemImageSource == "android-desktop" && "Desktop" !in it.deviceName) ||
-                    (it.systemImageSource != "android-desktop" && "Desktop" in it.deviceName) ||
-                    // Desktop images are only supported on some versions
-                    (it.systemImageSource == "android-desktop" && it.apiLevel != 32)
+                (it.systemImageSource != "android-desktop" && "Desktop" in it.deviceName) ||
+                // Desktop images are only supported on some versions
+                (it.systemImageSource == "android-desktop" && it.apiLevel != 32)
         }
 }
 
@@ -146,7 +146,7 @@ private val wearDevices = run {
     )
     val apiLevels = setOf(28, 30, 33)
     val systemImageSources = listOf(
-        "android-wear"
+        "android-wear",
     )
 
     deviceNames.flatMap { deviceName ->
