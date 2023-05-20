@@ -167,6 +167,8 @@ jobs:
               {"api-level": "32", "target": "desktop", "device": "mediumdesktop"},
               {"api-level": "33", "target": "google", "device": "pixel6pro"},
               {"api-level": "33", "target": "google", "device": "pixelc"}
+              {"api-level": "33", "target": "wear", "device": "wearoslargeround"},
+              {"api-level": "33", "target": "wear", "device": "wearossquare"},
             '
           else
             MATRIX='

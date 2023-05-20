@@ -144,7 +144,7 @@ private val wearDevices = run {
         "Wear OS Small Round",
         "Wear OS Large Round",
     )
-    val apiLevels = setOf(28, 30)
+    val apiLevels = setOf(28, 30, 33)
     val systemImageSources = listOf(
         "android-wear"
     )
