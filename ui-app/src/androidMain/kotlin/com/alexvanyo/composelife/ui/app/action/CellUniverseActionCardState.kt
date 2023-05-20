@@ -114,7 +114,7 @@ fun rememberCellUniverseActionCardState(
                 previous = null,
             ),
         ),
-        saver = ActionCardNavigation.Speed.Saver,
+        backstackValueSaverFactory = ActionCardNavigation.SaverFactory,
     )
 
     val editNavController = rememberMutableBackstackNavigationController(
@@ -124,7 +124,7 @@ fun rememberCellUniverseActionCardState(
                 previous = null,
             ),
         ),
-        saver = ActionCardNavigation.Edit.Saver,
+        backstackValueSaverFactory = ActionCardNavigation.SaverFactory,
     )
 
     val settingsNavController = rememberMutableBackstackNavigationController(
@@ -134,7 +134,7 @@ fun rememberCellUniverseActionCardState(
                 previous = null,
             ),
         ),
-        saver = ActionCardNavigation.Settings.Saver,
+        backstackValueSaverFactory = ActionCardNavigation.SaverFactory,
     )
 
     val currentNavController by remember {

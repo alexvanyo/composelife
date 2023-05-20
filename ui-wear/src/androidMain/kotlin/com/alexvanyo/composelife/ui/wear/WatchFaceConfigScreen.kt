@@ -17,11 +17,12 @@
 package com.alexvanyo.composelife.ui.wear
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
 import com.alexvanyo.composelife.navigation.BackstackEntry
@@ -44,22 +45,18 @@ fun WatchFaceConfigScreen(
         rememberMutableBackstackNavigationController(
             initialBackstackEntries = listOf(
                 BackstackEntry(
-                    value = WatchFaceConfigNavigation.List,
+                    value = WatchFaceConfigNavigation.List(),
                     previous = null,
                 ),
             ),
-            saver = WatchFaceConfigNavigation.Saver,
+            backstackValueSaverFactory = WatchFaceConfigNavigation.SaverFactory,
         )
 
-    val listScalingLazyColumnState = rememberScalingLazyListState(
-        initialCenterItemIndex = 0,
-    )
-
     Scaffold(
-        positionIndicator = when (navigationController.currentEntry.value) {
-            WatchFaceConfigNavigation.List -> {
+        positionIndicator = when (val value = navigationController.currentEntry.value) {
+            is WatchFaceConfigNavigation.List -> {
                 {
-                    PositionIndicator(listScalingLazyColumnState)
+                    PositionIndicator(value.scalingLazyListState)
                 }
             }
             WatchFaceConfigNavigation.ColorPicker -> null
@@ -69,8 +66,8 @@ fun WatchFaceConfigScreen(
         WearNavigationHost(
             navigationController = navigationController,
         ) { entry ->
-            when (entry.value) {
-                WatchFaceConfigNavigation.List -> {
+            when (val value = entry.value) {
+                is WatchFaceConfigNavigation.List -> {
                     WatchFaceConfigList(
                         state = state,
                         onEditColorClicked = {
@@ -78,7 +75,7 @@ fun WatchFaceConfigScreen(
                                 navigate(WatchFaceConfigNavigation.ColorPicker)
                             }
                         },
-                        scalingLazyListState = listScalingLazyColumnState,
+                        scalingLazyListState = value.scalingLazyListState,
                     )
                 }
                 WatchFaceConfigNavigation.ColorPicker -> {
@@ -102,9 +99,13 @@ fun WatchFaceConfigScreenPreview() {
             state = object : WatchFaceConfigState {
                 override suspend fun update(): Nothing = awaitCancellation()
 
-                override var color: Color = Color.White
+                override var color: Color
+                    get() = Color.White
+                    set(_) {}
 
-                override var showComplicationsInAmbient: Boolean = true
+                override var showComplicationsInAmbient: Boolean
+                    get() = true
+                    set(_) {}
 
                 override val preview get() = ResourceState.Success(preview)
 
