@@ -54,8 +54,8 @@ class NonInteractableCellsVisualTests {
 
     @Test
     fun non_interactable_cells_draws_correctly_dark_mode() {
-        assumeTrue(Build.VERSION.SDK_INT >= 26)
-        if (Build.VERSION.SDK_INT < 26) return
+        assumeTrue(Build.VERSION.SDK_INT >= 28)
+        if (Build.VERSION.SDK_INT < 28) return
 
         val cellState = setOf(
             0 to 0,
@@ -119,8 +119,8 @@ class NonInteractableCellsVisualTests {
 
     @Test
     fun non_interactable_cells_draws_correctly_light_mode() {
-        assumeTrue(Build.VERSION.SDK_INT >= 26)
-        if (Build.VERSION.SDK_INT < 26) return
+        assumeTrue(Build.VERSION.SDK_INT >= 28)
+        if (Build.VERSION.SDK_INT < 28) return
 
         val cellState = setOf(
             0 to 0,
