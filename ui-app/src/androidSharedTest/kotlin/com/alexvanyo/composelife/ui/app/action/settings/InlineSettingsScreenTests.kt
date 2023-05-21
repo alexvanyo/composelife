@@ -41,14 +41,12 @@ import com.alexvanyo.composelife.test.TestActivity
 import com.alexvanyo.composelife.ui.app.R
 import dagger.hilt.EntryPoints
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 class InlineSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity::class.java) {
 

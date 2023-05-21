@@ -25,7 +25,6 @@ import kotlinx.datetime.Instant
 /**
  * Returns a [Clock] that is synced with the [TestScope.schedulerClock] from this [TestScope].
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 val TestScope.schedulerClock
     get(): Clock = testScheduler.clock
 
