@@ -56,7 +56,7 @@ fun InteractableCell(
     val aliveColor = ComposeLifeTheme.aliveCellColor
     val pendingAliveColor = ComposeLifeTheme.pendingAliveCellColor
     val deadColor = ComposeLifeTheme.deadCellColor
-    val pendingDeadColor = ComposeLifeTheme.pendingAliveCellColor
+    val pendingDeadColor = ComposeLifeTheme.pendingDeadCellColor
 
     val rippleColor = when (drawState) {
         DrawState.Alive, DrawState.PendingAlive -> deadColor

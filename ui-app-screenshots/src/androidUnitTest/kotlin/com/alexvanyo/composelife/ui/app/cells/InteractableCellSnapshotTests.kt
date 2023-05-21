@@ -29,9 +29,23 @@ class InteractableCellSnapshotTests : BasePaparazziTest() {
     }
 
     @Test
+    fun pending_alive_cell_preview() {
+        snapshot {
+            PendingAliveCellPreview()
+        }
+    }
+
+    @Test
     fun dead_cell_preview() {
         snapshot {
             DeadCellPreview()
+        }
+    }
+
+    @Test
+    fun pending_dead_cell_preview() {
+        snapshot {
+            PendingAliveCellPreview()
         }
     }
 }
