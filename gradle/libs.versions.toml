@@ -52,7 +52,7 @@ robolectric = "4.10.2"
 sealedEnum = "0.6.0"
 slackComposeLintChecks = "1.2.0"
 testParameterInjector = "1.11"
-turbine = "0.12.3"
+turbine = "0.13.0"
 wire = "4.6.2"
 
 [libraries]
