@@ -91,8 +91,8 @@ class GameOfLifeRenderer(
         Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
     }
 
-    lateinit var gameOfLifeShape: GameOfLifeShape
-    lateinit var complicationShapes: List<ComplicationShape>
+    private lateinit var gameOfLifeShape: GameOfLifeShape
+    private lateinit var complicationShapes: List<ComplicationShape>
 
     override suspend fun onUiThreadGlSurfaceCreated(width: Int, height: Int) {
         cellSize = width.toFloat() / (cellWindow.width + 1)

@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife.resourcestate
 
 import app.cash.turbine.test
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
@@ -28,7 +27,6 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 @Suppress("LargeClass")
-@OptIn(ExperimentalCoroutinesApi::class)
 class ResourceStateTests {
 
     @Test

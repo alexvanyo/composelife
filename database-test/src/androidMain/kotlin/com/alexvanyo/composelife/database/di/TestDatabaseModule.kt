@@ -26,7 +26,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import dagger.multibindings.IntoSet
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.test.TestDispatcher
@@ -55,7 +54,6 @@ interface TestDatabaseModule {
                 }
         }
 
-        @OptIn(ExperimentalCoroutinesApi::class)
         @Provides
         @Singleton
         fun providesDatabase(
