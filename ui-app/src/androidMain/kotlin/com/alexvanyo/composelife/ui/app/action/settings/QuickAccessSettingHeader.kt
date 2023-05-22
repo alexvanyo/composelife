@@ -24,11 +24,14 @@ import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltipBox
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +42,8 @@ import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Suppress("LongMethod")
 @Composable
 fun QuickAccessSettingHeader(
     isFavorite: Boolean,
@@ -56,11 +61,20 @@ fun QuickAccessSettingHeader(
         )
 
         if (onOpenInSettingsClicked != null) {
-            IconButton(onClick = onOpenInSettingsClicked) {
-                Icon(
-                    imageVector = Icons.Default.OpenInFull,
-                    contentDescription = stringResource(id = R.string.open_in_settings),
-                )
+            PlainTooltipBox(
+                tooltip = {
+                    Text(stringResource(id = R.string.open_in_settings))
+                },
+            ) {
+                IconButton(
+                    onClick = onOpenInSettingsClicked,
+                    modifier = Modifier.tooltipTrigger(),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.OpenInFull,
+                        contentDescription = stringResource(id = R.string.open_in_settings),
+                    )
+                }
             }
             Divider(
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
@@ -68,22 +82,35 @@ fun QuickAccessSettingHeader(
             )
         }
 
-        IconToggleButton(
-            checked = isFavorite,
-            onCheckedChange = setIsFavorite,
+        PlainTooltipBox(
+            tooltip = {
+                Text(
+                    if (isFavorite) {
+                        stringResource(id = R.string.remove_setting_from_quick_access)
+                    } else {
+                        stringResource(id = R.string.add_setting_to_quick_access)
+                    },
+                )
+            },
         ) {
-            Icon(
-                imageVector = if (isFavorite) {
-                    Icons.Filled.Bookmark
-                } else {
-                    Icons.Outlined.BookmarkBorder
-                },
-                contentDescription = if (isFavorite) {
-                    stringResource(id = R.string.remove_setting_from_quick_access)
-                } else {
-                    stringResource(id = R.string.add_setting_to_quick_access)
-                },
-            )
+            IconToggleButton(
+                checked = isFavorite,
+                onCheckedChange = setIsFavorite,
+                modifier = Modifier.tooltipTrigger(),
+            ) {
+                Icon(
+                    imageVector = if (isFavorite) {
+                        Icons.Filled.Bookmark
+                    } else {
+                        Icons.Outlined.BookmarkBorder
+                    },
+                    contentDescription = if (isFavorite) {
+                        stringResource(id = R.string.remove_setting_from_quick_access)
+                    } else {
+                        stringResource(id = R.string.add_setting_to_quick_access)
+                    },
+                )
+            }
         }
 
         Divider(
