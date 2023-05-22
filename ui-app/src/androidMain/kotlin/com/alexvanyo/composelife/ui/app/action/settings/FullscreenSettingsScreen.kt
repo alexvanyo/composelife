@@ -57,6 +57,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltipBox
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -287,14 +288,24 @@ private fun SettingsCategoryList(
                         )
                         .height(64.dp),
                 ) {
-                    IconButton(
-                        onClick = onBackButtonPressed,
+                    Box(
                         modifier = Modifier.align(Alignment.CenterStart),
                     ) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = stringResource(id = R.string.back),
-                        )
+                        PlainTooltipBox(
+                            tooltip = {
+                                Text(stringResource(id = R.string.back))
+                            },
+                        ) {
+                            IconButton(
+                                onClick = onBackButtonPressed,
+                                modifier = Modifier.tooltipTrigger(),
+                            ) {
+                                Icon(
+                                    Icons.Default.ArrowBack,
+                                    contentDescription = stringResource(id = R.string.back),
+                                )
+                            }
+                        }
                     }
 
                     Text(
@@ -378,6 +389,7 @@ private fun SettingsCategoryButton(
 }
 
 context(SettingUiHiltEntryPoint, SettingUiLocalEntryPoint)
+@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
 private fun SettingsCategoryDetail(
@@ -409,14 +421,24 @@ private fun SettingsCategoryDetail(
                         )
                         .height(64.dp),
                 ) {
-                    IconButton(
-                        onClick = onBackButtonPressed,
+                    Box(
                         modifier = Modifier.align(Alignment.CenterStart),
                     ) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = stringResource(id = R.string.back),
-                        )
+                        PlainTooltipBox(
+                            tooltip = {
+                                Text(stringResource(id = R.string.back))
+                            },
+                        ) {
+                            IconButton(
+                                onClick = onBackButtonPressed,
+                                modifier = Modifier.tooltipTrigger(),
+                            ) {
+                                Icon(
+                                    Icons.Default.ArrowBack,
+                                    contentDescription = stringResource(id = R.string.back),
+                                )
+                            }
+                        }
                     }
 
                     Text(
