@@ -27,12 +27,15 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.PlainTooltipBox
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -44,6 +47,7 @@ import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 fun ActionControlRow(
@@ -69,69 +73,115 @@ fun ActionControlRow(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                IconToggleButton(
-                    checked = isRunning,
-                    onCheckedChange = setIsRunning,
-                    colors = IconButtonDefaults.iconToggleButtonColors(
-                        checkedContentColor = LocalContentColor.current,
-                    ),
+                PlainTooltipBox(
+                    tooltip = {
+                        Text(
+                            if (isRunning) {
+                                stringResource(id = R.string.pause)
+                            } else {
+                                stringResource(id = R.string.play)
+                            },
+                        )
+                    },
                 ) {
-                    Icon(
-                        imageVector = if (isRunning) {
-                            Icons.Filled.Pause
-                        } else {
-                            Icons.Filled.PlayArrow
-                        },
-                        contentDescription = if (isRunning) {
-                            stringResource(id = R.string.pause)
-                        } else {
-                            stringResource(id = R.string.play)
-                        },
-                    )
+                    IconToggleButton(
+                        checked = isRunning,
+                        onCheckedChange = setIsRunning,
+                        colors = IconButtonDefaults.iconToggleButtonColors(
+                            checkedContentColor = LocalContentColor.current,
+                        ),
+                        modifier = Modifier.tooltipTrigger(),
+                    ) {
+                        Icon(
+                            imageVector = if (isRunning) {
+                                Icons.Filled.Pause
+                            } else {
+                                Icons.Filled.PlayArrow
+                            },
+                            contentDescription = if (isRunning) {
+                                stringResource(id = R.string.pause)
+                            } else {
+                                stringResource(id = R.string.play)
+                            },
+                        )
+                    }
                 }
 
-                IconButton(
-                    onClick = onStep,
+                PlainTooltipBox(
+                    tooltip = {
+                        Text(stringResource(id = R.string.step))
+                    },
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.SkipNext,
-                        contentDescription = stringResource(id = R.string.step),
-                    )
+                    IconButton(
+                        onClick = onStep,
+                        modifier = Modifier.tooltipTrigger(),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.SkipNext,
+                            contentDescription = stringResource(id = R.string.step),
+                        )
+                    }
                 }
 
-                IconToggleButton(
-                    checked = isViewportTracking,
-                    onCheckedChange = setIsViewportTracking,
+                PlainTooltipBox(
+                    tooltip = {
+                        Text(
+                            if (isViewportTracking) {
+                                stringResource(id = R.string.disable_autofit)
+                            } else {
+                                stringResource(id = R.string.enable_autofit)
+                            },
+                        )
+                    },
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.AutoMode,
-                        contentDescription = if (isViewportTracking) {
-                            stringResource(id = R.string.disable_autofit)
-                        } else {
-                            stringResource(id = R.string.enable_autofit)
-                        },
-                    )
+                    IconToggleButton(
+                        checked = isViewportTracking,
+                        onCheckedChange = setIsViewportTracking,
+                        modifier = Modifier.tooltipTrigger(),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.AutoMode,
+                            contentDescription = if (isViewportTracking) {
+                                stringResource(id = R.string.disable_autofit)
+                            } else {
+                                stringResource(id = R.string.enable_autofit)
+                            },
+                        )
+                    }
                 }
 
-                IconToggleButton(
-                    checked = isExpanded,
-                    onCheckedChange = setIsExpanded,
-                    colors = IconButtonDefaults.iconToggleButtonColors(
-                        checkedContentColor = LocalContentColor.current,
-                    ),
+                PlainTooltipBox(
+                    tooltip = {
+                        Text(
+                            if (isExpanded) {
+                                stringResource(id = R.string.collapse)
+                            } else {
+                                stringResource(id = R.string.expand)
+                            },
+                        )
+                    },
                 ) {
-                    Icon(
-                        imageVector = if (isExpanded) {
-                            Icons.Filled.ExpandMore
-                        } else {
-                            Icons.Filled.ExpandLess
-                        },
-                        contentDescription = if (isExpanded) {
-                            stringResource(id = R.string.collapse)
-                        } else {
-                            stringResource(id = R.string.expand)
-                        },
-                    )
+                    IconToggleButton(
+                        checked = isExpanded,
+                        onCheckedChange = setIsExpanded,
+                        colors = IconButtonDefaults.iconToggleButtonColors(
+                            checkedContentColor = LocalContentColor.current,
+                        ),
+                        modifier = Modifier.tooltipTrigger(),
+                    ) {
+                        Icon(
+                            imageVector = if (isExpanded) {
+                                Icons.Filled.ExpandMore
+                            } else {
+                                Icons.Filled.ExpandLess
+                            },
+                            contentDescription = if (isExpanded) {
+                                stringResource(id = R.string.collapse)
+                            } else {
+                                stringResource(id = R.string.expand)
+                            },
+                        )
+                    }
                 }
             }
         }
