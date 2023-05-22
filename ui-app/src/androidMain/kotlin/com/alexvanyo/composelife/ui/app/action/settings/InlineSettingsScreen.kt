@@ -44,8 +44,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
-import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.ordinal
@@ -198,7 +198,7 @@ fun InlineSettingsScreenNoQuickAccessPreview() {
 @Composable
 fun InlineSettingsScreenWithQuickAccessPreview() {
     WithPreviewDependencies(
-        composeLifePreferences = TestComposeLifePreferences.Loaded(
+        loadedComposeLifePreferences = LoadedComposeLifePreferences.Defaults.copy(
             quickAccessSettings = setOf(
                 QuickAccessSetting.DarkThemeConfig,
                 QuickAccessSetting.CellShapeConfig,
