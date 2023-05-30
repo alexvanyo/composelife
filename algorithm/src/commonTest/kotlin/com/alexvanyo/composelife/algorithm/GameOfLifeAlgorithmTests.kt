@@ -47,7 +47,7 @@ import kotlin.test.assertEquals
 class GameOfLifeAlgorithmTests {
 
     class GameOfLifeAlgorithmFactory(
-        val algorithmName: String,
+        private val algorithmName: String,
         val factory: TestScope.(dispatchers: ComposeLifeDispatchers) -> Pair<GameOfLifeAlgorithm, Job>,
     ) {
         override fun toString(): String = algorithmName
@@ -86,7 +86,7 @@ class GameOfLifeAlgorithmTests {
     }
 
     class CellStateMapper(
-        val name: String,
+        private val name: String,
         val mapper: (CellState) -> CellState,
     ) {
         override fun toString(): String = name

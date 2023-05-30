@@ -67,8 +67,7 @@ fun WatchFaceConfigList(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                val currentPreview = state.preview
-                when (currentPreview) {
+                when (val currentPreview = state.preview) {
                     is ResourceState.Failure, ResourceState.Loading -> {
                         Box(
                             contentAlignment = Alignment.Center,

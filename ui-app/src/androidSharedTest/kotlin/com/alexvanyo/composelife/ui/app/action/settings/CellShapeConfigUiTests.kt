@@ -44,7 +44,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
 import com.alexvanyo.composelife.ui.app.R
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import leakcanary.SkipLeakDetection
 import org.junit.Rule
@@ -52,7 +51,6 @@ import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 class CellShapeConfigUiTests {
 

@@ -18,7 +18,6 @@ package com.alexvanyo.composelife.dispatchers
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
 import javax.inject.Inject
 
@@ -29,7 +28,6 @@ import javax.inject.Inject
  * [Unconfined] delegates to the default implementations, due to their custom behavior.
  */
 @Suppress("InjectDispatcher")
-@OptIn(ExperimentalCoroutinesApi::class)
 class TestComposeLifeDispatchers @Inject constructor(
     testDispatcher: TestDispatcher,
 ) : ComposeLifeDispatchers {

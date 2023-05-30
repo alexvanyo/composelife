@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.SemanticsActions
@@ -246,7 +245,7 @@ class InteractiveCellUniverseTests : BaseUiHiltTest<TestActivity>(TestActivity::
         }
     }
 
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalTestApi::class)
     @SkipLeakDetection("appliedChanges", "Outer")
     @Test
     fun six_long_line_evolves_correctly_with_spacebar() = runAppTest {

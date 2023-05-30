@@ -30,7 +30,7 @@ import kotlin.test.assertTrue
 class CellStateTests {
 
     class CellStateFactory(
-        val cellStateName: String,
+        private val cellStateName: String,
         val factory: (cellState: CellState) -> CellState,
     ) {
         override fun toString(): String = cellStateName
