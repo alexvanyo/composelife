@@ -23,7 +23,6 @@ import com.alexvanyo.composelife.data.model.SaveableCellState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.test.BaseHiltTest
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestDispatcher
 import org.junit.runner.RunWith
@@ -33,7 +32,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class CellStateRepositoryTests : BaseHiltTest() {

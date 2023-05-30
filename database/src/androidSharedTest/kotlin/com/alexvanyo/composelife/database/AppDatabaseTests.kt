@@ -19,13 +19,11 @@ package com.alexvanyo.composelife.database
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.test.BaseHiltTest
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.runner.RunWith
 import javax.inject.Inject
 import kotlin.test.Test
 import kotlin.test.assertIs
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class AppDatabaseTests : BaseHiltTest() {

@@ -26,12 +26,10 @@ import com.alexvanyo.composelife.test.BaseUiHiltTest
 import com.alexvanyo.composelife.test.TestActivity
 import dagger.hilt.EntryPoints
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import leakcanary.SkipLeakDetection
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 class GameOfLifeProgressIndicatorTests : BaseUiHiltTest<TestActivity>(TestActivity::class.java) {
 

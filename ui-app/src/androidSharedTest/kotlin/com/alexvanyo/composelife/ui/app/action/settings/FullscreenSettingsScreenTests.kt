@@ -48,7 +48,6 @@ import com.alexvanyo.composelife.ui.app.action.ActionCardNavigation
 import com.google.accompanist.testharness.TestHarness
 import dagger.hilt.EntryPoints
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import leakcanary.SkipLeakDetection
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -56,7 +55,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @HiltAndroidTest
 class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity::class.java) {
 

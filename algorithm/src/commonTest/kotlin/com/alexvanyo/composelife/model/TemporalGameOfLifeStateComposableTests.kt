@@ -220,9 +220,7 @@ class TemporalGameOfLifeStateComposableTests {
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
-        temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Paused>(status)
-        }
+        assertIs<TemporalGameOfLifeState.EvolutionStatus.Paused>(temporalGameOfLifeState.status)
     }
 
     @Test
