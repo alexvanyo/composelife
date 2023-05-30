@@ -55,6 +55,7 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
+                implementation(libs.androidx.compose.animation)
                 implementation(libs.androidx.compose.ui)
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.tracing)

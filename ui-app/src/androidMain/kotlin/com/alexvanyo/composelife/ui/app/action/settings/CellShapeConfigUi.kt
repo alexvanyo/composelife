@@ -24,7 +24,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -110,8 +110,8 @@ fun CellShapeConfigUi(
         @Suppress("USELESS_IS_CHECK")
         when (currentShape) {
             is CurrentShape.RoundRectangle -> {
-                var sizeFraction by remember { mutableStateOf(currentShape.sizeFraction) }
-                var cornerFraction by remember { mutableStateOf(currentShape.cornerFraction) }
+                var sizeFraction by remember { mutableFloatStateOf(currentShape.sizeFraction) }
+                var cornerFraction by remember { mutableFloatStateOf(currentShape.cornerFraction) }
 
                 LaunchedEffect(sizeFraction, cornerFraction) {
                     setRoundRectangleConfig { roundRectangle ->
