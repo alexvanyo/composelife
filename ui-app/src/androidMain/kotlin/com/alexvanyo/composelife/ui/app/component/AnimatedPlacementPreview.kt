@@ -30,6 +30,8 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -54,10 +56,10 @@ import com.alexvanyo.composelife.ui.util.topStart
 @Preview
 @Composable
 fun AnimatePlacementPreview() {
-    var animatePlacementAlignmentIndex by remember { mutableStateOf(0) }
-    var animatePlacementParentAlignmentIndex by remember { mutableStateOf(0) }
-    var alignmentInBoxIndex by remember { mutableStateOf(0) }
-    var animateContentSizeAlignmentIndex by remember { mutableStateOf(0) }
+    var animatePlacementAlignmentIndex by remember { mutableIntStateOf(0) }
+    var animatePlacementParentAlignmentIndex by remember { mutableIntStateOf(0) }
+    var alignmentInBoxIndex by remember { mutableIntStateOf(0) }
+    var animateContentSizeAlignmentIndex by remember { mutableIntStateOf(0) }
 
     val alignments = listOf(
         "TopStart" to Alignment.TopStart,
@@ -80,10 +82,10 @@ fun AnimatePlacementPreview() {
     val (animateContentSizeAlignmentName, animateContentSizeAlignment) =
         alignments[animateContentSizeAlignmentIndex.mod(alignments.size)]
 
-    var startFraction by remember { mutableStateOf(0f) }
-    var endFraction by remember { mutableStateOf(0f) }
-    var topFraction by remember { mutableStateOf(0f) }
-    var bottomFraction by remember { mutableStateOf(0f) }
+    var startFraction by remember { mutableFloatStateOf(0f) }
+    var endFraction by remember { mutableFloatStateOf(0f) }
+    var topFraction by remember { mutableFloatStateOf(0f) }
+    var bottomFraction by remember { mutableFloatStateOf(0f) }
 
     var isExpanded by remember { mutableStateOf(false) }
 
