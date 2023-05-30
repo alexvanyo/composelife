@@ -23,7 +23,6 @@ import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.firstSuccess
 import com.alexvanyo.composelife.resourcestate.map
 import com.alexvanyo.composelife.resourcestate.successes
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.currentCoroutineContext
@@ -55,7 +54,6 @@ class ConfigurableGameOfLifeAlgorithm @Inject constructor(
             step = step,
         )
 
-    @OptIn(FlowPreview::class)
     override fun computeGenerationsWithStep(originalCellState: CellState, step: Int): Flow<CellState> =
         channelFlow {
             // Start listening to algorithm changes

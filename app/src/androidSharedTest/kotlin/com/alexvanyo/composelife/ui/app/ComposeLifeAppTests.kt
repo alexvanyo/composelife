@@ -44,7 +44,6 @@ import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.test.BaseUiHiltTest
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
 import leakcanary.SkipLeakDetection
 import javax.inject.Inject
@@ -54,7 +53,7 @@ import kotlin.contracts.contract
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @HiltAndroidTest
 class ComposeLifeAppTests : BaseUiHiltTest<MainActivity>(MainActivity::class.java) {
 

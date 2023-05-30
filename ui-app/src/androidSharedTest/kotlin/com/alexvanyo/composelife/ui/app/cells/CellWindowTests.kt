@@ -39,7 +39,6 @@ import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.ui.app.R
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -135,7 +134,6 @@ class CellWindowTests {
     }
 
     @Test
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun cells_are_displayed_correctly_after_scrolling() = runTest {
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
@@ -184,7 +182,7 @@ class CellWindowTests {
     }
 
     @Test
-    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun cells_are_displayed_correctly_after_zooming_in_with_mouse_wheel() = runTest {
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
@@ -222,7 +220,7 @@ class CellWindowTests {
     }
 
     @Test
-    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun cells_are_displayed_correctly_after_zooming_out_with_mouse_wheel() = runTest {
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
