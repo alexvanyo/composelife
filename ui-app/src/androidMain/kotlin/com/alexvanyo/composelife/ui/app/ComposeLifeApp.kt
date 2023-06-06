@@ -37,7 +37,11 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LookaheadScope
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.DpSize
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.clock.di.ClockProvider
@@ -79,7 +83,8 @@ interface ComposeLifeAppHiltEntryPoint :
     ClockProvider
 
 context(ComposeLifeAppHiltEntryPoint)
-@OptIn(ExperimentalAnimationApi::class)
+@Suppress("LongMethod")
+@OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun ComposeLifeApp(
     windowSizeClass: WindowSizeClass,
@@ -87,52 +92,65 @@ fun ComposeLifeApp(
     composeLifeAppState: ComposeLifeAppState = rememberComposeLifeAppState(),
 ) {
     Surface(modifier = modifier.fillMaxSize()) {
-        val transition = updateTransition(composeLifeAppState, "ComposeLifeAppState Crossfade")
-        transition.Crossfade(
-            contentKey = {
-                when (it) {
-                    ComposeLifeAppState.ErrorLoadingPreferences -> 0
-                    is ComposeLifeAppState.LoadedPreferences.LoadedCellState -> 1
-                    is ComposeLifeAppState.LoadedPreferences.LoadingCellState -> 2
-                    ComposeLifeAppState.LoadingPreferences -> 3
-                }
-            },
-        ) { targetComposeLifeAppState ->
-            when (targetComposeLifeAppState) {
-                ComposeLifeAppState.ErrorLoadingPreferences -> Unit
-                ComposeLifeAppState.LoadingPreferences -> {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-                is ComposeLifeAppState.LoadedPreferences -> {
-                    val localEntryPoint = remember {
-                        object :
-                            InteractiveCellUniverseLocalEntryPoint,
-                            GameOfLifeProgressIndicatorLocalEntryPoint,
-                            LoadedComposeLifePreferencesProvider by targetComposeLifeAppState {}
-                    }
+        LookaheadScope {
+            val transition = updateTransition(composeLifeAppState, "ComposeLifeAppState Crossfade")
+            val configuration = LocalConfiguration.current
 
-                    with(localEntryPoint) {
-                        when (targetComposeLifeAppState) {
-                            is ComposeLifeAppState.LoadedPreferences.LoadingCellState -> {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier.fillMaxSize(),
-                                ) {
-                                    GameOfLifeProgressIndicator()
+            @Suppress("UNUSED_EXPRESSION")
+            transition.Crossfade(
+                contentKey = {
+                    when (it) {
+                        ComposeLifeAppState.ErrorLoadingPreferences -> 0
+                        is ComposeLifeAppState.LoadedPreferences.LoadedCellState -> 1
+                        is ComposeLifeAppState.LoadedPreferences.LoadingCellState -> 2
+                        ComposeLifeAppState.LoadingPreferences -> 3
+                    }
+                },
+                modifier = Modifier.layout { measurable, constraints ->
+                    // TODO: This force remeasuring and placing should not be necessary
+                    configuration
+                    val placeable = measurable.measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0, 0)
+                    }
+                },
+            ) { targetComposeLifeAppState ->
+                when (targetComposeLifeAppState) {
+                    ComposeLifeAppState.ErrorLoadingPreferences -> Unit
+                    ComposeLifeAppState.LoadingPreferences -> {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                    is ComposeLifeAppState.LoadedPreferences -> {
+                        val localEntryPoint = remember {
+                            object :
+                                InteractiveCellUniverseLocalEntryPoint,
+                                GameOfLifeProgressIndicatorLocalEntryPoint,
+                                LoadedComposeLifePreferencesProvider by targetComposeLifeAppState {}
+                        }
+
+                        with(localEntryPoint) {
+                            when (targetComposeLifeAppState) {
+                                is ComposeLifeAppState.LoadedPreferences.LoadingCellState -> {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier.fillMaxSize(),
+                                    ) {
+                                        GameOfLifeProgressIndicator()
+                                    }
                                 }
-                            }
-                            is ComposeLifeAppState.LoadedPreferences.LoadedCellState -> {
-                                ReportDrawn()
+                                is ComposeLifeAppState.LoadedPreferences.LoadedCellState -> {
+                                    ReportDrawn()
 
-                                InteractiveCellUniverse(
-                                    temporalGameOfLifeState = targetComposeLifeAppState.temporalGameOfLifeState,
-                                    windowSizeClass = windowSizeClass,
-                                )
+                                    InteractiveCellUniverse(
+                                        temporalGameOfLifeState = targetComposeLifeAppState.temporalGameOfLifeState,
+                                        windowSizeClass = windowSizeClass,
+                                    )
+                                }
                             }
                         }
                     }
