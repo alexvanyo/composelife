@@ -151,11 +151,14 @@ fun CellUniverseActionCard(
         )
 
         Box(
-            modifier = if (isShowingFullscreen) {
-                Modifier.fillMaxSize()
-            } else {
-                Modifier
-            },
+            modifier = Modifier
+                .then(
+                    if (isShowingFullscreen) {
+                        Modifier.fillMaxSize()
+                    } else {
+                        Modifier
+                    },
+                ),
         ) {
             Layout(
                 layoutIdTypes = CellUniverseActionCardLayoutTypes.sealedEnum,
@@ -163,6 +166,9 @@ fun CellUniverseActionCard(
                     AnimatedContent(
                         targetState = actionCardState.fullscreenTargetState,
                         contentAlignment = Alignment.BottomCenter,
+                        contentSizeAnimationSpec = spring(
+                            stiffness = Spring.StiffnessMedium,
+                        ),
                         modifier = Modifier.layoutId(ActionControlRow),
                     ) { isFullscreen ->
                         Box(
@@ -204,7 +210,7 @@ fun CellUniverseActionCard(
                                     predictiveBackState = actionCardState.predictiveBackState,
                                     backstackState = actionCardState.navigationState,
                                     modifier = Modifier.weight(1f, fill = false),
-                                    contentAlignment = Alignment.TopCenter,
+                                    contentAlignment = Alignment.BottomCenter,
                                 ) { entry ->
                                     // Cache the scroll state based for the target entry id.
                                     // This value won't change normally, but it will ensure we keep using the old state
@@ -286,6 +292,9 @@ fun CellUniverseActionCard(
                                 AnimatedContent(
                                     targetState = actionCardState.fullscreenTargetState,
                                     contentAlignment = Alignment.BottomCenter,
+                                    contentSizeAnimationSpec = spring(
+                                        stiffness = Spring.StiffnessMedium,
+                                    ),
                                 ) { isFullscreen ->
                                     Box(
                                         modifier = Modifier.widthIn(max = 480.dp),
@@ -319,12 +328,17 @@ fun CellUniverseActionCard(
                         constraints.copy(minWidth = navContainerPlaceable.width),
                     )
 
+                    val width = max(actionControlRowPlaceable.width, navContainerPlaceable.width)
+
                     layout(
-                        width = max(actionControlRowPlaceable.width, navContainerPlaceable.width),
+                        width = width,
                         height = actionControlRowPlaceable.height + navContainerPlaceable.height,
                     ) {
                         actionControlRowPlaceable.placeRelative(0, 0)
-                        navContainerPlaceable.placeRelative(0, actionControlRowPlaceable.height)
+                        navContainerPlaceable.placeRelative(
+                            (width - navContainerPlaceable.width) / 2,
+                            actionControlRowPlaceable.height,
+                        )
                     }
                 },
             )
