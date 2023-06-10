@@ -29,12 +29,11 @@ fun Project.configureAndroid(
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
     commonExtension.apply {
-        // compileSdk = 33
-        compileSdkPreview = "UpsideDownCake"
+        compileSdk = 34
 
         lint {
             warningsAsErrors = true
-            disable.add("GradleDependency")
+            disable.addAll(listOf("GradleDependency", "OldTargetApi"))
             baseline = file("lint-baseline.xml")
         }
 

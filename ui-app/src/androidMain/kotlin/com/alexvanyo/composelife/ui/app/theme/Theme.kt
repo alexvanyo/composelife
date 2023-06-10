@@ -131,9 +131,9 @@ object ComposeLifeTheme {
         get() = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)
 }
 
-@ChecksSdkIntAtLeast(api = Build.VERSION_CODES.S)
+@ChecksSdkIntAtLeast(api = 31)
 private fun useDynamicColorScheme() =
-    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+    Build.VERSION.SDK_INT >= 31
 
 context(ComposeLifePreferencesProvider)
 @Composable
