@@ -55,7 +55,7 @@ import androidx.compose.ui.test.captureToImage as androidxCaptureToImage
  *
  * @throws IllegalArgumentException if we attempt to capture a bitmap of a dialog before API 28.
  */
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(26)
 fun SemanticsNodeInteraction.captureToImage(): ImageBitmap =
     if (Build.FINGERPRINT?.lowercase() == "robolectric") {
         robolectricCaptureToImage()
@@ -73,7 +73,7 @@ fun SemanticsNodeInteraction.captureToImage(): ImageBitmap =
  */
 @OptIn(ExperimentalTestApi::class)
 @VisibleForTesting
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(26)
 fun SemanticsNodeInteraction.robolectricCaptureToImage(): ImageBitmap {
     val node = fetchSemanticsNode("Failed to capture a node to bitmap.")
     // Validate we are in popup
@@ -93,7 +93,7 @@ fun SemanticsNodeInteraction.robolectricCaptureToImage(): ImageBitmap {
     var dialogWindow: Window? = null
     if (dialogParentNodeMaybe != null) {
         // TODO(b/163023027)
-        require(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        require(Build.VERSION.SDK_INT >= 28) {
             "Cannot currently capture dialogs on API lower than 28!"
         }
 
@@ -124,7 +124,7 @@ fun SemanticsNodeInteraction.robolectricCaptureToImage(): ImageBitmap {
 }
 
 @ExperimentalTestApi
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(26)
 private fun processMultiWindowScreenshot(
     node: SemanticsNode,
 ): ImageBitmap {
@@ -208,7 +208,7 @@ private fun SemanticsNode.findClosestParentNode(
     return null
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(26)
 private fun Window.captureRegionToImage(
     boundsInWindow: Rect,
 ): ImageBitmap {
@@ -237,7 +237,7 @@ private fun <R> withDrawingEnabled(block: () -> R): R {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(26)
 private fun Window.generateBitmap(boundsInWindow: Rect): Bitmap {
     val destBitmap =
         Bitmap.createBitmap(
@@ -249,7 +249,7 @@ private fun Window.generateBitmap(boundsInWindow: Rect): Bitmap {
     return destBitmap
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(26)
 private fun Window.generateBitmapFromPixelCopy(boundsInWindow: Rect, destBitmap: Bitmap) {
     val latch = CountDownLatch(1)
     var copyResult = 0
@@ -273,7 +273,7 @@ private fun Window.generateBitmapFromPixelCopy(boundsInWindow: Rect, destBitmap:
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(26)
 private object PixelCopyHelper {
     @DoNotInline
     fun request(
