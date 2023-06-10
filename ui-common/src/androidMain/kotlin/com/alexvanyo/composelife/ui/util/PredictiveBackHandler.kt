@@ -18,10 +18,9 @@
 
 package com.alexvanyo.composelife.ui.util
 
-import android.window.BackEvent
+import androidx.activity.BackEventCompat
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -43,9 +42,7 @@ sealed interface PredictiveBackState {
     /**
      * There is an ongoing predictive back animation, with the given [progress].
      */
-    data class Running
-    @RequiresApi(34)
-    constructor(
+    data class Running(
         val progress: Float,
     ) : PredictiveBackState
 }
@@ -70,20 +67,17 @@ fun predictiveBackHandler(
                 predictiveBackState = PredictiveBackState.NotRunning
             }
 
-            @RequiresApi(34)
             override fun handleOnBackCancelled() {
                 super.handleOnBackCancelled()
                 predictiveBackState = PredictiveBackState.NotRunning
             }
 
-            @RequiresApi(34)
-            override fun handleOnBackStarted(backEvent: BackEvent) {
+            override fun handleOnBackStarted(backEvent: BackEventCompat) {
                 super.handleOnBackStarted(backEvent)
                 predictiveBackState = PredictiveBackState.Running(backEvent.progress)
             }
 
-            @RequiresApi(34)
-            override fun handleOnBackProgressed(backEvent: BackEvent) {
+            override fun handleOnBackProgressed(backEvent: BackEventCompat) {
                 super.handleOnBackProgressed(backEvent)
                 predictiveBackState = PredictiveBackState.Running(backEvent.progress)
             }
