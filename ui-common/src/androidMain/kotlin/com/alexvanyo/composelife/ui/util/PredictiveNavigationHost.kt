@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.ui.util
 
 import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,7 +42,7 @@ fun <T> PredictiveNavigationHost(
     backstackState: BackstackState<T>,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
-    contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = 800f),
+    contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     content: @Composable (BackstackEntry<out T>) -> Unit,
 ) {
     val stateHolder = rememberSaveableStateHolder()

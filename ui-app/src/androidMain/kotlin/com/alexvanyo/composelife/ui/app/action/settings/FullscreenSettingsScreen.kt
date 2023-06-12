@@ -453,6 +453,17 @@ private fun SettingsCategoryDetail(
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier
+                .then(
+                    if (showAppBar) {
+                        Modifier.consumeWindowInsets(
+                            WindowInsets.safeDrawing.only(
+                                WindowInsetsSides.Horizontal + WindowInsetsSides.Top,
+                            ),
+                        )
+                    } else {
+                        Modifier
+                    },
+                )
                 .safeDrawingPadding()
                 .verticalScroll(detailScrollState)
                 .padding(vertical = 16.dp),
