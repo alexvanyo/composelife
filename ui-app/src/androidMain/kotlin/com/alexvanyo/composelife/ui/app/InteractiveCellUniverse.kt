@@ -17,6 +17,7 @@
 
 package com.alexvanyo.composelife.ui.app
 
+import android.util.Log
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -57,6 +58,7 @@ import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.util.PredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.predictiveBackHandler
+import com.alexvanyo.composelife.ui.util.realBoundsInParent
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
@@ -302,6 +304,7 @@ fun rememberInteractiveCellUniverseState(
             }
 
             override fun reportActionCardCoordinates(layoutCoordinates: LayoutCoordinates) {
+                Log.d("vanyo", "actionCardCoordiantes: ${layoutCoordinates.realBoundsInParent()}")
                 isActionCardSizedFullscreen = layoutCoordinates.size ==
                     requireNotNull(layoutCoordinates.findRootCoordinates()).size
             }

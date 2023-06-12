@@ -136,8 +136,7 @@ fun <T> AnimatedContent(
                     val isGhostElement = LocalGhostElement.current || target != targetState.current
                     CompositionLocalProvider(LocalGhostElement provides isGhostElement) {
                         val smoothedAlpha by transition.animateFloat(
-                            transitionSpec = { spring(stiffness = Spring.StiffnessMediumLow) },
-                            label = "smoothedProgressToTarget",
+                            label = "smoothedAlpha",
                         ) { alphaEasing.transform(it) }
 
                         Box(
