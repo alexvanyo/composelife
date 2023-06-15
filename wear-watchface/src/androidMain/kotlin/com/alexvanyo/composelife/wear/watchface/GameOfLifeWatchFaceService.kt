@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.wear.watchface
 
-import android.util.Log
 import android.view.SurfaceHolder
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.graphics.toArgb
@@ -127,7 +126,6 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
             isBeingTappedState,
         ) { isVisible, isAmbient, isBeingTapped ->
             val isRunning = isVisible == true && isAmbient == false && !isBeingTapped
-            Log.d("vanyo", "isRunning: $isRunning")
             renderer.interactiveDrawModeUpdateDelayMillis = if (isRunning) 50 else 1000
             Snapshot.withMutableSnapshot {
                 temporalGameOfLifeState.setIsRunning(isRunning)
