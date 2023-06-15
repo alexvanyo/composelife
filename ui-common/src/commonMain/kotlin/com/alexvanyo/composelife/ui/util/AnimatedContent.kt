@@ -29,16 +29,35 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.LayoutModifier
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastMap
 import com.alexvanyo.composelife.geometry.lerp
 import com.alexvanyo.composelife.snapshotstateset.mutableStateSetOf
 import kotlinx.coroutines.flow.collect
@@ -51,6 +70,7 @@ import kotlinx.coroutines.flow.onEach
  *
  * For all [content] that is not [TargetState.current], [LocalGhostElement] will be `true`.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @Suppress("LongMethod", "CyclomaticComplexMethod", "LongParameterList")
 @Composable
 fun <T> AnimatedContent(
@@ -124,6 +144,22 @@ fun <T> AnimatedContent(
         }
     }
 
+    data class ConstraintsType(
+        val isLookahead: Boolean,
+    )
+
+    @Stable
+    class ConstraintsCache {
+        val cache = mutableStateMapOf<ConstraintsType, Constraints>()
+    }
+
+    val targetsWithConstraints: Map<T, ConstraintsCache> =
+        currentTargetsInTransition.associateWith { target ->
+            key(target) {
+                remember { ConstraintsCache() }
+            }
+        }
+
     data class TargetStateLayoutId(val value: T)
 
     Layout(
@@ -151,37 +187,152 @@ fun <T> AnimatedContent(
                 }
             }
         },
-        measurePolicy = { measurables, constraints ->
-            val measurablesMap = measurables.associateBy {
-                @Suppress("UNCHECKED_CAST")
-                (it.layoutId as TargetStateLayoutId).value
-            }
+        measurePolicy = object : MeasurePolicy {
 
-            val placeablesMaps = measurablesMap.mapValues { (_, measurable) ->
-                measurable.measure(constraints)
-            }
-
-            val targetSize = when (targetState) {
-                is TargetState.InProgress -> {
-                    lerp(
-                        placeablesMaps.getValue(targetState.current).size,
-                        placeablesMaps.getValue(targetState.provisional).size,
-                        targetState.progress,
-                    )
+            private fun MeasureScope.measure(
+                measurables: List<Measurable>,
+                constraints: Constraints,
+                isIntrinsic: Boolean,
+            ): MeasureResult {
+                val measurablesMap = measurables.associateBy {
+                    @Suppress("UNCHECKED_CAST")
+                    (it.layoutId as TargetStateLayoutId).value
                 }
-                is TargetState.Single -> placeablesMaps.getValue(targetState.current).size
+
+                val constraintsType = ConstraintsType(
+                    isLookahead = isLookingAhead(),
+                )
+                val placeablesMaps = measurablesMap.mapValues { (target, measurable) ->
+                    // Determine the contraints to measure with
+                    val resolvedConstraints = if (isIntrinsic) {
+                        // If this is an intrinsic measurement, the constraints have no external dependency, so we
+                        // don't need to cache them.
+                        constraints
+                    } else {
+                        // For safety, we don't want to create an infinite measurement loop if this method happens
+                        // to run multiple times with different constraints for the same ConstraintsType.
+                        // To accomplish that, don't observe reads here
+                        Snapshot.withoutReadObservation {
+                            // Get the cache for the given target
+                            val cache = targetsWithConstraints.getValue(target).cache
+
+                            // If we don't have a saved constraints, the target is the current target, or the
+                            // target is the provisional target, update the constraints. Otherwise, we measure using
+                            // the cached constraints as we animate out.
+                            @Suppress("ComplexCondition")
+                            if (constraintsType !in cache ||
+                                target == targetState.current ||
+                                (targetState.isInProgress() && target == targetState.provisional)
+                            ) {
+                                cache[constraintsType] = constraints
+                            }
+                            cache.getValue(constraintsType)
+                        }
+                    }
+
+                    measurable.measure(resolvedConstraints)
+                }
+
+                val targetSize = when (targetState) {
+                    is TargetState.InProgress -> {
+                        lerp(
+                            placeablesMaps.getValue(targetState.current).size,
+                            placeablesMaps.getValue(targetState.provisional).size,
+                            targetState.progress,
+                        )
+                    }
+                    is TargetState.Single -> placeablesMaps.getValue(targetState.current).size
+                }
+
+                return layout(targetSize.width, targetSize.height) {
+                    placeablesMaps.values.forEach {
+                        it.place(
+                            contentAlignment.align(
+                                size = it.size,
+                                space = targetSize,
+                                layoutDirection = layoutDirection,
+                            ),
+                        )
+                    }
+                }
             }
 
-            layout(targetSize.width, targetSize.height) {
-                placeablesMaps.values.forEach {
-                    it.place(
-                        contentAlignment.align(
-                            size = it.size,
-                            space = targetSize,
-                            layoutDirection = layoutDirection,
-                        ),
-                    )
+            override fun MeasureScope.measure(
+                measurables: List<Measurable>,
+                constraints: Constraints,
+            ): MeasureResult =
+                measure(
+                    measurables = measurables,
+                    constraints = constraints,
+                    isIntrinsic = false,
+                )
+
+            override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                measurables: List<IntrinsicMeasurable>,
+                width: Int,
+            ): Int {
+                val mapped = measurables.fastMap {
+                    DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Height)
                 }
+                val constraints = Constraints(maxWidth = width)
+                val layoutReceiver = IntrinsicsMeasureScope(this, layoutDirection)
+                val layoutResult = layoutReceiver.measure(
+                    measurables = mapped,
+                    constraints = constraints,
+                    isIntrinsic = true,
+                )
+                return layoutResult.height
+            }
+
+            override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                measurables: List<IntrinsicMeasurable>,
+                height: Int,
+            ): Int {
+                val mapped = measurables.fastMap {
+                    DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Width)
+                }
+                val constraints = Constraints(maxHeight = height)
+                val layoutReceiver = IntrinsicsMeasureScope(this, layoutDirection)
+                val layoutResult = layoutReceiver.measure(
+                    measurables = mapped,
+                    constraints = constraints,
+                    isIntrinsic = true,
+                )
+                return layoutResult.width
+            }
+
+            override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                measurables: List<IntrinsicMeasurable>,
+                width: Int,
+            ): Int {
+                val mapped = measurables.fastMap {
+                    DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Height)
+                }
+                val constraints = Constraints(maxWidth = width)
+                val layoutReceiver = IntrinsicsMeasureScope(this, layoutDirection)
+                val layoutResult = layoutReceiver.measure(
+                    measurables = mapped,
+                    constraints = constraints,
+                    isIntrinsic = true,
+                )
+                return layoutResult.height
+            }
+
+            override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                measurables: List<IntrinsicMeasurable>,
+                height: Int,
+            ): Int {
+                val mapped = measurables.fastMap {
+                    DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Width)
+                }
+                val constraints = Constraints(maxHeight = height)
+                val layoutReceiver = IntrinsicsMeasureScope(this, layoutDirection)
+                val layoutResult = layoutReceiver.measure(
+                    measurables = mapped,
+                    constraints = constraints,
+                    isIntrinsic = true,
+                )
+                return layoutResult.width
             }
         },
         modifier = modifier.animateContentSize(
@@ -190,3 +341,92 @@ fun <T> AnimatedContent(
         ),
     )
 }
+
+// Adapted from MeasurePolicy.kt
+
+/**
+ * Used to return a fixed sized item for intrinsics measurements in [Layout]
+ */
+private class FixedSizeIntrinsicsPlaceable(width: Int, height: Int) : Placeable() {
+    init {
+        measuredSize = IntSize(width, height)
+    }
+
+    override fun get(alignmentLine: AlignmentLine): Int = AlignmentLine.Unspecified
+    override fun placeAt(
+        position: IntOffset,
+        zIndex: Float,
+        layerBlock: (GraphicsLayerScope.() -> Unit)?,
+    ) = Unit
+}
+
+/**
+ * Identifies an [IntrinsicMeasurable] as a min or max intrinsic measurement.
+ */
+private enum class IntrinsicMinMax {
+    Min, Max
+}
+
+/**
+ * Identifies an [IntrinsicMeasurable] as a width or height intrinsic measurement.
+ */
+private enum class IntrinsicWidthHeight {
+    Width, Height
+}
+
+/**
+ * A wrapper around a [Measurable] for intrinsic measurements in [Layout]. Consumers of
+ * [Layout] don't identify intrinsic methods, but we can give a reasonable implementation
+ * by using their [measure], substituting the intrinsics gathering method
+ * for the [Measurable.measure] call.
+ */
+private class DefaultIntrinsicMeasurable(
+    val measurable: IntrinsicMeasurable,
+    val minMax: IntrinsicMinMax,
+    val widthHeight: IntrinsicWidthHeight,
+) : Measurable {
+    override val parentData: Any?
+        get() = measurable.parentData
+
+    override fun measure(constraints: Constraints): Placeable {
+        if (widthHeight == IntrinsicWidthHeight.Width) {
+            val width = if (minMax == IntrinsicMinMax.Max) {
+                measurable.maxIntrinsicWidth(constraints.maxHeight)
+            } else {
+                measurable.minIntrinsicWidth(constraints.maxHeight)
+            }
+            return FixedSizeIntrinsicsPlaceable(width, constraints.maxHeight)
+        }
+        val height = if (minMax == IntrinsicMinMax.Max) {
+            measurable.maxIntrinsicHeight(constraints.maxWidth)
+        } else {
+            measurable.minIntrinsicHeight(constraints.maxWidth)
+        }
+        return FixedSizeIntrinsicsPlaceable(constraints.maxWidth, height)
+    }
+
+    override fun minIntrinsicWidth(height: Int): Int {
+        return measurable.minIntrinsicWidth(height)
+    }
+
+    override fun maxIntrinsicWidth(height: Int): Int {
+        return measurable.maxIntrinsicWidth(height)
+    }
+
+    override fun minIntrinsicHeight(width: Int): Int {
+        return measurable.minIntrinsicHeight(width)
+    }
+
+    override fun maxIntrinsicHeight(width: Int): Int {
+        return measurable.maxIntrinsicHeight(width)
+    }
+}
+
+/**
+ * Receiver scope for [Layout]'s and [LayoutModifier]'s layout lambda when used in an intrinsics
+ * call.
+ */
+private class IntrinsicsMeasureScope(
+    density: Density,
+    override val layoutDirection: LayoutDirection,
+) : MeasureScope, Density by density
