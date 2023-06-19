@@ -60,15 +60,22 @@ interface CellUniverseActionCardState {
      */
     val fullscreenTargetState: TargetState<Boolean>
 
-    /**
-     * The navigation state of the card.
-     */
     val navigationState: BackstackState<out ActionCardNavigation>
 
     /**
-     * The [PredictiveBackState] for the internal navigation of the [CellUniverseActionCard].
+     * The inline navigation state of the card.
+     */
+    val inlineNavigationState: BackstackState<out InlineActionCardNavigation>
+
+    /**
+     * The [PredictiveBackState] for the outer navigation of the [CellUniverseActionCard].
      */
     val predictiveBackState: PredictiveBackState
+
+    /**
+     * The [PredictiveBackState] for the inline navigation of the [CellUniverseActionCard].
+     */
+    val inlinePredictiveBackState: PredictiveBackState
 
     /**
      * `true` if the card can navigate back.
@@ -89,6 +96,8 @@ interface CellUniverseActionCardState {
     )
 
     fun onBackPressed(actorBackstackEntryId: UUID? = null)
+
+    fun inlineOnBackPressed(inlineActorBackstackEntryId: UUID? = null)
 }
 
 /**
@@ -101,81 +110,101 @@ fun rememberCellUniverseActionCardState(
     setIsExpanded: (Boolean) -> Unit,
     expandedTargetState: TargetState<Boolean>,
 ): CellUniverseActionCardState {
-    var currentBackstack by rememberSaveable(
-        stateSaver = ActionCardBackstack.Saver,
+    val navController = rememberMutableBackstackNavigationController(
+        initialBackstackEntries = listOf(
+            BackstackEntry(
+                value = ActionCardNavigation.Inline,
+                previous = null,
+            ),
+        ),
+        backstackValueSaverFactory = ActionCardNavigation.SaverFactory,
+    )
+
+    var currentInlineBackstack: InlineActionCardBackstack by rememberSaveable(
+        stateSaver = InlineActionCardBackstack.Saver,
     ) {
-        mutableStateOf(ActionCardBackstack.Speed)
+        mutableStateOf(InlineActionCardBackstack.Speed)
     }
 
     val speedNavController = rememberMutableBackstackNavigationController(
         initialBackstackEntries = listOf(
             BackstackEntry(
-                value = ActionCardNavigation.Speed.Inline,
+                value = InlineActionCardNavigation.Speed,
                 previous = null,
             ),
         ),
-        backstackValueSaverFactory = ActionCardNavigation.SaverFactory,
+        backstackValueSaverFactory = InlineActionCardNavigation.SaverFactory,
     )
 
     val editNavController = rememberMutableBackstackNavigationController(
         initialBackstackEntries = listOf(
             BackstackEntry(
-                value = ActionCardNavigation.Edit.Inline,
+                value = InlineActionCardNavigation.Edit,
                 previous = null,
             ),
         ),
-        backstackValueSaverFactory = ActionCardNavigation.SaverFactory,
+        backstackValueSaverFactory = InlineActionCardNavigation.SaverFactory,
     )
 
     val settingsNavController = rememberMutableBackstackNavigationController(
         initialBackstackEntries = listOf(
             BackstackEntry(
-                value = ActionCardNavigation.Settings.Inline,
+                value = InlineActionCardNavigation.Settings,
                 previous = null,
             ),
         ),
-        backstackValueSaverFactory = ActionCardNavigation.SaverFactory,
+        backstackValueSaverFactory = InlineActionCardNavigation.SaverFactory,
     )
 
-    val currentNavController by remember {
+    val currentInlineNavController by remember {
         derivedStateOf {
-            when (currentBackstack) {
-                ActionCardBackstack.Speed -> speedNavController
-                ActionCardBackstack.Edit -> editNavController
-                ActionCardBackstack.Settings -> settingsNavController
+            when (currentInlineBackstack) {
+                InlineActionCardBackstack.Speed -> speedNavController
+                InlineActionCardBackstack.Edit -> editNavController
+                InlineActionCardBackstack.Settings -> settingsNavController
             }
         }
     }
 
-    val canNavigateBack by remember {
+    val canOuterNavigateBack by remember {
         derivedStateOf {
-            currentNavController.canNavigateBack || when (currentBackstack) {
-                ActionCardBackstack.Speed -> false
-                ActionCardBackstack.Edit,
-                ActionCardBackstack.Settings,
+            navController.canNavigateBack
+        }
+    }
+
+    val canInnerNavigateBack by remember {
+        derivedStateOf {
+            currentInlineNavController.canNavigateBack || when (currentInlineBackstack) {
+                InlineActionCardBackstack.Speed -> false
+                InlineActionCardBackstack.Edit,
+                InlineActionCardBackstack.Settings,
                 -> true
             }
         }
     }
 
-    val navigationState = remember {
-        object : BackstackState<ActionCardNavigation> {
-            override val entryMap: BackstackMap<out ActionCardNavigation>
+    val canNavigateBack by remember {
+        derivedStateOf { canOuterNavigateBack || canInnerNavigateBack }
+    }
+
+    val inlineNavigationState = remember {
+        object : BackstackState<InlineActionCardNavigation> {
+            override val entryMap: BackstackMap<out InlineActionCardNavigation>
                 get() = speedNavController.entryMap +
                     editNavController.entryMap +
                     settingsNavController.entryMap
 
             override val currentEntryId: UUID
-                get() = currentNavController.currentEntryId
+                get() = currentInlineNavController.currentEntryId
 
             override val previousEntryId: UUID?
-                get() = if (currentNavController.canNavigateBack) {
-                    currentNavController.previousEntryId
+                get() = if (currentInlineNavController.canNavigateBack) {
+                    currentInlineNavController.previousEntryId
                 } else {
-                    when (currentBackstack) {
-                        ActionCardBackstack.Speed -> null
-                        ActionCardBackstack.Edit,
-                        ActionCardBackstack.Settings,
+                    when (currentInlineBackstack) {
+                        InlineActionCardBackstack.Speed -> null
+                        InlineActionCardBackstack.Edit,
+                        InlineActionCardBackstack.Settings,
                         -> speedNavController.currentEntryId
                     }
                 }
@@ -183,18 +212,34 @@ fun rememberCellUniverseActionCardState(
     }
 
     val onBackPressed = { actorBackstackEntryId: UUID? ->
-        currentNavController.withExpectedActor(actorBackstackEntryId) {
-            if (currentNavController.canNavigateBack) {
-                currentNavController.popBackstack()
-            } else {
-                currentBackstack = ActionCardBackstack.Speed
+        navController.withExpectedActor(actorBackstackEntryId) {
+            if (navController.canNavigateBack) {
+                navController.popBackstack()
             }
         }
     }
 
-    val predictiveBackState = if (enableBackHandler && expandedTargetState.current && canNavigateBack) {
+    val inlineOnBackPressed = { inlineActorBackstackEntryId: UUID? ->
+        currentInlineNavController.withExpectedActor(inlineActorBackstackEntryId) {
+            if (currentInlineNavController.canNavigateBack) {
+                currentInlineNavController.popBackstack()
+            } else {
+                currentInlineBackstack = InlineActionCardBackstack.Speed
+            }
+        }
+    }
+
+    val predictiveBackState = if (enableBackHandler && expandedTargetState.current && canOuterNavigateBack) {
         predictiveBackHandler {
-            onBackPressed(navigationState.currentEntryId)
+            onBackPressed(navController.currentEntryId)
+        }
+    } else {
+        PredictiveBackState.NotRunning
+    }
+
+    val inlinePredictiveBackState = if (enableBackHandler && expandedTargetState.current && canInnerNavigateBack) {
+        predictiveBackHandler {
+            inlineOnBackPressed(inlineNavigationState.currentEntryId)
         }
     } else {
         PredictiveBackState.NotRunning
@@ -209,9 +254,13 @@ fun rememberCellUniverseActionCardState(
         override val expandedTargetState: TargetState<Boolean>
             get() = expandedTargetState
 
-        override val navigationState get() = navigationState
+        override val navigationState get() = navController
+
+        override val inlineNavigationState get() = inlineNavigationState
 
         override val predictiveBackState get() = predictiveBackState
+
+        override val inlinePredictiveBackState get() = inlinePredictiveBackState
 
         override val canNavigateBack: Boolean get() = canNavigateBack
 
@@ -239,28 +288,28 @@ fun rememberCellUniverseActionCardState(
             }
 
         override fun onSpeedClicked(actorBackstackEntryId: UUID?) {
-            currentNavController.withExpectedActor(actorBackstackEntryId) {
-                currentBackstack = ActionCardBackstack.Speed
+            currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
+                currentInlineBackstack = InlineActionCardBackstack.Speed
             }
         }
 
         override fun onEditClicked(actorBackstackEntryId: UUID?) {
-            currentNavController.withExpectedActor(actorBackstackEntryId) {
-                currentBackstack = ActionCardBackstack.Edit
+            currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
+                currentInlineBackstack = InlineActionCardBackstack.Edit
             }
         }
 
         override fun onSettingsClicked(actorBackstackEntryId: UUID?) {
-            currentNavController.withExpectedActor(actorBackstackEntryId) {
-                currentBackstack = ActionCardBackstack.Settings
+            currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
+                currentInlineBackstack = InlineActionCardBackstack.Settings
             }
         }
 
         override fun onSeeMoreSettingsClicked(actorBackstackEntryId: UUID?) {
-            currentNavController.withExpectedActor(actorBackstackEntryId) {
+            currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
                 check(this === settingsNavController)
-                settingsNavController.navigate(
-                    ActionCardNavigation.Settings.Fullscreen(
+                navController.navigate(
+                    ActionCardNavigation.FullscreenSettings(
                         initialSettingsCategory = SettingsCategory.Algorithm,
                         initialShowDetails = false,
                         initialSettingToScrollTo = null,
@@ -270,10 +319,10 @@ fun rememberCellUniverseActionCardState(
         }
 
         override fun onOpenInSettingsClicked(setting: Setting, actorBackstackEntryId: UUID?) {
-            currentNavController.withExpectedActor(actorBackstackEntryId) {
+            currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
                 check(this === settingsNavController)
-                settingsNavController.navigate(
-                    ActionCardNavigation.Settings.Fullscreen(
+                navController.navigate(
+                    ActionCardNavigation.FullscreenSettings(
                         initialSettingsCategory = setting.category,
                         initialShowDetails = true,
                         initialSettingToScrollTo = setting,
@@ -284,6 +333,10 @@ fun rememberCellUniverseActionCardState(
 
         override fun onBackPressed(actorBackstackEntryId: UUID?) {
             onBackPressed(actorBackstackEntryId)
+        }
+
+        override fun inlineOnBackPressed(inlineActorBackstackEntryId: UUID?) {
+            inlineOnBackPressed(inlineActorBackstackEntryId)
         }
     }
 }

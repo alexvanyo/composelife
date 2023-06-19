@@ -73,7 +73,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
 
     @Test
     fun show_list_screen_is_displayed_correctly_with_compact_width() = runAppTest {
-        val fullscreen = ActionCardNavigation.Settings.Fullscreen(
+        val fullscreen = ActionCardNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
             initialShowDetails = false,
             initialSettingToScrollTo = null,
@@ -138,7 +138,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
 
     @Test
     fun show_list_screen_is_displayed_correctly_with_medium_width() = runAppTest {
-        val fullscreen = ActionCardNavigation.Settings.Fullscreen(
+        val fullscreen = ActionCardNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
             initialShowDetails = false,
             initialSettingToScrollTo = null,
@@ -207,7 +207,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
 
     @Test
     fun show_detail_screen_is_displayed_correctly_with_compact_width() = runAppTest {
-        val fullscreen = ActionCardNavigation.Settings.Fullscreen(
+        val fullscreen = ActionCardNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
             initialShowDetails = true,
             initialSettingToScrollTo = null,
@@ -260,7 +260,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
 
     @Test
     fun show_detail_screen_is_displayed_correctly_with_medium_width() = runAppTest {
-        val fullscreen = ActionCardNavigation.Settings.Fullscreen(
+        val fullscreen = ActionCardNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
             initialShowDetails = true,
             initialSettingToScrollTo = null,
@@ -323,7 +323,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
 
     @Test
     fun click_on_detail_is_displayed_correctly_with_compact_width() = runAppTest {
-        val fullscreen = ActionCardNavigation.Settings.Fullscreen(
+        val fullscreen = ActionCardNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
             initialShowDetails = false,
             initialSettingToScrollTo = null,
@@ -370,7 +370,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
 
     @Test
     fun click_on_detail_is_displayed_correctly_with_medium_width() = runAppTest {
-        val fullscreen = ActionCardNavigation.Settings.Fullscreen(
+        val fullscreen = ActionCardNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
             initialShowDetails = false,
             initialSettingToScrollTo = null,
@@ -431,7 +431,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun no_detail_to_scroll_to_is_displayed_correctly() = runAppTest {
-        val fullscreen = ActionCardNavigation.Settings.Fullscreen(
+        val fullscreen = ActionCardNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Visual,
             initialShowDetails = true,
             initialSettingToScrollTo = null,
@@ -478,7 +478,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun detail_to_scroll_to_is_displayed_correctly() = runAppTest {
-        val fullscreen = ActionCardNavigation.Settings.Fullscreen(
+        val fullscreen = ActionCardNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Visual,
             initialShowDetails = true,
             initialSettingToScrollTo = Setting.CellShapeConfig,
@@ -529,7 +529,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun reducing_size_keeps_selected_detail() = runAppTest {
-        val fullscreen = ActionCardNavigation.Settings.Fullscreen(
+        val fullscreen = ActionCardNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
             initialShowDetails = false,
             initialSettingToScrollTo = null,
@@ -573,7 +573,7 @@ class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity:
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun expanding_size_keeps_selected_detail() = runAppTest {
-        val fullscreen = ActionCardNavigation.Settings.Fullscreen(
+        val fullscreen = ActionCardNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
             initialShowDetails = false,
             initialSettingToScrollTo = null,
