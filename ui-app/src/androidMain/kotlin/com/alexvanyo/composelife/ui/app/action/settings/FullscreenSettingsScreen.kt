@@ -112,7 +112,7 @@ context(FullscreenSettingsScreenHiltEntryPoint, FullscreenSettingsScreenLocalEnt
 @Composable
 fun FullscreenSettingsScreen(
     windowSizeClass: WindowSizeClass,
-    fullscreen: ActionCardNavigation.Settings.Fullscreen,
+    fullscreen: ActionCardNavigation.FullscreenSettings,
     onBackButtonPressed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -529,7 +529,7 @@ fun FullscreenSettingsScreenListPreview() {
                 Surface {
                     FullscreenSettingsScreen(
                         windowSizeClass = WindowSizeClass.calculateFromSize(size),
-                        fullscreen = ActionCardNavigation.Settings.Fullscreen(
+                        fullscreen = ActionCardNavigation.FullscreenSettings(
                             initialSettingsCategory = SettingsCategory.Algorithm,
                             initialShowDetails = false,
                             initialSettingToScrollTo = null,
@@ -554,7 +554,7 @@ fun FullscreenSettingsScreenAlgorithmPreview() {
                 Surface {
                     FullscreenSettingsScreen(
                         windowSizeClass = WindowSizeClass.calculateFromSize(size),
-                        fullscreen = ActionCardNavigation.Settings.Fullscreen(
+                        fullscreen = ActionCardNavigation.FullscreenSettings(
                             initialSettingsCategory = SettingsCategory.Algorithm,
                             initialShowDetails = true,
                             initialSettingToScrollTo = null,
@@ -579,7 +579,7 @@ fun FullscreenSettingsScreenVisualPreview() {
                 Surface {
                     FullscreenSettingsScreen(
                         windowSizeClass = WindowSizeClass.calculateFromSize(size),
-                        fullscreen = ActionCardNavigation.Settings.Fullscreen(
+                        fullscreen = ActionCardNavigation.FullscreenSettings(
                             initialSettingsCategory = SettingsCategory.Visual,
                             initialShowDetails = true,
                             initialSettingToScrollTo = null,
@@ -604,7 +604,7 @@ fun FullscreenSettingsScreenFeatureFlagsPreview() {
                 Surface {
                     FullscreenSettingsScreen(
                         windowSizeClass = WindowSizeClass.calculateFromSize(size),
-                        fullscreen = ActionCardNavigation.Settings.Fullscreen(
+                        fullscreen = ActionCardNavigation.FullscreenSettings(
                             initialSettingsCategory = SettingsCategory.FeatureFlags,
                             initialShowDetails = true,
                             initialSettingToScrollTo = null,
