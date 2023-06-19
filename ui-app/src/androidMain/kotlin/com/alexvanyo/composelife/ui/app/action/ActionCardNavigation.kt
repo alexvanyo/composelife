@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,29 +29,6 @@ import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
 
-/**
- * A sealed enum of the three different backstack types for the action card.
- */
-sealed interface ActionCardBackstack {
-    object Speed : ActionCardBackstack
-    object Edit : ActionCardBackstack
-    object Settings : ActionCardBackstack
-
-    @GenSealedEnum
-    companion object {
-        val Saver = sealedEnumSaver(sealedEnum)
-    }
-}
-
-/**
- * The entry value for the action card navigation.
- *
- * Each entry value is a [Stable] state holder, which contains a small amount of information related to a particular
- * destination in the backstack. An entry value can be immutable, but does not have to be.
- *
- * Each entry value has an associated [type]. The associated [type] has a [ActionCardNavigationType.saverFactory] to
- * allow restoring a particular instance of [ActionCardNavigation].
- */
 @Stable
 sealed interface ActionCardNavigation {
     /**
@@ -64,110 +41,73 @@ sealed interface ActionCardNavigation {
      */
     val isFullscreen: Boolean
 
-    sealed interface Speed : ActionCardNavigation {
-        override val type: ActionCardNavigationType.Speed
+    object Inline : ActionCardNavigation {
 
-        object Inline : Speed {
-            override val type = Companion
-            override val isFullscreen: Boolean = false
+        override val type = Companion
+        override val isFullscreen: Boolean = false
 
-            object Companion : ActionCardNavigationType.Speed {
-                override fun saverFactory(
-                    previous: BackstackEntry<ActionCardNavigation>?,
-                ): Saver<Inline, Any> = Saver(
-                    save = { 0 },
-                    restore = { Inline },
-                )
-            }
+        object Companion : ActionCardNavigationType {
+            override fun saverFactory(
+                previous: BackstackEntry<ActionCardNavigation>?,
+            ): Saver<Inline, Any> = Saver(
+                save = { 0 },
+                restore = { Inline },
+            )
         }
     }
-    sealed interface Edit : ActionCardNavigation {
-        override val type: ActionCardNavigationType.Edit
 
-        object Inline : Edit {
-            override val type = Companion
-            override val isFullscreen: Boolean = false
+    class FullscreenSettings(
+        initialSettingsCategory: SettingsCategory,
+        initialShowDetails: Boolean,
+        initialSettingToScrollTo: Setting?,
+    ) : ActionCardNavigation {
+        /**
+         * The currently selected settings category.
+         */
+        var settingsCategory: SettingsCategory by mutableStateOf(initialSettingsCategory)
 
-            object Companion : ActionCardNavigationType.Edit {
-                override fun saverFactory(
-                    previous: BackstackEntry<ActionCardNavigation>?,
-                ): Saver<Inline, Any> = Saver(
-                    save = { 0 },
-                    restore = { Inline },
-                )
-            }
-        }
-    }
-    sealed interface Settings : ActionCardNavigation {
-        override val type: ActionCardNavigationType.Settings
+        /**
+         * `true` if the details should be shown.
+         */
+        var showDetails: Boolean by mutableStateOf(initialShowDetails)
 
-        object Inline : Settings {
-            override val type = Companion
-            override val isFullscreen: Boolean = false
+        /**
+         * If non-null, a [Setting] to scroll to immediately.
+         */
+        var settingToScrollTo: Setting? by mutableStateOf(initialSettingToScrollTo)
+            private set
 
-            object Companion : ActionCardNavigationType.Settings {
-                override fun saverFactory(
-                    previous: BackstackEntry<ActionCardNavigation>?,
-                ): Saver<Inline, Any> = Saver(
-                    save = { 0 },
-                    restore = { Inline },
-                )
-            }
+        /**
+         * A callback that [settingToScrollTo] has been scrolled to, and shouldn't be scrolled to again.
+         */
+        fun onFinishedScrollingToSetting() {
+            settingToScrollTo = null
         }
 
-        class Fullscreen(
-            initialSettingsCategory: SettingsCategory,
-            initialShowDetails: Boolean,
-            initialSettingToScrollTo: Setting?,
-        ) : Settings {
-            /**
-             * The currently selected settings category.
-             */
-            var settingsCategory: SettingsCategory by mutableStateOf(initialSettingsCategory)
+        override val type = Companion
+        override val isFullscreen: Boolean = true
 
-            /**
-             * `true` if the details should be shown.
-             */
-            var showDetails: Boolean by mutableStateOf(initialShowDetails)
-
-            /**
-             * If non-null, a [Setting] to scroll to immediately.
-             */
-            var settingToScrollTo: Setting? by mutableStateOf(initialSettingToScrollTo)
-                private set
-
-            /**
-             * A callback that [settingToScrollTo] has been scrolled to, and shouldn't be scrolled to again.
-             */
-            fun onFinishedScrollingToSetting() {
-                settingToScrollTo = null
-            }
-
-            override val type = Companion
-            override val isFullscreen: Boolean = true
-
-            companion object : ActionCardNavigationType.Settings {
-                @Suppress("UnsafeCallOnNullableType")
-                override fun saverFactory(
-                    previous: BackstackEntry<ActionCardNavigation>?,
-                ): Saver<Fullscreen, Any> =
-                    listSaver(
-                        save = { fullscreen ->
-                            listOf(
-                                with(SettingsCategory.Saver) { save(fullscreen.settingsCategory) },
-                                fullscreen.showDetails,
-                                fullscreen.settingToScrollTo?.let { with(Setting.Saver) { save(it) } },
-                            )
-                        },
-                        restore = {
-                            Fullscreen(
-                                initialSettingsCategory = SettingsCategory.Saver.restore(it[0] as Int)!!,
-                                initialShowDetails = it[1] as Boolean,
-                                initialSettingToScrollTo = (it[2] as Int?)?.let(Setting.Saver::restore),
-                            )
-                        },
-                    )
-            }
+        companion object : ActionCardNavigationType {
+            @Suppress("UnsafeCallOnNullableType")
+            override fun saverFactory(
+                previous: BackstackEntry<ActionCardNavigation>?,
+            ): Saver<FullscreenSettings, Any> =
+                listSaver(
+                    save = { fullscreen ->
+                        listOf(
+                            with(SettingsCategory.Saver) { save(fullscreen.settingsCategory) },
+                            fullscreen.showDetails,
+                            fullscreen.settingToScrollTo?.let { with(Setting.Saver) { save(it) } },
+                        )
+                    },
+                    restore = {
+                        FullscreenSettings(
+                            initialSettingsCategory = SettingsCategory.Saver.restore(it[0] as Int)!!,
+                            initialShowDetails = it[1] as Boolean,
+                            initialSettingToScrollTo = (it[2] as Int?)?.let(Setting.Saver::restore),
+                        )
+                    },
+                )
         }
     }
 
@@ -179,22 +119,12 @@ sealed interface ActionCardNavigation {
                     listOf(
                         with(ActionCardNavigationType.Saver) { save(actionCardNavigation.type) },
                         when (actionCardNavigation) {
-                            is Settings.Inline ->
+                            is Inline ->
                                 with(actionCardNavigation.type.saverFactory(previous)) {
                                     save(actionCardNavigation)
                                 }
 
-                            is Settings.Fullscreen ->
-                                with(actionCardNavigation.type.saverFactory(previous)) {
-                                    save(actionCardNavigation)
-                                }
-
-                            is Edit.Inline ->
-                                with(actionCardNavigation.type.saverFactory(previous)) {
-                                    save(actionCardNavigation)
-                                }
-
-                            is Speed.Inline ->
+                            is FullscreenSettings ->
                                 with(actionCardNavigation.type.saverFactory(previous)) {
                                     save(actionCardNavigation)
                                 }
@@ -218,39 +148,6 @@ sealed interface ActionCardNavigation {
  */
 sealed interface ActionCardNavigationType {
     fun saverFactory(previous: BackstackEntry<ActionCardNavigation>?): Saver<out ActionCardNavigation, Any>
-
-    sealed interface Speed : ActionCardNavigationType {
-        override fun saverFactory(
-            previous: BackstackEntry<ActionCardNavigation>?,
-        ): Saver<out ActionCardNavigation.Speed, Any>
-
-        @GenSealedEnum
-        companion object {
-            val Saver = sealedEnumSaver(sealedEnum)
-        }
-    }
-
-    sealed interface Edit : ActionCardNavigationType {
-        override fun saverFactory(
-            previous: BackstackEntry<ActionCardNavigation>?,
-        ): Saver<out ActionCardNavigation.Edit, Any>
-
-        @GenSealedEnum
-        companion object {
-            val Saver = sealedEnumSaver(sealedEnum)
-        }
-    }
-
-    sealed interface Settings : ActionCardNavigationType {
-        override fun saverFactory(
-            previous: BackstackEntry<ActionCardNavigation>?,
-        ): Saver<out ActionCardNavigation.Settings, Any>
-
-        @GenSealedEnum
-        companion object {
-            val Saver = sealedEnumSaver(sealedEnum)
-        }
-    }
 
     @GenSealedEnum
     companion object {
