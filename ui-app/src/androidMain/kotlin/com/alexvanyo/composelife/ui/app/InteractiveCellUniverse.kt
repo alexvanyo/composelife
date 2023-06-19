@@ -38,8 +38,6 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.platform.testTag
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.isRunning
@@ -176,12 +174,6 @@ interface InteractiveCellUniverseState {
      * obscured.
      */
     val isOverlayShowingFullscreen: Boolean
-
-    /**
-     * Reports the action card's coordinates. The singular action card must call this method with the layout
-     * coordinates from [Modifier.onPlaced].
-     */
-    fun reportActionCardCoordinates(layoutCoordinates: LayoutCoordinates)
 }
 
 @Suppress("LongMethod", "CyclomaticComplexMethod")
@@ -262,8 +254,6 @@ fun rememberInteractiveCellUniverseState(
         },
     )
 
-    var isActionCardSizedFullscreen: Boolean by remember { mutableStateOf(true) }
-
     return remember(mutableCellWindowState, trackingCellWindowState, infoCardState, actionCardState) {
         object : InteractiveCellUniverseState {
             override var isViewportTracking: Boolean
@@ -298,12 +288,7 @@ fun rememberInteractiveCellUniverseState(
                     is TargetState.InProgress -> false
                     is TargetState.Single -> fullscreenTargetState.current
                 }
-                isTargetingFullscreen && isActionCardSizedFullscreen
-            }
-
-            override fun reportActionCardCoordinates(layoutCoordinates: LayoutCoordinates) {
-                isActionCardSizedFullscreen = layoutCoordinates.size ==
-                    requireNotNull(layoutCoordinates.findRootCoordinates()).size
+                isTargetingFullscreen
             }
         }
     }

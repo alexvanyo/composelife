@@ -53,11 +53,11 @@ fun ActionCardNavigationBar(
         windowInsets = WindowInsets.Zero,
     ) {
         val speedSelected =
-            actionCardState.navigationState.currentEntry.value is ActionCardNavigation.Speed
+            actionCardState.inlineNavigationState.currentEntry.value is InlineActionCardNavigation.Speed
         val editSelected =
-            actionCardState.navigationState.currentEntry.value is ActionCardNavigation.Edit
+            actionCardState.inlineNavigationState.currentEntry.value is InlineActionCardNavigation.Edit
         val settingsSelected =
-            actionCardState.navigationState.currentEntry.value is ActionCardNavigation.Settings
+            actionCardState.inlineNavigationState.currentEntry.value is InlineActionCardNavigation.Settings
 
         NavigationBarItem(
             selected = speedSelected,
