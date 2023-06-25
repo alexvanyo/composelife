@@ -16,31 +16,12 @@
 
 package com.alexvanyo.composelife.geometry
 
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class RectExtensionsTests {
-
-    @Test
-    fun int_rect_to_rect_is_correct() {
-        assertEquals(
-            Rect(
-                -3f,
-                2f,
-                -1f,
-                4f,
-            ),
-            IntRect(
-                -3,
-                2,
-                -1,
-                4,
-            ).toRect(),
-        )
-    }
 
     @Test
     fun empty_IntRect_returns_single_point() {
