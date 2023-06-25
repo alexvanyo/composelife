@@ -157,7 +157,7 @@ fun GameOfLifeProgressIndicator(
 @Composable
 fun GameOfLifeProgressIndicatorBlinkerPreview() {
     WithPreviewDependencies(
-        random = Random(2),
+        random = Random(6),
     ) {
         ComposeLifeTheme {
             GameOfLifeProgressIndicator()
@@ -169,7 +169,7 @@ fun GameOfLifeProgressIndicatorBlinkerPreview() {
 @Composable
 fun GameOfLifeProgressIndicatorToadPreview() {
     WithPreviewDependencies(
-        random = Random(5),
+        random = Random(2),
     ) {
         ComposeLifeTheme {
             GameOfLifeProgressIndicator()
@@ -180,6 +180,18 @@ fun GameOfLifeProgressIndicatorToadPreview() {
 @ThemePreviews
 @Composable
 fun GameOfLifeProgressIndicatorBeaconPreview() {
+    WithPreviewDependencies(
+        random = Random(1),
+    ) {
+        ComposeLifeTheme {
+            GameOfLifeProgressIndicator()
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun GameOfLifeProgressIndicatorPulsarPreview() {
     WithPreviewDependencies(
         random = Random(0),
     ) {

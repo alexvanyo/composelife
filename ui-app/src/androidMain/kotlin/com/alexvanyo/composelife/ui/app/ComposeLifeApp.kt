@@ -71,6 +71,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.transform
+import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
 @EntryPoint
@@ -339,7 +340,9 @@ fun LoadingCellStateComposeLifeAppPreview() {
 @MobileDevicePreviews
 @Composable
 fun LoadedComposeLifeAppPreview() {
-    WithPreviewDependencies {
+    WithPreviewDependencies(
+        random = Random(1), // Fix to Beacon loading pattern
+    ) {
         val preferences = preferences
         ComposeLifeTheme {
             BoxWithConstraints {

@@ -743,11 +743,11 @@ fun String.toCellState(
     return when (deserializationResult) {
         is DeserializationResult.Successful -> {
             check(deserializationResult.warnings.isEmpty() || !throwOnWarnings) {
-                "Warnings when parsing cell state!"
+                "Warnings when parsing cell state!\n" + deserializationResult.warnings.joinToString("\n")
             }
             deserializationResult.cellState.offsetBy(topLeftOffset)
         }
         is DeserializationResult.Unsuccessful ->
-            error("Could not parse cell state!")
+            error("Could not parse cell state!\n" + deserializationResult.errors.joinToString("\n"))
     }
 }
