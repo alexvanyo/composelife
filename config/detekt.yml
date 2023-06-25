@@ -5,6 +5,8 @@ comments:
     licenseTemplateIsRegex: true
 
 complexity:
+  CyclomaticComplexMethod:
+    excludes: [ '**/generated/**' ]
   LongMethod:
     excludes: [
       '**/test/**',
