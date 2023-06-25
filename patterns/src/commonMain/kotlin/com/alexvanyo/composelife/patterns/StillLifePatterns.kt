@@ -73,3 +73,24 @@ object PondPattern : StillLifePattern(
     |.OO.
     """.toCellState(),
 )
+
+object HatPattern : StillLifePattern(
+    patternName = "Hat",
+    """
+    |..O..
+    |.O.O.
+    |.O.O.
+    |OO.OO
+    """.toCellState(),
+)
+
+object HoneycombPattern : StillLifePattern(
+    patternName = "Honeycomb",
+    """
+    |..OO..
+    |.O..O.
+    |O.OO.O
+    |.O..O.
+    |..OO..
+    """.toCellState(),
+)
