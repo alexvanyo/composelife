@@ -96,13 +96,3 @@ fun IntRect.containedPoints(): List<IntOffset> =
             IntOffset(column, row)
         }
     }
-
-/**
- * Converts an [IntRect] to a [Rect].
- */
-fun IntRect.toRect() = Rect(
-    left = left.toFloat(),
-    top = top.toFloat(),
-    right = right.toFloat(),
-    bottom = bottom.toFloat(),
-)
