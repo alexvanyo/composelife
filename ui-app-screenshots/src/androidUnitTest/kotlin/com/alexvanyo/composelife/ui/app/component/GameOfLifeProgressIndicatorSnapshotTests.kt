@@ -41,4 +41,11 @@ class GameOfLifeProgressIndicatorSnapshotTests : BasePaparazziTest() {
             GameOfLifeProgressIndicatorBeaconPreview()
         }
     }
+
+    @Test
+    fun game_of_life_progress_indicator_pulsar_preview() {
+        snapshot {
+            GameOfLifeProgressIndicatorPulsarPreview()
+        }
+    }
 }
