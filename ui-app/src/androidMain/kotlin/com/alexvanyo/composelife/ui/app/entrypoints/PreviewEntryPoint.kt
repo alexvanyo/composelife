@@ -123,7 +123,7 @@ internal fun WithPreviewDependencies(
         disableAGSL = loadedComposeLifePreferences.disableAGSL,
         disableOpenGL = loadedComposeLifePreferences.disableOpenGL,
     ),
-    random: Random = Random(0),
+    random: Random = Random(1),
     clock: Clock = Clock.System,
     content: @Composable context(PreviewEntryPoint) () -> Unit,
 ) {
