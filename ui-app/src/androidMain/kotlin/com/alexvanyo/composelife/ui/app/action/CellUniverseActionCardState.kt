@@ -229,21 +229,19 @@ fun rememberCellUniverseActionCardState(
         }
     }
 
-    val predictiveBackState = if (enableBackHandler && expandedTargetState.current && canOuterNavigateBack) {
-        predictiveBackHandler {
+    val predictiveBackState =
+        predictiveBackHandler(
+            enabled = enableBackHandler && expandedTargetState.current && canOuterNavigateBack,
+        ) {
             onBackPressed(navController.currentEntryId)
         }
-    } else {
-        PredictiveBackState.NotRunning
-    }
 
-    val inlinePredictiveBackState = if (enableBackHandler && expandedTargetState.current && canInnerNavigateBack) {
-        predictiveBackHandler {
+    val inlinePredictiveBackState =
+        predictiveBackHandler(
+            enabled = enableBackHandler && expandedTargetState.current && canInnerNavigateBack,
+        ) {
             inlineOnBackPressed(inlineNavigationState.currentEntryId)
         }
-    } else {
-        PredictiveBackState.NotRunning
-    }
 
     return object : CellUniverseActionCardState {
 
