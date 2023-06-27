@@ -34,3 +34,12 @@
 -keep,allowobfuscation interface com.alexvanyo.composelife.ui.app.ComposeLifeAppHiltEntryPoint {
     *;
 }
+-keep,allowobfuscation class kotlinx.serialization.internal.PrimitiveArrayDescriptor {
+    *;
+}
+-keep,allowobfuscation class androidx.compose.foundation.text.selection.TextFieldPreparedSelection {
+    *;
+}
+-keep,allowobfuscation class androidx.compose.foundation.layout.IntrinsicWidthNode {
+    *;
+}
