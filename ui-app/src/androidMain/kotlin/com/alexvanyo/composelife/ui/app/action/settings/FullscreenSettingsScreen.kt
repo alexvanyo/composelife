@@ -137,13 +137,10 @@ fun FullscreenSettingsScreen(
 
     fun showListAndDetail() = showList() && showDetail()
 
-    val predictiveBackState = if (showDetail() && !showList()) {
-        predictiveBackHandler {
+    val predictiveBackState =
+        predictiveBackHandler(enabled = showDetail() && !showList()) {
             fullscreen.showDetails = false
         }
-    } else {
-        PredictiveBackState.NotRunning
-    }
 
     val listContent = remember(fullscreen) {
         movableContentOf {
