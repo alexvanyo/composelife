@@ -209,20 +209,14 @@ fun rememberInteractiveCellUniverseState(
         }
     }
 
-    val infoCardExpandedPredictiveBackState = if (isInfoCardExpanded && !isActionCardTopCard) {
-        predictiveBackHandler {
+    val infoCardExpandedPredictiveBackState =
+        predictiveBackHandler(enabled = isInfoCardExpanded && !isActionCardTopCard) {
             setIsInfoCardExpanded(false)
         }
-    } else {
-        PredictiveBackState.NotRunning
-    }
-    val actionCardExpandedPredictiveBackState = if (isActionCardExpanded) {
-        predictiveBackHandler {
+    val actionCardExpandedPredictiveBackState =
+        predictiveBackHandler(enabled = isActionCardExpanded) {
             setIsActionCardExpanded(false)
         }
-    } else {
-        PredictiveBackState.NotRunning
-    }
 
     val infoCardState = rememberCellUniverseInfoCardState(
         setIsExpanded = ::setIsInfoCardExpanded,
