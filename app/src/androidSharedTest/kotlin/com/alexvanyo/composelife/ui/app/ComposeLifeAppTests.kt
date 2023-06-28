@@ -375,15 +375,12 @@ class ComposeLifeAppTests : BaseUiHiltTest<MainActivity>(MainActivity::class.jav
 
         when (windowSizeClass.widthSizeClass) {
             WindowWidthSizeClass.Compact -> {
-                composeTestRule
-                    .onNodeWithContentDescription(context.getString(R.string.back))
-                    .performClick()
+                Espresso.pressBack()
+                composeTestRule.waitForIdle()
             }
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.back))
-            .performClick()
+        Espresso.pressBack()
 
         composeTestRule
             .onNodeWithText(context.getString(R.string.settings))
