@@ -238,7 +238,10 @@ fun rememberCellUniverseActionCardState(
 
     val inlinePredictiveBackState =
         predictiveBackHandler(
-            enabled = enableBackHandler && expandedTargetState.current && canInnerNavigateBack,
+            enabled = enableBackHandler &&
+                expandedTargetState.current &&
+                navController.currentEntry.value == ActionCardNavigation.Inline &&
+                canInnerNavigateBack,
         ) {
             inlineOnBackPressed(inlineNavigationState.currentEntryId)
         }
