@@ -29,4 +29,5 @@ android {
 
 kotlin {
     android()
+    jvm()
 }
