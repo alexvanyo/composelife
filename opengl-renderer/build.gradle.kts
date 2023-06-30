@@ -29,6 +29,7 @@ android {
 
 kotlin {
     android()
+    jvm()
 
     sourceSets {
         val androidMain by getting {
