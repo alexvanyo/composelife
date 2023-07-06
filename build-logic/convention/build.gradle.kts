@@ -74,10 +74,6 @@ gradlePlugin {
             id = "com.alexvanyo.composelife.android.application.compose"
             implementationClass = "AndroidApplicationComposeConventionPlugin"
         }
-        register("androidApplicationGradleManagedDevices") {
-            id = "com.alexvanyo.composelife.android.application.gradlemanageddevices"
-            implementationClass = "AndroidApplicationGradleManagedDevicesConventionPlugin"
-        }
         register("androidApplicationJacoco") {
             id = "com.alexvanyo.composelife.android.application.jacoco"
             implementationClass = "AndroidApplicationJacocoConventionPlugin"
@@ -98,10 +94,6 @@ gradlePlugin {
             id = "com.alexvanyo.composelife.android.library.compose"
             implementationClass = "AndroidLibraryComposeConventionPlugin"
         }
-        register("androidLibraryGradleManagedDevices") {
-            id = "com.alexvanyo.composelife.android.library.gradlemanageddevices"
-            implementationClass = "AndroidLibraryGradleManagedDevicesConventionPlugin"
-        }
         register("androidLibraryJacoco") {
             id = "com.alexvanyo.composelife.android.library.jacoco"
             implementationClass = "AndroidLibraryJacocoConventionPlugin"
@@ -121,10 +113,6 @@ gradlePlugin {
         register("androidTest") {
             id = "com.alexvanyo.composelife.android.test"
             implementationClass = "AndroidTestConventionPlugin"
-        }
-        register("androidTestGradleManagedDevices") {
-            id = "com.alexvanyo.composelife.android.test.gradlemanageddevices"
-            implementationClass = "AndroidTestGradleManagedDevicesConventionPlugin"
         }
         register("detekt") {
             id = "com.alexvanyo.composelife.detekt"
