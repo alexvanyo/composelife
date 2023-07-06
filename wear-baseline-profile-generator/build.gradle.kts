@@ -24,9 +24,12 @@ plugins {
 }
 
 android {
-    namespace = "com.alexvanyo.composelife.app.baselineprofilegenerator"
-    targetProjectPath = ":app"
-    configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
+    namespace = "com.alexvanyo.composelife.wear.baselineprofilegenerator"
+    defaultConfig {
+        minSdk = 26
+    }
+    targetProjectPath = ":wear"
+    configureGradleManagedDevices(setOf(FormFactor.Wear), this)
 }
 
 androidComponents {
@@ -55,6 +58,7 @@ kotlin {
                 implementation(libs.androidx.benchmark.macro.junit4)
                 implementation(libs.androidx.test.runner)
                 implementation(libs.androidx.test.junit)
+                implementation(libs.androidx.wear.watchface.editor)
             }
         }
     }
