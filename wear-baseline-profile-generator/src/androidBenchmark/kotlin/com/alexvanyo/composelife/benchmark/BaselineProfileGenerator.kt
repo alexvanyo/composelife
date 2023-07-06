@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife.benchmark
 
 import android.content.ComponentName
-import androidx.benchmark.macro.ExperimentalStableBaselineProfilesApi
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.wear.watchface.editor.EditorRequest
@@ -30,10 +29,9 @@ class BaselineProfileGenerator {
     @get:Rule
     val baselineProfileRule = BaselineProfileRule()
 
-    @OptIn(ExperimentalStableBaselineProfilesApi::class)
     @Test
     fun startup() {
-        baselineProfileRule.collectStableBaselineProfile(
+        baselineProfileRule.collect(
             packageName = "com.alexvanyo.composelife.wear",
             maxIterations = 10,
         ) {
