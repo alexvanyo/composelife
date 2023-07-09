@@ -22,6 +22,7 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Box
@@ -33,7 +34,9 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
@@ -79,6 +82,15 @@ fun <T> AnimatedContent(
     contentAlignment: Alignment = Alignment.TopStart,
     alphaEasing: Easing = Easing({ 0f }, (0.5f to EaseInOut)),
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
+    /**
+     * Whether or not the content size animation should be run when the size of the content itself changes.
+     * By default, this is `true`, which means that the size of the animated content container will animate if
+     * the internal size of the content changes.
+     * If this is `false`, only the size changes resulting from switching the [targetState] will be animated. Once the
+     * target size has animated to a particular [targetState], that will "lock in" to that [targetState] size track,
+     * size changes will be immediate when the [targetState] doesn't change.
+     */
+    animateInternalContentSizeChanges: Boolean = true,
     content: @Composable (T) -> Unit,
 ) {
     val previousTargetsInTransition = remember { mutableStateSetOf<T>() }
@@ -161,6 +173,10 @@ fun <T> AnimatedContent(
         }
 
     data class TargetStateLayoutId(val value: T)
+
+    var completedTargetSizeAnimation by remember(targetState) {
+        mutableStateOf(false)
+    }
 
     Layout(
         content = {
@@ -336,8 +352,18 @@ fun <T> AnimatedContent(
             }
         },
         modifier = modifier.animateContentSize(
-            animationSpec = contentSizeAnimationSpec,
+            // If we have completed animating the size of the target state, and we don't want to animate internal
+            // content size changes, we've now "locked in" to the track of this specific target state, so start
+            // snapping to the content size
+            animationSpec = if (completedTargetSizeAnimation && !animateInternalContentSizeChanges) {
+                snap()
+            } else {
+                contentSizeAnimationSpec
+            },
             alignment = contentAlignment,
+            finishedListener = { _, _ ->
+                completedTargetSizeAnimation = true
+            },
         ),
     )
 }
