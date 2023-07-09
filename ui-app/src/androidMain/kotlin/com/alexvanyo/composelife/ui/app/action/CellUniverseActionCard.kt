@@ -22,11 +22,14 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imeAnimationSource
+import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -42,6 +45,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
@@ -115,6 +119,7 @@ fun CellUniverseActionCard(
 }
 
 context(CellUniverseActionCardHiltEntryPoint, CellUniverseActionCardLocalEntryPoint)
+@OptIn(ExperimentalLayoutApi::class)
 @Suppress("LongParameterList", "LongMethod", "ComplexMethod")
 @Composable
 fun CellUniverseActionCard(
@@ -166,10 +171,15 @@ fun CellUniverseActionCard(
             Spacer(Modifier.fillMaxSize())
         }
 
+        val isImeAnimating =
+            WindowInsets.imeAnimationSource.getBottom(LocalDensity.current) !=
+                WindowInsets.imeAnimationTarget.getBottom(LocalDensity.current)
+
         PredictiveNavigationHost(
             predictiveBackState = actionCardState.predictiveBackState,
             backstackState = actionCardState.navigationState,
             contentAlignment = Alignment.BottomCenter,
+            animateInternalContentSizeChanges = !isImeAnimating,
         ) { entry ->
             when (val value = entry.value) {
                 ActionCardNavigation.Inline -> {
@@ -220,6 +230,7 @@ fun CellUniverseActionCard(
                                     contentSizeAnimationSpec = spring(
                                         stiffness = Spring.StiffnessMedium,
                                     ),
+                                    animateInternalContentSizeChanges = !isImeAnimating,
                                     modifier = Modifier.layoutId(NavContainer),
                                 ) { isExpanded ->
                                     if (isExpanded) {
@@ -231,6 +242,7 @@ fun CellUniverseActionCard(
                                                 backstackState = actionCardState.inlineNavigationState,
                                                 modifier = Modifier.weight(1f, fill = false),
                                                 contentAlignment = Alignment.BottomCenter,
+                                                animateInternalContentSizeChanges = !isImeAnimating,
                                             ) { entry ->
                                                 // Cache the scroll state based for the target entry id.
                                                 // This value won't change normally, but it will ensure we keep using

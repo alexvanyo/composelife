@@ -43,6 +43,7 @@ fun <T> PredictiveNavigationHost(
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
+    animateInternalContentSizeChanges: Boolean = false,
     content: @Composable (BackstackEntry<out T>) -> Unit,
 ) {
     val stateHolder = rememberSaveableStateHolder()
@@ -75,6 +76,7 @@ fun <T> PredictiveNavigationHost(
         },
         contentAlignment = contentAlignment,
         contentSizeAnimationSpec = contentSizeAnimationSpec,
+        animateInternalContentSizeChanges = animateInternalContentSizeChanges,
         modifier = modifier,
     ) { entry ->
         key(entry.id) {

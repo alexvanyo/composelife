@@ -21,6 +21,7 @@ import androidx.compose.animation.core.AnimationEndReason
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.SnapSpec
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -71,8 +72,8 @@ actual fun Modifier.animateContentSize(
  * change by animating to that size. The size reported to parents will be the animated size.
  */
 private class SizeAnimationModifier(
-    val animSpec: AnimationSpec<IntSize>,
-    val scope: CoroutineScope,
+    val animationSpec: AnimationSpec<IntSize>,
+    val coroutineScope: CoroutineScope,
     val alignment: Alignment,
 ) : LayoutModifierWithPassThroughIntrinsics() {
     var listener: ((startSize: IntSize, endSize: IntSize) -> Unit)? = null
@@ -103,27 +104,36 @@ private class SizeAnimationModifier(
     }
 
     fun animateTo(targetSize: IntSize): IntSize {
-        val data = animData?.apply {
+        val oldData = animData
+        val animSpec = animationSpec
+
+        val newData = if (oldData == null || (animSpec is SnapSpec<*> && animSpec.delay == 0)) {
+            AnimData(
+                Animatable(
+                    targetSize,
+                    IntSize.VectorConverter,
+                    IntSize(1, 1),
+                ),
+                targetSize,
+            )
+        } else {
+            oldData
+        }
+
+        oldData?.run {
             if (targetSize != anim.targetValue) {
                 startSize = anim.value
-                scope.launch {
+                coroutineScope.launch {
                     val result = anim.animateTo(targetSize, animSpec)
                     if (result.endReason == AnimationEndReason.Finished) {
                         listener?.invoke(startSize, result.endState.value)
                     }
                 }
             }
-        } ?: AnimData(
-            Animatable(
-                targetSize,
-                IntSize.VectorConverter,
-                IntSize(1, 1),
-            ),
-            targetSize,
-        )
+        }
 
-        animData = data
-        return data.anim.value
+        animData = newData
+        return newData.anim.value
     }
 }
 
