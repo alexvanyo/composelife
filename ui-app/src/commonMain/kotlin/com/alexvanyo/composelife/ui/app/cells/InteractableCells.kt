@@ -18,7 +18,6 @@
 package com.alexvanyo.composelife.ui.app.cells
 
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Surface
@@ -40,24 +39,19 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.geometry.LineSegmentPath
 import com.alexvanyo.composelife.geometry.cellIntersections
 import com.alexvanyo.composelife.geometry.containedPoints
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.setCellState
-import com.alexvanyo.composelife.model.toCellState
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
-import com.alexvanyo.composelife.ui.app.R
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.ThemePreviews
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
@@ -122,10 +116,11 @@ fun InteractableCells(
                                 null -> if (isAliveInState) DrawState.Alive else DrawState.Dead
                             },
                             shape = preferences.currentShape,
-                            contentDescription = stringResource(
-                                R.string.cell_content_description,
-                                cell.x,
-                                cell.y,
+                            contentDescription = parameterizedStringResource(
+                                InteractableCellContentDescription(
+                                    x = cell.x,
+                                    y = cell.y,
+                                ),
                             ),
                             onValueChange = { isAlive ->
                                 gameOfLifeState.setCellState(
@@ -215,34 +210,7 @@ private fun Modifier.drawingCellInput(
     }
 }
 
-@ThemePreviews
-@Composable
-fun InteractableCellsPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            Box(modifier = Modifier.size(300.dp)) {
-                InteractableCells(
-                    gameOfLifeState = MutableGameOfLifeState(
-                        setOf(
-                            0 to 0,
-                            0 to 2,
-                            0 to 4,
-                            2 to 0,
-                            2 to 2,
-                            2 to 4,
-                            4 to 0,
-                            4 to 2,
-                            4 to 4,
-                        ).toCellState(),
-                    ),
-                    scaledCellDpSize = 32.dp,
-                    cellWindow = IntRect(
-                        IntOffset(0, 0),
-                        IntOffset(9, 9),
-                    ),
-                    pixelOffsetFromCenter = Offset.Zero,
-                )
-            }
-        }
-    }
-}
+internal expect fun InteractableCellContentDescription(
+    x: Int,
+    y: Int,
+): ParameterizedString

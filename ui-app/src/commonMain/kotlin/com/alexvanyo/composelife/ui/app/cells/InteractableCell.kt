@@ -18,7 +18,6 @@ package com.alexvanyo.composelife.ui.app.cells
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
@@ -31,11 +30,8 @@ import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.preferences.CurrentShape
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 /**
  * An individual cell that is interactable.
@@ -110,80 +106,4 @@ sealed interface DrawState {
     object Dead : DrawState
     object PendingAlive : DrawState
     object PendingDead : DrawState
-}
-
-@ThemePreviews
-@Composable
-fun AliveCellPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            InteractableCell(
-                modifier = Modifier.size(50.dp),
-                drawState = DrawState.Alive,
-                shape = CurrentShape.RoundRectangle(
-                    sizeFraction = 1f,
-                    cornerFraction = 0f,
-                ),
-                contentDescription = "test cell",
-                onValueChange = {},
-            )
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun PendingAliveCellPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            InteractableCell(
-                modifier = Modifier.size(50.dp),
-                drawState = DrawState.PendingAlive,
-                shape = CurrentShape.RoundRectangle(
-                    sizeFraction = 1f,
-                    cornerFraction = 0f,
-                ),
-                contentDescription = "test cell",
-                onValueChange = {},
-            )
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun DeadCellPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            InteractableCell(
-                modifier = Modifier.size(50.dp),
-                drawState = DrawState.Dead,
-                shape = CurrentShape.RoundRectangle(
-                    sizeFraction = 1f,
-                    cornerFraction = 0f,
-                ),
-                contentDescription = "test cell",
-                onValueChange = {},
-            )
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun PendingDeadCellPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            InteractableCell(
-                modifier = Modifier.size(50.dp),
-                drawState = DrawState.PendingDead,
-                shape = CurrentShape.RoundRectangle(
-                    sizeFraction = 1f,
-                    cornerFraction = 0f,
-                ),
-                contentDescription = "test cell",
-                onValueChange = {},
-            )
-        }
-    }
 }
