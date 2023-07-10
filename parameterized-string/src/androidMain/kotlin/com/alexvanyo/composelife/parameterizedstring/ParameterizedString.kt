@@ -107,7 +107,7 @@ fun Resources.getParameterizedString(parameterizedString: ParameterizedString): 
  * Creates a lambda to resolve the [ParameterizedString] to a [String].
  */
 @Composable
-fun parameterizedStringResolver(): (ParameterizedString) -> String {
+actual fun parameterizedStringResolver(): (ParameterizedString) -> String {
     LocalConfiguration.current
     val context = LocalContext.current
     return {

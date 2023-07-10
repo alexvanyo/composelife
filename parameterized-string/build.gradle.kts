@@ -24,6 +24,7 @@ plugins {
     id("com.alexvanyo.composelife.android.library.jacoco")
     id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
+    id("com.alexvanyo.composelife.kotlin.multiplatform.compose")
 }
 
 android {

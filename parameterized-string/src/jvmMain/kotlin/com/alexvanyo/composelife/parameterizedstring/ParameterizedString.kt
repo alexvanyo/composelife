@@ -38,6 +38,18 @@ fun ParameterizedString(
 )
 
 /**
+ * Creates a lambda to resolve the [ParameterizedString] to a [String].
+ */
+@Composable
+actual fun parameterizedStringResolver(): (ParameterizedString) -> String {
+    return {
+        when (it) {
+            is ParameterizedString.BasicString -> it.value
+        }
+    }
+}
+
+/**
  * Resolves the [ParameterizedString] to a [String] using the local [Context].
  */
 @Composable

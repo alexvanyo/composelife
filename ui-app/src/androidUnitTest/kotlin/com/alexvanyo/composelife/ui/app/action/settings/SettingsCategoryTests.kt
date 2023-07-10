@@ -22,7 +22,7 @@ import kotlin.test.assertEquals
 class SettingsCategoryTests {
 
     @Test
-    fun `algorithm settings are correct`() {
+    fun algorithm_settings_are_correct() {
         assertEquals(
             listOf(Setting.AlgorithmImplementation),
             SettingsCategory.Algorithm.settings,
@@ -30,7 +30,7 @@ class SettingsCategoryTests {
     }
 
     @Test
-    fun `visual settings are correct`() {
+    fun visual_settings_are_correct() {
         assertEquals(
             listOf(
                 Setting.CellStatePreview,
@@ -42,7 +42,7 @@ class SettingsCategoryTests {
     }
 
     @Test
-    fun `feature flag settings are correct`() {
+    fun feature_flag_settings_are_correct() {
         assertEquals(
             listOf(
                 Setting.DisableAGSL,
