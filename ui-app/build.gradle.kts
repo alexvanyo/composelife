@@ -25,6 +25,7 @@ plugins {
     id("com.alexvanyo.composelife.android.library.ksp")
     id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
+    id("com.alexvanyo.composelife.kotlin.multiplatform.compose")
     kotlin("kapt")
 }
 
@@ -58,6 +59,9 @@ kotlin {
                 implementation(projects.snapshotStateSet)
                 implementation(projects.uiCommon)
 
+                implementation(libs.jetbrains.compose.material3)
+                implementation(libs.jetbrains.compose.ui)
+                implementation(libs.jetbrains.compose.uiUtil)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.collections.immutable)
                 implementation(libs.kotlinx.coroutines.core)
