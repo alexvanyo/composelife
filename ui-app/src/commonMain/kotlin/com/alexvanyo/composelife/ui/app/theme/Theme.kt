@@ -16,20 +16,14 @@
 
 package com.alexvanyo.composelife.ui.app.theme
 
-import android.os.Build
-import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.ui.platform.LocalContext
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
@@ -90,26 +84,6 @@ object ComposeLifeTheme {
             lightColorScheme
         }
 
-    val lightColorScheme
-        @Composable
-        @ReadOnlyComposable
-        get() =
-            if (useDynamicColorScheme()) {
-                dynamicLightColorScheme(LocalContext.current)
-            } else {
-                lightColorScheme()
-            }
-
-    val darkColorScheme
-        @Composable
-        @ReadOnlyComposable
-        get() =
-            if (useDynamicColorScheme()) {
-                dynamicDarkColorScheme(LocalContext.current)
-            } else {
-                darkColorScheme()
-            }
-
     val aliveCellColor
         @Composable
         @ReadOnlyComposable
@@ -131,9 +105,13 @@ object ComposeLifeTheme {
         get() = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)
 }
 
-@ChecksSdkIntAtLeast(api = 31)
-private fun useDynamicColorScheme() =
-    Build.VERSION.SDK_INT >= 31
+@get:Composable
+@get:ReadOnlyComposable
+internal expect val ComposeLifeTheme.lightColorScheme: ColorScheme
+
+@get:Composable
+@get:ReadOnlyComposable
+internal expect val ComposeLifeTheme.darkColorScheme: ColorScheme
 
 context(ComposeLifePreferencesProvider)
 @Composable
