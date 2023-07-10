@@ -16,8 +16,6 @@
 
 package com.alexvanyo.composelife.ui.app.cells
 
-import android.content.Context
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -26,40 +24,35 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.ScrollWheel
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.ui.app.R
-import kotlinx.coroutines.test.runTest
-import org.junit.Rule
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-@RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalTestApi::class)
+@RunWith(KmpAndroidJUnit4::class)
 class CellWindowTests {
-
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
-
-    private val context: Context get() = composeTestRule.activity
 
     private val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults
     }
 
     @Test
-    fun cells_are_displayed_correctly() {
+    fun cells_are_displayed_correctly() = runComposeUiTest {
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
                 0 to 0,
@@ -74,8 +67,12 @@ class CellWindowTests {
             ).toCellState(),
         )
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
             with(cellWindowLocalEntryPoint) {
+                resolver = parameterizedStringResolver()
+
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(50.dp),
@@ -90,51 +87,44 @@ class CellWindowTests {
             }
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.cell_content_description, 0, 0),
-            )
+        onNodeWithContentDescription(
+            resolver(InteractableCellContentDescription(0, 0)),
+        )
             .assertIsOn()
 
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.cell_content_description, 0, 1),
-            )
+        onNodeWithContentDescription(
+            resolver(InteractableCellContentDescription(0, 1)),
+        )
             .assertIsOff()
 
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.cell_content_description, 0, 2),
-            )
+        onNodeWithContentDescription(
+            resolver(InteractableCellContentDescription(0, 2)),
+        )
             .assertIsOn()
 
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.cell_content_description, 0, 4),
-            )
+        onNodeWithContentDescription(
+            resolver(InteractableCellContentDescription(0, 4)),
+        )
             .assertDoesNotExist()
 
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.cell_content_description, 2, 0),
-            )
+        onNodeWithContentDescription(
+            resolver(InteractableCellContentDescription(2, 0)),
+        )
             .assertIsOn()
 
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.cell_content_description, 2, 1),
-            )
+        onNodeWithContentDescription(
+            resolver(InteractableCellContentDescription(2, 1)),
+        )
             .assertIsOff()
 
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.cell_content_description, 2, 2),
-            )
+        onNodeWithContentDescription(
+            resolver(InteractableCellContentDescription(2, 2)),
+        )
             .assertIsOn()
     }
 
     @Test
-    fun cells_are_displayed_correctly_after_scrolling() = runTest {
+    fun cells_are_displayed_correctly_after_scrolling() = runComposeUiTest {
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
                 0 to 0,
@@ -153,7 +143,7 @@ class CellWindowTests {
 
         lateinit var density: Density
 
-        composeTestRule.setContent {
+        setContent {
             density = LocalDensity.current
 
             with(cellWindowLocalEntryPoint) {
@@ -166,7 +156,7 @@ class CellWindowTests {
             }
         }
 
-        composeTestRule.onRoot().performTouchInput {
+        onRoot().performTouchInput {
             with(density) {
                 swipe(
                     Offset(135.dp.toPx(), 135.dp.toPx()),
@@ -175,15 +165,14 @@ class CellWindowTests {
             }
         }
 
-        composeTestRule.waitForIdle()
+        waitForIdle()
 
         assertTrue(mutableCellWindowState.offset.x > 3f)
         assertTrue(mutableCellWindowState.offset.y > 3f)
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
-    fun cells_are_displayed_correctly_after_zooming_in_with_mouse_wheel() = runTest {
+    fun cells_are_displayed_correctly_after_zooming_in_with_mouse_wheel() = runComposeUiTest {
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
                 0 to 0,
@@ -200,7 +189,7 @@ class CellWindowTests {
 
         val mutableCellWindowState = MutableCellWindowState()
 
-        composeTestRule.setContent {
+        setContent {
             with(cellWindowLocalEntryPoint) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
@@ -211,17 +200,16 @@ class CellWindowTests {
             }
         }
 
-        composeTestRule.onRoot().performMouseInput {
+        onRoot().performMouseInput {
             scroll(-1f, ScrollWheel.Vertical)
         }
-        composeTestRule.waitForIdle()
+        waitForIdle()
 
         assertEquals(10f / 9f, mutableCellWindowState.scale)
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
-    fun cells_are_displayed_correctly_after_zooming_out_with_mouse_wheel() = runTest {
+    fun cells_are_displayed_correctly_after_zooming_out_with_mouse_wheel() = runComposeUiTest {
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
                 0 to 0,
@@ -238,7 +226,7 @@ class CellWindowTests {
 
         val mutableCellWindowState = MutableCellWindowState()
 
-        composeTestRule.setContent {
+        setContent {
             with(cellWindowLocalEntryPoint) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
@@ -249,10 +237,10 @@ class CellWindowTests {
             }
         }
 
-        composeTestRule.onRoot().performMouseInput {
+        onRoot().performMouseInput {
             scroll(1f, ScrollWheel.Vertical)
         }
-        composeTestRule.waitForIdle()
+        waitForIdle()
 
         assertEquals(9f / 10f, mutableCellWindowState.scale)
     }

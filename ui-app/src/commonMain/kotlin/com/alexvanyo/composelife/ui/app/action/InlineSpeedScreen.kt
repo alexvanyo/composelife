@@ -24,22 +24,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
-import com.alexvanyo.composelife.ui.app.R
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.app.component.EditableSlider
 import com.alexvanyo.composelife.ui.app.component.SliderBijection
 import com.alexvanyo.composelife.ui.app.component.toValue
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.ThemePreviews
 import kotlin.math.log2
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -93,10 +88,10 @@ fun TargetStepsPerSecondControl(
     val resolver = parameterizedStringResolver()
     EditableSlider(
         labelAndValueText = {
-            stringResource(id = R.string.target_steps_per_second_label_and_value, it)
+            parameterizedStringResource(TargetStepsPerSecondLabelAndValue(it))
         },
-        valueText = { resolver(ParameterizedString(R.string.target_steps_per_second_value, it)) },
-        labelText = stringResource(id = R.string.target_steps_per_second_label),
+        valueText = { resolver(TargetStepsPerSecondValue(it)) },
+        labelText = parameterizedStringResource(TargetStepsPerSecondLabel()),
         textToValue = { it.toDoubleOrNull() },
         value = targetStepsPerSecond,
         onValueChange = setTargetStepsPerSecond,
@@ -145,9 +140,9 @@ fun GenerationsPerStepControl(
 
     val resolver = parameterizedStringResolver()
     EditableSlider(
-        labelAndValueText = { stringResource(id = R.string.generations_per_step_label_and_value, it) },
-        valueText = { resolver(ParameterizedString(R.string.generations_per_step_value, it)) },
-        labelText = stringResource(id = R.string.generations_per_step_label),
+        labelAndValueText = { parameterizedStringResource(GenerationsPerStepLabelAndValue(it)) },
+        valueText = { resolver(GenerationsPerStepValue(it)) },
+        labelText = parameterizedStringResource(GenerationsPerStepLabel()),
         textToValue = { it.toIntOrNull() },
         value = generationsPerStep,
         valueRange = valueRange,
@@ -161,19 +156,14 @@ fun GenerationsPerStepControl(
     )
 }
 
-@ThemePreviews
-@Composable
-fun InlineSpeedScreenPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            Surface {
-                InlineSpeedScreen(
-                    targetStepsPerSecond = 60.0,
-                    setTargetStepsPerSecond = {},
-                    generationsPerStep = 1,
-                    setGenerationsPerStep = {},
-                )
-            }
-        }
-    }
-}
+expect fun TargetStepsPerSecondLabelAndValue(targetStepsPerSecond: Double): ParameterizedString
+
+expect fun TargetStepsPerSecondValue(targetStepsPerSecond: Double): ParameterizedString
+
+expect fun TargetStepsPerSecondLabel(): ParameterizedString
+
+expect fun GenerationsPerStepLabelAndValue(generationsPerStep: Int): ParameterizedString
+
+expect fun GenerationsPerStepValue(generationsPerStep: Int): ParameterizedString
+
+expect fun GenerationsPerStepLabel(): ParameterizedString

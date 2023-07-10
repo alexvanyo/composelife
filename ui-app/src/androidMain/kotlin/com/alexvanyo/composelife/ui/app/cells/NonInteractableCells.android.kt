@@ -13,47 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.ui.app.cells
 
 import android.os.Build
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.GameOfLifeState
-import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.ThemePreviews
 
-interface NonInteractableCellsLocalEntryPoint :
-    LoadedComposeLifePreferencesProvider
-
-/**
- * A fixed size composable that displays a specific [cellWindow] into the given [GameOfLifeState].
- *
- * The [GameOfLifeState] is not interactable, so for efficiency the cell window is represented
- * by a single [Canvas], where each cell is drawn individually.
- */
 context(NonInteractableCellsLocalEntryPoint)
 @Composable
 @Suppress("LongParameterList")
-fun NonInteractableCells(
+actual fun NonInteractableCells(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,
     cellWindow: IntRect,
     pixelOffsetFromCenter: Offset,
-    modifier: Modifier = Modifier,
-    inOverlay: Boolean = false,
+    modifier: Modifier,
+    inOverlay: Boolean,
 ) {
     if (!preferences.disableAGSL && Build.VERSION.SDK_INT >= 33 && Build.FINGERPRINT?.lowercase() != "robolectric") {
         AGSLNonInteractableCells(
@@ -83,36 +64,5 @@ fun NonInteractableCells(
             pixelOffsetFromCenter = pixelOffsetFromCenter,
             modifier = modifier,
         )
-    }
-}
-
-@ThemePreviews
-@Composable
-fun NonInteractableCellsPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            NonInteractableCells(
-                gameOfLifeState = GameOfLifeState(
-                    setOf(
-                        0 to 0,
-                        0 to 2,
-                        0 to 4,
-                        2 to 0,
-                        2 to 2,
-                        2 to 4,
-                        4 to 0,
-                        4 to 2,
-                        4 to 4,
-                    ).toCellState(),
-                ),
-                scaledCellDpSize = 32.dp,
-                cellWindow = IntRect(
-                    IntOffset(0, 0),
-                    IntOffset(9, 9),
-                ),
-                pixelOffsetFromCenter = Offset.Zero,
-                modifier = Modifier.size(300.dp),
-            )
-        }
     }
 }
