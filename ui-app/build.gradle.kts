@@ -54,6 +54,7 @@ kotlin {
                 implementation(projects.navigation)
                 implementation(projects.openglRenderer)
                 implementation(projects.patterns)
+                implementation(projects.parameterizedString)
                 api(projects.random)
                 implementation(projects.resourceState)
                 implementation(projects.snapshotStateSet)
@@ -65,6 +66,12 @@ kotlin {
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.collections.immutable)
                 implementation(libs.kotlinx.coroutines.core)
+            }
+        }
+        val jvmMain by getting {
+            configurations["kspJvm"].dependencies.add(libs.sealedEnum.ksp.get())
+            dependencies {
+                implementation(compose.desktop.currentOs)
             }
         }
         val androidMain by getting {
@@ -101,6 +108,8 @@ kotlin {
                 implementation(projects.patterns)
                 implementation(projects.preferencesTest)
                 implementation(projects.screenshotTest)
+                implementation(projects.kmpAndroidRunner)
+                implementation(projects.kmpStateRestorationTester)
 
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)

@@ -22,7 +22,7 @@ import kotlin.test.assertEquals
 class AlgorithmImplementationDropdownOptionTests {
 
     @Test
-    fun `algorithm implementation dropdown options are correct`() {
+    fun algorithm_implementation_dropdown_options_are_correct() {
         assertEquals(
             listOf(
                 AlgorithmImplementationDropdownOption.HashLifeAlgorithm,

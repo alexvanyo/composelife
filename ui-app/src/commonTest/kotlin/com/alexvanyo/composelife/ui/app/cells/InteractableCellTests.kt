@@ -18,30 +18,28 @@ package com.alexvanyo.composelife.ui.app.cells
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
-import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.dp
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.preferences.CurrentShape
-import org.junit.Rule
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalTestApi::class)
+@RunWith(KmpAndroidJUnit4::class)
 class InteractableCellTests {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
-
     @Test
-    fun alive_cell_calls_correct_function() {
+    fun alive_cell_calls_correct_function() = runComposeUiTest {
         var onValueChangeResult: Boolean? = null
 
-        composeTestRule.setContent {
+        setContent {
             InteractableCell(
                 modifier = Modifier
                     .size(32.dp),
@@ -55,7 +53,7 @@ class InteractableCellTests {
             )
         }
 
-        composeTestRule.onNodeWithContentDescription("test cell")
+        onNodeWithContentDescription("test cell")
             .assertIsOn()
             .performClick()
 
@@ -63,10 +61,10 @@ class InteractableCellTests {
     }
 
     @Test
-    fun dead_cell_calls_correct_function() {
+    fun dead_cell_calls_correct_function() = runComposeUiTest {
         var onValueChangeResult: Boolean? = null
 
-        composeTestRule.setContent {
+        setContent {
             InteractableCell(
                 modifier = Modifier
                     .size(32.dp),
@@ -80,7 +78,7 @@ class InteractableCellTests {
             )
         }
 
-        composeTestRule.onNodeWithContentDescription("test cell")
+        onNodeWithContentDescription("test cell")
             .assertIsOff()
             .performClick()
 

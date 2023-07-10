@@ -22,7 +22,7 @@ import kotlin.test.assertEquals
 class ShapeDropdownOptionTests {
 
     @Test
-    fun `shape dropdown options are correct`() {
+    fun shape_dropdown_options_are_correct() {
         assertEquals(
             listOf(ShapeDropdownOption.RoundRectangle),
             ShapeDropdownOption.values,

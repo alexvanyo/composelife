@@ -22,6 +22,12 @@ import androidx.compose.runtime.ReadOnlyComposable
 expect sealed class ParameterizedString
 
 /**
+ * Creates a lambda to resolve the [ParameterizedString] to a [String].
+ */
+@Composable
+expect fun parameterizedStringResolver(): (ParameterizedString) -> String
+
+/**
  * Resolves the [ParameterizedString] to a [String].
  */
 @Composable
