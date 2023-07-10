@@ -16,14 +16,13 @@
 
 package com.alexvanyo.composelife.ui.app.action
 
-import android.content.Context
-import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertTextContains
@@ -31,30 +30,29 @@ import androidx.compose.ui.test.hasImeAction
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.text.input.ImeAction
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.alexvanyo.composelife.ui.app.R
-import org.junit.Rule
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import org.junit.runner.RunWith
 import kotlin.math.log2
 import kotlin.test.Test
 
-@RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalTestApi::class)
+@RunWith(KmpAndroidJUnit4::class)
 class InlineSpeedScreenTests {
 
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
-
-    private val context: Context get() = composeTestRule.activity
-
     @Test
-    fun target_steps_per_second_is_displayed_correctly() {
-        composeTestRule.setContent {
+    fun target_steps_per_second_is_displayed_correctly() = runComposeUiTest {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             var targetStepsPerSecond by remember { mutableStateOf(60.0) }
             var generationsPerStep by remember { mutableStateOf(1) }
 
@@ -66,23 +64,25 @@ class InlineSpeedScreenTests {
             )
         }
 
-        composeTestRule
-            .onNode(
-                hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                    hasText(context.getString(R.string.target_steps_per_second_label)),
-            )
-            .assertTextContains(context.getString(R.string.target_steps_per_second_value, 60.0))
+        onNode(
+            hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                hasText(resolver(TargetStepsPerSecondLabel())),
+        )
+            .assertTextContains(resolver(TargetStepsPerSecondValue(60.0)))
             .assertIsNotFocused()
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.target_steps_per_second_label_and_value, 60.0),
-            )
+
+        onNodeWithContentDescription(
+            resolver(TargetStepsPerSecondLabelAndValue(60.0)),
+        )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = log2(60f), range = 0f..8f)))
     }
 
     @Test
-    fun target_steps_per_second_updates_correctly_with_slider() {
-        composeTestRule.setContent {
+    fun target_steps_per_second_updates_correctly_with_slider() = runComposeUiTest {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             var targetStepsPerSecond by remember { mutableStateOf(60.0) }
             var generationsPerStep by remember { mutableStateOf(1) }
 
@@ -94,31 +94,32 @@ class InlineSpeedScreenTests {
             )
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.target_steps_per_second_label_and_value, 60.0),
-            )
+        onNodeWithContentDescription(
+            resolver(TargetStepsPerSecondLabelAndValue(60.0)),
+        )
             .performSemanticsAction(SemanticsActions.SetProgress) {
                 it(8f)
             }
 
-        composeTestRule
-            .onNode(
-                hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                    hasText(context.getString(R.string.target_steps_per_second_label)),
-            )
-            .assertTextContains(context.getString(R.string.target_steps_per_second_value, 256.0))
+        onNode(
+            hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                hasText(resolver(TargetStepsPerSecondLabel())),
+        )
+            .assertTextContains(resolver(TargetStepsPerSecondValue(256.0)))
             .assertIsNotFocused()
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.target_steps_per_second_label_and_value, 256.0),
-            )
+
+        onNodeWithContentDescription(
+            resolver(TargetStepsPerSecondLabelAndValue(256.0)),
+        )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f)))
     }
 
     @Test
-    fun target_steps_per_second_updates_correctly_with_text() {
-        composeTestRule.setContent {
+    fun target_steps_per_second_updates_correctly_with_text() = runComposeUiTest {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             var targetStepsPerSecond by remember { mutableStateOf(60.0) }
             var generationsPerStep by remember { mutableStateOf(1) }
 
@@ -130,36 +131,35 @@ class InlineSpeedScreenTests {
             )
         }
 
-        composeTestRule
-            .onNode(
-                hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                    hasText(context.getString(R.string.target_steps_per_second_label)),
-            )
+        onNode(
+            hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                hasText(resolver(TargetStepsPerSecondLabel())),
+        )
             .performTextReplacement("256")
-        composeTestRule
-            .onNode(
-                hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                    hasText(context.getString(R.string.target_steps_per_second_label)),
-            )
+        onNode(
+            hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                hasText(resolver(TargetStepsPerSecondLabel())),
+        )
             .performImeAction()
 
-        composeTestRule
-            .onNode(
-                hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                    hasText(context.getString(R.string.target_steps_per_second_label)),
-            )
-            .assertTextContains(context.getString(R.string.target_steps_per_second_value, 256.0))
+        onNode(
+            hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                hasText(resolver(TargetStepsPerSecondLabel())),
+        )
+            .assertTextContains(resolver(TargetStepsPerSecondValue(256.0)))
             .assertIsNotFocused()
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.target_steps_per_second_label_and_value, 256.0),
-            )
+        onNodeWithContentDescription(
+            resolver(TargetStepsPerSecondLabelAndValue(256.0)),
+        )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f)))
     }
 
     @Test
-    fun generations_per_step_is_displayed_correctly() {
-        composeTestRule.setContent {
+    fun generations_per_step_is_displayed_correctly() = runComposeUiTest {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             var targetStepsPerSecond by remember { mutableStateOf(60.0) }
             var generationsPerStep by remember { mutableStateOf(1) }
 
@@ -171,23 +171,24 @@ class InlineSpeedScreenTests {
             )
         }
 
-        composeTestRule
-            .onNode(
-                hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                    hasText(context.getString(R.string.generations_per_step_label)),
-            )
-            .assertTextContains(context.getString(R.string.generations_per_step_value, 1))
+        onNode(
+            hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                hasText(resolver(GenerationsPerStepLabel())),
+        )
+            .assertTextContains(resolver(GenerationsPerStepValue(1)))
             .assertIsNotFocused()
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.generations_per_step_label_and_value, 1),
-            )
+        onNodeWithContentDescription(
+            resolver(GenerationsPerStepLabelAndValue(1)),
+        )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0f, range = 0f..8f, steps = 7)))
     }
 
     @Test
-    fun generations_per_step_updates_correctly_with_slider() {
-        composeTestRule.setContent {
+    fun generations_per_step_updates_correctly_with_slider() = runComposeUiTest {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             var targetStepsPerSecond by remember { mutableStateOf(60.0) }
             var generationsPerStep by remember { mutableStateOf(1) }
 
@@ -199,31 +200,31 @@ class InlineSpeedScreenTests {
             )
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.generations_per_step_label_and_value, 1),
-            )
+        onNodeWithContentDescription(
+            resolver(GenerationsPerStepLabelAndValue(1)),
+        )
             .performSemanticsAction(SemanticsActions.SetProgress) {
                 it(8f)
             }
 
-        composeTestRule
-            .onNode(
-                hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                    hasText(context.getString(R.string.generations_per_step_label)),
-            )
-            .assertTextContains(context.getString(R.string.generations_per_step_value, 256))
+        onNode(
+            hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                hasText(resolver(GenerationsPerStepLabel())),
+        )
+            .assertTextContains(resolver(GenerationsPerStepValue(256)))
             .assertIsNotFocused()
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.generations_per_step_label_and_value, 256),
-            )
+        onNodeWithContentDescription(
+            resolver(GenerationsPerStepLabelAndValue(256)),
+        )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f, steps = 7)))
     }
 
     @Test
-    fun generations_per_step_updates_correctly_with_text() {
-        composeTestRule.setContent {
+    fun generations_per_step_updates_correctly_with_text() = runComposeUiTest {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             var targetStepsPerSecond by remember { mutableStateOf(60.0) }
             var generationsPerStep by remember { mutableStateOf(1) }
 
@@ -235,30 +236,26 @@ class InlineSpeedScreenTests {
             )
         }
 
-        composeTestRule
-            .onNode(
-                hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                    hasText(context.getString(R.string.generations_per_step_label)),
-            )
+        onNode(
+            hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                hasText(resolver(GenerationsPerStepLabel())),
+        )
             .performTextReplacement("256")
-        composeTestRule
-            .onNode(
-                hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                    hasText(context.getString(R.string.generations_per_step_label)),
-            )
+        onNode(
+            hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                hasText(resolver(GenerationsPerStepLabel())),
+        )
             .performImeAction()
 
-        composeTestRule
-            .onNode(
-                hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                    hasText(context.getString(R.string.generations_per_step_label)),
-            )
-            .assertTextContains(context.getString(R.string.generations_per_step_value, 256))
+        onNode(
+            hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                hasText(resolver(GenerationsPerStepLabel())),
+        )
+            .assertTextContains(resolver(GenerationsPerStepValue(256)))
             .assertIsNotFocused()
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.generations_per_step_label_and_value, 256),
-            )
+        onNodeWithContentDescription(
+            resolver(GenerationsPerStepLabelAndValue(256)),
+        )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f, steps = 7)))
     }
 }

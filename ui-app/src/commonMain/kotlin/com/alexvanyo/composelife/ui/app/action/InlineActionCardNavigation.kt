@@ -103,17 +103,17 @@ sealed interface InlineActionCardNavigation {
                             with(InlineActionCardNavigationType.Saver) { save(inlineActionCardNavigation.type) },
                             when (inlineActionCardNavigation) {
                                 is Settings ->
-                                    with(inlineActionCardNavigation.type.saverFactory(previous)) {
+                                    with(Settings.Companion.saverFactory(previous)) {
                                         save(inlineActionCardNavigation)
                                     }
 
                                 is Edit ->
-                                    with(inlineActionCardNavigation.type.saverFactory(previous)) {
+                                    with(Edit.Companion.saverFactory(previous)) {
                                         save(inlineActionCardNavigation)
                                     }
 
                                 is Speed ->
-                                    with(inlineActionCardNavigation.type.saverFactory(previous)) {
+                                    with(Speed.Companion.saverFactory(previous)) {
                                         save(inlineActionCardNavigation)
                                     }
                             },
