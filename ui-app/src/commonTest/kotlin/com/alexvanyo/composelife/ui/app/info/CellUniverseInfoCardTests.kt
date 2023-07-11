@@ -16,12 +16,11 @@
 
 package com.alexvanyo.composelife.ui.app.info
 
-import android.content.Context
-import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
@@ -29,28 +28,28 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsToggleable
 import androidx.compose.ui.test.isToggleable
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.alexvanyo.composelife.ui.app.R
+import androidx.compose.ui.test.runComposeUiTest
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.ui.util.TargetState
-import org.junit.Rule
 import org.junit.runner.RunWith
 import kotlin.test.Test
 
-@RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalTestApi::class)
+@RunWith(KmpAndroidJUnit4::class)
 class CellUniverseInfoCardTests {
 
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
-
-    private val context: Context get() = composeTestRule.activity
-
     @Test
-    fun card_is_collapsed_by_default() {
-        composeTestRule.setContent {
+    fun card_is_collapsed_by_default() = runComposeUiTest {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
+
             var isExpanded by rememberSaveable { mutableStateOf(false) }
             CellUniverseInfoCard(
                 cellUniverseInfoCardContent = CellUniverseInfoCardContent(
@@ -73,18 +72,22 @@ class CellUniverseInfoCardTests {
             )
         }
 
-        composeTestRule.onNodeWithContentDescription(context.getString(R.string.expand))
+        onNodeWithContentDescription(resolver(ExpandMessage()))
             .assertIsDisplayed()
             .assertHasClickAction()
             .assertIsEnabled()
 
-        composeTestRule.onNodeWithContentDescription(context.getString(R.string.collapse))
+        onNodeWithContentDescription(resolver(CollapseMessage()))
             .assertDoesNotExist()
     }
 
     @Test
-    fun card_becomes_expanded_when_expand_button_is_clicked() {
-        composeTestRule.setContent {
+    fun card_becomes_expanded_when_expand_button_is_clicked() = runComposeUiTest {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
+
             var isExpanded by rememberSaveable { mutableStateOf(false) }
             CellUniverseInfoCard(
                 cellUniverseInfoCardContent = CellUniverseInfoCardContent(
@@ -107,21 +110,21 @@ class CellUniverseInfoCardTests {
             )
         }
 
-        composeTestRule.onNodeWithContentDescription(context.getString(R.string.expand))
+        onNodeWithContentDescription(resolver(ExpandMessage()))
             .performClick()
 
-        composeTestRule.onNodeWithContentDescription(context.getString(R.string.collapse))
+        onNodeWithContentDescription(resolver(CollapseMessage()))
             .assertIsDisplayed()
             .assertHasClickAction()
             .assertIsEnabled()
 
-        composeTestRule.onNodeWithContentDescription(context.getString(R.string.expand))
+        onNodeWithContentDescription(resolver(ExpandMessage()))
             .assertDoesNotExist()
     }
 
     @Test
-    fun card_hides_checkboxes_when_collapsed() {
-        composeTestRule.setContent {
+    fun card_hides_checkboxes_when_collapsed() = runComposeUiTest {
+        setContent {
             var isExpanded by rememberSaveable { mutableStateOf(false) }
             CellUniverseInfoCard(
                 cellUniverseInfoCardContent = CellUniverseInfoCardContent(
@@ -144,19 +147,19 @@ class CellUniverseInfoCardTests {
             )
         }
 
-        composeTestRule.onNodeWithText("First")
+        onNodeWithText("First")
             .assert(isToggleable().not())
 
-        composeTestRule.onNodeWithText("Second")
+        onNodeWithText("Second")
             .assert(isToggleable().not())
 
-        composeTestRule.onNodeWithText("Third")
+        onNodeWithText("Third")
             .assert(isToggleable().not())
     }
 
     @Test
-    fun card_show_checkboxes_when_expanded() {
-        composeTestRule.setContent {
+    fun card_show_checkboxes_when_expanded() = runComposeUiTest {
+        setContent {
             var isExpanded by rememberSaveable { mutableStateOf(true) }
             CellUniverseInfoCard(
                 cellUniverseInfoCardContent = CellUniverseInfoCardContent(
@@ -179,15 +182,15 @@ class CellUniverseInfoCardTests {
             )
         }
 
-        composeTestRule.onNodeWithText("First")
+        onNodeWithText("First")
             .assertIsToggleable()
             .assertIsOn()
 
-        composeTestRule.onNodeWithText("Second")
+        onNodeWithText("Second")
             .assertIsToggleable()
             .assertIsOn()
 
-        composeTestRule.onNodeWithText("Third")
+        onNodeWithText("Third")
             .assertIsToggleable()
             .assertIsOn()
     }
