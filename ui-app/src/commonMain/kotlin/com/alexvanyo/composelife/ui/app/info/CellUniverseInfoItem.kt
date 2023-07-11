@@ -18,7 +18,6 @@ package com.alexvanyo.composelife.ui.app.info
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -43,12 +42,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.AnimatedVisibility
 import com.alexvanyo.composelife.ui.util.TargetState
-import com.alexvanyo.composelife.ui.util.ThemePreviews
 import com.alexvanyo.composelife.ui.util.or
 
 class CellUniverseInfoItemState(
@@ -155,40 +151,6 @@ fun ColumnScope.InfoItem(
                 } else {
                     Spacer(modifier = Modifier.width(48.dp))
                 }
-            }
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun CellUniverseInfoItemNotEditingPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            Column {
-                InfoItem(
-                    cellUniverseInfoItemContent = CellUniverseInfoItemContent(
-                        cellUniverseInfoCardState = rememberCellUniverseInfoItemState(),
-                    ) { "isEditing: $it" },
-                    editingTargetState = TargetState.Single(false),
-                )
-            }
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun CellUniverseInfoItemEditingPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            Column {
-                InfoItem(
-                    cellUniverseInfoItemContent = CellUniverseInfoItemContent(
-                        cellUniverseInfoCardState = rememberCellUniverseInfoItemState(),
-                    ) { "isEditing: $it" },
-                    editingTargetState = TargetState.Single(true),
-                )
             }
         }
     }

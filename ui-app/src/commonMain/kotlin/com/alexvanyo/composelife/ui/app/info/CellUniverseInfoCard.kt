@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("TooManyFunctions")
 
 package com.alexvanyo.composelife.ui.app.info
 
@@ -36,7 +37,6 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PlainTooltipBox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,16 +44,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
-import com.alexvanyo.composelife.ui.app.R
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.app.cells.CellWindowState
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.app.component.PlainTooltipBox
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.TargetState
-import com.alexvanyo.composelife.ui.util.ThemePreviews
 import com.alexvanyo.composelife.ui.util.or
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -121,31 +119,38 @@ fun CellUniverseInfoCard(
     CellUniverseInfoCard(
         infoItemTexts = persistentListOf(
             {
-                stringResource(
-                    id = R.string.offset,
-                    cellWindowState.offset.x,
-                    cellWindowState.offset.y,
+                parameterizedStringResource(
+                    OffsetInfoMessage(
+                        cellWindowState.offset.x,
+                        cellWindowState.offset.y,
+                    ),
                 )
             },
             {
-                stringResource(
-                    id = R.string.scale,
-                    cellWindowState.scale,
+                parameterizedStringResource(
+                    ScaleInfoMessage(
+                        cellWindowState.scale,
+                    ),
                 )
             },
             { isEditing ->
                 when (val newEvolutionStatus = currentEvolutionStatus) {
                     TemporalGameOfLifeState.EvolutionStatus.Paused ->
-                        stringResource(id = R.string.paused)
+                        parameterizedStringResource(PausedMessage())
                     is TemporalGameOfLifeState.EvolutionStatus.Running ->
-                        stringResource(
-                            id = if (isEditing) {
-                                R.string.generations_per_second_long
-                            } else {
-                                R.string.generations_per_second_short
-                            },
-                            newEvolutionStatus.averageGenerationsPerSecond,
-                        )
+                        if (isEditing) {
+                            parameterizedStringResource(
+                                GenerationsPerSecondLongMessage(
+                                    newEvolutionStatus.averageGenerationsPerSecond,
+                                ),
+                            )
+                        } else {
+                            parameterizedStringResource(
+                                GenerationsPerSecondShortMessage(
+                                    newEvolutionStatus.averageGenerationsPerSecond,
+                                ),
+                            )
+                        }
                 }
             },
         ),
@@ -248,9 +253,9 @@ private fun CellUniverseInfoExpandButton(
         tooltip = {
             Text(
                 if (isExpanded) {
-                    stringResource(id = R.string.collapse)
+                    parameterizedStringResource(CollapseMessage())
                 } else {
-                    stringResource(id = R.string.expand)
+                    parameterizedStringResource(ExpandMessage())
                 },
             )
         },
@@ -270,123 +275,25 @@ private fun CellUniverseInfoExpandButton(
                     Icons.Filled.ExpandMore
                 },
                 contentDescription = if (isExpanded) {
-                    stringResource(id = R.string.collapse)
+                    parameterizedStringResource(CollapseMessage())
                 } else {
-                    stringResource(id = R.string.expand)
+                    parameterizedStringResource(ExpandMessage())
                 },
             )
         }
     }
 }
 
-@ThemePreviews
-@Composable
-fun CellUniverseInfoCardCollapsedPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            CellUniverseInfoCard(
-                cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                    cellUniverseInfoCardState = rememberCellUniverseInfoCardState(
-                        setIsExpanded = {},
-                        expandedTargetState = TargetState.Single(false),
-                    ),
-                    cellUniverseInfoItemContents = listOf(
-                        CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState(isChecked = true),
-                        ) { "First" },
-                        CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState(isChecked = true),
-                        ) { "Second" },
-                        CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState(isChecked = true),
-                        ) { "Third" },
-                    ),
-                ),
-            )
-        }
-    }
-}
+expect fun OffsetInfoMessage(x: Float, y: Float): ParameterizedString
 
-@ThemePreviews
-@Composable
-fun CellUniverseInfoCardCollapsedSingleSelectionPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            CellUniverseInfoCard(
-                cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                    cellUniverseInfoCardState = rememberCellUniverseInfoCardState(
-                        setIsExpanded = {},
-                        expandedTargetState = TargetState.Single(false),
-                    ),
-                    cellUniverseInfoItemContents = listOf(
-                        CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState(isChecked = false),
-                        ) { "First" },
-                        CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState(isChecked = false),
-                        ) { "Second" },
-                        CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState(isChecked = true),
-                        ) { "Third" },
-                    ),
-                ),
-            )
-        }
-    }
-}
+expect fun ScaleInfoMessage(scale: Float): ParameterizedString
 
-@ThemePreviews
-@Composable
-fun CellUniverseInfoCardFullyCollapsedPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            CellUniverseInfoCard(
-                cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                    cellUniverseInfoCardState = rememberCellUniverseInfoCardState(
-                        setIsExpanded = {},
-                        expandedTargetState = TargetState.Single(false),
-                    ),
-                    cellUniverseInfoItemContents = listOf(
-                        CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState(isChecked = false),
-                        ) { "First" },
-                        CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState(isChecked = false),
-                        ) { "Second" },
-                        CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState(isChecked = false),
-                        ) { "Third" },
-                    ),
-                ),
-            )
-        }
-    }
-}
+expect fun PausedMessage(): ParameterizedString
 
-@ThemePreviews
-@Composable
-fun CellUniverseInfoCardExpandedPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            CellUniverseInfoCard(
-                cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                    cellUniverseInfoCardState = rememberCellUniverseInfoCardState(
-                        setIsExpanded = {},
-                        expandedTargetState = TargetState.Single(true),
-                    ),
-                    cellUniverseInfoItemContents = listOf(
-                        CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState(),
-                        ) { "First" },
-                        CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState(),
-                        ) { "Second" },
-                        CellUniverseInfoItemContent(
-                            rememberCellUniverseInfoItemState(),
-                        ) { "Third" },
-                    ),
-                ),
-            )
-        }
-    }
-}
+expect fun GenerationsPerSecondShortMessage(generationsPerSecond: Double): ParameterizedString
+
+expect fun GenerationsPerSecondLongMessage(generationsPerSecond: Double): ParameterizedString
+
+expect fun CollapseMessage(): ParameterizedString
+
+expect fun ExpandMessage(): ParameterizedString
