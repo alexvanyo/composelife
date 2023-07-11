@@ -30,26 +30,9 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalLifecycleOwner
 
-/**
- * The state describing an in-progress predictive back animation.
- */
-sealed interface PredictiveBackState {
-    /**
-     * There is no predictive back ongoing. On API 33 and below, this will always be the case.
-     */
-    object NotRunning : PredictiveBackState
-
-    /**
-     * There is an ongoing predictive back animation, with the given [progress].
-     */
-    data class Running(
-        val progress: Float,
-    ) : PredictiveBackState
-}
-
 @Composable
-fun predictiveBackHandler(
-    enabled: Boolean = true,
+actual fun predictiveBackHandler(
+    enabled: Boolean,
     onBack: () -> Unit,
 ): PredictiveBackState {
     // Safely update the current `onBack` lambda when a new one is provided
