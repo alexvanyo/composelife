@@ -20,7 +20,6 @@ package com.alexvanyo.composelife.ui.app.action.settings
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,9 +32,6 @@ import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.CellWindowState
 import com.alexvanyo.composelife.ui.app.cells.ImmutableCellWindow
 import com.alexvanyo.composelife.ui.app.cells.ViewportInteractionConfig
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 interface CellStatePreviewUiLocalEntryPoint :
     CellWindowLocalEntryPoint
@@ -70,17 +66,5 @@ fun CellStatePreviewUi(
             cellDpSize = 96.dp / 5,
             inOverlay = true,
         )
-    }
-}
-
-@ThemePreviews
-@Composable
-fun CellStatePreviewUiPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            Surface {
-                CellStatePreviewUi()
-            }
-        }
     }
 }
