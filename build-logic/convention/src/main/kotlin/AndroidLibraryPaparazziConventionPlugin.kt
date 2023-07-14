@@ -23,11 +23,8 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.testing.Test
-import org.gradle.jvm.toolchain.JavaLanguageVersion
-import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
@@ -85,18 +82,10 @@ class AndroidLibraryPaparazziConventionPlugin : ConventionPlugin({
         }
     }
 
-    val javaToolchains = extensions.getByName<JavaToolchainService>("javaToolchains")
-
     tasks.withType<Test>().configureEach {
         // Increase memory and parallelize Paparazzi tests
         maxHeapSize = "2g"
         maxParallelForks = if (System.getenv("CI") == "true") 1 else 2
-        // Run tests with JDK 11, since Paparazzi currently doesn't work with 17:
-        // https://github.com/cashapp/paparazzi/issues/384
-        javaLauncher.set(
-            javaToolchains.launcherFor {
-                languageVersion.set(JavaLanguageVersion.of(11))
-            },
-        )
+        jvmArgs("-XX:+AllowRedefinitionToAddDeleteMethods")
     }
 })
