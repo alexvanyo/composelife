@@ -35,6 +35,9 @@ import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
+import com.alexvanyo.composelife.ui.app.resources.Collapse
+import com.alexvanyo.composelife.ui.app.resources.Expand
+import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.util.TargetState
 import org.junit.runner.RunWith
 import kotlin.test.Test
@@ -72,12 +75,12 @@ class CellUniverseInfoCardTests {
             )
         }
 
-        onNodeWithContentDescription(resolver(ExpandMessage()))
+        onNodeWithContentDescription(resolver(Strings.Expand))
             .assertIsDisplayed()
             .assertHasClickAction()
             .assertIsEnabled()
 
-        onNodeWithContentDescription(resolver(CollapseMessage()))
+        onNodeWithContentDescription(resolver(Strings.Collapse))
             .assertDoesNotExist()
     }
 
@@ -110,15 +113,15 @@ class CellUniverseInfoCardTests {
             )
         }
 
-        onNodeWithContentDescription(resolver(ExpandMessage()))
+        onNodeWithContentDescription(resolver(Strings.Expand))
             .performClick()
 
-        onNodeWithContentDescription(resolver(CollapseMessage()))
+        onNodeWithContentDescription(resolver(Strings.Collapse))
             .assertIsDisplayed()
             .assertHasClickAction()
             .assertIsEnabled()
 
-        onNodeWithContentDescription(resolver(ExpandMessage()))
+        onNodeWithContentDescription(resolver(Strings.Expand))
             .assertDoesNotExist()
     }
 

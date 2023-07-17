@@ -46,10 +46,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
-import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.app.cells.CellWindowState
 import com.alexvanyo.composelife.ui.app.component.PlainTooltipBox
+import com.alexvanyo.composelife.ui.app.resources.Collapse
+import com.alexvanyo.composelife.ui.app.resources.Expand
+import com.alexvanyo.composelife.ui.app.resources.GenerationsPerSecondLongMessage
+import com.alexvanyo.composelife.ui.app.resources.GenerationsPerSecondShortMessage
+import com.alexvanyo.composelife.ui.app.resources.OffsetInfoMessage
+import com.alexvanyo.composelife.ui.app.resources.PausedMessage
+import com.alexvanyo.composelife.ui.app.resources.ScaleInfoMessage
+import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.or
@@ -120,7 +127,7 @@ fun CellUniverseInfoCard(
         infoItemTexts = persistentListOf(
             {
                 parameterizedStringResource(
-                    OffsetInfoMessage(
+                    Strings.OffsetInfoMessage(
                         cellWindowState.offset.x,
                         cellWindowState.offset.y,
                     ),
@@ -128,7 +135,7 @@ fun CellUniverseInfoCard(
             },
             {
                 parameterizedStringResource(
-                    ScaleInfoMessage(
+                    Strings.ScaleInfoMessage(
                         cellWindowState.scale,
                     ),
                 )
@@ -136,17 +143,17 @@ fun CellUniverseInfoCard(
             { isEditing ->
                 when (val newEvolutionStatus = currentEvolutionStatus) {
                     TemporalGameOfLifeState.EvolutionStatus.Paused ->
-                        parameterizedStringResource(PausedMessage())
+                        parameterizedStringResource(Strings.PausedMessage)
                     is TemporalGameOfLifeState.EvolutionStatus.Running ->
                         if (isEditing) {
                             parameterizedStringResource(
-                                GenerationsPerSecondLongMessage(
+                                Strings.GenerationsPerSecondLongMessage(
                                     newEvolutionStatus.averageGenerationsPerSecond,
                                 ),
                             )
                         } else {
                             parameterizedStringResource(
-                                GenerationsPerSecondShortMessage(
+                                Strings.GenerationsPerSecondShortMessage(
                                     newEvolutionStatus.averageGenerationsPerSecond,
                                 ),
                             )
@@ -252,11 +259,13 @@ private fun CellUniverseInfoExpandButton(
     PlainTooltipBox(
         tooltip = {
             Text(
-                if (isExpanded) {
-                    parameterizedStringResource(CollapseMessage())
-                } else {
-                    parameterizedStringResource(ExpandMessage())
-                },
+                parameterizedStringResource(
+                    if (isExpanded) {
+                        Strings.Collapse
+                    } else {
+                        Strings.Expand
+                    },
+                ),
             )
         },
     ) {
@@ -274,26 +283,14 @@ private fun CellUniverseInfoExpandButton(
                 } else {
                     Icons.Filled.ExpandMore
                 },
-                contentDescription = if (isExpanded) {
-                    parameterizedStringResource(CollapseMessage())
-                } else {
-                    parameterizedStringResource(ExpandMessage())
-                },
+                contentDescription = parameterizedStringResource(
+                    if (isExpanded) {
+                        Strings.Collapse
+                    } else {
+                        Strings.Expand
+                    },
+                ),
             )
         }
     }
 }
-
-expect fun OffsetInfoMessage(x: Float, y: Float): ParameterizedString
-
-expect fun ScaleInfoMessage(scale: Float): ParameterizedString
-
-expect fun PausedMessage(): ParameterizedString
-
-expect fun GenerationsPerSecondShortMessage(generationsPerSecond: Double): ParameterizedString
-
-expect fun GenerationsPerSecondLongMessage(generationsPerSecond: Double): ParameterizedString
-
-expect fun CollapseMessage(): ParameterizedString
-
-expect fun ExpandMessage(): ParameterizedString

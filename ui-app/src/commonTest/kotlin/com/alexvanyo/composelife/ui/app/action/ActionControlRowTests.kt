@@ -16,38 +16,44 @@
 
 package com.alexvanyo.composelife.ui.app.action
 
-import android.content.Context
-import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.alexvanyo.composelife.ui.app.R
-import org.junit.Rule
+import androidx.compose.ui.test.runComposeUiTest
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
+import com.alexvanyo.composelife.ui.app.resources.Collapse
+import com.alexvanyo.composelife.ui.app.resources.DisableAutofit
+import com.alexvanyo.composelife.ui.app.resources.EnableAutofit
+import com.alexvanyo.composelife.ui.app.resources.Expand
+import com.alexvanyo.composelife.ui.app.resources.Pause
+import com.alexvanyo.composelife.ui.app.resources.Play
+import com.alexvanyo.composelife.ui.app.resources.Step
+import com.alexvanyo.composelife.ui.app.resources.Strings
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-@RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalTestApi::class)
+@RunWith(KmpAndroidJUnit4::class)
 class ActionControlRowTests {
 
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
-
-    private val context: Context get() = composeTestRule.activity
-
     @Test
-    fun false_values_are_displayed_correctly() {
-        composeTestRule.setContent {
+    fun false_values_are_displayed_correctly() = runComposeUiTest {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             ActionControlRow(
                 isElevated = false,
                 isRunning = false,
@@ -60,31 +66,30 @@ class ActionControlRowTests {
             )
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.play))
+        onNodeWithContentDescription(resolver(Strings.Play))
             .assertIsDisplayed()
             .assertHasClickAction()
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.step))
+        onNodeWithContentDescription(resolver(Strings.Step))
             .assertIsDisplayed()
             .assertHasClickAction()
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.expand))
+        onNodeWithContentDescription(resolver(Strings.Expand))
             .assertIsDisplayed()
             .assertHasClickAction()
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.enable_autofit))
+        onNodeWithContentDescription(resolver(Strings.EnableAutofit))
             .assertIsDisplayed()
             .assertIsOff()
             .assertHasClickAction()
     }
 
     @Test
-    fun true_values_are_displayed_correctly() {
-        composeTestRule.setContent {
+    fun true_values_are_displayed_correctly() = runComposeUiTest {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             ActionControlRow(
                 isElevated = false,
                 isRunning = true,
@@ -97,36 +102,35 @@ class ActionControlRowTests {
             )
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.pause))
+        onNodeWithContentDescription(resolver(Strings.Pause))
             .assertIsDisplayed()
             .assertHasClickAction()
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.step))
+        onNodeWithContentDescription(resolver(Strings.Step))
             .assertIsDisplayed()
             .assertHasClickAction()
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.collapse))
+        onNodeWithContentDescription(resolver(Strings.Collapse))
             .assertIsDisplayed()
             .assertHasClickAction()
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.disable_autofit))
+        onNodeWithContentDescription(resolver(Strings.DisableAutofit))
             .assertIsDisplayed()
             .assertIsOn()
             .assertHasClickAction()
     }
 
     @Test
-    fun on_step_updates_correctly() {
+    fun on_step_updates_correctly() = runComposeUiTest {
         var onStepCount = 0
         var isRunning by mutableStateOf(false)
         var isExpanded by mutableStateOf(false)
         var isViewportTracking by mutableStateOf(false)
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             ActionControlRow(
                 isElevated = false,
                 isRunning = isRunning,
@@ -139,20 +143,22 @@ class ActionControlRowTests {
             )
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.step))
+        onNodeWithContentDescription(resolver(Strings.Step))
             .performClick()
 
         assertEquals(1, onStepCount)
     }
 
     @Test
-    fun play_updates_correctly() {
+    fun play_updates_correctly() = runComposeUiTest {
         var isRunning by mutableStateOf(false)
         var isExpanded by mutableStateOf(false)
         var isViewportTracking by mutableStateOf(false)
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             ActionControlRow(
                 isElevated = false,
                 isRunning = isRunning,
@@ -165,20 +171,22 @@ class ActionControlRowTests {
             )
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.play))
+        onNodeWithContentDescription(resolver(Strings.Play))
             .performClick()
 
         assertTrue(isRunning)
     }
 
     @Test
-    fun pause_updates_correctly() {
+    fun pause_updates_correctly() = runComposeUiTest {
         var isRunning by mutableStateOf(true)
         var isExpanded by mutableStateOf(false)
         var isViewportTracking by mutableStateOf(false)
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             ActionControlRow(
                 isElevated = false,
                 isRunning = isRunning,
@@ -191,20 +199,22 @@ class ActionControlRowTests {
             )
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.pause))
+        onNodeWithContentDescription(resolver(Strings.Pause))
             .performClick()
 
         assertFalse(isRunning)
     }
 
     @Test
-    fun expand_updates_correctly() {
+    fun expand_updates_correctly() = runComposeUiTest {
         var isRunning by mutableStateOf(false)
         var isExpanded by mutableStateOf(false)
         var isViewportTracking by mutableStateOf(false)
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             ActionControlRow(
                 isElevated = false,
                 isRunning = isRunning,
@@ -217,20 +227,22 @@ class ActionControlRowTests {
             )
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.expand))
+        onNodeWithContentDescription(resolver(Strings.Expand))
             .performClick()
 
         assertTrue(isExpanded)
     }
 
     @Test
-    fun collapse_updates_correctly() {
+    fun collapse_updates_correctly() = runComposeUiTest {
         var isRunning by mutableStateOf(false)
         var isExpanded by mutableStateOf(true)
         var isViewportTracking by mutableStateOf(false)
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             ActionControlRow(
                 isElevated = false,
                 isRunning = isRunning,
@@ -243,20 +255,22 @@ class ActionControlRowTests {
             )
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.collapse))
+        onNodeWithContentDescription(resolver(Strings.Collapse))
             .performClick()
 
         assertFalse(isExpanded)
     }
 
     @Test
-    fun enable_autofit_correctly() {
+    fun enable_autofit_correctly() = runComposeUiTest {
         var isRunning by mutableStateOf(false)
         var isExpanded by mutableStateOf(false)
         var isViewportTracking by mutableStateOf(false)
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             ActionControlRow(
                 isElevated = false,
                 isRunning = isRunning,
@@ -269,20 +283,22 @@ class ActionControlRowTests {
             )
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.enable_autofit))
+        onNodeWithContentDescription(resolver(Strings.EnableAutofit))
             .performClick()
 
         assertTrue(isViewportTracking)
     }
 
     @Test
-    fun disable_autofit_updates_correctly() {
+    fun disable_autofit_updates_correctly() = runComposeUiTest {
         var isRunning by mutableStateOf(false)
         var isExpanded by mutableStateOf(false)
         var isViewportTracking by mutableStateOf(true)
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             ActionControlRow(
                 isElevated = false,
                 isRunning = isRunning,
@@ -295,8 +311,7 @@ class ActionControlRowTests {
             )
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.disable_autofit))
+        onNodeWithContentDescription(resolver(Strings.DisableAutofit))
             .performClick()
 
         assertFalse(isViewportTracking)

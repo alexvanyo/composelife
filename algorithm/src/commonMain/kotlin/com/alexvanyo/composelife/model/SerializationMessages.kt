@@ -47,6 +47,6 @@ expect fun UnexpectedEmptyFileMessage(): ParameterizedString
 
 expect fun RuleNotSupportedMessage(): ParameterizedString
 
-expect fun DuplicateTopLeftCoordinate(
+expect fun DuplicateTopLeftCoordinateMessage(
     overwritingOffset: IntOffset,
 ): ParameterizedString

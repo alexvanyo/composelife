@@ -490,7 +490,7 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
                         val y = matchResult.groupValues[2].toInt()
                         val newOffset = IntOffset(x, y)
                         if (offset != null) {
-                            warnings.add(DuplicateTopLeftCoordinate(newOffset))
+                            warnings.add(DuplicateTopLeftCoordinateMessage(newOffset))
                         }
                         offset = newOffset
                     }

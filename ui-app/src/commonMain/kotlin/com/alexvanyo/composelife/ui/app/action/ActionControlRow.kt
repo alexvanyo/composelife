@@ -33,19 +33,23 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.PlainTooltipBox
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.alexvanyo.composelife.ui.app.R
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.ThemePreviews
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.ui.app.component.PlainTooltipBox
+import com.alexvanyo.composelife.ui.app.resources.Collapse
+import com.alexvanyo.composelife.ui.app.resources.DisableAutofit
+import com.alexvanyo.composelife.ui.app.resources.EnableAutofit
+import com.alexvanyo.composelife.ui.app.resources.Expand
+import com.alexvanyo.composelife.ui.app.resources.Pause
+import com.alexvanyo.composelife.ui.app.resources.Play
+import com.alexvanyo.composelife.ui.app.resources.Step
+import com.alexvanyo.composelife.ui.app.resources.Strings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongParameterList", "LongMethod")
@@ -76,11 +80,13 @@ fun ActionControlRow(
                 PlainTooltipBox(
                     tooltip = {
                         Text(
-                            if (isRunning) {
-                                stringResource(id = R.string.pause)
-                            } else {
-                                stringResource(id = R.string.play)
-                            },
+                            parameterizedStringResource(
+                                if (isRunning) {
+                                    Strings.Pause
+                                } else {
+                                    Strings.Play
+                                },
+                            ),
                         )
                     },
                 ) {
@@ -98,18 +104,20 @@ fun ActionControlRow(
                             } else {
                                 Icons.Filled.PlayArrow
                             },
-                            contentDescription = if (isRunning) {
-                                stringResource(id = R.string.pause)
-                            } else {
-                                stringResource(id = R.string.play)
-                            },
+                            contentDescription = parameterizedStringResource(
+                                if (isRunning) {
+                                    Strings.Pause
+                                } else {
+                                    Strings.Play
+                                },
+                            ),
                         )
                     }
                 }
 
                 PlainTooltipBox(
                     tooltip = {
-                        Text(stringResource(id = R.string.step))
+                        Text(parameterizedStringResource(Strings.Step))
                     },
                 ) {
                     IconButton(
@@ -118,7 +126,7 @@ fun ActionControlRow(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.SkipNext,
-                            contentDescription = stringResource(id = R.string.step),
+                            contentDescription = parameterizedStringResource(Strings.Step),
                         )
                     }
                 }
@@ -126,11 +134,13 @@ fun ActionControlRow(
                 PlainTooltipBox(
                     tooltip = {
                         Text(
-                            if (isViewportTracking) {
-                                stringResource(id = R.string.disable_autofit)
-                            } else {
-                                stringResource(id = R.string.enable_autofit)
-                            },
+                            parameterizedStringResource(
+                                if (isViewportTracking) {
+                                    Strings.DisableAutofit
+                                } else {
+                                    Strings.EnableAutofit
+                                },
+                            ),
                         )
                     },
                 ) {
@@ -141,11 +151,13 @@ fun ActionControlRow(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.AutoMode,
-                            contentDescription = if (isViewportTracking) {
-                                stringResource(id = R.string.disable_autofit)
-                            } else {
-                                stringResource(id = R.string.enable_autofit)
-                            },
+                            contentDescription = parameterizedStringResource(
+                                if (isViewportTracking) {
+                                    Strings.DisableAutofit
+                                } else {
+                                    Strings.EnableAutofit
+                                },
+                            ),
                         )
                     }
                 }
@@ -153,11 +165,13 @@ fun ActionControlRow(
                 PlainTooltipBox(
                     tooltip = {
                         Text(
-                            if (isExpanded) {
-                                stringResource(id = R.string.collapse)
-                            } else {
-                                stringResource(id = R.string.expand)
-                            },
+                            parameterizedStringResource(
+                                if (isExpanded) {
+                                    Strings.Collapse
+                                } else {
+                                    Strings.Expand
+                                },
+                            ),
                         )
                     },
                 ) {
@@ -175,110 +189,17 @@ fun ActionControlRow(
                             } else {
                                 Icons.Filled.ExpandLess
                             },
-                            contentDescription = if (isExpanded) {
-                                stringResource(id = R.string.collapse)
-                            } else {
-                                stringResource(id = R.string.expand)
-                            },
+                            contentDescription = parameterizedStringResource(
+                                if (isExpanded) {
+                                    Strings.Collapse
+                                } else {
+                                    Strings.Expand
+                                },
+                            ),
                         )
                     }
                 }
             }
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun CollapsedRunningActionControlRowPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            ActionControlRow(
-                isElevated = false,
-                isRunning = true,
-                setIsRunning = {},
-                onStep = {},
-                isExpanded = false,
-                setIsExpanded = {},
-                isViewportTracking = false,
-                setIsViewportTracking = {},
-            )
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun CollapsedPausedActionControlRowPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            ActionControlRow(
-                isElevated = false,
-                isRunning = false,
-                setIsRunning = {},
-                onStep = {},
-                isExpanded = false,
-                setIsExpanded = {},
-                isViewportTracking = false,
-                setIsViewportTracking = {},
-            )
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun ExpandedActionControlRowPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            ActionControlRow(
-                isElevated = false,
-                isRunning = true,
-                setIsRunning = {},
-                onStep = {},
-                isExpanded = true,
-                setIsExpanded = {},
-                isViewportTracking = false,
-                setIsViewportTracking = {},
-            )
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun ViewportTrackingActionControlRowPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            ActionControlRow(
-                isElevated = false,
-                isRunning = false,
-                setIsRunning = {},
-                onStep = {},
-                isExpanded = false,
-                setIsExpanded = {},
-                isViewportTracking = true,
-                setIsViewportTracking = {},
-            )
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun ElevatedExpandedActionControlRowPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            ActionControlRow(
-                isElevated = true,
-                isRunning = true,
-                setIsRunning = {},
-                onStep = {},
-                isExpanded = true,
-                setIsExpanded = {},
-                isViewportTracking = false,
-                setIsViewportTracking = {},
-            )
         }
     }
 }
