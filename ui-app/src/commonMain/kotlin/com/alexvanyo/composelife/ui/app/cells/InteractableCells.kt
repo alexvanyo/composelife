@@ -49,9 +49,10 @@ import com.alexvanyo.composelife.geometry.containedPoints
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.setCellState
-import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
+import com.alexvanyo.composelife.ui.app.resources.InteractableCellContentDescription
+import com.alexvanyo.composelife.ui.app.resources.Strings
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
@@ -117,7 +118,7 @@ fun InteractableCells(
                             },
                             shape = preferences.currentShape,
                             contentDescription = parameterizedStringResource(
-                                InteractableCellContentDescription(
+                                Strings.InteractableCellContentDescription(
                                     x = cell.x,
                                     y = cell.y,
                                 ),
@@ -209,8 +210,3 @@ private fun Modifier.drawingCellInput(
         )
     }
 }
-
-internal expect fun InteractableCellContentDescription(
-    x: Int,
-    y: Int,
-): ParameterizedString

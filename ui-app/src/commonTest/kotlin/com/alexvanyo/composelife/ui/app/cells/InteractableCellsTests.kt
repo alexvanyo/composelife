@@ -40,6 +40,8 @@ import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.ui.app.resources.InteractableCellContentDescription
+import com.alexvanyo.composelife.ui.app.resources.Strings
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -87,67 +89,67 @@ class InteractableCellsTests {
         }
 
         onNodeWithContentDescription(
-            resolver(InteractableCellContentDescription(0, 0)),
+            resolver(Strings.InteractableCellContentDescription(0, 0)),
         )
             .assertIsOn()
 
         onNodeWithContentDescription(
-            resolver(InteractableCellContentDescription(0, 1)),
+            resolver(Strings.InteractableCellContentDescription(0, 1)),
         )
             .assertIsOff()
 
         onNodeWithContentDescription(
-            resolver(InteractableCellContentDescription(0, 2)),
+            resolver(Strings.InteractableCellContentDescription(0, 2)),
         )
             .assertIsOn()
 
         onNodeWithContentDescription(
-            resolver(InteractableCellContentDescription(0, 3)),
+            resolver(Strings.InteractableCellContentDescription(0, 3)),
         )
             .assertIsOff()
 
         onNodeWithContentDescription(
-            resolver(InteractableCellContentDescription(0, 4)),
+            resolver(Strings.InteractableCellContentDescription(0, 4)),
         )
             .assertIsOn()
 
         onNodeWithContentDescription(
-            resolver(InteractableCellContentDescription(2, 0)),
+            resolver(Strings.InteractableCellContentDescription(2, 0)),
         )
             .assertIsOn()
 
         onNodeWithContentDescription(
-            resolver(InteractableCellContentDescription(2, 1)),
+            resolver(Strings.InteractableCellContentDescription(2, 1)),
         )
             .assertIsOff()
 
         onNodeWithContentDescription(
-            resolver(InteractableCellContentDescription(2, 2)),
+            resolver(Strings.InteractableCellContentDescription(2, 2)),
         )
             .assertIsOn()
 
         onNodeWithContentDescription(
-            resolver(InteractableCellContentDescription(2, 3)),
+            resolver(Strings.InteractableCellContentDescription(2, 3)),
         )
             .assertIsOff()
 
         onNodeWithContentDescription(
-            resolver(InteractableCellContentDescription(2, 4)),
+            resolver(Strings.InteractableCellContentDescription(2, 4)),
         )
             .assertIsOn()
 
         onNodeWithContentDescription(
-            resolver(InteractableCellContentDescription(8, 8)),
+            resolver(Strings.InteractableCellContentDescription(8, 8)),
         )
             .assertExists()
 
         onNodeWithContentDescription(
-            resolver(InteractableCellContentDescription(-1, -1)),
+            resolver(Strings.InteractableCellContentDescription(-1, -1)),
         )
             .assertDoesNotExist()
 
         onNodeWithContentDescription(
-            resolver(InteractableCellContentDescription(9, 9)),
+            resolver(Strings.InteractableCellContentDescription(9, 9)),
         )
             .assertDoesNotExist()
     }
@@ -187,7 +189,7 @@ class InteractableCellsTests {
         }
 
         onNodeWithContentDescription(
-            resolver(InteractableCellContentDescription(2, 4)),
+            resolver(Strings.InteractableCellContentDescription(2, 4)),
         )
             .assertIsOn()
             .performTouchInput { click(topLeft) }

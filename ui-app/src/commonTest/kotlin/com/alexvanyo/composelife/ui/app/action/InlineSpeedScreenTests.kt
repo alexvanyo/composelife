@@ -39,6 +39,13 @@ import androidx.compose.ui.text.input.ImeAction
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
+import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepLabel
+import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepLabelAndValue
+import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepValue
+import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondLabel
+import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondLabelAndValue
+import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondValue
 import org.junit.runner.RunWith
 import kotlin.math.log2
 import kotlin.test.Test
@@ -66,13 +73,13 @@ class InlineSpeedScreenTests {
 
         onNode(
             hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(TargetStepsPerSecondLabel())),
+                hasText(resolver(Strings.TargetStepsPerSecondLabel)),
         )
-            .assertTextContains(resolver(TargetStepsPerSecondValue(60.0)))
+            .assertTextContains(resolver(Strings.TargetStepsPerSecondValue(60.0)))
             .assertIsNotFocused()
 
         onNodeWithContentDescription(
-            resolver(TargetStepsPerSecondLabelAndValue(60.0)),
+            resolver(Strings.TargetStepsPerSecondLabelAndValue(60.0)),
         )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = log2(60f), range = 0f..8f)))
     }
@@ -95,7 +102,7 @@ class InlineSpeedScreenTests {
         }
 
         onNodeWithContentDescription(
-            resolver(TargetStepsPerSecondLabelAndValue(60.0)),
+            resolver(Strings.TargetStepsPerSecondLabelAndValue(60.0)),
         )
             .performSemanticsAction(SemanticsActions.SetProgress) {
                 it(8f)
@@ -103,13 +110,13 @@ class InlineSpeedScreenTests {
 
         onNode(
             hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(TargetStepsPerSecondLabel())),
+                hasText(resolver(Strings.TargetStepsPerSecondLabel)),
         )
-            .assertTextContains(resolver(TargetStepsPerSecondValue(256.0)))
+            .assertTextContains(resolver(Strings.TargetStepsPerSecondValue(256.0)))
             .assertIsNotFocused()
 
         onNodeWithContentDescription(
-            resolver(TargetStepsPerSecondLabelAndValue(256.0)),
+            resolver(Strings.TargetStepsPerSecondLabelAndValue(256.0)),
         )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f)))
     }
@@ -133,23 +140,23 @@ class InlineSpeedScreenTests {
 
         onNode(
             hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(TargetStepsPerSecondLabel())),
+                hasText(resolver(Strings.TargetStepsPerSecondLabel)),
         )
             .performTextReplacement("256")
         onNode(
             hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(TargetStepsPerSecondLabel())),
+                hasText(resolver(Strings.TargetStepsPerSecondLabel)),
         )
             .performImeAction()
 
         onNode(
             hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(TargetStepsPerSecondLabel())),
+                hasText(resolver(Strings.TargetStepsPerSecondLabel)),
         )
-            .assertTextContains(resolver(TargetStepsPerSecondValue(256.0)))
+            .assertTextContains(resolver(Strings.TargetStepsPerSecondValue(256.0)))
             .assertIsNotFocused()
         onNodeWithContentDescription(
-            resolver(TargetStepsPerSecondLabelAndValue(256.0)),
+            resolver(Strings.TargetStepsPerSecondLabelAndValue(256.0)),
         )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f)))
     }
@@ -173,12 +180,12 @@ class InlineSpeedScreenTests {
 
         onNode(
             hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(GenerationsPerStepLabel())),
+                hasText(resolver(Strings.GenerationsPerStepLabel)),
         )
-            .assertTextContains(resolver(GenerationsPerStepValue(1)))
+            .assertTextContains(resolver(Strings.GenerationsPerStepValue(1)))
             .assertIsNotFocused()
         onNodeWithContentDescription(
-            resolver(GenerationsPerStepLabelAndValue(1)),
+            resolver(Strings.GenerationsPerStepLabelAndValue(1)),
         )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0f, range = 0f..8f, steps = 7)))
     }
@@ -201,7 +208,7 @@ class InlineSpeedScreenTests {
         }
 
         onNodeWithContentDescription(
-            resolver(GenerationsPerStepLabelAndValue(1)),
+            resolver(Strings.GenerationsPerStepLabelAndValue(1)),
         )
             .performSemanticsAction(SemanticsActions.SetProgress) {
                 it(8f)
@@ -209,12 +216,12 @@ class InlineSpeedScreenTests {
 
         onNode(
             hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(GenerationsPerStepLabel())),
+                hasText(resolver(Strings.GenerationsPerStepLabel)),
         )
-            .assertTextContains(resolver(GenerationsPerStepValue(256)))
+            .assertTextContains(resolver(Strings.GenerationsPerStepValue(256)))
             .assertIsNotFocused()
         onNodeWithContentDescription(
-            resolver(GenerationsPerStepLabelAndValue(256)),
+            resolver(Strings.GenerationsPerStepLabelAndValue(256)),
         )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f, steps = 7)))
     }
@@ -238,23 +245,23 @@ class InlineSpeedScreenTests {
 
         onNode(
             hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(GenerationsPerStepLabel())),
+                hasText(resolver(Strings.GenerationsPerStepLabel)),
         )
             .performTextReplacement("256")
         onNode(
             hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(GenerationsPerStepLabel())),
+                hasText(resolver(Strings.GenerationsPerStepLabel)),
         )
             .performImeAction()
 
         onNode(
             hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(GenerationsPerStepLabel())),
+                hasText(resolver(Strings.GenerationsPerStepLabel)),
         )
-            .assertTextContains(resolver(GenerationsPerStepValue(256)))
+            .assertTextContains(resolver(Strings.GenerationsPerStepValue(256)))
             .assertIsNotFocused()
         onNodeWithContentDescription(
-            resolver(GenerationsPerStepLabelAndValue(256)),
+            resolver(Strings.GenerationsPerStepLabelAndValue(256)),
         )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f, steps = 7)))
     }

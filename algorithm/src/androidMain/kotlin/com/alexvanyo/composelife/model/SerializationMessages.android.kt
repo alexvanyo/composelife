@@ -69,7 +69,7 @@ actual fun UnexpectedEmptyFileMessage(): ParameterizedString =
 actual fun RuleNotSupportedMessage(): ParameterizedString =
     ParameterizedString(R.string.rule_not_supported)
 
-actual fun DuplicateTopLeftCoordinate(
+actual fun DuplicateTopLeftCoordinateMessage(
     overwritingOffset: IntOffset,
 ): ParameterizedString =
     ParameterizedString(R.string.duplicate_top_left_coordinate, overwritingOffset.x, overwritingOffset.y)

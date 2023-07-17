@@ -54,7 +54,7 @@ actual fun UnexpectedEmptyFileMessage(): ParameterizedString =
 actual fun RuleNotSupportedMessage(): ParameterizedString =
     ParameterizedString("Ruleset not supported")
 
-actual fun DuplicateTopLeftCoordinate(
+actual fun DuplicateTopLeftCoordinateMessage(
     overwritingOffset: IntOffset,
 ): ParameterizedString =
     ParameterizedString(
