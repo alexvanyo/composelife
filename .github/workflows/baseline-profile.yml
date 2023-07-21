@@ -72,7 +72,7 @@ jobs:
       - name: Generate baseline profile for wear
         run: |
           # generate the baseline profile, with one retry attempt
-          generate_profile () { ./gradlew :wear-baseline-profile-generator:wearwearoslargeroundapi28 --no-parallel -Dorg.gradle.workers.max=2 --stacktrace -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect" -Pcom.alexvanyo.composelife.generateBaselineProfile=true; }
+          generate_profile () { ./gradlew :wear-baseline-profile-generator:wearwearoslargeroundapi28Check --no-parallel -Dorg.gradle.workers.max=2 --stacktrace -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect" -Pcom.alexvanyo.composelife.generateBaselineProfile=true; }
           (echo "==== Attempt 1 ====" && generate_profile) || (echo "==== Attempt 2 ====" && generate_profile) || (echo "==== Both attempts failed ====" && exit 1)
 
       - name: Copy baseline profile to wear
