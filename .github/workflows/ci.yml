@@ -163,12 +163,14 @@ jobs:
               {"api-level": "31", "target": "aosp", "device": "pixel3xl"},
               {"api-level": "31", "target": "aospatd", "device": "pixel2"},
               {"api-level": "32", "target": "google", "device": "pixel6pro"},
-              {"api-level": "32", "target": "google", "device": "pixelc"},
+              {"api-level": "32", "target": "google", "device": "pixeltablet"},
               {"api-level": "32", "target": "desktop", "device": "mediumdesktop"},
               {"api-level": "33", "target": "google", "device": "pixel6pro"},
-              {"api-level": "33", "target": "google", "device": "pixelc"}
+              {"api-level": "33", "target": "google", "device": "pixeltablet"},
               {"api-level": "33", "target": "wear", "device": "wearoslargeround"},
               {"api-level": "33", "target": "wear", "device": "wearossquare"},
+              {"api-level": "34", "target": "google", "device": "pixel6pro"},
+              {"api-level": "34", "target": "google", "device": "pixeltablet"}
             '
           else
             MATRIX='
