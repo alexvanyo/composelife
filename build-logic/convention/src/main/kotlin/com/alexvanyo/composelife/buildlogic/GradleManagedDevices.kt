@@ -94,13 +94,14 @@ private val mobileDevices = run {
     val deviceNames = listOf(
         "Nexus 4",
         "Nexus 5",
-        "Pixel C",
+        "Pixel Fold",
+        "Pixel Tablet",
         "Pixel 2",
         "Pixel 3 XL",
         "Pixel 6 Pro",
         "Medium Desktop",
     )
-    val apiLevels = 21..33
+    val apiLevels = 21..34
     val systemImageSources = listOf(
         "aosp",
         "aosp-atd",
@@ -123,7 +124,7 @@ private val mobileDevices = run {
     }
         .filterNot {
             // ATD is only supported on some versions
-            "atd" in it.systemImageSource && it.apiLevel !in 30..31
+            "atd" in it.systemImageSource && it.apiLevel !in 30..33
         }
         .filterNot {
             // aosp images are only supported on some versions
