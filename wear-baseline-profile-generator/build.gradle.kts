@@ -49,7 +49,7 @@ androidComponents {
 }
 
 kotlin {
-    android()
+    androidTarget()
 
     sourceSets {
         val androidMain by getting {
