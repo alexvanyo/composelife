@@ -110,7 +110,7 @@ fun Project.configureAndroidTesting(
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
     extensions.configure<KotlinMultiplatformExtension> {
-        android()
+        androidTarget()
 
         sourceSets.configure(
             closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {

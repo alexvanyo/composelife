@@ -23,8 +23,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 
 internal actual val ComposeLifeTheme.lightColorScheme: ColorScheme
-    @get:Composable
-    @get:ReadOnlyComposable
+    @Composable
+    @ReadOnlyComposable
     get() = lightColorScheme()
 
 internal actual val ComposeLifeTheme.darkColorScheme: ColorScheme

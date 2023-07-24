@@ -38,7 +38,7 @@ android {
 }
 
 kotlin {
-    android()
+    androidTarget()
 
     sourceSets {
         val commonMain by getting {

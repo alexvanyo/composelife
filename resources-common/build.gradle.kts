@@ -28,6 +28,6 @@ android {
 }
 
 kotlin {
-    android()
+    androidTarget()
     jvm()
 }
