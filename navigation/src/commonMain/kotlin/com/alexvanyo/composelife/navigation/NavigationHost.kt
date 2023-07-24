@@ -16,10 +16,24 @@
 
 package com.alexvanyo.composelife.navigation
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.alexvanyo.composelife.snapshotstateset.mutableStateSetOf
+import java.util.UUID
 
 /**
  * The primary composable for displaying a [NavigationState].
@@ -29,13 +43,52 @@ import androidx.compose.ui.Modifier
  *
  * The state for each entry is independently saved via [rememberSaveableStateHolder], and the corresponding state is
  * cleared when the keys are observed to no longer be in the backstack map.
- *
- * TODO: Remove when AnimatedContent is the same in desktop and Android.
  */
 @Composable
-expect fun <T : NavigationEntry> NavigationHost(
+fun <T : NavigationEntry> NavigationHost(
     navigationState: NavigationState<T>,
     modifier: Modifier = Modifier,
+    transitionSpec: AnimatedContentTransitionScope<T>.() -> ContentTransform = {
+        (
+            fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+                scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90))
+            )
+            .togetherWith(fadeOut(animationSpec = tween(90)))
+    },
     contentAlignment: Alignment = Alignment.TopStart,
     content: @Composable (T) -> Unit,
-)
+) {
+    val stateHolder = rememberSaveableStateHolder()
+    val allKeys = rememberSaveable(
+        saver = listSaver(
+            save = { it.map(UUID::toString) },
+            restore = {
+                mutableStateSetOf<UUID>().apply {
+                    addAll(it.map(UUID::fromString))
+                }
+            },
+        ),
+    ) { mutableStateSetOf<UUID>() }
+
+    AnimatedContent(
+        targetState = navigationState.entryMap.getValue(navigationState.currentEntryId),
+        transitionSpec = transitionSpec,
+        contentAlignment = contentAlignment,
+        modifier = modifier,
+    ) { entry ->
+        key(entry.id) {
+            stateHolder.SaveableStateProvider(key = entry.id) {
+                content(entry)
+            }
+        }
+    }
+
+    val keySet = navigationState.entryMap.keys.toSet()
+
+    LaunchedEffect(keySet) {
+        // Remove the state for a given key if it doesn't correspond to an entry in the backstack map
+        (allKeys - keySet).forEach(stateHolder::removeState)
+        // Keep track of the ids we've seen, to know which ones we may need to clear out later.
+        allKeys.addAll(keySet)
+    }
+}
