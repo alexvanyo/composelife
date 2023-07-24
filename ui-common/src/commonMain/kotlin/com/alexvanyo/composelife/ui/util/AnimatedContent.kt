@@ -216,7 +216,7 @@ fun <T> AnimatedContent(
                 }
 
                 val constraintsType = ConstraintsType(
-                    isLookahead = isLookingAhead(),
+                    isLookahead = isLookingAhead,
                 )
                 val placeablesMaps = measurablesMap.mapValues { (target, measurable) ->
                     // Determine the contraints to measure with
