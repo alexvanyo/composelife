@@ -64,7 +64,7 @@ fun Project.configureJacocoMerge() {
                 files(
                     subprojects
                         .map {
-                            fileTree("${it.buildDir}/tmp/kotlin-classes/$variant") {
+                            fileTree(it.layout.buildDirectory.dir("tmp/kotlin-classes/$variant")) {
                                 exclude(coverageExclusions)
                             }
                         },
@@ -75,9 +75,9 @@ fun Project.configureJacocoMerge() {
                     subprojects
                         .flatMap {
                             listOf(
-                                it.projectDir.resolve("src/commonMain/kotlin"),
-                                it.projectDir.resolve("src/androidMain/kotlin"),
-                                it.projectDir.resolve("src/jvmMain/kotlin"),
+                                it.layout.projectDirectory.dir("src/commonMain/kotlin"),
+                                it.layout.projectDirectory.dir("src/androidMain/kotlin"),
+                                it.layout.projectDirectory.dir("src/jvmMain/kotlin"),
                             )
                         },
                 ),
@@ -88,8 +88,8 @@ fun Project.configureJacocoMerge() {
                         it.tasks.findByName("create${variant.capitalizeForTaskName()}UnitTestCoverageReport") != null
                     }
                     .map {
-                        file(
-                            "${it.buildDir}/outputs/unit_test_code_coverage/" +
+                        it.layout.buildDirectory.file(
+                            "outputs/unit_test_code_coverage/" +
                                 "${variant}UnitTest/test${variant.capitalizeForTaskName()}UnitTest.exec",
                         )
                     },

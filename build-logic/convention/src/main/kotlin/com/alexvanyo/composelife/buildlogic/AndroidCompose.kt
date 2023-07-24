@@ -23,7 +23,6 @@ import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.io.File
 
 fun Project.configureAndroidCompose(
     commonExtension: CommonExtension<*, *, *, *, *>,
@@ -44,16 +43,16 @@ fun Project.configureAndroidCompose(
             tasks.withType<KotlinCompile>().all {
                 if (!name.contains("test", true)) {
                     kotlinOptions {
-                        val metricsFolder = File(buildDir, "compose-metrics")
-                        val reportsFolder = File(buildDir, "compose-reports")
+                        val metricsFolder = layout.buildDirectory.dir("build/compose-metrics")
+                        val reportsFolder = layout.buildDirectory.dir("build/compose-reports")
                         freeCompilerArgs = freeCompilerArgs + listOf(
                             "-P",
                             "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=${
-                                metricsFolder.absolutePath
+                                metricsFolder.get().asFile.absolutePath
                             }",
                             "-P",
                             "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=${
-                                reportsFolder.absolutePath
+                                reportsFolder.get().asFile.absolutePath
                             }",
                         )
                     }
