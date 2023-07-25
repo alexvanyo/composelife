@@ -76,10 +76,10 @@ kotlin {
                 implementation(libs.androidx.compose.uiToolingPreview)
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.lifecycle.runtime)
-                implementation(libs.androidx.room.runtime)
                 implementation(libs.androidx.window)
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.sealedEnum.runtime)
+                implementation(libs.sqldelight.androidDriver)
                 implementation(libs.dagger.hilt.android)
             }
         }

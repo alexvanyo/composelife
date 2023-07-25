@@ -18,7 +18,6 @@ androidxHilt = "1.0.0"
 androidxLifecycle = "2.6.1"
 androidxPoolingContainer = "1.0.0"
 androidxProfileInstaller = "1.3.1"
-androidxRoom = "2.6.0-alpha02"
 androidxTestCore = "1.6.0-alpha01"
 androidxTestEspresso = "3.6.0-alpha01"
 androidxTestExt = "1.2.0-alpha01"
@@ -51,6 +50,7 @@ paparazzi = "1.3.1"
 robolectric = "4.10.3"
 sealedEnum = "0.7.0"
 slackComposeLintChecks = "1.2.0"
+sqldelight = "2.0.0"
 testParameterInjector = "1.12"
 turbine = "1.0.0"
 wire = "4.8.0"
@@ -89,9 +89,6 @@ androidx-lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle
 androidx-lifecycle-viewmodel-savedstate = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-savedstate", version.ref = "androidxLifecycle" }
 androidx-poolingContainer = { group = "androidx.customview", name = "customview-poolingcontainer", version.ref = "androidxPoolingContainer" }
 androidx-profileInstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "androidxProfileInstaller" }
-androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "androidxRoom" }
-androidx-room-runtime = { group = "androidx.room", name = "room-ktx", version.ref = "androidxRoom" }
-androidx-room-testing = { group = "androidx.room", name = "room-testing", version.ref = "androidxRoom" }
 androidx-test-core = { group = "androidx.test", name = "core-ktx", version.ref = "androidxTestCore" }
 androidx-test-espresso = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxTestEspresso" }
 androidx-test-junit = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "androidxTestExt" }
@@ -148,10 +145,15 @@ robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "
 sealedEnum-ksp = { group = "com.github.livefront.sealed-enum", name = "ksp", version.ref = "sealedEnum" }
 sealedEnum-runtime = { group = "com.github.livefront.sealed-enum", name = "runtime", version.ref = "sealedEnum" }
 slackComposeLintChecks = { group = "com.slack.lint.compose", name = "compose-lint-checks", version.ref = "slackComposeLintChecks" }
+sqldelight-androidDriver = { group = "app.cash.sqldelight", name = "android-driver", version.ref = "sqldelight" }
+sqldelight-coroutinesExtensions = { group = "app.cash.sqldelight", name = "coroutines-extensions", version.ref = "sqldelight" }
+sqldelight-primitiveAdapters = { group = "app.cash.sqldelight", name = "primitive-adapters", version.ref = "sqldelight" }
+sqldelight-sqliteDriver = { group = "app.cash.sqldelight", name = "sqlite-driver", version.ref = "sqldelight" }
 testParameterInjector-junit4 = { group = "com.google.testparameterinjector", name = "test-parameter-injector", version.ref = "testParameterInjector" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 wire-runtime = { group = "com.squareup.wire", name = "wire-runtime", version.ref = "wire" }
 
 [plugins]
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 wire = { id = "com.squareup.wire", version.ref = "wire" }

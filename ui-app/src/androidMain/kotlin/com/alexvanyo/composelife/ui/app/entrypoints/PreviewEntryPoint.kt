@@ -18,14 +18,16 @@ package com.alexvanyo.composelife.ui.app.entrypoints
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import androidx.room.Room
+import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.algorithm.NaiveGameOfLifeAlgorithm
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.clock.di.ClockProvider
 import com.alexvanyo.composelife.data.CellStateRepositoryImpl
 import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
-import com.alexvanyo.composelife.database.AppDatabase
+import com.alexvanyo.composelife.database.CellState
+import com.alexvanyo.composelife.database.CellStateIdAdapter
+import com.alexvanyo.composelife.database.ComposeLifeDatabase
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.DefaultComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
@@ -127,8 +129,18 @@ internal fun WithPreviewDependencies(
     clock: Clock = Clock.System,
     content: @Composable context(PreviewEntryPoint) () -> Unit,
 ) {
-    val appDatabase = Room.inMemoryDatabaseBuilder(LocalContext.current, AppDatabase::class.java).build()
-    val cellStateDao = appDatabase.cellStateDao()
+    val driver = AndroidSqliteDriver(
+        schema = ComposeLifeDatabase.Schema,
+        context = LocalContext.current,
+        name = null,
+    )
+    val composeLifeDatabase = ComposeLifeDatabase(
+        driver = driver,
+        cellStateAdapter = CellState.Adapter(
+            idAdapter = CellStateIdAdapter(),
+        ),
+    )
+    val cellStateQueries = composeLifeDatabase.cellStateQueries
 
     val dispatchersProvider = object : ComposeLifeDispatchersProvider {
         override val dispatchers = dispatchers
@@ -142,7 +154,8 @@ internal fun WithPreviewDependencies(
     val cellStateRepositoryProvider = object : CellStateRepositoryProvider {
         override val cellStateRepository = CellStateRepositoryImpl(
             flexibleCellStateSerializer = FlexibleCellStateSerializer(dispatchers),
-            cellStateDao = cellStateDao,
+            cellStateQueries = cellStateQueries,
+            dispatchers = dispatchers,
         )
     }
     val loadedPreferencesProvider = object : LoadedComposeLifePreferencesProvider {

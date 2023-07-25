@@ -17,56 +17,45 @@
 package com.alexvanyo.composelife.database.di
 
 import android.content.Context
-import androidx.room.Room
-import com.alexvanyo.composelife.database.AppDatabase
+import app.cash.sqldelight.db.SqlDriver
+import app.cash.sqldelight.driver.android.AndroidSqliteDriver
+import com.alexvanyo.composelife.database.ComposeLifeDatabase
 import com.alexvanyo.composelife.updatable.Updatable
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import dagger.hilt.testing.TestInstallIn
 import dagger.multibindings.IntoSet
-import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.test.TestDispatcher
 import javax.inject.Singleton
 
 @Module
-@TestInstallIn(
-    components = [SingletonComponent::class],
-    replaces = [DatabaseModule::class],
-)
-interface TestDatabaseModule {
+@InstallIn(SingletonComponent::class)
+interface DriverModule {
 
     companion object {
+        @Provides
+        @Singleton
+        fun providesDriver(
+            @ApplicationContext context: Context,
+        ): SqlDriver =
+            AndroidSqliteDriver(
+                schema = ComposeLifeDatabase.Schema,
+                context = context,
+                name = "composelifedatabase.db",
+            )
 
         @Provides
         @Singleton
         @IntoSet
-        fun providesDatabaseClosingIntoUpdatable(
-            appDatabase: AppDatabase,
+        fun providesDriverClosingIntoUpdatable(
+            driver: SqlDriver,
         ): Updatable = object : Updatable {
             override suspend fun update(): Nothing =
-                try {
+                driver.use { _ ->
                     awaitCancellation()
-                } finally {
-                    appDatabase.close()
                 }
         }
-
-        @Provides
-        @Singleton
-        fun providesDatabase(
-            testDispatcher: TestDispatcher,
-            @ApplicationContext context: Context,
-        ): AppDatabase =
-            Room.inMemoryDatabaseBuilder(
-                context = context,
-                klass = AppDatabase::class.java,
-            )
-                .allowMainThreadQueries()
-                .setTransactionExecutor(testDispatcher.asExecutor())
-                .setQueryExecutor(testDispatcher.asExecutor())
-                .build()
     }
 }

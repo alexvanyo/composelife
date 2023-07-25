@@ -30,6 +30,7 @@ android {
 
 kotlin {
     android()
+    jvm()
 
     sourceSets {
         val commonMain by getting {
@@ -45,7 +46,7 @@ kotlin {
             configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 api(libs.kotlinx.coroutines.android)
-                api(libs.androidx.room.runtime)
+                api(libs.sqldelight.androidDriver)
                 implementation(libs.dagger.hilt.android)
                 api(libs.dagger.hilt.test)
             }

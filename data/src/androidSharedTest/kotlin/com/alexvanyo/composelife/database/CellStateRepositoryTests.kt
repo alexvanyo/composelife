@@ -23,7 +23,6 @@ import com.alexvanyo.composelife.data.model.SaveableCellState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.test.BaseHiltTest
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestDispatcher
 import org.junit.runner.RunWith
 import javax.inject.Inject
@@ -40,7 +39,7 @@ class CellStateRepositoryTests : BaseHiltTest() {
     lateinit var cellStateRepository: CellStateRepository
 
     @Inject
-    lateinit var cellStateDao: CellStateDao
+    lateinit var cellStateQueries: CellStateQueries
 
     @Inject
     lateinit var testDispatcher: TestDispatcher
@@ -82,11 +81,11 @@ class CellStateRepositoryTests : BaseHiltTest() {
             actualCellState,
         )
 
-        val mostRecentCellStateEntity = cellStateDao.getMostRecentAutosavedCellState().first()
+        val mostRecentCellStateEntity = cellStateQueries.getMostRecentAutosavedCellState().executeAsOne()
 
         assertNotNull(mostRecentCellStateEntity)
         assertEquals(
-            CellStateEntity(
+            CellState(
                 id = insertedId,
                 name = "name",
                 description = "description",

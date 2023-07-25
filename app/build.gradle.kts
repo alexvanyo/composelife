@@ -61,7 +61,6 @@ kotlin {
                 implementation(libs.androidx.core.splashscreen)
                 implementation(libs.androidx.lifecycle.process)
                 implementation(libs.androidx.profileInstaller)
-                implementation(libs.androidx.room.runtime)
                 implementation(libs.dagger.hilt.android)
             }
         }

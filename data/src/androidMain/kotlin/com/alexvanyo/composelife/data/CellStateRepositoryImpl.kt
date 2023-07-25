@@ -18,21 +18,22 @@ package com.alexvanyo.composelife.data
 
 import com.alexvanyo.composelife.data.model.CellStateMetadata
 import com.alexvanyo.composelife.data.model.SaveableCellState
-import com.alexvanyo.composelife.database.CellStateDao
-import com.alexvanyo.composelife.database.CellStateEntity
-import com.alexvanyo.composelife.database.upsertCellState
+import com.alexvanyo.composelife.database.CellStateId
+import com.alexvanyo.composelife.database.CellStateQueries
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.CellStateFormat
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.FlexibleCellStateSerializer
 import com.alexvanyo.composelife.model.fromFileExtension
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class CellStateRepositoryImpl @Inject constructor(
     private val flexibleCellStateSerializer: FlexibleCellStateSerializer,
-    private val cellStateDao: CellStateDao,
+    private val cellStateQueries: CellStateQueries,
+    private val dispatchers: ComposeLifeDispatchers,
 ) : CellStateRepository {
-    override suspend fun autosaveCellState(saveableCellState: SaveableCellState): Long {
+    override suspend fun autosaveCellState(saveableCellState: SaveableCellState): CellStateId {
         val fileExtension = "rle"
         val serializedCellState =
             flexibleCellStateSerializer
@@ -42,41 +43,54 @@ class CellStateRepositoryImpl @Inject constructor(
                 )
                 .joinToString("\n")
 
-        val insertedId = cellStateDao.upsertCellState(
-            CellStateEntity(
-                id = saveableCellState.cellStateMetadata.id ?: 0,
-                name = saveableCellState.cellStateMetadata.name,
-                description = saveableCellState.cellStateMetadata.description,
-                formatExtension = fileExtension,
-                serializedCellState = serializedCellState,
-                generation = saveableCellState.cellStateMetadata.generation,
-                wasAutosaved = true,
-            ),
-        )
-
-        return if (insertedId == -1L) {
-            requireNotNull(saveableCellState.cellStateMetadata.id) {
-                "Insertion failed, so there must have already been an id!"
+        @Suppress("InjectDispatcher")
+        val insertedId = withContext(dispatchers.IO) {
+            cellStateQueries.transactionWithResult {
+                if (saveableCellState.cellStateMetadata.id == null) {
+                    cellStateQueries.insertCellState(
+                        name = saveableCellState.cellStateMetadata.name,
+                        description = saveableCellState.cellStateMetadata.description,
+                        formatExtension = fileExtension,
+                        serializedCellState = serializedCellState,
+                        generation = saveableCellState.cellStateMetadata.generation,
+                        wasAutosaved = true,
+                    )
+                    CellStateId(cellStateQueries.lastInsertedRowId().executeAsOne())
+                } else {
+                    cellStateQueries.updateCellState(
+                        id = saveableCellState.cellStateMetadata.id,
+                        name = saveableCellState.cellStateMetadata.name,
+                        description = saveableCellState.cellStateMetadata.description,
+                        formatExtension = fileExtension,
+                        serializedCellState = serializedCellState,
+                        generation = saveableCellState.cellStateMetadata.generation,
+                        wasAutosaved = true,
+                    )
+                    saveableCellState.cellStateMetadata.id
+                }
             }
-        } else {
-            insertedId
         }
+
+        return insertedId
     }
 
     override suspend fun getAutosavedCellState(): SaveableCellState? {
-        val cellStateEntity = cellStateDao.getMostRecentAutosavedCellState().first() ?: return null
-        check(cellStateEntity.wasAutosaved)
+        @Suppress("InjectDispatcher")
+        val cellState = withContext(dispatchers.IO) {
+            cellStateQueries.getMostRecentAutosavedCellState().executeAsOneOrNull()
+        } ?: return null
+        check(cellState.wasAutosaved)
 
         val deserializationResult = flexibleCellStateSerializer.deserializeToCellState(
-            format = CellStateFormat.fromFileExtension(cellStateEntity.formatExtension),
-            lines = cellStateEntity.serializedCellState.lineSequence(),
+            format = CellStateFormat.fromFileExtension(cellState.formatExtension),
+            lines = cellState.serializedCellState.lineSequence(),
         )
         val cellStateMetadata = CellStateMetadata(
-            id = cellStateEntity.id,
-            name = cellStateEntity.name,
-            description = cellStateEntity.description,
-            generation = cellStateEntity.generation,
-            wasAutosaved = cellStateEntity.wasAutosaved,
+            id = cellState.id,
+            name = cellState.name,
+            description = cellState.description,
+            generation = cellState.generation,
+            wasAutosaved = cellState.wasAutosaved,
         )
 
         return when (deserializationResult) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,14 @@
 
 package com.alexvanyo.composelife.database
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import app.cash.sqldelight.ColumnAdapter
+import javax.inject.Inject
 
-@Entity
-data class CellStateEntity(
-    @PrimaryKey(autoGenerate = true) val id: Long,
-    val name: String?,
-    val description: String?,
-    val formatExtension: String?,
-    val serializedCellState: String,
-    val generation: Long,
-    val wasAutosaved: Boolean,
-)
+@JvmInline
+value class CellStateId(val value: Long)
+
+class CellStateIdAdapter @Inject constructor() : ColumnAdapter<CellStateId, Long> {
+    override fun decode(databaseValue: Long): CellStateId = CellStateId(databaseValue)
+
+    override fun encode(value: CellStateId): Long = value.value
+}
