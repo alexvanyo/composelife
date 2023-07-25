@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.data
 
 import com.alexvanyo.composelife.data.model.SaveableCellState
+import com.alexvanyo.composelife.database.CellStateId
 
 interface CellStateRepository {
     /**
@@ -31,5 +32,5 @@ interface CellStateRepository {
      *
      * @return the id of the saved entry.
      */
-    suspend fun autosaveCellState(saveableCellState: SaveableCellState): Long
+    suspend fun autosaveCellState(saveableCellState: SaveableCellState): CellStateId
 }

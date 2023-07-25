@@ -21,9 +21,9 @@ plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.android.library.jacoco")
-    id("com.alexvanyo.composelife.android.library.ksp")
     id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
+    alias(libs.plugins.sqldelight)
     kotlin("kapt")
 }
 
@@ -40,22 +40,26 @@ android {
 
 kotlin {
     android()
+    jvm()
 
     sourceSets {
         val commonMain by getting {
+            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 api(projects.dispatchers)
+                api(projects.updatable)
 
                 api(libs.kotlinx.coroutines.core)
+                implementation(libs.dagger.hilt.core)
+                implementation(libs.sqldelight.coroutinesExtensions)
+                implementation(libs.sqldelight.primitiveAdapters)
             }
         }
         val androidMain by getting {
-            configurations["kspAndroid"].dependencies.add(libs.androidx.room.compiler.get())
-            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 api(libs.kotlinx.coroutines.android)
-                implementation(libs.androidx.room.runtime)
                 implementation(libs.dagger.hilt.android)
+                implementation(libs.sqldelight.androidDriver)
             }
         }
         val commonTest by getting {
@@ -83,7 +87,12 @@ kotlin {
     }
 }
 
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
-    arg("room.generateKotlin", "true")
+sqldelight {
+    databases {
+        create("ComposeLifeDatabase") {
+            packageName.set("com.alexvanyo.composelife.database")
+            schemaOutputDirectory.set(file("src/commonMain/sqldelight/databases"))
+            verifyMigrations.set(true)
+        }
+    }
 }

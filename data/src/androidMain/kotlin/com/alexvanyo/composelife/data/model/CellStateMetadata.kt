@@ -16,8 +16,10 @@
 
 package com.alexvanyo.composelife.data.model
 
+import com.alexvanyo.composelife.database.CellStateId
+
 data class CellStateMetadata(
-    val id: Long?,
+    val id: CellStateId?,
     val name: String?,
     val description: String?,
     val generation: Long,

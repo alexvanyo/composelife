@@ -14,16 +14,25 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.database
+package com.alexvanyo.composelife.database.di
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
+import com.alexvanyo.composelife.database.CellStateQueries
+import com.alexvanyo.composelife.database.ComposeLifeDatabase
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-@Database(
-    entities = [CellStateEntity::class],
-    version = 1,
-)
-abstract class AppDatabase : RoomDatabase() {
+@Module
+@InstallIn(SingletonComponent::class)
+interface QueriesModule {
 
-    abstract fun cellStateDao(): CellStateDao
+    companion object {
+        @Provides
+        @Singleton
+        fun providesCellStateQueries(
+            composeLifeDatabase: ComposeLifeDatabase,
+        ): CellStateQueries = composeLifeDatabase.cellStateQueries
+    }
 }

@@ -1,0 +1,62 @@
+import com.alexvanyo.composelife.database.CellStateId;
+import kotlin.Boolean;
+
+CREATE TABLE cellState (
+    id INTEGER AS CellStateId NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    description TEXT,
+    formatExtension TEXT,
+    serializedCellState TEXT NOT NULL,
+    generation INTEGER NOT NULL,
+    wasAutosaved INTEGER AS Boolean NOT NULL
+);
+
+getCellStates:
+SELECT *
+FROM cellState;
+
+getCellStateById:
+SELECT *
+FROM cellState
+WHERE id=:id;
+
+getMostRecentAutosavedCellState:
+SELECT *
+FROM cellState
+WHERE wasAutosaved=1;
+
+insertCellState:
+INSERT INTO cellState (
+    name,
+    description,
+    formatExtension,
+    serializedCellState,
+    generation,
+    wasAutosaved
+)
+VALUES (
+    :name,
+    :description,
+    :formatExtension,
+    :serializedCellState,
+    :generation,
+    :wasAutosaved
+);
+
+updateCellState:
+UPDATE cellState
+SET
+    name=:name,
+    description=:description,
+    formatExtension=:formatExtension,
+    serializedCellState=:serializedCellState,
+    generation=:generation,
+    wasAutosaved=:wasAutosaved
+WHERE id=:id;
+
+lastInsertedRowId:
+SELECT last_insert_rowid();
+
+deleteCellState:
+DELETE FROM cellState
+WHERE id=:id;

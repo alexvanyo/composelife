@@ -16,13 +16,12 @@
 
 package com.alexvanyo.composelife.database.di
 
-import android.content.Context
-import androidx.room.Room
-import com.alexvanyo.composelife.database.AppDatabase
+import app.cash.sqldelight.db.SqlDriver
+import com.alexvanyo.composelife.database.CellState
+import com.alexvanyo.composelife.database.ComposeLifeDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -31,16 +30,15 @@ import javax.inject.Singleton
 interface DatabaseModule {
 
     companion object {
-
         @Provides
         @Singleton
         fun providesDatabase(
-            @ApplicationContext context: Context,
-        ): AppDatabase =
-            Room.databaseBuilder(
-                context = context,
-                klass = AppDatabase::class.java,
-                name = "database",
-            ).build()
+            driver: SqlDriver,
+            cellStateAdapter: CellState.Adapter,
+        ): ComposeLifeDatabase =
+            ComposeLifeDatabase(
+                driver = driver,
+                cellStateAdapter = cellStateAdapter,
+            )
     }
 }

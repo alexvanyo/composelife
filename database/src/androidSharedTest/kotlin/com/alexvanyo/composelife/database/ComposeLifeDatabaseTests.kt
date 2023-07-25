@@ -26,13 +26,13 @@ import kotlin.test.assertIs
 
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class AppDatabaseTests : BaseHiltTest() {
+class ComposeLifeDatabaseTests : BaseHiltTest() {
 
     @Inject
-    lateinit var appDatabase: AppDatabase
+    lateinit var composeLifeDatabase: ComposeLifeDatabase
 
     @Test
     fun cell_state_dao_returns_valid_instance() = runAppTest {
-        assertIs<CellStateDao>(appDatabase.cellStateDao())
+        assertIs<CellStateQueries>(composeLifeDatabase.cellStateQueries)
     }
 }
