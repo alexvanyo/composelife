@@ -234,10 +234,10 @@ object PlaintextCellStateSerializer : FixedFormatCellStateSerializer {
         val maxY = cellState.aliveCells.maxOfOrNull { it.y } ?: 0
 
         return sequence {
-            (minY..maxY).forEach { y ->
+            for (y in minY..maxY) {
                 yield(
                     buildString {
-                        (minX..maxX).forEach { x ->
+                        for (x in minX..maxX) {
                             append(
                                 if (IntOffset(x, y) in cellState.aliveCells) {
                                     'O'
@@ -436,10 +436,10 @@ object Life105CellStateSerializer : FixedFormatCellStateSerializer {
             val maxY = remainingCells.maxOf(IntOffset::y)
 
             yield("#P $minX $minY")
-            (minY..maxY).forEach { y ->
+            for (y in minY..maxY) {
                 yield(
                     buildString {
-                        (minX until minX + 80).forEach { x ->
+                        for (x in minX until minX + 80) {
                             val offset = IntOffset(x, y)
                             if (offset in remainingCells) {
                                 append("*")
@@ -636,7 +636,7 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
             } else {
                 val (state, count) = item.value
                 if (state) {
-                    (x until x + count).forEach {
+                    for (it in x until x + count) {
                         points.add(IntOffset(it, y))
                     }
                 }
@@ -670,7 +670,7 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
          * The sequence of items that can't be broken apart with line breaks
          */
         val itemSequence = sequence {
-            (boundingBox.top..boundingBox.bottom).forEach { y ->
+            for (y in boundingBox.top..boundingBox.bottom) {
                 val iterator = (boundingBox.left..boundingBox.right).map { x -> IntOffset(x, y) }.iterator()
                 var currentState = iterator.next() in cellState.aliveCells
                 var currentCount = 1

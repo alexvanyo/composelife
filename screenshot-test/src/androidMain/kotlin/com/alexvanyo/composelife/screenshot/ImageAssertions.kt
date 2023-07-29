@@ -37,8 +37,8 @@ fun ImageBitmap.assertPixels(
     }
 
     val pixelMap = toPixelMap()
-    (0 until width).forEach { x ->
-        (0 until height).forEach { y ->
+    for (x in 0 until width) {
+        for (y in 0 until height) {
             val expectedColor = expectedColorProvider(IntOffset(x, y))
             if (expectedColor != null) {
                 pixelMap.assertPixelColor(expectedColor, x, y)
