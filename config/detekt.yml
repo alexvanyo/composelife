@@ -151,5 +151,7 @@ style:
     active: false
   ObjectLiteralToLambda:
     excludes: [ '**/generated/**' ]
+  OptionalWhenBraces:
+    active: false
   VarCouldBeVal:
     excludes: [ '**/generated/**' ]
