@@ -16,34 +16,36 @@
 
 package com.alexvanyo.composelife.ui.app.action.settings
 
-import android.content.Context
-import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.alexvanyo.composelife.ui.app.R
-import org.junit.Rule
+import androidx.compose.ui.test.runComposeUiTest
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
+import com.alexvanyo.composelife.ui.app.resources.AddSettingToQuickAccess
+import com.alexvanyo.composelife.ui.app.resources.OpenInSettings
+import com.alexvanyo.composelife.ui.app.resources.RemoveSettingFromQuickAccess
+import com.alexvanyo.composelife.ui.app.resources.Strings
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalTestApi::class)
+@RunWith(KmpAndroidJUnit4::class)
 class QuickAccessSettingHeaderTests {
 
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
-
-    private val context: Context get() = composeTestRule.activity
-
     @Test
-    fun is_favorite_without_open_in_settings_is_displayed_correctly() {
+    fun is_favorite_without_open_in_settings_is_displayed_correctly() = runComposeUiTest {
         var setIsFavoriteResult: Boolean? = null
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             QuickAccessSettingHeader(
                 isFavorite = true,
                 setIsFavorite = {
@@ -52,23 +54,26 @@ class QuickAccessSettingHeaderTests {
             )
         }
 
-        composeTestRule.onNodeWithContentDescription(context.getString(R.string.remove_setting_from_quick_access))
+        onNodeWithContentDescription(resolver(Strings.RemoveSettingFromQuickAccess))
             .assertIsOn()
             .assertIsDisplayed()
             .performClick()
 
         assertEquals(false, setIsFavoriteResult)
 
-        composeTestRule.onNodeWithContentDescription(context.getString(R.string.open_in_settings))
+        onNodeWithContentDescription(resolver(Strings.OpenInSettings))
             .assertDoesNotExist()
     }
 
     @Test
-    fun is_favorite_with_open_in_settings_is_displayed_correctly() {
+    fun is_favorite_with_open_in_settings_is_displayed_correctly() = runComposeUiTest {
         var setIsFavoriteResult: Boolean? = null
         var onOpenInSettingsResult: Unit? = null
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             QuickAccessSettingHeader(
                 isFavorite = true,
                 setIsFavorite = {
@@ -80,14 +85,14 @@ class QuickAccessSettingHeaderTests {
             )
         }
 
-        composeTestRule.onNodeWithContentDescription(context.getString(R.string.remove_setting_from_quick_access))
+        onNodeWithContentDescription(resolver(Strings.RemoveSettingFromQuickAccess))
             .assertIsOn()
             .assertIsDisplayed()
             .performClick()
 
         assertEquals(false, setIsFavoriteResult)
 
-        composeTestRule.onNodeWithContentDescription(context.getString(R.string.open_in_settings))
+        onNodeWithContentDescription(resolver(Strings.OpenInSettings))
             .assertIsDisplayed()
             .performClick()
 
@@ -95,10 +100,13 @@ class QuickAccessSettingHeaderTests {
     }
 
     @Test
-    fun is_not_favorite_without_open_in_settings_is_displayed_correctly() {
+    fun is_not_favorite_without_open_in_settings_is_displayed_correctly() = runComposeUiTest {
         var setIsFavoriteResult: Boolean? = null
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             QuickAccessSettingHeader(
                 isFavorite = false,
                 setIsFavorite = {
@@ -107,23 +115,26 @@ class QuickAccessSettingHeaderTests {
             )
         }
 
-        composeTestRule.onNodeWithContentDescription(context.getString(R.string.add_setting_to_quick_access))
+        onNodeWithContentDescription(resolver(Strings.AddSettingToQuickAccess))
             .assertIsOff()
             .assertIsDisplayed()
             .performClick()
 
         assertEquals(true, setIsFavoriteResult)
 
-        composeTestRule.onNodeWithContentDescription(context.getString(R.string.open_in_settings))
+        onNodeWithContentDescription(resolver(Strings.OpenInSettings))
             .assertDoesNotExist()
     }
 
     @Test
-    fun is_not_favorite_with_open_in_settings_is_displayed_correctly() {
+    fun is_not_favorite_with_open_in_settings_is_displayed_correctly() = runComposeUiTest {
         var setIsFavoriteResult: Boolean? = null
         var onOpenInSettingsResult: Unit? = null
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             QuickAccessSettingHeader(
                 isFavorite = false,
                 setIsFavorite = {
@@ -135,14 +146,14 @@ class QuickAccessSettingHeaderTests {
             )
         }
 
-        composeTestRule.onNodeWithContentDescription(context.getString(R.string.add_setting_to_quick_access))
+        onNodeWithContentDescription(resolver(Strings.AddSettingToQuickAccess))
             .assertIsOff()
             .assertIsDisplayed()
             .performClick()
 
         assertEquals(true, setIsFavoriteResult)
 
-        composeTestRule.onNodeWithContentDescription(context.getString(R.string.open_in_settings))
+        onNodeWithContentDescription(resolver(Strings.OpenInSettings))
             .assertIsDisplayed()
             .performClick()
 

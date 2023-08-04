@@ -32,11 +32,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.navigation.currentEntry
-import com.alexvanyo.composelife.ui.app.R
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.ui.app.resources.Speed
+import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.util.Zero
+import com.alexvanyo.composelife.ui.app.resources.Edit as EditString
+import com.alexvanyo.composelife.ui.app.resources.Settings as SettingsString
 
 @Suppress("LongMethod")
 @Composable
@@ -73,7 +76,7 @@ fun ActionCardNavigationBar(
                 )
             },
             label = {
-                Text(text = stringResource(id = R.string.speed))
+                Text(text = parameterizedStringResource(Strings.Speed))
             },
         )
         NavigationBarItem(
@@ -90,7 +93,7 @@ fun ActionCardNavigationBar(
                 )
             },
             label = {
-                Text(text = stringResource(id = R.string.edit))
+                Text(text = parameterizedStringResource(Strings.EditString))
             },
         )
         NavigationBarItem(
@@ -107,7 +110,7 @@ fun ActionCardNavigationBar(
                 )
             },
             label = {
-                Text(text = stringResource(id = R.string.settings))
+                Text(text = parameterizedStringResource(Strings.SettingsString))
             },
         )
     }

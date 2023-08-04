@@ -60,3 +60,15 @@ internal expect val Strings.Step: ParameterizedString
 internal expect val Strings.DisableAutofit: ParameterizedString
 
 internal expect val Strings.EnableAutofit: ParameterizedString
+
+internal expect val Strings.Speed: ParameterizedString
+
+internal expect val Strings.Edit: ParameterizedString
+
+internal expect val Strings.Settings: ParameterizedString
+
+internal expect val Strings.OpenInSettings: ParameterizedString
+
+internal expect val Strings.RemoveSettingFromQuickAccess: ParameterizedString
+
+internal expect val Strings.AddSettingToQuickAccess: ParameterizedString
