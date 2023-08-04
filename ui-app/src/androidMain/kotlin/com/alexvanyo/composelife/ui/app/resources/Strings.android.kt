@@ -75,3 +75,21 @@ internal actual val Strings.DisableAutofit: ParameterizedString get() =
 
 internal actual val Strings.EnableAutofit: ParameterizedString get() =
     ParameterizedString(R.string.enable_autofit)
+
+internal actual val Strings.Speed: ParameterizedString get() =
+    ParameterizedString(R.string.speed)
+
+internal actual val Strings.Edit: ParameterizedString get() =
+    ParameterizedString(R.string.edit)
+
+internal actual val Strings.Settings: ParameterizedString get() =
+    ParameterizedString(R.string.settings)
+
+internal actual val Strings.OpenInSettings: ParameterizedString get() =
+    ParameterizedString(R.string.open_in_settings)
+
+internal actual val Strings.RemoveSettingFromQuickAccess: ParameterizedString get() =
+    ParameterizedString(R.string.remove_setting_from_quick_access)
+
+internal actual val Strings.AddSettingToQuickAccess: ParameterizedString get() =
+    ParameterizedString(R.string.add_setting_to_quick_access)
