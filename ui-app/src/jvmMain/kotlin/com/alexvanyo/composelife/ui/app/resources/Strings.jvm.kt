@@ -92,3 +92,36 @@ internal actual val Strings.RemoveSettingFromQuickAccess: ParameterizedString ge
 
 internal actual val Strings.AddSettingToQuickAccess: ParameterizedString get() =
     ParameterizedString("Add setting to quick access")
+
+internal actual val Strings.Touch: ParameterizedString get() =
+    ParameterizedString("Touch")
+
+internal actual val Strings.TouchTool: ParameterizedString get() =
+    ParameterizedString("Touch tool")
+
+internal actual val Strings.Stylus: ParameterizedString get() =
+    ParameterizedString("Stylus")
+
+internal actual val Strings.StylusTool: ParameterizedString get() =
+    ParameterizedString("Stylus tool")
+
+internal actual val Strings.Mouse: ParameterizedString get() =
+    ParameterizedString("Mouse")
+
+internal actual val Strings.MouseTool: ParameterizedString get() =
+    ParameterizedString("Mouse tool")
+
+internal actual val Strings.Pan: ParameterizedString get() =
+    ParameterizedString("Pan")
+
+internal actual val Strings.Draw: ParameterizedString get() =
+    ParameterizedString("Draw")
+
+internal actual val Strings.Erase: ParameterizedString get() =
+    ParameterizedString("Erase")
+
+internal actual val Strings.Select: ParameterizedString get() =
+    ParameterizedString("Select")
+
+internal actual val Strings.None: ParameterizedString get() =
+    ParameterizedString("None")
