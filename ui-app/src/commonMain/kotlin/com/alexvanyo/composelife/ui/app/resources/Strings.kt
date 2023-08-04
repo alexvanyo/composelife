@@ -72,3 +72,25 @@ internal expect val Strings.OpenInSettings: ParameterizedString
 internal expect val Strings.RemoveSettingFromQuickAccess: ParameterizedString
 
 internal expect val Strings.AddSettingToQuickAccess: ParameterizedString
+
+internal expect val Strings.Touch: ParameterizedString
+
+internal expect val Strings.TouchTool: ParameterizedString
+
+internal expect val Strings.Stylus: ParameterizedString
+
+internal expect val Strings.StylusTool: ParameterizedString
+
+internal expect val Strings.Mouse: ParameterizedString
+
+internal expect val Strings.MouseTool: ParameterizedString
+
+internal expect val Strings.Pan: ParameterizedString
+
+internal expect val Strings.Draw: ParameterizedString
+
+internal expect val Strings.Erase: ParameterizedString
+
+internal expect val Strings.Select: ParameterizedString
+
+internal expect val Strings.None: ParameterizedString
