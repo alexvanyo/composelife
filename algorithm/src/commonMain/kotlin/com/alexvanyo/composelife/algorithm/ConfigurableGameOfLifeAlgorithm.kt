@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.selects.select
-import javax.inject.Inject
+import me.tatarka.inject.annotations.Inject
 
 class ConfigurableGameOfLifeAlgorithm @Inject constructor(
     private val preferences: ComposeLifePreferences,

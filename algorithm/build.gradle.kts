@@ -25,7 +25,6 @@ plugins {
     id("com.alexvanyo.composelife.android.library.ksp")
     id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
-    kotlin("kapt")
     id("com.alexvanyo.composelife.kotlin.multiplatform.compose")
 }
 
@@ -43,10 +42,10 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
-            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 api(projects.dispatchers)
                 api(projects.geometry)
+                implementation(projects.kotlinInjectScopes)
                 api(projects.parameterizedString)
                 api(projects.preferences)
                 api(projects.updatable)
@@ -58,10 +57,11 @@ kotlin {
                 implementation(libs.jetbrains.compose.runtime)
                 implementation(libs.sealedEnum.runtime)
                 implementation(libs.guava.android)
-                implementation(libs.dagger.hilt.core)
+                implementation(libs.kotlinInject.runtime)
             }
         }
         val androidMain by getting {
+            configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
                 implementation(libs.androidx.tracing)
@@ -69,6 +69,7 @@ kotlin {
             }
         }
         val jvmMain by getting {
+            configurations["kspJvm"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspJvm"].dependencies.add(libs.sealedEnum.ksp.get())
         }
         val commonTest by getting {
@@ -93,15 +94,5 @@ kotlin {
                 implementation(libs.androidx.test.espresso)
             }
         }
-        val androidUnitTest by getting {
-            configurations["kaptTest"].dependencies.add(libs.dagger.hilt.compiler.get())
-        }
-        val androidInstrumentedTest by getting {
-            configurations["kaptAndroidTest"].dependencies.add(libs.dagger.hilt.compiler.get())
-        }
     }
-}
-
-kapt {
-    correctErrorTypes = true
 }

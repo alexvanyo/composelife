@@ -24,7 +24,6 @@ plugins {
     id("com.alexvanyo.composelife.android.library.ksp")
     id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
-    kotlin("kapt")
 }
 
 android {
@@ -41,9 +40,9 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
-            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 api(projects.dispatchers)
+                implementation(projects.kotlinInjectScopes)
                 implementation(projects.preferencesProto)
                 api(projects.resourceState)
                 api(projects.updatable)
@@ -55,19 +54,20 @@ kotlin {
                 implementation(libs.okio)
                 api(libs.sealedEnum.runtime)
 
-                implementation(libs.dagger.hilt.core)
+                implementation(libs.kotlinInject.runtime)
             }
         }
         val androidMain by getting {
+            configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
                 api(libs.kotlinx.coroutines.android)
                 implementation(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.androidx.lifecycle.viewmodel.savedstate)
-                implementation(libs.dagger.hilt.android)
             }
         }
         val jvmMain by getting {
+            configurations["kspJvm"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspJvm"].dependencies.add(libs.sealedEnum.ksp.get())
         }
         val commonTest by getting {
@@ -88,8 +88,4 @@ kotlin {
             }
         }
     }
-}
-
-kapt {
-    correctErrorTypes = true
 }

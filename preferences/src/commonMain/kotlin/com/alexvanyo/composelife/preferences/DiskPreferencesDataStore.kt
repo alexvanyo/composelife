@@ -22,27 +22,24 @@ import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.core.okio.OkioStorage
 import com.alexvanyo.composelife.preferences.proto.PreferencesProto
+import com.alexvanyo.composelife.scopes.Singleton
 import kotlinx.coroutines.CoroutineScope
+import me.tatarka.inject.annotations.Inject
 import okio.BufferedSink
 import okio.BufferedSource
 import okio.FileSystem
 import okio.Path
 import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Qualifier
-import javax.inject.Singleton
 
-@Qualifier
-annotation class PreferencesProtoPath
+typealias PreferencesProtoPath = Path
 
-@Qualifier
-annotation class PreferencesCoroutineScope
+typealias PreferencesCoroutineScope = CoroutineScope
 
 @Singleton
 class DiskPreferencesDataStore @Inject constructor(
     fileSystem: FileSystem,
-    @PreferencesProtoPath path: Path,
-    @PreferencesCoroutineScope scope: CoroutineScope,
+    path: PreferencesProtoPath,
+    scope: PreferencesCoroutineScope,
 ) : PreferencesDataStore,
     DataStore<PreferencesProto> by DataStoreFactory.create(
         storage = OkioStorage(
