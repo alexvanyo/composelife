@@ -28,12 +28,12 @@ import com.alexvanyo.composelife.preferences.proto.QuickAccessSettingProto
 import com.alexvanyo.composelife.preferences.proto.RoundRectangleProto
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.map
+import com.alexvanyo.composelife.scopes.Singleton
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retry
-import javax.inject.Inject
-import javax.inject.Singleton
+import me.tatarka.inject.annotations.Inject
 
 @Suppress("TooManyFunctions")
 @Singleton

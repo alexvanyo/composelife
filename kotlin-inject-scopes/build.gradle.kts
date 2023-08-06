@@ -17,12 +17,11 @@
 plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
-    id("com.alexvanyo.composelife.android.library.ksp")
     id("com.alexvanyo.composelife.detekt")
 }
 
 android {
-    namespace = "com.alexvanyo.composelife.dispatcherstest"
+    namespace = "com.alexvanyo.composelife.kotlininjectscopes"
     defaultConfig {
         minSdk = 21
     }
@@ -35,23 +34,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(projects.dispatchers)
-                implementation(projects.kotlinInjectScopes)
-
-                api(libs.jetbrains.compose.uiTestJunit4)
-                api(libs.kotlinx.coroutines.test)
-                api(libs.kotlinx.datetime)
                 implementation(libs.kotlinInject.runtime)
-                implementation(libs.androidx.lifecycle.viewmodel)
-            }
-        }
-        val jvmMain by getting {
-            configurations["kspJvm"].dependencies.add(libs.kotlinInject.ksp.get())
-        }
-        val androidMain by getting {
-            configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
-            dependencies {
-                api(libs.androidx.test.junit)
             }
         }
     }

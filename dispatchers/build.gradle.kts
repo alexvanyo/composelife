@@ -17,8 +17,8 @@
 plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
+    id("com.alexvanyo.composelife.android.library.ksp")
     id("com.alexvanyo.composelife.detekt")
-    kotlin("kapt")
 }
 
 android {
@@ -34,13 +34,17 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
-            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
+                implementation(projects.kotlinInjectScopes)
                 api(libs.kotlinx.coroutines.core)
-                implementation(libs.dagger.hilt.core)
+                implementation(libs.kotlinInject.runtime)
             }
         }
+        val jvmMain by getting {
+            configurations["kspJvm"].dependencies.add(libs.kotlinInject.ksp.get())
+        }
         val androidMain by getting {
+            configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
             dependencies {
                 api(libs.kotlinx.coroutines.android)
             }

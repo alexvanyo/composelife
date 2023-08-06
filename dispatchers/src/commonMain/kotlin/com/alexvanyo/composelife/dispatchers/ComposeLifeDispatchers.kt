@@ -19,7 +19,7 @@ package com.alexvanyo.composelife.dispatchers
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainCoroutineDispatcher
-import javax.inject.Inject
+import me.tatarka.inject.annotations.Inject
 
 /**
  * A custom interface version of [Dispatchers], so that dispatchers can be injected.

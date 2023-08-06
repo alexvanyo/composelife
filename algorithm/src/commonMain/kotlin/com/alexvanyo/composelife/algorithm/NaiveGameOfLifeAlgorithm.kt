@@ -22,7 +22,7 @@ import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.geometry.getNeighbors
 import com.alexvanyo.composelife.model.CellState
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
+import me.tatarka.inject.annotations.Inject
 
 /**
  * The basic, naive implementation of the [GameOfLifeAlgorithm].
