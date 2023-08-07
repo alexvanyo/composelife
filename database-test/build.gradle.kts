@@ -36,19 +36,24 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(projects.database)
+                implementation(projects.kotlinInjectScopes)
                 implementation(projects.updatable)
 
                 api(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.coroutines.test)
+
+                implementation(libs.kotlinInject.runtime)
             }
         }
         val androidMain by getting {
-            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 api(libs.kotlinx.coroutines.android)
                 api(libs.sqldelight.androidDriver)
-                implementation(libs.dagger.hilt.android)
-                api(libs.dagger.hilt.test)
+            }
+        }
+        val jvmMain by getting {
+            dependencies {
+                api(libs.sqldelight.sqliteDriver)
             }
         }
     }

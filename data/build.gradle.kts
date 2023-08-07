@@ -21,9 +21,9 @@ plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.android.library.jacoco")
+    id("com.alexvanyo.composelife.android.library.ksp")
     id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
-    kotlin("kapt")
 }
 
 android {
@@ -44,16 +44,16 @@ kotlin {
                 implementation(projects.algorithm)
                 api(projects.database)
                 api(projects.dispatchers)
+                implementation(projects.kotlinInjectScopes)
                 implementation(projects.updatable)
 
                 api(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinInject.runtime)
             }
         }
         val androidMain by getting {
-            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 api(libs.kotlinx.coroutines.android)
-                implementation(libs.dagger.hilt.android)
             }
         }
         val commonTest by getting {
@@ -73,10 +73,13 @@ kotlin {
             }
         }
         val androidUnitTest by getting {
-            configurations["kaptTest"].dependencies.add(libs.dagger.hilt.compiler.get())
+            configurations["kspAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
         }
         val androidInstrumentedTest by getting {
-            configurations["kaptAndroidTest"].dependencies.add(libs.dagger.hilt.compiler.get())
+            configurations["kspAndroidAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
+        }
+        val jvmTest by getting {
+            configurations["kspJvmTest"].dependencies.add(libs.kotlinInject.ksp.get())
         }
     }
 }

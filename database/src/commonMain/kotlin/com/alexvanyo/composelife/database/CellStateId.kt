@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.database
 
 import app.cash.sqldelight.ColumnAdapter
-import javax.inject.Inject
+import me.tatarka.inject.annotations.Inject
 
 @JvmInline
 value class CellStateId(val value: Long)

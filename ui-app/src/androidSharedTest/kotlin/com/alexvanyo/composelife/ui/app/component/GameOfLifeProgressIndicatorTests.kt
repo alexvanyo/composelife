@@ -22,7 +22,6 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.test.BaseUiHiltTest
 import com.alexvanyo.composelife.test.TestActivity
 import dagger.hilt.EntryPoints
 import dagger.hilt.android.testing.HiltAndroidTest

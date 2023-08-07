@@ -16,4 +16,5 @@
 
 package com.alexvanyo.composelife.scopes
 
+@Singleton
 expect abstract class ApplicationComponent

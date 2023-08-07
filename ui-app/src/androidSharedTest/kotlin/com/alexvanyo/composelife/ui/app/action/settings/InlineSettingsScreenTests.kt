@@ -36,7 +36,6 @@ import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.firstSuccess
-import com.alexvanyo.composelife.test.BaseUiHiltTest
 import com.alexvanyo.composelife.test.TestActivity
 import com.alexvanyo.composelife.ui.app.R
 import dagger.hilt.EntryPoints

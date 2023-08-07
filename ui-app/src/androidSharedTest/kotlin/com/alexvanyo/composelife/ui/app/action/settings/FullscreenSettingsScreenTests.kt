@@ -41,7 +41,6 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.test.BaseUiHiltTest
 import com.alexvanyo.composelife.test.TestActivity
 import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.action.ActionCardNavigation

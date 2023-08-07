@@ -72,6 +72,7 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(projects.kmpAndroidRunner)
                 implementation(projects.preferencesTest)
                 implementation(projects.dispatchersTest)
 
@@ -86,6 +87,15 @@ kotlin {
                 implementation(libs.androidx.test.junit)
                 implementation(libs.androidx.test.runner)
             }
+        }
+        val androidUnitTest by getting {
+            configurations["kspAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
+        }
+        val androidInstrumentedTest by getting {
+            configurations["kspAndroidAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
+        }
+        val jvmTest by getting {
+            configurations["kspJvmTest"].dependencies.add(libs.kotlinInject.ksp.get())
         }
     }
 }

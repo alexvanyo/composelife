@@ -1,3 +1,6 @@
+import com.alexvanyo.composelife.buildlogic.FormFactor
+import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -17,7 +20,9 @@
 plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
+    id("com.alexvanyo.composelife.android.library.jacoco")
     id("com.alexvanyo.composelife.android.library.ksp")
+    id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
 }
 
@@ -26,6 +31,7 @@ android {
     defaultConfig {
         minSdk = 21
     }
+    configureGradleManagedDevices(FormFactor.All, this)
 }
 
 kotlin {
@@ -49,6 +55,29 @@ kotlin {
             dependencies {
                 api(libs.androidx.test.junit)
             }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(projects.kmpAndroidRunner)
+                implementation(projects.kotlinInjectScopes)
+                implementation(projects.dispatchersTest)
+            }
+        }
+        val androidSharedTest by getting {
+            dependencies {
+                implementation(libs.androidx.test.core)
+                implementation(libs.androidx.test.junit)
+                implementation(libs.androidx.test.runner)
+            }
+        }
+        val androidUnitTest by getting {
+            configurations["kspAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
+        }
+        val androidInstrumentedTest by getting {
+            configurations["kspAndroidAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
+        }
+        val jvmTest by getting {
+            configurations["kspJvmTest"].dependencies.add(libs.kotlinInject.ksp.get())
         }
     }
 }

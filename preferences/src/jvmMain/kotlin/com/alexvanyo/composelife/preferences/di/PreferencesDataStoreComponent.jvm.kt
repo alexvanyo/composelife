@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.preferences.di
 
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.preferences.DiskPreferencesDataStore
 import com.alexvanyo.composelife.preferences.PreferencesCoroutineScope
 import com.alexvanyo.composelife.preferences.PreferencesDataStore
@@ -27,7 +28,8 @@ import kotlinx.coroutines.SupervisorJob
 import me.tatarka.inject.annotations.Provides
 import okio.FileSystem
 
-actual interface PreferencesDataStoreComponent : PreferencesDataStoreModule, PreferencesFileSystemComponent {
+actual interface PreferencesDataStoreComponent :
+    PreferencesDataStoreModule, PreferencesFileSystemComponent {
 
     val DiskPreferencesDataStore.bind: PreferencesDataStore
         @Provides get() = this

@@ -29,7 +29,9 @@ import kotlinx.coroutines.SupervisorJob
 import me.tatarka.inject.annotations.Provides
 import okio.Path.Companion.toOkioPath
 
-actual interface PreferencesDataStoreComponent : PreferencesDataStoreModule, PreferencesFileSystemComponent {
+actual interface PreferencesDataStoreComponent :
+    PreferencesDataStoreModule,
+    PreferencesFileSystemComponent {
 
     val DiskPreferencesDataStore.bind: PreferencesDataStore
         @Provides get() = this

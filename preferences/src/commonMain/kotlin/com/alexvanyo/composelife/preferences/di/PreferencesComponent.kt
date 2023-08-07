@@ -19,10 +19,11 @@ package com.alexvanyo.composelife.preferences.di
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.DefaultComposeLifePreferences
 import com.alexvanyo.composelife.updatable.Updatable
+import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import me.tatarka.inject.annotations.IntoSet
 import me.tatarka.inject.annotations.Provides
 
-interface PreferencesComponent : PreferencesModule, PreferencesDataStoreComponent {
+interface PreferencesComponent : PreferencesModule, UpdatableModule, PreferencesDataStoreComponent {
 
     val DefaultComposeLifePreferences.bind: ComposeLifePreferences
         @Provides get() = this
