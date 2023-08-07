@@ -21,7 +21,7 @@ import android.content.Context
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.Provides
 
-@Component
+@Singleton
 actual abstract class ApplicationComponent(
     @get:Provides val application: Application,
 ) {

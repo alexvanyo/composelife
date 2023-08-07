@@ -23,6 +23,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -113,12 +114,13 @@ fun Project.configureAndroidTesting(
 
         sourceSets.configure(
             closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
-                val commonTest = getByName("commonTest")
-                val androidSharedTest = create("androidSharedTest") {
-                    dependsOn(commonTest)
+                val commonTest = getByName("commonTest") {
                     dependencies {
                         implementation(project(":hilt-test"))
                     }
+                }
+                val androidSharedTest = create("androidSharedTest") {
+                    dependsOn(commonTest)
                 }
                 getByName("androidUnitTest") {
                     if (useSharedTest != SharedTestConfig.Instrumentation) {

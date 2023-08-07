@@ -42,7 +42,6 @@ import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.test.BaseUiHiltTest
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.test.TestDispatcher
 import leakcanary.SkipLeakDetection

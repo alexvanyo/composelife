@@ -30,11 +30,14 @@ android {
 
 kotlin {
     android()
+    jvm()
 
     sourceSets {
         val commonMain by getting {
             dependencies {
                 api(projects.databaseTest)
+                implementation(projects.kotlinInjectScopes)
+                api(projects.kmpAndroidRunner)
                 api(projects.preferencesTest)
 
                 implementation(kotlin("test-junit"))

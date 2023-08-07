@@ -16,7 +16,5 @@
 
 package com.alexvanyo.composelife.scopes
 
-import me.tatarka.inject.annotations.Component
-
-@Component
+@Singleton
 actual abstract class ApplicationComponent

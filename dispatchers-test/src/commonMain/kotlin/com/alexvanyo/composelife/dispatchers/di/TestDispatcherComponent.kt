@@ -23,6 +23,8 @@ import me.tatarka.inject.annotations.Provides
 
 interface TestDispatcherComponent {
 
+    val testDispatcher: TestDispatcher
+
     @Provides
     @Singleton
     fun providesTestDispatcher(): TestDispatcher = StandardTestDispatcher()
