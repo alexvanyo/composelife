@@ -1,11 +1,11 @@
 # Dependency Injection
 
-This project uses a combination of [Hilt](https://dagger.dev/hilt/) and
+This project uses a combination of [kotlin-inject](https://github.com/evant/kotlin-inject) and
 [context receivers](https://github.com/Kotlin/KEEP/blob/master/proposals/context-receivers.md) to
 implement dependency injection.
 
-Hilt is used to create a dependency graph of singleton and `Activity`-scoped classes (data layer,
-preferences, and algorithm configuration).
+kotlin-inject is used to create a dependency graph of singleton and `Activity`-scoped classes
+(data layer, preferences, and algorithm configuration).
 
 These dependencies are then provided to UI components via context receivers with the approach
 outlined below.
@@ -169,11 +169,10 @@ component in all layers has to change to inject a new dependency.
 
 ## Context Receivers Step 3
 
-The next step is to collect these provider into a combined super-interface for each component. Due
-to their similarities (and potential use with Hilt's `@EntryPoint`), I've termed these
-"entry-point" interfaces for a component, and are the name of the component suffixed by
-`EntryPoint`. Each component that is capable of being injected gets one of these entry point
-interfaces:
+The next step is to collect these provider into a combined super-interface for each component.
+I've termed these "entry-point" interfaces for a component, and are the name of the component
+suffixed by `EntryPoint`. Each component that is capable of being injected gets one of these entry
+point interfaces:
 
 ```kotlin
 interface InnerComposableEntryPoint : RandomProvider
@@ -232,7 +231,7 @@ transitively inherited interfaces.
 The final step is providing the actual implementations for the entry points.
 
 The project here creates a distinction between two types of dependencies:
-- Hilt-provided, `Activity`-scoped dependencies
+- Injected, `Activity`-scoped dependencies
 - Local scoped dependencies defined by Compose
 
 These two sets of dependencies are then provided by two different entry points for each component:
@@ -240,11 +239,11 @@ These two sets of dependencies are then provided by two different entry points f
 ```kotlin
 @EntryPoint
 @InstallIn(ActivityComponent::class)
-interface InnerComposableHiltEntryPoint : RandomProvider, ClockProvider
+interface InnerComposableInjectEntryPoint : RandomProvider, ClockProvider
 
 interface InnerComposableLocalEntryPoint : LoadedComposeLifePreferencesProvider
 
-context(InnerComposableHiltEntryPoint, InnerComposableLocalEntryPoint)
+context(InnerComposableInjectEntryPoint, InnerComposableLocalEntryPoint)
 @Composable
 fun InnerComposable() {
     random // from inherited RandomProvider scope
@@ -254,11 +253,11 @@ fun InnerComposable() {
 
 @EntryPoint
 @InstallIn(ActivityComponent::class)
-interface OuterComposableHiltEntryPoint :
-    InnerComposableHiltEntryPoint,
+interface OuterComposableInjectEntryPoint :
+    InnerComposableInjectEntryPoint,
     ComposeLifePreferencesProvider
 
-context(OuterComposableHiltEntryPoint)
+context(OuterComposableInjectEntryPoint)
 @Composable
 fun OuterComposable() {
     val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
@@ -278,7 +277,7 @@ fun OuterComposable() {
                     }
                 }
             ) {
-                // InnerComposableHiltEntryPoint passed as context receiver
+                // InnerComposableInjectEntryPoint passed as context receiver
                 // InnerComposableLocalEntryPoint created in-scope
                 InnerComposable()
             }
@@ -292,10 +291,6 @@ mechanisms, where the entry points are created and remembered with snapshot stat
 
 This allows, as in the example above, creating a type-safe subcomponent where loaded preferences
 are available, with the loading state handled by a higher-level component.
-
-The Hilt-provided entry points are true Hilt `@EntryPoint`s, installed in the `ActivityComponent`.
-In production code, only the outermost `***HiltEntryPoint` is injected inside the `Activity`,
-but in tests each individual component can be injected directly to test a component in isolation.
 
 For `@Preview`s, each of these entry points can also be implemented directly with appropriate
 fakes or mock values, as in `ui-app`'s

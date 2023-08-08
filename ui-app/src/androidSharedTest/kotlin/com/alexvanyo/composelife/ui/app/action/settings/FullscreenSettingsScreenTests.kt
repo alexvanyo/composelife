@@ -68,7 +68,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
         override val preferences = LoadedComposeLifePreferences.Defaults
     }
 
-    private val fullscreenSettingsScreenHiltEntryPoint = TestComposeLifeApplicationEntryPoint(applicationComponent)
+    private val fullscreenSettingsScreenInjectEntryPoint = TestComposeLifeApplicationEntryPoint(applicationComponent)
 
     @Test
     fun show_list_screen_is_displayed_correctly_with_compact_width() = runAppTest {
@@ -86,7 +86,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
 
-                    with(fullscreenSettingsScreenHiltEntryPoint) {
+                    with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
@@ -151,7 +151,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
 
-                    with(fullscreenSettingsScreenHiltEntryPoint) {
+                    with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
@@ -220,7 +220,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
 
-                    with(fullscreenSettingsScreenHiltEntryPoint) {
+                    with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
@@ -273,7 +273,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
 
-                    with(fullscreenSettingsScreenHiltEntryPoint) {
+                    with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
@@ -335,7 +335,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
 
-                    with(fullscreenSettingsScreenHiltEntryPoint) {
+                    with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
@@ -382,7 +382,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
 
-                    with(fullscreenSettingsScreenHiltEntryPoint) {
+                    with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
@@ -443,7 +443,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
 
-                    with(fullscreenSettingsScreenHiltEntryPoint) {
+                    with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
@@ -490,7 +490,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
 
-                    with(fullscreenSettingsScreenHiltEntryPoint) {
+                    with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
@@ -542,7 +542,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
 
-                    with(fullscreenSettingsScreenHiltEntryPoint) {
+                    with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
@@ -586,7 +586,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
 
-                    with(fullscreenSettingsScreenHiltEntryPoint) {
+                    with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,

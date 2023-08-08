@@ -57,15 +57,15 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 
-interface InlineSettingsScreenHiltEntryPoint :
+interface InlineSettingsScreenInjectEntryPoint :
     ComposeLifePreferencesProvider,
-    SettingUiHiltEntryPoint
+    SettingUiInjectEntryPoint
 
 interface InlineSettingsScreenLocalEntryPoint :
     LoadedComposeLifePreferencesProvider,
     SettingUiLocalEntryPoint
 
-context(InlineSettingsScreenHiltEntryPoint, InlineSettingsScreenLocalEntryPoint)
+context(InlineSettingsScreenInjectEntryPoint, InlineSettingsScreenLocalEntryPoint)
 @OptIn(ExperimentalAnimationApi::class)
 @Suppress("LongMethod")
 @Composable

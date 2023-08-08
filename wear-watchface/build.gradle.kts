@@ -43,7 +43,7 @@ kotlin {
             dependencies {
                 api(projects.algorithm)
                 implementation(projects.geometry)
-                implementation(projects.kotlinInjectScopes)
+                implementation(projects.injectScopes)
                 implementation(projects.openglRenderer)
                 implementation(projects.uiWear)
                 implementation(projects.wearWatchfaceConfiguration)

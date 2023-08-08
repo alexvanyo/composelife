@@ -50,7 +50,7 @@ kotlin {
                 api(projects.clock)
                 api(projects.data)
                 api(projects.dispatchers)
-                implementation(projects.kotlinInjectScopes)
+                implementation(projects.injectScopes)
                 implementation(projects.navigation)
                 implementation(projects.openglRenderer)
                 implementation(projects.patterns)

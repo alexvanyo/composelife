@@ -50,13 +50,13 @@ import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 
-interface CellShapeConfigUiHiltEntryPoint :
+interface CellShapeConfigUiInjectEntryPoint :
     ComposeLifePreferencesProvider
 
 interface CellShapeConfigUiLocalEntryPoint :
     LoadedComposeLifePreferencesProvider
 
-context(CellShapeConfigUiHiltEntryPoint, CellShapeConfigUiLocalEntryPoint)
+context(CellShapeConfigUiInjectEntryPoint, CellShapeConfigUiLocalEntryPoint)
 @Composable
 fun CellShapeConfigUi(
     modifier: Modifier = Modifier,

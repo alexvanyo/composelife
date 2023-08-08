@@ -52,10 +52,10 @@ import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.ActionControlRow
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.NavContainer
 import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreen
-import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenHiltEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreen
-import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenHiltEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenLocalEntryPoint
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.Layout
@@ -70,15 +70,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.max
 
-interface CellUniverseActionCardHiltEntryPoint :
-    FullscreenSettingsScreenHiltEntryPoint,
-    InlineSettingsScreenHiltEntryPoint
+interface CellUniverseActionCardInjectEntryPoint :
+    FullscreenSettingsScreenInjectEntryPoint,
+    InlineSettingsScreenInjectEntryPoint
 
 interface CellUniverseActionCardLocalEntryPoint :
     FullscreenSettingsScreenLocalEntryPoint,
     InlineSettingsScreenLocalEntryPoint
 
-context(CellUniverseActionCardHiltEntryPoint, CellUniverseActionCardLocalEntryPoint)
+context(CellUniverseActionCardInjectEntryPoint, CellUniverseActionCardLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun CellUniverseActionCard(
@@ -113,7 +113,7 @@ fun CellUniverseActionCard(
     )
 }
 
-context(CellUniverseActionCardHiltEntryPoint, CellUniverseActionCardLocalEntryPoint)
+context(CellUniverseActionCardInjectEntryPoint, CellUniverseActionCardLocalEntryPoint)
 @OptIn(ExperimentalLayoutApi::class)
 @Suppress("LongParameterList", "LongMethod", "ComplexMethod")
 @Composable

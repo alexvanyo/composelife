@@ -52,7 +52,7 @@ import kotlinx.coroutines.awaitCancellation
 import kotlin.math.max
 import kotlin.random.Random
 
-interface GameOfLifeProgressIndicatorHiltEntryPoint :
+interface GameOfLifeProgressIndicatorInjectEntryPoint :
     GameOfLifeAlgorithmProvider,
     ComposeLifeDispatchersProvider,
     RandomProvider,
@@ -65,7 +65,7 @@ interface GameOfLifeProgressIndicatorLocalEntryPoint :
  * A progress indicator that displays progress via an embedded set of cells displaying an
  * oscillating pattern.
  */
-context(GameOfLifeProgressIndicatorHiltEntryPoint, GameOfLifeProgressIndicatorLocalEntryPoint)
+context(GameOfLifeProgressIndicatorInjectEntryPoint, GameOfLifeProgressIndicatorLocalEntryPoint)
 @Composable
 fun GameOfLifeProgressIndicator(
     modifier: Modifier = Modifier,

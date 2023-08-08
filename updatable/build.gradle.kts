@@ -41,7 +41,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.kotlinInjectScopes)
+                implementation(projects.injectScopes)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinInject.runtime)
             }

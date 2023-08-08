@@ -17,7 +17,7 @@ These include:
 - Written in [Kotlin](https://kotlinlang.org/)
 - UI written in [Jetpack Compose](https://developer.android.com/jetpack/compose)
 - Watchface for Wear OS with configuration
-- Dependency injection using [Hilt](https://dagger.dev/hilt/) and [context receivers](https://github.com/Kotlin/KEEP/blob/master/proposals/context-receivers.md)
+- Dependency injection using [kotlin-inject](https://github.com/evant/kotlin-inject) and [context receivers](https://github.com/Kotlin/KEEP/blob/master/proposals/context-receivers.md)
 - [AGSL](https://developer.android.com/develop/ui/views/graphics/agsl) and [OpenGL](https://developer.android.com/develop/ui/views/graphics/opengl/about-opengl) rendering
 - Fully functional CI system with GitHub Actions with:
     - JVM tests

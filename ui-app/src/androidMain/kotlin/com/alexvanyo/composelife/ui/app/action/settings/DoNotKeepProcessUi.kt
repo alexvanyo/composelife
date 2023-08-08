@@ -30,13 +30,13 @@ import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import kotlinx.coroutines.launch
 
-interface DoNotKeepProcessUiHiltEntryPoint :
+interface DoNotKeepProcessUiInjectEntryPoint :
     ComposeLifePreferencesProvider
 
 interface DoNotKeepProcessUiLocalEntryPoint :
     LoadedComposeLifePreferencesProvider
 
-context(DoNotKeepProcessUiHiltEntryPoint, DoNotKeepProcessUiLocalEntryPoint)
+context(DoNotKeepProcessUiInjectEntryPoint, DoNotKeepProcessUiLocalEntryPoint)
 @Composable
 fun DoNotKeepProcessUi(
     modifier: Modifier = Modifier,

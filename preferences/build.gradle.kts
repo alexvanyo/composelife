@@ -42,7 +42,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(projects.dispatchers)
-                implementation(projects.kotlinInjectScopes)
+                implementation(projects.injectScopes)
                 implementation(projects.preferencesProto)
                 api(projects.resourceState)
                 api(projects.updatable)

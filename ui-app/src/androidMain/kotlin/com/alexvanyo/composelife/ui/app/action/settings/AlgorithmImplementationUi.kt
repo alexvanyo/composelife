@@ -35,13 +35,13 @@ import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 
-interface AlgorithmImplementationUiHiltEntryPoint :
+interface AlgorithmImplementationUiInjectEntryPoint :
     ComposeLifePreferencesProvider
 
 interface AlgorithmImplementationUiLocalEntryPoint :
     LoadedComposeLifePreferencesProvider
 
-context(AlgorithmImplementationUiHiltEntryPoint, AlgorithmImplementationUiLocalEntryPoint)
+context(AlgorithmImplementationUiInjectEntryPoint, AlgorithmImplementationUiLocalEntryPoint)
 @Composable
 fun AlgorithmImplementationUi(
     modifier: Modifier = Modifier,

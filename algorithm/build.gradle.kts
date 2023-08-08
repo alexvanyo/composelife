@@ -45,7 +45,7 @@ kotlin {
             dependencies {
                 api(projects.dispatchers)
                 api(projects.geometry)
-                implementation(projects.kotlinInjectScopes)
+                implementation(projects.injectScopes)
                 api(projects.parameterizedString)
                 api(projects.preferences)
                 api(projects.updatable)

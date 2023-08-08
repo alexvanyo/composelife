@@ -47,7 +47,7 @@ kotlin {
             dependencies {
                 implementation(projects.doNotKeepProcess)
                 implementation(projects.appCompatSync)
-                implementation(projects.kotlinInjectScopes)
+                implementation(projects.injectScopes)
                 implementation(projects.resourcesApp)
                 implementation(projects.uiApp)
                 implementation(libs.kotlinx.serialization.core)

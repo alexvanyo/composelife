@@ -52,7 +52,7 @@ import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutType
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.TopInsets
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCard
-import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardHiltEntryPoint
+import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.CellWindowState
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
@@ -61,13 +61,13 @@ import com.alexvanyo.composelife.ui.util.isInProgress
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.coroutines.launch
 
-interface InteractiveCellUniverseOverlayHiltEntryPoint :
-    CellUniverseActionCardHiltEntryPoint
+interface InteractiveCellUniverseOverlayInjectEntryPoint :
+    CellUniverseActionCardInjectEntryPoint
 
 interface InteractiveCellUniverseOverlayLocalEntryPoint :
     CellUniverseActionCardLocalEntryPoint
 
-context(InteractiveCellUniverseOverlayHiltEntryPoint, InteractiveCellUniverseOverlayLocalEntryPoint)
+context(InteractiveCellUniverseOverlayInjectEntryPoint, InteractiveCellUniverseOverlayLocalEntryPoint)
 @Suppress("LongMethod", "ComplexMethod", "LongParameterList")
 @Composable
 fun InteractiveCellUniverseOverlay(

@@ -41,7 +41,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.kotlinInjectScopes)
+                implementation(projects.injectScopes)
                 api(projects.preferences)
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.jetbrains.compose.runtime)
@@ -59,7 +59,7 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(projects.kmpAndroidRunner)
-                implementation(projects.kotlinInjectScopes)
+                implementation(projects.injectScopes)
                 implementation(projects.dispatchersTest)
             }
         }

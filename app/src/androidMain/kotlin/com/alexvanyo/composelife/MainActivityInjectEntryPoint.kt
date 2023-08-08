@@ -24,10 +24,10 @@ import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.random.di.RandomModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.ui.app.ComposeLifeAppHiltEntryPoint
+import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 
-class MainActivityHiltEntryPoint<T>(
+class MainActivityInjectEntryPoint<T>(
     applicationComponent: T,
 ) : RandomModule by applicationComponent,
     ClockModule by applicationComponent,
@@ -37,7 +37,7 @@ class MainActivityHiltEntryPoint<T>(
     PreferencesModule by applicationComponent,
     UpdatableModule by applicationComponent,
     ComposeLifePreferencesProvider,
-    ComposeLifeAppHiltEntryPoint
+    ComposeLifeAppInjectEntryPoint
     where T : ApplicationComponent,
           T : ClockModule,
           T : RandomModule,

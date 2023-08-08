@@ -36,7 +36,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(projects.dispatchers)
-                implementation(projects.kotlinInjectScopes)
+                implementation(projects.injectScopes)
 
                 api(libs.jetbrains.compose.uiTestJunit4)
                 api(libs.kotlinx.coroutines.test)

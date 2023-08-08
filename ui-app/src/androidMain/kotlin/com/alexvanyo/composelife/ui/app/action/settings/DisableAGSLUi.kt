@@ -30,13 +30,13 @@ import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import kotlinx.coroutines.launch
 
-interface DisableAGSLUiHiltEntryPoint :
+interface DisableAGSLUiInjectEntryPoint :
     ComposeLifePreferencesProvider
 
 interface DisableAGSLUiLocalEntryPoint :
     LoadedComposeLifePreferencesProvider
 
-context(DisableAGSLUiHiltEntryPoint, DisableAGSLUiLocalEntryPoint)
+context(DisableAGSLUiInjectEntryPoint, DisableAGSLUiLocalEntryPoint)
 @Composable
 fun DisableAGSLUi(
     modifier: Modifier = Modifier,
