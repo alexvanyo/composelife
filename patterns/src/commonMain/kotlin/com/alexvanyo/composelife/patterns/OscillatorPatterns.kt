@@ -45,7 +45,7 @@ sealed class OscillatorPattern(
     }
 }
 
-object BlinkerPattern : OscillatorPattern(
+data object BlinkerPattern : OscillatorPattern(
     patternName = "Blinker",
     """
     |...
@@ -67,7 +67,7 @@ object BlinkerPattern : OscillatorPattern(
     ),
 )
 
-object ToadPattern : OscillatorPattern(
+data object ToadPattern : OscillatorPattern(
     patternName = "Toad",
     """
     |.OO.
@@ -91,7 +91,7 @@ object ToadPattern : OscillatorPattern(
     ),
 )
 
-object BeaconPattern : OscillatorPattern(
+data object BeaconPattern : OscillatorPattern(
     patternName = "Beacon",
     """
     |OO..
@@ -115,7 +115,7 @@ object BeaconPattern : OscillatorPattern(
     ),
 )
 
-object PulsarPattern : OscillatorPattern(
+data object PulsarPattern : OscillatorPattern(
     patternName = "Pulsar",
     """
     |...............

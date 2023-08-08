@@ -338,17 +338,19 @@ data class TimeDigits(
 sealed class GameOfLifeSegmentChar(
     val cellState: CellState,
 ) {
-    object Zero : GameOfLifeSegmentChar(segA.union(segB).union(segC).union(segD).union(segE).union(segF))
-    object One : GameOfLifeSegmentChar(segB.union(segC))
-    object Two : GameOfLifeSegmentChar(segA.union(segB).union(segD).union(segE).union(segG))
-    object Three : GameOfLifeSegmentChar(segA.union(segB).union(segC).union(segD).union(segG))
-    object Four : GameOfLifeSegmentChar(segB.union(segC).union(segF).union(segG))
-    object Five : GameOfLifeSegmentChar(segA.union(segC).union(segD).union(segF).union(segG))
-    object Six : GameOfLifeSegmentChar(segA.union(segC).union(segD).union(segE).union(segF).union(segG))
-    object Seven : GameOfLifeSegmentChar(segA.union(segB).union(segC))
-    object Eight : GameOfLifeSegmentChar(segA.union(segB).union(segC).union(segD).union(segE).union(segF).union(segG))
-    object Nine : GameOfLifeSegmentChar(segA.union(segB).union(segC).union(segD).union(segF).union(segG))
-    object Blank : GameOfLifeSegmentChar(emptyCellState())
+    data object Zero : GameOfLifeSegmentChar(segA.union(segB).union(segC).union(segD).union(segE).union(segF))
+    data object One : GameOfLifeSegmentChar(segB.union(segC))
+    data object Two : GameOfLifeSegmentChar(segA.union(segB).union(segD).union(segE).union(segG))
+    data object Three : GameOfLifeSegmentChar(segA.union(segB).union(segC).union(segD).union(segG))
+    data object Four : GameOfLifeSegmentChar(segB.union(segC).union(segF).union(segG))
+    data object Five : GameOfLifeSegmentChar(segA.union(segC).union(segD).union(segF).union(segG))
+    data object Six : GameOfLifeSegmentChar(segA.union(segC).union(segD).union(segE).union(segF).union(segG))
+    data object Seven : GameOfLifeSegmentChar(segA.union(segB).union(segC))
+    data object Eight : GameOfLifeSegmentChar(
+        segA.union(segB).union(segC).union(segD).union(segE).union(segF).union(segG),
+    )
+    data object Nine : GameOfLifeSegmentChar(segA.union(segB).union(segC).union(segD).union(segF).union(segG))
+    data object Blank : GameOfLifeSegmentChar(emptyCellState())
 
     companion object {
         fun fromChar(digit: Int): GameOfLifeSegmentChar {

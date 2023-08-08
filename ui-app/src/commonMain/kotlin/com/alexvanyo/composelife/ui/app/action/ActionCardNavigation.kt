@@ -41,7 +41,7 @@ sealed interface ActionCardNavigation {
      */
     val isFullscreen: Boolean
 
-    object Inline : ActionCardNavigation {
+    data object Inline : ActionCardNavigation {
 
         override val type = Companion
         override val isFullscreen: Boolean = false

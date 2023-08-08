@@ -33,12 +33,12 @@ sealed class StillLifePattern(
     }
 }
 
-object EmptyPattern : StillLifePattern(
+data object EmptyPattern : StillLifePattern(
     patternName = "Empty",
     cellState = emptyCellState(),
 )
 
-object BlockPattern : StillLifePattern(
+data object BlockPattern : StillLifePattern(
     patternName = "Block",
     """
     |OO
@@ -46,7 +46,7 @@ object BlockPattern : StillLifePattern(
     """.toCellState(),
 )
 
-object TubPattern : StillLifePattern(
+data object TubPattern : StillLifePattern(
     patternName = "Tub",
     """
     |.O.
@@ -55,7 +55,7 @@ object TubPattern : StillLifePattern(
     """.toCellState(),
 )
 
-object BeeHivePattern : StillLifePattern(
+data object BeeHivePattern : StillLifePattern(
     patternName = "Bee-hive",
     """
     |.OO.
@@ -64,7 +64,7 @@ object BeeHivePattern : StillLifePattern(
     """.toCellState(),
 )
 
-object PondPattern : StillLifePattern(
+data object PondPattern : StillLifePattern(
     patternName = "Pond",
     """
     |.OO.
@@ -74,7 +74,7 @@ object PondPattern : StillLifePattern(
     """.toCellState(),
 )
 
-object HatPattern : StillLifePattern(
+data object HatPattern : StillLifePattern(
     patternName = "Hat",
     """
     |..O..
@@ -84,7 +84,7 @@ object HatPattern : StillLifePattern(
     """.toCellState(),
 )
 
-object HoneycombPattern : StillLifePattern(
+data object HoneycombPattern : StillLifePattern(
     patternName = "Honeycomb",
     """
     |..OO..

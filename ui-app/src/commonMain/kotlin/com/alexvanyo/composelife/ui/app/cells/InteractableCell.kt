@@ -102,8 +102,8 @@ fun InteractableCell(
 }
 
 sealed interface DrawState {
-    object Alive : DrawState
-    object Dead : DrawState
-    object PendingAlive : DrawState
-    object PendingDead : DrawState
+    data object Alive : DrawState
+    data object Dead : DrawState
+    data object PendingAlive : DrawState
+    data object PendingDead : DrawState
 }

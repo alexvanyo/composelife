@@ -52,13 +52,13 @@ sealed interface MacroCell {
 
         val isAlive: Boolean
 
-        object AliveCell : Cell {
+        data object AliveCell : Cell {
             override val isAlive = true
 
             override val size: Int = 1
         }
 
-        object DeadCell : Cell {
+        data object DeadCell : Cell {
             override val isAlive = false
 
             override val size: Int = 0

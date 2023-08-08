@@ -85,10 +85,10 @@ fun AlgorithmImplementationUi(
 }
 
 sealed interface AlgorithmImplementationDropdownOption : DropdownOption {
-    object HashLifeAlgorithm : AlgorithmImplementationDropdownOption {
+    data object HashLifeAlgorithm : AlgorithmImplementationDropdownOption {
         override val displayText: ParameterizedString = ParameterizedString(R.string.hash_life_algorithm)
     }
-    object NaiveAlgorithm : AlgorithmImplementationDropdownOption {
+    data object NaiveAlgorithm : AlgorithmImplementationDropdownOption {
         override val displayText: ParameterizedString = ParameterizedString(R.string.naive_algorithm)
     }
 

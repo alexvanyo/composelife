@@ -112,7 +112,7 @@ sealed interface TemporalGameOfLifeState : MutableGameOfLifeState {
         /**
          * Temporal evolution is paused.
          */
-        object Paused : EvolutionStatus
+        data object Paused : EvolutionStatus
 
         /**
          * Temporal evolution is running, with the given [averageGenerationsPerSecond].

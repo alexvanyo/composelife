@@ -356,8 +356,8 @@ fun CellUniverseActionCard(
 }
 
 internal sealed interface CellUniverseActionCardLayoutTypes {
-    object ActionControlRow : CellUniverseActionCardLayoutTypes
-    object NavContainer : CellUniverseActionCardLayoutTypes
+    data object ActionControlRow : CellUniverseActionCardLayoutTypes
+    data object NavContainer : CellUniverseActionCardLayoutTypes
 
     @GenSealedEnum
     companion object
