@@ -114,7 +114,7 @@ fun InlineEditScreen(
 }
 
 sealed interface ToolDropdownOption : DropdownOption {
-    object Pan : ToolDropdownOption {
+    data object Pan : ToolDropdownOption {
         override val displayText = ParameterizedString(R.string.pan)
         override val leadingIcon: (@Composable () -> Unit) = {
             Icon(
@@ -123,7 +123,7 @@ sealed interface ToolDropdownOption : DropdownOption {
             )
         }
     }
-    object Draw : ToolDropdownOption {
+    data object Draw : ToolDropdownOption {
         override val displayText = ParameterizedString(R.string.draw)
         override val leadingIcon: (@Composable () -> Unit) = {
             Icon(
@@ -132,7 +132,7 @@ sealed interface ToolDropdownOption : DropdownOption {
             )
         }
     }
-    object Erase : ToolDropdownOption {
+    data object Erase : ToolDropdownOption {
         override val displayText = ParameterizedString(R.string.erase)
         override val leadingIcon: (@Composable () -> Unit) = {
             Icon(
@@ -141,7 +141,7 @@ sealed interface ToolDropdownOption : DropdownOption {
             )
         }
     }
-    object Select : ToolDropdownOption {
+    data object Select : ToolDropdownOption {
         override val displayText = ParameterizedString(R.string.select)
         override val leadingIcon: (@Composable () -> Unit) = {
             Icon(
@@ -150,7 +150,7 @@ sealed interface ToolDropdownOption : DropdownOption {
             )
         }
     }
-    object None : ToolDropdownOption {
+    data object None : ToolDropdownOption {
         override val displayText = ParameterizedString(R.string.none)
         override val leadingIcon: (@Composable () -> Unit) = {
             Icon(

@@ -87,13 +87,13 @@ fun DarkThemeConfigUi(
 }
 
 sealed interface DarkThemeConfigDropdownOption : DropdownOption {
-    object FollowSystem : DarkThemeConfigDropdownOption {
+    data object FollowSystem : DarkThemeConfigDropdownOption {
         override val displayText: ParameterizedString = ParameterizedString(R.string.follow_system)
     }
-    object Dark : DarkThemeConfigDropdownOption {
+    data object Dark : DarkThemeConfigDropdownOption {
         override val displayText: ParameterizedString = ParameterizedString(R.string.dark_theme)
     }
-    object Light : DarkThemeConfigDropdownOption {
+    data object Light : DarkThemeConfigDropdownOption {
         override val displayText: ParameterizedString = ParameterizedString(R.string.light_theme)
     }
 

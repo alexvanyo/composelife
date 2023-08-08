@@ -256,12 +256,12 @@ sealed interface ComposeLifeAppState {
     /**
      * The user's preferences are loading.
      */
-    object LoadingPreferences : ComposeLifeAppState
+    data object LoadingPreferences : ComposeLifeAppState
 
     /**
      * There was an error loading the user's preferences.
      */
-    object ErrorLoadingPreferences : ComposeLifeAppState
+    data object ErrorLoadingPreferences : ComposeLifeAppState
 
     /**
      * The user's preferences are loaded, so the state can be a [LoadedComposeLifePreferencesProvider].

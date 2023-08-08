@@ -26,17 +26,17 @@ sealed interface SettingsCategory {
     /**
      * A setting impacting the algorithm.
      */
-    object Algorithm : SettingsCategory
+    data object Algorithm : SettingsCategory
 
     /**
      * A setting related to the visual display.
      */
-    object Visual : SettingsCategory
+    data object Visual : SettingsCategory
 
     /**
      * A setting for some app feature flag.
      */
-    object FeatureFlags : SettingsCategory
+    data object FeatureFlags : SettingsCategory
 
     @GenSealedEnum
     companion object {

@@ -17,6 +17,6 @@
 package com.alexvanyo.composelife.preferences
 
 sealed interface AlgorithmType {
-    object NaiveAlgorithm : AlgorithmType
-    object HashLifeAlgorithm : AlgorithmType
+    data object NaiveAlgorithm : AlgorithmType
+    data object HashLifeAlgorithm : AlgorithmType
 }

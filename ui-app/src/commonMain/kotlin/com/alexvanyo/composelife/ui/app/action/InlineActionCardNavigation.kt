@@ -28,9 +28,9 @@ import com.livefront.sealedenum.GenSealedEnum
  * A sealed enum of the three different inline backstack types for the inline action card navigation.
  */
 sealed interface InlineActionCardBackstack {
-    object Speed : InlineActionCardBackstack
-    object Edit : InlineActionCardBackstack
-    object Settings : InlineActionCardBackstack
+    data object Speed : InlineActionCardBackstack
+    data object Edit : InlineActionCardBackstack
+    data object Settings : InlineActionCardBackstack
 
     @GenSealedEnum
     companion object {
@@ -54,7 +54,7 @@ sealed interface InlineActionCardNavigation {
      */
     val type: InlineActionCardNavigationType
 
-    object Speed : InlineActionCardNavigation {
+    data object Speed : InlineActionCardNavigation {
         override val type = Companion
 
         object Companion : InlineActionCardNavigationType {
@@ -67,7 +67,7 @@ sealed interface InlineActionCardNavigation {
         }
     }
 
-    object Edit : InlineActionCardNavigation {
+    data object Edit : InlineActionCardNavigation {
         override val type = Companion
 
         object Companion : InlineActionCardNavigationType {
@@ -80,7 +80,7 @@ sealed interface InlineActionCardNavigation {
         }
     }
 
-    object Settings : InlineActionCardNavigation {
+    data object Settings : InlineActionCardNavigation {
         override val type = Companion
 
         object Companion : InlineActionCardNavigationType {

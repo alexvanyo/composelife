@@ -48,7 +48,7 @@ sealed class GameOfLifeComplication(
         rawBounds.toAndroidRectF(),
     )
 
-    object TopLeft : GameOfLifeComplication(
+    data object TopLeft : GameOfLifeComplication(
         id = 0,
         defaultDataSourcePolicy = DefaultComplicationDataSourcePolicy(
             SystemDataSources.DATA_SOURCE_DATE,
@@ -62,7 +62,7 @@ sealed class GameOfLifeComplication(
         ),
     )
 
-    object TopRight : GameOfLifeComplication(
+    data object TopRight : GameOfLifeComplication(
         id = 1,
         defaultDataSourcePolicy = DefaultComplicationDataSourcePolicy(
             SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
@@ -76,7 +76,7 @@ sealed class GameOfLifeComplication(
         ),
     )
 
-    object BottomLeft : GameOfLifeComplication(
+    data object BottomLeft : GameOfLifeComplication(
         id = 2,
         defaultDataSourcePolicy = DefaultComplicationDataSourcePolicy(
             SystemDataSources.DATA_SOURCE_WATCH_BATTERY,
@@ -90,7 +90,7 @@ sealed class GameOfLifeComplication(
         ),
     )
 
-    object BottomRight : GameOfLifeComplication(
+    data object BottomRight : GameOfLifeComplication(
         id = 3,
         defaultDataSourcePolicy = DefaultComplicationDataSourcePolicy(
             SystemDataSources.DATA_SOURCE_UNREAD_NOTIFICATION_COUNT,

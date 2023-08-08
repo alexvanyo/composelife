@@ -211,10 +211,10 @@ fun InteractiveCellUniverseOverlay(
 }
 
 internal sealed interface InteractiveCellUniverseOverlayLayoutTypes {
-    object TopInsets : InteractiveCellUniverseOverlayLayoutTypes
-    object BottomInsets : InteractiveCellUniverseOverlayLayoutTypes
-    object CellUniverseInfoCard : InteractiveCellUniverseOverlayLayoutTypes
-    object CellUniverseActionCard : InteractiveCellUniverseOverlayLayoutTypes
+    data object TopInsets : InteractiveCellUniverseOverlayLayoutTypes
+    data object BottomInsets : InteractiveCellUniverseOverlayLayoutTypes
+    data object CellUniverseInfoCard : InteractiveCellUniverseOverlayLayoutTypes
+    data object CellUniverseActionCard : InteractiveCellUniverseOverlayLayoutTypes
 
     @GenSealedEnum
     companion object

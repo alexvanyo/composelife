@@ -20,18 +20,18 @@ import com.livefront.sealedenum.GenSealedEnum
 
 sealed interface CellStateFormat {
 
-    object Unknown : CellStateFormat
-    object Life : CellStateFormat
+    data object Unknown : CellStateFormat
+    data object Life : CellStateFormat
 
     /**
      * A "fixed" format for a cell state. Any serialization or deserialization of a cell state should eventually
      * be done with one of these formats, and other [CellStateFormat]s might delegate to here.
      */
     sealed interface FixedFormat : CellStateFormat {
-        object Plaintext : FixedFormat
-        object Life105 : FixedFormat
-        object Life106 : FixedFormat
-        object RunLengthEncoding : FixedFormat
+        data object Plaintext : FixedFormat
+        data object Life105 : FixedFormat
+        data object Life106 : FixedFormat
+        data object RunLengthEncoding : FixedFormat
 
         @GenSealedEnum(generateEnum = true)
         companion object
