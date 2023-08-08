@@ -71,7 +71,7 @@ fun Project.configureAndroidTesting(
 ) {
     testedExtension.apply {
         defaultConfig {
-            testInstrumentationRunner = "com.alexvanyo.composelife.test.HiltTestRunner"
+            testInstrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
         }
 
         sourceSets {

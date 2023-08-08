@@ -18,7 +18,6 @@ plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.detekt")
-    kotlin("kapt")
 }
 
 android {
@@ -45,9 +44,7 @@ kotlin {
             }
         }
         val androidMain by getting {
-            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
-                api(libs.dagger.hilt.test)
                 api(libs.androidx.test.runner)
                 api(libs.androidx.compose.uiTestJunit4)
                 implementation(libs.leakCanary.android)

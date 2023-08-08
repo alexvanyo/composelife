@@ -63,9 +63,6 @@ import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorLoc
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
@@ -74,8 +71,6 @@ import kotlinx.coroutines.flow.transform
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
-@EntryPoint
-@InstallIn(ActivityComponent::class)
 interface ComposeLifeAppHiltEntryPoint :
     ComposeLifePreferencesProvider,
     CellStateRepositoryProvider,

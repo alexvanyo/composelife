@@ -22,9 +22,9 @@ plugins {
     id("com.alexvanyo.composelife.android.application")
     id("com.alexvanyo.composelife.android.application.compose")
     id("com.alexvanyo.composelife.android.application.jacoco")
+    id("com.alexvanyo.composelife.android.application.ksp")
     id("com.alexvanyo.composelife.android.application.testing")
     id("com.alexvanyo.composelife.detekt")
-    kotlin("kapt")
 }
 
 android {
@@ -47,13 +47,15 @@ kotlin {
             dependencies {
                 implementation(projects.doNotKeepProcess)
                 implementation(projects.appCompatSync)
+                implementation(projects.kotlinInjectScopes)
                 implementation(projects.resourcesApp)
                 implementation(projects.uiApp)
                 implementation(libs.kotlinx.serialization.core)
+                implementation(libs.kotlinInject.runtime)
             }
         }
         val androidMain by getting {
-            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
+            configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
             dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.appcompat)
@@ -61,7 +63,6 @@ kotlin {
                 implementation(libs.androidx.core.splashscreen)
                 implementation(libs.androidx.lifecycle.process)
                 implementation(libs.androidx.profileInstaller)
-                implementation(libs.dagger.hilt.android)
             }
         }
         val androidDebug by creating {
@@ -94,18 +95,14 @@ kotlin {
             }
         }
         val androidUnitTest by getting {
-            configurations["kaptTest"].dependencies.add(libs.dagger.hilt.compiler.get())
+            configurations["kspAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
         }
         val androidInstrumentedTest by getting {
-            configurations["kaptAndroidTest"].dependencies.add(libs.dagger.hilt.compiler.get())
+            configurations["kspAndroidAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
             dependencies {
                 compileOnly(libs.apiGuardian.api)
                 compileOnly(libs.google.autoValue.annotations)
             }
         }
     }
-}
-
-kapt {
-    correctErrorTypes = true
 }

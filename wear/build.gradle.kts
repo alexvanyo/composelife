@@ -21,8 +21,8 @@ plugins {
     id("com.alexvanyo.composelife.kotlin.multiplatform")
     id("com.alexvanyo.composelife.android.application")
     id("com.alexvanyo.composelife.android.application.compose")
+    id("com.alexvanyo.composelife.android.application.ksp")
     id("com.alexvanyo.composelife.detekt")
-    kotlin("kapt")
 }
 
 android {
@@ -43,14 +43,16 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(projects.kotlinInjectScopes)
                 implementation(projects.processLifecycle)
                 implementation(projects.wearWatchface)
 
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinInject.runtime)
             }
         }
         val androidMain by getting {
-            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
+            configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
             dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.appcompat)
@@ -58,7 +60,6 @@ kotlin {
                 implementation(libs.androidx.lifecycle.process)
                 implementation(libs.androidx.lifecycle.runtime)
                 implementation(libs.kotlinx.coroutines.android)
-                implementation(libs.dagger.hilt.android)
             }
         }
         val androidDebug by creating {
@@ -74,8 +75,4 @@ kotlin {
             }
         }
     }
-}
-
-kapt {
-    correctErrorTypes = true
 }

@@ -14,7 +14,6 @@ androidxComposeMaterial3 = "1.2.0-alpha04"
 androidxCore = "1.12.0-beta01"
 androidxCoreSplashscreen = "1.0.1"
 androidxDataStore = "1.1.0-alpha04"
-androidxHilt = "1.0.0"
 androidxLifecycle = "2.7.0-alpha01"
 androidxPoolingContainer = "1.0.0"
 androidxProfileInstaller = "1.3.1"
@@ -28,7 +27,6 @@ androidxWearCompose = "1.3.0-alpha02"
 androidxWearWatchface = "1.2.0-alpha09"
 androidxWindow = "1.2.0-beta01"
 apiGuardian = "1.1.2"
-dagger = "2.47"
 detekt = "1.23.1"
 googleAutoValue = "1.10.2"
 guavaAndroid = "32.0.0-android"
@@ -108,10 +106,6 @@ androidx-wear-watchface-editor = { group = "androidx.wear.watchface", name = "wa
 androidx-wear-watchface-style = { group = "androidx.wear.watchface", name = "watchface-style", version.ref = "androidxWearWatchface" }
 androidx-window = { group = "androidx.window", name = "window", version.ref = "androidxWindow" }
 apiGuardian-api = { group = "org.apiguardian", name = "apiguardian-api", version.ref = "apiGuardian" }
-dagger-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "dagger" }
-dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "dagger" }
-dagger-hilt-core = { group = "com.google.dagger", name = "hilt-core", version.ref = "dagger" }
-dagger-hilt-test = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "dagger" }
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
 detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
 google-autoValue-annotations = { group = "com.google.auto.value", name = "auto-value-annotations", version.ref = "googleAutoValue" }

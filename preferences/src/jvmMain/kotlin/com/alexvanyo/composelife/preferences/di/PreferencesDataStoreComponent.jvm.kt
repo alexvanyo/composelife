@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.preferences.di
 
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.preferences.DiskPreferencesDataStore
 import com.alexvanyo.composelife.preferences.PreferencesCoroutineScope
 import com.alexvanyo.composelife.preferences.PreferencesDataStore

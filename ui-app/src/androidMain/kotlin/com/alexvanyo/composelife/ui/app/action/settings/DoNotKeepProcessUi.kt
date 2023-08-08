@@ -28,13 +28,8 @@ import com.alexvanyo.composelife.ui.app.component.LabeledSwitch
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
 import kotlinx.coroutines.launch
 
-@EntryPoint
-@InstallIn(ActivityComponent::class)
 interface DoNotKeepProcessUiHiltEntryPoint :
     ComposeLifePreferencesProvider
 

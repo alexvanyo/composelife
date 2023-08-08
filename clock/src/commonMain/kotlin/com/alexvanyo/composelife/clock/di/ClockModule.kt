@@ -14,23 +14,6 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.appcompatsync.di
+package com.alexvanyo.composelife.clock.di
 
-import com.alexvanyo.composelife.appcompatsync.AppCompatSync
-import com.alexvanyo.composelife.updatable.Updatable
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import dagger.multibindings.IntoSet
-
-@Module
-@InstallIn(SingletonComponent::class)
-interface AppCompatSyncModule {
-
-    @Binds
-    @IntoSet
-    fun bindsAppCompatSyncIntoUpdatable(
-        appCompatSync: AppCompatSync,
-    ): Updatable
-}
+interface ClockModule : ClockProvider

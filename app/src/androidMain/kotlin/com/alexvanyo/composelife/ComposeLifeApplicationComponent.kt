@@ -14,21 +14,33 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.preferences
+package com.alexvanyo.composelife
 
+import android.app.Application
+import com.alexvanyo.composelife.algorithm.di.AlgorithmComponent
+import com.alexvanyo.composelife.appcompatsync.di.AppCompatSyncComponent
+import com.alexvanyo.composelife.clock.di.ClockComponent
+import com.alexvanyo.composelife.data.di.RepositoryComponent
+import com.alexvanyo.composelife.database.di.DatabaseComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersComponent
 import com.alexvanyo.composelife.preferences.di.PreferencesComponent
+import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleComponent
+import com.alexvanyo.composelife.random.di.RandomComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import me.tatarka.inject.annotations.Component
 
 @Component
-actual abstract class ComposeLifeApplicationComponent :
-    ApplicationComponent(),
+abstract class ComposeLifeApplicationComponent(
+    application: Application,
+) : ApplicationComponent(application),
+    AppCompatSyncComponent,
+    ProcessLifecycleComponent,
+    AlgorithmComponent,
+    DatabaseComponent,
+    RepositoryComponent,
+    DispatchersComponent,
+    ClockComponent,
+    RandomComponent,
     PreferencesComponent,
-    DispatchersComponent {
-    actual companion object
-}
-
-actual fun ComposeLifeApplicationComponent.Companion.create(): ComposeLifeApplicationComponent =
-    ComposeLifeApplicationComponent::class.create()
+    UpdatableModule

@@ -16,6 +16,4 @@
 
 package com.alexvanyo.composelife.database.di
 
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
-
-expect interface TestDriverComponent : UpdatableModule
+expect interface TestDriverComponent

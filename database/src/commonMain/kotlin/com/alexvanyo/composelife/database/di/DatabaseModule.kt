@@ -20,5 +20,5 @@ import com.alexvanyo.composelife.database.ComposeLifeDatabase
 
 interface DatabaseModule {
 
-    val composeLifeDatabase : ComposeLifeDatabase
+    val composeLifeDatabase: ComposeLifeDatabase
 }

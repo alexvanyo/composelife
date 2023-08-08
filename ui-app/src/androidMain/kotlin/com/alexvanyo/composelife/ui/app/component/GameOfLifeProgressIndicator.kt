@@ -48,15 +48,10 @@ import com.alexvanyo.composelife.ui.app.cells.ViewportInteractionConfig
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
 import kotlinx.coroutines.awaitCancellation
 import kotlin.math.max
 import kotlin.random.Random
 
-@EntryPoint
-@InstallIn(ActivityComponent::class)
 interface GameOfLifeProgressIndicatorHiltEntryPoint :
     GameOfLifeAlgorithmProvider,
     ComposeLifeDispatchersProvider,

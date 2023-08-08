@@ -33,14 +33,9 @@ import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import com.livefront.sealedenum.GenSealedEnum
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 
-@EntryPoint
-@InstallIn(ActivityComponent::class)
 interface DarkThemeConfigUiHiltEntryPoint :
     ComposeLifePreferencesProvider
 

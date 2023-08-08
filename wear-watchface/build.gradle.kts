@@ -25,7 +25,6 @@ plugins {
     id("com.alexvanyo.composelife.android.library.ksp")
     id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
-    kotlin("kapt")
 }
 
 android {
@@ -44,17 +43,19 @@ kotlin {
             dependencies {
                 api(projects.algorithm)
                 implementation(projects.geometry)
+                implementation(projects.kotlinInjectScopes)
                 implementation(projects.openglRenderer)
                 implementation(projects.uiWear)
                 implementation(projects.wearWatchfaceConfiguration)
 
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinInject.runtime)
             }
         }
         val androidMain by getting {
+            configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
-            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.appcompat)
@@ -71,7 +72,6 @@ kotlin {
                 implementation(libs.androidx.wear.watchface.style)
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.sealedEnum.runtime)
-                implementation(libs.dagger.hilt.android)
             }
         }
         val commonTest by getting {
@@ -98,8 +98,4 @@ kotlin {
             }
         }
     }
-}
-
-kapt {
-    correctErrorTypes = true
 }

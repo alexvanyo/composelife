@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.app
+package com.alexvanyo.composelife
 
 import android.app.Activity
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -35,17 +35,15 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Density
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
-import androidx.window.layout.WindowMetricsCalculator
-import com.alexvanyo.composelife.MainActivity
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.preferences.AlgorithmType
-import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.test.TestDispatcher
+import com.alexvanyo.composelife.test.BaseUiInjectTest
+import com.alexvanyo.composelife.ui.app.R
 import leakcanary.SkipLeakDetection
-import javax.inject.Inject
+import org.junit.runner.RunWith
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -53,14 +51,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@HiltAndroidTest
-class ComposeLifeAppTests : BaseUiHiltTest<MainActivity>(MainActivity::class.java) {
+@RunWith(KmpAndroidJUnit4::class)
+class ComposeLifeAppTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, MainActivity>(
+    { TestComposeLifeApplicationComponent.create() },
+    MainActivity::class.java,
+) {
+    private val testDispatcher get() = applicationComponent.testDispatcher
 
-    @Inject
-    lateinit var testDispatcher: TestDispatcher
-
-    @Inject
-    lateinit var preferences: ComposeLifePreferences
+    private val preferences get() = applicationComponent.composeLifePreferences
 
     @SkipLeakDetection("recomposer", "Outer")
     @Test
@@ -96,8 +94,7 @@ class ComposeLifeAppTests : BaseUiHiltTest<MainActivity>(MainActivity::class.jav
         val windowSizeClass = WindowSizeClass.calculateFromSize(
             composeTestRule.activityRule.scenario.withActivity {
                 with(Density(this)) {
-                    WindowMetricsCalculator
-                        .getOrCreate()
+                    androidx.window.layout.WindowMetricsCalculator.getOrCreate()
                         .computeCurrentWindowMetrics(this@withActivity)
                         .bounds
                         .toComposeRect()
@@ -186,8 +183,7 @@ class ComposeLifeAppTests : BaseUiHiltTest<MainActivity>(MainActivity::class.jav
         val windowSizeClass = WindowSizeClass.calculateFromSize(
             composeTestRule.activityRule.scenario.withActivity {
                 with(Density(this)) {
-                    WindowMetricsCalculator
-                        .getOrCreate()
+                    androidx.window.layout.WindowMetricsCalculator.getOrCreate()
                         .computeCurrentWindowMetrics(this@withActivity)
                         .bounds
                         .toComposeRect()
@@ -320,8 +316,7 @@ class ComposeLifeAppTests : BaseUiHiltTest<MainActivity>(MainActivity::class.jav
         val windowSizeClass = WindowSizeClass.calculateFromSize(
             composeTestRule.activityRule.scenario.withActivity {
                 with(Density(this)) {
-                    WindowMetricsCalculator
-                        .getOrCreate()
+                    androidx.window.layout.WindowMetricsCalculator.getOrCreate()
                         .computeCurrentWindowMetrics(this@withActivity)
                         .bounds
                         .toComposeRect()
