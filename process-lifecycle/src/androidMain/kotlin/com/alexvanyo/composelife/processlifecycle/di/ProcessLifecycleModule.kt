@@ -16,23 +16,8 @@
 
 package com.alexvanyo.composelife.processlifecycle.di
 
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ProcessLifecycleOwner
-import com.alexvanyo.composelife.processlifecycle.ProcessLifecycle
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
 
-@Module
-@InstallIn(SingletonComponent::class)
 interface ProcessLifecycleModule {
-
-    companion object {
-        @Singleton
-        @ProcessLifecycle
-        @Provides
-        fun providesProcessLifecycleOwner(): LifecycleOwner = ProcessLifecycleOwner.get()
-    }
+    val processLifecycleOwner: ProcessLifecycleOwner
 }

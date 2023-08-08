@@ -26,7 +26,6 @@ plugins {
     id("com.alexvanyo.composelife.android.library.testing")
     id("com.alexvanyo.composelife.detekt")
     id("com.alexvanyo.composelife.kotlin.multiplatform.compose")
-    kotlin("kapt")
 }
 
 android {
@@ -51,6 +50,7 @@ kotlin {
                 api(projects.clock)
                 api(projects.data)
                 api(projects.dispatchers)
+                implementation(projects.kotlinInjectScopes)
                 implementation(projects.navigation)
                 implementation(projects.openglRenderer)
                 implementation(projects.patterns)
@@ -67,17 +67,19 @@ kotlin {
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.collections.immutable)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinInject.runtime)
             }
         }
         val jvmMain by getting {
+            configurations["kspJvm"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspJvm"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
         }
         val androidMain by getting {
+            configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
-            configurations["kapt"].dependencies.add(libs.dagger.hilt.compiler.get())
             dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.material3)
@@ -93,7 +95,6 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.sealedEnum.runtime)
                 implementation(libs.sqldelight.androidDriver)
-                implementation(libs.dagger.hilt.android)
             }
         }
         val androidDebug by creating {
@@ -105,10 +106,10 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(projects.dispatchersTest)
-                implementation(projects.hiltTestActivity)
                 implementation(projects.patterns)
                 implementation(projects.preferencesTest)
                 implementation(projects.screenshotTest)
+                implementation(projects.testActivity)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
 
@@ -126,15 +127,14 @@ kotlin {
             }
         }
         val androidUnitTest by getting {
-            configurations["kaptTest"].dependencies.add(libs.dagger.hilt.compiler.get())
+            configurations["kspAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
         }
         val androidInstrumentedTest by getting {
-            configurations["kaptAndroidTest"].dependencies.add(libs.dagger.hilt.compiler.get())
+            configurations["kspAndroidAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["androidTestUtil"].dependencies.add(libs.androidx.test.orchestrator.get())
         }
+        val jvmTest by getting {
+            configurations["kspJvmTest"].dependencies.add(libs.kotlinInject.ksp.get())
+        }
     }
-}
-
-kapt {
-    correctErrorTypes = true
 }

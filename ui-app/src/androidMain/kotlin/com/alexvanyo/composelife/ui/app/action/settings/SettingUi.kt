@@ -25,13 +25,8 @@ import androidx.compose.ui.platform.testTag
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
 import kotlinx.coroutines.launch
 
-@EntryPoint
-@InstallIn(ActivityComponent::class)
 interface SettingUiHiltEntryPoint :
     AlgorithmImplementationUiHiltEntryPoint,
     CellShapeConfigUiHiltEntryPoint,

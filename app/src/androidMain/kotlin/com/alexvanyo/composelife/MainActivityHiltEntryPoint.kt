@@ -16,14 +16,33 @@
 
 package com.alexvanyo.composelife
 
+import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
+import com.alexvanyo.composelife.clock.di.ClockModule
+import com.alexvanyo.composelife.data.di.RepositoryModule
+import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
+import com.alexvanyo.composelife.preferences.di.PreferencesModule
+import com.alexvanyo.composelife.random.di.RandomModule
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppHiltEntryPoint
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
+import com.alexvanyo.composelife.updatable.di.UpdatableModule
 
-@EntryPoint
-@InstallIn(ActivityComponent::class)
-interface MainActivityHiltEntryPoint :
+class MainActivityHiltEntryPoint<T>(
+    applicationComponent: T,
+) : RandomModule by applicationComponent,
+    ClockModule by applicationComponent,
+    RepositoryModule by applicationComponent,
+    AlgorithmModule by applicationComponent,
+    DispatchersModule by applicationComponent,
+    PreferencesModule by applicationComponent,
+    UpdatableModule by applicationComponent,
     ComposeLifePreferencesProvider,
     ComposeLifeAppHiltEntryPoint
+    where T : ApplicationComponent,
+          T : ClockModule,
+          T : RandomModule,
+          T : RepositoryModule,
+          T : AlgorithmModule,
+          T : DispatchersModule,
+          T : PreferencesModule,
+          T : UpdatableModule

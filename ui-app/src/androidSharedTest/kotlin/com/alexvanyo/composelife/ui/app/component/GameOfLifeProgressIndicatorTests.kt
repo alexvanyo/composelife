@@ -16,32 +16,28 @@
 
 package com.alexvanyo.composelife.ui.app.component
 
+import androidx.activity.ComponentActivity
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.test.TestActivity
-import dagger.hilt.EntryPoints
-import dagger.hilt.android.testing.HiltAndroidTest
+import com.alexvanyo.composelife.test.BaseUiInjectTest
+import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
+import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationEntryPoint
+import com.alexvanyo.composelife.ui.app.create
 import leakcanary.SkipLeakDetection
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-@HiltAndroidTest
-class GameOfLifeProgressIndicatorTests : BaseUiHiltTest<TestActivity>(TestActivity::class.java) {
-
-    private lateinit var gameOfLifeProgressIndicatorHiltEntryPoint: GameOfLifeProgressIndicatorHiltEntryPoint
+class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, ComponentActivity>(
+    { TestComposeLifeApplicationComponent.create() },
+    ComponentActivity::class.java,
+) {
+    private val gameOfLifeProgressIndicatorHiltEntryPoint = TestComposeLifeApplicationEntryPoint(applicationComponent)
 
     private val gameOfLifeProgressIndicatorLocalEntryPoint = object : GameOfLifeProgressIndicatorLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults
-    }
-
-    @BeforeTest
-    fun setup() {
-        gameOfLifeProgressIndicatorHiltEntryPoint =
-            EntryPoints.get(composeTestRule.activity, GameOfLifeProgressIndicatorHiltEntryPoint::class.java)
     }
 
     @SkipLeakDetection("recomposer", "Outer")

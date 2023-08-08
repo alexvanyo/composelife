@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.ui.app.action.settings
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
@@ -40,35 +41,34 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.test.TestActivity
+import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.ui.app.R
+import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
+import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationEntryPoint
 import com.alexvanyo.composelife.ui.app.action.ActionCardNavigation
+import com.alexvanyo.composelife.ui.app.create
 import com.google.accompanist.testharness.TestHarness
-import dagger.hilt.EntryPoints
-import dagger.hilt.android.testing.HiltAndroidTest
 import leakcanary.SkipLeakDetection
-import kotlin.test.BeforeTest
+import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@HiltAndroidTest
-class FullscreenSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity::class.java) {
+@RunWith(KmpAndroidJUnit4::class)
+class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, ComponentActivity>(
+    { TestComposeLifeApplicationComponent.create() },
+    ComponentActivity::class.java,
+) {
 
     private val fullscreenSettingsScreenLocalEntryPoint = object : FullscreenSettingsScreenLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults
     }
 
-    private lateinit var fullscreenSettingsScreenHiltEntryPoint: FullscreenSettingsScreenHiltEntryPoint
-
-    @BeforeTest
-    fun setup() {
-        fullscreenSettingsScreenHiltEntryPoint =
-            EntryPoints.get(composeTestRule.activity, FullscreenSettingsScreenHiltEntryPoint::class.java)
-    }
+    private val fullscreenSettingsScreenHiltEntryPoint = TestComposeLifeApplicationEntryPoint(applicationComponent)
 
     @Test
     fun show_list_screen_is_displayed_correctly_with_compact_width() = runAppTest {

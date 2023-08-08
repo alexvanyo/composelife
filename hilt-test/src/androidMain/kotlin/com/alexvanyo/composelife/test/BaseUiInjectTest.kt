@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,9 @@ import android.content.Context
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import kotlinx.coroutines.test.runTest
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Rule
@@ -28,15 +30,16 @@ import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 
 /**
- * A base class for testing UI that depends on Hilt injected classes.
- *
- * [T] must be annotated with `AndroidEntryPoint`.
+ * A base class for testing components that depend on injected classes.
  *
  * Subclasses must call [runAppTest] instead of [runTest] to properly initialize dependencies.
  */
 @Suppress("UnnecessaryAbstractClass")
-@RunWith(AndroidJUnit4::class)
-abstract class BaseUiHiltTest<T : ComponentActivity>(clazz: Class<T>) : BaseHiltTest() {
+@RunWith(KmpAndroidJUnit4::class)
+abstract class BaseUiInjectTest<T, A : ComponentActivity>(
+    applicationComponentCreator: () -> T,
+    clazz: Class<A>,
+) : BaseInjectTest<T>(applicationComponentCreator) where T : ApplicationComponent, T : UpdatableModule {
 
     @get:Rule(order = 0)
     val outerLeakRule = createLeakRule("Outer")

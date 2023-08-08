@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.donotkeepprocess.di
+package com.alexvanyo.composelife.processlifecycle.di
 
-import com.alexvanyo.composelife.donotkeepprocess.DoNotKeepProcess
-import com.alexvanyo.composelife.updatable.Updatable
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import dagger.multibindings.IntoSet
+import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
+import com.alexvanyo.composelife.scopes.Singleton
+import me.tatarka.inject.annotations.Provides
 
-@Module
-@InstallIn(SingletonComponent::class)
-interface DoNotKeepProcessModule {
+interface ProcessLifecycleComponent : ProcessLifecycleModule {
 
-    @Binds
-    @IntoSet
-    fun bindsDoNotKeepProcessIntoUpdatable(
-        doNotKeepProcess: DoNotKeepProcess,
-    ): Updatable
+    @Singleton
+    @Provides
+    fun providesProcessLifecycleOwner(): ProcessLifecycleOwner =
+        androidx.lifecycle.ProcessLifecycleOwner.get()
 }

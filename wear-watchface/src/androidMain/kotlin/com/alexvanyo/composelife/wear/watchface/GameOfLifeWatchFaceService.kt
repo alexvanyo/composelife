@@ -33,13 +33,17 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
+import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.emptyCellState
+import com.alexvanyo.composelife.preferences.di.PreferencesModule
+import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
+import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import com.alexvanyo.composelife.wear.watchface.configuration.createGameOfLifeComplicationSlotsManager
 import com.alexvanyo.composelife.wear.watchface.configuration.createGameOfLifeStyleSchema
 import com.alexvanyo.composelife.wear.watchface.configuration.getGameOfLifeColor
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -49,17 +53,13 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import javax.inject.Inject
 
 @OptIn(WatchFaceExperimental::class)
-@AndroidEntryPoint(WatchFaceService::class)
-class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
+class GameOfLifeWatchFaceService : WatchFaceService() {
 
-    @Inject
-    lateinit var gameOfLifeAlgorithm: GameOfLifeAlgorithm
+    private lateinit var gameOfLifeAlgorithm: GameOfLifeAlgorithm
 
-    @Inject
-    lateinit var dispatchers: ComposeLifeDispatchers
+    private lateinit var dispatchers: ComposeLifeDispatchers
 
     private val scope = CoroutineScope(SupervisorJob() + AndroidUiDispatcher.Main)
 
@@ -73,6 +73,15 @@ class GameOfLifeWatchFaceService : Hilt_GameOfLifeWatchFaceService() {
 
     override fun onCreate() {
         super.onCreate()
+
+        val applicationComponent = (application as ApplicationComponentOwner<*>).applicationComponent
+        applicationComponent as AlgorithmModule
+        applicationComponent as DispatchersModule
+        applicationComponent as PreferencesModule
+        applicationComponent as UpdatableModule
+        gameOfLifeAlgorithm = applicationComponent.gameOfLifeAlgorithm
+        dispatchers = applicationComponent.dispatchers
+
         scope.launch {
             with(gameOfLifeAlgorithm) {
                 with(dispatchers) {

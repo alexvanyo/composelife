@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.processlifecycle
+package com.alexvanyo.composelife.donotkeepprocess.di
 
-import javax.inject.Qualifier
+import com.alexvanyo.composelife.donotkeepprocess.DoNotKeepProcess
+import com.alexvanyo.composelife.updatable.Updatable
+import me.tatarka.inject.annotations.IntoSet
+import me.tatarka.inject.annotations.Provides
 
-@Qualifier
-annotation class ProcessLifecycle
+interface DoNotKeepProcessComponent {
+
+    val DoNotKeepProcess.bind: Updatable
+        @Provides
+        @IntoSet
+        get() = this
+}

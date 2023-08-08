@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.data
 
@@ -20,6 +21,7 @@ import com.alexvanyo.composelife.data.di.RepositoryComponent
 import com.alexvanyo.composelife.database.di.TestDatabaseComponent
 import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import me.tatarka.inject.annotations.Component
 
 @Component
@@ -27,7 +29,8 @@ actual abstract class TestComposeLifeApplicationComponent :
     ApplicationComponent(),
     RepositoryComponent,
     TestDatabaseComponent,
-    TestDispatchersComponent {
+    TestDispatchersComponent,
+    UpdatableModule {
     actual companion object
 }
 

@@ -20,16 +20,16 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
-import com.alexvanyo.composelife.processlifecycle.ProcessLifecycle
+import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.collectLatest
-import javax.inject.Inject
+import me.tatarka.inject.annotations.Inject
 import kotlin.system.exitProcess
 
 class DoNotKeepProcess @Inject constructor(
-    @ProcessLifecycle private val lifecycleOwner: LifecycleOwner,
+    private val lifecycleOwner: ProcessLifecycleOwner,
     private val composeLifePreferences: ComposeLifePreferences,
 ) : Updatable {
     override suspend fun update(): Nothing {

@@ -55,12 +55,7 @@ import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.util.PredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.predictiveBackHandler
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
 
-@EntryPoint
-@InstallIn(ActivityComponent::class)
 interface InteractiveCellUniverseHiltEntryPoint :
     InteractiveCellUniverseOverlayHiltEntryPoint
 

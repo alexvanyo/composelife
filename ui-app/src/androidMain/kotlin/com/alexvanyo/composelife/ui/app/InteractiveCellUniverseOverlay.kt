@@ -59,13 +59,8 @@ import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.isInProgress
 import com.livefront.sealedenum.GenSealedEnum
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
 import kotlinx.coroutines.launch
 
-@EntryPoint
-@InstallIn(ActivityComponent::class)
 interface InteractiveCellUniverseOverlayHiltEntryPoint :
     CellUniverseActionCardHiltEntryPoint
 

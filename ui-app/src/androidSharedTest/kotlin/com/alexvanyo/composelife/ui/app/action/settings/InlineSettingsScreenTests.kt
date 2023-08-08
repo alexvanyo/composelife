@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.ui.app.action.settings
 
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
@@ -30,37 +31,32 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.firstSuccess
-import com.alexvanyo.composelife.test.TestActivity
+import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.ui.app.R
-import dagger.hilt.EntryPoints
-import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
-import kotlin.test.BeforeTest
+import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
+import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationEntryPoint
+import com.alexvanyo.composelife.ui.app.create
+import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
-@HiltAndroidTest
-class InlineSettingsScreenTests : BaseUiHiltTest<TestActivity>(TestActivity::class.java) {
-
-    @Inject
-    lateinit var composeLifePreferences: ComposeLifePreferences
+@RunWith(KmpAndroidJUnit4::class)
+class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, ComponentActivity>(
+    { TestComposeLifeApplicationComponent.create() },
+    ComponentActivity::class.java,
+) {
+    private val composeLifePreferences get() = applicationComponent.composeLifePreferences
 
     private val testComposeLifePreferences: TestComposeLifePreferences get() = assertIs(composeLifePreferences)
 
-    private lateinit var inlineSettingsScreenHiltEntryPoint: InlineSettingsScreenHiltEntryPoint
-
-    @BeforeTest
-    fun setup() {
-        inlineSettingsScreenHiltEntryPoint =
-            EntryPoints.get(composeTestRule.activity, InlineSettingsScreenHiltEntryPoint::class.java)
-    }
+    private val inlineSettingsScreenHiltEntryPoint = TestComposeLifeApplicationEntryPoint(applicationComponent)
 
     @Test
     fun saving_settings_onboarding_is_shown_with_no_quick_access_settings_saved() = runAppTest {

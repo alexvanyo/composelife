@@ -66,15 +66,10 @@ import com.alexvanyo.composelife.ui.util.isInProgress
 import com.alexvanyo.composelife.ui.util.lerp
 import com.alexvanyo.composelife.ui.util.progressToTrue
 import com.livefront.sealedenum.GenSealedEnum
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.max
 
-@EntryPoint
-@InstallIn(ActivityComponent::class)
 interface CellUniverseActionCardHiltEntryPoint :
     FullscreenSettingsScreenHiltEntryPoint,
     InlineSettingsScreenHiltEntryPoint

@@ -16,8 +16,17 @@
 
 package com.alexvanyo.composelife.test
 
-import androidx.activity.ComponentActivity
-import dagger.hilt.android.AndroidEntryPoint
+import android.app.Application
+import android.content.Context
+import androidx.test.runner.AndroidJUnitRunner
 
-@AndroidEntryPoint(ComponentActivity::class)
-class TestActivity : Hilt_TestActivity()
+/**
+ * An [AndroidJUnitRunner] that creates a [TestInjectApplication] to host injectable tests.
+ *
+ * This is used as the instrumentation runner for on-device tests.
+ */
+@Suppress("unused")
+class InjectTestRunner : AndroidJUnitRunner() {
+    override fun newApplication(cl: ClassLoader?, className: String?, context: Context?): Application =
+        super.newApplication(cl, TestInjectApplication::class.java.name, context)
+}

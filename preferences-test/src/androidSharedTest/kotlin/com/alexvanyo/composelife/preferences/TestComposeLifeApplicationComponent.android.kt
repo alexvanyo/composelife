@@ -22,6 +22,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
 import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.test.TestInjectApplication
 import me.tatarka.inject.annotations.Component
 
 @Component
@@ -33,5 +34,9 @@ actual abstract class TestComposeLifeApplicationComponent(
     actual companion object
 }
 
-actual fun TestComposeLifeApplicationComponent.Companion.create(): TestComposeLifeApplicationComponent =
-    TestComposeLifeApplicationComponent::class.create(ApplicationProvider.getApplicationContext<Application>())
+actual fun TestComposeLifeApplicationComponent.Companion.create(): TestComposeLifeApplicationComponent {
+    val application = ApplicationProvider.getApplicationContext<TestInjectApplication>()
+    val applicationComponent = TestComposeLifeApplicationComponent::class.create(application)
+    application.applicationComponent = applicationComponent
+    return applicationComponent
+}

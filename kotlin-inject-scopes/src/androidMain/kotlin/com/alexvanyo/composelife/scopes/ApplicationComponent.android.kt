@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.scopes
 
 import android.app.Application
 import android.content.Context
-import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.Provides
 
+@Suppress("UnnecessaryAbstractClass")
 @Singleton
 actual abstract class ApplicationComponent(
     @get:Provides val application: Application,

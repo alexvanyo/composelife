@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.ui.app
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
@@ -48,47 +49,36 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.IntOffset
 import androidx.test.espresso.Espresso
-import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
-import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.clock
 import com.alexvanyo.composelife.geometry.toRingIndex
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.test.TestActivity
-import dagger.hilt.EntryPoints
-import dagger.hilt.android.testing.HiltAndroidTest
+import com.alexvanyo.composelife.test.BaseUiInjectTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestDispatcher
 import leakcanary.SkipLeakDetection
-import javax.inject.Inject
-import kotlin.test.BeforeTest
+import org.junit.runner.RunWith
 import kotlin.test.Test
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
-@HiltAndroidTest
-class InteractiveCellUniverseTests : BaseUiHiltTest<TestActivity>(TestActivity::class.java) {
+@RunWith(KmpAndroidJUnit4::class)
+class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, ComponentActivity>(
+    { TestComposeLifeApplicationComponent.create() },
+    ComponentActivity::class.java,
+) {
+    private val testDispatcher get() = applicationComponent.testDispatcher
 
-    @Inject
-    lateinit var testDispatcher: TestDispatcher
+    private val gameOfLifeAlgorithm get() = applicationComponent.gameOfLifeAlgorithm
 
-    @Inject
-    lateinit var gameOfLifeAlgorithm: GameOfLifeAlgorithm
+    private val dispatchers get() = applicationComponent.dispatchers
 
-    @Inject
-    lateinit var dispatchers: ComposeLifeDispatchers
-
-    private lateinit var interactiveCellUniverseHiltEntryPoint: InteractiveCellUniverseHiltEntryPoint
+    private val interactiveCellUniverseHiltEntryPoint get() =
+        TestComposeLifeApplicationEntryPoint(applicationComponent)
 
     private val interactiveCellUniverseLocalEntryPoint = object : InteractiveCellUniverseLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults
-    }
-
-    @BeforeTest
-    fun setup() {
-        interactiveCellUniverseHiltEntryPoint =
-            EntryPoints.get(composeTestRule.activity, InteractiveCellUniverseHiltEntryPoint::class.java)
     }
 
     @SkipLeakDetection("appliedChanges", "Outer")

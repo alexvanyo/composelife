@@ -19,7 +19,7 @@ package com.alexvanyo.composelife.clock.di
 import kotlinx.datetime.Clock
 import me.tatarka.inject.annotations.Provides
 
-interface ClockComponent : ClockProvider {
+interface ClockComponent : ClockModule {
     @Provides
     fun providesClock(): Clock = Clock.System
 }

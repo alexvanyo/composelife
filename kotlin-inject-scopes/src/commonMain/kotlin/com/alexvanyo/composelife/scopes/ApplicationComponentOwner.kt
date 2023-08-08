@@ -14,18 +14,8 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.preferences
+package com.alexvanyo.composelife.scopes
 
-import com.alexvanyo.composelife.dispatchers.di.DispatchersComponent
-import com.alexvanyo.composelife.preferences.di.PreferencesComponent
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
-
-expect abstract class ComposeLifeApplicationComponent :
-    ApplicationComponent,
-    PreferencesComponent,
-    DispatchersComponent {
-    companion object
+interface ApplicationComponentOwner<T : ApplicationComponent> {
+    val applicationComponent: T
 }
-
-expect fun ComposeLifeApplicationComponent.Companion.create(): ComposeLifeApplicationComponent
