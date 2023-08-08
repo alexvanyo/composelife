@@ -44,7 +44,7 @@ kotlin {
                 implementation(projects.algorithm)
                 api(projects.database)
                 api(projects.dispatchers)
-                implementation(projects.kotlinInjectScopes)
+                implementation(projects.injectScopes)
                 implementation(projects.updatable)
 
                 api(libs.kotlinx.coroutines.core)

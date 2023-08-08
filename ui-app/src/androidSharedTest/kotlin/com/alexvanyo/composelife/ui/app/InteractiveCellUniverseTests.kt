@@ -74,7 +74,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
     private val dispatchers get() = applicationComponent.dispatchers
 
-    private val interactiveCellUniverseHiltEntryPoint get() =
+    private val interactiveCellUniverseInjectEntryPoint =
         TestComposeLifeApplicationEntryPoint(applicationComponent)
 
     private val interactiveCellUniverseLocalEntryPoint = object : InteractiveCellUniverseLocalEntryPoint {
@@ -101,7 +101,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(interactiveCellUniverseHiltEntryPoint) {
+            with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
@@ -148,7 +148,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(interactiveCellUniverseHiltEntryPoint) {
+            with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
@@ -194,7 +194,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(interactiveCellUniverseHiltEntryPoint) {
+            with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
@@ -254,7 +254,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(interactiveCellUniverseHiltEntryPoint) {
+            with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
@@ -317,7 +317,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(interactiveCellUniverseHiltEntryPoint) {
+            with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
@@ -394,7 +394,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(interactiveCellUniverseHiltEntryPoint) {
+            with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
@@ -452,7 +452,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(interactiveCellUniverseHiltEntryPoint) {
+            with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
@@ -528,7 +528,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(interactiveCellUniverseHiltEntryPoint) {
+            with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,

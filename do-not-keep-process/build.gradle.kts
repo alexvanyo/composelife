@@ -34,7 +34,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.preferences)
-                implementation(projects.kotlinInjectScopes)
+                implementation(projects.injectScopes)
                 api(projects.processLifecycle)
                 implementation(projects.updatable)
                 implementation(libs.kotlinInject.runtime)

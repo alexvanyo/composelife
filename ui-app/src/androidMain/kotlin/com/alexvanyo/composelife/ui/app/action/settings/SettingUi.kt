@@ -27,14 +27,14 @@ import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import kotlinx.coroutines.launch
 
-interface SettingUiHiltEntryPoint :
-    AlgorithmImplementationUiHiltEntryPoint,
-    CellShapeConfigUiHiltEntryPoint,
+interface SettingUiInjectEntryPoint :
+    AlgorithmImplementationUiInjectEntryPoint,
+    CellShapeConfigUiInjectEntryPoint,
     ComposeLifePreferencesProvider,
-    DarkThemeConfigUiHiltEntryPoint,
-    DisableAGSLUiHiltEntryPoint,
-    DisableOpenGLUiHiltEntryPoint,
-    DoNotKeepProcessUiHiltEntryPoint
+    DarkThemeConfigUiInjectEntryPoint,
+    DisableAGSLUiInjectEntryPoint,
+    DisableOpenGLUiInjectEntryPoint,
+    DoNotKeepProcessUiInjectEntryPoint
 
 interface SettingUiLocalEntryPoint :
     AlgorithmImplementationUiLocalEntryPoint,
@@ -52,7 +52,7 @@ interface SettingUiLocalEntryPoint :
  * If [onOpenInSettingsClicked] is not null, then a button will be displayed to open the given
  * setting that will invoke [onOpenInSettingsClicked].
  */
-context(SettingUiHiltEntryPoint, SettingUiLocalEntryPoint)
+context(SettingUiInjectEntryPoint, SettingUiLocalEntryPoint)
 @Composable
 fun SettingUi(
     setting: Setting,
@@ -95,7 +95,7 @@ fun SettingUi(
 /**
  * Displays the setting UI for the given [quickAccessSetting].
  */
-context(SettingUiHiltEntryPoint, SettingUiLocalEntryPoint)
+context(SettingUiInjectEntryPoint, SettingUiLocalEntryPoint)
 @Composable
 fun SettingUi(
     quickAccessSetting: QuickAccessSetting,

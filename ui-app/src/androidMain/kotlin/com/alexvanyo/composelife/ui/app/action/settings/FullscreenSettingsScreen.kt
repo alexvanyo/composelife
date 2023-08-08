@@ -96,13 +96,13 @@ import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.predictiveBackHandler
 import kotlin.math.roundToInt
 
-interface FullscreenSettingsScreenHiltEntryPoint :
-    SettingUiHiltEntryPoint
+interface FullscreenSettingsScreenInjectEntryPoint :
+    SettingUiInjectEntryPoint
 
 interface FullscreenSettingsScreenLocalEntryPoint :
     SettingUiLocalEntryPoint
 
-context(FullscreenSettingsScreenHiltEntryPoint, FullscreenSettingsScreenLocalEntryPoint)
+context(FullscreenSettingsScreenInjectEntryPoint, FullscreenSettingsScreenLocalEntryPoint)
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun FullscreenSettingsScreen(
@@ -380,7 +380,7 @@ private fun SettingsCategoryButton(
     }
 }
 
-context(SettingUiHiltEntryPoint, SettingUiLocalEntryPoint)
+context(SettingUiInjectEntryPoint, SettingUiLocalEntryPoint)
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongMethod", "LongParameterList")
 @Composable

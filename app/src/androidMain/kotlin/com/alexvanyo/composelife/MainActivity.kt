@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         applicationComponent as PreferencesModule
         applicationComponent as UpdatableModule
 
-        val mainActivityEntryPoint = MainActivityHiltEntryPoint(applicationComponent)
+        val mainActivityEntryPoint = MainActivityInjectEntryPoint(applicationComponent)
 
         // Keep the splash screen on screen until we've loaded preferences
         splashScreen.setKeepOnScreenCondition {

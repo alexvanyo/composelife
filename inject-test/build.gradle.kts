@@ -21,7 +21,7 @@ plugins {
 }
 
 android {
-    namespace = "com.alexvanyo.composelife.hilttest"
+    namespace = "com.alexvanyo.composelife.injecttest"
     defaultConfig {
         minSdk = 21
     }
@@ -35,7 +35,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(projects.databaseTest)
-                implementation(projects.kotlinInjectScopes)
+                implementation(projects.injectScopes)
                 api(projects.kmpAndroidRunner)
                 api(projects.preferencesTest)
 

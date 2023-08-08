@@ -116,7 +116,7 @@ fun Project.configureAndroidTesting(
             closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
                 val commonTest = getByName("commonTest") {
                     dependencies {
-                        implementation(project(":hilt-test"))
+                        implementation(project(":inject-test"))
                     }
                 }
                 val androidSharedTest = create("androidSharedTest") {

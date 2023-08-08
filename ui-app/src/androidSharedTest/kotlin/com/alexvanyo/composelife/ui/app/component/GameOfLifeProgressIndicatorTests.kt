@@ -34,7 +34,7 @@ class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<TestComposeLifeApplica
     { TestComposeLifeApplicationComponent.create() },
     ComponentActivity::class.java,
 ) {
-    private val gameOfLifeProgressIndicatorHiltEntryPoint = TestComposeLifeApplicationEntryPoint(applicationComponent)
+    private val gameOfLifeProgressIndicatorInjectEntryPoint = TestComposeLifeApplicationEntryPoint(applicationComponent)
 
     private val gameOfLifeProgressIndicatorLocalEntryPoint = object : GameOfLifeProgressIndicatorLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults
@@ -44,7 +44,7 @@ class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<TestComposeLifeApplica
     @Test
     fun progress_indicator_is_displayed_correctly() = runAppTest {
         composeTestRule.setContent {
-            with(gameOfLifeProgressIndicatorHiltEntryPoint) {
+            with(gameOfLifeProgressIndicatorInjectEntryPoint) {
                 with(gameOfLifeProgressIndicatorLocalEntryPoint) {
                     GameOfLifeProgressIndicator()
                 }

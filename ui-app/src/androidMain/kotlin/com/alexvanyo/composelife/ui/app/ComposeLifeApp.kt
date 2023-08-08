@@ -58,7 +58,7 @@ import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicator
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorHiltEntryPoint
+import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
@@ -71,14 +71,14 @@ import kotlinx.coroutines.flow.transform
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
-interface ComposeLifeAppHiltEntryPoint :
+interface ComposeLifeAppInjectEntryPoint :
     ComposeLifePreferencesProvider,
     CellStateRepositoryProvider,
-    GameOfLifeProgressIndicatorHiltEntryPoint,
-    InteractiveCellUniverseHiltEntryPoint,
+    GameOfLifeProgressIndicatorInjectEntryPoint,
+    InteractiveCellUniverseInjectEntryPoint,
     ClockProvider
 
-context(ComposeLifeAppHiltEntryPoint)
+context(ComposeLifeAppInjectEntryPoint)
 @Suppress("LongMethod")
 @OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @Composable

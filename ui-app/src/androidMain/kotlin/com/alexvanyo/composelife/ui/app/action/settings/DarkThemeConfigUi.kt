@@ -36,13 +36,13 @@ import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 
-interface DarkThemeConfigUiHiltEntryPoint :
+interface DarkThemeConfigUiInjectEntryPoint :
     ComposeLifePreferencesProvider
 
 interface DarkThemeConfigUiLocalEntryPoint :
     LoadedComposeLifePreferencesProvider
 
-context(DarkThemeConfigUiHiltEntryPoint, DarkThemeConfigUiLocalEntryPoint)
+context(DarkThemeConfigUiInjectEntryPoint, DarkThemeConfigUiLocalEntryPoint)
 @Composable
 fun DarkThemeConfigUi(
     modifier: Modifier = Modifier,

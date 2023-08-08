@@ -22,16 +22,16 @@ import com.alexvanyo.composelife.data.di.RepositoryModule
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.random.di.RandomModule
-import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardHiltEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.AlgorithmImplementationUiHiltEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.CellShapeConfigUiHiltEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.DarkThemeConfigUiHiltEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.DisableAGSLUiHiltEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.DisableOpenGLUiHiltEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenHiltEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenHiltEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.SettingUiHiltEntryPoint
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorHiltEntryPoint
+import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.AlgorithmImplementationUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.CellShapeConfigUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.DarkThemeConfigUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.DisableAGSLUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.DisableOpenGLUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.SettingUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 
 class TestComposeLifeApplicationEntryPoint(
@@ -43,16 +43,16 @@ class TestComposeLifeApplicationEntryPoint(
     DispatchersModule by applicationComponent,
     PreferencesModule by applicationComponent,
     UpdatableModule by applicationComponent,
-    AlgorithmImplementationUiHiltEntryPoint,
-    CellShapeConfigUiHiltEntryPoint,
-    CellUniverseActionCardHiltEntryPoint,
-    ComposeLifeAppHiltEntryPoint,
-    DarkThemeConfigUiHiltEntryPoint,
-    DisableAGSLUiHiltEntryPoint,
-    DisableOpenGLUiHiltEntryPoint,
-    FullscreenSettingsScreenHiltEntryPoint,
-    GameOfLifeProgressIndicatorHiltEntryPoint,
-    InlineSettingsScreenHiltEntryPoint,
-    InteractiveCellUniverseHiltEntryPoint,
-    InteractiveCellUniverseOverlayHiltEntryPoint,
-    SettingUiHiltEntryPoint
+    AlgorithmImplementationUiInjectEntryPoint,
+    CellShapeConfigUiInjectEntryPoint,
+    CellUniverseActionCardInjectEntryPoint,
+    ComposeLifeAppInjectEntryPoint,
+    DarkThemeConfigUiInjectEntryPoint,
+    DisableAGSLUiInjectEntryPoint,
+    DisableOpenGLUiInjectEntryPoint,
+    FullscreenSettingsScreenInjectEntryPoint,
+    GameOfLifeProgressIndicatorInjectEntryPoint,
+    InlineSettingsScreenInjectEntryPoint,
+    InteractiveCellUniverseInjectEntryPoint,
+    InteractiveCellUniverseOverlayInjectEntryPoint,
+    SettingUiInjectEntryPoint

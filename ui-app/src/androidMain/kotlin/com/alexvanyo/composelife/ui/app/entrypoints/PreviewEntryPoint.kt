@@ -39,33 +39,33 @@ import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.random.di.RandomProvider
-import com.alexvanyo.composelife.ui.app.ComposeLifeAppHiltEntryPoint
-import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseHiltEntryPoint
+import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayHiltEntryPoint
+import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardHiltEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.AlgorithmImplementationUiHiltEntryPoint
+import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.AlgorithmImplementationUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.AlgorithmImplementationUiLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.CellShapeConfigUiHiltEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.CellShapeConfigUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.CellShapeConfigUiLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.CellStatePreviewUiLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.DarkThemeConfigUiHiltEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.DarkThemeConfigUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.DarkThemeConfigUiLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.DisableAGSLUiHiltEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.DisableAGSLUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.DisableAGSLUiLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.DisableOpenGLUiHiltEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.DisableOpenGLUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.DisableOpenGLUiLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenHiltEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenHiltEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.SettingUiHiltEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.SettingUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.SettingUiLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.InteractableCellsLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.NonInteractableCellsLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorHiltEntryPoint
+import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorLocalEntryPoint
 import kotlinx.datetime.Clock
 import kotlin.random.Random
@@ -75,33 +75,33 @@ import kotlin.random.Random
  * previews in this module.
  */
 internal interface PreviewEntryPoint :
-    AlgorithmImplementationUiHiltEntryPoint,
+    AlgorithmImplementationUiInjectEntryPoint,
     AlgorithmImplementationUiLocalEntryPoint,
-    CellShapeConfigUiHiltEntryPoint,
+    CellShapeConfigUiInjectEntryPoint,
     CellShapeConfigUiLocalEntryPoint,
     CellStatePreviewUiLocalEntryPoint,
     CellWindowLocalEntryPoint,
-    CellUniverseActionCardHiltEntryPoint,
-    ComposeLifeAppHiltEntryPoint,
-    DarkThemeConfigUiHiltEntryPoint,
+    CellUniverseActionCardInjectEntryPoint,
+    ComposeLifeAppInjectEntryPoint,
+    DarkThemeConfigUiInjectEntryPoint,
     DarkThemeConfigUiLocalEntryPoint,
-    DisableAGSLUiHiltEntryPoint,
+    DisableAGSLUiInjectEntryPoint,
     DisableAGSLUiLocalEntryPoint,
-    DisableOpenGLUiHiltEntryPoint,
+    DisableOpenGLUiInjectEntryPoint,
     DisableOpenGLUiLocalEntryPoint,
-    FullscreenSettingsScreenHiltEntryPoint,
+    FullscreenSettingsScreenInjectEntryPoint,
     FullscreenSettingsScreenLocalEntryPoint,
-    GameOfLifeProgressIndicatorHiltEntryPoint,
+    GameOfLifeProgressIndicatorInjectEntryPoint,
     GameOfLifeProgressIndicatorLocalEntryPoint,
-    InlineSettingsScreenHiltEntryPoint,
+    InlineSettingsScreenInjectEntryPoint,
     InlineSettingsScreenLocalEntryPoint,
     InteractableCellsLocalEntryPoint,
-    InteractiveCellUniverseHiltEntryPoint,
+    InteractiveCellUniverseInjectEntryPoint,
     InteractiveCellUniverseLocalEntryPoint,
-    InteractiveCellUniverseOverlayHiltEntryPoint,
+    InteractiveCellUniverseOverlayInjectEntryPoint,
     InteractiveCellUniverseOverlayLocalEntryPoint,
     NonInteractableCellsLocalEntryPoint,
-    SettingUiHiltEntryPoint,
+    SettingUiInjectEntryPoint,
     SettingUiLocalEntryPoint
 
 /**

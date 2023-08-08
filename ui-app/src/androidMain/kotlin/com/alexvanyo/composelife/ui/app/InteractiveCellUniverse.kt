@@ -56,8 +56,8 @@ import com.alexvanyo.composelife.ui.util.PredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.predictiveBackHandler
 
-interface InteractiveCellUniverseHiltEntryPoint :
-    InteractiveCellUniverseOverlayHiltEntryPoint
+interface InteractiveCellUniverseInjectEntryPoint :
+    InteractiveCellUniverseOverlayInjectEntryPoint
 
 interface InteractiveCellUniverseLocalEntryPoint :
     CellWindowLocalEntryPoint,
@@ -67,7 +67,7 @@ interface InteractiveCellUniverseLocalEntryPoint :
  * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
  * evolves.
  */
-context(InteractiveCellUniverseHiltEntryPoint, InteractiveCellUniverseLocalEntryPoint)
+context(InteractiveCellUniverseInjectEntryPoint, InteractiveCellUniverseLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun InteractiveCellUniverse(

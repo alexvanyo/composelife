@@ -56,7 +56,7 @@ class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCom
 
     private val testComposeLifePreferences: TestComposeLifePreferences get() = assertIs(composeLifePreferences)
 
-    private val inlineSettingsScreenHiltEntryPoint = TestComposeLifeApplicationEntryPoint(applicationComponent)
+    private val inlineSettingsScreenInjectEntryPoint = TestComposeLifeApplicationEntryPoint(applicationComponent)
 
     @Test
     fun saving_settings_onboarding_is_shown_with_no_quick_access_settings_saved() = runAppTest {
@@ -66,7 +66,7 @@ class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCom
         var onSeeMoreClickedCount = 0
 
         composeTestRule.setContent {
-            with(inlineSettingsScreenHiltEntryPoint) {
+            with(inlineSettingsScreenInjectEntryPoint) {
                 with(
                     object : InlineSettingsScreenLocalEntryPoint {
                         override val preferences get() =
@@ -109,7 +109,7 @@ class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCom
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
         composeTestRule.setContent {
-            with(inlineSettingsScreenHiltEntryPoint) {
+            with(inlineSettingsScreenInjectEntryPoint) {
                 with(
                     object : InlineSettingsScreenLocalEntryPoint {
                         override val preferences get() =
@@ -165,7 +165,7 @@ class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCom
         var onOpenInSettingsClickedSetting: Setting? = null
 
         composeTestRule.setContent {
-            with(inlineSettingsScreenHiltEntryPoint) {
+            with(inlineSettingsScreenInjectEntryPoint) {
                 with(
                     object : InlineSettingsScreenLocalEntryPoint {
                         override val preferences get() =
@@ -206,7 +206,7 @@ class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCom
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
         composeTestRule.setContent {
-            with(inlineSettingsScreenHiltEntryPoint) {
+            with(inlineSettingsScreenInjectEntryPoint) {
                 with(
                     object : InlineSettingsScreenLocalEntryPoint {
                         override val preferences get() =
