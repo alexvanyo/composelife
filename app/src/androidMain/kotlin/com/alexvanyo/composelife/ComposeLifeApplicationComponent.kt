@@ -27,6 +27,7 @@ import com.alexvanyo.composelife.data.di.RepositoryModule
 import com.alexvanyo.composelife.database.di.DatabaseComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
+import com.alexvanyo.composelife.donotkeepprocess.di.DoNotKeepProcessComponent
 import com.alexvanyo.composelife.preferences.di.PreferencesComponent
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleComponent
@@ -49,6 +50,7 @@ abstract class ComposeLifeApplicationComponent(
     ClockComponent,
     RandomComponent,
     PreferencesComponent,
+    DoNotKeepProcessComponent,
     UpdatableModule {
 
     override val entryPoint: ComposeLifeApplicationEntryPoint get() =
