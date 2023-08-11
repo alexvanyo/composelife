@@ -18,8 +18,11 @@ package com.alexvanyo.composelife.wear
 
 import android.app.Application
 import com.alexvanyo.composelife.algorithm.di.AlgorithmComponent
+import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
 import com.alexvanyo.composelife.dispatchers.di.DispatchersComponent
+import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.preferences.di.PreferencesComponent
+import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
@@ -28,9 +31,24 @@ import me.tatarka.inject.annotations.Component
 @Component
 abstract class ComposeLifeApplicationComponent(
     application: Application,
-) : ApplicationComponent(application),
+) : ApplicationComponent<ComposeLifeApplicationEntryPoint>(application),
     ProcessLifecycleComponent,
     AlgorithmComponent,
     DispatchersComponent,
     PreferencesComponent,
+    UpdatableModule {
+
+    override val entryPoint: ComposeLifeApplicationEntryPoint get() =
+        object :
+            ComposeLifeApplicationEntryPoint,
+            AlgorithmModule by this,
+            DispatchersModule by this,
+            PreferencesModule by this,
+            UpdatableModule by this {}
+}
+
+interface ComposeLifeApplicationEntryPoint :
+    AlgorithmModule,
+    DispatchersModule,
+    PreferencesModule,
     UpdatableModule

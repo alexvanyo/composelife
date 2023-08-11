@@ -22,9 +22,11 @@ import me.tatarka.inject.annotations.Provides
 
 @Suppress("UnnecessaryAbstractClass")
 @Singleton
-actual abstract class ApplicationComponent(
+actual abstract class ApplicationComponent<E>(
     @get:Provides val application: Application,
 ) {
     val Application.bind: ApplicationContext
         @Provides get() = this
+
+    actual abstract val entryPoint: E
 }

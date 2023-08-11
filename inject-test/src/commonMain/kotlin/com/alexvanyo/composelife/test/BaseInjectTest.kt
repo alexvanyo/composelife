@@ -39,7 +39,7 @@ import kotlin.time.Duration.Companion.seconds
 @RunWith(KmpAndroidJUnit4::class)
 abstract class BaseInjectTest<T>(
     applicationComponentCreator: () -> T,
-) where T : ApplicationComponent, T : UpdatableModule {
+) where T : ApplicationComponent<*>, T : UpdatableModule {
 
     val applicationComponent: T = applicationComponentCreator()
 

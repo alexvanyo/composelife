@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.app.component
 
-import androidx.activity.ComponentActivity
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -24,17 +23,18 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
+import com.alexvanyo.composelife.test.InjectTestActivity
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
-import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationEntryPoint
 import com.alexvanyo.composelife.ui.app.create
 import leakcanary.SkipLeakDetection
 import kotlin.test.Test
 
-class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, ComponentActivity>(
+class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
     { TestComposeLifeApplicationComponent.create() },
-    ComponentActivity::class.java,
+    InjectTestActivity::class.java,
 ) {
-    private val gameOfLifeProgressIndicatorInjectEntryPoint = TestComposeLifeApplicationEntryPoint(applicationComponent)
+    private val gameOfLifeProgressIndicatorInjectEntryPoint get() =
+        composeTestRule.activity.uiComponent.entryPoint as GameOfLifeProgressIndicatorInjectEntryPoint
 
     private val gameOfLifeProgressIndicatorLocalEntryPoint = object : GameOfLifeProgressIndicatorLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults

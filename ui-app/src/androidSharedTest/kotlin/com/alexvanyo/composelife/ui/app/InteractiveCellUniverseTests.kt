@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.app
 
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
@@ -57,6 +56,7 @@ import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
+import com.alexvanyo.composelife.test.InjectTestActivity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import leakcanary.SkipLeakDetection
 import org.junit.runner.RunWith
@@ -64,9 +64,9 @@ import kotlin.test.Test
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, ComponentActivity>(
+class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
     { TestComposeLifeApplicationComponent.create() },
-    ComponentActivity::class.java,
+    InjectTestActivity::class.java,
 ) {
     private val testDispatcher get() = applicationComponent.testDispatcher
 
@@ -74,8 +74,8 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
     private val dispatchers get() = applicationComponent.dispatchers
 
-    private val interactiveCellUniverseInjectEntryPoint =
-        TestComposeLifeApplicationEntryPoint(applicationComponent)
+    private val interactiveCellUniverseInjectEntryPoint get() =
+        composeTestRule.activity.uiComponent.entryPoint as InteractiveCellUniverseInjectEntryPoint
 
     private val interactiveCellUniverseLocalEntryPoint = object : InteractiveCellUniverseLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults

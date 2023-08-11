@@ -20,14 +20,20 @@ package com.alexvanyo.composelife
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider
 import com.alexvanyo.composelife.algorithm.di.AlgorithmComponent
+import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
 import com.alexvanyo.composelife.clock.di.ClockComponent
+import com.alexvanyo.composelife.clock.di.ClockModule
 import com.alexvanyo.composelife.data.di.RepositoryComponent
+import com.alexvanyo.composelife.data.di.RepositoryModule
 import com.alexvanyo.composelife.database.di.TestDatabaseComponent
+import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
 import com.alexvanyo.composelife.donotkeepprocess.di.DoNotKeepProcessComponent
+import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleComponent
 import com.alexvanyo.composelife.random.di.RandomComponent
+import com.alexvanyo.composelife.random.di.RandomModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.test.TestInjectApplication
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
@@ -36,7 +42,7 @@ import me.tatarka.inject.annotations.Component
 @Component
 abstract class TestComposeLifeApplicationComponent(
     application: Application,
-) : ApplicationComponent(application),
+) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
     AlgorithmComponent,
     RepositoryComponent,
     TestDatabaseComponent,
@@ -47,6 +53,18 @@ abstract class TestComposeLifeApplicationComponent(
     ProcessLifecycleComponent,
     DoNotKeepProcessComponent,
     UpdatableModule {
+
+    override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
+        object :
+            TestComposeLifeApplicationEntryPoint,
+            RandomModule by this,
+            ClockModule by this,
+            RepositoryModule by this,
+            AlgorithmModule by this,
+            DispatchersModule by this,
+            PreferencesModule by this,
+            UpdatableModule by this {}
+
     companion object
 }
 
@@ -54,5 +72,17 @@ fun TestComposeLifeApplicationComponent.Companion.create(): TestComposeLifeAppli
     val application = ApplicationProvider.getApplicationContext<TestInjectApplication>()
     val applicationComponent = TestComposeLifeApplicationComponent::class.create(application)
     application.applicationComponent = applicationComponent
+    application.uiComponentFactory = {
+        TestComposeLifeUiComponent::class.create(applicationComponent, it.activity)
+    }
     return applicationComponent
 }
+
+interface TestComposeLifeApplicationEntryPoint :
+    RandomModule,
+    ClockModule,
+    RepositoryModule,
+    AlgorithmModule,
+    DispatchersModule,
+    PreferencesModule,
+    UpdatableModule

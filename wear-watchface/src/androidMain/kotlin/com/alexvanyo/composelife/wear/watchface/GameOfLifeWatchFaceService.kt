@@ -38,9 +38,7 @@ import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.emptyCellState
-import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import com.alexvanyo.composelife.wear.watchface.configuration.createGameOfLifeComplicationSlotsManager
 import com.alexvanyo.composelife.wear.watchface.configuration.createGameOfLifeStyleSchema
 import com.alexvanyo.composelife.wear.watchface.configuration.getGameOfLifeColor
@@ -74,13 +72,12 @@ class GameOfLifeWatchFaceService : WatchFaceService() {
     override fun onCreate() {
         super.onCreate()
 
-        val applicationComponent = (application as ApplicationComponentOwner<*>).applicationComponent
-        applicationComponent as AlgorithmModule
-        applicationComponent as DispatchersModule
-        applicationComponent as PreferencesModule
-        applicationComponent as UpdatableModule
-        gameOfLifeAlgorithm = applicationComponent.gameOfLifeAlgorithm
-        dispatchers = applicationComponent.dispatchers
+        val applicationComponent = (application as ApplicationComponentOwner).applicationComponent
+        val applicationEntryPoint = applicationComponent.entryPoint
+        applicationEntryPoint as AlgorithmModule
+        applicationEntryPoint as DispatchersModule
+        gameOfLifeAlgorithm = applicationEntryPoint.gameOfLifeAlgorithm
+        dispatchers = applicationEntryPoint.dispatchers
 
         scope.launch {
             with(gameOfLifeAlgorithm) {

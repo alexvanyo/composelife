@@ -19,7 +19,9 @@ package com.alexvanyo.composelife.preferences
 
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider
+import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
+import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.test.TestInjectApplication
@@ -28,9 +30,16 @@ import me.tatarka.inject.annotations.Component
 @Component
 actual abstract class TestComposeLifeApplicationComponent(
     application: Application,
-) : ApplicationComponent(application),
+) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
     TestPreferencesComponent,
     TestDispatchersComponent {
+
+    override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
+        object :
+            TestComposeLifeApplicationEntryPoint,
+            DispatchersModule by this,
+            PreferencesModule by this {}
+
     actual companion object
 }
 

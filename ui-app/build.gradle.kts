@@ -103,6 +103,7 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(projects.dispatchersTest)
+                implementation(projects.injectTestActivity)
                 implementation(projects.patterns)
                 implementation(projects.preferencesTest)
                 implementation(projects.screenshotTest)

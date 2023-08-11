@@ -17,7 +17,9 @@
 
 package com.alexvanyo.composelife.database
 
+import com.alexvanyo.composelife.database.di.DatabaseModule
 import com.alexvanyo.composelife.database.di.TestDatabaseComponent
+import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
@@ -25,10 +27,17 @@ import me.tatarka.inject.annotations.Component
 
 @Component
 actual abstract class TestComposeLifeApplicationComponent :
-    ApplicationComponent(),
+    ApplicationComponent<TestComposeLifeApplicationEntryPoint>(),
     TestDatabaseComponent,
     TestDispatchersComponent,
     UpdatableModule {
+
+    override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
+        object :
+            TestComposeLifeApplicationEntryPoint,
+            DispatchersModule by this,
+            DatabaseModule by this {}
+
     actual companion object
 }
 

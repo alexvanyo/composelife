@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.app.action.settings
 
-import androidx.activity.ComponentActivity
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
@@ -38,9 +37,9 @@ import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.firstSuccess
 import com.alexvanyo.composelife.test.BaseUiInjectTest
+import com.alexvanyo.composelife.test.InjectTestActivity
 import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
-import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationEntryPoint
 import com.alexvanyo.composelife.ui.app.create
 import leakcanary.SkipLeakDetection
 import org.junit.runner.RunWith
@@ -49,15 +48,16 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 @RunWith(KmpAndroidJUnit4::class)
-class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, ComponentActivity>(
+class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
     { TestComposeLifeApplicationComponent.create() },
-    ComponentActivity::class.java,
+    InjectTestActivity::class.java,
 ) {
     private val composeLifePreferences get() = applicationComponent.composeLifePreferences
 
     private val testComposeLifePreferences: TestComposeLifePreferences get() = assertIs(composeLifePreferences)
 
-    private val inlineSettingsScreenInjectEntryPoint = TestComposeLifeApplicationEntryPoint(applicationComponent)
+    private val inlineSettingsScreenInjectEntryPoint get() =
+        composeTestRule.activity.uiComponent.entryPoint as InlineSettingsScreenInjectEntryPoint
 
     @Test
     @SkipLeakDetection("appliedChanges", "Outer", "Inner")

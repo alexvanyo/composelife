@@ -16,17 +16,23 @@
 
 package com.alexvanyo.composelife.database
 
+import com.alexvanyo.composelife.database.di.DatabaseModule
 import com.alexvanyo.composelife.database.di.TestDatabaseComponent
+import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 
 expect abstract class TestComposeLifeApplicationComponent :
-    ApplicationComponent,
+    ApplicationComponent<TestComposeLifeApplicationEntryPoint>,
     TestDatabaseComponent,
     TestDispatchersComponent,
     UpdatableModule {
     companion object
 }
+
+interface TestComposeLifeApplicationEntryPoint :
+    DatabaseModule,
+    DispatchersModule
 
 expect fun TestComposeLifeApplicationComponent.Companion.create(): TestComposeLifeApplicationComponent

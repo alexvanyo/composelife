@@ -20,7 +20,10 @@ package com.alexvanyo.composelife.data
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider
 import com.alexvanyo.composelife.data.di.RepositoryComponent
+import com.alexvanyo.composelife.data.di.RepositoryModule
+import com.alexvanyo.composelife.database.di.DatabaseModule
 import com.alexvanyo.composelife.database.di.TestDatabaseComponent
+import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.test.TestInjectApplication
@@ -30,11 +33,20 @@ import me.tatarka.inject.annotations.Component
 @Component
 actual abstract class TestComposeLifeApplicationComponent(
     application: Application,
-) : ApplicationComponent(application),
+) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
     RepositoryComponent,
     TestDatabaseComponent,
     TestDispatchersComponent,
     UpdatableModule {
+
+    override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
+        object :
+            TestComposeLifeApplicationEntryPoint,
+            RepositoryModule by this,
+            DatabaseModule by this,
+            DispatchersModule by this,
+            UpdatableModule by this {}
+
     actual companion object
 }
 
