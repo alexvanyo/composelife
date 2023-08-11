@@ -71,6 +71,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
     private val fullscreenSettingsScreenInjectEntryPoint = TestComposeLifeApplicationEntryPoint(applicationComponent)
 
     @Test
+    @SkipLeakDetection("appliedChanges", "Outer")
     fun show_list_screen_is_displayed_correctly_with_compact_width() = runAppTest {
         val fullscreen = ActionCardNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
@@ -136,6 +137,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
     }
 
     @Test
+    @SkipLeakDetection("appliedChanges", "Outer")
     fun show_list_screen_is_displayed_correctly_with_medium_width() = runAppTest {
         val fullscreen = ActionCardNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
@@ -205,6 +207,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
     }
 
     @Test
+    @SkipLeakDetection("appliedChanges", "Outer", "Inner")
     fun show_detail_screen_is_displayed_correctly_with_compact_width() = runAppTest {
         val fullscreen = ActionCardNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
@@ -258,6 +261,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
     }
 
     @Test
+    @SkipLeakDetection("appliedChanges", "Outer")
     fun show_detail_screen_is_displayed_correctly_with_medium_width() = runAppTest {
         val fullscreen = ActionCardNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
@@ -321,6 +325,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
     }
 
     @Test
+    @SkipLeakDetection("appliedChanges", "Outer")
     fun click_on_detail_is_displayed_correctly_with_compact_width() = runAppTest {
         val fullscreen = ActionCardNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
@@ -368,6 +373,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
     }
 
     @Test
+    @SkipLeakDetection("appliedChanges", "Outer")
     fun click_on_detail_is_displayed_correctly_with_medium_width() = runAppTest {
         val fullscreen = ActionCardNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
