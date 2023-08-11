@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.ui.app
 
-import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
-import com.alexvanyo.composelife.clock.di.ClockModule
-import com.alexvanyo.composelife.data.di.RepositoryModule
-import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.preferences.di.PreferencesModule
-import com.alexvanyo.composelife.random.di.RandomModule
+import android.app.Activity
+import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.AlgorithmImplementationUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.CellShapeConfigUiInjectEntryPoint
@@ -32,17 +29,23 @@ import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreen
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.SettingUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import me.tatarka.inject.annotations.Component
 
-class TestComposeLifeApplicationEntryPoint(
-    applicationComponent: TestComposeLifeApplicationComponent,
-) : ClockModule by applicationComponent,
-    RandomModule by applicationComponent,
-    RepositoryModule by applicationComponent,
-    AlgorithmModule by applicationComponent,
-    DispatchersModule by applicationComponent,
-    PreferencesModule by applicationComponent,
-    UpdatableModule by applicationComponent,
+@Component
+actual abstract class TestComposeLifeUiComponent(
+    @Component override val applicationComponent: TestComposeLifeApplicationComponent,
+    activity: Activity,
+) : UiComponent<TestComposeLifeApplicationComponent, TestComposeLifeUiEntryPoint>(activity, applicationComponent) {
+    override val entryPoint: TestComposeLifeUiEntryPoint get() =
+        object :
+            TestComposeLifeUiEntryPoint,
+            TestComposeLifeApplicationEntryPoint by applicationComponent.entryPoint {}
+
+    actual companion object
+}
+
+actual interface TestComposeLifeUiEntryPoint :
+    TestComposeLifeApplicationEntryPoint,
     AlgorithmImplementationUiInjectEntryPoint,
     CellShapeConfigUiInjectEntryPoint,
     CellUniverseActionCardInjectEntryPoint,

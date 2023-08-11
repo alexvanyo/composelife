@@ -22,6 +22,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.UiComponentOwner
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import kotlinx.coroutines.test.runTest
 import leakcanary.DetectLeaksAfterTestSuccess
@@ -36,10 +37,11 @@ import org.junit.runner.RunWith
  */
 @Suppress("UnnecessaryAbstractClass")
 @RunWith(KmpAndroidJUnit4::class)
-abstract class BaseUiInjectTest<T, A : ComponentActivity>(
+abstract class BaseUiInjectTest<T, A>(
     applicationComponentCreator: () -> T,
     clazz: Class<A>,
-) : BaseInjectTest<T>(applicationComponentCreator) where T : ApplicationComponent, T : UpdatableModule {
+) : BaseInjectTest<T>(applicationComponentCreator)
+    where T : ApplicationComponent<*>, T : UpdatableModule, A : ComponentActivity, A : UiComponentOwner {
 
     @get:Rule(order = 0)
     val outerLeakRule = createLeakRule("Outer")

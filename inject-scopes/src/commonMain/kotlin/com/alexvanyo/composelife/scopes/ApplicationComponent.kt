@@ -17,4 +17,6 @@
 package com.alexvanyo.composelife.scopes
 
 @Singleton
-expect abstract class ApplicationComponent
+expect abstract class ApplicationComponent<E> {
+    abstract val entryPoint: E
+}

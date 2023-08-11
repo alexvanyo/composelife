@@ -16,13 +16,25 @@
 
 package com.alexvanyo.composelife.test
 
-import android.app.Application
-import com.alexvanyo.composelife.scopes.ApplicationComponent
+import android.app.Activity
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
+import com.alexvanyo.composelife.scopes.UiComponentOwner
 
-class TestInjectApplication : Application(), ApplicationComponentOwner {
-    override lateinit var applicationComponent: ApplicationComponent<*>
-    override lateinit var uiComponentFactory: (UiComponentArguments) -> UiComponent<*, *>
+class InjectTestActivity : AppCompatActivity(), UiComponentOwner {
+
+    override lateinit var uiComponent: UiComponent<*, *>
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val application = application as ApplicationComponentOwner
+        uiComponent = application.uiComponentFactory(
+            object : UiComponentArguments {
+                override val activity: Activity = this@InjectTestActivity
+            },
+        )
+    }
 }

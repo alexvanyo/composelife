@@ -16,15 +16,21 @@
 
 package com.alexvanyo.composelife.preferences
 
+import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
+import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 
 expect abstract class TestComposeLifeApplicationComponent :
-    ApplicationComponent,
+    ApplicationComponent<TestComposeLifeApplicationEntryPoint>,
     TestPreferencesComponent,
     TestDispatchersComponent {
     companion object
 }
+
+interface TestComposeLifeApplicationEntryPoint :
+    PreferencesModule,
+    DispatchersModule
 
 expect fun TestComposeLifeApplicationComponent.Companion.create(): TestComposeLifeApplicationComponent

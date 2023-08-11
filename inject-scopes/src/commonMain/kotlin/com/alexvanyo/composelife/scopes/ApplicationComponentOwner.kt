@@ -16,6 +16,10 @@
 
 package com.alexvanyo.composelife.scopes
 
-interface ApplicationComponentOwner<T : ApplicationComponent> {
-    val applicationComponent: T
+interface ApplicationComponentOwner {
+    val applicationComponent: ApplicationComponent<*>
+
+    val uiComponentFactory: (UiComponentArguments) -> UiComponent<*, *>
 }
+
+expect interface UiComponentArguments

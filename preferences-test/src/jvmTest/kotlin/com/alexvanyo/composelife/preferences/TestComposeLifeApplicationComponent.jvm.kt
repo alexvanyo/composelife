@@ -17,16 +17,25 @@
 
 package com.alexvanyo.composelife.preferences
 
+import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
+import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import me.tatarka.inject.annotations.Component
 
 @Component
 actual abstract class TestComposeLifeApplicationComponent :
-    ApplicationComponent(),
+    ApplicationComponent<TestComposeLifeApplicationEntryPoint>(),
     TestPreferencesComponent,
     TestDispatchersComponent {
+
+    override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
+        object :
+            TestComposeLifeApplicationEntryPoint,
+            DispatchersModule by this,
+            PreferencesModule by this {}
+
     actual companion object
 }
 

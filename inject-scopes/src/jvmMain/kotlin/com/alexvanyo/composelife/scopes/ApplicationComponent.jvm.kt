@@ -19,4 +19,6 @@ package com.alexvanyo.composelife.scopes
 
 @Suppress("UnnecessaryAbstractClass")
 @Singleton
-actual abstract class ApplicationComponent
+actual abstract class ApplicationComponent<E> {
+    actual abstract val entryPoint: E
+}

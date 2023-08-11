@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -25,35 +26,30 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.DisposableEffect
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
-import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
-import com.alexvanyo.composelife.clock.di.ClockModule
-import com.alexvanyo.composelife.data.di.RepositoryModule
-import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.preferences.di.PreferencesModule
-import com.alexvanyo.composelife.random.di.RandomModule
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
+import com.alexvanyo.composelife.scopes.UiComponent
+import com.alexvanyo.composelife.scopes.UiComponentArguments
+import com.alexvanyo.composelife.scopes.UiComponentOwner
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.app.theme.shouldUseDarkTheme
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), UiComponentOwner {
+
+    override lateinit var uiComponent: UiComponent<*, *>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        val applicationComponent = (application as ApplicationComponentOwner<*>).applicationComponent
-        applicationComponent as ClockModule
-        applicationComponent as RandomModule
-        applicationComponent as RepositoryModule
-        applicationComponent as AlgorithmModule
-        applicationComponent as DispatchersModule
-        applicationComponent as PreferencesModule
-        applicationComponent as UpdatableModule
-
-        val mainActivityEntryPoint = MainActivityInjectEntryPoint(applicationComponent)
+        val application = application as ApplicationComponentOwner
+        uiComponent = application.uiComponentFactory(
+            object : UiComponentArguments {
+                override val activity: Activity = this@MainActivity
+            },
+        )
+        val mainActivityEntryPoint = uiComponent.entryPoint as MainActivityInjectEntryPoint
 
         // Keep the splash screen on screen until we've loaded preferences
         splashScreen.setKeepOnScreenCondition {

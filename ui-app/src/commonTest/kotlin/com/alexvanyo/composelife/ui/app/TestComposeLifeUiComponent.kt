@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife
+package com.alexvanyo.composelife.ui.app
 
-import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
+import com.alexvanyo.composelife.scopes.UiComponent
 
-interface MainActivityInjectEntryPoint :
-    ComposeLifePreferencesProvider,
-    ComposeLifeAppInjectEntryPoint
+expect abstract class TestComposeLifeUiComponent :
+    UiComponent<TestComposeLifeApplicationComponent, TestComposeLifeUiEntryPoint> {
+    companion object
+}
+
+expect interface TestComposeLifeUiEntryPoint : TestComposeLifeApplicationEntryPoint
