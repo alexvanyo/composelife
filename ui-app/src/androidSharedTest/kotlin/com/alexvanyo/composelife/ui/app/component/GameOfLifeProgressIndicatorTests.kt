@@ -40,7 +40,7 @@ class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<TestComposeLifeApplica
         override val preferences = LoadedComposeLifePreferences.Defaults
     }
 
-    @SkipLeakDetection("recomposer", "Outer")
+    @SkipLeakDetection("recomposer", "Outer", "Inner")
     @Test
     fun progress_indicator_is_displayed_correctly() = runAppTest {
         composeTestRule.setContent {

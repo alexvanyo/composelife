@@ -33,9 +33,6 @@ android {
     defaultConfig {
         minSdk = 21
     }
-    testOptions {
-        execution = "ANDROIDX_TEST_ORCHESTRATOR"
-    }
     configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
 }
 
@@ -131,7 +128,6 @@ kotlin {
         }
         val androidInstrumentedTest by getting {
             configurations["kspAndroidAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
-            configurations["androidTestUtil"].dependencies.add(libs.androidx.test.orchestrator.get())
         }
         val jvmTest by getting {
             configurations["kspJvmTest"].dependencies.add(libs.kotlinInject.ksp.get())

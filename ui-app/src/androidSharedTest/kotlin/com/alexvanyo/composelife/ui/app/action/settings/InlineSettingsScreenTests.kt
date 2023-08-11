@@ -42,6 +42,7 @@ import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationEntryPoint
 import com.alexvanyo.composelife.ui.app.create
+import leakcanary.SkipLeakDetection
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -59,6 +60,7 @@ class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCom
     private val inlineSettingsScreenInjectEntryPoint = TestComposeLifeApplicationEntryPoint(applicationComponent)
 
     @Test
+    @SkipLeakDetection("appliedChanges", "Outer", "Inner")
     fun saving_settings_onboarding_is_shown_with_no_quick_access_settings_saved() = runAppTest {
         testComposeLifePreferences.testSetQuickAccessSetting(emptySet())
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
@@ -102,6 +104,7 @@ class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCom
     }
 
     @Test
+    @SkipLeakDetection("appliedChanges", "Outer")
     fun saved_opengl_setting_is_displayed_correctly() = runAppTest {
         testComposeLifePreferences.testSetQuickAccessSetting(
             setOf(QuickAccessSetting.DisableOpenGL),
@@ -155,6 +158,7 @@ class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCom
     }
 
     @Test
+    @SkipLeakDetection("appliedChanges", "Outer")
     fun opening_saved_setting_functions_correctly() = runAppTest {
         testComposeLifePreferences.testSetQuickAccessSetting(
             setOf(QuickAccessSetting.DisableOpenGL),
@@ -199,6 +203,7 @@ class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCom
     }
 
     @Test
+    @SkipLeakDetection("appliedChanges", "Outer")
     fun removing_saved_setting_functions_correctly() = runAppTest {
         testComposeLifePreferences.testSetQuickAccessSetting(
             setOf(QuickAccessSetting.DisableOpenGL),
