@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife.appcompatsync
 
 import android.app.UiModeManager
-import android.content.Context
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.snapshotFlow
@@ -25,6 +24,7 @@ import androidx.core.content.getSystemService
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.resourcestate.successes
+import com.alexvanyo.composelife.scopes.ApplicationContext
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -32,7 +32,7 @@ import me.tatarka.inject.annotations.Inject
 
 class AppCompatSync @Inject constructor(
     private val composeLifePreferences: ComposeLifePreferences,
-    context: Context,
+    context: ApplicationContext,
 ) : Updatable {
     private val uiModeManager = context.getSystemService<UiModeManager>()
 
