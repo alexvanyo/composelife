@@ -17,10 +17,10 @@
 
 package com.alexvanyo.composelife.database.di
 
-import android.content.Context
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.alexvanyo.composelife.database.ComposeLifeDatabase
+import com.alexvanyo.composelife.scopes.ApplicationContext
 import com.alexvanyo.composelife.scopes.Singleton
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.awaitCancellation
@@ -32,7 +32,7 @@ actual interface TestDriverComponent {
     @Provides
     @Singleton
     fun providesDriver(
-        context: Context,
+        context: ApplicationContext,
     ): SqlDriver =
         AndroidSqliteDriver(
             schema = ComposeLifeDatabase.Schema,
