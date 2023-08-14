@@ -29,7 +29,7 @@ android {
 }
 
 kotlin {
-    android()
+    androidTarget()
     jvm()
 
     sourceSets {

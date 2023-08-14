@@ -52,7 +52,7 @@ class AndroidLibraryPaparazziConventionPlugin : ConventionPlugin({
     }
 
     extensions.configure<KotlinMultiplatformExtension> {
-        android()
+        androidTarget()
 
         sourceSets.configure(
             closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
