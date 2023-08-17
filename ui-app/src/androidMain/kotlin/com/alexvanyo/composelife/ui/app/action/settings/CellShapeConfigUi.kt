@@ -146,7 +146,7 @@ fun CellShapeConfigUi(
 }
 
 sealed interface ShapeDropdownOption : DropdownOption {
-    object RoundRectangle : ShapeDropdownOption {
+    data object RoundRectangle : ShapeDropdownOption {
         override val displayText: ParameterizedString = ParameterizedString(R.string.round_rectangle)
     }
 

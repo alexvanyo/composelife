@@ -67,7 +67,7 @@ sealed interface WatchFaceConfigNavigation {
         }
     }
 
-    object ColorPicker : WatchFaceConfigNavigation {
+    data object ColorPicker : WatchFaceConfigNavigation {
         override val type = Companion
 
         object Companion : WatchFaceConfigNavigationType {

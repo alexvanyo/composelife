@@ -39,7 +39,7 @@ sealed interface ResourceState<out T : Any> {
     /**
      * The resource is loading.
      */
-    object Loading : ResourceState<Nothing>
+    data object Loading : ResourceState<Nothing>
 
     /**
      * The resource is successfully loaded, with the given [value].

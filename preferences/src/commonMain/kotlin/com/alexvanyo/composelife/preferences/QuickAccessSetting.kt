@@ -19,12 +19,12 @@ package com.alexvanyo.composelife.preferences
 import com.livefront.sealedenum.GenSealedEnum
 
 sealed interface QuickAccessSetting {
-    object AlgorithmImplementation : QuickAccessSetting
-    object DarkThemeConfig : QuickAccessSetting
-    object CellShapeConfig : QuickAccessSetting
-    object DisableAGSL : QuickAccessSetting
-    object DisableOpenGL : QuickAccessSetting
-    object DoNotKeepProcess : QuickAccessSetting
+    data object AlgorithmImplementation : QuickAccessSetting
+    data object DarkThemeConfig : QuickAccessSetting
+    data object CellShapeConfig : QuickAccessSetting
+    data object DisableAGSL : QuickAccessSetting
+    data object DisableOpenGL : QuickAccessSetting
+    data object DoNotKeepProcess : QuickAccessSetting
 
     @GenSealedEnum
     companion object

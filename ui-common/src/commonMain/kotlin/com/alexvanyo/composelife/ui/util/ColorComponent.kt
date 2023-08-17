@@ -28,9 +28,9 @@ sealed interface ColorComponent {
      * An RGB integer component of a [Color].
      */
     sealed interface RgbIntComponent {
-        object Red : RgbIntComponent
-        object Green : RgbIntComponent
-        object Blue : RgbIntComponent
+        data object Red : RgbIntComponent
+        data object Green : RgbIntComponent
+        data object Blue : RgbIntComponent
 
         @GenSealedEnum
         companion object {

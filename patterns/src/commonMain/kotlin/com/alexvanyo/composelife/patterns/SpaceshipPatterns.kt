@@ -39,7 +39,7 @@ sealed class SpaceshipPatterns(
     }
 }
 
-object GliderPattern : SpaceshipPatterns(
+data object GliderPattern : SpaceshipPatterns(
     patternName = "Glider",
     """
     |..O.
@@ -70,7 +70,7 @@ object GliderPattern : SpaceshipPatterns(
     offset = IntOffset(1, 1),
 )
 
-object LightweightSpaceshipPattern : SpaceshipPatterns(
+data object LightweightSpaceshipPattern : SpaceshipPatterns(
     patternName = "Lightweight Spaceship",
     """
     |...O..O

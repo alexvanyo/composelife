@@ -19,7 +19,7 @@ package com.alexvanyo.composelife.patterns
 import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.model.toCellState
 
-object SingleCellPattern : GameOfLifeTestPattern(
+data object SingleCellPattern : GameOfLifeTestPattern(
     patternName = "Single cell",
     """
     |O
@@ -27,7 +27,7 @@ object SingleCellPattern : GameOfLifeTestPattern(
     List(50) { emptyCellState() },
 )
 
-object SixLongLinePattern : GameOfLifeTestPattern(
+data object SixLongLinePattern : GameOfLifeTestPattern(
     patternName = "Six long line",
     """
     |........

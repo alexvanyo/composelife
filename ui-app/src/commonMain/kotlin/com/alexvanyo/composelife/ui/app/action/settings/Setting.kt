@@ -43,37 +43,37 @@ sealed interface Setting {
      */
     val quickAccessSetting: QuickAccessSetting?
 
-    object AlgorithmImplementation : Setting {
+    data object AlgorithmImplementation : Setting {
         override val category = SettingsCategory.Algorithm
         override val quickAccessSetting = QuickAccessSetting.AlgorithmImplementation
     }
 
-    object CellStatePreview : Setting {
+    data object CellStatePreview : Setting {
         override val category = SettingsCategory.Visual
         override val quickAccessSetting = null
     }
 
-    object DarkThemeConfig : Setting {
+    data object DarkThemeConfig : Setting {
         override val category = SettingsCategory.Visual
         override val quickAccessSetting = QuickAccessSetting.DarkThemeConfig
     }
 
-    object CellShapeConfig : Setting {
+    data object CellShapeConfig : Setting {
         override val category = SettingsCategory.Visual
         override val quickAccessSetting = QuickAccessSetting.CellShapeConfig
     }
 
-    object DisableAGSL : Setting {
+    data object DisableAGSL : Setting {
         override val category = SettingsCategory.FeatureFlags
         override val quickAccessSetting = QuickAccessSetting.DisableAGSL
     }
 
-    object DisableOpenGL : Setting {
+    data object DisableOpenGL : Setting {
         override val category = SettingsCategory.FeatureFlags
         override val quickAccessSetting = QuickAccessSetting.DisableOpenGL
     }
 
-    object DoNotKeepProcess : Setting {
+    data object DoNotKeepProcess : Setting {
         override val category = SettingsCategory.FeatureFlags
         override val quickAccessSetting = QuickAccessSetting.DoNotKeepProcess
     }

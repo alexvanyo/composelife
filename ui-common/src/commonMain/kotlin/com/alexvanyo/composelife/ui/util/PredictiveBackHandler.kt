@@ -27,7 +27,7 @@ sealed interface PredictiveBackState {
     /**
      * There is no predictive back ongoing. On API 33 and below, this will always be the case.
      */
-    object NotRunning : PredictiveBackState
+    data object NotRunning : PredictiveBackState
 
     /**
      * There is an ongoing predictive back animation, with the given [progress].

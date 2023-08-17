@@ -44,7 +44,7 @@ sealed interface GameOfLifeStyleSetting {
      */
     fun createUserStyleSetting(resources: Resources): UserStyleSetting
 
-    object ColorRedValue : GameOfLifeStyleSetting {
+    data object ColorRedValue : GameOfLifeStyleSetting {
         override val id = UserStyleSetting.Id("game_of_life_color_red_value")
 
         override fun createUserStyleSetting(resources: Resources): UserStyleSetting.LongRangeUserStyleSetting =
@@ -64,7 +64,7 @@ sealed interface GameOfLifeStyleSetting {
             )
     }
 
-    object ColorGreenValue : GameOfLifeStyleSetting {
+    data object ColorGreenValue : GameOfLifeStyleSetting {
         override val id = UserStyleSetting.Id("game_of_life_color_green_value")
 
         override fun createUserStyleSetting(resources: Resources): UserStyleSetting.LongRangeUserStyleSetting =
@@ -84,7 +84,7 @@ sealed interface GameOfLifeStyleSetting {
             )
     }
 
-    object ColorBlueValue : GameOfLifeStyleSetting {
+    data object ColorBlueValue : GameOfLifeStyleSetting {
         override val id = UserStyleSetting.Id("game_of_life_color_blue_value")
 
         override fun createUserStyleSetting(resources: Resources): UserStyleSetting.LongRangeUserStyleSetting =
@@ -104,7 +104,7 @@ sealed interface GameOfLifeStyleSetting {
             )
     }
 
-    object ShowComplicationsInAmbient : GameOfLifeStyleSetting {
+    data object ShowComplicationsInAmbient : GameOfLifeStyleSetting {
         override val id = UserStyleSetting.Id("show_complications_in_ambient")
 
         override fun createUserStyleSetting(resources: Resources): UserStyleSetting.BooleanUserStyleSetting =
