@@ -29,11 +29,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
-import androidx.wear.compose.foundation.rememberActiveFocusRequester
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CircularProgressIndicator
@@ -45,7 +43,7 @@ import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.rotaryinput.rotaryWithScroll
 import com.alexvanyo.composelife.resources.wear.R as resourcesWearR
 
-@OptIn(ExperimentalWearFoundationApi::class, ExperimentalHorologistApi::class)
+@OptIn(ExperimentalHorologistApi::class)
 @Suppress("LongMethod")
 @Composable
 fun WatchFaceConfigList(
@@ -54,11 +52,8 @@ fun WatchFaceConfigList(
     scalingLazyListState: ScalingLazyListState,
     modifier: Modifier = Modifier,
 ) {
-    val focusRequester = rememberActiveFocusRequester()
-
     ScalingLazyColumn(
-        modifier = modifier
-            .rotaryWithScroll(focusRequester, scalingLazyListState),
+        modifier = modifier.rotaryWithScroll(scalingLazyListState),
         state = scalingLazyListState,
         autoCentering = AutoCenteringParams(itemIndex = 0),
     ) {
