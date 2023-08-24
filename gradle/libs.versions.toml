@@ -94,6 +94,7 @@ androidx-test-runner = { group = "androidx.test", name = "runner", version.ref =
 androidx-tracing = { group = "androidx.tracing", name = "tracing", version.ref = "androidxTracing" }
 androidx-wear-compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "androidxWearCompose" }
 androidx-wear-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "androidxWearCompose" }
+androidx-wear-compose-uiToolingPreview = { group = "androidx.wear.compose", name = "compose-ui-tooling", version.ref = "androidxWearCompose" }
 androidx-wear-watchface = { group = "androidx.wear.watchface", name = "watchface", version.ref = "androidxWearWatchface" }
 androidx-wear-watchface-client = { group = "androidx.wear.watchface", name = "watchface-client", version.ref = "androidxWearWatchface" }
 androidx-wear-watchface-complications-data = { group = "androidx.wear.watchface", name = "watchface-complications-data", version.ref = "androidxWearWatchface" }
