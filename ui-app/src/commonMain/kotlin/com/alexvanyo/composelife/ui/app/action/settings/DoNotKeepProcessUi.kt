@@ -20,14 +20,12 @@ package com.alexvanyo.composelife.ui.app.action.settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
-import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.component.LabeledSwitch
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.ThemePreviews
+import com.alexvanyo.composelife.ui.app.resources.DoNotKeepProcess
+import com.alexvanyo.composelife.ui.app.resources.Strings
 import kotlinx.coroutines.launch
 
 interface DoNotKeepProcessUiInjectEntryPoint :
@@ -56,7 +54,7 @@ fun DoNotKeepProcessUi(
 ) {
     val coroutineScope = rememberCoroutineScope()
     LabeledSwitch(
-        label = stringResource(R.string.do_not_keep_process),
+        label = parameterizedStringResource(Strings.DoNotKeepProcess),
         checked = doNotKeepProcess,
         onCheckedChange = { disabled ->
             coroutineScope.launch {
@@ -65,30 +63,4 @@ fun DoNotKeepProcessUi(
         },
         modifier = modifier,
     )
-}
-
-@ThemePreviews
-@Composable
-fun DoNotKeepProcessUiDisabledPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            DoNotKeepProcessUi(
-                doNotKeepProcess = true,
-                setDoNotKeepProcess = {},
-            )
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun DoNotKeepProcessUiEnabledPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            DoNotKeepProcessUi(
-                doNotKeepProcess = false,
-                setDoNotKeepProcess = {},
-            )
-        }
-    }
 }

@@ -16,97 +16,101 @@
 
 package com.alexvanyo.composelife.ui.app.action.settings
 
-import android.content.Context
-import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.alexvanyo.composelife.ui.app.R
-import kotlinx.coroutines.test.runTest
-import org.junit.Rule
+import androidx.compose.ui.test.runComposeUiTest
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
+import com.alexvanyo.composelife.ui.app.resources.DoNotKeepProcess
+import com.alexvanyo.composelife.ui.app.resources.Strings
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-@RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalTestApi::class)
+@RunWith(KmpAndroidJUnit4::class)
 class DoNotKeepProcessUiTests {
 
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
-
-    private val context: Context get() = composeTestRule.activity
-
     @Test
-    fun disable_is_displayed_correctly() = runTest {
-        composeTestRule.setContent {
+    fun disable_is_displayed_correctly() = runComposeUiTest {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             DoNotKeepProcessUi(
                 doNotKeepProcess = true,
                 setDoNotKeepProcess = {},
             )
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.do_not_keep_process))
+        onNodeWithContentDescription(resolver(Strings.DoNotKeepProcess))
             .assertExists()
             .assertIsOn()
             .assertHasClickAction()
     }
 
     @Test
-    fun disable_will_update_correctly() = runTest {
+    fun disable_will_update_correctly() = runComposeUiTest {
         var doNotKeepProcess by mutableStateOf(true)
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             DoNotKeepProcessUi(
                 doNotKeepProcess = doNotKeepProcess,
                 setDoNotKeepProcess = { doNotKeepProcess = it },
             )
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.do_not_keep_process))
+        onNodeWithContentDescription(resolver(Strings.DoNotKeepProcess))
             .performClick()
 
         assertFalse(doNotKeepProcess)
     }
 
     @Test
-    fun enable_is_displayed_correctly() = runTest {
-        composeTestRule.setContent {
+    fun enable_is_displayed_correctly() = runComposeUiTest {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             DoNotKeepProcessUi(
                 doNotKeepProcess = false,
                 setDoNotKeepProcess = {},
             )
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.do_not_keep_process))
+        onNodeWithContentDescription(resolver(Strings.DoNotKeepProcess))
             .assertExists()
             .assertIsOff()
             .assertHasClickAction()
     }
 
     @Test
-    fun enable_will_update_correctly() = runTest {
+    fun enable_will_update_correctly() = runComposeUiTest {
         var doNotKeepProcess by mutableStateOf(false)
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             DoNotKeepProcessUi(
                 doNotKeepProcess = doNotKeepProcess,
                 setDoNotKeepProcess = { doNotKeepProcess = it },
             )
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.do_not_keep_process))
+        onNodeWithContentDescription(resolver(Strings.DoNotKeepProcess))
             .performClick()
 
         assertTrue(doNotKeepProcess)
