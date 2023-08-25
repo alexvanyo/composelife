@@ -94,3 +94,9 @@ internal expect val Strings.Erase: ParameterizedString
 internal expect val Strings.Select: ParameterizedString
 
 internal expect val Strings.None: ParameterizedString
+
+internal expect val Strings.AlgorithmImplementation: ParameterizedString
+
+internal expect val Strings.NaiveAlgorithm: ParameterizedString
+
+internal expect val Strings.HashLifeAlgorithm: ParameterizedString

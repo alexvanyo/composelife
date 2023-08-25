@@ -20,17 +20,17 @@ package com.alexvanyo.composelife.ui.app.action.settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
-import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.component.DropdownOption
 import com.alexvanyo.composelife.ui.app.component.TextFieldDropdown
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.ThemePreviews
+import com.alexvanyo.composelife.ui.app.resources.AlgorithmImplementation
+import com.alexvanyo.composelife.ui.app.resources.HashLifeAlgorithm
+import com.alexvanyo.composelife.ui.app.resources.NaiveAlgorithm
+import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
@@ -62,7 +62,7 @@ fun AlgorithmImplementationUi(
     val coroutineScope = rememberCoroutineScope()
 
     TextFieldDropdown(
-        label = stringResource(R.string.algorithm_implementation),
+        label = parameterizedStringResource(Strings.AlgorithmImplementation),
         currentValue = when (algorithmChoice) {
             AlgorithmType.HashLifeAlgorithm -> AlgorithmImplementationDropdownOption.HashLifeAlgorithm
             AlgorithmType.NaiveAlgorithm -> AlgorithmImplementationDropdownOption.NaiveAlgorithm
@@ -86,25 +86,12 @@ fun AlgorithmImplementationUi(
 
 sealed interface AlgorithmImplementationDropdownOption : DropdownOption {
     data object HashLifeAlgorithm : AlgorithmImplementationDropdownOption {
-        override val displayText: ParameterizedString = ParameterizedString(R.string.hash_life_algorithm)
+        override val displayText: ParameterizedString = Strings.HashLifeAlgorithm
     }
     data object NaiveAlgorithm : AlgorithmImplementationDropdownOption {
-        override val displayText: ParameterizedString = ParameterizedString(R.string.naive_algorithm)
+        override val displayText: ParameterizedString = Strings.NaiveAlgorithm
     }
 
     @GenSealedEnum
     companion object
-}
-
-@ThemePreviews
-@Composable
-fun AlgorithmImplementationUiHashLifePreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            AlgorithmImplementationUi(
-                algorithmChoice = AlgorithmType.HashLifeAlgorithm,
-                setAlgorithmChoice = {},
-            )
-        }
-    }
 }

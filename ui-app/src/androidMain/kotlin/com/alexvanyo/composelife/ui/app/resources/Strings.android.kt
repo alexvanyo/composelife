@@ -126,3 +126,12 @@ internal actual val Strings.Select: ParameterizedString get() =
 
 internal actual val Strings.None: ParameterizedString get() =
     ParameterizedString(R.string.none)
+
+internal actual val Strings.AlgorithmImplementation: ParameterizedString get() =
+    ParameterizedString(R.string.algorithm_implementation)
+
+internal actual val Strings.NaiveAlgorithm: ParameterizedString get() =
+    ParameterizedString(R.string.naive_algorithm)
+
+internal actual val Strings.HashLifeAlgorithm: ParameterizedString get() =
+    ParameterizedString(R.string.hash_life_algorithm)
