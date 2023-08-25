@@ -140,3 +140,6 @@ internal actual val Strings.DoNotKeepProcess: ParameterizedString get() =
 
 internal actual val Strings.DisableOpenGL: ParameterizedString get() =
     ParameterizedString("Disable OpenGL")
+
+internal actual val Strings.DisableAGSL: ParameterizedString get() =
+    ParameterizedString("Disable AGSL")
