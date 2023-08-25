@@ -8,7 +8,7 @@ androidxActivity = "1.8.0-alpha07"
 androidxAnnotation = "1.7.0-rc01"
 androidxAppcompat = "1.7.0-alpha03"
 androidxBenchmark = "1.2.0-beta04"
-androidxCompose = "1.6.0-alpha03"
+androidxCompose = "1.6.0-alpha04"
 androidxComposeCompiler = "1.5.1"
 androidxComposeMaterial3 = "1.2.0-alpha05"
 androidxCore = "1.12.0-rc01"
@@ -94,6 +94,7 @@ androidx-test-runner = { group = "androidx.test", name = "runner", version.ref =
 androidx-tracing = { group = "androidx.tracing", name = "tracing", version.ref = "androidxTracing" }
 androidx-wear-compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "androidxWearCompose" }
 androidx-wear-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "androidxWearCompose" }
+androidx-wear-compose-uiToolingPreview = { group = "androidx.wear.compose", name = "compose-ui-tooling", version.ref = "androidxWearCompose" }
 androidx-wear-watchface = { group = "androidx.wear.watchface", name = "watchface", version.ref = "androidxWearWatchface" }
 androidx-wear-watchface-client = { group = "androidx.wear.watchface", name = "watchface-client", version.ref = "androidxWearWatchface" }
 androidx-wear-watchface-complications-data = { group = "androidx.wear.watchface", name = "watchface-complications-data", version.ref = "androidxWearWatchface" }
