@@ -32,7 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.imageResource
-import com.alexvanyo.composelife.ui.util.WearDevicePreviews
+import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.alexvanyo.composelife.wear.watchface.configuration.GameOfLifeComplication
 import com.alexvanyo.composelife.wear.watchface.configuration.values
 import com.alexvanyo.composelife.resources.wear.R as resourcesWearR
@@ -100,7 +100,7 @@ fun WatchFacePreview(
     }
 }
 
-@WearDevicePreviews
+@WearPreviewDevices
 @Composable
 fun WatchFacePreviewPreview() {
     WatchFacePreview(

@@ -23,13 +23,13 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
+import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.navigate
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.ui.util.WearDevicePreviews
 import com.alexvanyo.composelife.ui.wear.theme.ComposeLifeTheme
 import kotlinx.coroutines.awaitCancellation
 import com.alexvanyo.composelife.resources.wear.R as resourcesWearR
@@ -87,7 +87,7 @@ fun WatchFaceConfigScreen(
     }
 }
 
-@WearDevicePreviews
+@WearPreviewDevices
 @Composable
 fun WatchFaceConfigScreenPreview() {
     ComposeLifeTheme {
