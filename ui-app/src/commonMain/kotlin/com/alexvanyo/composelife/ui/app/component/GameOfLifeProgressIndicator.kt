@@ -26,16 +26,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.InfiniteAnimationPolicy
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.repeatOnLifecycle
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.clock.di.ClockProvider
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.model.GameOfLifeState
+import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.patterns.OscillatorPattern
@@ -45,12 +42,7 @@ import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.CellWindowState
 import com.alexvanyo.composelife.ui.app.cells.ImmutableCellWindow
 import com.alexvanyo.composelife.ui.app.cells.ViewportInteractionConfig
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.ThemePreviews
-import kotlinx.coroutines.awaitCancellation
 import kotlin.math.max
-import kotlin.random.Random
 
 interface GameOfLifeProgressIndicatorInjectEntryPoint :
     GameOfLifeAlgorithmProvider,
@@ -93,22 +85,7 @@ fun GameOfLifeProgressIndicator(
         temporalGameOfLifeStateMutator.update()
     }
 
-    val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(lifecycleOwner, temporalGameOfLifeState) {
-        // If we are not visible, don't animate
-        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            try {
-                // If we are in tests, avoid running the infinite animation
-                // It's fine if we only check this upon being started
-                if (coroutineContext[InfiniteAnimationPolicy] == null) {
-                    temporalGameOfLifeState.setIsRunning(true)
-                    awaitCancellation()
-                }
-            } finally {
-                temporalGameOfLifeState.setIsRunning(false)
-            }
-        }
-    }
+    GameOfLifeProgressIndicatorForegroundEffect(temporalGameOfLifeState)
 
     GameOfLifeProgressIndicator(
         pattern = pattern,
@@ -116,6 +93,11 @@ fun GameOfLifeProgressIndicator(
         modifier = modifier,
     )
 }
+
+@Composable
+expect fun GameOfLifeProgressIndicatorForegroundEffect(
+    temporalGameOfLifeState: TemporalGameOfLifeState,
+)
 
 context(GameOfLifeProgressIndicatorLocalEntryPoint)
 @Suppress("LongParameterList")
@@ -146,52 +128,4 @@ fun GameOfLifeProgressIndicator(
         ),
         cellDpSize = 48.dp,
     )
-}
-
-@ThemePreviews
-@Composable
-fun GameOfLifeProgressIndicatorBlinkerPreview() {
-    WithPreviewDependencies(
-        random = Random(6),
-    ) {
-        ComposeLifeTheme {
-            GameOfLifeProgressIndicator()
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun GameOfLifeProgressIndicatorToadPreview() {
-    WithPreviewDependencies(
-        random = Random(2),
-    ) {
-        ComposeLifeTheme {
-            GameOfLifeProgressIndicator()
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun GameOfLifeProgressIndicatorBeaconPreview() {
-    WithPreviewDependencies(
-        random = Random(1),
-    ) {
-        ComposeLifeTheme {
-            GameOfLifeProgressIndicator()
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun GameOfLifeProgressIndicatorPulsarPreview() {
-    WithPreviewDependencies(
-        random = Random(0),
-    ) {
-        ComposeLifeTheme {
-            GameOfLifeProgressIndicator()
-        }
-    }
 }
