@@ -134,3 +134,6 @@ internal actual val Strings.NaiveAlgorithm: ParameterizedString get() =
 
 internal actual val Strings.HashLifeAlgorithm: ParameterizedString get() =
     ParameterizedString("Hashlife")
+
+internal actual val Strings.DoNotKeepProcess: ParameterizedString get() =
+    ParameterizedString("Do not keep process")
