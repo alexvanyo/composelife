@@ -138,3 +138,6 @@ internal actual val Strings.HashLifeAlgorithm: ParameterizedString get() =
 
 internal actual val Strings.DoNotKeepProcess: ParameterizedString get() =
     ParameterizedString(R.string.do_not_keep_process)
+
+internal actual val Strings.DisableOpenGL: ParameterizedString get() =
+    ParameterizedString(R.string.disable_opengl)
