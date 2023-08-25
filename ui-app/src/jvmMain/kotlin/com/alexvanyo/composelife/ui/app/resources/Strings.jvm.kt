@@ -125,3 +125,12 @@ internal actual val Strings.Select: ParameterizedString get() =
 
 internal actual val Strings.None: ParameterizedString get() =
     ParameterizedString("None")
+
+internal actual val Strings.AlgorithmImplementation: ParameterizedString get() =
+    ParameterizedString("Implementation")
+
+internal actual val Strings.NaiveAlgorithm: ParameterizedString get() =
+    ParameterizedString("Naïve")
+
+internal actual val Strings.HashLifeAlgorithm: ParameterizedString get() =
+    ParameterizedString("Hashlife")
