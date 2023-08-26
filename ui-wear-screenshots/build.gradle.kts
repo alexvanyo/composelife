@@ -19,7 +19,8 @@ plugins {
     id("com.alexvanyo.composelife.android.library")
     id("com.alexvanyo.composelife.android.library.compose")
     id("com.alexvanyo.composelife.android.library.jacoco")
-    id("com.alexvanyo.composelife.android.library.paparazzi")
+    id("com.alexvanyo.composelife.android.library.roborazzi")
+    alias(libs.plugins.roborazzi)
     id("com.alexvanyo.composelife.detekt")
 }
 
@@ -46,6 +47,9 @@ kotlin {
         val androidUnitTest by getting {
             dependencies {
                 implementation(libs.testParameterInjector.junit4)
+                implementation(libs.androidx.compose.uiTestJunit4)
+                implementation(libs.androidx.compose.uiTestManifest)
+                implementation(libs.roborazzi.junitRule)
             }
         }
     }

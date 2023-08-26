@@ -16,10 +16,14 @@
 
 package com.alexvanyo.composelife.ui.wear
 
-import com.alexvanyo.composelife.ui.wear.util.BasePaparazziTest
+import com.alexvanyo.composelife.ui.wear.util.BaseRoborazziTest
 import kotlin.test.Test
 
-class WatchFacePreviewSnapshotTests : BasePaparazziTest() {
+class WatchFacePreviewSnapshotTests(
+    deviceName: String,
+    deviceQualifiers: String,
+    fontScale: Float,
+) : BaseRoborazziTest(deviceName, deviceQualifiers, fontScale) {
 
     @Test
     fun watch_face_preview_preview() {
