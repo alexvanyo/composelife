@@ -44,7 +44,6 @@ jetbrainsCompose = "1.5.0-rc04"
 junit4 = "4.13.2"
 leakCanary = "2.12"
 okio = "3.5.0"
-paparazzi = "1.3.1"
 robolectric = "4.10.3"
 roborazzi = "1.6.0-alpha-3"
 sealedEnum = "0.7.0"
@@ -139,7 +138,6 @@ leakCanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-and
 leakCanary-instrumentation = { group = "com.squareup.leakcanary", name = "leakcanary-android-instrumentation", version.ref = "leakCanary" }
 okio = { group = "com.squareup.okio", name = "okio", version.ref = "okio" }
 okio-fakefilesystem = { group = "com.squareup.okio", name = "okio-fakefilesystem", version.ref = "okio" }
-paparazzi-gradlePlugin = { group = "app.cash.paparazzi", name = "paparazzi-gradle-plugin", version.ref = "paparazzi" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 roborazzi-core =  { group = "io.github.takahirom.roborazzi", name = "roborazzi", version.ref = "roborazzi" }
 roborazzi-compose =  { group = "io.github.takahirom.roborazzi", name = "roborazzi-compose", version.ref = "roborazzi" }
