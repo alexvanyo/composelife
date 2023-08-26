@@ -39,11 +39,9 @@ class AndroidLibraryRoborazziConventionPlugin : ConventionPlugin({
 
     configureTesting(libraryExtension)
 
-    libraryExtension.apply {
-        testOptions {
-            unitTests.all { test ->
-                test.systemProperty("robolectric.graphicsMode", "NATIVE")
-            }
+    libraryExtension.testOptions {
+        unitTests.all { test ->
+            test.systemProperty("robolectric.graphicsMode", "NATIVE")
         }
     }
 

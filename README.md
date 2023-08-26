@@ -23,7 +23,7 @@ These include:
     - JVM tests
     - [Robolectric](http://robolectric.org/) tests
     - Integration tests (minification with the help of [Keeper](https://slackhq.github.io/keeper/), memory leak checking with [LeakCanary](https://square.github.io/leakcanary/))
-    - Screenshot tests with [Paparazzi](https://cashapp.github.io/paparazzi/)
+    - Screenshot tests with [Roborazzi](https://github.com/takahirom/roborazzi/)
     - Linting, with android/lint and [detekt](https://detekt.dev/)
     - Code coverage with [JaCoCo](https://github.com/jacoco/jacoco) (reporting done with [Codecov](https://about.codecov.io/))
     - Automatic dependency updates with [Renovate](https://docs.renovatebot.com/)

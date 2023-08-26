@@ -59,7 +59,6 @@ dependencies {
     implementation(libs.detekt.gradlePlugin)
     implementation(libs.keeper.gradlePlugin)
     implementation(libs.ksp.gradlePlugin)
-    implementation(libs.paparazzi.gradlePlugin)
     implementation(libs.jetbrains.compose.gradlePlugin)
     detektPlugins(libs.detekt.formatting)
 }
@@ -101,10 +100,6 @@ gradlePlugin {
         register("androidLibraryKsp") {
             id = "com.alexvanyo.composelife.android.library.ksp"
             implementationClass = "AndroidLibraryKspConventionPlugin"
-        }
-        register("androidLibraryPaparazzi") {
-            id = "com.alexvanyo.composelife.android.library.paparazzi"
-            implementationClass = "AndroidLibraryPaparazziConventionPlugin"
         }
         register("androidLibraryRoborazzi") {
             id = "com.alexvanyo.composelife.android.library.roborazzi"
