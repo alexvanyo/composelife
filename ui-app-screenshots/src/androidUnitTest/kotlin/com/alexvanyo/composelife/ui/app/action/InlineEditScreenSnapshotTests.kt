@@ -16,10 +16,15 @@
 
 package com.alexvanyo.composelife.ui.app.action
 
-import com.alexvanyo.composelife.ui.app.util.BasePaparazziTest
+import com.alexvanyo.composelife.ui.app.util.BaseRoborazziTest
 import kotlin.test.Test
 
-class InlineEditScreenSnapshotTests : BasePaparazziTest() {
+class InlineEditScreenSnapshotTests(
+    deviceName: String,
+    deviceQualifiers: String,
+    darkTheme: Boolean,
+    fontScale: Float,
+) : BaseRoborazziTest(deviceName, deviceQualifiers, darkTheme, fontScale) {
 
     @Test
     fun inline_edit_screen_preview() {

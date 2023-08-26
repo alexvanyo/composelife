@@ -106,6 +106,10 @@ gradlePlugin {
             id = "com.alexvanyo.composelife.android.library.paparazzi"
             implementationClass = "AndroidLibraryPaparazziConventionPlugin"
         }
+        register("androidLibraryRoborazzi") {
+            id = "com.alexvanyo.composelife.android.library.roborazzi"
+            implementationClass = "AndroidLibraryRoborazziConventionPlugin"
+        }
         register("androidLibraryTesting") {
             id = "com.alexvanyo.composelife.android.library.testing"
             implementationClass = "AndroidLibraryTestingConventionPlugin"

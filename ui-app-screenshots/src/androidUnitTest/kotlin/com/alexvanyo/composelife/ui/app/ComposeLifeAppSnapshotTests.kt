@@ -16,10 +16,15 @@
 
 package com.alexvanyo.composelife.ui.app
 
-import com.alexvanyo.composelife.ui.app.util.BasePaparazziTest
+import com.alexvanyo.composelife.ui.app.util.BaseRoborazziTest
 import kotlin.test.Test
 
-class ComposeLifeAppSnapshotTests : BasePaparazziTest() {
+class ComposeLifeAppSnapshotTests(
+    deviceName: String,
+    deviceQualifiers: String,
+    darkTheme: Boolean,
+    fontScale: Float,
+) : BaseRoborazziTest(deviceName, deviceQualifiers, darkTheme, fontScale) {
 
     @Test
     fun loading_preferences_compose_life_app_preview() {

@@ -16,10 +16,15 @@
 
 package com.alexvanyo.composelife.ui.app.action.settings
 
-import com.alexvanyo.composelife.ui.app.util.BasePaparazziTest
+import com.alexvanyo.composelife.ui.app.util.BaseRoborazziTest
 import kotlin.test.Test
 
-class QuickAccessSettingHeaderSnapshotTests : BasePaparazziTest() {
+class QuickAccessSettingHeaderSnapshotTests(
+    deviceName: String,
+    deviceQualifiers: String,
+    darkTheme: Boolean,
+    fontScale: Float,
+) : BaseRoborazziTest(deviceName, deviceQualifiers, darkTheme, fontScale) {
 
     @Test
     fun quick_acccess_setting_header_is_not_favorite() {
