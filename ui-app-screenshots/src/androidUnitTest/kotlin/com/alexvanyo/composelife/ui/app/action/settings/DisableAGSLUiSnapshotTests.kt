@@ -16,10 +16,15 @@
 
 package com.alexvanyo.composelife.ui.app.action.settings
 
-import com.alexvanyo.composelife.ui.app.util.BasePaparazziTest
+import com.alexvanyo.composelife.ui.app.util.BaseRoborazziTest
 import kotlin.test.Test
 
-class DisableAGSLUiSnapshotTests : BasePaparazziTest() {
+class DisableAGSLUiSnapshotTests(
+    deviceName: String,
+    deviceQualifiers: String,
+    darkTheme: Boolean,
+    fontScale: Float,
+) : BaseRoborazziTest(deviceName, deviceQualifiers, darkTheme, fontScale) {
 
     @Test
     fun disable_agsl_ui_disabled_preview() {

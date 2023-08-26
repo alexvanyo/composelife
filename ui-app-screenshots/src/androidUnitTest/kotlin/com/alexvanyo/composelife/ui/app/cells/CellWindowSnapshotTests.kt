@@ -16,10 +16,15 @@
 
 package com.alexvanyo.composelife.ui.app.cells
 
-import com.alexvanyo.composelife.ui.app.util.BasePaparazziTest
+import com.alexvanyo.composelife.ui.app.util.BaseRoborazziTest
 import kotlin.test.Test
 
-class CellWindowSnapshotTests : BasePaparazziTest() {
+class CellWindowSnapshotTests(
+    deviceName: String,
+    deviceQualifiers: String,
+    darkTheme: Boolean,
+    fontScale: Float,
+) : BaseRoborazziTest(deviceName, deviceQualifiers, darkTheme, fontScale) {
 
     @Test
     fun navigable_immutable_cell_window_preview() {

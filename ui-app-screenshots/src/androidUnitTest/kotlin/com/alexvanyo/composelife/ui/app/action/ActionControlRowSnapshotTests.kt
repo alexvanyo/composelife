@@ -16,10 +16,15 @@
 
 package com.alexvanyo.composelife.ui.app.action
 
-import com.alexvanyo.composelife.ui.app.util.BasePaparazziTest
+import com.alexvanyo.composelife.ui.app.util.BaseRoborazziTest
 import kotlin.test.Test
 
-class ActionControlRowSnapshotTests : BasePaparazziTest() {
+class ActionControlRowSnapshotTests(
+    deviceName: String,
+    deviceQualifiers: String,
+    darkTheme: Boolean,
+    fontScale: Float,
+) : BaseRoborazziTest(deviceName, deviceQualifiers, darkTheme, fontScale) {
 
     @Test
     fun collapsed_paused_action_control_row_preview() {

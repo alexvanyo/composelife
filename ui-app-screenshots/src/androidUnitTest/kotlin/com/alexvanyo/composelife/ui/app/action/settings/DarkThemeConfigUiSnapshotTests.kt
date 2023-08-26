@@ -16,10 +16,15 @@
 
 package com.alexvanyo.composelife.ui.app.action.settings
 
-import com.alexvanyo.composelife.ui.app.util.BasePaparazziTest
+import com.alexvanyo.composelife.ui.app.util.BaseRoborazziTest
 import kotlin.test.Test
 
-class DarkThemeConfigUiSnapshotTests : BasePaparazziTest() {
+class DarkThemeConfigUiSnapshotTests(
+    deviceName: String,
+    deviceQualifiers: String,
+    darkTheme: Boolean,
+    fontScale: Float,
+) : BaseRoborazziTest(deviceName, deviceQualifiers, darkTheme, fontScale) {
 
     @Test
     fun dark_theme_config_ui_loaded_preview() {

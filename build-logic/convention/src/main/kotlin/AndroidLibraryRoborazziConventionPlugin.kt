@@ -1,0 +1,80 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import com.alexvanyo.composelife.buildlogic.ConventionPlugin
+import com.alexvanyo.composelife.buildlogic.configureTesting
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import com.android.build.gradle.LibraryExtension
+import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.api.tasks.testing.Test
+import org.gradle.kotlin.dsl.closureOf
+import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+
+class AndroidLibraryRoborazziConventionPlugin : ConventionPlugin({
+    with(pluginManager) {
+        apply("com.android.library")
+    }
+
+    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+
+    val libraryExtension = extensions.getByType<LibraryExtension>()
+
+    configureTesting(libraryExtension)
+
+    libraryExtension.apply {
+        testOptions {
+            unitTests.all { test ->
+                test.systemProperty("robolectric.graphicsMode", "NATIVE")
+            }
+        }
+    }
+
+    extensions.configure<LibraryAndroidComponentsExtension> {
+        // Disable release builds for this test-only library, no need to run screenshot tests more than
+        // once
+        beforeVariants(selector().withBuildType("release")) { builder ->
+            builder.enable = false
+        }
+    }
+
+    extensions.configure<KotlinMultiplatformExtension> {
+        androidTarget()
+
+        sourceSets.configure(
+            closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
+                getByName("androidUnitTest") {
+                    dependencies {
+                        implementation(libs.findLibrary("roborazzi.compose").get())
+                        implementation(libs.findLibrary("roborazzi.core").get())
+                        implementation(libs.findLibrary("robolectric").get())
+                    }
+                }
+            },
+        )
+    }
+
+    tasks.withType<Test>().configureEach {
+        // Increase memory and parallelize Roborazzi tests
+        maxHeapSize = "2g"
+        maxParallelForks = if (System.getenv("CI") == "true") 1 else 4
+        forkEvery = 12
+    }
+})

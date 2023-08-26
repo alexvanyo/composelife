@@ -16,10 +16,15 @@
 
 package com.alexvanyo.composelife.ui.app.info
 
-import com.alexvanyo.composelife.ui.app.util.BasePaparazziTest
+import com.alexvanyo.composelife.ui.app.util.BaseRoborazziTest
 import kotlin.test.Test
 
-class CellUniverseInfoCardSnapshotTests : BasePaparazziTest() {
+class CellUniverseInfoCardSnapshotTests(
+    deviceName: String,
+    deviceQualifiers: String,
+    darkTheme: Boolean,
+    fontScale: Float,
+) : BaseRoborazziTest(deviceName, deviceQualifiers, darkTheme, fontScale) {
 
     @Test
     fun collapsed_preview() {
