@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.ui.wear.util
 
+import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
@@ -25,46 +26,50 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.Density
-import app.cash.paparazzi.DeviceConfig
-import app.cash.paparazzi.Paparazzi
 import com.alexvanyo.composelife.ui.wear.theme.ComposeLifeTheme
-import com.google.testing.junit.testparameterinjector.TestParameter
-import com.google.testing.junit.testparameterinjector.TestParameterInjector
+import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
+import com.github.takahirom.roborazzi.RoborazziRule
+import com.github.takahirom.roborazzi.captureRoboImage
 import org.junit.Rule
+import org.junit.runner.Description
 import org.junit.runner.RunWith
+import org.robolectric.ParameterizedRobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import java.io.File
 
-private val globalPaparazzi = Paparazzi(
-    maxPercentDifference = 0.0,
-)
-
-@RunWith(TestParameterInjector::class)
+@RunWith(ParameterizedRobolectricTestRunner::class)
 @Suppress("UnnecessaryAbstractClass")
-abstract class BasePaparazziTest {
-
-    enum class BaseDeviceConfig(
-        val deviceConfig: DeviceConfig,
-    ) {
-        WEAR_OS_SMALL_ROUND(DeviceConfig.WEAR_OS_SMALL_ROUND),
-        WEAR_OS_SQUARE(DeviceConfig.WEAR_OS_SQUARE),
-    }
-
-    @TestParameter
-    lateinit var baseDeviceConfig: BaseDeviceConfig
-
-    @TestParameter(value = ["1.0", "1.5"])
-    var fontScale: Float = 0f
-
-    private val deviceConfig get() = baseDeviceConfig.deviceConfig.copy(
-        softButtons = false,
-    )
+abstract class BaseRoborazziTest(
+    private val deviceName: String,
+    private val deviceQualifiers: String,
+    private val fontScale: Float,
+) {
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     @get:Rule
-    val paparazzi = globalPaparazzi
+    val roborazziRule = RoborazziRule(
+        options = RoborazziRule.Options(
+            outputDirectoryPath = "src/androidUnitTest/snapshots",
+            outputFileProvider = { description: Description, outputDirectory: File, fileExtension: String ->
+                File(
+                    outputDirectory,
+                    "${description.testClass.name}." +
+                        "${description.methodName.takeWhile { it != '[' }}." +
+                        "$deviceName." +
+                        "font-$fontScale." +
+                        fileExtension,
+                )
+            },
+        ),
+    )
 
     fun snapshot(composable: @Composable () -> Unit) {
-        paparazzi.unsafeUpdateConfig(deviceConfig = deviceConfig)
-        paparazzi.snapshot {
+        RuntimeEnvironment.setQualifiers(deviceQualifiers)
+
+        captureRoboImage {
             val lifecycleOwner = LocalLifecycleOwner.current
             CompositionLocalProvider(
                 LocalInspectionMode provides true,
@@ -84,6 +89,24 @@ abstract class BasePaparazziTest {
                         composable()
                     }
                 }
+            }
+        }
+    }
+
+    companion object {
+
+        @JvmStatic
+        @ParameterizedRobolectricTestRunner.Parameters
+        fun data() = listOf(
+            "WearOSSmallRound" to RobolectricDeviceQualifiers.WearOSSmallRound,
+            "WearOSSquare" to RobolectricDeviceQualifiers.WearOSSquare,
+        ).flatMap { (deviceName, deviceQualifiers) ->
+            listOf(1.0f, 1.5f).map { fontScale ->
+                arrayOf(
+                    deviceName,
+                    deviceQualifiers,
+                    fontScale,
+                )
             }
         }
     }
