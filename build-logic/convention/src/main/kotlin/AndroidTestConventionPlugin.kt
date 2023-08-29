@@ -49,7 +49,7 @@ class AndroidTestConventionPlugin : ConventionPlugin({
                 signingConfig = signingConfigs.getByName("debug")
             }
             create("benchmark") {
-                matchingFallbacks.add("release") // fallback to release for dependencies
+                matchingFallbacks.addAll(listOf("release", "debug")) // fallback to release and debug for dependencies
                 signingConfig = signingConfigs.getByName("debug") // sign with debug for testing
             }
         }
