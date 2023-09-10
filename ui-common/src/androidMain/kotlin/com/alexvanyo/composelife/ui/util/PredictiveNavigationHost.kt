@@ -20,20 +20,20 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntSize
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
+import com.alexvanyo.composelife.navigation.NavigationDecoration
+import com.alexvanyo.composelife.navigation.NavigationHost
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.previousEntry
-import com.alexvanyo.composelife.snapshotstateset.mutableStateSetOf
-import java.util.UUID
 
 @Composable
 @Suppress("LongParameterList")
@@ -45,53 +45,60 @@ fun <T> PredictiveNavigationHost(
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     animateInternalContentSizeChanges: Boolean = false,
     content: @Composable (BackstackEntry<out T>) -> Unit,
-) {
-    val stateHolder = rememberSaveableStateHolder()
-    val allKeys = rememberSaveable(
-        saver = listSaver(
-            save = { it.map(UUID::toString) },
-            restore = {
-                mutableStateSetOf<UUID>().apply {
-                    addAll(it.map(UUID::fromString))
+) = NavigationHost(
+    navigationState = backstackState,
+    modifier = modifier,
+    decoration = predictiveNavigationDecoration(
+        predictiveBackState = predictiveBackState,
+        contentAlignment = contentAlignment,
+        contentSizeAnimationSpec = contentSizeAnimationSpec,
+        animateInternalContentSizeChanges = animateInternalContentSizeChanges,
+    ),
+    content = content,
+)
+
+fun <T> predictiveNavigationDecoration(
+    predictiveBackState: PredictiveBackState,
+    contentAlignment: Alignment = Alignment.TopStart,
+    contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
+    animateInternalContentSizeChanges: Boolean = false,
+): NavigationDecoration<BackstackEntry<out T>, BackstackState<T>> = { screen ->
+    val currentScreen by rememberUpdatedState(screen)
+    val movableScreens = entryMap.mapValues { (id, entry) ->
+        key(id) {
+            val currentEntry by rememberUpdatedState(entry)
+            remember {
+                movableContentOf {
+                    currentScreen(currentEntry)
                 }
-            },
-        ),
-    ) { mutableStateSetOf<UUID>() }
+            }
+        }
+    }
 
     AnimatedContent(
         targetState = when (predictiveBackState) {
-            PredictiveBackState.NotRunning -> TargetState.Single(backstackState.currentEntry)
+            PredictiveBackState.NotRunning -> TargetState.Single(currentEntry)
             is PredictiveBackState.Running -> {
-                val previous = backstackState.previousEntry
+                val previous = previousEntry
                 if (previous != null) {
                     TargetState.InProgress(
-                        current = backstackState.currentEntry,
+                        current = currentEntry,
                         provisional = previous,
                         progress = predictiveBackState.progress,
                     )
                 } else {
-                    TargetState.Single(backstackState.currentEntry)
+                    TargetState.Single(currentEntry)
                 }
             }
         },
         contentAlignment = contentAlignment,
         contentSizeAnimationSpec = contentSizeAnimationSpec,
         animateInternalContentSizeChanges = animateInternalContentSizeChanges,
-        modifier = modifier,
     ) { entry ->
         key(entry.id) {
-            stateHolder.SaveableStateProvider(key = entry.id) {
-                content(entry)
-            }
+            // Fetch and store the movable content to hold onto while animating out
+            val movableScreen = remember { movableScreens.getValue(entry.id) }
+            movableScreen()
         }
-    }
-
-    val keySet = backstackState.entryMap.keys.toSet()
-
-    LaunchedEffect(keySet) {
-        // Remove the state for a given key if it doesn't correspond to an entry in the backstack map
-        (allKeys - keySet).forEach(stateHolder::removeState)
-        // Keep track of the ids we've seen, to know which ones we may need to clear out later.
-        allKeys.addAll(keySet)
     }
 }
