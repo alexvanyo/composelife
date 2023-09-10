@@ -17,12 +17,11 @@
 package com.alexvanyo.composelife.ui.wear
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
@@ -30,9 +29,10 @@ import androidx.wear.compose.material.SwipeToDismissBox
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.MutableBackstackNavigationController
+import com.alexvanyo.composelife.navigation.NavigationDecoration
+import com.alexvanyo.composelife.navigation.NavigationHost
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.popBackstack
-import com.alexvanyo.composelife.snapshotstateset.mutableStateSetOf
 import java.util.UUID
 
 @Composable
@@ -47,58 +47,59 @@ fun <T> WearNavigationHost(
     content = content,
 )
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 fun <T> WearNavigationHost(
     backstackState: BackstackState<T>,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable (BackstackEntry<out T>) -> Unit,
-) {
-    val stateHolder = rememberSaveableStateHolder()
-    val allKeys = rememberSaveable(
-        saver = listSaver(
-            save = { it.map(UUID::toString) },
-            restore = {
-                mutableStateSetOf<UUID>().apply {
-                    addAll(it.map(UUID::fromString))
-                }
-            },
-        ),
-    ) { mutableStateSetOf<UUID>() }
+) = NavigationHost(
+    navigationState = backstackState,
+    modifier = modifier,
+    decoration = wearNavigationDecoration(
+        onNavigateBack = onNavigateBack,
+    ),
+    content = content,
+)
 
-    SwipeToDismissBox(
-        onDismissed = onNavigateBack,
-        backgroundKey = backstackState.currentEntry.previous?.id ?: remember { UUID.randomUUID() },
-        contentKey = backstackState.currentEntry.id,
-        hasBackground = backstackState.currentEntry.previous != null,
-        modifier = modifier,
-    ) { isBackground ->
-        val entry = if (isBackground) {
-            checkNotNull(backstackState.currentEntry.previous) {
-                "Current entry had no previous, should not be showing background!"
-            }
-        } else {
-            backstackState.currentEntry
-        }
-
-        key(entry.id) {
-            stateHolder.SaveableStateProvider(key = entry.id) {
-                HierarchicalFocusCoordinator(
-                    requiresFocus = { backstackState.currentEntryId == entry.id },
-                ) {
-                    content(entry)
+@OptIn(ExperimentalWearFoundationApi::class)
+fun <T> wearNavigationDecoration(
+    onNavigateBack: () -> Unit,
+): NavigationDecoration<BackstackEntry<out T>, BackstackState<T>> = { screen ->
+    val currentScreen by rememberUpdatedState(screen)
+    val movableScreens = entryMap.mapValues { (id, entry) ->
+        key(id) {
+            val currentEntry by rememberUpdatedState(entry)
+            remember {
+                movableContentOf {
+                    currentScreen(currentEntry)
                 }
             }
         }
     }
 
-    val keySet: Set<UUID> = backstackState.entryMap.keys.toSet()
+    SwipeToDismissBox(
+        onDismissed = onNavigateBack,
+        backgroundKey = currentEntry.previous?.id ?: remember { UUID.randomUUID() },
+        contentKey = currentEntry.id,
+        hasBackground = currentEntry.previous != null,
+    ) { isBackground ->
+        val entry = if (isBackground) {
+            checkNotNull(currentEntry.previous) {
+                "Current entry had no previous, should not be showing background!"
+            }
+        } else {
+            currentEntry
+        }
 
-    LaunchedEffect(keySet) {
-        // Remove the state for a given key if it doesn't correspond to an entry in the backstack map
-        (allKeys - keySet).forEach(stateHolder::removeState)
-        // Keep track of the ids we've seen, to know which ones we may need to clear out later.
-        allKeys.addAll(keySet)
+        HierarchicalFocusCoordinator(
+            requiresFocus = { currentEntryId == entry.id },
+        ) {
+            key(entry.id) {
+                // Fetch and store the movable content to hold onto while animating out
+                val movableScreen = remember { movableScreens.getValue(entry.id) }
+                movableScreen()
+            }
+        }
     }
 }

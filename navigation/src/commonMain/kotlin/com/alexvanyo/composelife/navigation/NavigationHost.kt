@@ -24,9 +24,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
@@ -57,6 +62,22 @@ fun <T : NavigationEntry> NavigationHost(
     },
     contentAlignment: Alignment = Alignment.TopStart,
     content: @Composable (T) -> Unit,
+) = NavigationHost(
+    navigationState = navigationState,
+    modifier = modifier,
+    decoration = defaultNavigationDecoration(
+        transitionSpec = transitionSpec,
+        contentAlignment = contentAlignment,
+    ),
+    content = content,
+)
+
+@Composable
+fun <T : NavigationEntry, S : NavigationState<T>> NavigationHost(
+    navigationState: S,
+    modifier: Modifier = Modifier,
+    decoration: NavigationDecoration<T, S>,
+    content: @Composable (T) -> Unit,
 ) {
     val stateHolder = rememberSaveableStateHolder()
     val allKeys = rememberSaveable(
@@ -70,15 +91,15 @@ fun <T : NavigationEntry> NavigationHost(
         ),
     ) { mutableStateSetOf<UUID>() }
 
-    AnimatedContent(
-        targetState = navigationState.entryMap.getValue(navigationState.currentEntryId),
-        transitionSpec = transitionSpec,
-        contentAlignment = contentAlignment,
+    Box(
         modifier = modifier,
-    ) { entry ->
-        key(entry.id) {
-            stateHolder.SaveableStateProvider(key = entry.id) {
-                content(entry)
+        propagateMinConstraints = true,
+    ) {
+        decoration(navigationState) { entry ->
+            key(entry.id) {
+                stateHolder.SaveableStateProvider(key = entry.id) {
+                    content(entry)
+                }
             }
         }
     }
@@ -91,4 +112,69 @@ fun <T : NavigationEntry> NavigationHost(
         // Keep track of the ids we've seen, to know which ones we may need to clear out later.
         allKeys.addAll(keySet)
     }
+}
+
+/**
+ * The decoration for screens in the context of navigation.
+ *
+ * Given the [screen] lambda for rendering a screen for a navigation entry [T], the [NavigationDecoration] should
+ * display one (or more) screens based on the current navigation state.
+ *
+ * This very simplest [NavigationDecoration] just renders the current screen, and the current screen only
+ * (see [noopNavigationDecoration]). Most likely, this is not enough: this specifies no navigation transition between
+ * screens.
+ *
+ * The [defaultNavigationDecoration] internally performs an [AnimatedContent] on the current screen, which animates
+ * out old screens.
+ *
+ * It is the responsibility of the [NavigationDecoration] to preserve intrinsic state of the [screen], so that it
+ * can be re-parented. In other words, [NavigationDecoration] should use [movableContentOf] if necessary to move
+ * screens around to different call sites in order to preserve state.
+ */
+typealias NavigationDecoration<T, S> = @Composable S.(screen: @Composable (T) -> Unit) -> Unit
+
+/**
+ * The default [NavigationDecoration], which uses an [AnimatedContent] to animate between screens, using the given
+ * [transitionSpec] and [contentAlignment].
+ */
+fun <T : NavigationEntry> defaultNavigationDecoration(
+    transitionSpec: AnimatedContentTransitionScope<T>.() -> ContentTransform = {
+        (
+            fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+                scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90))
+            )
+            .togetherWith(fadeOut(animationSpec = tween(90)))
+    },
+    contentAlignment: Alignment = Alignment.TopStart,
+): NavigationDecoration<T, NavigationState<T>> = { screen ->
+    val currentScreen by rememberUpdatedState(screen)
+    val movableScreens = entryMap.mapValues { (id, entry) ->
+        key(id) {
+            val currentEntry by rememberUpdatedState(entry)
+            remember {
+                movableContentOf {
+                    currentScreen(currentEntry)
+                }
+            }
+        }
+    }
+
+    AnimatedContent(
+        targetState = entryMap.getValue(currentEntryId),
+        transitionSpec = transitionSpec,
+        contentAlignment = contentAlignment,
+    ) { entry ->
+        key(entry.id) {
+            // Fetch and store the movable screen to hold onto while animating out
+            val movableScreen = remember { movableScreens.getValue(entry.id) }
+            movableScreen()
+        }
+    }
+}
+
+/**
+ * The simplest [NavigationDecoration] implementation, which just displays the current screen with a jumpcut.
+ */
+fun <T : NavigationEntry> noopNavigationDecoration(): NavigationDecoration<T, NavigationState<T>> = { screen ->
+    screen(entryMap.getValue(currentEntryId))
 }
