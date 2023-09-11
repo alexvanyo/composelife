@@ -35,6 +35,7 @@ fun Project.configureTesting(
     testedExtension.testOptions {
         unitTests {
             isIncludeAndroidResources = true
+            isReturnDefaultValues = true
         }
     }
 
