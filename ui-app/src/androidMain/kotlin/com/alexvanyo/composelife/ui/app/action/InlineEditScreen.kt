@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Backspace
+import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Draw
@@ -136,7 +136,7 @@ sealed interface ToolDropdownOption : DropdownOption {
         override val displayText = ParameterizedString(R.string.erase)
         override val leadingIcon: (@Composable () -> Unit) = {
             Icon(
-                imageVector = Icons.Default.Backspace,
+                imageVector = Icons.AutoMirrored.Filled.Backspace,
                 contentDescription = null,
             )
         }
