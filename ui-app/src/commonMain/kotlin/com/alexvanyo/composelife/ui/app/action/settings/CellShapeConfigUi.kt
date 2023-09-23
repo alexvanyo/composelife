@@ -20,7 +20,6 @@ package com.alexvanyo.composelife.ui.app.action.settings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,22 +29,27 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
-import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.component.DropdownOption
 import com.alexvanyo.composelife.ui.app.component.EditableSlider
 import com.alexvanyo.composelife.ui.app.component.IdentitySliderBijection
 import com.alexvanyo.composelife.ui.app.component.TextFieldDropdown
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.ThemePreviews
+import com.alexvanyo.composelife.ui.app.resources.CornerFractionLabel
+import com.alexvanyo.composelife.ui.app.resources.CornerFractionLabelAndValue
+import com.alexvanyo.composelife.ui.app.resources.CornerFractionValue
+import com.alexvanyo.composelife.ui.app.resources.RoundRectangle
+import com.alexvanyo.composelife.ui.app.resources.Shape
+import com.alexvanyo.composelife.ui.app.resources.SizeFractionLabel
+import com.alexvanyo.composelife.ui.app.resources.SizeFractionLabelAndValue
+import com.alexvanyo.composelife.ui.app.resources.SizeFractionValue
+import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
@@ -84,7 +88,7 @@ fun CellShapeConfigUi(
         val coroutineScope = rememberCoroutineScope()
 
         TextFieldDropdown(
-            label = stringResource(R.string.shape),
+            label = parameterizedStringResource(Strings.Shape),
             currentValue = when (currentShape) {
                 is CurrentShape.RoundRectangle -> ShapeDropdownOption.RoundRectangle
             },
@@ -120,9 +124,9 @@ fun CellShapeConfigUi(
                 val resolver = parameterizedStringResolver()
 
                 EditableSlider(
-                    labelAndValueText = { stringResource(id = R.string.size_fraction_label_and_value, it) },
-                    valueText = { resolver(ParameterizedString(R.string.size_fraction_value, it)) },
-                    labelText = stringResource(id = R.string.size_fraction_label),
+                    labelAndValueText = { parameterizedStringResource(Strings.SizeFractionLabelAndValue(it)) },
+                    valueText = { resolver(Strings.SizeFractionValue(it)) },
+                    labelText = parameterizedStringResource(Strings.SizeFractionLabel),
                     textToValue = { it.toFloatOrNull() },
                     value = sizeFraction,
                     onValueChange = { sizeFraction = it },
@@ -131,9 +135,9 @@ fun CellShapeConfigUi(
                 )
 
                 EditableSlider(
-                    labelAndValueText = { stringResource(id = R.string.corner_fraction_label_and_value, it) },
-                    valueText = { resolver(ParameterizedString(R.string.corner_fraction_value, it)) },
-                    labelText = stringResource(id = R.string.corner_fraction_label),
+                    labelAndValueText = { parameterizedStringResource(Strings.CornerFractionLabelAndValue(it)) },
+                    valueText = { resolver(Strings.CornerFractionValue(it)) },
+                    labelText = parameterizedStringResource(Strings.CornerFractionLabel),
                     textToValue = { it.toFloatOrNull() },
                     value = cornerFraction,
                     onValueChange = { cornerFraction = it },
@@ -147,28 +151,9 @@ fun CellShapeConfigUi(
 
 sealed interface ShapeDropdownOption : DropdownOption {
     data object RoundRectangle : ShapeDropdownOption {
-        override val displayText: ParameterizedString = ParameterizedString(R.string.round_rectangle)
+        override val displayText: ParameterizedString = Strings.RoundRectangle
     }
 
     @GenSealedEnum
     companion object
-}
-
-@ThemePreviews
-@Composable
-fun CellShapeConfigUiRoundRectanglePreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            Surface {
-                CellShapeConfigUi(
-                    currentShape = CurrentShape.RoundRectangle(
-                        sizeFraction = 0.8f,
-                        cornerFraction = 0.4f,
-                    ),
-                    setCurrentShapeType = {},
-                    setRoundRectangleConfig = {},
-                )
-            }
-        }
-    }
 }
