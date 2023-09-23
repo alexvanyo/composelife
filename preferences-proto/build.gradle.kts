@@ -36,7 +36,7 @@ wire {
 }
 
 kotlin {
-    android()
+    androidTarget()
     jvm()
 
     sourceSets {
