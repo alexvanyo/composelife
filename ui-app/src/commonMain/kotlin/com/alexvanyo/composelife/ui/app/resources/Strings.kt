@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("TooManyFunctions")
 
 package com.alexvanyo.composelife.ui.app.resources
 
@@ -106,3 +107,19 @@ internal expect val Strings.DoNotKeepProcess: ParameterizedString
 internal expect val Strings.DisableOpenGL: ParameterizedString
 
 internal expect val Strings.DisableAGSL: ParameterizedString
+
+internal expect val Strings.Shape: ParameterizedString
+
+internal expect fun Strings.SizeFractionLabelAndValue(sizeFraction: Float): ParameterizedString
+
+internal expect fun Strings.SizeFractionValue(sizeFraction: Float): ParameterizedString
+
+internal expect val Strings.SizeFractionLabel: ParameterizedString
+
+internal expect fun Strings.CornerFractionLabelAndValue(cornerFraction: Float): ParameterizedString
+
+internal expect fun Strings.CornerFractionValue(cornerFraction: Float): ParameterizedString
+
+internal expect val Strings.CornerFractionLabel: ParameterizedString
+
+internal expect val Strings.RoundRectangle: ParameterizedString

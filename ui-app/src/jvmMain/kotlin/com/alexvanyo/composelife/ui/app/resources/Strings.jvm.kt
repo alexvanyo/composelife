@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("TooManyFunctions")
 
 package com.alexvanyo.composelife.ui.app.resources
 
@@ -143,3 +144,27 @@ internal actual val Strings.DisableOpenGL: ParameterizedString get() =
 
 internal actual val Strings.DisableAGSL: ParameterizedString get() =
     ParameterizedString("Disable AGSL")
+
+internal actual val Strings.Shape: ParameterizedString get() =
+    ParameterizedString("Shape")
+
+internal actual fun Strings.SizeFractionLabelAndValue(sizeFraction: Float): ParameterizedString =
+    ParameterizedString("Size fraction: %.2f".format(sizeFraction))
+
+internal actual fun Strings.SizeFractionValue(sizeFraction: Float): ParameterizedString =
+    ParameterizedString("%.2f".format(sizeFraction))
+
+internal actual val Strings.SizeFractionLabel: ParameterizedString get() =
+    ParameterizedString("Size fraction")
+
+internal actual fun Strings.CornerFractionLabelAndValue(cornerFraction: Float): ParameterizedString =
+    ParameterizedString("Corner fraction: %.2f".format(cornerFraction))
+
+internal actual fun Strings.CornerFractionValue(cornerFraction: Float): ParameterizedString =
+    ParameterizedString("%.2f".format(cornerFraction))
+
+internal actual val Strings.CornerFractionLabel: ParameterizedString get() =
+    ParameterizedString("Corner fraction")
+
+internal actual val Strings.RoundRectangle: ParameterizedString get() =
+    ParameterizedString("Round Rectangle")

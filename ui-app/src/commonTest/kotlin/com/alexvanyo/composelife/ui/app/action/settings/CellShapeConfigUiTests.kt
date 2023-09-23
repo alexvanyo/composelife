@@ -16,14 +16,13 @@
 
 package com.alexvanyo.composelife.ui.app.action.settings
 
-import android.content.Context
-import androidx.activity.ComponentActivity
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsNotFocused
@@ -34,34 +33,39 @@ import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isPopup
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.text.input.ImeAction
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
-import com.alexvanyo.composelife.ui.app.R
-import kotlinx.coroutines.test.runTest
-import leakcanary.SkipLeakDetection
-import org.junit.Rule
+import com.alexvanyo.composelife.ui.app.resources.CornerFractionLabel
+import com.alexvanyo.composelife.ui.app.resources.CornerFractionLabelAndValue
+import com.alexvanyo.composelife.ui.app.resources.CornerFractionValue
+import com.alexvanyo.composelife.ui.app.resources.RoundRectangle
+import com.alexvanyo.composelife.ui.app.resources.SizeFractionLabel
+import com.alexvanyo.composelife.ui.app.resources.SizeFractionLabelAndValue
+import com.alexvanyo.composelife.ui.app.resources.SizeFractionValue
+import com.alexvanyo.composelife.ui.app.resources.Strings
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalTestApi::class)
+@RunWith(KmpAndroidJUnit4::class)
 class CellShapeConfigUiTests {
 
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
-
-    private val context: Context get() = composeTestRule.activity
-
     @Test
-    fun round_rectangle_is_displayed_correctly() = runTest {
-        composeTestRule.setContent {
+    fun round_rectangle_is_displayed_correctly() = runComposeUiTest {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             CellShapeConfigUi(
                 currentShape = CurrentShape.RoundRectangle(
                     sizeFraction = 0.8f,
@@ -72,40 +76,35 @@ class CellShapeConfigUiTests {
             )
         }
 
-        composeTestRule
-            .onNodeWithText(context.getString(R.string.round_rectangle))
+        onNodeWithText(resolver(Strings.RoundRectangle))
             .assertExists()
             .assertHasClickAction()
 
-        composeTestRule
-            .onNode(
-                hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                    hasText(context.getString(R.string.size_fraction_label)),
-            )
-            .assertTextContains(context.getString(R.string.size_fraction_value, 0.8f))
+        onNode(
+            hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                hasText(resolver(Strings.SizeFractionLabel)),
+        )
+            .assertTextContains(resolver(Strings.SizeFractionValue(0.8f)))
             .assertIsNotFocused()
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.size_fraction_label_and_value, 0.8f),
-            )
+        onNodeWithContentDescription(
+            resolver(Strings.SizeFractionLabelAndValue(0.8f)),
+        )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.8f, range = 0.1f..1f)))
 
-        composeTestRule
-            .onNode(
-                hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                    hasText(context.getString(R.string.corner_fraction_label)),
-            )
-            .assertTextContains(context.getString(R.string.corner_fraction_value, 0.4f))
+        onNode(
+            hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                hasText(resolver(Strings.CornerFractionLabel)),
+        )
+            .assertTextContains(resolver(Strings.CornerFractionValue(0.4f)))
             .assertIsNotFocused()
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.corner_fraction_label_and_value, 0.4f),
-            )
+        onNodeWithContentDescription(
+            resolver(Strings.CornerFractionLabelAndValue(0.4f)),
+        )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.4f, range = 0f..0.5f)))
     }
 
     @Test
-    fun round_rectangle_size_fraction_slider_updates_state() = runTest {
+    fun round_rectangle_size_fraction_slider_updates_state() = runComposeUiTest {
         var sizeFraction by mutableStateOf(0.8f)
         var cornerFraction by mutableStateOf(0.4f)
 
@@ -116,7 +115,10 @@ class CellShapeConfigUiTests {
             )
         }
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             CellShapeConfigUi(
                 currentShape = roundRectangleShape,
                 setCurrentShapeType = {},
@@ -128,23 +130,21 @@ class CellShapeConfigUiTests {
             )
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.size_fraction_label_and_value, 0.8f),
-            )
+        onNodeWithContentDescription(
+            resolver(Strings.SizeFractionLabelAndValue(0.8f)),
+        )
             .performSemanticsAction(SemanticsActions.SetProgress) {
                 it(0.5f)
             }
 
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.size_fraction_label_and_value, 0.5f),
-            )
+        onNodeWithContentDescription(
+            resolver(Strings.SizeFractionLabelAndValue(0.5f)),
+        )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0.1f..1f)))
     }
 
     @Test
-    fun round_rectangle_corner_fraction_slider_updates_state() = runTest {
+    fun round_rectangle_corner_fraction_slider_updates_state() = runComposeUiTest {
         var sizeFraction by mutableStateOf(0.8f)
         var cornerFraction by mutableStateOf(0.4f)
 
@@ -155,7 +155,10 @@ class CellShapeConfigUiTests {
             )
         }
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             CellShapeConfigUi(
                 currentShape = roundRectangleShape,
                 setCurrentShapeType = {},
@@ -167,27 +170,27 @@ class CellShapeConfigUiTests {
             )
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.corner_fraction_label_and_value, 0.4f),
-            )
+        onNodeWithContentDescription(
+            resolver(Strings.CornerFractionLabelAndValue(0.4f)),
+        )
             .performSemanticsAction(SemanticsActions.SetProgress) {
                 it(0f)
             }
 
-        composeTestRule
-            .onNodeWithContentDescription(
-                context.getString(R.string.corner_fraction_label_and_value, 0f),
-            )
+        onNodeWithContentDescription(
+            resolver(Strings.CornerFractionLabelAndValue(0f)),
+        )
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0f, range = 0f..0.5f)))
     }
 
-    @SkipLeakDetection("https://issuetracker.google.com/issues/206177594", "Inner")
     @Test
-    fun round_rectangle_popup_displays_options() = runTest {
+    fun round_rectangle_popup_displays_options() = runComposeUiTest {
         var setCurrentShapeType: CurrentShapeType? = null
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             CellShapeConfigUi(
                 currentShape = CurrentShape.RoundRectangle(
                     sizeFraction = 0.8f,
@@ -200,19 +203,16 @@ class CellShapeConfigUiTests {
             )
         }
 
-        composeTestRule
-            .onNodeWithText(context.getString(R.string.round_rectangle))
+        onNodeWithText(resolver(Strings.RoundRectangle))
             .performClick()
 
-        composeTestRule
-            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(R.string.round_rectangle)))
+        onNode(hasAnyAncestor(isPopup()) and hasText(resolver(Strings.RoundRectangle)))
             .assertHasClickAction()
             .performClick()
 
         assertEquals(CurrentShapeType.RoundRectangle, setCurrentShapeType)
 
-        composeTestRule
-            .onNode(isPopup())
+        onNode(isPopup())
             .assertDoesNotExist()
     }
 }
