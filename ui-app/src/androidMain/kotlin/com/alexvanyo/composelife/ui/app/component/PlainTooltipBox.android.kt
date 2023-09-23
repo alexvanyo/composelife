@@ -16,7 +16,11 @@
 
 package com.alexvanyo.composelife.ui.app.component
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
@@ -26,11 +30,26 @@ actual fun PlainTooltipBox(
     tooltip: @Composable () -> Unit,
     modifier: Modifier,
     content: @Composable TooltipBoxScope.() -> Unit,
-) = androidx.compose.material3.PlainTooltipBox(
-    tooltip = tooltip,
-    modifier = modifier,
-    content = content,
-)
+) = Box(modifier = modifier) {
+    androidx.compose.material3.TooltipBox(
+        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        tooltip = {
+            PlainTooltip {
+                tooltip()
+            }
+        },
+        state = rememberTooltipState(),
+    ) {
+        with(
+            object : TooltipBoxScope {
+                override fun Modifier.tooltipTrigger(): Modifier = this
+            },
+        ) {
+            content()
+        }
+    }
+}
 
-@OptIn(ExperimentalMaterial3Api::class)
-actual typealias TooltipBoxScope = androidx.compose.material3.TooltipBoxScope
+actual interface TooltipBoxScope {
+    actual fun Modifier.tooltipTrigger(): Modifier
+}
