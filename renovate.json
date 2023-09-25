@@ -2,5 +2,19 @@
   "extends": [
     "config:base"
   ],
-  "ignoreUnstable": false
+  "ignoreUnstable": false,
+  "packageRules": [
+    {
+      "matchPackagePatterns": [
+        "^org.jetbrains.kotlin",
+        "^com.google.devtools.ksp",
+        "^androidx.compose.compiler"
+      ],
+      "groupName": "Kotlin"
+    },
+    {
+      "matchPackagePatterns": ["^com.android.tools"],
+      "groupName": "Android Gradle Plugin"
+    }
+  ]
 }
