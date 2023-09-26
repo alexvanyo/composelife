@@ -37,9 +37,10 @@ fun Easing(
     val easingMap = TreeMap<Float, Easing>()
     easingMap[0f] = easing
     easingMap.putAll(easings)
+    require(easingMap.size == easings.size + 1)
     return Easing {
         val (piecewiseStart, piecewiseEasing) = easingMap.floorEntry(it)!!
-        val piecewiseEnd = easingMap.ceilingKey(it) ?: 1f
+        val piecewiseEnd = easingMap.higherKey(it) ?: 1f
         piecewiseEasing.transform((it - piecewiseStart) / (piecewiseEnd - piecewiseStart))
     }
 }
