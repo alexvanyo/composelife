@@ -21,17 +21,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
-import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.component.DropdownOption
 import com.alexvanyo.composelife.ui.app.component.TextFieldDropdown
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.ThemePreviews
+import com.alexvanyo.composelife.ui.app.resources.DarkTheme
+import com.alexvanyo.composelife.ui.app.resources.DarkThemeConfig
+import com.alexvanyo.composelife.ui.app.resources.FollowSystem
+import com.alexvanyo.composelife.ui.app.resources.LightTheme
+import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
@@ -64,7 +65,7 @@ fun DarkThemeConfigUi(
         val coroutineScope = rememberCoroutineScope()
 
         TextFieldDropdown(
-            label = stringResource(R.string.dark_theme_config),
+            label = parameterizedStringResource(Strings.DarkThemeConfig),
             currentValue = when (darkThemeConfig) {
                 DarkThemeConfig.FollowSystem -> DarkThemeConfigDropdownOption.FollowSystem
                 DarkThemeConfig.Dark -> DarkThemeConfigDropdownOption.Dark
@@ -88,28 +89,15 @@ fun DarkThemeConfigUi(
 
 sealed interface DarkThemeConfigDropdownOption : DropdownOption {
     data object FollowSystem : DarkThemeConfigDropdownOption {
-        override val displayText: ParameterizedString = ParameterizedString(R.string.follow_system)
+        override val displayText: ParameterizedString = Strings.FollowSystem
     }
     data object Dark : DarkThemeConfigDropdownOption {
-        override val displayText: ParameterizedString = ParameterizedString(R.string.dark_theme)
+        override val displayText: ParameterizedString = Strings.DarkTheme
     }
     data object Light : DarkThemeConfigDropdownOption {
-        override val displayText: ParameterizedString = ParameterizedString(R.string.light_theme)
+        override val displayText: ParameterizedString = Strings.LightTheme
     }
 
     @GenSealedEnum
     companion object
-}
-
-@ThemePreviews
-@Composable
-fun DarkThemeConfigUiFollowSystemPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            DarkThemeConfigUi(
-                darkThemeConfig = DarkThemeConfig.FollowSystem,
-                setDarkThemeConfig = {},
-            )
-        }
-    }
 }

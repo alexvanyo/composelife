@@ -168,3 +168,15 @@ internal actual val Strings.CornerFractionLabel: ParameterizedString get() =
 
 internal actual val Strings.RoundRectangle: ParameterizedString get() =
     ParameterizedString("Round Rectangle")
+
+internal actual val Strings.DarkThemeConfig: ParameterizedString get() =
+    ParameterizedString("Theme")
+
+internal actual val Strings.FollowSystem: ParameterizedString get() =
+    ParameterizedString("Follow system")
+
+internal actual val Strings.DarkTheme: ParameterizedString get() =
+    ParameterizedString("Dark")
+
+internal actual val Strings.LightTheme: ParameterizedString get() =
+    ParameterizedString("Light")
