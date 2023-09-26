@@ -123,3 +123,11 @@ internal expect fun Strings.CornerFractionValue(cornerFraction: Float): Paramete
 internal expect val Strings.CornerFractionLabel: ParameterizedString
 
 internal expect val Strings.RoundRectangle: ParameterizedString
+
+internal expect val Strings.DarkThemeConfig: ParameterizedString
+
+internal expect val Strings.FollowSystem: ParameterizedString
+
+internal expect val Strings.DarkTheme: ParameterizedString
+
+internal expect val Strings.LightTheme: ParameterizedString
