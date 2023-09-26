@@ -16,95 +16,93 @@
 
 package com.alexvanyo.composelife.ui.app.action.settings
 
-import android.content.Context
-import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isPopup
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.compose.ui.test.runComposeUiTest
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.AlgorithmType
-import com.alexvanyo.composelife.ui.app.R
-import kotlinx.coroutines.test.runTest
-import leakcanary.SkipLeakDetection
-import org.junit.Rule
+import com.alexvanyo.composelife.ui.app.resources.HashLifeAlgorithm
+import com.alexvanyo.composelife.ui.app.resources.NaiveAlgorithm
+import com.alexvanyo.composelife.ui.app.resources.Strings
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalTestApi::class)
+@RunWith(KmpAndroidJUnit4::class)
 class AlgorithmImplementationUiTests {
 
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
-
-    private val context: Context get() = composeTestRule.activity
-
     @Test
-    fun naive_is_displayed_correctly() = runTest {
-        composeTestRule.setContent {
+    fun naive_is_displayed_correctly() = runComposeUiTest {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             AlgorithmImplementationUi(
                 algorithmChoice = AlgorithmType.NaiveAlgorithm,
                 setAlgorithmChoice = {},
             )
         }
 
-        composeTestRule
-            .onNodeWithText(context.getString(R.string.naive_algorithm))
+        onNodeWithText(resolver(Strings.NaiveAlgorithm))
             .assertExists()
             .assertHasClickAction()
     }
 
     @Test
-    fun hashlife_is_displayed_correctly() = runTest {
-        composeTestRule.setContent {
+    fun hashlife_is_displayed_correctly() = runComposeUiTest {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             AlgorithmImplementationUi(
                 algorithmChoice = AlgorithmType.HashLifeAlgorithm,
                 setAlgorithmChoice = {},
             )
         }
 
-        composeTestRule
-            .onNodeWithText(context.getString(R.string.hash_life_algorithm))
+        onNodeWithText(resolver(Strings.HashLifeAlgorithm))
             .assertExists()
             .assertHasClickAction()
     }
 
-    @SkipLeakDetection("https://issuetracker.google.com/issues/206177594", "Inner")
     @Test
-    fun algorithm_implementation_popup_displays_options() = runTest {
+    fun algorithm_implementation_popup_displays_options() = runComposeUiTest {
         var algorithmChoice: AlgorithmType by mutableStateOf(AlgorithmType.NaiveAlgorithm)
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             AlgorithmImplementationUi(
                 algorithmChoice = algorithmChoice,
                 setAlgorithmChoice = { algorithmChoice = it },
             )
         }
 
-        composeTestRule
-            .onNodeWithText(context.getString(R.string.naive_algorithm))
+        onNodeWithText(resolver(Strings.NaiveAlgorithm))
             .performClick()
 
-        composeTestRule
-            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(R.string.hash_life_algorithm)))
+        onNode(hasAnyAncestor(isPopup()) and hasText(resolver(Strings.HashLifeAlgorithm)))
             .assertHasClickAction()
             .performClick()
 
         assertEquals(AlgorithmType.HashLifeAlgorithm, algorithmChoice)
 
-        composeTestRule
-            .onNode(isPopup())
+        onNode(isPopup())
             .assertDoesNotExist()
 
-        composeTestRule
-            .onNodeWithText(context.getString(R.string.hash_life_algorithm))
+        onNodeWithText(resolver(Strings.HashLifeAlgorithm))
             .assertExists()
             .assertHasClickAction()
     }

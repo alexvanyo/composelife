@@ -20,75 +20,47 @@ package com.alexvanyo.composelife.ui.app.action.settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
-import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.component.LabeledSwitch
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.ThemePreviews
+import com.alexvanyo.composelife.ui.app.resources.DisableAGSL
+import com.alexvanyo.composelife.ui.app.resources.Strings
 import kotlinx.coroutines.launch
 
-interface DisableOpenGLUiInjectEntryPoint :
+interface DisableAGSLUiInjectEntryPoint :
     ComposeLifePreferencesProvider
 
-interface DisableOpenGLUiLocalEntryPoint :
+interface DisableAGSLUiLocalEntryPoint :
     LoadedComposeLifePreferencesProvider
 
-context(DisableOpenGLUiInjectEntryPoint, DisableOpenGLUiLocalEntryPoint)
+context(DisableAGSLUiInjectEntryPoint, DisableAGSLUiLocalEntryPoint)
 @Composable
-fun DisableOpenGLUi(
+fun DisableAGSLUi(
     modifier: Modifier = Modifier,
 ) {
-    DisableOpenGLUi(
-        disableOpenGL = preferences.disableOpenGL,
-        setDisableOpenGL = composeLifePreferences::setDisableOpenGL,
+    DisableAGSLUi(
+        disableAGSL = preferences.disableAGSL,
+        setDisableAGSL = composeLifePreferences::setDisabledAGSL,
         modifier = modifier,
     )
 }
 
 @Composable
-fun DisableOpenGLUi(
-    disableOpenGL: Boolean,
-    setDisableOpenGL: suspend (Boolean) -> Unit,
+fun DisableAGSLUi(
+    disableAGSL: Boolean,
+    setDisableAGSL: suspend (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
     LabeledSwitch(
-        label = stringResource(R.string.disable_opengl),
-        checked = disableOpenGL,
+        label = parameterizedStringResource(Strings.DisableAGSL),
+        checked = disableAGSL,
         onCheckedChange = { disabled ->
             coroutineScope.launch {
-                setDisableOpenGL(disabled)
+                setDisableAGSL(disabled)
             }
         },
         modifier = modifier,
     )
-}
-
-@ThemePreviews
-@Composable
-fun DisableOpenGLUiDisabledPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            DisableOpenGLUi(
-                disableOpenGL = true,
-                setDisableOpenGL = {},
-            )
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun DisableOpenGLUiEnabledPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            DisableOpenGLUi(
-                disableOpenGL = false,
-                setDisableOpenGL = {},
-            )
-        }
-    }
 }

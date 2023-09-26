@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Draw
@@ -33,19 +32,27 @@ import androidx.compose.material.icons.filled.PanTool
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
-import com.alexvanyo.composelife.ui.app.R
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.app.component.DropdownOption
 import com.alexvanyo.composelife.ui.app.component.TextFieldDropdown
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.ThemePreviews
+import com.alexvanyo.composelife.ui.app.resources.Draw
+import com.alexvanyo.composelife.ui.app.resources.Erase
+import com.alexvanyo.composelife.ui.app.resources.Mouse
+import com.alexvanyo.composelife.ui.app.resources.MouseTool
+import com.alexvanyo.composelife.ui.app.resources.None
+import com.alexvanyo.composelife.ui.app.resources.Pan
+import com.alexvanyo.composelife.ui.app.resources.Select
+import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.app.resources.Stylus
+import com.alexvanyo.composelife.ui.app.resources.StylusTool
+import com.alexvanyo.composelife.ui.app.resources.Touch
+import com.alexvanyo.composelife.ui.app.resources.TouchTool
+import com.alexvanyo.composelife.ui.util.autoMirrored
+import com.alexvanyo.composelife.ui.util.filled
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.collections.immutable.toImmutableList
 
@@ -66,11 +73,11 @@ fun InlineEditScreen(
         ) {
             Icon(
                 imageVector = Icons.Filled.TouchApp,
-                contentDescription = stringResource(R.string.touch),
+                contentDescription = parameterizedStringResource(Strings.Touch),
                 modifier = Modifier.padding(top = 8.dp),
             )
             TextFieldDropdown(
-                label = stringResource(R.string.touch_tool),
+                label = parameterizedStringResource(Strings.TouchTool),
                 currentValue = ToolDropdownOption.Pan,
                 allValues = ToolDropdownOption.values.toImmutableList(),
                 setValue = {},
@@ -83,11 +90,11 @@ fun InlineEditScreen(
         ) {
             Icon(
                 imageVector = Icons.Filled.Brush,
-                contentDescription = stringResource(R.string.stylus),
+                contentDescription = parameterizedStringResource(Strings.Stylus),
                 modifier = Modifier.padding(top = 8.dp),
             )
             TextFieldDropdown(
-                label = stringResource(R.string.stylus_tool),
+                label = parameterizedStringResource(Strings.StylusTool),
                 currentValue = ToolDropdownOption.Draw,
                 allValues = ToolDropdownOption.values.toImmutableList(),
                 setValue = {},
@@ -100,11 +107,11 @@ fun InlineEditScreen(
         ) {
             Icon(
                 imageVector = Icons.Filled.Mouse,
-                contentDescription = stringResource(R.string.mouse),
+                contentDescription = parameterizedStringResource(Strings.Mouse),
                 modifier = Modifier.padding(top = 8.dp),
             )
             TextFieldDropdown(
-                label = stringResource(R.string.mouse_tool),
+                label = parameterizedStringResource(Strings.MouseTool),
                 currentValue = ToolDropdownOption.Draw,
                 allValues = ToolDropdownOption.values.toImmutableList(),
                 setValue = {},
@@ -115,7 +122,7 @@ fun InlineEditScreen(
 
 sealed interface ToolDropdownOption : DropdownOption {
     data object Pan : ToolDropdownOption {
-        override val displayText = ParameterizedString(R.string.pan)
+        override val displayText = Strings.Pan
         override val leadingIcon: (@Composable () -> Unit) = {
             Icon(
                 imageVector = Icons.Default.PanTool,
@@ -124,7 +131,7 @@ sealed interface ToolDropdownOption : DropdownOption {
         }
     }
     data object Draw : ToolDropdownOption {
-        override val displayText = ParameterizedString(R.string.draw)
+        override val displayText = Strings.Draw
         override val leadingIcon: (@Composable () -> Unit) = {
             Icon(
                 imageVector = Icons.Default.Draw,
@@ -133,16 +140,16 @@ sealed interface ToolDropdownOption : DropdownOption {
         }
     }
     data object Erase : ToolDropdownOption {
-        override val displayText = ParameterizedString(R.string.erase)
+        override val displayText = Strings.Erase
         override val leadingIcon: (@Composable () -> Unit) = {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.Backspace,
+                imageVector = Icons.autoMirrored.filled.Backspace,
                 contentDescription = null,
             )
         }
     }
     data object Select : ToolDropdownOption {
-        override val displayText = ParameterizedString(R.string.select)
+        override val displayText = Strings.Select
         override val leadingIcon: (@Composable () -> Unit) = {
             Icon(
                 imageVector = Icons.Default.SelectAll,
@@ -151,7 +158,7 @@ sealed interface ToolDropdownOption : DropdownOption {
         }
     }
     data object None : ToolDropdownOption {
-        override val displayText = ParameterizedString(R.string.none)
+        override val displayText = Strings.None
         override val leadingIcon: (@Composable () -> Unit) = {
             Icon(
                 imageVector = Icons.Default.Cancel,
@@ -162,16 +169,4 @@ sealed interface ToolDropdownOption : DropdownOption {
 
     @GenSealedEnum
     companion object
-}
-
-@ThemePreviews
-@Composable
-fun InlineEditScreenPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            Surface {
-                InlineEditScreen()
-            }
-        }
-    }
 }

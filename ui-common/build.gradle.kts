@@ -52,6 +52,7 @@ kotlin {
                 implementation(libs.jetbrains.compose.ui)
                 implementation(libs.jetbrains.compose.uiToolingPreview)
                 implementation(libs.jetbrains.compose.uiUtil)
+                implementation(libs.jetbrains.compose.materialIconsExtended)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.sealedEnum.runtime)
             }
@@ -67,6 +68,7 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.foundation)
+                implementation(libs.androidx.compose.materialIconsExtended)
                 implementation(libs.androidx.lifecycle.runtime)
                 implementation(libs.androidx.core)
                 implementation(libs.kotlinx.coroutines.android)
