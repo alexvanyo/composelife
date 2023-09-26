@@ -51,7 +51,7 @@ slackComposeLintChecks = "1.2.0"
 sqldelight = "2.0.0"
 testParameterInjector = "1.12"
 turbine = "1.0.0"
-wire = "4.9.0"
+wire = "4.9.1"
 
 [libraries]
 accompanist-testharness = { group = "com.google.accompanist", name = "accompanist-testharness", version.ref = "accompanist" }
