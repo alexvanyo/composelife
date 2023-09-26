@@ -131,3 +131,7 @@ internal expect val Strings.FollowSystem: ParameterizedString
 internal expect val Strings.DarkTheme: ParameterizedString
 
 internal expect val Strings.LightTheme: ParameterizedString
+
+internal expect val Strings.QuickSettingsInfo: ParameterizedString
+
+internal expect val Strings.SeeAll: ParameterizedString

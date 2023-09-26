@@ -19,7 +19,6 @@ package com.alexvanyo.composelife.ui.app.action.settings
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
@@ -27,7 +26,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -41,18 +39,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.ordinal
-import com.alexvanyo.composelife.ui.app.R
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.ThemePreviews
+import com.alexvanyo.composelife.ui.app.resources.QuickSettingsInfo
+import com.alexvanyo.composelife.ui.app.resources.SeeAll
+import com.alexvanyo.composelife.ui.app.resources.Strings
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -66,7 +62,6 @@ interface InlineSettingsScreenLocalEntryPoint :
     SettingUiLocalEntryPoint
 
 context(InlineSettingsScreenInjectEntryPoint, InlineSettingsScreenLocalEntryPoint)
-@OptIn(ExperimentalAnimationApi::class)
 @Suppress("LongMethod")
 @Composable
 fun InlineSettingsScreen(
@@ -123,7 +118,7 @@ fun InlineSettingsScreen(
         ) { showQuickAccessInfo ->
             if (showQuickAccessInfo) {
                 Text(
-                    text = stringResource(id = R.string.quick_settings_info),
+                    text = parameterizedStringResource(Strings.QuickSettingsInfo),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
@@ -169,44 +164,7 @@ fun InlineSettingsScreen(
         TextButton(
             onClick = onSeeMoreClicked,
         ) {
-            Text(text = stringResource(R.string.see_all))
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun InlineSettingsScreenNoQuickAccessPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            Surface {
-                InlineSettingsScreen(
-                    onSeeMoreClicked = {},
-                    onOpenInSettingsClicked = {},
-                )
-            }
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun InlineSettingsScreenWithQuickAccessPreview() {
-    WithPreviewDependencies(
-        loadedComposeLifePreferences = LoadedComposeLifePreferences.Defaults.copy(
-            quickAccessSettings = setOf(
-                QuickAccessSetting.DarkThemeConfig,
-                QuickAccessSetting.CellShapeConfig,
-            ),
-        ),
-    ) {
-        ComposeLifeTheme {
-            Surface {
-                InlineSettingsScreen(
-                    onSeeMoreClicked = {},
-                    onOpenInSettingsClicked = {},
-                )
-            }
+            Text(text = parameterizedStringResource(Strings.SeeAll))
         }
     }
 }

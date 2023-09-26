@@ -181,3 +181,9 @@ internal actual val Strings.DarkTheme: ParameterizedString get() =
 
 internal actual val Strings.LightTheme: ParameterizedString get() =
     ParameterizedString(R.string.light_theme)
+
+internal actual val Strings.QuickSettingsInfo: ParameterizedString get() =
+    ParameterizedString(R.string.quick_settings_info)
+
+internal actual val Strings.SeeAll: ParameterizedString get() =
+    ParameterizedString(R.string.see_all)
