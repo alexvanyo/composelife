@@ -18,71 +18,34 @@
 
 package com.alexvanyo.composelife.ui.util
 
-import androidx.activity.BackEventCompat
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalLifecycleOwner
 
 @Composable
-actual fun predictiveBackHandler(
+actual fun PredictiveBackHandler(
+    predictiveBackStateHolder: PredictiveBackStateHolder,
     enabled: Boolean,
     onBack: () -> Unit,
-): PredictiveBackState {
+) {
     // Safely update the current `onBack` lambda when a new one is provided
     val currentOnBack by rememberUpdatedState(onBack)
 
-    var predictiveBackState: PredictiveBackState by remember {
-        mutableStateOf(PredictiveBackState.NotRunning)
-    }
-
-    // Remember in Composition a back callback that calls the `onBack` lambda
-    val backCallback = remember {
-        object : OnBackPressedCallback(enabled) {
-            override fun handleOnBackPressed() {
+    key(predictiveBackStateHolder) {
+        when (predictiveBackStateHolder) {
+            is PredictiveBackStateHolderImpl -> Unit
+        }
+        PredictiveBackHandler(enabled = enabled) { progress ->
+            try {
+                progress.collect { backEvent ->
+                    predictiveBackStateHolder.value = PredictiveBackState.Running(backEvent.progress)
+                }
                 currentOnBack()
-                predictiveBackState = PredictiveBackState.NotRunning
-            }
-
-            override fun handleOnBackCancelled() {
-                super.handleOnBackCancelled()
-                predictiveBackState = PredictiveBackState.NotRunning
-            }
-
-            override fun handleOnBackStarted(backEvent: BackEventCompat) {
-                super.handleOnBackStarted(backEvent)
-                predictiveBackState = PredictiveBackState.Running(backEvent.progress)
-            }
-
-            override fun handleOnBackProgressed(backEvent: BackEventCompat) {
-                super.handleOnBackProgressed(backEvent)
-                predictiveBackState = PredictiveBackState.Running(backEvent.progress)
+            } finally {
+                predictiveBackStateHolder.value = PredictiveBackState.NotRunning
             }
         }
     }
-    // On every successful composition, update the callback with the `enabled` value
-    DisposableEffect(enabled) {
-        backCallback.isEnabled = enabled
-        onDispose {}
-    }
-    val backDispatcher = checkNotNull(LocalOnBackPressedDispatcherOwner.current) {
-        "No OnBackPressedDispatcherOwner was provided via LocalOnBackPressedDispatcherOwner"
-    }.onBackPressedDispatcher
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner, backDispatcher) {
-        // Add callback to the backDispatcher
-        backDispatcher.addCallback(lifecycleOwner, backCallback)
-        // When the effect leaves the Composition, remove the callback
-        onDispose {
-            backCallback.remove()
-        }
-    }
-
-    return if (enabled) predictiveBackState else PredictiveBackState.NotRunning
 }

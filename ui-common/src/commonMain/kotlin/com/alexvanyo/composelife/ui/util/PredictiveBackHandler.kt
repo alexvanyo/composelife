@@ -19,6 +19,10 @@
 package com.alexvanyo.composelife.ui.util
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 /**
  * The state describing an in-progress predictive back animation.
@@ -38,7 +42,22 @@ sealed interface PredictiveBackState {
 }
 
 @Composable
-expect fun predictiveBackHandler(
+fun rememberPredictiveBackStateHolder(): PredictiveBackStateHolder =
+    remember {
+        PredictiveBackStateHolderImpl()
+    }
+
+sealed interface PredictiveBackStateHolder {
+    val value: PredictiveBackState
+}
+
+internal class PredictiveBackStateHolderImpl : PredictiveBackStateHolder {
+    override var value: PredictiveBackState by mutableStateOf(PredictiveBackState.NotRunning)
+}
+
+@Composable
+expect fun PredictiveBackHandler(
+    predictiveBackStateHolder: PredictiveBackStateHolder,
     enabled: Boolean = true,
     onBack: () -> Unit,
-): PredictiveBackState
+)

@@ -35,9 +35,10 @@ import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationCo
 import com.alexvanyo.composelife.navigation.withExpectedActor
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
+import com.alexvanyo.composelife.ui.util.PredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.PredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
-import com.alexvanyo.composelife.ui.util.predictiveBackHandler
+import com.alexvanyo.composelife.ui.util.rememberPredictiveBackStateHolder
 import java.util.UUID
 
 /**
@@ -228,23 +229,24 @@ fun rememberCellUniverseActionCardState(
             }
         }
     }
+    val predictiveBackStateHolder = rememberPredictiveBackStateHolder()
+    PredictiveBackHandler(
+        predictiveBackStateHolder = predictiveBackStateHolder,
+        enabled = enableBackHandler && expandedTargetState.current && canOuterNavigateBack,
+    ) {
+        onBackPressed(navController.currentEntryId)
+    }
 
-    val predictiveBackState =
-        predictiveBackHandler(
-            enabled = enableBackHandler && expandedTargetState.current && canOuterNavigateBack,
-        ) {
-            onBackPressed(navController.currentEntryId)
-        }
-
-    val inlinePredictiveBackState =
-        predictiveBackHandler(
-            enabled = enableBackHandler &&
-                expandedTargetState.current &&
-                navController.currentEntry.value == ActionCardNavigation.Inline &&
-                canInnerNavigateBack,
-        ) {
-            inlineOnBackPressed(inlineNavigationState.currentEntryId)
-        }
+    val inlinePredictiveBackStateHolder = rememberPredictiveBackStateHolder()
+    PredictiveBackHandler(
+        predictiveBackStateHolder = inlinePredictiveBackStateHolder,
+        enabled = enableBackHandler &&
+            expandedTargetState.current &&
+            navController.currentEntry.value == ActionCardNavigation.Inline &&
+            canInnerNavigateBack,
+    ) {
+        inlineOnBackPressed(inlineNavigationState.currentEntryId)
+    }
 
     return object : CellUniverseActionCardState {
 
@@ -259,14 +261,14 @@ fun rememberCellUniverseActionCardState(
 
         override val inlineNavigationState get() = inlineNavigationState
 
-        override val predictiveBackState get() = predictiveBackState
+        override val predictiveBackState get() = predictiveBackStateHolder.value
 
-        override val inlinePredictiveBackState get() = inlinePredictiveBackState
+        override val inlinePredictiveBackState get() = inlinePredictiveBackStateHolder.value
 
         override val canNavigateBack: Boolean get() = canNavigateBack
 
         override val fullscreenTargetState: TargetState<Boolean> get() =
-            when (predictiveBackState) {
+            when (val currentPredictiveBackState = predictiveBackState) {
                 PredictiveBackState.NotRunning ->
                     TargetState.Single(
                         this.expandedTargetState.current && navigationState.currentEntry.value.isFullscreen,
@@ -280,7 +282,7 @@ fun rememberCellUniverseActionCardState(
                             else -> TargetState.InProgress(
                                 current = currentIsFullscreen,
                                 provisional = previousIsFullscreen,
-                                progress = predictiveBackState.progress,
+                                progress = currentPredictiveBackState.progress,
                             )
                         }
                     } else {
