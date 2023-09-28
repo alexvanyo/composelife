@@ -116,9 +116,10 @@ import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.Crossfade
 import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
+import com.alexvanyo.composelife.ui.util.PredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.PredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
-import com.alexvanyo.composelife.ui.util.predictiveBackHandler
+import com.alexvanyo.composelife.ui.util.rememberPredictiveBackStateHolder
 import com.livefront.sealedenum.GenSealedEnum
 import kotlin.math.roundToInt
 
@@ -159,10 +160,13 @@ fun FullscreenSettingsScreen(
 
     fun showListAndDetail() = showList() && showDetail()
 
-    val predictiveBackState =
-        predictiveBackHandler(enabled = showDetail() && !showList()) {
-            fullscreen.showDetails = false
-        }
+    val predictiveBackStateHolder = rememberPredictiveBackStateHolder()
+    PredictiveBackHandler(
+        predictiveBackStateHolder = predictiveBackStateHolder,
+        enabled = showDetail() && !showList(),
+    ) {
+        fullscreen.showDetails = false
+    }
 
     val listContent = remember(fullscreen) {
         movableContentOf {
@@ -382,7 +386,7 @@ fun FullscreenSettingsScreen(
         )
     } else {
         AnimatedContent(
-            targetState = when (predictiveBackState) {
+            targetState = when (val predictiveBackState = predictiveBackStateHolder.value) {
                 PredictiveBackState.NotRunning -> TargetState.Single(showList())
                 is PredictiveBackState.Running ->
                     TargetState.InProgress(
