@@ -28,7 +28,8 @@ import com.alexvanyo.composelife.model.fromFileExtension
 import kotlinx.coroutines.withContext
 import me.tatarka.inject.annotations.Inject
 
-class CellStateRepositoryImpl @Inject constructor(
+@Inject
+class CellStateRepositoryImpl(
     private val flexibleCellStateSerializer: FlexibleCellStateSerializer,
     private val cellStateQueries: CellStateQueries,
     private val dispatchers: ComposeLifeDispatchers,

@@ -51,7 +51,8 @@ interface ComposeLifeDispatchers {
  * The default implementation of [ComposeLifeDispatchers], which just delegates to the normal [Dispatchers] versions.
  */
 @Suppress("InjectDispatcher")
-class DefaultComposeLifeDispatchers @Inject constructor() : ComposeLifeDispatchers {
+@Inject
+class DefaultComposeLifeDispatchers : ComposeLifeDispatchers {
     override val Default: CoroutineDispatcher = Dispatchers.Default
     override val Main: MainCoroutineDispatcher = Dispatchers.Main
     override val Unconfined: CoroutineDispatcher = Dispatchers.Unconfined

@@ -30,7 +30,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import me.tatarka.inject.annotations.Inject
 
-class AppCompatSync @Inject constructor(
+@Inject
+class AppCompatSync(
     private val composeLifePreferences: ComposeLifePreferences,
     context: ApplicationContext,
 ) : Updatable {

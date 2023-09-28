@@ -35,7 +35,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.selects.select
 import me.tatarka.inject.annotations.Inject
 
-class ConfigurableGameOfLifeAlgorithm @Inject constructor(
+@Inject
+class ConfigurableGameOfLifeAlgorithm(
     private val preferences: ComposeLifePreferences,
     private val naiveGameOfLifeAlgorithm: NaiveGameOfLifeAlgorithm,
     private val hashLifeAlgorithm: HashLifeAlgorithm,

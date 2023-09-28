@@ -67,7 +67,8 @@ interface CellStateSerializer {
     ): Sequence<String>
 }
 
-class FlexibleCellStateSerializer @Inject constructor(
+@Inject
+class FlexibleCellStateSerializer(
     private val dispatchers: ComposeLifeDispatchers,
 ) : CellStateSerializer {
     override suspend fun deserializeToCellState(

@@ -35,7 +35,8 @@ import me.tatarka.inject.annotations.Inject
 import java.util.concurrent.TimeUnit
 
 @Singleton
-class HashLifeAlgorithm @Inject constructor(
+@Inject
+class HashLifeAlgorithm(
     private val dispatchers: ComposeLifeDispatchers,
 ) : GameOfLifeAlgorithm {
 
