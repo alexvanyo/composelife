@@ -16,6 +16,8 @@
 
 package com.alexvanyo.composelife.ui.app.action
 
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -44,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -58,6 +61,7 @@ import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreen
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenLocalEntryPoint
 import com.alexvanyo.composelife.ui.util.AnimatedContent
+import com.alexvanyo.composelife.ui.util.Easing
 import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.PredictiveNavigationHost
 import com.alexvanyo.composelife.ui.util.WindowInsets
@@ -141,7 +145,7 @@ fun CellUniverseActionCard(
     val targetWindowInsets = lerp(
         WindowInsets.safeDrawing.add(WindowInsets(all = 8.dp)),
         WindowInsets.Zero,
-        targetWindowInsetsProgressToFullscreen,
+        Easing(EaseInOut, 0.5f to Easing { 1f }).transform(targetWindowInsetsProgressToFullscreen),
     )
 
     val cornerSize by animateDpAsState(
@@ -192,6 +196,7 @@ fun CellUniverseActionCard(
                     Surface(
                         shape = RoundedCornerShape(cornerSize),
                         tonalElevation = 1.dp,
+                        color = Color.Transparent,
                         modifier = Modifier.windowInsetsPadding(
                             WindowInsets.safeDrawing.add(WindowInsets(all = 8.dp)),
                         ),
@@ -336,6 +341,7 @@ fun CellUniverseActionCard(
                 is ActionCardNavigation.FullscreenSettings -> {
                     Surface(
                         shape = RoundedCornerShape(cornerSize),
+                        color = Color.Transparent,
                         tonalElevation = 1.dp,
                     ) {
                         FullscreenSettingsScreen(
