@@ -62,6 +62,15 @@ class TestComposeLifePreferences : ComposeLifePreferences {
     override var doNotKeepProcessState: ResourceState<Boolean> by mutableStateOf(ResourceState.Loading)
         private set
 
+    override var touchToolConfigState: ResourceState<ToolConfig> by mutableStateOf(ResourceState.Loading)
+        private set
+
+    override var stylusToolConfigState: ResourceState<ToolConfig> by mutableStateOf(ResourceState.Loading)
+        private set
+
+    override var mouseToolConfigState: ResourceState<ToolConfig> by mutableStateOf(ResourceState.Loading)
+        private set
+
     override val loadedPreferencesState: ResourceState<LoadedComposeLifePreferences>
         get() = combine(
             quickAccessSettingsState,
@@ -71,6 +80,9 @@ class TestComposeLifePreferences : ComposeLifePreferences {
             disableAGSLState,
             disableOpenGLState,
             doNotKeepProcessState,
+            touchToolConfigState,
+            stylusToolConfigState,
+            mouseToolConfigState,
         ) {
             @Suppress("UNCHECKED_CAST")
             LoadedComposeLifePreferences(
@@ -81,6 +93,9 @@ class TestComposeLifePreferences : ComposeLifePreferences {
                 disableAGSL = it[4] as Boolean,
                 disableOpenGL = it[5] as Boolean,
                 doNotKeepProcess = it[6] as Boolean,
+                touchToolConfig = it[7] as ToolConfig,
+                stylusToolConfig = it[8] as ToolConfig,
+                mouseToolConfig = it[9] as ToolConfig,
             )
         }
 
@@ -149,6 +164,24 @@ class TestComposeLifePreferences : ComposeLifePreferences {
         }
     }
 
+    override suspend fun setTouchToolConfig(toolConfig: ToolConfig) {
+        Snapshot.withMutableSnapshot {
+            touchToolConfigState = ResourceState.Success(toolConfig)
+        }
+    }
+
+    override suspend fun setStylusToolConfig(toolConfig: ToolConfig) {
+        Snapshot.withMutableSnapshot {
+            stylusToolConfigState = ResourceState.Success(toolConfig)
+        }
+    }
+
+    override suspend fun setMouseToolConfig(toolConfig: ToolConfig) {
+        Snapshot.withMutableSnapshot {
+            mouseToolConfigState = ResourceState.Success(toolConfig)
+        }
+    }
+
     fun testSetAlgorithmChoice(algorithm: AlgorithmType) {
         Snapshot.withMutableSnapshot {
             algorithmChoiceState = ResourceState.Success(algorithm)
@@ -197,6 +230,24 @@ class TestComposeLifePreferences : ComposeLifePreferences {
         }
     }
 
+    fun testSetTouchToolConfig(toolConfig: ToolConfig) {
+        Snapshot.withMutableSnapshot {
+            touchToolConfigState = ResourceState.Success(toolConfig)
+        }
+    }
+
+    fun testSetStylusToolConfig(toolConfig: ToolConfig) {
+        Snapshot.withMutableSnapshot {
+            stylusToolConfigState = ResourceState.Success(toolConfig)
+        }
+    }
+
+    fun testSetMouseToolConfig(toolConfig: ToolConfig) {
+        Snapshot.withMutableSnapshot {
+            mouseToolConfigState = ResourceState.Success(toolConfig)
+        }
+    }
+
     companion object {
         @Suppress("LongParameterList")
         fun Loaded(
@@ -211,6 +262,9 @@ class TestComposeLifePreferences : ComposeLifePreferences {
             disableAGSL: Boolean = false,
             disableOpenGL: Boolean = false,
             doNotKeepProcess: Boolean = false,
+            touchToolConfig: ToolConfig = ToolConfig.Pan,
+            stylusToolConfig: ToolConfig = ToolConfig.Draw,
+            mouseToolConfig: ToolConfig = ToolConfig.Draw,
         ) = TestComposeLifePreferences().apply {
             testSetAlgorithmChoice(algorithmChoice)
             testSetCurrentShapeType(currentShapeType)
@@ -220,6 +274,9 @@ class TestComposeLifePreferences : ComposeLifePreferences {
             testSetDisabledAGSL(disableAGSL)
             testSetDisableOpenGL(disableOpenGL)
             testSetDoNotKeepProcess(doNotKeepProcess)
+            testSetTouchToolConfig(touchToolConfig)
+            testSetStylusToolConfig(stylusToolConfig)
+            testSetMouseToolConfig(mouseToolConfig)
         }
     }
 }
