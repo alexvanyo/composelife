@@ -36,7 +36,8 @@ typealias PreferencesProtoPath = Path
 typealias PreferencesCoroutineScope = CoroutineScope
 
 @Singleton
-class DiskPreferencesDataStore @Inject constructor(
+@Inject
+class DiskPreferencesDataStore(
     fileSystem: FileSystem,
     path: PreferencesProtoPath,
     scope: PreferencesCoroutineScope,

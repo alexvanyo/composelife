@@ -22,7 +22,8 @@ import me.tatarka.inject.annotations.Inject
 @JvmInline
 value class CellStateId(val value: Long)
 
-class CellStateIdAdapter @Inject constructor() : ColumnAdapter<CellStateId, Long> {
+@Inject
+class CellStateIdAdapter : ColumnAdapter<CellStateId, Long> {
     override fun decode(databaseValue: Long): CellStateId = CellStateId(databaseValue)
 
     override fun encode(value: CellStateId): Long = value.value

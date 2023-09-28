@@ -28,7 +28,8 @@ import kotlinx.coroutines.flow.collectLatest
 import me.tatarka.inject.annotations.Inject
 import kotlin.system.exitProcess
 
-class DoNotKeepProcess @Inject constructor(
+@Inject
+class DoNotKeepProcess(
     private val lifecycleOwner: ProcessLifecycleOwner,
     private val composeLifePreferences: ComposeLifePreferences,
 ) : Updatable {
