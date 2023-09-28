@@ -28,7 +28,8 @@ import me.tatarka.inject.annotations.Inject
  * [Unconfined] delegates to the default implementations, due to their custom behavior.
  */
 @Suppress("InjectDispatcher")
-class TestComposeLifeDispatchers @Inject constructor(
+@Inject
+class TestComposeLifeDispatchers(
     testDispatcher: TestDispatcher,
 ) : ComposeLifeDispatchers {
     override val Default: CoroutineDispatcher = testDispatcher

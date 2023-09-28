@@ -37,7 +37,8 @@ import me.tatarka.inject.annotations.Inject
 
 @Suppress("TooManyFunctions")
 @Singleton
-class DefaultComposeLifePreferences @Inject constructor(
+@Inject
+class DefaultComposeLifePreferences(
     private val dataStore: PreferencesDataStore,
 ) : ComposeLifePreferences {
 

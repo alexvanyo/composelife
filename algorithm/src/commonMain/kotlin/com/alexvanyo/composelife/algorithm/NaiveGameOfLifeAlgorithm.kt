@@ -30,7 +30,8 @@ import me.tatarka.inject.annotations.Inject
  * Each generation is computed in turn, and each of the possible cells that could be alive in the next generation
  * is checked individually.
  */
-class NaiveGameOfLifeAlgorithm @Inject constructor(
+@Inject
+class NaiveGameOfLifeAlgorithm(
     private val dispatchers: ComposeLifeDispatchers,
 ) : GameOfLifeAlgorithm {
     override suspend fun computeGenerationWithStep(
