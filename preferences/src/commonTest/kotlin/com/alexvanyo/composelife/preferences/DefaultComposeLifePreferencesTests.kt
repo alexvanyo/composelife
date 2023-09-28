@@ -579,4 +579,121 @@ class DefaultComposeLifePreferencesTests {
             loadedPreferencesState.value.doNotKeepProcess,
         )
     }
+
+    @Test
+    fun default_touch_tool_config_is_pan() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.touchToolConfigState)
+
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(ToolConfig.Pan),
+            composelifePreferences.touchToolConfigState,
+        )
+    }
+
+    @Test
+    fun setting_touch_tool_config_updates_value() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.doNotKeepProcessState)
+
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(ToolConfig.Pan),
+            composelifePreferences.touchToolConfigState,
+        )
+
+        composelifePreferences.setTouchToolConfig(ToolConfig.Draw)
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(ToolConfig.Draw),
+            composelifePreferences.touchToolConfigState,
+        )
+
+        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertEquals(
+            ToolConfig.Draw,
+            loadedPreferencesState.value.touchToolConfig,
+        )
+    }
+
+    @Test
+    fun default_stylus_tool_config_is_draw() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.stylusToolConfigState)
+
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(ToolConfig.Draw),
+            composelifePreferences.stylusToolConfigState,
+        )
+    }
+
+    @Test
+    fun setting_stylus_tool_config_updates_value() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.doNotKeepProcessState)
+
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(ToolConfig.Draw),
+            composelifePreferences.stylusToolConfigState,
+        )
+
+        composelifePreferences.setStylusToolConfig(ToolConfig.Erase)
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(ToolConfig.Erase),
+            composelifePreferences.stylusToolConfigState,
+        )
+
+        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertEquals(
+            ToolConfig.Erase,
+            loadedPreferencesState.value.stylusToolConfig,
+        )
+    }
+
+    @Test
+    fun default_mouse_tool_config_is_draw() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.mouseToolConfigState)
+
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(ToolConfig.Draw),
+            composelifePreferences.mouseToolConfigState,
+        )
+    }
+
+    @Test
+    fun setting_mouse_tool_config_updates_value() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.doNotKeepProcessState)
+
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(ToolConfig.Draw),
+            composelifePreferences.mouseToolConfigState,
+        )
+
+        composelifePreferences.setMouseToolConfig(ToolConfig.Erase)
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(ToolConfig.Erase),
+            composelifePreferences.mouseToolConfigState,
+        )
+
+        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertEquals(
+            ToolConfig.Erase,
+            loadedPreferencesState.value.mouseToolConfig,
+        )
+    }
 }

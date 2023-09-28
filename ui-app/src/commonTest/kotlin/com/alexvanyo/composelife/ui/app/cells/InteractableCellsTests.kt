@@ -40,6 +40,7 @@ import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.ui.app.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import org.junit.runner.RunWith
@@ -210,7 +211,7 @@ class InteractableCellsTests {
     }
 
     @Test
-    fun drawing_on_cells_with_mouse_updates_state() = runComposeUiTest {
+    fun drawing_on_cells_with_mouse_updates_state_with_draw_tool() = runComposeUiTest {
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
                 0 to 0,
@@ -229,7 +230,13 @@ class InteractableCellsTests {
 
         setContent {
             density = LocalDensity.current
-            with(interactableCellsLocalEntryPoint) {
+            with(
+                object : InteractableCellsLocalEntryPoint {
+                    override val preferences = LoadedComposeLifePreferences.Defaults.copy(
+                        mouseToolConfig = ToolConfig.Draw,
+                    )
+                },
+            ) {
                 InteractableCells(
                     gameOfLifeState = mutableGameOfLifeState,
                     scaledCellDpSize = 10.dp,
@@ -259,6 +266,69 @@ class InteractableCellsTests {
                 2 to 1,
                 2 to 2,
                 2 to 3,
+                2 to 4,
+                4 to 0,
+                4 to 2,
+                4 to 4,
+            ).toCellState(),
+            mutableGameOfLifeState.cellState,
+        )
+    }
+
+    @Test
+    fun drawing_on_cells_with_mouse_does_not_update_state_with_none_tool() = runComposeUiTest {
+        val mutableGameOfLifeState = MutableGameOfLifeState(
+            cellState = setOf(
+                0 to 0,
+                0 to 2,
+                0 to 4,
+                2 to 0,
+                2 to 2,
+                2 to 4,
+                4 to 0,
+                4 to 2,
+                4 to 4,
+            ).toCellState(),
+        )
+
+        lateinit var density: Density
+
+        setContent {
+            density = LocalDensity.current
+            with(
+                object : InteractableCellsLocalEntryPoint {
+                    override val preferences = LoadedComposeLifePreferences.Defaults.copy(
+                        mouseToolConfig = ToolConfig.None,
+                    )
+                },
+            ) {
+                InteractableCells(
+                    gameOfLifeState = mutableGameOfLifeState,
+                    scaledCellDpSize = 10.dp,
+                    cellWindow = IntRect(
+                        IntOffset(0, 0),
+                        IntOffset(8, 8),
+                    ),
+                    pixelOffsetFromCenter = Offset.Zero,
+                )
+            }
+        }
+
+        onNodeWithTag("CellCanvas")
+            .performMouseInput {
+                dragAndDrop(
+                    with(density) { DpOffset(25.dp, 5.dp).toPx() },
+                    with(density) { DpOffset(25.dp, 45.dp).toPx() },
+                )
+            }
+
+        assertEquals(
+            setOf(
+                0 to 0,
+                0 to 2,
+                0 to 4,
+                2 to 0,
+                2 to 2,
                 2 to 4,
                 4 to 0,
                 4 to 2,

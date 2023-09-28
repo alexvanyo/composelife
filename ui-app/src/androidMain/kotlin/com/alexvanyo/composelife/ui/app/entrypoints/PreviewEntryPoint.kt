@@ -45,6 +45,8 @@ import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.InlineEditScreenInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.InlineEditScreenLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.AlgorithmImplementationUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.AlgorithmImplementationUiLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.CellShapeConfigUiInjectEntryPoint
@@ -93,6 +95,8 @@ internal interface PreviewEntryPoint :
     FullscreenSettingsScreenLocalEntryPoint,
     GameOfLifeProgressIndicatorInjectEntryPoint,
     GameOfLifeProgressIndicatorLocalEntryPoint,
+    InlineEditScreenInjectEntryPoint,
+    InlineEditScreenLocalEntryPoint,
     InlineSettingsScreenInjectEntryPoint,
     InlineSettingsScreenLocalEntryPoint,
     InteractableCellsLocalEntryPoint,

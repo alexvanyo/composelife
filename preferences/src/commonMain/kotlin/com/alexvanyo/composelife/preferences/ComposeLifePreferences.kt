@@ -20,6 +20,7 @@ import com.alexvanyo.composelife.preferences.CurrentShape.RoundRectangle
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.updatable.Updatable
 
+@Suppress("TooManyFunctions")
 interface ComposeLifePreferences : Updatable {
     val quickAccessSettingsState: ResourceState<Set<QuickAccessSetting>>
 
@@ -36,6 +37,12 @@ interface ComposeLifePreferences : Updatable {
     val doNotKeepProcessState: ResourceState<Boolean>
 
     val loadedPreferencesState: ResourceState<LoadedComposeLifePreferences>
+
+    val touchToolConfigState: ResourceState<ToolConfig>
+
+    val stylusToolConfigState: ResourceState<ToolConfig>
+
+    val mouseToolConfigState: ResourceState<ToolConfig>
 
     suspend fun setAlgorithmChoice(algorithm: AlgorithmType)
 
@@ -54,4 +61,10 @@ interface ComposeLifePreferences : Updatable {
     suspend fun setDisableOpenGL(disabled: Boolean)
 
     suspend fun setDoNotKeepProcess(doNotKeepProcess: Boolean)
+
+    suspend fun setTouchToolConfig(toolConfig: ToolConfig)
+
+    suspend fun setStylusToolConfig(toolConfig: ToolConfig)
+
+    suspend fun setMouseToolConfig(toolConfig: ToolConfig)
 }

@@ -55,6 +55,8 @@ import com.alexvanyo.composelife.geometry.floor
 import com.alexvanyo.composelife.geometry.toRingOffset
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
+import com.alexvanyo.composelife.preferences.ToolConfig
+import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.ui.util.detectTransformGestures
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
@@ -77,6 +79,7 @@ object CellWindow {
 }
 
 interface CellWindowLocalEntryPoint :
+    LoadedComposeLifePreferencesProvider,
     InteractableCellsLocalEntryPoint,
     NonInteractableCellsLocalEntryPoint
 
@@ -164,6 +167,14 @@ private fun CellWindowImpl(
             }
         }
     }
+
+    val panExcludedPointerTypes =
+        setOfNotNull(
+            PointerType.Touch.takeUnless { preferences.touchToolConfig == ToolConfig.Pan },
+            PointerType.Stylus.takeUnless { preferences.stylusToolConfig == ToolConfig.Pan },
+            PointerType.Mouse.takeUnless { preferences.mouseToolConfig == ToolConfig.Pan },
+            PointerType.Eraser,
+        )
 
     BoxWithConstraints(
         modifier = modifier,
@@ -313,13 +324,9 @@ private fun CellWindowImpl(
                             true
                         }
                     }
-                    .pointerInput(Unit) {
+                    .pointerInput(panExcludedPointerTypes) {
                         detectTransformGestures(
-                            excludedPointerTypes = setOf(
-                                PointerType.Mouse,
-                                PointerType.Stylus,
-                                PointerType.Eraser,
-                            ),
+                            excludedPointerTypes = panExcludedPointerTypes,
                             onGestureStart = { isGesturing = true },
                             onGestureEnd = { isGesturing = false },
                             onGesture = { centroid: Offset, pan: Offset, zoom: Float, rotation: Float ->

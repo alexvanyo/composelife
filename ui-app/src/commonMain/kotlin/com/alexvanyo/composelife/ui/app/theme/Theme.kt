@@ -102,7 +102,7 @@ object ComposeLifeTheme {
     val pendingDeadCellColor
         @Composable
         @ReadOnlyComposable
-        get() = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)
+        get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
 }
 
 @get:Composable
