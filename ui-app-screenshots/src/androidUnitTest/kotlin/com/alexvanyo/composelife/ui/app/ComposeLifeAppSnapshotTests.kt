@@ -17,14 +17,12 @@
 package com.alexvanyo.composelife.ui.app
 
 import com.alexvanyo.composelife.ui.app.util.BaseRoborazziTest
+import com.alexvanyo.composelife.ui.app.util.RoborazziParameterization
 import kotlin.test.Test
 
 class ComposeLifeAppSnapshotTests(
-    deviceName: String,
-    deviceQualifiers: String,
-    darkTheme: Boolean,
-    fontScale: Float,
-) : BaseRoborazziTest(deviceName, deviceQualifiers, darkTheme, fontScale) {
+    roborazziParameterization: RoborazziParameterization,
+) : BaseRoborazziTest(roborazziParameterization) {
 
     @Test
     fun loading_preferences_compose_life_app_preview() {

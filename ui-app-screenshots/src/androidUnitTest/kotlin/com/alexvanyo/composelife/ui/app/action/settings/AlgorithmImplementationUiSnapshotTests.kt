@@ -17,14 +17,12 @@
 package com.alexvanyo.composelife.ui.app.action.settings
 
 import com.alexvanyo.composelife.ui.app.util.BaseRoborazziTest
+import com.alexvanyo.composelife.ui.app.util.RoborazziParameterization
 import kotlin.test.Test
 
 class AlgorithmImplementationUiSnapshotTests(
-    deviceName: String,
-    deviceQualifiers: String,
-    darkTheme: Boolean,
-    fontScale: Float,
-) : BaseRoborazziTest(deviceName, deviceQualifiers, darkTheme, fontScale) {
+    roborazziParameterization: RoborazziParameterization,
+) : BaseRoborazziTest(roborazziParameterization) {
 
     @Test
     fun algorithm_implementation_ui_hash_life_preview() {

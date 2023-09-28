@@ -17,13 +17,12 @@
 package com.alexvanyo.composelife.ui.wear
 
 import com.alexvanyo.composelife.ui.wear.util.BaseRoborazziTest
+import com.alexvanyo.composelife.ui.wear.util.RoborazziParameterization
 import kotlin.test.Test
 
 class WatchFaceColorPickerSnapshotTests(
-    deviceName: String,
-    deviceQualifiers: String,
-    fontScale: Float,
-) : BaseRoborazziTest(deviceName, deviceQualifiers, fontScale) {
+    roborazziParameterization: RoborazziParameterization,
+) : BaseRoborazziTest(roborazziParameterization) {
 
     @Test
     fun watch_face_color_picker_preview() {

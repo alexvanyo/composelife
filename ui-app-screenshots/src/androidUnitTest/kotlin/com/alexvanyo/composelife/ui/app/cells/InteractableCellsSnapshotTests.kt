@@ -17,14 +17,12 @@
 package com.alexvanyo.composelife.ui.app.cells
 
 import com.alexvanyo.composelife.ui.app.util.BaseRoborazziTest
+import com.alexvanyo.composelife.ui.app.util.RoborazziParameterization
 import kotlin.test.Test
 
 class InteractableCellsSnapshotTests(
-    deviceName: String,
-    deviceQualifiers: String,
-    darkTheme: Boolean,
-    fontScale: Float,
-) : BaseRoborazziTest(deviceName, deviceQualifiers, darkTheme, fontScale) {
+    roborazziParameterization: RoborazziParameterization,
+) : BaseRoborazziTest(roborazziParameterization) {
 
     @Test
     fun interactable_cells_preview() {

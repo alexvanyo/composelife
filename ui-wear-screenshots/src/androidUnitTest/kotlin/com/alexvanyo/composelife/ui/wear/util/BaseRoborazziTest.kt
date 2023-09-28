@@ -16,80 +16,103 @@
 
 package com.alexvanyo.composelife.ui.wear.util
 
-import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.unit.Density
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.ui.wear.theme.ComposeLifeTheme
-import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
-import com.github.takahirom.roborazzi.RoborazziRule
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.google.accompanist.testharness.TestHarness
 import org.junit.Rule
+import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
-import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
 import java.io.File
 
+@OptIn(ExperimentalTestApi::class)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @Suppress("UnnecessaryAbstractClass")
+@Config(qualifiers = "w200dp-h200dp")
 abstract class BaseRoborazziTest(
-    private val deviceName: String,
-    private val deviceQualifiers: String,
-    private val fontScale: Float,
+    private val roborazziParameterization: RoborazziParameterization,
 ) {
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+    lateinit var description: Description
 
     @get:Rule
-    val roborazziRule = RoborazziRule(
-        options = RoborazziRule.Options(
-            outputDirectoryPath = "src/androidUnitTest/snapshots",
-            outputFileProvider = { description: Description, outputDirectory: File, fileExtension: String ->
-                File(
-                    outputDirectory,
-                    "${description.testClass.name}." +
-                        "${description.methodName.takeWhile { it != '[' }}." +
-                        "$deviceName." +
-                        "font-$fontScale." +
-                        fileExtension,
-                )
-            },
-        ),
-    )
+    val watcher = object : TestWatcher() {
+        override fun starting(description: Description) {
+            super.starting(description)
+            this@BaseRoborazziTest.description = description
+        }
+    }
 
-    fun snapshot(composable: @Composable () -> Unit) {
-        RuntimeEnvironment.setQualifiers(deviceQualifiers)
+    fun snapshot(composable: @Composable () -> Unit) = runComposeUiTest {
+        val testParameterizations = when (roborazziParameterization) {
+            CombinedRoborazziParameterization -> parameterizations
+            is SingleRoborazziParameterization -> listOf(roborazziParameterization)
+        }
 
-        captureRoboImage {
+        var currentParameterization by mutableStateOf(testParameterizations.first())
+
+        setContent {
             val lifecycleOwner = LocalLifecycleOwner.current
-            CompositionLocalProvider(
-                LocalInspectionMode provides true,
-                LocalDensity provides Density(
-                    density = LocalDensity.current.density,
-                    fontScale = fontScale,
-                ),
-                // Provide a fake OnBackPressedDispatcherOwner
-                LocalOnBackPressedDispatcherOwner provides object : OnBackPressedDispatcherOwner {
-                    override val onBackPressedDispatcher = OnBackPressedDispatcher()
-
-                    override val lifecycle = lifecycleOwner.lifecycle
-                },
+            TestHarness(
+                size = currentParameterization.size,
+                isScreenRound = currentParameterization.isScreenRound,
+                fontScale = currentParameterization.fontScale,
             ) {
-                ComposeLifeTheme {
-                    Box {
-                        composable()
+                CompositionLocalProvider(
+                    LocalInspectionMode provides true,
+                    // Provide a fake OnBackPressedDispatcherOwner
+                    LocalOnBackPressedDispatcherOwner provides object : OnBackPressedDispatcherOwner {
+                        override val onBackPressedDispatcher = OnBackPressedDispatcher()
+
+                        override val lifecycle = lifecycleOwner.lifecycle
+                    },
+                ) {
+                    ComposeLifeTheme {
+                        Box(modifier = Modifier.testTag("contentContainer")) {
+                            key(currentParameterization) {
+                                composable()
+                            }
+                        }
                     }
                 }
             }
+        }
+
+        testParameterizations.forEach { parameterization ->
+            currentParameterization = parameterization
+
+            waitForIdle()
+            onNodeWithTag("contentContainer").captureRoboImage(
+                file = File(
+                    "src/androidUnitTest/snapshots",
+                    "${description.testClass.name}." +
+                        "${description.methodName.takeWhile { it != '[' }}." +
+                        "${parameterization.size}." +
+                        "${parameterization.locale}." +
+                        "font-${parameterization.fontScale}." +
+                        "png",
+                ),
+            )
         }
     }
 
@@ -97,17 +120,58 @@ abstract class BaseRoborazziTest(
 
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters
-        fun data() = listOf(
-            "WearOSSmallRound" to RobolectricDeviceQualifiers.WearOSSmallRound,
-            "WearOSSquare" to RobolectricDeviceQualifiers.WearOSSquare,
-        ).flatMap { (deviceName, deviceQualifiers) ->
-            listOf(1.0f, 1.5f).map { fontScale ->
-                arrayOf(
-                    deviceName,
-                    deviceQualifiers,
-                    fontScale,
-                )
+        fun data() =
+            // Check if we want to provide parameterization at the test level
+            // This makes it easier to debug which test is failing, at the cost of speed
+            if (System.getenv("com.alexvanyo.composelife.screenshots.combined") != "false") {
+                listOf(arrayOf(CombinedRoborazziParameterization))
+            } else {
+                parameterizations.map {
+                    arrayOf(it)
+                }
+            }
+
+        /**
+         * The underlying parameterizations we want to test.
+         *
+         * This will either be done via test runner level parameterization, or in-test parameterization, depending
+         * on the environment value determined in [data].
+         */
+        val parameterizations = listOf(
+            DpSize(192.dp, 192.dp) to true, // Small round
+            DpSize(180.dp, 180.dp) to false, // Square
+        ).flatMap { (size, isScreenRound) ->
+            listOf("en", "b+en+XA", "b+ar+XB").flatMap { locale ->
+                listOf(1.0f, 1.5f).map { fontScale ->
+                    SingleRoborazziParameterization(
+                        size = size,
+                        isScreenRound = isScreenRound,
+                        locale = locale,
+                        fontScale = fontScale,
+                    )
+                }
             }
         }
     }
 }
+
+sealed interface RoborazziParameterization
+
+/**
+ * A single, specific parameterization to run screenshot tests on.
+ *
+ * The argument for the [ParameterizedRobolectricTestRunner] indicating that we should perform the test for this
+ * particular parameterization.
+ */
+data class SingleRoborazziParameterization(
+    val size: DpSize,
+    val isScreenRound: Boolean,
+    val locale: String,
+    val fontScale: Float,
+) : RoborazziParameterization
+
+/**
+ * The argument for the [ParameterizedRobolectricTestRunner] indicating that we should perform parameterization
+ * within a single test.
+ */
+data object CombinedRoborazziParameterization : RoborazziParameterization

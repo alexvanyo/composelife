@@ -17,14 +17,12 @@
 package com.alexvanyo.composelife.ui.app.info
 
 import com.alexvanyo.composelife.ui.app.util.BaseRoborazziTest
+import com.alexvanyo.composelife.ui.app.util.RoborazziParameterization
 import kotlin.test.Test
 
 class CellUniverseInfoItemSnapshotTests(
-    deviceName: String,
-    deviceQualifiers: String,
-    darkTheme: Boolean,
-    fontScale: Float,
-) : BaseRoborazziTest(deviceName, deviceQualifiers, darkTheme, fontScale) {
+    roborazziParameterization: RoborazziParameterization,
+) : BaseRoborazziTest(roborazziParameterization) {
 
     @Test
     fun editing_preview() {
