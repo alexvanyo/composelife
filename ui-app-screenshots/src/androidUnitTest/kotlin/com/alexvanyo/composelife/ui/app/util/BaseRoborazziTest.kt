@@ -125,7 +125,7 @@ abstract class BaseRoborazziTest(
         fun data() =
             // Check if we want to provide parameterization at the test level
             // This makes it easier to debug which test is failing, at the cost of speed
-            if (System.getenv("com.alexvanyo.composelife.screenshots.combined") != "false") {
+            if (System.getProperty("com.alexvanyo.composelife.combinedScreenshotTests").toBoolean()) {
                 listOf(arrayOf(CombinedRoborazziParameterization))
             } else {
                 parameterizations.map {
