@@ -153,6 +153,22 @@ turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine
 wire-runtime = { group = "com.squareup.wire", name = "wire-runtime", version.ref = "wire" }
 
 [plugins]
+convention-androidApplication = { id = "com.alexvanyo.composelife.androidApplication", version = "unspecified" }
+convention-androidApplicationCompose = { id = "com.alexvanyo.composelife.androidApplicationCompose", version = "unspecified" }
+convention-androidApplicationJacoco = { id = "com.alexvanyo.composelife.androidApplicationJacoco", version = "unspecified" }
+convention-androidApplicationKsp = { id = "com.alexvanyo.composelife.androidApplicationKsp", version = "unspecified" }
+convention-androidApplicationTesting = { id = "com.alexvanyo.composelife.androidApplicationTesting", version = "unspecified" }
+convention-androidLibrary = { id = "com.alexvanyo.composelife.androidLibrary", version = "unspecified" }
+convention-androidLibraryCompose = { id = "com.alexvanyo.composelife.androidLibraryCompose", version = "unspecified" }
+convention-androidLibraryJacoco = { id = "com.alexvanyo.composelife.androidLibraryJacoco", version = "unspecified" }
+convention-androidLibraryKsp = { id = "com.alexvanyo.composelife.androidLibraryKsp", version = "unspecified" }
+convention-androidLibraryRoborazzi = { id = "com.alexvanyo.composelife.androidLibraryRoborazzi", version = "unspecified" }
+convention-androidLibraryTesting = { id = "com.alexvanyo.composelife.androidLibraryTesting", version = "unspecified" }
+convention-androidTest = { id = "com.alexvanyo.composelife.androidTest", version = "unspecified" }
+convention-detekt = { id = "com.alexvanyo.composelife.detekt", version = "unspecified" }
+convention-kotlinMultiplatform = { id = "com.alexvanyo.composelife.kotlinMultiplatform", version = "unspecified" }
+convention-kotlinMultiplatformCompose = { id = "com.alexvanyo.composelife.kotlinMultiplatformCompose", version = "unspecified" }
+convention-mergeJacoco = { id = "com.alexvanyo.composelife.mergeJacoco", version = "unspecified" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }

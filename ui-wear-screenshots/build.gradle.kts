@@ -15,13 +15,13 @@
  */
 
 plugins {
-    id("com.alexvanyo.composelife.kotlin.multiplatform")
-    id("com.alexvanyo.composelife.android.library")
-    id("com.alexvanyo.composelife.android.library.compose")
-    id("com.alexvanyo.composelife.android.library.jacoco")
-    id("com.alexvanyo.composelife.android.library.roborazzi")
+    alias(libs.plugins.convention.kotlinMultiplatform)
+    alias(libs.plugins.convention.androidLibrary)
+    alias(libs.plugins.convention.androidLibraryCompose)
+    alias(libs.plugins.convention.androidLibraryJacoco)
+    alias(libs.plugins.convention.androidLibraryRoborazzi)
     alias(libs.plugins.roborazzi)
-    id("com.alexvanyo.composelife.detekt")
+    alias(libs.plugins.convention.detekt)
 }
 
 android {

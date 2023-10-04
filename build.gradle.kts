@@ -15,7 +15,25 @@
  */
 
 plugins {
-    id("com.alexvanyo.composelife.mergejacoco")
+    // Satisfy Gradle plugin versioning alignment by adding all unversioned convention plugins here
+    // (but only applying used ones)
+    alias(libs.plugins.convention.androidApplication) apply false
+    alias(libs.plugins.convention.androidApplicationCompose) apply false
+    alias(libs.plugins.convention.androidApplicationJacoco) apply false
+    alias(libs.plugins.convention.androidApplicationKsp) apply false
+    alias(libs.plugins.convention.androidApplicationTesting) apply false
+    alias(libs.plugins.convention.androidLibrary) apply false
+    alias(libs.plugins.convention.androidLibraryCompose) apply false
+    alias(libs.plugins.convention.androidLibraryJacoco) apply false
+    alias(libs.plugins.convention.androidLibraryKsp) apply false
+    alias(libs.plugins.convention.androidLibraryRoborazzi) apply false
+    alias(libs.plugins.convention.androidLibraryTesting) apply false
+    alias(libs.plugins.convention.androidTest) apply false
+    alias(libs.plugins.convention.detekt) apply false
+    alias(libs.plugins.convention.kotlinMultiplatform) apply false
+    alias(libs.plugins.convention.kotlinMultiplatformCompose) apply false
+
+    alias(libs.plugins.convention.mergeJacoco)
 }
 
 buildscript {
