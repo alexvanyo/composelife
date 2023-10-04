@@ -51,5 +51,13 @@ task<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
 
+tasks.register("check") {
+    dependsOn(
+        gradle.includedBuilds.map {
+            it.task(":check")
+        }
+    )
+}
+
 tasks.register("packageStagingAndroidTest")
 tasks.register("packageDebugAndroidTest")
