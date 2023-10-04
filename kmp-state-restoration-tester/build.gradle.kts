@@ -15,10 +15,10 @@
  */
 
 plugins {
-    id("com.alexvanyo.composelife.kotlin.multiplatform")
-    id("com.alexvanyo.composelife.android.library")
-    id("com.alexvanyo.composelife.detekt")
-    id("com.alexvanyo.composelife.kotlin.multiplatform.compose")
+    alias(libs.plugins.convention.kotlinMultiplatform)
+    alias(libs.plugins.convention.androidLibrary)
+    alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.convention.kotlinMultiplatformCompose)
 }
 
 android {
