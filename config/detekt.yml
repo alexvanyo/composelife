@@ -9,6 +9,7 @@ complexity:
     excludes: [ '**/generated/**' ]
   LongMethod:
     excludes: [
+      '**/generated/**',
       '**/test/**',
       '**/androidTest/**',
       '**/sharedTest/**',

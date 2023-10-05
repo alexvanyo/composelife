@@ -50,6 +50,7 @@ import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.setCellState
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.ui.app.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.app.resources.Strings
@@ -91,6 +92,19 @@ fun InteractableCells(
 
         val pendingCellChanges = remember { mutableStateMapOf<IntOffset, Boolean>() }
 
+        val drawingPointerTypes =
+            setOfNotNull(
+                PointerType.Touch.takeIf { preferences.touchToolConfig == ToolConfig.Draw },
+                PointerType.Stylus.takeIf { preferences.stylusToolConfig == ToolConfig.Draw },
+                PointerType.Mouse.takeIf { preferences.mouseToolConfig == ToolConfig.Draw },
+            )
+        val erasingPointerTypes =
+            setOfNotNull(
+                PointerType.Touch.takeIf { preferences.touchToolConfig == ToolConfig.Erase },
+                PointerType.Stylus.takeIf { preferences.stylusToolConfig == ToolConfig.Erase },
+                PointerType.Mouse.takeIf { preferences.mouseToolConfig == ToolConfig.Erase },
+            )
+
         Layout(
             modifier = Modifier
                 .requiredSize(
@@ -99,6 +113,8 @@ fun InteractableCells(
                 )
                 .testTag("CellCanvas")
                 .drawingCellInput(
+                    drawingPointerTypes = drawingPointerTypes,
+                    erasingPointerTypes = erasingPointerTypes,
                     gameOfLifeState = gameOfLifeState,
                     pendingCellChanges = pendingCellChanges,
                     scaledCellPixelSize = scaledCellPixelSize,
@@ -154,8 +170,11 @@ fun InteractableCells(
     }
 }
 
+@Suppress("LongParameterList")
 @OptIn(ExperimentalComposeUiApi::class)
 private fun Modifier.drawingCellInput(
+    drawingPointerTypes: Set<PointerType>,
+    erasingPointerTypes: Set<PointerType>,
     gameOfLifeState: MutableGameOfLifeState,
     pendingCellChanges: MutableMap<IntOffset, Boolean>,
     scaledCellPixelSize: Float,
@@ -164,7 +183,7 @@ private fun Modifier.drawingCellInput(
     val currentScaledCellPixelSize by rememberUpdatedState(scaledCellPixelSize)
     val currentCellWindow by rememberUpdatedState(cellWindow)
 
-    pointerInput(pendingCellChanges, gameOfLifeState) {
+    pointerInput(drawingPointerTypes, erasingPointerTypes, pendingCellChanges, gameOfLifeState) {
         detectDragGestures(
             onDragStart = {
                 pendingCellChanges.clear()
@@ -199,8 +218,8 @@ private fun Modifier.drawingCellInput(
                         .map { it / currentScaledCellPixelSize },
                 )
                 val isAlive = when (change.type) {
-                    PointerType.Mouse, PointerType.Stylus -> true
-                    PointerType.Eraser -> false
+                    in drawingPointerTypes -> true
+                    in erasingPointerTypes -> false
                     else -> throw CancellationException("Non-stylus type!")
                 }
                 path.cellIntersections().forEach { localCoordinate ->
