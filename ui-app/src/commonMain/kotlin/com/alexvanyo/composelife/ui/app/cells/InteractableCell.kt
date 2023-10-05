@@ -17,8 +17,9 @@
 package com.alexvanyo.composelife.ui.app.cells
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -27,9 +28,12 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 
@@ -40,6 +44,8 @@ import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
  *
  * The cell is alive if [isAlive] is true, and [onValueChange] will be called when the living state should be toggled.
  */
+@Suppress("LongParameterList")
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun InteractableCell(
     // noinspection ComposeModifierWithoutDefault
@@ -48,6 +54,7 @@ fun InteractableCell(
     shape: CurrentShape,
     contentDescription: String,
     onValueChange: (isAlive: Boolean) -> Unit,
+    onLongClick: (() -> Unit)? = null,
 ) {
     val aliveColor = ComposeLifeTheme.aliveCellColor
     val pendingAliveColor = ComposeLifeTheme.pendingAliveCellColor
@@ -59,21 +66,40 @@ fun InteractableCell(
         DrawState.Dead, DrawState.PendingDead -> aliveColor
     }
 
+    val value = when (drawState) {
+        DrawState.Alive, DrawState.PendingAlive -> true
+        DrawState.Dead, DrawState.PendingDead -> false
+    }
+
+    val state = ToggleableState(value = value)
+
+    val onClick = { onValueChange(!value) }
+
     Canvas(
         modifier = modifier
             .semantics {
                 this.contentDescription = contentDescription
             }
-            .toggleable(
-                value = when (drawState) {
-                    DrawState.Alive, DrawState.PendingAlive -> true
-                    DrawState.Dead, DrawState.PendingDead -> false
-                },
+            .combinedClickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple(color = rippleColor),
                 role = Role.Switch,
-                onValueChange = onValueChange,
-            ),
+                onClick = onClick,
+                onLongClick = onLongClick,
+            )
+            .semantics {
+                toggleableState = state
+            }
+            .onKeyEvent {
+                // TODO
+//                if (it.isToggle) {
+//                    onClick()
+//                    true
+//                } else {
+//                    false
+//                }
+                false
+            }
     ) {
         val drawColor = when (drawState) {
             DrawState.Alive -> aliveColor

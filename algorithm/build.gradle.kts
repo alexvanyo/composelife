@@ -26,6 +26,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    kotlin("plugin.serialization") version libs.versions.kotlin
 }
 
 android {
@@ -53,6 +54,7 @@ kotlin {
                 implementation(libs.androidx.annotation)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.serialization.json)
                 implementation(libs.jetbrains.compose.ui)
                 implementation(libs.jetbrains.compose.runtime)
                 implementation(libs.sealedEnum.runtime)
