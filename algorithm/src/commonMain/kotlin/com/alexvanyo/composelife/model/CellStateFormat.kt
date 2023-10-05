@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.model
 
 import com.livefront.sealedenum.GenSealedEnum
+import kotlinx.serialization.Serializable
 
 sealed interface CellStateFormat {
 
@@ -27,10 +28,18 @@ sealed interface CellStateFormat {
      * A "fixed" format for a cell state. Any serialization or deserialization of a cell state should eventually
      * be done with one of these formats, and other [CellStateFormat]s might delegate to here.
      */
+    @Serializable
     sealed interface FixedFormat : CellStateFormat {
+        @Serializable
         data object Plaintext : FixedFormat
+
+        @Serializable
         data object Life105 : FixedFormat
+
+        @Serializable
         data object Life106 : FixedFormat
+
+        @Serializable
         data object RunLengthEncoding : FixedFormat
 
         @GenSealedEnum(generateEnum = true)

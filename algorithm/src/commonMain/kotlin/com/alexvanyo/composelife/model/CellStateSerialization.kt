@@ -34,6 +34,8 @@ import me.tatarka.inject.annotations.Inject
  * [deserializeToCellState], and serialize a [CellState] into a sequence of lines with [serializeToString].
  */
 interface FixedFormatCellStateSerializer {
+    val format: CellStateFormat.FixedFormat
+
     fun deserializeToCellState(lines: Sequence<String>): DeserializationResult
 
     fun serializeToString(cellState: CellState): Sequence<String>
@@ -145,6 +147,8 @@ class FlexibleCellStateSerializer(
 
 object PlaintextCellStateSerializer : FixedFormatCellStateSerializer {
 
+    override val format: CellStateFormat.FixedFormat = CellStateFormat.FixedFormat.Plaintext
+
     private data class LineLengthInfo(
         val index: Int,
         val length: Int,
@@ -255,6 +259,8 @@ object PlaintextCellStateSerializer : FixedFormatCellStateSerializer {
 }
 
 object Life105CellStateSerializer : FixedFormatCellStateSerializer {
+
+    override val format: CellStateFormat.FixedFormat = CellStateFormat.FixedFormat.Life105
 
     @Suppress("LongMethod", "ComplexMethod", "NestedBlockDepth", "ReturnCount")
     override fun deserializeToCellState(lines: Sequence<String>): DeserializationResult {
@@ -457,6 +463,8 @@ object Life105CellStateSerializer : FixedFormatCellStateSerializer {
 }
 
 object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
+
+    override val format: CellStateFormat.FixedFormat = CellStateFormat.FixedFormat.RunLengthEncoding
 
     @Suppress("LongMethod", "ReturnCount", "CyclomaticComplexMethod", "NestedBlockDepth")
     override fun deserializeToCellState(lines: Sequence<String>): DeserializationResult {

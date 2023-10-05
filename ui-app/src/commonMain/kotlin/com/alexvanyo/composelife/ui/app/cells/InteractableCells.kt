@@ -17,32 +17,45 @@
 
 package com.alexvanyo.composelife.ui.app.cells
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.HistoricalChange
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.geometry.LineSegmentPath
 import com.alexvanyo.composelife.geometry.cellIntersections
 import com.alexvanyo.composelife.geometry.containedPoints
@@ -105,8 +118,12 @@ fun InteractableCells(
                 PointerType.Mouse.takeIf { preferences.mouseToolConfig == ToolConfig.Erase },
             )
 
-        Layout(
-            modifier = Modifier
+        var selectionState by rememberSaveable(stateSaver = SelectionState.Saver) {
+            mutableStateOf(SelectionState.NoSelection)
+        }
+
+        Box(
+            Modifier
                 .requiredSize(
                     scaledCellDpSize * numColumns,
                     scaledCellDpSize * numRows,
@@ -120,53 +137,103 @@ fun InteractableCells(
                     scaledCellPixelSize = scaledCellPixelSize,
                     cellWindow = cellWindow,
                 ),
-            content = {
-                cellWindow.containedPoints().forEach { cell ->
-                    key(cell) {
-                        val isAliveInState = cell in gameOfLifeState.cellState.aliveCells
-                        InteractableCell(
-                            modifier = Modifier
-                                .size(scaledCellDpSize),
-                            drawState = when (pendingCellChanges[cell]) {
-                                false -> if (isAliveInState) DrawState.PendingDead else DrawState.Dead
-                                true -> if (isAliveInState) DrawState.Alive else DrawState.PendingAlive
-                                null -> if (isAliveInState) DrawState.Alive else DrawState.Dead
-                            },
-                            shape = preferences.currentShape,
-                            contentDescription = parameterizedStringResource(
-                                Strings.InteractableCellContentDescription(
-                                    x = cell.x,
-                                    y = cell.y,
+        ) {
+            Layout(
+                modifier = Modifier.fillMaxSize(),
+                content = {
+                    cellWindow.containedPoints().forEach { cell ->
+                        key(cell) {
+                            val isAliveInState = cell in gameOfLifeState.cellState.aliveCells
+                            InteractableCell(
+                                modifier = Modifier
+                                    .size(scaledCellDpSize),
+                                drawState = when (pendingCellChanges[cell]) {
+                                    false -> if (isAliveInState) DrawState.PendingDead else DrawState.Dead
+                                    true -> if (isAliveInState) DrawState.Alive else DrawState.PendingAlive
+                                    null -> if (isAliveInState) DrawState.Alive else DrawState.Dead
+                                },
+                                shape = preferences.currentShape,
+                                contentDescription = parameterizedStringResource(
+                                    Strings.InteractableCellContentDescription(
+                                        x = cell.x,
+                                        y = cell.y,
+                                    ),
                                 ),
-                            ),
-                            onValueChange = { isAlive ->
-                                gameOfLifeState.setCellState(
-                                    cellCoordinate = cell,
-                                    isAlive = isAlive,
-                                )
-                            },
-                        )
+                                onValueChange = { isAlive ->
+                                    gameOfLifeState.setCellState(
+                                        cellCoordinate = cell,
+                                        isAlive = isAlive,
+                                    )
+                                },
+                                onLongClick = {
+                                    selectionState = SelectionState.SelectingBox(
+                                        topLeft = cell,
+                                        width = 1,
+                                        height = 1,
+                                    )
+                                }
+                            )
+                        }
                     }
-                }
-            },
-            measurePolicy = { measurables, _ ->
-                val placeables = measurables.map { it.measure(Constraints()) }
+                },
+                measurePolicy = { measurables, _ ->
+                    val placeables = measurables.map { it.measure(Constraints()) }
 
-                layout(
-                    (numColumns * scaledCellPixelSize).roundToInt(),
-                    (numRows * scaledCellPixelSize).roundToInt(),
-                ) {
-                    placeables.mapIndexed { index, placeable ->
-                        val rowIndex = index / numColumns
-                        val columnIndex = index % numColumns
-                        placeable.place(
-                            (columnIndex * scaledCellPixelSize).roundToInt(),
-                            (rowIndex * scaledCellPixelSize).roundToInt(),
-                        )
+                    layout(
+                        (numColumns * scaledCellPixelSize).roundToInt(),
+                        (numRows * scaledCellPixelSize).roundToInt(),
+                    ) {
+                        placeables.forEachIndexed { index, placeable ->
+                            val rowIndex = index / numColumns
+                            val columnIndex = index % numColumns
+                            placeable.place(
+                                (columnIndex * scaledCellPixelSize).roundToInt(),
+                                (rowIndex * scaledCellPixelSize).roundToInt(),
+                            )
+                        }
+                    }
+                },
+            )
+
+            when (val currentSelectionState = selectionState) {
+                SelectionState.NoSelection -> Unit
+                is SelectionState.SelectingBox -> {
+                    val handleAOffset = currentSelectionState.topLeft
+                    val handleBOffset = currentSelectionState.topLeft +
+                            IntOffset(currentSelectionState.width, 0)
+                    val handleCOffset = currentSelectionState.topLeft +
+                            IntOffset(0, currentSelectionState.height)
+                    val handleDOffset = currentSelectionState.topLeft +
+                            IntOffset(currentSelectionState.width, currentSelectionState.height)
+
+                    val handles = listOf(handleAOffset, handleBOffset, handleCOffset, handleDOffset)
+
+                    handles.forEachIndexed { index, handleOffset ->
+                        key(index) {
+                            Box(
+                                modifier = Modifier
+                                    .layout { measurable, constraints ->
+                                        val placeable = measurable.measure(constraints)
+                                        layout(placeable.width, placeable.height) {
+                                            placeable.place(
+                                                x = ((handleOffset.x - cellWindow.topLeft.x) * scaledCellPixelSize - placeable.width / 2f).roundToInt(),
+                                                y = ((handleOffset.y - cellWindow.topLeft.y) * scaledCellPixelSize - placeable.height / 2f).roundToInt(),
+                                            )
+                                        }
+                                    }
+                            ) {
+                                Spacer(
+                                    Modifier
+                                        .size(48.dp)
+                                        .background(MaterialTheme.colorScheme.secondary, shape = CircleShape)
+                                )
+                            }
+                        }
                     }
                 }
-            },
-        )
+                is SelectionState.Selection -> Unit
+            }
+        }
     }
 }
 
