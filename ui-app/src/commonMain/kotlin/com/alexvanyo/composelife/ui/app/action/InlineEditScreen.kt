@@ -33,10 +33,14 @@ import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.preferences.ToolConfig
+import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
+import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.ui.app.component.DropdownOption
 import com.alexvanyo.composelife.ui.app.component.TextFieldDropdown
 import com.alexvanyo.composelife.ui.app.resources.Draw
@@ -55,12 +59,44 @@ import com.alexvanyo.composelife.ui.util.autoMirrored
 import com.alexvanyo.composelife.ui.util.filled
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.launch
 
+interface InlineEditScreenInjectEntryPoint :
+    ComposeLifePreferencesProvider
+
+interface InlineEditScreenLocalEntryPoint :
+    LoadedComposeLifePreferencesProvider
+
+context(InlineEditScreenInjectEntryPoint, InlineEditScreenLocalEntryPoint)
 @Composable
 fun InlineEditScreen(
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
+) = InlineEditScreen(
+    touchToolConfig = preferences.touchToolConfig,
+    setTouchToolConfig = composeLifePreferences::setTouchToolConfig,
+    stylusToolConfig = preferences.stylusToolConfig,
+    setStylusToolConfig = composeLifePreferences::setStylusToolConfig,
+    mouseToolConfig = preferences.mouseToolConfig,
+    setMouseToolConfig = composeLifePreferences::setMouseToolConfig,
+    modifier = modifier,
+    scrollState = scrollState,
+)
+
+@Suppress("LongParameterList", "LongMethod")
+@Composable
+fun InlineEditScreen(
+    touchToolConfig: ToolConfig,
+    setTouchToolConfig: suspend (ToolConfig) -> Unit,
+    stylusToolConfig: ToolConfig,
+    setStylusToolConfig: suspend (ToolConfig) -> Unit,
+    mouseToolConfig: ToolConfig,
+    setMouseToolConfig: suspend (ToolConfig) -> Unit,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(),
 ) {
+    val coroutineScope = rememberCoroutineScope()
+
     Column(
         modifier
             .verticalScroll(scrollState)
@@ -78,9 +114,13 @@ fun InlineEditScreen(
             )
             TextFieldDropdown(
                 label = parameterizedStringResource(Strings.TouchTool),
-                currentValue = ToolDropdownOption.Pan,
+                currentValue = touchToolConfig.toToolDropdownOption(),
                 allValues = ToolDropdownOption.values.toImmutableList(),
-                setValue = {},
+                setValue = {
+                    coroutineScope.launch {
+                        setTouchToolConfig(it.toToolConfig())
+                    }
+                },
             )
         }
         Row(
@@ -95,9 +135,13 @@ fun InlineEditScreen(
             )
             TextFieldDropdown(
                 label = parameterizedStringResource(Strings.StylusTool),
-                currentValue = ToolDropdownOption.Draw,
+                currentValue = stylusToolConfig.toToolDropdownOption(),
                 allValues = ToolDropdownOption.values.toImmutableList(),
-                setValue = {},
+                setValue = {
+                    coroutineScope.launch {
+                        setStylusToolConfig(it.toToolConfig())
+                    }
+                },
             )
         }
         Row(
@@ -112,9 +156,13 @@ fun InlineEditScreen(
             )
             TextFieldDropdown(
                 label = parameterizedStringResource(Strings.MouseTool),
-                currentValue = ToolDropdownOption.Draw,
+                currentValue = mouseToolConfig.toToolDropdownOption(),
                 allValues = ToolDropdownOption.values.toImmutableList(),
-                setValue = {},
+                setValue = {
+                    coroutineScope.launch {
+                        setMouseToolConfig(it.toToolConfig())
+                    }
+                },
             )
         }
     }
@@ -170,3 +218,21 @@ sealed interface ToolDropdownOption : DropdownOption {
     @GenSealedEnum
     companion object
 }
+
+fun ToolDropdownOption.toToolConfig(): ToolConfig =
+    when (this) {
+        ToolDropdownOption.Draw -> ToolConfig.Draw
+        ToolDropdownOption.Erase -> ToolConfig.Erase
+        ToolDropdownOption.None -> ToolConfig.None
+        ToolDropdownOption.Pan -> ToolConfig.Pan
+        ToolDropdownOption.Select -> ToolConfig.Select
+    }
+
+fun ToolConfig.toToolDropdownOption(): ToolDropdownOption =
+    when (this) {
+        ToolConfig.Draw -> ToolDropdownOption.Draw
+        ToolConfig.Erase -> ToolDropdownOption.Erase
+        ToolConfig.None -> ToolDropdownOption.None
+        ToolConfig.Pan -> ToolDropdownOption.Pan
+        ToolConfig.Select -> ToolDropdownOption.Select
+    }

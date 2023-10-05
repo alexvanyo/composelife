@@ -26,6 +26,7 @@ import com.alexvanyo.composelife.preferences.proto.CurrentShapeTypeProto
 import com.alexvanyo.composelife.preferences.proto.DarkThemeConfigProto
 import com.alexvanyo.composelife.preferences.proto.QuickAccessSettingProto
 import com.alexvanyo.composelife.preferences.proto.RoundRectangleProto
+import com.alexvanyo.composelife.preferences.proto.ToolConfigProto
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.map
 import com.alexvanyo.composelife.scopes.Singleton
@@ -62,6 +63,15 @@ class DefaultComposeLifePreferences(
 
     override val doNotKeepProcessState: ResourceState<Boolean>
         get() = loadedPreferencesState.map(LoadedComposeLifePreferences::doNotKeepProcess)
+
+    override val touchToolConfigState: ResourceState<ToolConfig>
+        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::touchToolConfig)
+
+    override val stylusToolConfigState: ResourceState<ToolConfig>
+        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::stylusToolConfig)
+
+    override val mouseToolConfigState: ResourceState<ToolConfig>
+        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::mouseToolConfig)
 
     override var loadedPreferencesState:
         ResourceState<LoadedComposeLifePreferences> by mutableStateOf(ResourceState.Loading)
@@ -119,6 +129,36 @@ class DefaultComposeLifePreferences(
                 val disableAGSL = preferencesProto.disable_agsl
                 val disableOpenGL = preferencesProto.disable_opengl
                 val doNotKeepProcess = preferencesProto.do_not_keep_process
+                val touchToolConfig =
+                    when (preferencesProto.touch_tool_config) {
+                        ToolConfigProto.TOOL_CONFIG_UNKNOWN,
+                        ToolConfigProto.PAN,
+                        -> ToolConfig.Pan
+                        ToolConfigProto.DRAW -> ToolConfig.Draw
+                        ToolConfigProto.ERASE -> ToolConfig.Erase
+                        ToolConfigProto.SELECT -> ToolConfig.Select
+                        ToolConfigProto.NONE -> ToolConfig.None
+                    }
+                val stylusToolConfig =
+                    when (preferencesProto.stylus_tool_config) {
+                        ToolConfigProto.PAN -> ToolConfig.Pan
+                        ToolConfigProto.TOOL_CONFIG_UNKNOWN,
+                        ToolConfigProto.DRAW,
+                        -> ToolConfig.Draw
+                        ToolConfigProto.ERASE -> ToolConfig.Erase
+                        ToolConfigProto.SELECT -> ToolConfig.Select
+                        ToolConfigProto.NONE -> ToolConfig.None
+                    }
+                val mouseToolConfig =
+                    when (preferencesProto.mouse_tool_config) {
+                        ToolConfigProto.PAN -> ToolConfig.Pan
+                        ToolConfigProto.TOOL_CONFIG_UNKNOWN,
+                        ToolConfigProto.DRAW,
+                        -> ToolConfig.Draw
+                        ToolConfigProto.ERASE -> ToolConfig.Erase
+                        ToolConfigProto.SELECT -> ToolConfig.Select
+                        ToolConfigProto.NONE -> ToolConfig.None
+                    }
 
                 Snapshot.withMutableSnapshot {
                     loadedPreferencesState = ResourceState.Success(
@@ -130,6 +170,9 @@ class DefaultComposeLifePreferences(
                             disableAGSL = disableAGSL,
                             disableOpenGL = disableOpenGL,
                             doNotKeepProcess = doNotKeepProcess,
+                            touchToolConfig = touchToolConfig,
+                            stylusToolConfig = stylusToolConfig,
+                            mouseToolConfig = mouseToolConfig,
                         ),
                     )
                 }
@@ -238,6 +281,30 @@ class DefaultComposeLifePreferences(
             )
         }
     }
+
+    override suspend fun setTouchToolConfig(toolConfig: ToolConfig) {
+        dataStore.updateData { preferencesProto ->
+            preferencesProto.copy(
+                touch_tool_config = toolConfig.toProto(),
+            )
+        }
+    }
+
+    override suspend fun setStylusToolConfig(toolConfig: ToolConfig) {
+        dataStore.updateData { preferencesProto ->
+            preferencesProto.copy(
+                stylus_tool_config = toolConfig.toProto(),
+            )
+        }
+    }
+
+    override suspend fun setMouseToolConfig(toolConfig: ToolConfig) {
+        dataStore.updateData { preferencesProto ->
+            preferencesProto.copy(
+                mouse_tool_config = toolConfig.toProto(),
+            )
+        }
+    }
 }
 
 private fun RoundRectangleProto?.toResolved(): RoundRectangle =
@@ -258,3 +325,12 @@ private fun RoundRectangle.toProto(): RoundRectangleProto =
         size_fraction = sizeFraction,
         corner_fraction = cornerFraction,
     )
+
+private fun ToolConfig.toProto(): ToolConfigProto =
+    when (this) {
+        ToolConfig.Pan -> ToolConfigProto.PAN
+        ToolConfig.Draw -> ToolConfigProto.DRAW
+        ToolConfig.Erase -> ToolConfigProto.ERASE
+        ToolConfig.None -> ToolConfigProto.NONE
+        ToolConfig.Select -> ToolConfigProto.SELECT
+    }

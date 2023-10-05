@@ -76,10 +76,12 @@ import kotlin.math.max
 
 interface CellUniverseActionCardInjectEntryPoint :
     FullscreenSettingsScreenInjectEntryPoint,
+    InlineEditScreenInjectEntryPoint,
     InlineSettingsScreenInjectEntryPoint
 
 interface CellUniverseActionCardLocalEntryPoint :
     FullscreenSettingsScreenLocalEntryPoint,
+    InlineEditScreenLocalEntryPoint,
     InlineSettingsScreenLocalEntryPoint
 
 context(CellUniverseActionCardInjectEntryPoint, CellUniverseActionCardLocalEntryPoint)

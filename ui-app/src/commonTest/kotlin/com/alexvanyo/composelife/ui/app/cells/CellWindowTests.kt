@@ -38,6 +38,7 @@ import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.ui.app.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import org.junit.runner.RunWith
@@ -148,7 +149,13 @@ class CellWindowTests {
         setContent {
             density = LocalDensity.current
 
-            with(cellWindowLocalEntryPoint) {
+            with(
+                object : CellWindowLocalEntryPoint {
+                    override val preferences = LoadedComposeLifePreferences.Defaults.copy(
+                        touchToolConfig = ToolConfig.Pan,
+                    )
+                },
+            ) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),
@@ -171,6 +178,62 @@ class CellWindowTests {
 
         assertTrue(mutableCellWindowState.offset.x > 3f)
         assertTrue(mutableCellWindowState.offset.y > 3f)
+    }
+
+    @Test
+    fun cells_are_not_scrolled_with_none_touch_tool_config() = runComposeUiTest {
+        val mutableGameOfLifeState = MutableGameOfLifeState(
+            cellState = setOf(
+                0 to 0,
+                0 to 2,
+                0 to 4,
+                2 to 0,
+                2 to 2,
+                2 to 4,
+                4 to 0,
+                4 to 2,
+                4 to 4,
+            ).toCellState(),
+        )
+
+        val mutableCellWindowState = MutableCellWindowState()
+
+        lateinit var density: Density
+
+        setContent {
+            density = LocalDensity.current
+
+            with(
+                object : CellWindowLocalEntryPoint {
+                    override val preferences = LoadedComposeLifePreferences.Defaults.copy(
+                        touchToolConfig = ToolConfig.None,
+                    )
+                },
+            ) {
+                MutableCellWindow(
+                    gameOfLifeState = mutableGameOfLifeState,
+                    modifier = Modifier.size(150.dp),
+                    viewportInteractionConfig = ViewportInteractionConfig.Navigable(mutableCellWindowState),
+                    cellDpSize = 30.dp,
+                )
+            }
+        }
+
+        onRoot().performTouchInput {
+            with(density) {
+                swipe(
+                    Offset(135.dp.toPx(), 135.dp.toPx()),
+                    Offset(15.dp.toPx(), 15.dp.toPx()),
+                )
+            }
+        }
+
+        waitForIdle()
+
+        assertEquals(
+            Offset.Zero,
+            mutableCellWindowState.offset,
+        )
     }
 
     @Test

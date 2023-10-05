@@ -21,6 +21,7 @@ import "com/alexvanyo/composelife/preferences/proto/current_shape_type.proto";
 import "com/alexvanyo/composelife/preferences/proto/dark_theme_config.proto";
 import "com/alexvanyo/composelife/preferences/proto/quick_access_setting.proto";
 import "com/alexvanyo/composelife/preferences/proto/shapes.proto";
+import "com/alexvanyo/composelife/preferences/proto/tool_config.proto";
 
 option java_package = "com.alexvanyo.composelife.preferences.proto";
 option java_multiple_files = true;
@@ -34,4 +35,7 @@ message PreferencesProto {
   bool disable_agsl = 6;
   bool disable_opengl = 7;
   bool do_not_keep_process = 8;
+  ToolConfigProto touch_tool_config = 9;
+  ToolConfigProto stylus_tool_config = 10;
+  ToolConfigProto mouse_tool_config = 11;
 }

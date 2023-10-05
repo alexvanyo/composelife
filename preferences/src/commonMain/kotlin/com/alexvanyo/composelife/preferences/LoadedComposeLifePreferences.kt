@@ -24,6 +24,9 @@ data class LoadedComposeLifePreferences(
     val disableAGSL: Boolean,
     val disableOpenGL: Boolean,
     val doNotKeepProcess: Boolean,
+    val touchToolConfig: ToolConfig,
+    val stylusToolConfig: ToolConfig,
+    val mouseToolConfig: ToolConfig,
 ) {
     companion object {
         val Defaults = LoadedComposeLifePreferences(
@@ -37,6 +40,9 @@ data class LoadedComposeLifePreferences(
             disableAGSL = false,
             disableOpenGL = false,
             doNotKeepProcess = false,
+            touchToolConfig = ToolConfig.Pan,
+            stylusToolConfig = ToolConfig.Draw,
+            mouseToolConfig = ToolConfig.Draw,
         )
     }
 }
