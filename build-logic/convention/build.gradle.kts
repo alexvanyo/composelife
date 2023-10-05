@@ -47,9 +47,11 @@ tasks.withType<Detekt>().configureEach {
     jvmTarget = JavaVersion.VERSION_11.toString()
 }
 
-tasks.withType<Detekt>().all {
-    tasks.getByName("check").dependsOn(this)
-}
+tasks.getByName("check").configure(
+    closureOf<Task> {
+        dependsOn(tasks.withType<Detekt>())
+    },
+)
 
 dependencies {
     implementation(libs.android.r8)
@@ -66,67 +68,67 @@ dependencies {
 gradlePlugin {
     plugins {
         register("androidApplication") {
-            id = "com.alexvanyo.composelife.android.application"
+            id = "com.alexvanyo.composelife.androidApplication"
             implementationClass = "AndroidApplicationConventionPlugin"
         }
         register("androidApplicationCompose") {
-            id = "com.alexvanyo.composelife.android.application.compose"
+            id = "com.alexvanyo.composelife.androidApplicationCompose"
             implementationClass = "AndroidApplicationComposeConventionPlugin"
         }
         register("androidApplicationJacoco") {
-            id = "com.alexvanyo.composelife.android.application.jacoco"
+            id = "com.alexvanyo.composelife.androidApplicationJacoco"
             implementationClass = "AndroidApplicationJacocoConventionPlugin"
         }
         register("androidApplicationKsp") {
-            id = "com.alexvanyo.composelife.android.application.ksp"
+            id = "com.alexvanyo.composelife.androidApplicationKsp"
             implementationClass = "AndroidApplicationKspConventionPlugin"
         }
         register("androidApplicationTesting") {
-            id = "com.alexvanyo.composelife.android.application.testing"
+            id = "com.alexvanyo.composelife.androidApplicationTesting"
             implementationClass = "AndroidApplicationTestingConventionPlugin"
         }
         register("androidLibrary") {
-            id = "com.alexvanyo.composelife.android.library"
+            id = "com.alexvanyo.composelife.androidLibrary"
             implementationClass = "AndroidLibraryConventionPlugin"
         }
         register("androidLibraryCompose") {
-            id = "com.alexvanyo.composelife.android.library.compose"
+            id = "com.alexvanyo.composelife.androidLibraryCompose"
             implementationClass = "AndroidLibraryComposeConventionPlugin"
         }
         register("androidLibraryJacoco") {
-            id = "com.alexvanyo.composelife.android.library.jacoco"
+            id = "com.alexvanyo.composelife.androidLibraryJacoco"
             implementationClass = "AndroidLibraryJacocoConventionPlugin"
         }
         register("androidLibraryKsp") {
-            id = "com.alexvanyo.composelife.android.library.ksp"
+            id = "com.alexvanyo.composelife.androidLibraryKsp"
             implementationClass = "AndroidLibraryKspConventionPlugin"
         }
         register("androidLibraryRoborazzi") {
-            id = "com.alexvanyo.composelife.android.library.roborazzi"
+            id = "com.alexvanyo.composelife.androidLibraryRoborazzi"
             implementationClass = "AndroidLibraryRoborazziConventionPlugin"
         }
         register("androidLibraryTesting") {
-            id = "com.alexvanyo.composelife.android.library.testing"
+            id = "com.alexvanyo.composelife.androidLibraryTesting"
             implementationClass = "AndroidLibraryTestingConventionPlugin"
         }
         register("androidTest") {
-            id = "com.alexvanyo.composelife.android.test"
+            id = "com.alexvanyo.composelife.androidTest"
             implementationClass = "AndroidTestConventionPlugin"
         }
         register("detekt") {
             id = "com.alexvanyo.composelife.detekt"
             implementationClass = "DetektConventionPlugin"
         }
-        register("kotlinMultiplatformConventionPlugin") {
-            id = "com.alexvanyo.composelife.kotlin.multiplatform"
+        register("kotlinMultiplatform") {
+            id = "com.alexvanyo.composelife.kotlinMultiplatform"
             implementationClass = "KotlinMultiplatformConventionPlugin"
         }
-        register("kotlinMultiplatformComposeConventionPlugin") {
-            id = "com.alexvanyo.composelife.kotlin.multiplatform.compose"
+        register("kotlinMultiplatformCompose") {
+            id = "com.alexvanyo.composelife.kotlinMultiplatformCompose"
             implementationClass = "KotlinMultiplatformComposeConventionPlugin"
         }
         register("mergeJacoco") {
-            id = "com.alexvanyo.composelife.mergejacoco"
+            id = "com.alexvanyo.composelife.mergeJacoco"
             implementationClass = "MergeJacocoConventionPlugin"
         }
     }

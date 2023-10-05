@@ -18,11 +18,11 @@ import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 
 plugins {
-    id("com.alexvanyo.composelife.kotlin.multiplatform")
-    id("com.alexvanyo.composelife.android.application")
-    id("com.alexvanyo.composelife.android.application.compose")
-    id("com.alexvanyo.composelife.android.application.ksp")
-    id("com.alexvanyo.composelife.detekt")
+    alias(libs.plugins.convention.kotlinMultiplatform)
+    alias(libs.plugins.convention.androidApplication)
+    alias(libs.plugins.convention.androidApplicationCompose)
+    alias(libs.plugins.convention.androidApplicationKsp)
+    alias(libs.plugins.convention.detekt)
 }
 
 android {
