@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.ui.app.cells
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,18 +32,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.HistoricalChange
 import androidx.compose.ui.input.pointer.PointerType
@@ -82,6 +78,7 @@ context(InteractableCellsLocalEntryPoint)
 @Composable
 fun InteractableCells(
     gameOfLifeState: MutableGameOfLifeState,
+    selectionStateHolder: MutableSelectionStateHolder,
     scaledCellDpSize: Dp,
     cellWindow: IntRect,
     pixelOffsetFromCenter: Offset,
@@ -118,9 +115,7 @@ fun InteractableCells(
                 PointerType.Mouse.takeIf { preferences.mouseToolConfig == ToolConfig.Erase },
             )
 
-        var selectionState by rememberSaveable(stateSaver = SelectionState.Saver) {
-            mutableStateOf(SelectionState.NoSelection)
-        }
+        var selectionState by selectionStateHolder::selectionState
 
         Box(
             Modifier
@@ -171,7 +166,7 @@ fun InteractableCells(
                                         width = 1,
                                         height = 1,
                                     )
-                                }
+                                },
                             )
                         }
                     }
@@ -200,11 +195,11 @@ fun InteractableCells(
                 is SelectionState.SelectingBox -> {
                     val handleAOffset = currentSelectionState.topLeft
                     val handleBOffset = currentSelectionState.topLeft +
-                            IntOffset(currentSelectionState.width, 0)
+                        IntOffset(currentSelectionState.width, 0)
                     val handleCOffset = currentSelectionState.topLeft +
-                            IntOffset(0, currentSelectionState.height)
+                        IntOffset(0, currentSelectionState.height)
                     val handleDOffset = currentSelectionState.topLeft +
-                            IntOffset(currentSelectionState.width, currentSelectionState.height)
+                        IntOffset(currentSelectionState.width, currentSelectionState.height)
 
                     val handles = listOf(handleAOffset, handleBOffset, handleCOffset, handleDOffset)
 
@@ -214,18 +209,25 @@ fun InteractableCells(
                                 modifier = Modifier
                                     .layout { measurable, constraints ->
                                         val placeable = measurable.measure(constraints)
-                                        layout(placeable.width, placeable.height) {
+                                        layout(constraints.maxWidth, constraints.maxHeight) {
                                             placeable.place(
-                                                x = ((handleOffset.x - cellWindow.topLeft.x) * scaledCellPixelSize - placeable.width / 2f).roundToInt(),
-                                                y = ((handleOffset.y - cellWindow.topLeft.y) * scaledCellPixelSize - placeable.height / 2f).roundToInt(),
+                                                x = (
+                                                    (handleOffset.x - cellWindow.topLeft.x) *
+                                                        scaledCellPixelSize - placeable.width / 2f
+                                                    ).roundToInt(),
+                                                y = (
+                                                    (handleOffset.y - cellWindow.topLeft.y) *
+                                                        scaledCellPixelSize - placeable.height / 2f
+                                                    ).roundToInt(),
                                             )
                                         }
-                                    }
+                                    },
                             ) {
                                 Spacer(
                                     Modifier
                                         .size(48.dp)
-                                        .background(MaterialTheme.colorScheme.secondary, shape = CircleShape)
+                                        .draggable()
+                                        .background(MaterialTheme.colorScheme.secondary, shape = CircleShape),
                                 )
                             }
                         }

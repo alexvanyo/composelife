@@ -79,12 +79,19 @@ class CellWindowTests {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(50.dp),
-                    viewportInteractionConfig = ViewportInteractionConfig.Fixed(
-                        CellWindowState(
-                            offset = Offset(-0.5f, -0.5f),
-                            scale = 1f,
-                        ),
-                    ),
+                    cellWindowInteractionState = object : MutableCellWindowInteractionState {
+                        override val viewportInteractionConfig: ViewportInteractionConfig
+                            get() = ViewportInteractionConfig.Fixed(
+                                CellWindowState(
+                                    offset = Offset(-0.5f, -0.5f),
+                                    scale = 1f,
+                                ),
+                            )
+
+                        override var selectionState: SelectionState
+                            get() = SelectionState.NoSelection
+                            set(_) {}
+                    },
                     cellDpSize = 10.dp,
                 )
             }
@@ -142,7 +149,7 @@ class CellWindowTests {
             ).toCellState(),
         )
 
-        val mutableCellWindowState = MutableCellWindowState()
+        val mutableCellWindowViewportState = MutableCellWindowViewportState()
 
         lateinit var density: Density
 
@@ -159,7 +166,14 @@ class CellWindowTests {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),
-                    viewportInteractionConfig = ViewportInteractionConfig.Navigable(mutableCellWindowState),
+                    cellWindowInteractionState = object : MutableCellWindowInteractionState {
+                        override val viewportInteractionConfig: ViewportInteractionConfig
+                            get() = ViewportInteractionConfig.Navigable(mutableCellWindowViewportState)
+
+                        override var selectionState: SelectionState
+                            get() = SelectionState.NoSelection
+                            set(_) {}
+                    },
                     cellDpSize = 30.dp,
                 )
             }
@@ -176,8 +190,8 @@ class CellWindowTests {
 
         waitForIdle()
 
-        assertTrue(mutableCellWindowState.offset.x > 3f)
-        assertTrue(mutableCellWindowState.offset.y > 3f)
+        assertTrue(mutableCellWindowViewportState.offset.x > 3f)
+        assertTrue(mutableCellWindowViewportState.offset.y > 3f)
     }
 
     @Test
@@ -196,7 +210,7 @@ class CellWindowTests {
             ).toCellState(),
         )
 
-        val mutableCellWindowState = MutableCellWindowState()
+        val mutableCellWindowViewportState = MutableCellWindowViewportState()
 
         lateinit var density: Density
 
@@ -213,7 +227,14 @@ class CellWindowTests {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),
-                    viewportInteractionConfig = ViewportInteractionConfig.Navigable(mutableCellWindowState),
+                    cellWindowInteractionState = object : MutableCellWindowInteractionState {
+                        override val viewportInteractionConfig: ViewportInteractionConfig
+                            get() = ViewportInteractionConfig.Navigable(mutableCellWindowViewportState)
+
+                        override var selectionState: SelectionState
+                            get() = SelectionState.NoSelection
+                            set(_) {}
+                    },
                     cellDpSize = 30.dp,
                 )
             }
@@ -232,7 +253,7 @@ class CellWindowTests {
 
         assertEquals(
             Offset.Zero,
-            mutableCellWindowState.offset,
+            mutableCellWindowViewportState.offset,
         )
     }
 
@@ -252,14 +273,21 @@ class CellWindowTests {
             ).toCellState(),
         )
 
-        val mutableCellWindowState = MutableCellWindowState()
+        val mutableCellWindowViewportState = MutableCellWindowViewportState()
 
         setContent {
             with(cellWindowLocalEntryPoint) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),
-                    viewportInteractionConfig = ViewportInteractionConfig.Navigable(mutableCellWindowState),
+                    cellWindowInteractionState = object : MutableCellWindowInteractionState {
+                        override val viewportInteractionConfig: ViewportInteractionConfig
+                            get() = ViewportInteractionConfig.Navigable(mutableCellWindowViewportState)
+
+                        override var selectionState: SelectionState
+                            get() = SelectionState.NoSelection
+                            set(_) {}
+                    },
                     cellDpSize = 30.dp,
                 )
             }
@@ -270,7 +298,7 @@ class CellWindowTests {
         }
         waitForIdle()
 
-        assertEquals(10f / 9f, mutableCellWindowState.scale)
+        assertEquals(10f / 9f, mutableCellWindowViewportState.scale)
     }
 
     @Test
@@ -289,14 +317,21 @@ class CellWindowTests {
             ).toCellState(),
         )
 
-        val mutableCellWindowState = MutableCellWindowState()
+        val mutableCellWindowViewportState = MutableCellWindowViewportState()
 
         setContent {
             with(cellWindowLocalEntryPoint) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),
-                    viewportInteractionConfig = ViewportInteractionConfig.Navigable(mutableCellWindowState),
+                    cellWindowInteractionState = object : MutableCellWindowInteractionState {
+                        override val viewportInteractionConfig: ViewportInteractionConfig
+                            get() = ViewportInteractionConfig.Navigable(mutableCellWindowViewportState)
+
+                        override var selectionState: SelectionState
+                            get() = SelectionState.NoSelection
+                            set(_) {}
+                    },
                     cellDpSize = 30.dp,
                 )
             }
@@ -307,6 +342,6 @@ class CellWindowTests {
         }
         waitForIdle()
 
-        assertEquals(9f / 10f, mutableCellWindowState.scale)
+        assertEquals(9f / 10f, mutableCellWindowViewportState.scale)
     }
 }

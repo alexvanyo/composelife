@@ -34,7 +34,7 @@ import kotlin.math.min
  * A viewport state that tracks the overall pattern to enable autofitting and keeping the entire pattern in view.
  */
 @Stable
-interface TrackingCellWindowState {
+interface TrackingCellWindowViewportState {
 
     /**
      * Calculates the [CellWindowViewport], with a bit of additional information.
@@ -59,16 +59,16 @@ interface TrackingCellWindowState {
 }
 
 /**
- * Remembers the [TrackingCellWindowState], based on the [gameOfLifeState].
+ * Remembers the [TrackingCellWindowViewportState], based on the [gameOfLifeState].
  *
- * As the [gameOfLifeState] updates, the [TrackingCellWindowState] will update the returned viewport based on the
- * most recent bounding boxes seen.
+ * As the [gameOfLifeState] updates, the [TrackingCellWindowViewportState] will update the returned viewport based on
+ * the most recent bounding boxes seen.
  */
 @Composable
-fun rememberTrackingCellWindowState(
+fun rememberTrackingCellWindowViewportState(
     gameOfLifeState: GameOfLifeState,
-    cellPadding: Float = TrackingCellWindowState.defaultCellPadding,
-): TrackingCellWindowState {
+    cellPadding: Float = TrackingCellWindowViewportState.defaultCellPadding,
+): TrackingCellWindowViewportState {
     /**
      * Keep track of the bounding boxes we have had a chance to display.
      */
@@ -115,7 +115,7 @@ fun rememberTrackingCellWindowState(
         bottom = maxBoundingBox.bottom + cellPadding,
     )
 
-    return object : TrackingCellWindowState {
+    return object : TrackingCellWindowViewportState {
         override fun calculateCellWindowViewport(
             baseCellWidth: Float,
             baseCellHeight: Float,

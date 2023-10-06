@@ -47,7 +47,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
-import com.alexvanyo.composelife.ui.app.cells.CellWindowState
+import com.alexvanyo.composelife.ui.app.cells.CellWindowViewportState
+import com.alexvanyo.composelife.ui.app.cells.offset
+import com.alexvanyo.composelife.ui.app.cells.scale
 import com.alexvanyo.composelife.ui.app.component.PlainTooltipBox
 import com.alexvanyo.composelife.ui.app.resources.Collapse
 import com.alexvanyo.composelife.ui.app.resources.Expand
@@ -116,7 +118,7 @@ class CellUniverseInfoCardContent(
 
 @Composable
 fun CellUniverseInfoCard(
-    cellWindowState: CellWindowState,
+    cellWindowViewportState: CellWindowViewportState,
     evolutionStatus: TemporalGameOfLifeState.EvolutionStatus,
     infoCardState: CellUniverseInfoCardState,
     modifier: Modifier = Modifier,
@@ -128,15 +130,15 @@ fun CellUniverseInfoCard(
             {
                 parameterizedStringResource(
                     Strings.OffsetInfoMessage(
-                        cellWindowState.offset.x,
-                        cellWindowState.offset.y,
+                        cellWindowViewportState.offset.x,
+                        cellWindowViewportState.offset.y,
                     ),
                 )
             },
             {
                 parameterizedStringResource(
                     Strings.ScaleInfoMessage(
-                        cellWindowState.scale,
+                        cellWindowViewportState.scale,
                     ),
                 )
             },

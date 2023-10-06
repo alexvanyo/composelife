@@ -38,9 +38,11 @@ import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.patterns.OscillatorPattern
 import com.alexvanyo.composelife.patterns.values
 import com.alexvanyo.composelife.random.di.RandomProvider
+import com.alexvanyo.composelife.ui.app.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.CellWindowState
 import com.alexvanyo.composelife.ui.app.cells.ImmutableCellWindow
+import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.cells.ViewportInteractionConfig
 import kotlin.math.max
 
@@ -114,17 +116,20 @@ fun GameOfLifeProgressIndicator(
             .clipToBounds()
             .progressSemantics()
             .clearAndSetSemantics {},
-        viewportInteractionConfig = ViewportInteractionConfig.Fixed(
-            cellWindowState = CellWindowState(
-                offset = Offset(
-                    pattern.boundingBox.width / 2f,
-                    pattern.boundingBox.height / 2f,
-                ),
-                scale = 1f / max(
-                    pattern.boundingBox.width + 1,
-                    pattern.boundingBox.height + 1,
+        cellWindowInteractionState = CellWindowInteractionState(
+            viewportInteractionConfig = ViewportInteractionConfig.Fixed(
+                cellWindowViewportState = CellWindowState(
+                    offset = Offset(
+                        pattern.boundingBox.width / 2f,
+                        pattern.boundingBox.height / 2f,
+                    ),
+                    scale = 1f / max(
+                        pattern.boundingBox.width + 1,
+                        pattern.boundingBox.height + 1,
+                    ),
                 ),
             ),
+            selectionState = SelectionState.NoSelection,
         ),
         cellDpSize = 48.dp,
     )

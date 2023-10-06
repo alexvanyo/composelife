@@ -50,6 +50,11 @@ fun InteractableCellsPreview() {
                             4 to 4,
                         ).toCellState(),
                     ),
+                    selectionStateHolder = object : MutableSelectionStateHolder {
+                        override var selectionState: SelectionState
+                            get() = SelectionState.NoSelection
+                            set(_) {}
+                    },
                     scaledCellDpSize = 32.dp,
                     cellWindow = IntRect(
                         IntOffset(0, 0),

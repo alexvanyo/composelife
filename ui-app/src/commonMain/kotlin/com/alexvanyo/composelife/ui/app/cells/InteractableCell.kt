@@ -99,7 +99,7 @@ fun InteractableCell(
 //                    false
 //                }
                 false
-            }
+            },
     ) {
         val drawColor = when (drawState) {
             DrawState.Alive -> aliveColor
