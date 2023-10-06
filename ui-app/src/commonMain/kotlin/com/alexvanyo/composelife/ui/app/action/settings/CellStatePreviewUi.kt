@@ -28,9 +28,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
+import com.alexvanyo.composelife.ui.app.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.CellWindowState
 import com.alexvanyo.composelife.ui.app.cells.ImmutableCellWindow
+import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.cells.ViewportInteractionConfig
 
 interface CellStatePreviewUiLocalEntryPoint :
@@ -57,12 +59,18 @@ fun CellStatePreviewUi(
                 """.toCellState(),
             ),
             modifier = Modifier.size(96.dp).clipToBounds(),
-            viewportInteractionConfig = ViewportInteractionConfig.Fixed(
-                CellWindowState(
-                    offset = Offset(2f, 2f),
-                    scale = 1f,
-                ),
-            ),
+            cellWindowInteractionState = object : CellWindowInteractionState {
+                override val viewportInteractionConfig = ViewportInteractionConfig.Fixed(
+                    CellWindowState(
+                        offset = Offset(2f, 2f),
+                        scale = 1f,
+                    ),
+                )
+
+                override var selectionState: SelectionState
+                    get() = SelectionState.NoSelection
+                    set(_) {}
+            },
             cellDpSize = 96.dp / 5,
             inOverlay = true,
         )

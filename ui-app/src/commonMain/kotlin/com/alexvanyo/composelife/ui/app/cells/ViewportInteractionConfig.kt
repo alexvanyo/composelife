@@ -22,34 +22,34 @@ package com.alexvanyo.composelife.ui.app.cells
 sealed interface ViewportInteractionConfig {
 
     /**
-     * The [MutableCellWindowState]s (if any) to sync the currently displayed cell window state back to.
+     * The [MutableCellWindowViewportState]s (if any) to sync the currently displayed cell window state back to.
      */
-    val syncableMutableCellWindowStates: List<MutableCellWindowState>
+    val syncableMutableCellWindowViewportStates: List<MutableCellWindowViewportState>
 
     /**
      * The viewport is fixed, and can only be changed programmatically and not by the user (via gestures or
      * accessibility actions)
      */
     class Fixed(
-        val cellWindowState: CellWindowState,
-        override val syncableMutableCellWindowStates: List<MutableCellWindowState> = emptyList(),
+        val cellWindowViewportState: CellWindowViewportState,
+        override val syncableMutableCellWindowViewportStates: List<MutableCellWindowViewportState> = emptyList(),
     ) : ViewportInteractionConfig
 
     /**
-     * The viewport is navigable, and can be panned and zoomed by the user into [mutableCellWindowState].
+     * The viewport is navigable, and can be panned and zoomed by the user into [mutableCellWindowViewportState].
      */
     class Navigable(
-        val mutableCellWindowState: MutableCellWindowState,
-        override val syncableMutableCellWindowStates: List<MutableCellWindowState> = emptyList(),
+        val mutableCellWindowViewportState: MutableCellWindowViewportState,
+        override val syncableMutableCellWindowViewportStates: List<MutableCellWindowViewportState> = emptyList(),
     ) : ViewportInteractionConfig
 
     /**
-     * The viewport is tracking the pattern in an auto-fit manner driven by [trackingCellWindowState].
-     * The resulting offset and scale will be synced back to [syncableMutableCellWindowStates] to keep
+     * The viewport is tracking the pattern in an auto-fit manner driven by [trackingCellWindowViewportState].
+     * The resulting offset and scale will be synced back to [syncableMutableCellWindowViewportStates] to keep
      * consistency.
      */
     class Tracking(
-        val trackingCellWindowState: TrackingCellWindowState,
-        override val syncableMutableCellWindowStates: List<MutableCellWindowState> = emptyList(),
+        val trackingCellWindowViewportState: TrackingCellWindowViewportState,
+        override val syncableMutableCellWindowViewportStates: List<MutableCellWindowViewportState> = emptyList(),
     ) : ViewportInteractionConfig
 }

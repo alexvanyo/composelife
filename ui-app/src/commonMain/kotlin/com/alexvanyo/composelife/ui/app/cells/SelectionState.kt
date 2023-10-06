@@ -16,7 +16,14 @@
 
 package com.alexvanyo.composelife.ui.app.cells
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
@@ -72,5 +79,39 @@ object IntOffsetSerializer : KSerializer<IntOffset> {
 
     override fun serialize(encoder: Encoder, value: IntOffset) {
         encoder.encodeLong(packInts(value.x, value.y))
+    }
+}
+
+@Stable
+interface SelectionStateHolder {
+    val selectionState: SelectionState
+}
+
+fun SelectionStateHolder(
+    selectionState: SelectionState,
+) = object : SelectionStateHolder {
+    override val selectionState: SelectionState = selectionState
+}
+
+@Stable
+interface MutableSelectionStateHolder {
+    var selectionState: SelectionState
+}
+
+@Composable
+fun rememberMutableSelectionStateHolder(
+    initialSelectionState: SelectionState.NoSelection,
+): MutableSelectionStateHolder {
+    var selectionState by rememberSaveable(stateSaver = SelectionState.Saver) {
+        mutableStateOf(initialSelectionState)
+    }
+    return remember {
+        object : MutableSelectionStateHolder {
+            override var selectionState: SelectionState
+                get() = selectionState
+                set(value) {
+                    selectionState = value
+                }
+        }
     }
 }

@@ -15,7 +15,6 @@
  */
 
 package com.alexvanyo.composelife.ui.app.cells
-
 import androidx.compose.runtime.Composable
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
@@ -43,6 +42,12 @@ fun NavigableImmutableCellWindowPreview() {
                         4 to 4,
                     ).toCellState(),
                 ),
+                cellWindowInteractionState = CellWindowInteractionState(
+                    viewportInteractionConfig = ViewportInteractionConfig.Navigable(
+                        mutableCellWindowViewportState = rememberMutableCellWindowViewportState(),
+                    ),
+                    selectionState = SelectionState.NoSelection,
+                ),
             )
         }
     }
@@ -66,12 +71,15 @@ fun TrackingImmutableCellWindowPreview() {
                     4 to 4,
                 ).toCellState(),
             )
-            val trackingCellWindowState = rememberTrackingCellWindowState(gameOfLifeState)
+            val trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(gameOfLifeState)
 
             ImmutableCellWindow(
                 gameOfLifeState = gameOfLifeState,
-                viewportInteractionConfig = ViewportInteractionConfig.Tracking(
-                    trackingCellWindowState = trackingCellWindowState,
+                cellWindowInteractionState = CellWindowInteractionState(
+                    viewportInteractionConfig = ViewportInteractionConfig.Tracking(
+                        trackingCellWindowViewportState = trackingCellWindowViewportState,
+                    ),
+                    selectionState = SelectionState.NoSelection,
                 ),
             )
         }
@@ -83,6 +91,10 @@ fun TrackingImmutableCellWindowPreview() {
 fun NavigableMutableCellWindowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
+            val mutableCellWindowViewportState = rememberMutableCellWindowViewportState()
+
+            val selectionStateHolder = rememberMutableSelectionStateHolder(SelectionState.NoSelection)
+
             MutableCellWindow(
                 gameOfLifeState = MutableGameOfLifeState(
                     setOf(
@@ -97,6 +109,13 @@ fun NavigableMutableCellWindowPreview() {
                         4 to 4,
                     ).toCellState(),
                 ),
+                cellWindowInteractionState = object :
+                    MutableCellWindowInteractionState,
+                    MutableSelectionStateHolder by selectionStateHolder {
+                    override val viewportInteractionConfig = ViewportInteractionConfig.Navigable(
+                        mutableCellWindowViewportState = mutableCellWindowViewportState,
+                    )
+                },
             )
         }
     }
@@ -120,7 +139,9 @@ fun TrackingMutableCellWindowPreview() {
                     4 to 4,
                 ).toCellState(),
             )
-            val trackingCellWindowState = rememberTrackingCellWindowState(gameOfLifeState)
+            val trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(gameOfLifeState)
+
+            val selectionStateHolder = rememberMutableSelectionStateHolder(SelectionState.NoSelection)
 
             MutableCellWindow(
                 gameOfLifeState = MutableGameOfLifeState(
@@ -136,9 +157,13 @@ fun TrackingMutableCellWindowPreview() {
                         4 to 4,
                     ).toCellState(),
                 ),
-                viewportInteractionConfig = ViewportInteractionConfig.Tracking(
-                    trackingCellWindowState = trackingCellWindowState,
-                ),
+                cellWindowInteractionState = object :
+                    MutableCellWindowInteractionState,
+                    MutableSelectionStateHolder by selectionStateHolder {
+                    override val viewportInteractionConfig = ViewportInteractionConfig.Tracking(
+                        trackingCellWindowViewportState = trackingCellWindowViewportState,
+                    )
+                },
             )
         }
     }

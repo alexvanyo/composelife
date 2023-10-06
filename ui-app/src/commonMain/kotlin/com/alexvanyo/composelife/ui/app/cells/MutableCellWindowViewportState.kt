@@ -30,20 +30,22 @@ import androidx.compose.ui.geometry.Offset
  * A state holder describing a specific viewport into the cell universe.
  */
 @Stable
-interface MutableCellWindowState : CellWindowState {
+interface MutableCellWindowViewportState : CellWindowViewportState {
+
+    override var cellWindowViewport: CellWindowViewport
 
     /**
      * The [Offset] (in cell coordinates) of the center focused cell.
      *
      * Positive x is to the right, and positive y is to the bottom.
      */
-    override var offset: Offset
+    fun setOffset(offset: Offset)
 
     /**
      * The scale of the current cell window. This is a multiplicative scale, so `1` is the default scale,
      * `2` corresponds to cells twice as big, and `0.5` corresponds to cells half as big.
      */
-    override var scale: Float
+    fun setScale(scale: Float)
 
     /**
      * The allowed range that [scale] can take. This cannot be an empty range.
@@ -58,48 +60,38 @@ interface MutableCellWindowState : CellWindowState {
 }
 
 /**
- * Sets this [MutableCellWindowState] to match the given [cellWindowViewport].
- */
-fun MutableCellWindowState.setTo(
-    cellWindowViewport: CellWindowViewport,
-) {
-    offset = cellWindowViewport.offset
-    scale = cellWindowViewport.scale
-}
-
-/**
- * Remembers a [MutableCellWindowState], with the given default
+ * Remembers a [MutableCellWindowViewportState], with the given default
  */
 @Composable
-fun rememberMutableCellWindowState(
-    offset: Offset = MutableCellWindowState.defaultOffset,
-    scale: Float = MutableCellWindowState.defaultScale,
-    scaleRange: ClosedRange<Float> = MutableCellWindowState.defaultScaleRange,
-): MutableCellWindowState =
-    rememberSaveable(saver = MutableCellWindowStateImpl.Saver) {
-        MutableCellWindowState(
+fun rememberMutableCellWindowViewportState(
+    offset: Offset = MutableCellWindowViewportState.defaultOffset,
+    scale: Float = MutableCellWindowViewportState.defaultScale,
+    scaleRange: ClosedRange<Float> = MutableCellWindowViewportState.defaultScaleRange,
+): MutableCellWindowViewportState =
+    rememberSaveable(saver = MutableCellWindowViewportStateImpl.Saver) {
+        MutableCellWindowViewportState(
             offset = offset,
             scale = scale,
             scaleRange = scaleRange,
         )
     }
 
-fun MutableCellWindowState(
-    offset: Offset = MutableCellWindowState.defaultOffset,
-    scale: Float = MutableCellWindowState.defaultScale,
-    scaleRange: ClosedRange<Float> = MutableCellWindowState.defaultScaleRange,
-): MutableCellWindowState = MutableCellWindowStateImpl(
+fun MutableCellWindowViewportState(
+    offset: Offset = MutableCellWindowViewportState.defaultOffset,
+    scale: Float = MutableCellWindowViewportState.defaultScale,
+    scaleRange: ClosedRange<Float> = MutableCellWindowViewportState.defaultScaleRange,
+): MutableCellWindowViewportState = MutableCellWindowViewportStateImpl(
     offset = offset,
     scale = scale,
     scaleRange = scaleRange,
 )
 
-private class MutableCellWindowStateImpl(
+private class MutableCellWindowViewportStateImpl(
     offset: Offset = Offset.Zero,
     scale: Float = 1f,
     scaleRange: ClosedRange<Float> = 0.1f..3f,
-) : MutableCellWindowState {
-    override var offset: Offset by mutableStateOf(offset)
+) : MutableCellWindowViewportState {
+    private var _offset: Offset by mutableStateOf(offset)
 
     private var _scaleRange by mutableStateOf(scaleRange)
 
@@ -109,28 +101,37 @@ private class MutableCellWindowStateImpl(
             require(!scaleRange.isEmpty()) { "scaleRange cannot be empty" }
             _scaleRange = value
             // Set scale, to coerce the value to the new range (if necessary)
-            scale = scale
+            setScale(scale)
         }
 
     private var _scale by mutableStateOf(scale)
 
-    override var scale: Float
-        get() = _scale
+    override var cellWindowViewport: CellWindowViewport
+        get() = CellWindowViewport(_offset, _scale)
         set(value) {
-            _scale = value.coerceIn(scaleRange)
+            setOffset(value.offset)
+            setScale(value.scale)
         }
 
     init {
         // Ensure invariants are met
         this.scaleRange = scaleRange
-        this.scale = scale
+        setScale(scale)
+    }
+
+    override fun setOffset(offset: Offset) {
+        _offset = offset
+    }
+
+    override fun setScale(scale: Float) {
+        _scale = scale.coerceIn(scaleRange)
     }
 
     companion object {
-        val Saver: Saver<MutableCellWindowState, *> = listSaver(
+        val Saver: Saver<MutableCellWindowViewportState, *> = listSaver(
             { listOf(it.offset.x, it.offset.y, it.scale, it.scaleRange.start, it.scaleRange.endInclusive) },
             {
-                MutableCellWindowStateImpl(
+                MutableCellWindowViewportStateImpl(
                     offset = Offset(it[0], it[1]),
                     scale = it[2],
                     scaleRange = it[3]..it[4],

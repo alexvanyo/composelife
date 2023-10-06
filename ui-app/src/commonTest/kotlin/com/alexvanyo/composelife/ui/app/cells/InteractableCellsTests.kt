@@ -79,6 +79,7 @@ class InteractableCellsTests {
 
                 InteractableCells(
                     gameOfLifeState = mutableGameOfLifeState,
+                    selectionStateHolder = rememberMutableSelectionStateHolder(SelectionState.NoSelection),
                     scaledCellDpSize = 10.dp,
                     cellWindow = IntRect(
                         IntOffset(0, 0),
@@ -179,6 +180,7 @@ class InteractableCellsTests {
 
                 InteractableCells(
                     gameOfLifeState = mutableGameOfLifeState,
+                    selectionStateHolder = rememberMutableSelectionStateHolder(SelectionState.NoSelection),
                     scaledCellDpSize = 10.dp,
                     cellWindow = IntRect(
                         IntOffset(0, 0),
@@ -239,6 +241,7 @@ class InteractableCellsTests {
             ) {
                 InteractableCells(
                     gameOfLifeState = mutableGameOfLifeState,
+                    selectionStateHolder = rememberMutableSelectionStateHolder(SelectionState.NoSelection),
                     scaledCellDpSize = 10.dp,
                     cellWindow = IntRect(
                         IntOffset(0, 0),
@@ -304,6 +307,7 @@ class InteractableCellsTests {
             ) {
                 InteractableCells(
                     gameOfLifeState = mutableGameOfLifeState,
+                    selectionStateHolder = rememberMutableSelectionStateHolder(SelectionState.NoSelection),
                     scaledCellDpSize = 10.dp,
                     cellWindow = IntRect(
                         IntOffset(0, 0),

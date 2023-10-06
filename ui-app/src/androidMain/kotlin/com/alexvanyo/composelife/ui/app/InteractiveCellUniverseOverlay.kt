@@ -54,7 +54,7 @@ import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutType
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCard
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.cells.CellWindowState
+import com.alexvanyo.composelife.ui.app.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.isInProgress
@@ -73,7 +73,7 @@ context(InteractiveCellUniverseOverlayInjectEntryPoint, InteractiveCellUniverseO
 fun InteractiveCellUniverseOverlay(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     interactiveCellUniverseState: InteractiveCellUniverseState,
-    cellWindowState: CellWindowState,
+    cellWindowViewportState: CellWindowViewportState,
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
 ) {
@@ -106,7 +106,7 @@ fun InteractiveCellUniverseOverlay(
                     .layoutId(CellUniverseInfoCard),
             ) {
                 CellUniverseInfoCard(
-                    cellWindowState = cellWindowState,
+                    cellWindowViewportState = cellWindowViewportState,
                     evolutionStatus = temporalGameOfLifeState.status,
                     infoCardState = interactiveCellUniverseState.infoCardState,
                     modifier = Modifier

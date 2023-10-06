@@ -43,13 +43,16 @@ import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.isRunning
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardState
 import com.alexvanyo.composelife.ui.app.action.rememberCellUniverseActionCardState
+import com.alexvanyo.composelife.ui.app.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.MutableCellWindow
-import com.alexvanyo.composelife.ui.app.cells.MutableCellWindowState
-import com.alexvanyo.composelife.ui.app.cells.TrackingCellWindowState
+import com.alexvanyo.composelife.ui.app.cells.MutableCellWindowInteractionState
+import com.alexvanyo.composelife.ui.app.cells.MutableCellWindowViewportState
+import com.alexvanyo.composelife.ui.app.cells.SelectionState
+import com.alexvanyo.composelife.ui.app.cells.TrackingCellWindowViewportState
 import com.alexvanyo.composelife.ui.app.cells.ViewportInteractionConfig
-import com.alexvanyo.composelife.ui.app.cells.rememberMutableCellWindowState
-import com.alexvanyo.composelife.ui.app.cells.rememberTrackingCellWindowState
+import com.alexvanyo.composelife.ui.app.cells.rememberMutableCellWindowViewportState
+import com.alexvanyo.composelife.ui.app.cells.rememberTrackingCellWindowViewportState
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.util.PredictiveBackHandler
@@ -114,14 +117,14 @@ fun InteractiveCellUniverse(
             MutableCellWindow(
                 gameOfLifeState = temporalGameOfLifeState,
                 modifier = Modifier.testTag("MutableCellWindow"),
-                viewportInteractionConfig = interactiveCellUniverseState.viewportInteractionConfig,
+                cellWindowInteractionState = interactiveCellUniverseState.cellWindowInteractionState,
             )
         }
 
         InteractiveCellUniverseOverlay(
             temporalGameOfLifeState = temporalGameOfLifeState,
             interactiveCellUniverseState = interactiveCellUniverseState,
-            cellWindowState = interactiveCellUniverseState.mutableCellWindowState,
+            cellWindowViewportState = interactiveCellUniverseState.mutableCellWindowViewportState,
             windowSizeClass = windowSizeClass,
         )
     }
@@ -135,19 +138,19 @@ interface InteractiveCellUniverseState {
     var isViewportTracking: Boolean
 
     /**
-     * The [MutableCellWindowState] for use when [isViewportTracking] is `false`.
+     * The [MutableCellWindowViewportState] for use when [isViewportTracking] is `false`.
      */
-    val mutableCellWindowState: MutableCellWindowState
+    val mutableCellWindowViewportState: MutableCellWindowViewportState
 
     /**
-     * The [TrackingCellWindowState] for use when [isViewportTracking] is `true`.
+     * The [TrackingCellWindowViewportState] for use when [isViewportTracking] is `true`.
      */
-    val trackingCellWindowState: TrackingCellWindowState
+    val trackingCellWindowViewportState: TrackingCellWindowViewportState
 
     /**
-     * The [ViewportInteractionConfig].
+     * The [CellWindowInteractionState] containing the [ViewportInteractionConfig] and [SelectionState].
      */
-    val viewportInteractionConfig: ViewportInteractionConfig
+    val cellWindowInteractionState: MutableCellWindowInteractionState
 
     /**
      * `true` if the action card is the "top card", meaning that it should be preferred to be shown if there isn't
@@ -177,8 +180,12 @@ interface InteractiveCellUniverseState {
 fun rememberInteractiveCellUniverseState(
     temporalGameOfLifeState: TemporalGameOfLifeState,
 ): InteractiveCellUniverseState {
-    val mutableCellWindowState = rememberMutableCellWindowState()
-    val trackingCellWindowState = rememberTrackingCellWindowState(temporalGameOfLifeState)
+    val mutableCellWindowViewportState = rememberMutableCellWindowViewportState()
+    val trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(temporalGameOfLifeState)
+
+    var selectionState by rememberSaveable(stateSaver = SelectionState.Saver) {
+        mutableStateOf(SelectionState.NoSelection)
+    }
 
     var isViewportTracking by rememberSaveable { mutableStateOf(false) }
 
@@ -251,28 +258,45 @@ fun rememberInteractiveCellUniverseState(
         },
     )
 
-    return remember(mutableCellWindowState, trackingCellWindowState, infoCardState, actionCardState) {
+    val viewportInteractionConfig: ViewportInteractionConfig by
+        remember(mutableCellWindowViewportState, trackingCellWindowViewportState) {
+            derivedStateOf {
+                if (isViewportTracking) {
+                    ViewportInteractionConfig.Tracking(
+                        trackingCellWindowViewportState = trackingCellWindowViewportState,
+                        syncableMutableCellWindowViewportStates = listOf(mutableCellWindowViewportState),
+                    )
+                } else {
+                    ViewportInteractionConfig.Navigable(
+                        mutableCellWindowViewportState = mutableCellWindowViewportState,
+                    )
+                }
+            }
+        }
+
+    return remember(mutableCellWindowViewportState, trackingCellWindowViewportState, infoCardState, actionCardState) {
         object : InteractiveCellUniverseState {
             override var isViewportTracking: Boolean
                 get() = isViewportTracking
                 set(value) {
                     isViewportTracking = value
                 }
-            override val mutableCellWindowState: MutableCellWindowState = mutableCellWindowState
-            override val trackingCellWindowState: TrackingCellWindowState = trackingCellWindowState
+            override val mutableCellWindowViewportState: MutableCellWindowViewportState =
+                mutableCellWindowViewportState
+            override val trackingCellWindowViewportState: TrackingCellWindowViewportState =
+                trackingCellWindowViewportState
 
-            override val viewportInteractionConfig: ViewportInteractionConfig by derivedStateOf {
-                if (isViewportTracking) {
-                    ViewportInteractionConfig.Tracking(
-                        trackingCellWindowState = trackingCellWindowState,
-                        syncableMutableCellWindowStates = listOf(mutableCellWindowState),
-                    )
-                } else {
-                    ViewportInteractionConfig.Navigable(
-                        mutableCellWindowState = mutableCellWindowState,
-                    )
+            override val cellWindowInteractionState: MutableCellWindowInteractionState by derivedStateOf {
+                object : MutableCellWindowInteractionState {
+                    override val viewportInteractionConfig: ViewportInteractionConfig = viewportInteractionConfig
+                    override var selectionState: SelectionState
+                        get() = selectionState
+                        set(value) {
+                            selectionState = value
+                        }
                 }
             }
+
             override val isActionCardTopCard: Boolean
                 get() = isActionCardTopCard
             override val infoCardState: CellUniverseInfoCardState = infoCardState
