@@ -81,7 +81,7 @@ jobs:
         run: cp wear-baseline-profile-generator/build/intermediates/managed_device_android_test_additional_output/benchmark/wearwearoslargeroundapi28/BaselineProfileGenerator_startup_baseline_prof.txt wear/src/androidMain/baseline-prof.txt
 
       - name: Auto-commit changes
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Auto update app baseline profile
           push_options: --force-with-lease
