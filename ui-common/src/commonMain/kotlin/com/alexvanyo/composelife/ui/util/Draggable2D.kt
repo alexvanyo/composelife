@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("TooManyFunctions", "ReturnCount", "LongParameterList")
 
 package com.alexvanyo.composelife.ui.util
 
@@ -83,7 +84,7 @@ interface Draggable2DState {
      */
     suspend fun drag(
         dragPriority: MutatePriority = MutatePriority.Default,
-        block: suspend Drag2DScope.() -> Unit
+        block: suspend Drag2DScope.() -> Unit,
     )
 
     /**
@@ -188,7 +189,7 @@ fun Modifier.draggable2D(
     startDragImmediately: Boolean = false,
     onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {},
     onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit = {},
-    reverseDirection: Boolean = false
+    reverseDirection: Boolean = false,
 ): Modifier = this then Draggable2DElement(
     state = state,
     enabled = enabled,
@@ -197,7 +198,7 @@ fun Modifier.draggable2D(
     onDragStarted = onDragStarted,
     onDragStopped = onDragStopped,
     reverseDirection = reverseDirection,
-    canDrag = { true }
+    canDrag = { true },
 )
 
 @Suppress("PrimitiveInLambda")
@@ -219,7 +220,7 @@ private class Draggable2DElement(
         startDragImmediately,
         onDragStarted,
         onDragStopped,
-        reverseDirection
+        reverseDirection,
     )
 
     override fun update(node: Draggable2DNode) {
@@ -231,7 +232,7 @@ private class Draggable2DElement(
             startDragImmediately,
             onDragStarted,
             onDragStopped,
-            reverseDirection
+            reverseDirection,
         )
     }
 
@@ -288,7 +289,7 @@ private class Draggable2DNode(
     startDragImmediately: () -> Boolean,
     onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
     onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
-    reverseDirection: Boolean
+    reverseDirection: Boolean,
 ) : AbstractDraggableNode(
     canDrag,
     enabled,
@@ -296,7 +297,7 @@ private class Draggable2DNode(
     startDragImmediately,
     onDragStarted,
     onDragStopped,
-    reverseDirection
+    reverseDirection,
 ) {
     var drag2DScope: Drag2DScope = NoOpDrag2DScope
 
@@ -328,7 +329,7 @@ private class Draggable2DNode(
         startDragImmediately: () -> Boolean,
         onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
         onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
-        reverseDirection: Boolean
+        reverseDirection: Boolean,
     ) {
         var resetPointerInputHandling = false
         if (this.state != state) {
@@ -361,7 +362,7 @@ private class Draggable2DNode(
 }
 
 private val NoOpDrag2DScope: Drag2DScope = object : Drag2DScope {
-    override fun dragBy(pixels: Offset) {}
+    override fun dragBy(pixels: Offset) = Unit
 }
 
 @Suppress("PrimitiveInLambda")
@@ -374,7 +375,7 @@ private class DefaultDraggable2DState(val onDelta: (Offset) -> Unit) : Draggable
 
     override suspend fun drag(
         dragPriority: MutatePriority,
-        block: suspend Drag2DScope.() -> Unit
+        block: suspend Drag2DScope.() -> Unit,
     ): Unit = coroutineScope {
         drag2DMutex.mutateWith(drag2DScope, dragPriority, block)
     }
@@ -396,7 +397,7 @@ private abstract class AbstractDraggableNode(
     var startDragImmediately: () -> Boolean,
     var onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
     var onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
-    var reverseDirection: Boolean
+    var reverseDirection: Boolean,
 ) : DelegatingNode(), PointerInputModifierNode, CompositionLocalConsumerModifierNode {
 
     // Use wrapper lambdas here to make sure that if these properties are updated while we suspend,
@@ -450,77 +451,79 @@ private abstract class AbstractDraggableNode(
                     } else if (event is DragCancelled) {
                         processDragCancel()
                     }
-                } catch (c: CancellationException) {
+                } catch (@Suppress("SwallowedException") c: CancellationException) {
                     processDragCancel()
                 }
             }
         }
     }
 
-    val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
-        // TODO: conditionally undelegate when aosp/2462416 lands?
-        if (!enabled) return@SuspendingPointerInputModifierNode
-        coroutineScope {
-            try {
-                awaitPointerEventScope {
-                    while (isActive) {
-                        awaitDownAndSlop(
-                            _canDrag,
-                            _startDragImmediately,
-                            velocityTracker,
-                            pointerDirectionConfig
-                        )?.let {
-                            /**
-                             * The gesture crossed the touch slop, events are now relevant
-                             * and should be propagated
-                             */
-                            /**
-                             * The gesture crossed the touch slop, events are now relevant
-                             * and should be propagated
-                             */
-                            if (!isListeningForEvents) {
-                                startListeningForEvents()
-                            }
-                            var isDragSuccessful = false
-                            try {
-                                isDragSuccessful = awaitDrag(
-                                    it.first,
-                                    it.second,
-                                    velocityTracker,
-                                    channel,
-                                    reverseDirection
-                                ) { event ->
-                                    pointerDirectionConfig.calculateDeltaChange(
-                                        event.positionChangeIgnoreConsumed()
-                                    ) != 0f
+    val pointerInputNode = delegate(
+        SuspendingPointerInputModifierNode {
+            // TODO: conditionally undelegate when aosp/2462416 lands?
+            if (!enabled) return@SuspendingPointerInputModifierNode
+            coroutineScope {
+                try {
+                    awaitPointerEventScope {
+                        while (isActive) {
+                            awaitDownAndSlop(
+                                _canDrag,
+                                _startDragImmediately,
+                                velocityTracker,
+                                pointerDirectionConfig,
+                            )?.let {
+                                /**
+                                 * The gesture crossed the touch slop, events are now relevant
+                                 * and should be propagated
+                                 */
+                                /**
+                                 * The gesture crossed the touch slop, events are now relevant
+                                 * and should be propagated
+                                 */
+                                if (!isListeningForEvents) {
+                                    startListeningForEvents()
                                 }
-                            } catch (cancellation: CancellationException) {
-                                isDragSuccessful = false
-                                if (!isActive) throw cancellation
-                            } finally {
-                                val maximumVelocity = currentValueOf(LocalViewConfiguration)
-                                    .maxFlingVelocity.toFloat()
-                                val event = if (isDragSuccessful) {
-                                    val velocity = velocityTracker.calculateVelocity(
-                                        Velocity(maximumVelocity, maximumVelocity)
-                                    )
-                                    velocityTracker.resetTracking()
-                                    DragStopped(velocity * if (reverseDirection) -1f else 1f)
-                                } else {
-                                    DragCancelled
+                                var isDragSuccessful = false
+                                try {
+                                    isDragSuccessful = awaitDrag(
+                                        it.first,
+                                        it.second,
+                                        velocityTracker,
+                                        channel,
+                                        reverseDirection,
+                                    ) { event ->
+                                        pointerDirectionConfig.calculateDeltaChange(
+                                            event.positionChangeIgnoreConsumed(),
+                                        ) != 0f
+                                    }
+                                } catch (cancellation: CancellationException) {
+                                    isDragSuccessful = false
+                                    if (!isActive) throw cancellation
+                                } finally {
+                                    val maximumVelocity = currentValueOf(LocalViewConfiguration)
+                                        .maxFlingVelocity.toFloat()
+                                    val event = if (isDragSuccessful) {
+                                        val velocity = velocityTracker.calculateVelocityWithMax(
+                                            Velocity(maximumVelocity, maximumVelocity),
+                                        )
+                                        velocityTracker.resetTracking()
+                                        DragStopped(velocity * if (reverseDirection) -1f else 1f)
+                                    } else {
+                                        DragCancelled
+                                    }
+                                    channel.trySend(event)
                                 }
-                                channel.trySend(event)
                             }
                         }
                     }
-                }
-            } catch (exception: CancellationException) {
-                if (!isActive) {
-                    throw exception
+                } catch (exception: CancellationException) {
+                    if (!isActive) {
+                        throw exception
+                    }
                 }
             }
-        }
-    })
+        },
+    )
 
     private val channel = Channel<DragEvent>(capacity = Channel.UNLIMITED)
     private var dragInteraction: DragInteraction.Start? = null
@@ -533,7 +536,7 @@ private abstract class AbstractDraggableNode(
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
-        bounds: IntSize
+        bounds: IntSize,
     ) {
         pointerInputNode.onPointerEvent(pointerEvent, pass, bounds)
     }
@@ -581,7 +584,7 @@ private suspend fun AwaitPointerEventScope.awaitDownAndSlop(
     canDrag: (PointerInputChange) -> Boolean,
     startDragImmediately: () -> Boolean,
     velocityTracker: VelocityTracker,
-    pointerDirectionConfig: PointerDirectionConfig
+    pointerDirectionConfig: PointerDirectionConfig,
 ): Pair<PointerInputChange, Offset>? {
     val initialDown =
         awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
@@ -606,7 +609,7 @@ private suspend fun AwaitPointerEventScope.awaitDownAndSlop(
             down.id,
             down.type,
             pointerDirectionConfig = pointerDirectionConfig,
-            onPointerSlopReached = postPointerSlop
+            onPointerSlopReached = postPointerSlop,
         )
 
         if (afterSlopResult != null) afterSlopResult to initialDelta else null
@@ -621,12 +624,11 @@ private suspend fun AwaitPointerEventScope.awaitDrag(
     reverseDirection: Boolean,
     hasDragged: (PointerInputChange) -> Boolean,
 ): Boolean {
-
     val overSlopOffset = initialDelta
     val xSign = sign(startEvent.position.x)
     val ySign = sign(startEvent.position.y)
     val adjustedStart = startEvent.position -
-            Offset(overSlopOffset.x * xSign, overSlopOffset.y * ySign)
+        Offset(overSlopOffset.x * xSign, overSlopOffset.y * ySign)
     channel.trySend(DragStarted(adjustedStart))
 
     channel.trySend(DragDelta(if (reverseDirection) initialDelta * -1f else initialDelta))
@@ -647,13 +649,13 @@ private suspend fun AwaitPointerEventScope.awaitDrag(
 private suspend fun AwaitPointerEventScope.onDragOrUp(
     hasDragged: (PointerInputChange) -> Boolean,
     pointerId: PointerId,
-    onDrag: (PointerInputChange) -> Unit
+    onDrag: (PointerInputChange) -> Unit,
 ): Boolean {
     return drag(
         pointerId = pointerId,
         onDrag = onDrag,
         hasDragged = hasDragged,
-        motionConsumed = { it.isConsumed }
+        motionConsumed = { it.isConsumed },
     )?.let(onDrag) != null
 }
 
@@ -679,6 +681,7 @@ private suspend fun AwaitPointerEventScope.onDragOrUp(
  * `null` if all pointers are raised or the position change was consumed by another gesture
  * detector.
  */
+@Suppress("NestedBlockDepth")
 private suspend inline fun AwaitPointerEventScope.awaitPointerSlopOrCancellation(
     pointerId: PointerId,
     pointerType: PointerType,
@@ -714,7 +717,7 @@ private suspend inline fun AwaitPointerEventScope.awaitPointerSlopOrCancellation
             totalPositionChange += positionChange
 
             val inDirection = pointerDirectionConfig.calculateDeltaChange(
-                totalPositionChange
+                totalPositionChange,
             )
 
             if (inDirection < touchSlop) {
@@ -726,12 +729,12 @@ private suspend inline fun AwaitPointerEventScope.awaitPointerSlopOrCancellation
             } else {
                 val postSlopOffset = pointerDirectionConfig.calculatePostSlopOffset(
                     totalPositionChange,
-                    touchSlop
+                    touchSlop,
                 )
 
                 onPointerSlopReached(
                     dragEvent,
-                    postSlopOffset
+                    postSlopOffset,
                 )
                 if (dragEvent.isConsumed) {
                     return dragEvent
@@ -758,7 +761,7 @@ private interface PointerDirectionConfig {
     fun calculateDeltaChange(offset: Offset): Float
     fun calculatePostSlopOffset(
         totalPositionChange: Offset,
-        touchSlop: Float
+        touchSlop: Float,
     ): Offset
 }
 
@@ -770,7 +773,7 @@ private val BidirectionalPointerDirectionConfig = object : PointerDirectionConfi
 
     override fun calculatePostSlopOffset(
         totalPositionChange: Offset,
-        touchSlop: Float
+        touchSlop: Float,
     ): Offset {
         val touchSlopOffset =
             totalPositionChange / calculateDeltaChange(totalPositionChange) * touchSlop
@@ -813,7 +816,7 @@ private fun ViewConfiguration.pointerSlop(pointerType: PointerType): Float {
  * be returned in units/second. `units` is the units of the positions provided to this
  * VelocityTracker.
  */
-private fun VelocityTracker.calculateVelocity(maximumVelocity: Velocity): Velocity {
+private fun VelocityTracker.calculateVelocityWithMax(maximumVelocity: Velocity): Velocity {
     check(maximumVelocity.x > 0f && maximumVelocity.y > 0) {
         "maximumVelocity should be a positive value. You specified=$maximumVelocity"
     }
@@ -849,7 +852,7 @@ private suspend inline fun AwaitPointerEventScope.drag(
     pointerId: PointerId,
     onDrag: (PointerInputChange) -> Unit,
     hasDragged: (PointerInputChange) -> Boolean,
-    motionConsumed: (PointerInputChange) -> Boolean
+    motionConsumed: (PointerInputChange) -> Boolean,
 ): PointerInputChange? {
     if (currentEvent.isPointerUp(pointerId)) {
         return null // The pointer has already been lifted, so the gesture is canceled
@@ -883,7 +886,7 @@ private suspend inline fun AwaitPointerEventScope.drag(
  */
 private suspend inline fun AwaitPointerEventScope.awaitDragOrUp(
     pointerId: PointerId,
-    hasDragged: (PointerInputChange) -> Boolean
+    hasDragged: (PointerInputChange) -> Boolean,
 ): PointerInputChange? {
     var pointer = pointerId
     while (true) {
