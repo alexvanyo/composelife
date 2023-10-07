@@ -32,8 +32,8 @@ These include:
 ## Setup
 
 Requirements:
-
-- Android Studio Flamingo+
+Flamingo
+- Android Studio Iguana Canary 5
 - JDK 17+
 
 Clone the project, and build! (no API keys or other setup necessary)
