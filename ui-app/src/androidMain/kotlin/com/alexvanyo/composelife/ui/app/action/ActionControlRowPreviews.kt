@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.runtime.Composable
+import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
@@ -35,6 +36,8 @@ fun CollapsedRunningActionControlRowPreview() {
                 setIsExpanded = {},
                 isViewportTracking = false,
                 setIsViewportTracking = {},
+                selectionState = SelectionState.NoSelection,
+                onCopy = {},
             )
         }
     }
@@ -54,6 +57,8 @@ fun CollapsedPausedActionControlRowPreview() {
                 setIsExpanded = {},
                 isViewportTracking = false,
                 setIsViewportTracking = {},
+                selectionState = SelectionState.NoSelection,
+                onCopy = {},
             )
         }
     }
@@ -73,6 +78,8 @@ fun ExpandedActionControlRowPreview() {
                 setIsExpanded = {},
                 isViewportTracking = false,
                 setIsViewportTracking = {},
+                selectionState = SelectionState.NoSelection,
+                onCopy = {},
             )
         }
     }
@@ -92,6 +99,8 @@ fun ViewportTrackingActionControlRowPreview() {
                 setIsExpanded = {},
                 isViewportTracking = true,
                 setIsViewportTracking = {},
+                selectionState = SelectionState.NoSelection,
+                onCopy = {},
             )
         }
     }
@@ -111,6 +120,8 @@ fun ElevatedExpandedActionControlRowPreview() {
                 setIsExpanded = {},
                 isViewportTracking = false,
                 setIsViewportTracking = {},
+                selectionState = SelectionState.NoSelection,
+                onCopy = {},
             )
         }
     }
