@@ -71,6 +71,21 @@ internal actual val Strings.Play: ParameterizedString get() =
 internal actual val Strings.Step: ParameterizedString get() =
     ParameterizedString(R.string.step)
 
+internal actual val Strings.Copy: ParameterizedString get() =
+    ParameterizedString(R.string.copy)
+
+internal actual val Strings.Cut: ParameterizedString get() =
+    ParameterizedString(R.string.cut)
+
+internal actual val Strings.Paste: ParameterizedString get() =
+    ParameterizedString(R.string.paste)
+
+internal actual val Strings.CancelPaste: ParameterizedString get() =
+    ParameterizedString(R.string.cancel_paste)
+
+internal actual val Strings.ApplyPaste: ParameterizedString get() =
+    ParameterizedString(R.string.apply_paste)
+
 internal actual val Strings.DisableAutofit: ParameterizedString get() =
     ParameterizedString(R.string.disable_autofit)
 

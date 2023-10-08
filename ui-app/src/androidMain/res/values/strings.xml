@@ -19,6 +19,11 @@
     <string name="play">Play</string>
     <string name="pause">Pause</string>
     <string name="step">Step</string>
+    <string name="copy">Copy</string>
+    <string name="cut">Cut</string>
+    <string name="paste">Paste</string>
+    <string name="cancel_paste">Cancel paste</string>
+    <string name="apply_paste">Apply paste</string>
     <string name="target_steps_per_second_label">Target steps per second</string>
     <string name="target_steps_per_second_label_and_value">Target steps per second: %1$.2f</string>
     <string name="target_steps_per_second_value" translatable="false">%1$.2f</string>

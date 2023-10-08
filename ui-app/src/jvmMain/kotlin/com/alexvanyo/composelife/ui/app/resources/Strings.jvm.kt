@@ -70,6 +70,21 @@ internal actual val Strings.Play: ParameterizedString get() =
 internal actual val Strings.Step: ParameterizedString get() =
     ParameterizedString("Step")
 
+internal actual val Strings.Copy: ParameterizedString get() =
+    ParameterizedString("Copy")
+
+internal actual val Strings.Cut: ParameterizedString get() =
+    ParameterizedString("Cut")
+
+internal actual val Strings.Paste: ParameterizedString get() =
+    ParameterizedString("Paste")
+
+internal actual val Strings.CancelPaste: ParameterizedString get() =
+    ParameterizedString("Cancel paste")
+
+internal actual val Strings.ApplyPaste: ParameterizedString get() =
+    ParameterizedString("Apply paste")
+
 internal actual val Strings.DisableAutofit: ParameterizedString get() =
     ParameterizedString("Disable autofit")
 

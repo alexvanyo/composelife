@@ -58,6 +58,16 @@ internal expect val Strings.Play: ParameterizedString
 
 internal expect val Strings.Step: ParameterizedString
 
+internal expect val Strings.Copy: ParameterizedString
+
+internal expect val Strings.Cut: ParameterizedString
+
+internal expect val Strings.Paste: ParameterizedString
+
+internal expect val Strings.CancelPaste: ParameterizedString
+
+internal expect val Strings.ApplyPaste: ParameterizedString
+
 internal expect val Strings.DisableAutofit: ParameterizedString
 
 internal expect val Strings.EnableAutofit: ParameterizedString

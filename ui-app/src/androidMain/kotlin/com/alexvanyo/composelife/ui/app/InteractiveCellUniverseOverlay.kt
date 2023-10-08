@@ -123,6 +123,7 @@ fun InteractiveCellUniverseOverlay(
                 windowSizeClass = windowSizeClass,
                 isViewportTracking = interactiveCellUniverseState.isViewportTracking,
                 setIsViewportTracking = { interactiveCellUniverseState.isViewportTracking = it },
+                selectionState = interactiveCellUniverseState.cellWindowInteractionState.selectionState,
                 actionCardState = interactiveCellUniverseState.actionCardState,
                 modifier = Modifier
                     .layoutId(CellUniverseActionCard)
