@@ -15,6 +15,10 @@
     {
       "matchPackagePatterns": ["^com.android.tools"],
       "groupName": "Android Gradle Plugin"
+    },
+    {
+      "matchPackagePatterns": ["^com.google.guava"],
+      "versionScheme": "docker"
     }
   ]
 }
