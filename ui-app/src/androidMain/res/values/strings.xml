@@ -19,6 +19,7 @@
     <string name="play">Play</string>
     <string name="pause">Pause</string>
     <string name="step">Step</string>
+    <string name="clear_selection">Clear selection</string>
     <string name="copy">Copy</string>
     <string name="cut">Cut</string>
     <string name="paste">Paste</string>

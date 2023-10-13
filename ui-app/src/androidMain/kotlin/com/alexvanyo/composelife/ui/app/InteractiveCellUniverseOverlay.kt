@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.ui.app
 
+import android.content.ClipData
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.VectorConverter
@@ -43,9 +44,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
+import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.BottomInsets
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseActionCard
@@ -55,9 +59,11 @@ import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCard
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.CellWindowViewportState
+import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.isInProgress
+import com.alexvanyo.composelife.ui.util.rememberClipboardState
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.coroutines.launch
 
@@ -117,6 +123,9 @@ fun InteractiveCellUniverseOverlay(
                 )
             }
 
+            val selectionState = interactiveCellUniverseState.cellWindowInteractionState.selectionState
+            val clipboardState = rememberClipboardState()
+
             // TODO: Calling order is weird here, but required due to https://youtrack.jetbrains.com/issue/KT-51863
             CellUniverseActionCard(
                 temporalGameOfLifeState = temporalGameOfLifeState,
@@ -124,6 +133,60 @@ fun InteractiveCellUniverseOverlay(
                 isViewportTracking = interactiveCellUniverseState.isViewportTracking,
                 setIsViewportTracking = { interactiveCellUniverseState.isViewportTracking = it },
                 selectionState = interactiveCellUniverseState.cellWindowInteractionState.selectionState,
+                onClearSelection = {
+                    interactiveCellUniverseState.cellWindowInteractionState.selectionState = SelectionState.NoSelection
+                },
+                onCopy = {
+                    when (selectionState) {
+                        SelectionState.NoSelection,
+                        is SelectionState.Selection,
+                        -> Unit
+                        is SelectionState.SelectingBox -> {
+                            if (selectionState.width != 0 && selectionState.height != 0) {
+                                val left: Int
+                                val right: Int
+
+                                if (selectionState.width < 0) {
+                                    left = selectionState.topLeft.x + selectionState.width + 1
+                                    right = selectionState.topLeft.x
+                                } else {
+                                    left = selectionState.topLeft.x
+                                    right = selectionState.topLeft.x + selectionState.width - 1
+                                }
+
+                                val top: Int
+                                val bottom: Int
+
+                                if (selectionState.height < 0) {
+                                    top = selectionState.topLeft.y + selectionState.height + 1
+                                    bottom = selectionState.topLeft.y
+                                } else {
+                                    top = selectionState.topLeft.y
+                                    bottom = selectionState.topLeft.y + selectionState.height - 1
+                                }
+
+                                val cellWindow = IntRect(
+                                    left = left,
+                                    top = top,
+                                    right = right,
+                                    bottom = bottom,
+                                )
+
+                                val serializedCellState = RunLengthEncodedCellStateSerializer.serializeToString(
+                                    CellState(
+                                        temporalGameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).toSet(),
+                                    ),
+                                )
+
+                                clipboardState.clipData = ClipData.newPlainText(
+                                    "Cell state",
+                                    serializedCellState.joinToString("\n"),
+                                )
+                            }
+                        }
+                    }
+                },
+                onCut = {},
                 actionCardState = interactiveCellUniverseState.actionCardState,
                 modifier = Modifier
                     .layoutId(CellUniverseActionCard)

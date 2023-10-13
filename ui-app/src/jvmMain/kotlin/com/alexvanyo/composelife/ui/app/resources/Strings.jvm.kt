@@ -70,6 +70,9 @@ internal actual val Strings.Play: ParameterizedString get() =
 internal actual val Strings.Step: ParameterizedString get() =
     ParameterizedString("Step")
 
+internal actual val Strings.ClearSelection: ParameterizedString get() =
+    ParameterizedString("Clear selection")
+
 internal actual val Strings.Copy: ParameterizedString get() =
     ParameterizedString("Copy")
 

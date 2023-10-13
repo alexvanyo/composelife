@@ -17,9 +17,15 @@
 
 package com.alexvanyo.composelife.ui.app.cells
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +33,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,12 +47,15 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSpecified
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.toRect
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.HistoricalChange
 import androidx.compose.ui.input.pointer.PointerType
@@ -67,7 +77,6 @@ import androidx.compose.ui.util.unpackInt2
 import com.alexvanyo.composelife.geometry.LineSegmentPath
 import com.alexvanyo.composelife.geometry.cellIntersections
 import com.alexvanyo.composelife.geometry.containedPoints
-import com.alexvanyo.composelife.geometry.toPx
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.setCellState
@@ -212,364 +221,551 @@ fun InteractableCells(
                 },
             )
 
-            when (val currentSelectionState = selectionState) {
-                SelectionState.NoSelection -> Unit
-                is SelectionState.SelectingBox -> {
-                    /**
-                     * The key for the editing session, to allow wiping state on an external change.
-                     */
-                    var editingSessionKey by rememberSaveable(stateSaver = uuidSaver) {
-                        mutableStateOf(UUID.randomUUID())
+            AnimatedContent(
+                targetState = selectionState,
+                contentKey = {
+                    when (it) {
+                        SelectionState.NoSelection -> 0
+                        is SelectionState.SelectingBox -> 1
+                        is SelectionState.Selection -> 2
                     }
-
-                    /**
-                     * The known [SelectionState.SelectingBox] for valid values that we are setting.
-                     */
-                    var knownSelectionState: SelectionState.SelectingBox by remember {
-                        mutableStateOf(currentSelectionState)
+                },
+                modifier = Modifier.fillMaxSize(),
+            ) { targetSelectionState ->
+                when (targetSelectionState) {
+                    SelectionState.NoSelection -> {
+                        Spacer(Modifier.fillMaxSize())
                     }
-
-                    /**
-                     * If `true`, the [currentSelectionState] was updated externally, and not via our own updates
-                     * (which would have updated [knownSelectionState])
-                     */
-                    val didValueUpdateOutOfBand = knownSelectionState != currentSelectionState
-
-                    // If a value update occurred out of band, then update our editing session
-                    if (didValueUpdateOutOfBand) {
-                        // Update the editing session key
-                        editingSessionKey = UUID.randomUUID()
-                        knownSelectionState = currentSelectionState
-                    }
-
-                    val initialHandleAOffset = currentSelectionState.topLeft
-                    val initialHandleBOffset = currentSelectionState.topLeft +
-                        IntOffset(currentSelectionState.width, 0)
-                    val initialHandleCOffset = currentSelectionState.topLeft +
-                        IntOffset(currentSelectionState.width, currentSelectionState.height)
-                    val initialHandleDOffset = currentSelectionState.topLeft +
-                        IntOffset(0, currentSelectionState.height)
-
-                    val initialHandles = listOf(
-                        initialHandleAOffset,
-                        initialHandleBOffset,
-                        initialHandleCOffset,
-                        initialHandleDOffset,
-                    )
-
-                    val handleAnchors = remember(scaledCellPixelSize, cellWindow) {
-                        object : DraggableAnchors2D<IntOffset> {
-                            override fun positionOf(value: IntOffset): Offset =
-                                (value.toOffset() - cellWindow.topLeft.toOffset()) * scaledCellPixelSize
-                            override fun hasAnchorFor(value: IntOffset): Boolean = true
-                            override fun closestAnchor(position: Offset): IntOffset =
-                                (position / scaledCellPixelSize).round() + cellWindow.topLeft
-                            override val size: Int = Int.MAX_VALUE
-                        }
-                    }
-
-                    val confirmValueChangeStates = List(initialHandles.size) { index ->
-                        key(index) {
-                            remember { mutableStateOf({ _: IntOffset -> true }) }
-                        }
-                    }
-
-                    var newSelectionStateRequested: Boolean by remember { mutableStateOf(false) }
-
-                    LaunchedEffect(newSelectionStateRequested) {
-                        newSelectionStateRequested = false
-                    }
-
-                    val coroutineScope = rememberCoroutineScope()
-
-                    val handleAnchoredDraggable2DStates = initialHandles.mapIndexed { index, initialHandleOffset ->
-                        key(editingSessionKey, scaledCellPixelSize, cellWindow) {
-                            rememberSaveable(
-                                saver = Saver(
-                                    save = { packInts(it.currentValue.x, it.currentValue.y) },
-                                    restore = {
-                                        AnchoredDraggable2DState(
-                                            initialValue = IntOffset(unpackInt1(it), unpackInt2(it)),
-                                            animationSpec = spring(),
-                                            confirmValueChange = { intOffset ->
-                                                confirmValueChangeStates[index].value.invoke(intOffset)
-                                            },
-                                        )
-                                    },
-                                ),
-                            ) {
-                                AnchoredDraggable2DState(
-                                    initialValue = initialHandleOffset,
-                                    animationSpec = spring(),
-                                    confirmValueChange = { intOffset ->
-                                        confirmValueChangeStates[index].value.invoke(intOffset)
-                                    },
-                                )
-                            }.apply {
-                                updateAnchors(handleAnchors)
+                    is SelectionState.SelectingBox -> {
+                        Box(Modifier.fillMaxSize()) {
+                            /**
+                             * The key for the editing session, to allow wiping state on an external change.
+                             */
+                            var editingSessionKey by rememberSaveable(stateSaver = uuidSaver) {
+                                mutableStateOf(UUID.randomUUID())
                             }
-                        }
-                    }
 
-                    val handleAAnchoredDraggable2DState = handleAnchoredDraggable2DStates[0]
-                    val handleBAnchoredDraggable2DState = handleAnchoredDraggable2DStates[1]
-                    val handleCAnchoredDraggable2DState = handleAnchoredDraggable2DStates[2]
-                    val handleDAnchoredDraggable2DState = handleAnchoredDraggable2DStates[3]
+                            /**
+                             * The known [SelectionState.SelectingBox] for valid values that we are setting.
+                             */
+                            var knownSelectionState: SelectionState.SelectingBox by remember {
+                                mutableStateOf(targetSelectionState)
+                            }
 
-                    confirmValueChangeStates[0].value = { intOffset ->
-                        if (!newSelectionStateRequested) {
-                            newSelectionStateRequested = true
-                            val minX = min(intOffset.x, handleCAnchoredDraggable2DState.targetValue.x)
-                            val maxX = max(intOffset.x, handleCAnchoredDraggable2DState.targetValue.x)
-                            val minY = min(intOffset.y, handleCAnchoredDraggable2DState.targetValue.y)
-                            val maxY = max(intOffset.y, handleCAnchoredDraggable2DState.targetValue.y)
+                            /**
+                             * If `true`, the [targetSelectionState] was updated externally, and not via our own updates
+                             * (which would have updated [knownSelectionState])
+                             */
+                            val didValueUpdateOutOfBand = knownSelectionState != targetSelectionState
 
-                            val newSelectionState = SelectionState.SelectingBox(
-                                IntOffset(minX, minY),
-                                width = maxX - minX,
-                                height = maxY - minY,
+                            // If a value update occurred out of band, then update our editing session
+                            if (didValueUpdateOutOfBand) {
+                                // Update the editing session key
+                                editingSessionKey = UUID.randomUUID()
+                                knownSelectionState = targetSelectionState
+                            }
+
+                            val initialHandleAOffset = targetSelectionState.topLeft
+                            val initialHandleBOffset = targetSelectionState.topLeft +
+                                IntOffset(targetSelectionState.width, 0)
+                            val initialHandleCOffset = targetSelectionState.topLeft +
+                                IntOffset(targetSelectionState.width, targetSelectionState.height)
+                            val initialHandleDOffset = targetSelectionState.topLeft +
+                                IntOffset(0, targetSelectionState.height)
+
+                            val initialHandles = listOf(
+                                initialHandleAOffset,
+                                initialHandleBOffset,
+                                initialHandleCOffset,
+                                initialHandleDOffset,
                             )
-                            if (selectionStateHolder.selectionState != newSelectionState) {
-                                selectionStateHolder.selectionState = newSelectionState
-                                knownSelectionState = newSelectionState
 
-                                coroutineScope.launch {
-                                    handleBAnchoredDraggable2DState.snapTo(
-                                        IntOffset(
-                                            x = handleBAnchoredDraggable2DState.targetValue.x,
-                                            y = intOffset.y,
-                                        ),
-                                    )
-                                    handleDAnchoredDraggable2DState.snapTo(
-                                        IntOffset(
-                                            x = intOffset.x,
-                                            y = handleDAnchoredDraggable2DState.targetValue.y,
-                                        ),
-                                    )
+                            val handleAnchors = remember(scaledCellPixelSize, cellWindow) {
+                                object : DraggableAnchors2D<IntOffset> {
+                                    override fun positionOf(value: IntOffset): Offset =
+                                        (value.toOffset() - cellWindow.topLeft.toOffset()) * scaledCellPixelSize
+
+                                    override fun hasAnchorFor(value: IntOffset): Boolean = true
+                                    override fun closestAnchor(position: Offset): IntOffset =
+                                        (position / scaledCellPixelSize).round() + cellWindow.topLeft
+
+                                    override val size: Int = Int.MAX_VALUE
                                 }
                             }
-                        }
-                        true
-                    }
-                    confirmValueChangeStates[1].value = { intOffset ->
-                        if (!newSelectionStateRequested) {
-                            newSelectionStateRequested = true
-                            val minX = min(intOffset.x, handleBAnchoredDraggable2DState.targetValue.x)
-                            val maxX = max(intOffset.x, handleBAnchoredDraggable2DState.targetValue.x)
-                            val minY = min(intOffset.y, handleBAnchoredDraggable2DState.targetValue.y)
-                            val maxY = max(intOffset.y, handleBAnchoredDraggable2DState.targetValue.y)
 
-                            val newSelectionState = SelectionState.SelectingBox(
-                                IntOffset(minX, minY),
-                                width = maxX - minX,
-                                height = maxY - minY,
-                            )
-
-                            if (selectionStateHolder.selectionState != newSelectionState) {
-                                selectionStateHolder.selectionState = newSelectionState
-                                knownSelectionState = newSelectionState
-
-                                coroutineScope.launch {
-                                    handleAAnchoredDraggable2DState.snapTo(
-                                        IntOffset(
-                                            x = handleAAnchoredDraggable2DState.targetValue.x,
-                                            y = intOffset.y,
-                                        ),
-                                    )
-                                    handleCAnchoredDraggable2DState.snapTo(
-                                        IntOffset(
-                                            x = intOffset.x,
-                                            y = handleCAnchoredDraggable2DState.targetValue.y,
-                                        ),
-                                    )
+                            val confirmValueChangeStates = List(initialHandles.size) { index ->
+                                key(index) {
+                                    remember { mutableStateOf({ _: IntOffset -> true }) }
                                 }
                             }
-                        }
-                        true
-                    }
-                    confirmValueChangeStates[2].value = { intOffset ->
-                        if (!newSelectionStateRequested) {
-                            newSelectionStateRequested = true
-                            val minX = min(intOffset.x, handleAAnchoredDraggable2DState.targetValue.x)
-                            val maxX = max(intOffset.x, handleAAnchoredDraggable2DState.targetValue.x)
-                            val minY = min(intOffset.y, handleAAnchoredDraggable2DState.targetValue.y)
-                            val maxY = max(intOffset.y, handleAAnchoredDraggable2DState.targetValue.y)
 
-                            val newSelectionState = SelectionState.SelectingBox(
-                                IntOffset(minX, minY),
-                                width = maxX - minX,
-                                height = maxY - minY,
-                            )
+                            var newSelectionStateRequested: Boolean by remember { mutableStateOf(false) }
 
-                            if (selectionStateHolder.selectionState != newSelectionState) {
-                                selectionStateHolder.selectionState = newSelectionState
-                                knownSelectionState = newSelectionState
-
-                                coroutineScope.launch {
-                                    handleDAnchoredDraggable2DState.snapTo(
-                                        IntOffset(
-                                            x = handleDAnchoredDraggable2DState.targetValue.x,
-                                            y = intOffset.y,
-                                        ),
-                                    )
-                                    handleBAnchoredDraggable2DState.snapTo(
-                                        IntOffset(
-                                            x = intOffset.x,
-                                            y = handleBAnchoredDraggable2DState.targetValue.y,
-                                        ),
-                                    )
-                                }
+                            LaunchedEffect(newSelectionStateRequested) {
+                                newSelectionStateRequested = false
                             }
-                        }
-                        true
-                    }
-                    confirmValueChangeStates[3].value = { intOffset ->
-                        if (!newSelectionStateRequested) {
-                            newSelectionStateRequested = true
-                            val minX = min(intOffset.x, handleBAnchoredDraggable2DState.targetValue.x)
-                            val maxX = max(intOffset.x, handleBAnchoredDraggable2DState.targetValue.x)
-                            val minY = min(intOffset.y, handleBAnchoredDraggable2DState.targetValue.y)
-                            val maxY = max(intOffset.y, handleBAnchoredDraggable2DState.targetValue.y)
 
-                            val newSelectionState = SelectionState.SelectingBox(
-                                IntOffset(minX, minY),
-                                width = maxX - minX,
-                                height = maxY - minY,
-                            )
+                            val coroutineScope = rememberCoroutineScope()
 
-                            if (selectionStateHolder.selectionState != newSelectionState) {
-                                selectionStateHolder.selectionState = newSelectionState
-                                knownSelectionState = newSelectionState
-
-                                coroutineScope.launch {
-                                    handleCAnchoredDraggable2DState.snapTo(
-                                        IntOffset(
-                                            x = handleCAnchoredDraggable2DState.targetValue.x,
-                                            y = intOffset.y,
-                                        ),
-                                    )
-                                    handleAAnchoredDraggable2DState.snapTo(
-                                        IntOffset(
-                                            x = intOffset.x,
-                                            y = handleAAnchoredDraggable2DState.targetValue.y,
-                                        ),
-                                    )
-                                }
-                            }
-                        }
-                        true
-                    }
-
-                    handleAnchoredDraggable2DStates.forEach {
-                        it.updateAnchors(handleAnchors)
-                    }
-
-                    val handleAOffsetCalculator: () -> Offset = {
-                        if (handleAAnchoredDraggable2DState.isDraggingOrAnimating()) {
-                            handleAAnchoredDraggable2DState.requireOffset()
-                        } else if (handleBAnchoredDraggable2DState.isDraggingOrAnimating()) {
-                            Offset(
-                                handleAAnchoredDraggable2DState.requireOffset().x,
-                                handleBAnchoredDraggable2DState.requireOffset().y,
-                            )
-                        } else if (handleDAnchoredDraggable2DState.isDraggingOrAnimating()) {
-                            Offset(
-                                handleDAnchoredDraggable2DState.requireOffset().x,
-                                handleAAnchoredDraggable2DState.requireOffset().y,
-                            )
-                        } else {
-                            handleAAnchoredDraggable2DState.requireOffset()
-                        }
-                    }
-                    val handleBOffsetCalculator: () -> Offset = {
-                        if (handleBAnchoredDraggable2DState.isDraggingOrAnimating()) {
-                            handleBAnchoredDraggable2DState.requireOffset()
-                        } else if (handleAAnchoredDraggable2DState.isDraggingOrAnimating()) {
-                            Offset(
-                                handleBAnchoredDraggable2DState.requireOffset().x,
-                                handleAAnchoredDraggable2DState.requireOffset().y,
-                            )
-                        } else if (handleCAnchoredDraggable2DState.isDraggingOrAnimating()) {
-                            Offset(
-                                handleCAnchoredDraggable2DState.requireOffset().x,
-                                handleBAnchoredDraggable2DState.requireOffset().y,
-                            )
-                        } else {
-                            handleBAnchoredDraggable2DState.requireOffset()
-                        }
-                    }
-                    val handleCOffsetCalculator: () -> Offset = {
-                        if (handleCAnchoredDraggable2DState.isDraggingOrAnimating()) {
-                            handleCAnchoredDraggable2DState.requireOffset()
-                        } else if (handleBAnchoredDraggable2DState.isDraggingOrAnimating()) {
-                            Offset(
-                                handleBAnchoredDraggable2DState.requireOffset().x,
-                                handleCAnchoredDraggable2DState.requireOffset().y,
-                            )
-                        } else if (handleDAnchoredDraggable2DState.isDraggingOrAnimating()) {
-                            Offset(
-                                handleCAnchoredDraggable2DState.requireOffset().x,
-                                handleDAnchoredDraggable2DState.requireOffset().y,
-                            )
-                        } else {
-                            handleCAnchoredDraggable2DState.requireOffset()
-                        }
-                    }
-                    val handleDOffsetCalculator: () -> Offset = {
-                        if (handleDAnchoredDraggable2DState.isDraggingOrAnimating()) {
-                            handleDAnchoredDraggable2DState.requireOffset()
-                        } else if (handleAAnchoredDraggable2DState.isDraggingOrAnimating()) {
-                            Offset(
-                                handleAAnchoredDraggable2DState.requireOffset().x,
-                                handleDAnchoredDraggable2DState.requireOffset().y,
-                            )
-                        } else if (handleCAnchoredDraggable2DState.isDraggingOrAnimating()) {
-                            Offset(
-                                handleDAnchoredDraggable2DState.requireOffset().x,
-                                handleCAnchoredDraggable2DState.requireOffset().y,
-                            )
-                        } else {
-                            handleDAnchoredDraggable2DState.requireOffset()
-                        }
-                    }
-
-                    val offsetCalculators = listOf(
-                        handleAOffsetCalculator,
-                        handleBOffsetCalculator,
-                        handleCOffsetCalculator,
-                        handleDOffsetCalculator,
-                    )
-
-                    handleAnchoredDraggable2DStates
-                        .zip(offsetCalculators)
-                        .forEachIndexed { index, (anchoredDraggable2DState, offsetCalculator) ->
-                            key(index) {
-                                Box(
-                                    modifier = Modifier
-                                        .offset {
-                                            offsetCalculator().round()
-                                        }
-                                        .offset((-24).dp, (-24).dp)
-                                        .anchoredDraggable2D(anchoredDraggable2DState),
-                                ) {
-                                    Spacer(
-                                        Modifier
-                                            .size(48.dp)
-                                            .background(
-                                                when (index) {
-                                                    0 -> Color.Red
-                                                    1 -> Color.Blue
-                                                    2 -> Color.Green
-                                                    else -> Color.Yellow
+                            val handleAnchoredDraggable2DStates =
+                                initialHandles.mapIndexed { index, initialHandleOffset ->
+                                    key(editingSessionKey, scaledCellPixelSize, cellWindow) {
+                                        rememberSaveable(
+                                            saver = Saver(
+                                                save = { packInts(it.currentValue.x, it.currentValue.y) },
+                                                restore = {
+                                                    AnchoredDraggable2DState(
+                                                        initialValue = IntOffset(unpackInt1(it), unpackInt2(it)),
+                                                        animationSpec = spring(),
+                                                        confirmValueChange = { intOffset ->
+                                                            confirmValueChangeStates[index].value.invoke(intOffset)
+                                                        },
+                                                    )
                                                 },
-                                                shape = CircleShape,
                                             ),
+                                        ) {
+                                            AnchoredDraggable2DState(
+                                                initialValue = initialHandleOffset,
+                                                animationSpec = spring(),
+                                                confirmValueChange = { intOffset ->
+                                                    confirmValueChangeStates[index].value.invoke(intOffset)
+                                                },
+                                            )
+                                        }.apply {
+                                            updateAnchors(handleAnchors)
+                                        }
+                                    }
+                                }
+
+                            val handleAAnchoredDraggable2DState = handleAnchoredDraggable2DStates[0]
+                            val handleBAnchoredDraggable2DState = handleAnchoredDraggable2DStates[1]
+                            val handleCAnchoredDraggable2DState = handleAnchoredDraggable2DStates[2]
+                            val handleDAnchoredDraggable2DState = handleAnchoredDraggable2DStates[3]
+
+                            confirmValueChangeStates[0].value = { intOffset ->
+                                if (!newSelectionStateRequested) {
+                                    newSelectionStateRequested = true
+                                    val minX = min(intOffset.x, handleCAnchoredDraggable2DState.targetValue.x)
+                                    val maxX = max(intOffset.x, handleCAnchoredDraggable2DState.targetValue.x)
+                                    val minY = min(intOffset.y, handleCAnchoredDraggable2DState.targetValue.y)
+                                    val maxY = max(intOffset.y, handleCAnchoredDraggable2DState.targetValue.y)
+
+                                    val newSelectionState = SelectionState.SelectingBox(
+                                        IntOffset(minX, minY),
+                                        width = maxX - minX,
+                                        height = maxY - minY,
+                                    )
+                                    if (selectionStateHolder.selectionState != newSelectionState) {
+                                        selectionStateHolder.selectionState = newSelectionState
+                                        knownSelectionState = newSelectionState
+
+                                        coroutineScope.launch {
+                                            handleBAnchoredDraggable2DState.snapTo(
+                                                IntOffset(
+                                                    x = handleBAnchoredDraggable2DState.targetValue.x,
+                                                    y = intOffset.y,
+                                                ),
+                                            )
+                                            handleDAnchoredDraggable2DState.snapTo(
+                                                IntOffset(
+                                                    x = intOffset.x,
+                                                    y = handleDAnchoredDraggable2DState.targetValue.y,
+                                                ),
+                                            )
+                                        }
+                                    }
+                                }
+                                true
+                            }
+                            confirmValueChangeStates[1].value = { intOffset ->
+                                if (!newSelectionStateRequested) {
+                                    newSelectionStateRequested = true
+                                    val minX = min(intOffset.x, handleBAnchoredDraggable2DState.targetValue.x)
+                                    val maxX = max(intOffset.x, handleBAnchoredDraggable2DState.targetValue.x)
+                                    val minY = min(intOffset.y, handleBAnchoredDraggable2DState.targetValue.y)
+                                    val maxY = max(intOffset.y, handleBAnchoredDraggable2DState.targetValue.y)
+
+                                    val newSelectionState = SelectionState.SelectingBox(
+                                        IntOffset(minX, minY),
+                                        width = maxX - minX,
+                                        height = maxY - minY,
+                                    )
+
+                                    if (selectionStateHolder.selectionState != newSelectionState) {
+                                        selectionStateHolder.selectionState = newSelectionState
+                                        knownSelectionState = newSelectionState
+
+                                        coroutineScope.launch {
+                                            handleAAnchoredDraggable2DState.snapTo(
+                                                IntOffset(
+                                                    x = handleAAnchoredDraggable2DState.targetValue.x,
+                                                    y = intOffset.y,
+                                                ),
+                                            )
+                                            handleCAnchoredDraggable2DState.snapTo(
+                                                IntOffset(
+                                                    x = intOffset.x,
+                                                    y = handleCAnchoredDraggable2DState.targetValue.y,
+                                                ),
+                                            )
+                                        }
+                                    }
+                                }
+                                true
+                            }
+                            confirmValueChangeStates[2].value = { intOffset ->
+                                if (!newSelectionStateRequested) {
+                                    newSelectionStateRequested = true
+                                    val minX = min(intOffset.x, handleAAnchoredDraggable2DState.targetValue.x)
+                                    val maxX = max(intOffset.x, handleAAnchoredDraggable2DState.targetValue.x)
+                                    val minY = min(intOffset.y, handleAAnchoredDraggable2DState.targetValue.y)
+                                    val maxY = max(intOffset.y, handleAAnchoredDraggable2DState.targetValue.y)
+
+                                    val newSelectionState = SelectionState.SelectingBox(
+                                        IntOffset(minX, minY),
+                                        width = maxX - minX,
+                                        height = maxY - minY,
+                                    )
+
+                                    if (selectionStateHolder.selectionState != newSelectionState) {
+                                        selectionStateHolder.selectionState = newSelectionState
+                                        knownSelectionState = newSelectionState
+
+                                        coroutineScope.launch {
+                                            handleDAnchoredDraggable2DState.snapTo(
+                                                IntOffset(
+                                                    x = handleDAnchoredDraggable2DState.targetValue.x,
+                                                    y = intOffset.y,
+                                                ),
+                                            )
+                                            handleBAnchoredDraggable2DState.snapTo(
+                                                IntOffset(
+                                                    x = intOffset.x,
+                                                    y = handleBAnchoredDraggable2DState.targetValue.y,
+                                                ),
+                                            )
+                                        }
+                                    }
+                                }
+                                true
+                            }
+                            confirmValueChangeStates[3].value = { intOffset ->
+                                if (!newSelectionStateRequested) {
+                                    newSelectionStateRequested = true
+                                    val minX = min(intOffset.x, handleBAnchoredDraggable2DState.targetValue.x)
+                                    val maxX = max(intOffset.x, handleBAnchoredDraggable2DState.targetValue.x)
+                                    val minY = min(intOffset.y, handleBAnchoredDraggable2DState.targetValue.y)
+                                    val maxY = max(intOffset.y, handleBAnchoredDraggable2DState.targetValue.y)
+
+                                    val newSelectionState = SelectionState.SelectingBox(
+                                        IntOffset(minX, minY),
+                                        width = maxX - minX,
+                                        height = maxY - minY,
+                                    )
+
+                                    if (selectionStateHolder.selectionState != newSelectionState) {
+                                        selectionStateHolder.selectionState = newSelectionState
+                                        knownSelectionState = newSelectionState
+
+                                        coroutineScope.launch {
+                                            handleCAnchoredDraggable2DState.snapTo(
+                                                IntOffset(
+                                                    x = handleCAnchoredDraggable2DState.targetValue.x,
+                                                    y = intOffset.y,
+                                                ),
+                                            )
+                                            handleAAnchoredDraggable2DState.snapTo(
+                                                IntOffset(
+                                                    x = intOffset.x,
+                                                    y = handleAAnchoredDraggable2DState.targetValue.y,
+                                                ),
+                                            )
+                                        }
+                                    }
+                                }
+                                true
+                            }
+
+                            handleAnchoredDraggable2DStates.forEach {
+                                it.updateAnchors(handleAnchors)
+                            }
+
+                            val handleAOffsetCalculator: () -> Offset = {
+                                val xReferenceState =
+                                    when {
+                                        handleAAnchoredDraggable2DState.isDraggingOrAnimating() ->
+                                            handleAAnchoredDraggable2DState
+
+                                        handleDAnchoredDraggable2DState.isDraggingOrAnimating() ->
+                                            handleDAnchoredDraggable2DState
+
+                                        else ->
+                                            handleAAnchoredDraggable2DState
+                                    }
+                                val yReferenceState =
+                                    when {
+                                        handleAAnchoredDraggable2DState.isDraggingOrAnimating() ->
+                                            handleAAnchoredDraggable2DState
+
+                                        handleBAnchoredDraggable2DState.isDraggingOrAnimating() ->
+                                            handleBAnchoredDraggable2DState
+
+                                        else ->
+                                            handleAAnchoredDraggable2DState
+                                    }
+
+                                Offset(
+                                    xReferenceState.requireOffset().x,
+                                    yReferenceState.requireOffset().y,
+                                )
+                            }
+                            val handleBOffsetCalculator: () -> Offset = {
+                                val xReferenceState =
+                                    when {
+                                        handleBAnchoredDraggable2DState.isDraggingOrAnimating() ->
+                                            handleBAnchoredDraggable2DState
+
+                                        handleCAnchoredDraggable2DState.isDraggingOrAnimating() ->
+                                            handleCAnchoredDraggable2DState
+
+                                        else ->
+                                            handleBAnchoredDraggable2DState
+                                    }
+                                val yReferenceState =
+                                    when {
+                                        handleBAnchoredDraggable2DState.isDraggingOrAnimating() ->
+                                            handleBAnchoredDraggable2DState
+
+                                        handleAAnchoredDraggable2DState.isDraggingOrAnimating() ->
+                                            handleAAnchoredDraggable2DState
+
+                                        else ->
+                                            handleBAnchoredDraggable2DState
+                                    }
+
+                                Offset(
+                                    xReferenceState.requireOffset().x,
+                                    yReferenceState.requireOffset().y,
+                                )
+                            }
+                            val handleCOffsetCalculator: () -> Offset = {
+                                val xReferenceState =
+                                    when {
+                                        handleCAnchoredDraggable2DState.isDraggingOrAnimating() ->
+                                            handleCAnchoredDraggable2DState
+
+                                        handleBAnchoredDraggable2DState.isDraggingOrAnimating() ->
+                                            handleBAnchoredDraggable2DState
+
+                                        else ->
+                                            handleCAnchoredDraggable2DState
+                                    }
+                                val yReferenceState =
+                                    when {
+                                        handleCAnchoredDraggable2DState.isDraggingOrAnimating() ->
+                                            handleCAnchoredDraggable2DState
+
+                                        handleDAnchoredDraggable2DState.isDraggingOrAnimating() ->
+                                            handleDAnchoredDraggable2DState
+
+                                        else ->
+                                            handleCAnchoredDraggable2DState
+                                    }
+
+                                Offset(
+                                    xReferenceState.requireOffset().x,
+                                    yReferenceState.requireOffset().y,
+                                )
+                            }
+                            val handleDOffsetCalculator: () -> Offset = {
+                                val xReferenceState =
+                                    when {
+                                        handleDAnchoredDraggable2DState.isDraggingOrAnimating() ->
+                                            handleDAnchoredDraggable2DState
+
+                                        handleAAnchoredDraggable2DState.isDraggingOrAnimating() ->
+                                            handleAAnchoredDraggable2DState
+
+                                        else ->
+                                            handleDAnchoredDraggable2DState
+                                    }
+                                val yReferenceState =
+                                    when {
+                                        handleDAnchoredDraggable2DState.isDraggingOrAnimating() ->
+                                            handleDAnchoredDraggable2DState
+
+                                        handleCAnchoredDraggable2DState.isDraggingOrAnimating() ->
+                                            handleCAnchoredDraggable2DState
+
+                                        else ->
+                                            handleDAnchoredDraggable2DState
+                                    }
+
+                                Offset(
+                                    xReferenceState.requireOffset().x,
+                                    yReferenceState.requireOffset().y,
+                                )
+                            }
+
+                            val offsetCalculators = listOf(
+                                handleAOffsetCalculator,
+                                handleBOffsetCalculator,
+                                handleCOffsetCalculator,
+                                handleDOffsetCalculator,
+                            )
+
+                            val selectionColor = MaterialTheme.colorScheme.secondary
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .layout { measurable, constraints ->
+                                        val aOffset = handleAOffsetCalculator()
+                                        val bOffset = handleBOffsetCalculator()
+                                        val cOffset = handleCOffsetCalculator()
+                                        val dOffset = handleDOffsetCalculator()
+
+                                        val minX = min(min(aOffset.x, bOffset.x), min(cOffset.x, dOffset.x))
+                                            .coerceIn(0f, constraints.maxWidth.toFloat())
+                                        val maxX = max(max(aOffset.x, bOffset.x), max(cOffset.x, dOffset.x))
+                                            .coerceIn(0f, constraints.maxWidth.toFloat())
+                                        val minY = min(min(aOffset.y, bOffset.y), min(cOffset.y, dOffset.y))
+                                            .coerceIn(0f, constraints.maxHeight.toFloat())
+                                        val maxY = max(max(aOffset.y, bOffset.y), max(cOffset.y, dOffset.y))
+                                            .coerceIn(0f, constraints.maxHeight.toFloat())
+
+                                        val topLeft = Offset(minX, minY)
+                                        val size = Size(maxX - minX, maxY - minY)
+
+                                        val selectionBoxConstraints = Constraints(
+                                            minWidth = size.width.roundToInt(),
+                                            maxWidth = size.width.roundToInt(),
+                                            minHeight = size.height.roundToInt(),
+                                            maxHeight = size.height.roundToInt(),
+                                        )
+
+                                        val placeable = measurable.measure(selectionBoxConstraints)
+
+                                        layout(constraints.maxWidth, constraints.maxHeight) {
+                                            placeable.place(topLeft.round())
+                                        }
+                                    },
+                            ) {
+                                Canvas(
+                                    modifier = Modifier.fillMaxSize(),
+                                ) {
+                                    val rect = size.toRect()
+                                    drawRect(
+                                        color = selectionColor,
+                                        alpha = 0.2f,
+                                    )
+                                    val strokeWidth = 2.dp.toPx()
+                                    val pathEffect = PathEffect.dashPathEffect(
+                                        floatArrayOf(
+                                            24.dp.toPx(),
+                                            24.dp.toPx(),
+                                        ),
+                                    )
+
+                                    drawLine(
+                                        color = selectionColor,
+                                        start = rect.topLeft,
+                                        end = rect.topCenter,
+                                        strokeWidth = strokeWidth,
+                                        pathEffect = pathEffect,
+                                    )
+                                    drawLine(
+                                        color = selectionColor,
+                                        start = rect.topRight,
+                                        end = rect.topCenter,
+                                        strokeWidth = strokeWidth,
+                                        pathEffect = pathEffect,
+                                    )
+                                    drawLine(
+                                        color = selectionColor,
+                                        start = rect.topLeft,
+                                        end = rect.centerLeft,
+                                        strokeWidth = strokeWidth,
+                                        pathEffect = pathEffect,
+                                    )
+                                    drawLine(
+                                        color = selectionColor,
+                                        start = rect.bottomLeft,
+                                        end = rect.centerLeft,
+                                        strokeWidth = strokeWidth,
+                                        pathEffect = pathEffect,
+                                    )
+                                    drawLine(
+                                        color = selectionColor,
+                                        start = rect.bottomLeft,
+                                        end = rect.bottomCenter,
+                                        strokeWidth = strokeWidth,
+                                        pathEffect = pathEffect,
+                                    )
+                                    drawLine(
+                                        color = selectionColor,
+                                        start = rect.bottomRight,
+                                        end = rect.bottomCenter,
+                                        strokeWidth = strokeWidth,
+                                        pathEffect = pathEffect,
+                                    )
+                                    drawLine(
+                                        color = selectionColor,
+                                        start = rect.topRight,
+                                        end = rect.centerRight,
+                                        strokeWidth = strokeWidth,
+                                        pathEffect = pathEffect,
+                                    )
+                                    drawLine(
+                                        color = selectionColor,
+                                        start = rect.bottomRight,
+                                        end = rect.centerRight,
+                                        strokeWidth = strokeWidth,
+                                        pathEffect = pathEffect,
                                     )
                                 }
                             }
+
+                            handleAnchoredDraggable2DStates
+                                .zip(offsetCalculators)
+                                .forEachIndexed { index, (anchoredDraggable2DState, offsetCalculator) ->
+                                    key(index) {
+                                        val interactionSource = remember { MutableInteractionSource() }
+                                        Box(
+                                            modifier = Modifier
+                                                .offset {
+                                                    offsetCalculator().round()
+                                                }
+                                                .offset((-24).dp, (-24).dp)
+                                                .anchoredDraggable2D(
+                                                    state = anchoredDraggable2DState,
+                                                    interactionSource = interactionSource,
+                                                )
+                                                .size(48.dp),
+                                            contentAlignment = Alignment.Center,
+                                        ) {
+                                            val isDragged by interactionSource.collectIsDraggedAsState()
+                                            val isHovered by interactionSource.collectIsHoveredAsState()
+                                            val isPressed by interactionSource.collectIsPressedAsState()
+
+                                            val isActive = isDragged || isHovered || isPressed
+                                            val size by animateDpAsState(if (isActive) 24.dp else 16.dp)
+                                            val elevation by animateDpAsState(if (isActive) 4.dp else 0.dp)
+                                            Surface(
+                                                modifier = Modifier.size(size),
+                                                shape = CircleShape,
+                                                shadowElevation = elevation,
+                                                color = selectionColor,
+                                            ) {}
+                                        }
+                                    }
+                                }
                         }
+                    }
+
+                    is SelectionState.Selection -> {
+                        Spacer(Modifier.fillMaxSize())
+                    }
                 }
-                is SelectionState.Selection -> Unit
             }
         }
     }

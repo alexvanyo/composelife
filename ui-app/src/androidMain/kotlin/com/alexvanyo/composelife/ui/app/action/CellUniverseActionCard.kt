@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.app.action
 
-import android.content.ClipData
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.Spring
@@ -50,11 +49,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
-import com.alexvanyo.composelife.model.CellState
-import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.ActionControlRow
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.NavContainer
@@ -74,7 +70,6 @@ import com.alexvanyo.composelife.ui.util.Zero
 import com.alexvanyo.composelife.ui.util.isInProgress
 import com.alexvanyo.composelife.ui.util.lerp
 import com.alexvanyo.composelife.ui.util.progressToTrue
-import com.alexvanyo.composelife.ui.util.rememberClipboardState
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -99,12 +94,13 @@ fun CellUniverseActionCard(
     isViewportTracking: Boolean,
     setIsViewportTracking: (Boolean) -> Unit,
     selectionState: SelectionState,
+    onClearSelection: () -> Unit,
+    onCopy: () -> Unit,
+    onCut: () -> Unit,
     actionCardState: CellUniverseActionCardState,
     modifier: Modifier = Modifier,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ) {
-    val clipboardState = rememberClipboardState()
-
     CellUniverseActionCard(
         windowSizeClass = windowSizeClass,
         isRunning = when (temporalGameOfLifeState.status) {
@@ -124,56 +120,9 @@ fun CellUniverseActionCard(
         isViewportTracking = isViewportTracking,
         setIsViewportTracking = setIsViewportTracking,
         selectionState = selectionState,
-        onCopy = {
-            when (selectionState) {
-                SelectionState.NoSelection,
-                is SelectionState.Selection,
-                -> Unit
-                is SelectionState.SelectingBox -> {
-                    if (selectionState.width != 0 && selectionState.height != 0) {
-                        val left: Int
-                        val right: Int
-
-                        if (selectionState.width < 0) {
-                            left = selectionState.topLeft.x + selectionState.width + 1
-                            right = selectionState.topLeft.x
-                        } else {
-                            left = selectionState.topLeft.x
-                            right = selectionState.topLeft.x + selectionState.width - 1
-                        }
-
-                        val top: Int
-                        val bottom: Int
-
-                        if (selectionState.height < 0) {
-                            top = selectionState.topLeft.y + selectionState.height + 1
-                            bottom = selectionState.topLeft.y
-                        } else {
-                            top = selectionState.topLeft.y
-                            bottom = selectionState.topLeft.y + selectionState.height - 1
-                        }
-
-                        val cellWindow = IntRect(
-                            left = left,
-                            top = top,
-                            right = right,
-                            bottom = bottom,
-                        )
-
-                        val serializedCellState = RunLengthEncodedCellStateSerializer.serializeToString(
-                            CellState(
-                                temporalGameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).toSet(),
-                            ),
-                        )
-
-                        clipboardState.clipData = ClipData.newPlainText(
-                            "Cell state",
-                            serializedCellState.joinToString("\n"),
-                        )
-                    }
-                }
-            }
-        },
+        onClearSelection = onClearSelection,
+        onCopy = onCopy,
+        onCut = onCut,
         actionCardState = actionCardState,
         modifier = modifier,
     )
@@ -195,7 +144,9 @@ fun CellUniverseActionCard(
     isViewportTracking: Boolean,
     setIsViewportTracking: (Boolean) -> Unit,
     selectionState: SelectionState,
+    onClearSelection: () -> Unit,
     onCopy: () -> Unit,
+    onCut: () -> Unit,
     actionCardState: CellUniverseActionCardState,
     modifier: Modifier = Modifier,
 ) {
@@ -286,7 +237,9 @@ fun CellUniverseActionCard(
                                         isViewportTracking = isViewportTracking,
                                         setIsViewportTracking = setIsViewportTracking,
                                         selectionState = selectionState,
+                                        onClearSelection = onClearSelection,
                                         onCopy = onCopy,
+                                        onCut = onCut,
                                     )
                                 }
 
