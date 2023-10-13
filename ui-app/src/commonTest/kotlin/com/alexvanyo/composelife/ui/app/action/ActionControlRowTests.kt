@@ -30,6 +30,7 @@ import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
+import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.resources.Collapse
 import com.alexvanyo.composelife.ui.app.resources.DisableAutofit
 import com.alexvanyo.composelife.ui.app.resources.EnableAutofit
@@ -63,6 +64,10 @@ class ActionControlRowTests {
                 setIsExpanded = {},
                 isViewportTracking = false,
                 setIsViewportTracking = {},
+                selectionState = SelectionState.NoSelection,
+                onClearSelection = {},
+                onCopy = {},
+                onCut = {},
             )
         }
 
@@ -99,6 +104,10 @@ class ActionControlRowTests {
                 setIsExpanded = {},
                 isViewportTracking = true,
                 setIsViewportTracking = {},
+                selectionState = SelectionState.NoSelection,
+                onClearSelection = {},
+                onCopy = {},
+                onCut = {},
             )
         }
 
@@ -140,6 +149,10 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
+                selectionState = SelectionState.NoSelection,
+                onClearSelection = {},
+                onCopy = {},
+                onCut = {},
             )
         }
 
@@ -168,6 +181,10 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
+                selectionState = SelectionState.NoSelection,
+                onClearSelection = {},
+                onCopy = {},
+                onCut = {},
             )
         }
 
@@ -196,6 +213,10 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
+                selectionState = SelectionState.NoSelection,
+                onClearSelection = {},
+                onCopy = {},
+                onCut = {},
             )
         }
 
@@ -224,6 +245,10 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
+                selectionState = SelectionState.NoSelection,
+                onClearSelection = {},
+                onCopy = {},
+                onCut = {},
             )
         }
 
@@ -252,6 +277,10 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
+                selectionState = SelectionState.NoSelection,
+                onClearSelection = {},
+                onCopy = {},
+                onCut = {},
             )
         }
 
@@ -280,6 +309,10 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
+                selectionState = SelectionState.NoSelection,
+                onClearSelection = {},
+                onCopy = {},
+                onCut = {},
             )
         }
 
@@ -308,6 +341,10 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
+                selectionState = SelectionState.NoSelection,
+                onClearSelection = {},
+                onCopy = {},
+                onCut = {},
             )
         }
 

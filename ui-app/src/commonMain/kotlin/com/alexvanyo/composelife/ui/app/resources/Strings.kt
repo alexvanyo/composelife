@@ -58,6 +58,8 @@ internal expect val Strings.Play: ParameterizedString
 
 internal expect val Strings.Step: ParameterizedString
 
+internal expect val Strings.ClearSelection: ParameterizedString
+
 internal expect val Strings.Copy: ParameterizedString
 
 internal expect val Strings.Cut: ParameterizedString

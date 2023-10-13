@@ -380,7 +380,9 @@ class AnchoredDraggable2DState<T>(
         velocity: Velocity,
     ): T {
         val currentAnchors = anchors
-        val targetOffset = exponentialDecay<Offset>().calculateTargetValue(
+        val targetOffset = exponentialDecay<Offset>(
+            frictionMultiplier = 5f,
+        ).calculateTargetValue(
             typeConverter = Offset.VectorConverter,
             initialValue = offset,
             initialVelocity = Offset(velocity.x, velocity.y),

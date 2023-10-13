@@ -37,7 +37,9 @@ fun CollapsedRunningActionControlRowPreview() {
                 isViewportTracking = false,
                 setIsViewportTracking = {},
                 selectionState = SelectionState.NoSelection,
+                onClearSelection = {},
                 onCopy = {},
+                onCut = {},
             )
         }
     }
@@ -58,7 +60,9 @@ fun CollapsedPausedActionControlRowPreview() {
                 isViewportTracking = false,
                 setIsViewportTracking = {},
                 selectionState = SelectionState.NoSelection,
+                onClearSelection = {},
                 onCopy = {},
+                onCut = {},
             )
         }
     }
@@ -79,7 +83,9 @@ fun ExpandedActionControlRowPreview() {
                 isViewportTracking = false,
                 setIsViewportTracking = {},
                 selectionState = SelectionState.NoSelection,
+                onClearSelection = {},
                 onCopy = {},
+                onCut = {},
             )
         }
     }
@@ -100,7 +106,9 @@ fun ViewportTrackingActionControlRowPreview() {
                 isViewportTracking = true,
                 setIsViewportTracking = {},
                 selectionState = SelectionState.NoSelection,
+                onClearSelection = {},
                 onCopy = {},
+                onCut = {},
             )
         }
     }
@@ -121,7 +129,9 @@ fun ElevatedExpandedActionControlRowPreview() {
                 isViewportTracking = false,
                 setIsViewportTracking = {},
                 selectionState = SelectionState.NoSelection,
+                onClearSelection = {},
                 onCopy = {},
+                onCut = {},
             )
         }
     }

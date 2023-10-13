@@ -71,6 +71,9 @@ internal actual val Strings.Play: ParameterizedString get() =
 internal actual val Strings.Step: ParameterizedString get() =
     ParameterizedString(R.string.step)
 
+internal actual val Strings.ClearSelection: ParameterizedString get() =
+    ParameterizedString(R.string.clear_selection)
+
 internal actual val Strings.Copy: ParameterizedString get() =
     ParameterizedString(R.string.copy)
 

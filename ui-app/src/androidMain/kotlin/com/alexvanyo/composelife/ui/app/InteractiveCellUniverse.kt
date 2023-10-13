@@ -106,6 +106,10 @@ fun InteractiveCellUniverse(
                         if (keyEvent.key == Key.Spacebar && keyEvent.type == KeyEventType.KeyUp) {
                             temporalGameOfLifeState.setIsRunning(!temporalGameOfLifeState.isRunning)
                             true
+                        } else if (keyEvent.key == Key.Escape && keyEvent.type == KeyEventType.KeyUp) {
+                            interactiveCellUniverseState.cellWindowInteractionState.selectionState =
+                                SelectionState.NoSelection
+                            true
                         } else {
                             false
                         }
