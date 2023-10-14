@@ -20,6 +20,11 @@ package com.alexvanyo.composelife.ui.app.cells
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -223,6 +228,11 @@ fun InteractableCells(
 
             AnimatedContent(
                 targetState = selectionState,
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(220, delayMillis = 90))
+                        .togetherWith(fadeOut(animationSpec = tween(90)))
+                },
+                contentAlignment = Alignment.Center,
                 contentKey = {
                     when (it) {
                         SelectionState.NoSelection -> 0
@@ -664,61 +674,62 @@ fun InteractableCells(
                                             24.dp.toPx(),
                                             24.dp.toPx(),
                                         ),
+                                        phase = 12.dp.toPx(),
                                     )
 
                                     drawLine(
                                         color = selectionColor,
-                                        start = rect.topLeft,
-                                        end = rect.topCenter,
+                                        start = rect.topCenter,
+                                        end = rect.topLeft,
                                         strokeWidth = strokeWidth,
                                         pathEffect = pathEffect,
                                     )
                                     drawLine(
                                         color = selectionColor,
-                                        start = rect.topRight,
-                                        end = rect.topCenter,
+                                        start = rect.topCenter,
+                                        end = rect.topRight,
                                         strokeWidth = strokeWidth,
                                         pathEffect = pathEffect,
                                     )
                                     drawLine(
                                         color = selectionColor,
-                                        start = rect.topLeft,
-                                        end = rect.centerLeft,
+                                        start = rect.centerLeft,
+                                        end = rect.topLeft,
                                         strokeWidth = strokeWidth,
                                         pathEffect = pathEffect,
                                     )
                                     drawLine(
                                         color = selectionColor,
-                                        start = rect.bottomLeft,
-                                        end = rect.centerLeft,
+                                        start = rect.centerLeft,
+                                        end = rect.bottomLeft,
                                         strokeWidth = strokeWidth,
                                         pathEffect = pathEffect,
                                     )
                                     drawLine(
                                         color = selectionColor,
-                                        start = rect.bottomLeft,
-                                        end = rect.bottomCenter,
+                                        start = rect.bottomCenter,
+                                        end = rect.bottomLeft,
                                         strokeWidth = strokeWidth,
                                         pathEffect = pathEffect,
                                     )
                                     drawLine(
                                         color = selectionColor,
-                                        start = rect.bottomRight,
-                                        end = rect.bottomCenter,
+                                        start = rect.bottomCenter,
+                                        end = rect.bottomRight,
                                         strokeWidth = strokeWidth,
                                         pathEffect = pathEffect,
                                     )
                                     drawLine(
                                         color = selectionColor,
-                                        start = rect.topRight,
-                                        end = rect.centerRight,
+                                        start = rect.centerRight,
+                                        end = rect.topRight,
                                         strokeWidth = strokeWidth,
                                         pathEffect = pathEffect,
                                     )
                                     drawLine(
                                         color = selectionColor,
-                                        start = rect.bottomRight,
-                                        end = rect.centerRight,
+                                        start = rect.centerRight,
+                                        end = rect.bottomRight,
                                         strokeWidth = strokeWidth,
                                         pathEffect = pathEffect,
                                     )

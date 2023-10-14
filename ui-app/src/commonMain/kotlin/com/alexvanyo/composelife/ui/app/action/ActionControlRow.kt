@@ -46,7 +46,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.app.cells.SelectionState
@@ -93,265 +92,261 @@ fun ActionControlRow(
         Box(
             contentAlignment = Alignment.Center,
         ) {
-            LookaheadScope {
-                Row(
-                    modifier = Modifier.animateContentSize(),
-                ) {
-                    val showTimeControls: Boolean
-                    val showSelectingControls: Boolean
-                    val showSelectionControls: Boolean
+            Row {
+                val showTimeControls: Boolean
+                val showSelectingControls: Boolean
+                val showSelectionControls: Boolean
 
-                    when (selectionState) {
-                        SelectionState.NoSelection -> {
-                            showTimeControls = true
-                            showSelectingControls = false
-                            showSelectionControls = false
-                        }
-                        is SelectionState.SelectingBox -> {
-                            showTimeControls = false
-                            showSelectingControls = true
-                            showSelectionControls = false
-                        }
-                        is SelectionState.Selection -> {
-                            showTimeControls = false
-                            showSelectingControls = false
-                            showSelectionControls = true
-                        }
+                when (selectionState) {
+                    SelectionState.NoSelection -> {
+                        showTimeControls = true
+                        showSelectingControls = false
+                        showSelectionControls = false
                     }
-
-                    AnimatedVisibility(showTimeControls) {
-                        PlainTooltipBox(
-                            tooltip = {
-                                Text(
-                                    parameterizedStringResource(
-                                        if (isRunning) {
-                                            Strings.Pause
-                                        } else {
-                                            Strings.Play
-                                        },
-                                    ),
-                                )
-                            },
-                        ) {
-                            IconToggleButton(
-                                checked = isRunning,
-                                onCheckedChange = setIsRunning,
-                                colors = IconButtonDefaults.iconToggleButtonColors(
-                                    checkedContentColor = LocalContentColor.current,
-                                ),
-                                modifier = Modifier.tooltipTrigger(),
-                            ) {
-                                Icon(
-                                    imageVector = if (isRunning) {
-                                        Icons.Filled.Pause
-                                    } else {
-                                        Icons.Filled.PlayArrow
-                                    },
-                                    contentDescription = parameterizedStringResource(
-                                        if (isRunning) {
-                                            Strings.Pause
-                                        } else {
-                                            Strings.Play
-                                        },
-                                    ),
-                                )
-                            }
-                        }
+                    is SelectionState.SelectingBox -> {
+                        showTimeControls = false
+                        showSelectingControls = true
+                        showSelectionControls = false
                     }
-
-                    AnimatedVisibility(showTimeControls) {
-                        PlainTooltipBox(
-                            tooltip = {
-                                Text(parameterizedStringResource(Strings.Step))
-                            },
-                        ) {
-                            IconButton(
-                                onClick = onStep,
-                                modifier = Modifier.tooltipTrigger(),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.SkipNext,
-                                    contentDescription = parameterizedStringResource(Strings.Step),
-                                )
-                            }
-                        }
+                    is SelectionState.Selection -> {
+                        showTimeControls = false
+                        showSelectingControls = false
+                        showSelectionControls = true
                     }
+                }
 
-                    AnimatedVisibility(showSelectingControls) {
-                        PlainTooltipBox(
-                            tooltip = {
-                                Text(parameterizedStringResource(Strings.ClearSelection))
-                            },
-                        ) {
-                            IconButton(
-                                onClick = onClearSelection,
-                                modifier = Modifier.tooltipTrigger(),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Cancel,
-                                    contentDescription = parameterizedStringResource(Strings.ClearSelection),
-                                )
-                            }
-                        }
-                    }
-
-                    AnimatedVisibility(showSelectingControls) {
-                        PlainTooltipBox(
-                            tooltip = {
-                                Text(parameterizedStringResource(Strings.Copy))
-                            },
-                        ) {
-                            IconButton(
-                                onClick = onCopy,
-                                modifier = Modifier.tooltipTrigger(),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.ContentCopy,
-                                    contentDescription = parameterizedStringResource(Strings.Copy),
-                                )
-                            }
-                        }
-                    }
-
-                    AnimatedVisibility(showSelectingControls) {
-                        PlainTooltipBox(
-                            tooltip = {
-                                Text(parameterizedStringResource(Strings.Cut))
-                            },
-                        ) {
-                            IconButton(
-                                onClick = onCut,
-                                modifier = Modifier.tooltipTrigger(),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.ContentCut,
-                                    contentDescription = parameterizedStringResource(Strings.Cut),
-                                )
-                            }
-                        }
-                    }
-
-                    AnimatedVisibility(showTimeControls || showSelectingControls) {
-                        PlainTooltipBox(
-                            tooltip = {
-                                Text(parameterizedStringResource(Strings.Paste))
-                            },
-                        ) {
-                            IconButton(
-                                onClick = {},
-                                modifier = Modifier.tooltipTrigger(),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.ContentPaste,
-                                    contentDescription = parameterizedStringResource(Strings.Paste),
-                                )
-                            }
-                        }
-                    }
-
-                    AnimatedVisibility(showSelectionControls) {
-                        PlainTooltipBox(
-                            tooltip = {
-                                Text(parameterizedStringResource(Strings.CancelPaste))
-                            },
-                        ) {
-                            IconButton(
-                                onClick = {},
-                                modifier = Modifier.tooltipTrigger(),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Cancel,
-                                    contentDescription = parameterizedStringResource(Strings.CancelPaste),
-                                )
-                            }
-                        }
-                    }
-
-                    AnimatedVisibility(showSelectionControls) {
-                        PlainTooltipBox(
-                            tooltip = {
-                                Text(parameterizedStringResource(Strings.ApplyPaste))
-                            },
-                        ) {
-                            IconButton(
-                                onClick = {},
-                                modifier = Modifier.tooltipTrigger(),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Done,
-                                    contentDescription = parameterizedStringResource(Strings.ApplyPaste),
-                                )
-                            }
-                        }
-                    }
-
+                AnimatedVisibility(showTimeControls) {
                     PlainTooltipBox(
                         tooltip = {
                             Text(
                                 parameterizedStringResource(
-                                    if (isViewportTracking) {
-                                        Strings.DisableAutofit
+                                    if (isRunning) {
+                                        Strings.Pause
                                     } else {
-                                        Strings.EnableAutofit
+                                        Strings.Play
                                     },
                                 ),
                             )
                         },
                     ) {
                         IconToggleButton(
-                            checked = isViewportTracking,
-                            onCheckedChange = setIsViewportTracking,
-                            modifier = Modifier.tooltipTrigger(),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.AutoMode,
-                                contentDescription = parameterizedStringResource(
-                                    if (isViewportTracking) {
-                                        Strings.DisableAutofit
-                                    } else {
-                                        Strings.EnableAutofit
-                                    },
-                                ),
-                            )
-                        }
-                    }
-
-                    PlainTooltipBox(
-                        tooltip = {
-                            Text(
-                                parameterizedStringResource(
-                                    if (isExpanded) {
-                                        Strings.Collapse
-                                    } else {
-                                        Strings.Expand
-                                    },
-                                ),
-                            )
-                        },
-                    ) {
-                        IconToggleButton(
-                            checked = isExpanded,
-                            onCheckedChange = setIsExpanded,
+                            checked = isRunning,
+                            onCheckedChange = setIsRunning,
                             colors = IconButtonDefaults.iconToggleButtonColors(
                                 checkedContentColor = LocalContentColor.current,
                             ),
                             modifier = Modifier.tooltipTrigger(),
                         ) {
                             Icon(
-                                imageVector = if (isExpanded) {
-                                    Icons.Filled.ExpandMore
+                                imageVector = if (isRunning) {
+                                    Icons.Filled.Pause
                                 } else {
-                                    Icons.Filled.ExpandLess
+                                    Icons.Filled.PlayArrow
                                 },
                                 contentDescription = parameterizedStringResource(
-                                    if (isExpanded) {
-                                        Strings.Collapse
+                                    if (isRunning) {
+                                        Strings.Pause
                                     } else {
-                                        Strings.Expand
+                                        Strings.Play
                                     },
                                 ),
                             )
                         }
+                    }
+                }
+
+                AnimatedVisibility(showTimeControls) {
+                    PlainTooltipBox(
+                        tooltip = {
+                            Text(parameterizedStringResource(Strings.Step))
+                        },
+                    ) {
+                        IconButton(
+                            onClick = onStep,
+                            modifier = Modifier.tooltipTrigger(),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.SkipNext,
+                                contentDescription = parameterizedStringResource(Strings.Step),
+                            )
+                        }
+                    }
+                }
+
+                AnimatedVisibility(showSelectingControls) {
+                    PlainTooltipBox(
+                        tooltip = {
+                            Text(parameterizedStringResource(Strings.ClearSelection))
+                        },
+                    ) {
+                        IconButton(
+                            onClick = onClearSelection,
+                            modifier = Modifier.tooltipTrigger(),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Cancel,
+                                contentDescription = parameterizedStringResource(Strings.ClearSelection),
+                            )
+                        }
+                    }
+                }
+
+                AnimatedVisibility(showSelectingControls) {
+                    PlainTooltipBox(
+                        tooltip = {
+                            Text(parameterizedStringResource(Strings.Copy))
+                        },
+                    ) {
+                        IconButton(
+                            onClick = onCopy,
+                            modifier = Modifier.tooltipTrigger(),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.ContentCopy,
+                                contentDescription = parameterizedStringResource(Strings.Copy),
+                            )
+                        }
+                    }
+                }
+
+                AnimatedVisibility(showSelectingControls) {
+                    PlainTooltipBox(
+                        tooltip = {
+                            Text(parameterizedStringResource(Strings.Cut))
+                        },
+                    ) {
+                        IconButton(
+                            onClick = onCut,
+                            modifier = Modifier.tooltipTrigger(),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.ContentCut,
+                                contentDescription = parameterizedStringResource(Strings.Cut),
+                            )
+                        }
+                    }
+                }
+
+                AnimatedVisibility(showTimeControls || showSelectingControls) {
+                    PlainTooltipBox(
+                        tooltip = {
+                            Text(parameterizedStringResource(Strings.Paste))
+                        },
+                    ) {
+                        IconButton(
+                            onClick = {},
+                            modifier = Modifier.tooltipTrigger(),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.ContentPaste,
+                                contentDescription = parameterizedStringResource(Strings.Paste),
+                            )
+                        }
+                    }
+                }
+
+                AnimatedVisibility(showSelectionControls) {
+                    PlainTooltipBox(
+                        tooltip = {
+                            Text(parameterizedStringResource(Strings.CancelPaste))
+                        },
+                    ) {
+                        IconButton(
+                            onClick = {},
+                            modifier = Modifier.tooltipTrigger(),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Cancel,
+                                contentDescription = parameterizedStringResource(Strings.CancelPaste),
+                            )
+                        }
+                    }
+                }
+
+                AnimatedVisibility(showSelectionControls) {
+                    PlainTooltipBox(
+                        tooltip = {
+                            Text(parameterizedStringResource(Strings.ApplyPaste))
+                        },
+                    ) {
+                        IconButton(
+                            onClick = {},
+                            modifier = Modifier.tooltipTrigger(),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Done,
+                                contentDescription = parameterizedStringResource(Strings.ApplyPaste),
+                            )
+                        }
+                    }
+                }
+
+                PlainTooltipBox(
+                    tooltip = {
+                        Text(
+                            parameterizedStringResource(
+                                if (isViewportTracking) {
+                                    Strings.DisableAutofit
+                                } else {
+                                    Strings.EnableAutofit
+                                },
+                            ),
+                        )
+                    },
+                ) {
+                    IconToggleButton(
+                        checked = isViewportTracking,
+                        onCheckedChange = setIsViewportTracking,
+                        modifier = Modifier.tooltipTrigger(),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.AutoMode,
+                            contentDescription = parameterizedStringResource(
+                                if (isViewportTracking) {
+                                    Strings.DisableAutofit
+                                } else {
+                                    Strings.EnableAutofit
+                                },
+                            ),
+                        )
+                    }
+                }
+
+                PlainTooltipBox(
+                    tooltip = {
+                        Text(
+                            parameterizedStringResource(
+                                if (isExpanded) {
+                                    Strings.Collapse
+                                } else {
+                                    Strings.Expand
+                                },
+                            ),
+                        )
+                    },
+                ) {
+                    IconToggleButton(
+                        checked = isExpanded,
+                        onCheckedChange = setIsExpanded,
+                        colors = IconButtonDefaults.iconToggleButtonColors(
+                            checkedContentColor = LocalContentColor.current,
+                        ),
+                        modifier = Modifier.tooltipTrigger(),
+                    ) {
+                        Icon(
+                            imageVector = if (isExpanded) {
+                                Icons.Filled.ExpandMore
+                            } else {
+                                Icons.Filled.ExpandLess
+                            },
+                            contentDescription = parameterizedStringResource(
+                                if (isExpanded) {
+                                    Strings.Collapse
+                                } else {
+                                    Strings.Expand
+                                },
+                            ),
+                        )
                     }
                 }
             }
