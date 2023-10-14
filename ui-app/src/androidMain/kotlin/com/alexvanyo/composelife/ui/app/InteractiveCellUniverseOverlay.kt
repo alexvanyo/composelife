@@ -91,6 +91,67 @@ fun InteractiveCellUniverseOverlay(
         mutableStateOf<Animatable<Float, AnimationVector1D>?>(null)
     }
 
+    val selectionState = interactiveCellUniverseState.cellWindowInteractionState.selectionState
+    val clipboardState = rememberClipboardState()
+
+    fun onCopy(isCut: Boolean) {
+        when (selectionState) {
+            SelectionState.NoSelection,
+            is SelectionState.Selection,
+            -> Unit
+            is SelectionState.SelectingBox -> {
+                if (selectionState.width != 0 && selectionState.height != 0) {
+                    val left: Int
+                    val right: Int
+
+                    if (selectionState.width < 0) {
+                        left = selectionState.topLeft.x + selectionState.width + 1
+                        right = selectionState.topLeft.x
+                    } else {
+                        left = selectionState.topLeft.x
+                        right = selectionState.topLeft.x + selectionState.width - 1
+                    }
+
+                    val top: Int
+                    val bottom: Int
+
+                    if (selectionState.height < 0) {
+                        top = selectionState.topLeft.y + selectionState.height + 1
+                        bottom = selectionState.topLeft.y
+                    } else {
+                        top = selectionState.topLeft.y
+                        bottom = selectionState.topLeft.y + selectionState.height - 1
+                    }
+
+                    val cellWindow = IntRect(
+                        left = left,
+                        top = top,
+                        right = right,
+                        bottom = bottom,
+                    )
+
+                    val aliveCells = temporalGameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).toSet()
+
+                    if (isCut) {
+                        temporalGameOfLifeState.cellState =
+                            aliveCells.fold(temporalGameOfLifeState.cellState) { cellState, offset ->
+                                cellState.withCell(offset, false)
+                            }
+                    }
+
+                    val serializedCellState = RunLengthEncodedCellStateSerializer.serializeToString(
+                        CellState(aliveCells),
+                    )
+
+                    clipboardState.clipData = ClipData.newPlainText(
+                        "Cell state",
+                        serializedCellState.joinToString("\n"),
+                    )
+                }
+            }
+        }
+    }
+
     Layout(
         layoutIdTypes = InteractiveCellUniverseOverlayLayoutTypes.sealedEnum,
         content = {
@@ -123,8 +184,6 @@ fun InteractiveCellUniverseOverlay(
                 )
             }
 
-            val selectionState = interactiveCellUniverseState.cellWindowInteractionState.selectionState
-            val clipboardState = rememberClipboardState()
 
             // TODO: Calling order is weird here, but required due to https://youtrack.jetbrains.com/issue/KT-51863
             CellUniverseActionCard(
@@ -137,56 +196,11 @@ fun InteractiveCellUniverseOverlay(
                     interactiveCellUniverseState.cellWindowInteractionState.selectionState = SelectionState.NoSelection
                 },
                 onCopy = {
-                    when (selectionState) {
-                        SelectionState.NoSelection,
-                        is SelectionState.Selection,
-                        -> Unit
-                        is SelectionState.SelectingBox -> {
-                            if (selectionState.width != 0 && selectionState.height != 0) {
-                                val left: Int
-                                val right: Int
-
-                                if (selectionState.width < 0) {
-                                    left = selectionState.topLeft.x + selectionState.width + 1
-                                    right = selectionState.topLeft.x
-                                } else {
-                                    left = selectionState.topLeft.x
-                                    right = selectionState.topLeft.x + selectionState.width - 1
-                                }
-
-                                val top: Int
-                                val bottom: Int
-
-                                if (selectionState.height < 0) {
-                                    top = selectionState.topLeft.y + selectionState.height + 1
-                                    bottom = selectionState.topLeft.y
-                                } else {
-                                    top = selectionState.topLeft.y
-                                    bottom = selectionState.topLeft.y + selectionState.height - 1
-                                }
-
-                                val cellWindow = IntRect(
-                                    left = left,
-                                    top = top,
-                                    right = right,
-                                    bottom = bottom,
-                                )
-
-                                val serializedCellState = RunLengthEncodedCellStateSerializer.serializeToString(
-                                    CellState(
-                                        temporalGameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).toSet(),
-                                    ),
-                                )
-
-                                clipboardState.clipData = ClipData.newPlainText(
-                                    "Cell state",
-                                    serializedCellState.joinToString("\n"),
-                                )
-                            }
-                        }
-                    }
+                    onCopy(false)
                 },
-                onCut = {},
+                onCut = {
+                    onCopy(true)
+                },
                 actionCardState = interactiveCellUniverseState.actionCardState,
                 modifier = Modifier
                     .layoutId(CellUniverseActionCard)
