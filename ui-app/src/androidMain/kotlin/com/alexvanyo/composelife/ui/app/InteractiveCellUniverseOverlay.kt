@@ -184,7 +184,6 @@ fun InteractiveCellUniverseOverlay(
                 )
             }
 
-
             // TODO: Calling order is weird here, but required due to https://youtrack.jetbrains.com/issue/KT-51863
             CellUniverseActionCard(
                 temporalGameOfLifeState = temporalGameOfLifeState,
