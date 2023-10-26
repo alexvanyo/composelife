@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.app
 
-import android.content.ClipData
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.VectorConverter
@@ -44,12 +43,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
-import com.alexvanyo.composelife.model.CellState
-import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.BottomInsets
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseActionCard
@@ -63,7 +59,6 @@ import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.isInProgress
-import com.alexvanyo.composelife.ui.util.rememberClipboardState
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.coroutines.launch
 
@@ -81,6 +76,8 @@ fun InteractiveCellUniverseOverlay(
     interactiveCellUniverseState: InteractiveCellUniverseState,
     cellWindowViewportState: CellWindowViewportState,
     windowSizeClass: WindowSizeClass,
+    onCopy: () -> Unit,
+    onCut: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
@@ -89,67 +86,6 @@ fun InteractiveCellUniverseOverlay(
     }
     var actionCardAnimatable by remember {
         mutableStateOf<Animatable<Float, AnimationVector1D>?>(null)
-    }
-
-    val selectionState = interactiveCellUniverseState.cellWindowInteractionState.selectionState
-    val clipboardState = rememberClipboardState()
-
-    fun onCopy(isCut: Boolean) {
-        when (selectionState) {
-            SelectionState.NoSelection,
-            is SelectionState.Selection,
-            -> Unit
-            is SelectionState.SelectingBox -> {
-                if (selectionState.width != 0 && selectionState.height != 0) {
-                    val left: Int
-                    val right: Int
-
-                    if (selectionState.width < 0) {
-                        left = selectionState.topLeft.x + selectionState.width + 1
-                        right = selectionState.topLeft.x
-                    } else {
-                        left = selectionState.topLeft.x
-                        right = selectionState.topLeft.x + selectionState.width - 1
-                    }
-
-                    val top: Int
-                    val bottom: Int
-
-                    if (selectionState.height < 0) {
-                        top = selectionState.topLeft.y + selectionState.height + 1
-                        bottom = selectionState.topLeft.y
-                    } else {
-                        top = selectionState.topLeft.y
-                        bottom = selectionState.topLeft.y + selectionState.height - 1
-                    }
-
-                    val cellWindow = IntRect(
-                        left = left,
-                        top = top,
-                        right = right,
-                        bottom = bottom,
-                    )
-
-                    val aliveCells = temporalGameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).toSet()
-
-                    if (isCut) {
-                        temporalGameOfLifeState.cellState =
-                            aliveCells.fold(temporalGameOfLifeState.cellState) { cellState, offset ->
-                                cellState.withCell(offset, false)
-                            }
-                    }
-
-                    val serializedCellState = RunLengthEncodedCellStateSerializer.serializeToString(
-                        CellState(aliveCells),
-                    )
-
-                    clipboardState.clipData = ClipData.newPlainText(
-                        "Cell state",
-                        serializedCellState.joinToString("\n"),
-                    )
-                }
-            }
-        }
     }
 
     Layout(
@@ -194,12 +130,8 @@ fun InteractiveCellUniverseOverlay(
                 onClearSelection = {
                     interactiveCellUniverseState.cellWindowInteractionState.selectionState = SelectionState.NoSelection
                 },
-                onCopy = {
-                    onCopy(false)
-                },
-                onCut = {
-                    onCopy(true)
-                },
+                onCopy = onCopy,
+                onCut = onCut,
                 actionCardState = interactiveCellUniverseState.actionCardState,
                 modifier = Modifier
                     .layoutId(CellUniverseActionCard)

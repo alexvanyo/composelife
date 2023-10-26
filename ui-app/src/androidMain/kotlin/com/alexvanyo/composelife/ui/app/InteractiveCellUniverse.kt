@@ -17,6 +17,7 @@
 
 package com.alexvanyo.composelife.ui.app
 
+import android.content.ClipData
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,10 +36,14 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.IntRect
+import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.isRunning
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardState
@@ -58,6 +63,7 @@ import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.util.PredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.PredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
+import com.alexvanyo.composelife.ui.util.rememberClipboardState
 import com.alexvanyo.composelife.ui.util.rememberPredictiveBackStateHolder
 
 interface InteractiveCellUniverseInjectEntryPoint :
@@ -72,7 +78,7 @@ interface InteractiveCellUniverseLocalEntryPoint :
  * evolves.
  */
 context(InteractiveCellUniverseInjectEntryPoint, InteractiveCellUniverseLocalEntryPoint)
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "LongMethod")
 @Composable
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
@@ -103,15 +109,29 @@ fun InteractiveCellUniverse(
                     Modifier
                 } else {
                     Modifier.onKeyEvent { keyEvent ->
-                        if (keyEvent.key == Key.Spacebar && keyEvent.type == KeyEventType.KeyUp) {
-                            temporalGameOfLifeState.setIsRunning(!temporalGameOfLifeState.isRunning)
-                            true
-                        } else if (keyEvent.key == Key.Escape && keyEvent.type == KeyEventType.KeyUp) {
-                            interactiveCellUniverseState.cellWindowInteractionState.selectionState =
-                                SelectionState.NoSelection
-                            true
-                        } else {
-                            false
+                        when (keyEvent.type) {
+                            KeyEventType.KeyUp -> {
+                                when (keyEvent.key) {
+                                    Key.Spacebar -> {
+                                        temporalGameOfLifeState.setIsRunning(!temporalGameOfLifeState.isRunning)
+                                        true
+                                    }
+                                    Key.C -> if (keyEvent.isCtrlPressed) {
+                                        interactiveCellUniverseState.onCopy()
+                                        true
+                                    } else {
+                                        false
+                                    }
+                                    Key.X -> if (keyEvent.isCtrlPressed) {
+                                        interactiveCellUniverseState.onCut()
+                                        true
+                                    } else {
+                                        false
+                                    }
+                                    else -> false
+                                }
+                            }
+                            else -> false
                         }
                     }
                 },
@@ -130,6 +150,8 @@ fun InteractiveCellUniverse(
             interactiveCellUniverseState = interactiveCellUniverseState,
             cellWindowViewportState = interactiveCellUniverseState.mutableCellWindowViewportState,
             windowSizeClass = windowSizeClass,
+            onCopy = interactiveCellUniverseState::onCopy,
+            onCut = interactiveCellUniverseState::onCut,
         )
     }
 }
@@ -177,6 +199,16 @@ interface InteractiveCellUniverseState {
      * obscured.
      */
     val isOverlayShowingFullscreen: Boolean
+
+    /**
+     * Copies the current selection (if any) to the system clipboard.
+     */
+    fun onCopy()
+
+    /**
+     * Cuts the current selection (if any) to the system clipboard.
+     */
+    fun onCut()
 }
 
 @Suppress("LongMethod", "CyclomaticComplexMethod")
@@ -278,6 +310,8 @@ fun rememberInteractiveCellUniverseState(
             }
         }
 
+    val clipboardState = rememberClipboardState()
+
     return remember(mutableCellWindowViewportState, trackingCellWindowViewportState, infoCardState, actionCardState) {
         object : InteractiveCellUniverseState {
             override var isViewportTracking: Boolean
@@ -314,6 +348,68 @@ fun rememberInteractiveCellUniverseState(
                     is TargetState.Single -> fullscreenTargetState.current
                 }
                 isTargetingFullscreen
+            }
+
+            override fun onCopy() = onCopy(isCut = false)
+
+            override fun onCut() = onCopy(isCut = true)
+
+            private fun onCopy(isCut: Boolean) {
+                when (val currentSelectionState = selectionState) {
+                    SelectionState.NoSelection,
+                    is SelectionState.Selection,
+                    -> Unit
+                    is SelectionState.SelectingBox -> {
+                        if (currentSelectionState.width != 0 && currentSelectionState.height != 0) {
+                            val left: Int
+                            val right: Int
+
+                            if (currentSelectionState.width < 0) {
+                                left = currentSelectionState.topLeft.x + currentSelectionState.width + 1
+                                right = currentSelectionState.topLeft.x
+                            } else {
+                                left = currentSelectionState.topLeft.x
+                                right = currentSelectionState.topLeft.x + currentSelectionState.width - 1
+                            }
+
+                            val top: Int
+                            val bottom: Int
+
+                            if (currentSelectionState.height < 0) {
+                                top = currentSelectionState.topLeft.y + currentSelectionState.height + 1
+                                bottom = currentSelectionState.topLeft.y
+                            } else {
+                                top = currentSelectionState.topLeft.y
+                                bottom = currentSelectionState.topLeft.y + currentSelectionState.height - 1
+                            }
+
+                            val cellWindow = IntRect(
+                                left = left,
+                                top = top,
+                                right = right,
+                                bottom = bottom,
+                            )
+
+                            val aliveCells = temporalGameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).toSet()
+
+                            if (isCut) {
+                                temporalGameOfLifeState.cellState =
+                                    aliveCells.fold(temporalGameOfLifeState.cellState) { cellState, offset ->
+                                        cellState.withCell(offset, false)
+                                    }
+                            }
+
+                            val serializedCellState = RunLengthEncodedCellStateSerializer.serializeToString(
+                                CellState(aliveCells),
+                            )
+
+                            clipboardState.clipData = ClipData.newPlainText(
+                                "Cell state",
+                                serializedCellState.joinToString("\n"),
+                            )
+                        }
+                    }
+                }
             }
         }
     }
