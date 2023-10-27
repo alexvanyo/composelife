@@ -18,9 +18,7 @@ package com.alexvanyo.composelife.buildlogic
 
 import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.dsl.ManagedVirtualDevice
-import com.android.utils.Environment
 import org.gradle.api.GradleException
-import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.invoke
 
@@ -39,15 +37,14 @@ sealed interface FormFactor {
     }
 }
 
-@Suppress("LongMethod", "CyclomaticComplexMethod", "NoNameShadowing")
-fun Project.configureGradleManagedDevices(
+fun configureGradleManagedDevices(
     formFactors: Set<FormFactor>,
     commonExtension: CommonExtension<*, *, *, *, *>,
 ) {
     commonExtension.testOptions.managedDevices.devices {
         formFactors
-            .map {
-                when (it) {
+            .map { formFactor ->
+                when (formFactor) {
                     FormFactor.Mobile -> mobileDevices
                     FormFactor.Wear -> wearDevices
                 }
@@ -80,13 +77,6 @@ fun Project.configureGradleManagedDevices(
                     this.systemImageSource = config.systemImageSource
                 }
             }
-    }
-    // TODO: This shouldn't be necessary, there seems to be some issue with configuration caching with GMD
-    //       https://issuetracker.google.com/issues/262270582
-    tasks.configureEach {
-        doFirst {
-            Environment.initialize()
-        }
     }
 }
 
