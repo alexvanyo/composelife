@@ -127,15 +127,11 @@ private val mobileDevices = run {
             "atd" in it.systemImageSource && it.apiLevel !in 30..33
         }
         .filterNot {
-            // aosp images are only supported on some versions
-            it.systemImageSource == "aosp" && it.apiLevel > 31
-        }
-        .filterNot {
             // Desktop images only make sense on desktop devices
             (it.systemImageSource == "android-desktop" && "Desktop" !in it.deviceName) ||
                 (it.systemImageSource != "android-desktop" && "Desktop" in it.deviceName) ||
                 // Desktop images are only supported on some versions
-                (it.systemImageSource == "android-desktop" && it.apiLevel != 32)
+                (it.systemImageSource == "android-desktop" && it.apiLevel !in 32..33)
         }
 }
 
