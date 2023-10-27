@@ -2,7 +2,7 @@
 accompanist = "0.33.2-alpha"
 androidDesugarJdkLibs = "2.0.3"
 androidGradlePlugin = "8.3.0-alpha11"
-androidTools = "31.3.0-alpha10"
+androidTools = "31.3.0-alpha11"
 androidR8 = "8.1.56"
 androidxActivity = "1.8.0"
 androidxAnnotation = "1.7.0"
