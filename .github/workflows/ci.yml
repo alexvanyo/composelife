@@ -44,12 +44,13 @@ jobs:
               {"sdk": "30"},
               {"sdk": "31"},
               {"sdk": "32"},
-              {"sdk": "33"}
+              {"sdk": "33"},
+              {"sdk": "34"}
             '
           else
             MATRIX='
               {"sdk": "21"},
-              {"sdk": "33"}
+              {"sdk": "34"}
             '
           fi
           echo "matrix={\"include\":[${MATRIX//$'\n'/}]}" >> $GITHUB_OUTPUT
@@ -117,11 +118,11 @@ jobs:
         run: ./gradlew check --stacktrace
 
       - name: Generate code coverage
-        if: matrix.sdk == '33'
+        if: matrix.sdk == '34'
         run: ./gradlew jacocoTestReport --stacktrace
 
       - name: Upload coverage to Codecov
-        if: matrix.sdk == '33'
+        if: matrix.sdk == '34'
         uses: codecov/codecov-action@v3
         with:
           # TODO: Remove once https://github.com/codecov/codecov-action/issues/837 is resolved
