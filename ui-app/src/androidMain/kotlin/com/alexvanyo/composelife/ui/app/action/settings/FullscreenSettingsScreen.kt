@@ -527,7 +527,7 @@ private fun SettingsCategoryList(
                         ) {
                             IconButton(
                                 onClick = onBackButtonPressed,
-                                modifier = Modifier.tooltipTrigger(),
+                                modifier = Modifier.tooltipAnchor(),
                             ) {
                                 Icon(
                                     Icons.AutoMirrored.Filled.ArrowBack,
@@ -660,7 +660,7 @@ private fun SettingsCategoryDetail(
                         ) {
                             IconButton(
                                 onClick = onBackButtonPressed,
-                                modifier = Modifier.tooltipTrigger(),
+                                modifier = Modifier.tooltipAnchor(),
                             ) {
                                 Icon(
                                     Icons.AutoMirrored.Default.ArrowBack,

@@ -42,7 +42,7 @@ actual fun PlainTooltipBox(
     ) {
         with(
             object : TooltipBoxScope {
-                override fun Modifier.tooltipTrigger(): Modifier = this
+                override fun Modifier.tooltipAnchor(): Modifier = this
             },
         ) {
             content()
@@ -51,5 +51,5 @@ actual fun PlainTooltipBox(
 }
 
 actual interface TooltipBoxScope {
-    actual fun Modifier.tooltipTrigger(): Modifier
+    actual fun Modifier.tooltipAnchor(): Modifier
 }

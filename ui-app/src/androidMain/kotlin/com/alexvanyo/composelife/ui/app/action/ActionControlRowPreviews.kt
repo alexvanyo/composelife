@@ -17,6 +17,8 @@
 package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.IntOffset
+import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
@@ -106,6 +108,58 @@ fun ViewportTrackingActionControlRowPreview() {
                 isViewportTracking = true,
                 setIsViewportTracking = {},
                 selectionState = SelectionState.NoSelection,
+                onClearSelection = {},
+                onCopy = {},
+                onCut = {},
+            )
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun SelectingBoxActionControlRowPreview() {
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            ActionControlRow(
+                isElevated = false,
+                isRunning = false,
+                setIsRunning = {},
+                onStep = {},
+                isExpanded = false,
+                setIsExpanded = {},
+                isViewportTracking = false,
+                setIsViewportTracking = {},
+                selectionState = SelectionState.SelectingBox(
+                    topLeft = IntOffset.Zero,
+                    width = 1,
+                    height = 1,
+                ),
+                onClearSelection = {},
+                onCopy = {},
+                onCut = {},
+            )
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun SelectionActionControlRowPreview() {
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            ActionControlRow(
+                isElevated = false,
+                isRunning = false,
+                setIsRunning = {},
+                onStep = {},
+                isExpanded = false,
+                setIsExpanded = {},
+                isViewportTracking = false,
+                setIsViewportTracking = {},
+                selectionState = SelectionState.Selection(
+                    cellState = emptyCellState(),
+                ),
                 onClearSelection = {},
                 onCopy = {},
                 onCut = {},

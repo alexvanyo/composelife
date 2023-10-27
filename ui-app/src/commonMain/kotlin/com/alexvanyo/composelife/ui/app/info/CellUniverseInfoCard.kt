@@ -277,7 +277,7 @@ private fun CellUniverseInfoExpandButton(
             colors = IconButtonDefaults.iconToggleButtonColors(
                 checkedContentColor = LocalContentColor.current,
             ),
-            modifier = modifier.tooltipTrigger(),
+            modifier = modifier.tooltipAnchor(),
         ) {
             Icon(
                 imageVector = if (isExpanded) {
