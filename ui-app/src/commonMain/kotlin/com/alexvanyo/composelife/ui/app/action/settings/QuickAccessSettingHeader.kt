@@ -67,7 +67,7 @@ fun QuickAccessSettingHeader(
             ) {
                 IconButton(
                     onClick = onOpenInSettingsClicked,
-                    modifier = Modifier.tooltipTrigger(),
+                    modifier = Modifier.tooltipAnchor(),
                 ) {
                     Icon(
                         imageVector = Icons.Default.OpenInFull,
@@ -97,7 +97,7 @@ fun QuickAccessSettingHeader(
             IconToggleButton(
                 checked = isFavorite,
                 onCheckedChange = setIsFavorite,
-                modifier = Modifier.tooltipTrigger(),
+                modifier = Modifier.tooltipAnchor(),
             ) {
                 Icon(
                     imageVector = if (isFavorite) {

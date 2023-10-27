@@ -27,11 +27,13 @@ actual fun PlainTooltipBox(
     modifier: Modifier,
     content: @Composable TooltipBoxScope.() -> Unit,
 ) {
-    object : TooltipBoxScope {
-        override fun Modifier.tooltipTrigger(): Modifier = this
-    }.content()
+    androidx.compose.material3.PlainTooltipBox(
+        tooltip = {
+            tooltip()
+        },
+        content = content,
+    )
 }
 
-actual interface TooltipBoxScope {
-    actual fun Modifier.tooltipTrigger(): Modifier
-}
+@OptIn(ExperimentalMaterial3Api::class)
+actual typealias TooltipBoxScope = androidx.compose.material3.TooltipBoxScope

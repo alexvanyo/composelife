@@ -134,7 +134,7 @@ fun ActionControlRow(
                             colors = IconButtonDefaults.iconToggleButtonColors(
                                 checkedContentColor = LocalContentColor.current,
                             ),
-                            modifier = Modifier.tooltipTrigger(),
+                            modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(
                                 imageVector = if (isRunning) {
@@ -162,7 +162,7 @@ fun ActionControlRow(
                     ) {
                         IconButton(
                             onClick = onStep,
-                            modifier = Modifier.tooltipTrigger(),
+                            modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.SkipNext,
@@ -180,7 +180,7 @@ fun ActionControlRow(
                     ) {
                         IconButton(
                             onClick = onClearSelection,
-                            modifier = Modifier.tooltipTrigger(),
+                            modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Cancel,
@@ -198,7 +198,7 @@ fun ActionControlRow(
                     ) {
                         IconButton(
                             onClick = onCopy,
-                            modifier = Modifier.tooltipTrigger(),
+                            modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.ContentCopy,
@@ -216,7 +216,7 @@ fun ActionControlRow(
                     ) {
                         IconButton(
                             onClick = onCut,
-                            modifier = Modifier.tooltipTrigger(),
+                            modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.ContentCut,
@@ -234,7 +234,7 @@ fun ActionControlRow(
                     ) {
                         IconButton(
                             onClick = {},
-                            modifier = Modifier.tooltipTrigger(),
+                            modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.ContentPaste,
@@ -252,7 +252,7 @@ fun ActionControlRow(
                     ) {
                         IconButton(
                             onClick = {},
-                            modifier = Modifier.tooltipTrigger(),
+                            modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Cancel,
@@ -270,7 +270,7 @@ fun ActionControlRow(
                     ) {
                         IconButton(
                             onClick = {},
-                            modifier = Modifier.tooltipTrigger(),
+                            modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Done,
@@ -296,7 +296,7 @@ fun ActionControlRow(
                     IconToggleButton(
                         checked = isViewportTracking,
                         onCheckedChange = setIsViewportTracking,
-                        modifier = Modifier.tooltipTrigger(),
+                        modifier = Modifier.tooltipAnchor(),
                     ) {
                         Icon(
                             imageVector = Icons.Filled.AutoMode,
@@ -330,7 +330,7 @@ fun ActionControlRow(
                         colors = IconButtonDefaults.iconToggleButtonColors(
                             checkedContentColor = LocalContentColor.current,
                         ),
-                        modifier = Modifier.tooltipTrigger(),
+                        modifier = Modifier.tooltipAnchor(),
                     ) {
                         Icon(
                             imageVector = if (isExpanded) {

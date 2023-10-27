@@ -14,20 +14,6 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.app.component
+package com.alexvanyo.composelife.ui.app.util
 
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-
-@Composable
-@ExperimentalMaterial3Api
-expect fun PlainTooltipBox(
-    tooltip: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable TooltipBoxScope.() -> Unit,
-)
-
-expect interface TooltipBoxScope {
-    fun Modifier.tooltipAnchor(): Modifier
-}
+actual fun isAndroid(): Boolean = true

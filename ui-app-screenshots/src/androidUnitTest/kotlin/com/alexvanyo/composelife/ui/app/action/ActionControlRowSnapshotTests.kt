@@ -53,6 +53,20 @@ class ActionControlRowSnapshotTests(
     }
 
     @Test
+    fun selecting_box_action_control_row_preview() {
+        snapshot {
+            SelectingBoxActionControlRowPreview()
+        }
+    }
+
+    @Test
+    fun selection_action_control_row_preview() {
+        snapshot {
+            SelectionActionControlRowPreview()
+        }
+    }
+
+    @Test
     fun elevated_expanded_action_control_row_preview() {
         snapshot {
             ElevatedExpandedActionControlRowPreview()
