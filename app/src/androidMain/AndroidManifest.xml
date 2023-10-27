@@ -27,7 +27,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ComposeLife.Starting"
-        tools:targetApi="33">
+        tools:targetApi="34">
 
         <profileable
             android:shell="true"
