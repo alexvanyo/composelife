@@ -29,7 +29,6 @@ apiGuardian = "1.1.2"
 detekt = "1.23.1"
 googleAutoValue = "1.10.4"
 guavaAndroid = "32.0.0-android"
-guavaJre = "32.0.0-jre"
 horologist = "0.5.9"
 keeper = "0.15.0"
 kotlin = "1.9.10"
@@ -109,7 +108,6 @@ detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-form
 detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
 google-autoValue-annotations = { group = "com.google.auto.value", name = "auto-value-annotations", version.ref = "googleAutoValue" }
 guava-android = { group = "com.google.guava", name = "guava", version.ref = "guavaAndroid" }
-guava-jre = { group = "com.google.guava", name = "guava", version.ref = "guavaJre" }
 horologist-composeLayout = { group = "com.google.android.horologist", name = "horologist-compose-layout", version.ref = "horologist" }
 jetbrains-compose-animation = { group = "org.jetbrains.compose.animation", name = "animation", version.ref = "jetbrainsCompose" }
 jetbrains-compose-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "jetbrainsCompose" }
