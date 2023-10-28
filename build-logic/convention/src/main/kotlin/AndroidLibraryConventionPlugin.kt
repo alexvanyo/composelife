@@ -34,9 +34,9 @@ class AndroidLibraryConventionPlugin : ConventionPlugin({
     extensions.configure<LibraryExtension> {
         configureAndroid(this)
 
+        testOptions.targetSdk = 33
+        lint.targetSdk = 33
         defaultConfig {
-            @Suppress("DEPRECATION") // targetSdk required for tests
-            targetSdk = 33
             consumerProguardFiles("consumer-rules.pro")
         }
     }
