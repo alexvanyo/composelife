@@ -55,7 +55,6 @@ import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.createComponent
 import leakcanary.SkipLeakDetection
-import org.junit.Ignore
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -650,7 +649,6 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
             )
     }
 
-    @Ignore("java.lang.IllegalArgumentException: performMeasureAndLayout called during measure layout")
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun reducing_size_keeps_selected_detail() = runAppTest {
@@ -714,7 +712,6 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
             .assertIsDisplayed()
     }
 
-    @Ignore("java.lang.IllegalArgumentException: performMeasureAndLayout called during measure layout")
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun expanding_size_keeps_selected_detail() = runAppTest {
