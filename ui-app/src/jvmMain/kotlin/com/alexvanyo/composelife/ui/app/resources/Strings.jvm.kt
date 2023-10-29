@@ -204,3 +204,6 @@ internal actual val Strings.QuickSettingsInfo: ParameterizedString get() =
 
 internal actual val Strings.SeeAll: ParameterizedString get() =
     ParameterizedString("See all…")
+
+internal actual fun Strings.SelectingBoxHandle(x: Int, y: Int) =
+    ParameterizedString("Selection handle: %d, %d".format(x, y))
