@@ -28,7 +28,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.isSpecified
-import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -89,16 +88,6 @@ fun InteractableCell(
             )
             .semantics {
                 toggleableState = state
-            }
-            .onKeyEvent {
-                // TODO
-//                if (it.isToggle) {
-//                    onClick()
-//                    true
-//                } else {
-//                    false
-//                }
-                false
             },
     ) {
         val drawColor = when (drawState) {
