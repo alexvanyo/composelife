@@ -147,3 +147,5 @@ internal expect val Strings.LightTheme: ParameterizedString
 internal expect val Strings.QuickSettingsInfo: ParameterizedString
 
 internal expect val Strings.SeeAll: ParameterizedString
+
+internal expect fun Strings.SelectingBoxHandle(x: Int, y: Int): ParameterizedString

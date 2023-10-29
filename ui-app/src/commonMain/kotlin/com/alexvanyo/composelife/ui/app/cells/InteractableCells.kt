@@ -71,6 +71,8 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -87,10 +89,12 @@ import com.alexvanyo.composelife.geometry.containedPoints
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.setCellState
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.ui.app.resources.InteractableCellContentDescription
+import com.alexvanyo.composelife.ui.app.resources.SelectingBoxHandle
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.util.AnchoredDraggable2DState
 import com.alexvanyo.composelife.ui.util.DraggableAnchors2D
@@ -534,6 +538,8 @@ private fun SelectingBoxOverlay(
             modifier = Modifier.fillMaxSize(),
         )
 
+        val parameterizedStringResolver = parameterizedStringResolver()
+
         selectionHandleStates
             .forEachIndexed { index, selectionDraggableHandleState ->
                 key(index) {
@@ -548,7 +554,16 @@ private fun SelectingBoxOverlay(
                                 state = selectionDraggableHandleState.state.state,
                                 interactionSource = interactionSource,
                             )
-                            .size(48.dp),
+                            .size(48.dp)
+                            .semantics {
+                                val targetValue = selectionDraggableHandleState.state.state.targetValue
+                                contentDescription = parameterizedStringResolver(
+                                    Strings.SelectingBoxHandle(
+                                        targetValue.x,
+                                        targetValue.y,
+                                    ),
+                                )
+                            },
                         contentAlignment = Alignment.Center,
                     ) {
                         val isDragged by interactionSource.collectIsDraggedAsState()

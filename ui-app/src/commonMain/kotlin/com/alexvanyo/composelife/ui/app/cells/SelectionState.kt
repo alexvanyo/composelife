@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -98,20 +97,35 @@ interface MutableSelectionStateHolder {
     var selectionState: SelectionState
 }
 
+fun MutableSelectionStateHolder(
+    initialSelectionState: SelectionState,
+): MutableSelectionStateHolder = MutableSelectionStateHolderImpl(initialSelectionState)
+
 @Composable
 fun rememberMutableSelectionStateHolder(
-    initialSelectionState: SelectionState.NoSelection,
-): MutableSelectionStateHolder {
-    var selectionState by rememberSaveable(stateSaver = SelectionState.Saver) {
-        mutableStateOf(initialSelectionState)
+    initialSelectionState: SelectionState,
+): MutableSelectionStateHolder =
+    rememberSaveable(saver = MutableSelectionStateHolderImpl.Saver) {
+        MutableSelectionStateHolder(initialSelectionState)
     }
-    return remember {
-        object : MutableSelectionStateHolder {
-            override var selectionState: SelectionState
-                get() = selectionState
-                set(value) {
-                    selectionState = value
+
+private class MutableSelectionStateHolderImpl(
+    initialSelectionState: SelectionState,
+) : MutableSelectionStateHolder {
+    override var selectionState: SelectionState by mutableStateOf(initialSelectionState)
+
+    companion object {
+        val Saver: Saver<MutableSelectionStateHolder, String> = Saver(
+            save = {
+                with(SelectionState.Saver) {
+                    save(it.selectionState)
                 }
-        }
+            },
+            restore = {
+                MutableSelectionStateHolderImpl(
+                    SelectionState.Saver.restore(it)!!,
+                )
+            },
+        )
     }
 }
