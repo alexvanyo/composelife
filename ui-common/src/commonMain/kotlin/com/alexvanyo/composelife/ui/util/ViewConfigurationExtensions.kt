@@ -18,4 +18,7 @@ package com.alexvanyo.composelife.ui.util
 
 import androidx.compose.ui.platform.ViewConfiguration
 
+/**
+ * TODO: Replace with [ViewConfiguration.maximumFlingVelocity] once in multiplatform
+ */
 internal expect val ViewConfiguration.maxFlingVelocity: Int
