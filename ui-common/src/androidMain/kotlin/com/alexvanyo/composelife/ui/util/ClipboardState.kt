@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.ui.util
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.os.Build
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -26,12 +27,21 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.getSystemService
+import com.alexvanyo.composelife.ui.common.R
 
+/**
+ * Exposes the clipboard state of the system, as a writeable [ClipData].
+ */
 @Stable
 interface ClipboardState {
     var clipData: ClipData?
 }
 
+/**
+ * Creates a [ClipboardState] for reading and writing to the system clipboard.
+ *
+ * Note: This will read from and listen to clipboard changes, which the user will be notified of.
+ */
 @Composable
 fun rememberClipboardState(): ClipboardState {
     val context = LocalContext.current
@@ -59,6 +69,11 @@ fun rememberClipboardState(): ClipboardState {
                         }
                     } else {
                         clipboardManager.setPrimaryClip(value)
+                        // Provide feedback on older API versions as recommended by
+                        // https://developer.android.com/develop/ui/views/touch-and-input/copy-paste
+                        if (Build.VERSION.SDK_INT <= 32) {
+                            Toast.makeText(context, R.string.copied, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
         }
