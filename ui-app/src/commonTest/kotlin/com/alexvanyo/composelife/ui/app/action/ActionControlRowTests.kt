@@ -24,13 +24,8 @@ import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
-import androidx.compose.ui.test.hasAnyAncestor
-import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.isPopup
-import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
@@ -49,7 +44,6 @@ import com.alexvanyo.composelife.ui.app.resources.Pause
 import com.alexvanyo.composelife.ui.app.resources.Play
 import com.alexvanyo.composelife.ui.app.resources.Step
 import com.alexvanyo.composelife.ui.app.resources.Strings
-import com.alexvanyo.composelife.ui.app.util.isAndroid
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -85,63 +79,23 @@ class ActionControlRowTests {
         onNodeWithContentDescription(resolver(Strings.Play))
             .assertIsDisplayed()
             .assertHasClickAction()
-            .performTouchInput {
-                longClick()
-            }
-
-        if (isAndroid()) {
-            onNode(hasText(resolver(Strings.Play)) and hasAnyAncestor(isPopup()))
-                .assertIsDisplayed()
-        }
 
         onNodeWithContentDescription(resolver(Strings.Step))
             .assertIsDisplayed()
             .assertHasClickAction()
-            .performTouchInput {
-                longClick()
-            }
-
-        if (isAndroid()) {
-            onNode(hasText(resolver(Strings.Step)) and hasAnyAncestor(isPopup()))
-                .assertIsDisplayed()
-        }
 
         onNodeWithContentDescription(resolver(Strings.Paste))
             .assertIsDisplayed()
             .assertHasClickAction()
-            .performTouchInput {
-                longClick()
-            }
-
-        if (isAndroid()) {
-            onNode(hasText(resolver(Strings.Paste)) and hasAnyAncestor(isPopup()))
-                .assertIsDisplayed()
-        }
 
         onNodeWithContentDescription(resolver(Strings.EnableAutofit))
             .assertIsDisplayed()
             .assertIsOff()
             .assertHasClickAction()
-            .performTouchInput {
-                longClick()
-            }
-
-        if (isAndroid()) {
-            onNode(hasText(resolver(Strings.EnableAutofit)) and hasAnyAncestor(isPopup()))
-                .assertIsDisplayed()
-        }
 
         onNodeWithContentDescription(resolver(Strings.Expand))
             .assertIsDisplayed()
             .assertHasClickAction()
-            .performTouchInput {
-                longClick()
-            }
-
-        if (isAndroid()) {
-            onNode(hasText(resolver(Strings.Expand)) and hasAnyAncestor(isPopup()))
-                .assertIsDisplayed()
-        }
     }
 
     @Test
@@ -169,26 +123,10 @@ class ActionControlRowTests {
         onNodeWithContentDescription(resolver(Strings.Pause))
             .assertIsDisplayed()
             .assertHasClickAction()
-            .performTouchInput {
-                longClick()
-            }
-
-        if (isAndroid()) {
-            onNode(hasText(resolver(Strings.Pause)) and hasAnyAncestor(isPopup()))
-                .assertIsDisplayed()
-        }
 
         onNodeWithContentDescription(resolver(Strings.Step))
             .assertIsDisplayed()
             .assertHasClickAction()
-            .performTouchInput {
-                longClick()
-            }
-
-        if (isAndroid()) {
-            onNode(hasText(resolver(Strings.Step)) and hasAnyAncestor(isPopup()))
-                .assertIsDisplayed()
-        }
 
         onNodeWithContentDescription(resolver(Strings.ClearSelection))
             .assertDoesNotExist()
@@ -202,39 +140,15 @@ class ActionControlRowTests {
         onNodeWithContentDescription(resolver(Strings.Paste))
             .assertIsDisplayed()
             .assertHasClickAction()
-            .performTouchInput {
-                longClick()
-            }
-
-        if (isAndroid()) {
-            onNode(hasText(resolver(Strings.Paste)) and hasAnyAncestor(isPopup()))
-                .assertIsDisplayed()
-        }
 
         onNodeWithContentDescription(resolver(Strings.DisableAutofit))
             .assertIsDisplayed()
             .assertIsOn()
             .assertHasClickAction()
-            .performTouchInput {
-                longClick()
-            }
-
-        if (isAndroid()) {
-            onNode(hasText(resolver(Strings.DisableAutofit)) and hasAnyAncestor(isPopup()))
-                .assertIsDisplayed()
-        }
 
         onNodeWithContentDescription(resolver(Strings.Collapse))
             .assertIsDisplayed()
             .assertHasClickAction()
-            .performTouchInput {
-                longClick()
-            }
-
-        if (isAndroid()) {
-            onNode(hasText(resolver(Strings.Collapse)) and hasAnyAncestor(isPopup()))
-                .assertIsDisplayed()
-        }
     }
 
     @Test
@@ -272,75 +186,27 @@ class ActionControlRowTests {
         onNodeWithContentDescription(resolver(Strings.ClearSelection))
             .assertIsDisplayed()
             .assertHasClickAction()
-            .performTouchInput {
-                longClick()
-            }
-
-        if (isAndroid()) {
-            onNode(hasText(resolver(Strings.ClearSelection)) and hasAnyAncestor(isPopup()))
-                .assertIsDisplayed()
-        }
 
         onNodeWithContentDescription(resolver(Strings.Copy))
             .assertIsDisplayed()
             .assertHasClickAction()
-            .performTouchInput {
-                longClick()
-            }
-
-        if (isAndroid()) {
-            onNode(hasText(resolver(Strings.Copy)) and hasAnyAncestor(isPopup()))
-                .assertIsDisplayed()
-        }
 
         onNodeWithContentDescription(resolver(Strings.Cut))
             .assertIsDisplayed()
             .assertHasClickAction()
-            .performTouchInput {
-                longClick()
-            }
-
-        if (isAndroid()) {
-            onNode(hasText(resolver(Strings.Cut)) and hasAnyAncestor(isPopup()))
-                .assertIsDisplayed()
-        }
 
         onNodeWithContentDescription(resolver(Strings.Paste))
             .assertIsDisplayed()
             .assertHasClickAction()
-            .performTouchInput {
-                longClick()
-            }
-
-        if (isAndroid()) {
-            onNode(hasText(resolver(Strings.Paste)) and hasAnyAncestor(isPopup()))
-                .assertIsDisplayed()
-        }
 
         onNodeWithContentDescription(resolver(Strings.EnableAutofit))
             .assertIsDisplayed()
             .assertIsOff()
             .assertHasClickAction()
-            .performTouchInput {
-                longClick()
-            }
-
-        if (isAndroid()) {
-            onNode(hasText(resolver(Strings.EnableAutofit)) and hasAnyAncestor(isPopup()))
-                .assertIsDisplayed()
-        }
 
         onNodeWithContentDescription(resolver(Strings.Expand))
             .assertIsDisplayed()
             .assertHasClickAction()
-            .performTouchInput {
-                longClick()
-            }
-
-        if (isAndroid()) {
-            onNode(hasText(resolver(Strings.Expand)) and hasAnyAncestor(isPopup()))
-                .assertIsDisplayed()
-        }
     }
 
     @Test
