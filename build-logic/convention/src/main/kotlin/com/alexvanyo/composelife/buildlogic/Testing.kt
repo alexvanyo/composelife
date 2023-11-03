@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.buildlogic
 
+import com.android.build.api.dsl.CommonExtension
 import com.android.build.gradle.TestedExtension
 import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
@@ -23,16 +24,15 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 fun Project.configureTesting(
-    testedExtension: TestedExtension,
+    commonExtension: CommonExtension<*, *, *, *, *>,
 ) {
-    testedExtension.testOptions {
+    commonExtension.testOptions {
         unitTests {
             isIncludeAndroidResources = true
             isReturnDefaultValues = true
