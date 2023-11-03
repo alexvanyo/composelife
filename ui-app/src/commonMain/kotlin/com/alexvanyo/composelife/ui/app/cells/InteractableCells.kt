@@ -34,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.HistoricalChange
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -72,18 +71,13 @@ context(InteractableCellsLocalEntryPoint)
 @Composable
 fun InteractableCells(
     gameOfLifeState: MutableGameOfLifeState,
-    selectionStateHolder: MutableSelectionStateHolder,
+    setSelectionState: (SelectionState) -> Unit,
     scaledCellDpSize: Dp,
     cellWindow: IntRect,
-    pixelOffsetFromCenter: Offset,
     modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier
-            .graphicsLayer {
-                this.translationX = -pixelOffsetFromCenter.x
-                this.translationY = -pixelOffsetFromCenter.y
-            }
             .requiredSize(
                 scaledCellDpSize * (cellWindow.width + 1),
                 scaledCellDpSize * (cellWindow.height + 1),
@@ -108,8 +102,6 @@ fun InteractableCells(
                 PointerType.Stylus.takeIf { preferences.stylusToolConfig == ToolConfig.Erase },
                 PointerType.Mouse.takeIf { preferences.mouseToolConfig == ToolConfig.Erase },
             )
-
-        var selectionState by selectionStateHolder::selectionState
 
         Box(
             Modifier
@@ -155,10 +147,12 @@ fun InteractableCells(
                                     )
                                 },
                                 onLongClick = {
-                                    selectionState = SelectionState.SelectingBox(
-                                        topLeft = cell,
-                                        width = 1,
-                                        height = 1,
+                                    setSelectionState(
+                                        SelectionState.SelectingBox(
+                                            topLeft = cell,
+                                            width = 1,
+                                            height = 1,
+                                        ),
                                     )
                                 },
                             )
@@ -182,14 +176,6 @@ fun InteractableCells(
                         }
                     }
                 },
-            )
-
-            SelectionOverlay(
-                selectionState = selectionState,
-                setSelectionState = { selectionState = it },
-                scaledCellPixelSize = scaledCellPixelSize,
-                cellWindow = cellWindow,
-                modifier = Modifier.fillMaxSize(),
             )
         }
     }

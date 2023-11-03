@@ -25,7 +25,7 @@ import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -35,6 +35,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -354,39 +355,63 @@ private fun CellWindowImpl(
             }
         }
 
-        Box(
-            modifier = navigableModifier,
-        ) {
-            // Keep the non-interactable cells always visible, to easily be able to switch to it when moving
-            NonInteractableCells(
-                gameOfLifeState = cellWindowUiState.gameOfLifeState,
-                scaledCellDpSize = scaledCellDpSize,
-                cellWindow = cellWindow,
-                pixelOffsetFromCenter = fracPixelOffsetFromCenter,
-                modifier = Modifier.size(this@BoxWithConstraints.maxWidth, this@BoxWithConstraints.maxHeight),
-                inOverlay = inOverlay,
-            )
+        Box {
+            // Create the offset modifier for adjusting the components that expect to be precisely sized to a multiple
+            // of scaledCellDpSize to represent exactly the current CellWindow
+            val cellWindowOffsetModifier = Modifier
+                .graphicsLayer {
+                    this.translationX = -fracPixelOffsetFromCenter.x
+                    this.translationY = -fracPixelOffsetFromCenter.y
+                }
 
-            // Only show the interactable cells if the conditions are met to be interactable.
-            if (
-                cellWindowUiState.isEditable(
-                    isGesturing = when (viewportInteractionConfig) {
-                        is ViewportInteractionConfig.Fixed,
-                        is ViewportInteractionConfig.Tracking,
-                        -> false
-
-                        is ViewportInteractionConfig.Navigable -> true
-                    } && isGesturing,
-                    scale = cellWindowViewport.scale,
-                )
+            // Apply the navigable modifier around the cells, but not the selection overlay.
+            // This ensures gestures for the selection overlay are given precedence over the cells.
+            Box(
+                modifier = navigableModifier,
             ) {
-                InteractableCells(
+                // Keep the non-interactable cells always visible, to easily be able to switch to it when moving
+                NonInteractableCells(
                     gameOfLifeState = cellWindowUiState.gameOfLifeState,
-                    selectionStateHolder = cellWindowUiState.cellWindowInteractionState,
                     scaledCellDpSize = scaledCellDpSize,
                     cellWindow = cellWindow,
                     pixelOffsetFromCenter = fracPixelOffsetFromCenter,
+                    modifier = Modifier.fillMaxSize(),
+                    inOverlay = inOverlay,
                 )
+
+                // Only show the interactable cells if the conditions are met to be interactable.
+                if (
+                    cellWindowUiState.isEditable(
+                        isGesturing = when (viewportInteractionConfig) {
+                            is ViewportInteractionConfig.Fixed,
+                            is ViewportInteractionConfig.Tracking,
+                            -> false
+                            is ViewportInteractionConfig.Navigable -> true
+                        } && isGesturing,
+                        scale = cellWindowViewport.scale,
+                    )
+                ) {
+                    InteractableCells(
+                        gameOfLifeState = cellWindowUiState.gameOfLifeState,
+                        setSelectionState = { cellWindowUiState.cellWindowInteractionState.selectionState = it },
+                        scaledCellDpSize = scaledCellDpSize,
+                        cellWindow = cellWindow,
+                        modifier = cellWindowOffsetModifier,
+                    )
+                }
+            }
+
+            when (cellWindowUiState) {
+                is CellWindowUiState.ImmutableState -> Unit
+                is CellWindowUiState.MutableState -> {
+                    SelectionOverlay(
+                        selectionState = cellWindowUiState.cellWindowInteractionState.selectionState,
+                        setSelectionState = { cellWindowUiState.cellWindowInteractionState.selectionState = it },
+                        scaledCellDpSize = scaledCellDpSize,
+                        cellWindow = cellWindow,
+                        modifier = cellWindowOffsetModifier,
+                    )
+                }
             }
         }
     }

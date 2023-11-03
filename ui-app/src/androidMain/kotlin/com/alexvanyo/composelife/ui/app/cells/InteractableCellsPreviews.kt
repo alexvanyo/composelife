@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
@@ -32,7 +31,7 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 @ThemePreviews
 @Composable
-fun NoSelectionInteractableCellsPreview() {
+fun InteractableCellsPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             Box(modifier = Modifier.size(300.dp)) {
@@ -50,58 +49,12 @@ fun NoSelectionInteractableCellsPreview() {
                             4 to 4,
                         ).toCellState(),
                     ),
-                    selectionStateHolder = object : MutableSelectionStateHolder {
-                        override var selectionState: SelectionState
-                            get() = SelectionState.NoSelection
-                            set(_) {}
-                    },
+                    setSelectionState = {},
                     scaledCellDpSize = 32.dp,
                     cellWindow = IntRect(
                         IntOffset(0, 0),
                         IntOffset(9, 9),
                     ),
-                    pixelOffsetFromCenter = Offset.Zero,
-                )
-            }
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun SelectingBoxInteractableCellsPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            Box(modifier = Modifier.size(300.dp)) {
-                InteractableCells(
-                    gameOfLifeState = MutableGameOfLifeState(
-                        setOf(
-                            0 to 0,
-                            0 to 2,
-                            0 to 4,
-                            2 to 0,
-                            2 to 2,
-                            2 to 4,
-                            4 to 0,
-                            4 to 2,
-                            4 to 4,
-                        ).toCellState(),
-                    ),
-                    selectionStateHolder = object : MutableSelectionStateHolder {
-                        override var selectionState: SelectionState
-                            get() = SelectionState.SelectingBox(
-                                topLeft = IntOffset(1, 1),
-                                width = 2,
-                                height = 3,
-                            )
-                            set(_) {}
-                    },
-                    scaledCellDpSize = 32.dp,
-                    cellWindow = IntRect(
-                        IntOffset(0, 0),
-                        IntOffset(9, 9),
-                    ),
-                    pixelOffsetFromCenter = Offset.Zero,
                 )
             }
         }

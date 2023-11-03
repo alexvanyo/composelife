@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
@@ -56,9 +57,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
@@ -88,7 +91,7 @@ import kotlin.math.roundToInt
 fun SelectionOverlay(
     selectionState: SelectionState,
     setSelectionState: (SelectionState) -> Unit,
-    scaledCellPixelSize: Float,
+    scaledCellDpSize: Dp,
     cellWindow: IntRect,
     modifier: Modifier = Modifier,
 ) {
@@ -106,7 +109,11 @@ fun SelectionOverlay(
                 is SelectionState.Selection -> 2
             }
         },
-        modifier = modifier,
+        modifier = modifier
+            .requiredSize(
+                scaledCellDpSize * (cellWindow.width + 1),
+                scaledCellDpSize * (cellWindow.height + 1),
+            ),
     ) { targetSelectionState ->
         when (targetSelectionState) {
             SelectionState.NoSelection -> {
@@ -115,7 +122,7 @@ fun SelectionOverlay(
             is SelectionState.SelectingBox -> {
                 SelectingBoxOverlay(
                     selectionState = targetSelectionState,
-                    scaledCellPixelSize = scaledCellPixelSize,
+                    scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() },
                     cellWindow = cellWindow,
                     setSelectionState = setSelectionState,
                     modifier = Modifier.fillMaxSize(),
