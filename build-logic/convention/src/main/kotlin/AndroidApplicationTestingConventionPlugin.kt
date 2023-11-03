@@ -17,8 +17,9 @@
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureAndroidTesting
 import com.alexvanyo.composelife.buildlogic.configureTesting
+import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
-import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
+import com.android.build.gradle.TestedExtension
 import com.slack.keeper.KeeperExtension
 import com.slack.keeper.optInToKeeper
 import org.gradle.api.GradleException
@@ -42,7 +43,7 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
 
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
-    extensions.configure<BaseAppModuleExtension> {
+    extensions.configure<ApplicationExtension> {
         defaultConfig {
             val testBuildTypeProperty = findProperty("com.alexvanyo.composelife.testBuildType") as String?
             if (testBuildTypeProperty !in setOf(null, "staging", "debug")) {
@@ -50,10 +51,10 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
             }
             testBuildType = testBuildTypeProperty ?: defaultTestBuildType
         }
-
         configureTesting(this)
-        configureAndroidTesting(this)
     }
+
+    configureAndroidTesting(extensions.getByType<TestedExtension>())
 
     if (enableKeeper) {
         with(pluginManager) {
