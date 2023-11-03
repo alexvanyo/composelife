@@ -25,16 +25,9 @@ class InteractableCellsSnapshotTests(
 ) : BaseRoborazziTest(roborazziParameterization) {
 
     @Test
-    fun no_selection_interactable_cells_preview() {
+    fun interactable_cells_preview() {
         snapshot {
-            NoSelectionInteractableCellsPreview()
-        }
-    }
-
-    @Test
-    fun selecting_box_interactable_cells_preview() {
-        snapshot {
-            SelectingBoxInteractableCellsPreview()
+            InteractableCellsPreview()
         }
     }
 }

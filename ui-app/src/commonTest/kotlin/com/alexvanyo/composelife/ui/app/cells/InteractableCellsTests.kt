@@ -16,10 +16,8 @@
 
 package com.alexvanyo.composelife.ui.app.cells
 
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.dragAndDrop
@@ -42,10 +40,7 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.ui.app.resources.InteractableCellContentDescription
-import com.alexvanyo.composelife.ui.app.resources.SelectingBoxHandle
 import com.alexvanyo.composelife.ui.app.resources.Strings
-import com.alexvanyo.composelife.ui.app.util.isAndroid
-import org.junit.Assume.assumeTrue
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -82,13 +77,12 @@ class InteractableCellsTests {
 
                 InteractableCells(
                     gameOfLifeState = mutableGameOfLifeState,
-                    selectionStateHolder = rememberMutableSelectionStateHolder(SelectionState.NoSelection),
+                    setSelectionState = {},
                     scaledCellDpSize = 50.dp,
                     cellWindow = IntRect(
                         IntOffset(0, 0),
                         IntOffset(8, 8),
                     ),
-                    pixelOffsetFromCenter = Offset.Zero,
                 )
             }
         }
@@ -160,68 +154,6 @@ class InteractableCellsTests {
     }
 
     @Test
-    fun selecting_box_is_displayed_correctly() = runComposeUiTest {
-        val mutableGameOfLifeState = MutableGameOfLifeState(
-            cellState = setOf(
-                0 to 0,
-                0 to 2,
-                0 to 4,
-                2 to 0,
-                2 to 2,
-                2 to 4,
-                4 to 0,
-                4 to 2,
-                4 to 4,
-            ).toCellState(),
-        )
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            with(interactableCellsLocalEntryPoint) {
-                resolver = parameterizedStringResolver()
-
-                InteractableCells(
-                    gameOfLifeState = mutableGameOfLifeState,
-                    selectionStateHolder = rememberMutableSelectionStateHolder(
-                        SelectionState.SelectingBox(
-                            topLeft = IntOffset(1, 1),
-                            width = 2,
-                            height = 3,
-                        ),
-                    ),
-                    scaledCellDpSize = 50.dp,
-                    cellWindow = IntRect(
-                        IntOffset(0, 0),
-                        IntOffset(8, 8),
-                    ),
-                    pixelOffsetFromCenter = Offset.Zero,
-                )
-            }
-        }
-
-        onNodeWithContentDescription(
-            resolver(Strings.SelectingBoxHandle(1, 1)),
-        )
-            .assertIsDisplayed()
-
-        onNodeWithContentDescription(
-            resolver(Strings.SelectingBoxHandle(3, 1)),
-        )
-            .assertIsDisplayed()
-
-        onNodeWithContentDescription(
-            resolver(Strings.SelectingBoxHandle(1, 4)),
-        )
-            .assertIsDisplayed()
-
-        onNodeWithContentDescription(
-            resolver(Strings.SelectingBoxHandle(3, 4)),
-        )
-            .assertIsDisplayed()
-    }
-
-    @Test
     fun clicking_on_cell_updates_state() = runComposeUiTest {
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
@@ -245,13 +177,12 @@ class InteractableCellsTests {
 
                 InteractableCells(
                     gameOfLifeState = mutableGameOfLifeState,
-                    selectionStateHolder = rememberMutableSelectionStateHolder(SelectionState.NoSelection),
+                    setSelectionState = {},
                     scaledCellDpSize = 50.dp,
                     cellWindow = IntRect(
                         IntOffset(0, 0),
                         IntOffset(8, 8),
                     ),
-                    pixelOffsetFromCenter = Offset.Zero,
                 )
             }
         }
@@ -306,13 +237,12 @@ class InteractableCellsTests {
             ) {
                 InteractableCells(
                     gameOfLifeState = mutableGameOfLifeState,
-                    selectionStateHolder = rememberMutableSelectionStateHolder(SelectionState.NoSelection),
+                    setSelectionState = {},
                     scaledCellDpSize = 50.dp,
                     cellWindow = IntRect(
                         IntOffset(0, 0),
                         IntOffset(8, 8),
                     ),
-                    pixelOffsetFromCenter = Offset.Zero,
                 )
             }
         }
@@ -372,13 +302,12 @@ class InteractableCellsTests {
             ) {
                 InteractableCells(
                     gameOfLifeState = mutableGameOfLifeState,
-                    selectionStateHolder = rememberMutableSelectionStateHolder(SelectionState.NoSelection),
+                    setSelectionState = {},
                     scaledCellDpSize = 50.dp,
                     cellWindow = IntRect(
                         IntOffset(0, 0),
                         IntOffset(8, 8),
                     ),
-                    pixelOffsetFromCenter = Offset.Zero,
                 )
             }
         }
@@ -404,71 +333,6 @@ class InteractableCellsTests {
                 4 to 4,
             ).toCellState(),
             mutableGameOfLifeState.cellState,
-        )
-    }
-
-    @Test
-    fun dragging_selecting_box_is_displayed_correctly() = runComposeUiTest {
-        // TODO: This test tends to deadlock on desktop
-        assumeTrue(isAndroid())
-
-        val mutableGameOfLifeState = MutableGameOfLifeState(
-            cellState = setOf(
-                0 to 0,
-                0 to 2,
-                0 to 4,
-                2 to 0,
-                2 to 2,
-                2 to 4,
-                4 to 0,
-                4 to 2,
-                4 to 4,
-            ).toCellState(),
-        )
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        val mutableSelectionStateHolder = MutableSelectionStateHolder(
-            SelectionState.SelectingBox(
-                topLeft = IntOffset(2, 2),
-                width = 2,
-                height = 3,
-            ),
-        )
-
-        setContent {
-            with(interactableCellsLocalEntryPoint) {
-                resolver = parameterizedStringResolver()
-
-                InteractableCells(
-                    gameOfLifeState = mutableGameOfLifeState,
-                    selectionStateHolder = mutableSelectionStateHolder,
-                    scaledCellDpSize = 50.dp,
-                    cellWindow = IntRect(
-                        IntOffset(0, 0),
-                        IntOffset(8, 8),
-                    ),
-                    pixelOffsetFromCenter = Offset.Zero,
-                )
-            }
-        }
-
-        onNodeWithContentDescription(
-            resolver(Strings.SelectingBoxHandle(2, 2)),
-        )
-            .performMouseInput {
-                val start = center
-                val end = center + with(density) { DpOffset(200.dp, 200.dp).toPx() }
-                dragAndDrop(start, end, 1_000)
-            }
-
-        assertEquals(
-            SelectionState.SelectingBox(
-                topLeft = IntOffset(4, 5),
-                width = 2,
-                height = 1,
-            ),
-            mutableSelectionStateHolder.selectionState,
         )
     }
 }
