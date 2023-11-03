@@ -16,7 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureAndroid
-import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
+import com.android.build.api.dsl.ApplicationExtension
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.exclude
 
@@ -25,7 +25,7 @@ class AndroidApplicationConventionPlugin : ConventionPlugin({
         apply("com.android.application")
     }
 
-    extensions.configure<BaseAppModuleExtension> {
+    extensions.configure<ApplicationExtension> {
         configureAndroid(this)
 
         signingConfigs {
