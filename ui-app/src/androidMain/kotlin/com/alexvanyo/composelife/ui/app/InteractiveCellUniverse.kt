@@ -116,6 +116,12 @@ fun InteractiveCellUniverse(
                                         temporalGameOfLifeState.setIsRunning(!temporalGameOfLifeState.isRunning)
                                         true
                                     }
+                                    Key.A -> if (keyEvent.isCtrlPressed) {
+                                        interactiveCellUniverseState.onSelectAll()
+                                        true
+                                    } else {
+                                        false
+                                    }
                                     Key.C -> if (keyEvent.isCtrlPressed) {
                                         interactiveCellUniverseState.onCopy()
                                         true
@@ -209,6 +215,11 @@ interface InteractiveCellUniverseState {
      * Cuts the current selection (if any) to the system clipboard.
      */
     fun onCut()
+
+    /**
+     * Selects the entire cell state.
+     */
+    fun onSelectAll()
 }
 
 @Suppress("LongMethod", "CyclomaticComplexMethod")
@@ -312,7 +323,14 @@ fun rememberInteractiveCellUniverseState(
 
     val clipboardState = rememberClipboardState()
 
-    return remember(mutableCellWindowViewportState, trackingCellWindowViewportState, infoCardState, actionCardState) {
+    return remember(
+        temporalGameOfLifeState,
+        mutableCellWindowViewportState,
+        trackingCellWindowViewportState,
+        infoCardState,
+        actionCardState,
+        clipboardState,
+    ) {
         object : InteractiveCellUniverseState {
             override var isViewportTracking: Boolean
                 get() = isViewportTracking
@@ -410,6 +428,16 @@ fun rememberInteractiveCellUniverseState(
                         }
                     }
                 }
+            }
+
+            override fun onSelectAll() {
+                val boundingBox = temporalGameOfLifeState.cellState.boundingBox
+                selectionState =
+                    SelectionState.SelectingBox(
+                        topLeft = boundingBox.topLeft,
+                        width = boundingBox.width + 1,
+                        height = boundingBox.height + 1,
+                    )
             }
         }
     }
