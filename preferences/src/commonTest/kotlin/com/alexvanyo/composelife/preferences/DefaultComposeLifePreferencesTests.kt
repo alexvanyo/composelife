@@ -18,18 +18,17 @@ package com.alexvanyo.composelife.preferences
 
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.isSuccess
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class DefaultComposeLifePreferencesTests {
 
     private fun runPreferencesTest(testBody: suspend TestScope.(ComposeLifePreferences) -> Unit) = runTest {
@@ -50,7 +49,7 @@ class DefaultComposeLifePreferencesTests {
     fun default_loaded_preferences_is_correct() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.loadedPreferencesState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(LoadedComposeLifePreferences.Defaults),
@@ -62,7 +61,7 @@ class DefaultComposeLifePreferencesTests {
     fun default_algorithm_choice_is_hashlife() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.algorithmChoiceState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(AlgorithmType.HashLifeAlgorithm),
@@ -74,7 +73,7 @@ class DefaultComposeLifePreferencesTests {
     fun setting_algorithm_choice_updates_value() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.algorithmChoiceState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(AlgorithmType.HashLifeAlgorithm),
@@ -82,7 +81,7 @@ class DefaultComposeLifePreferencesTests {
         )
 
         composelifePreferences.setAlgorithmChoice(AlgorithmType.NaiveAlgorithm)
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(ResourceState.Success(AlgorithmType.NaiveAlgorithm), composelifePreferences.algorithmChoiceState)
 
@@ -98,7 +97,7 @@ class DefaultComposeLifePreferencesTests {
     fun default_current_shape_is_round_rectangle() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.currentShapeState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(
@@ -115,7 +114,7 @@ class DefaultComposeLifePreferencesTests {
     fun setting_round_rectangle_config_updates_value() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.currentShapeState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(
@@ -133,7 +132,7 @@ class DefaultComposeLifePreferencesTests {
                 cornerFraction = 0.25f,
             )
         }
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(
@@ -160,7 +159,7 @@ class DefaultComposeLifePreferencesTests {
     fun default_dark_theme_config_is_follow_system() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.darkThemeConfigState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(DarkThemeConfig.FollowSystem),
@@ -172,7 +171,7 @@ class DefaultComposeLifePreferencesTests {
     fun setting_dark_theme_config_updates_value() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.darkThemeConfigState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(DarkThemeConfig.FollowSystem),
@@ -180,7 +179,7 @@ class DefaultComposeLifePreferencesTests {
         )
 
         composelifePreferences.setDarkThemeConfig(DarkThemeConfig.Light)
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(DarkThemeConfig.Light),
@@ -199,7 +198,7 @@ class DefaultComposeLifePreferencesTests {
     fun default_quick_access_settings_is_empty() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(emptySet()),
@@ -211,7 +210,7 @@ class DefaultComposeLifePreferencesTests {
     fun adding_quick_access_setting_updates_value() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(emptySet()),
@@ -221,7 +220,7 @@ class DefaultComposeLifePreferencesTests {
         composelifePreferences.addQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
@@ -240,7 +239,7 @@ class DefaultComposeLifePreferencesTests {
     fun adding_multiple_quick_access_settings_updates_value() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(emptySet()),
@@ -253,7 +252,7 @@ class DefaultComposeLifePreferencesTests {
         composelifePreferences.addQuickAccessSetting(
             QuickAccessSetting.AlgorithmImplementation,
         )
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(
@@ -280,7 +279,7 @@ class DefaultComposeLifePreferencesTests {
     fun adding_all_quick_access_settings_updates_value() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(emptySet()),
@@ -290,15 +289,15 @@ class DefaultComposeLifePreferencesTests {
         composelifePreferences.addQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        runCurrent()
+        delay(1.milliseconds)
         composelifePreferences.addQuickAccessSetting(
             QuickAccessSetting.AlgorithmImplementation,
         )
-        runCurrent()
+        delay(1.milliseconds)
         composelifePreferences.addQuickAccessSetting(
             QuickAccessSetting.CellShapeConfig,
         )
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(
@@ -327,7 +326,7 @@ class DefaultComposeLifePreferencesTests {
     fun adding_quick_access_setting_multiple_times_updates_value() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(emptySet()),
@@ -337,15 +336,15 @@ class DefaultComposeLifePreferencesTests {
         composelifePreferences.addQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        runCurrent()
+        delay(1.milliseconds)
         composelifePreferences.addQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        runCurrent()
+        delay(1.milliseconds)
         composelifePreferences.addQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
@@ -364,7 +363,7 @@ class DefaultComposeLifePreferencesTests {
     fun removing_quick_access_setting_multiple_times_updates_value() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(emptySet()),
@@ -374,15 +373,15 @@ class DefaultComposeLifePreferencesTests {
         composelifePreferences.addQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        runCurrent()
+        delay(1.milliseconds)
         composelifePreferences.addQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        runCurrent()
+        delay(1.milliseconds)
         composelifePreferences.addQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
@@ -392,15 +391,15 @@ class DefaultComposeLifePreferencesTests {
         composelifePreferences.removeQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        runCurrent()
+        delay(1.milliseconds)
         composelifePreferences.removeQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        runCurrent()
+        delay(1.milliseconds)
         composelifePreferences.removeQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(emptySet()),
@@ -419,7 +418,7 @@ class DefaultComposeLifePreferencesTests {
     fun adding_and_removing_quick_access_settings_updates_value() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(emptySet()),
@@ -429,11 +428,11 @@ class DefaultComposeLifePreferencesTests {
         composelifePreferences.addQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        runCurrent()
+        delay(1.milliseconds)
         composelifePreferences.addQuickAccessSetting(
             QuickAccessSetting.AlgorithmImplementation,
         )
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(
@@ -448,7 +447,7 @@ class DefaultComposeLifePreferencesTests {
         composelifePreferences.removeQuickAccessSetting(
             QuickAccessSetting.DarkThemeConfig,
         )
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(setOf(QuickAccessSetting.AlgorithmImplementation)),
@@ -467,7 +466,7 @@ class DefaultComposeLifePreferencesTests {
     fun default_disabled_agsl_is_disabled() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.disableAGSLState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(false),
@@ -479,7 +478,7 @@ class DefaultComposeLifePreferencesTests {
     fun setting_disabled_agsl_updates_value() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.disableAGSLState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(false),
@@ -487,7 +486,7 @@ class DefaultComposeLifePreferencesTests {
         )
 
         composelifePreferences.setDisabledAGSL(true)
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(true),
@@ -506,7 +505,7 @@ class DefaultComposeLifePreferencesTests {
     fun default_disabled_opengl_is_disabled() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.disableOpenGLState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(false),
@@ -518,7 +517,7 @@ class DefaultComposeLifePreferencesTests {
     fun setting_disabled_opengl_updates_value() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.disableOpenGLState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(false),
@@ -526,7 +525,7 @@ class DefaultComposeLifePreferencesTests {
         )
 
         composelifePreferences.setDisableOpenGL(true)
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(true),
@@ -545,7 +544,7 @@ class DefaultComposeLifePreferencesTests {
     fun default_do_not_keep_process_is_false() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.doNotKeepProcessState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(false),
@@ -557,7 +556,7 @@ class DefaultComposeLifePreferencesTests {
     fun setting_do_not_keep_process_updates_value() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.doNotKeepProcessState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(false),
@@ -565,7 +564,7 @@ class DefaultComposeLifePreferencesTests {
         )
 
         composelifePreferences.setDoNotKeepProcess(true)
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(true),
@@ -584,7 +583,7 @@ class DefaultComposeLifePreferencesTests {
     fun default_touch_tool_config_is_pan() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.touchToolConfigState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(ToolConfig.Pan),
@@ -596,7 +595,7 @@ class DefaultComposeLifePreferencesTests {
     fun setting_touch_tool_config_updates_value() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.doNotKeepProcessState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(ToolConfig.Pan),
@@ -604,7 +603,7 @@ class DefaultComposeLifePreferencesTests {
         )
 
         composelifePreferences.setTouchToolConfig(ToolConfig.Draw)
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(ToolConfig.Draw),
@@ -623,7 +622,7 @@ class DefaultComposeLifePreferencesTests {
     fun default_stylus_tool_config_is_draw() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.stylusToolConfigState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(ToolConfig.Draw),
@@ -635,7 +634,7 @@ class DefaultComposeLifePreferencesTests {
     fun setting_stylus_tool_config_updates_value() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.doNotKeepProcessState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(ToolConfig.Draw),
@@ -643,7 +642,7 @@ class DefaultComposeLifePreferencesTests {
         )
 
         composelifePreferences.setStylusToolConfig(ToolConfig.Erase)
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(ToolConfig.Erase),
@@ -662,7 +661,7 @@ class DefaultComposeLifePreferencesTests {
     fun default_mouse_tool_config_is_draw() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.mouseToolConfigState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(ToolConfig.Draw),
@@ -674,7 +673,7 @@ class DefaultComposeLifePreferencesTests {
     fun setting_mouse_tool_config_updates_value() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.doNotKeepProcessState)
 
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(ToolConfig.Draw),
@@ -682,7 +681,7 @@ class DefaultComposeLifePreferencesTests {
         )
 
         composelifePreferences.setMouseToolConfig(ToolConfig.Erase)
-        runCurrent()
+        delay(1.milliseconds)
 
         assertEquals(
             ResourceState.Success(ToolConfig.Erase),
