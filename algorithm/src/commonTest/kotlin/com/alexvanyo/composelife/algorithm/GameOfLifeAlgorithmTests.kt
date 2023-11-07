@@ -27,7 +27,6 @@ import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.onEach
@@ -36,13 +35,12 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.milliseconds
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(TestParameterInjector::class)
 class GameOfLifeAlgorithmTests {
 
@@ -72,8 +70,6 @@ class GameOfLifeAlgorithmTests {
                                 delay(10)
                             }
                         }
-
-                        runCurrent()
 
                         ConfigurableGameOfLifeAlgorithm(
                             preferences = preferences,
@@ -140,8 +136,7 @@ class GameOfLifeAlgorithmTests {
                 step = 1,
             )
                 .onEach {
-                    testScheduler.advanceTimeBy(10)
-                    testScheduler.runCurrent()
+                    delay(10.milliseconds)
                 }
                 .take(testPattern.cellStates.size)
                 .toList(),
@@ -168,8 +163,7 @@ class GameOfLifeAlgorithmTests {
                 step = 2,
             )
                 .onEach {
-                    testScheduler.advanceTimeBy(10)
-                    testScheduler.runCurrent()
+                    delay(10.milliseconds)
                 }
                 .take(testPattern.cellStates.size / 2)
                 .toList(),
