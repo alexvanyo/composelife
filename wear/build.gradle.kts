@@ -30,7 +30,7 @@ android {
     defaultConfig {
         applicationId = "com.alexvanyo.composelife.wear"
         minSdk = 26
-        targetSdk = 30
+        targetSdk = 33
         versionCode = 1
         versionName = "1.0"
     }
