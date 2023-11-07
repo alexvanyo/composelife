@@ -1,6 +1,6 @@
 package: name='com.alexvanyo.composelife.wear' versionCode='1' versionName='1.0' platformBuildVersionName='14' platformBuildVersionCode='34' compileSdkVersion='34' compileSdkVersionCodename='14'
 sdkVersion:'26'
-targetSdkVersion:'30'
+targetSdkVersion:'33'
 uses-permission: name='com.google.android.permission.PROVIDE_BACKGROUND'
 uses-permission: name='android.permission.WAKE_LOCK'
 uses-permission: name='com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA'
