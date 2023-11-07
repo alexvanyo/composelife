@@ -57,10 +57,14 @@ import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.InjectTestActivity
+import com.alexvanyo.composelife.ui.util.ClipboardState
+import com.alexvanyo.composelife.ui.util.rememberClipboardState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import leakcanary.SkipLeakDetection
 import org.junit.runner.RunWith
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @RunWith(KmpAndroidJUnit4::class)
@@ -592,6 +596,91 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
             assertNodesAreAlive(expectedCellState.aliveCells)
         }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @SkipLeakDetection("appliedChanges", "Outer")
+    @Test
+    fun glider_is_copied_correctly_with_keyboard_shortcuts() = runAppTest {
+        lateinit var clipboardState: ClipboardState
+
+        composeTestRule.setContent {
+            clipboardState = rememberClipboardState()
+
+            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
+                targetStepsPerSecond = 60.0,
+            )
+
+            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
+                temporalGameOfLifeState = temporalGameOfLifeState,
+                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                clock = testDispatcher.scheduler.clock,
+                dispatchers = dispatchers,
+            )
+
+            LaunchedEffect(temporalGameOfLifeStateMutator) {
+                temporalGameOfLifeStateMutator.update()
+            }
+
+            with(interactiveCellUniverseInjectEntryPoint) {
+                with(interactiveCellUniverseLocalEntryPoint) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+        }
+
+        composeTestRule
+            .onRoot()
+            .performKeyInput {
+                pressKey(Key.Spacebar)
+            }
+
+        listOf(
+            IntOffset(1, 0),
+            IntOffset(2, 1),
+            IntOffset(0, 2),
+            IntOffset(1, 2),
+            IntOffset(2, 2),
+        ).forEach { cell ->
+            scrollToCell(cell)
+
+            composeTestRule
+                .onNodeWithContentDescription(
+                    context.getString(R.string.cell_content_description, cell.x, cell.y),
+                )
+                .performTouchInput { click(topLeft) }
+        }
+
+        composeTestRule
+            .onRoot()
+            .performKeyInput {
+                keyDown(Key.CtrlLeft)
+                pressKey(Key.A)
+                keyUp(Key.CtrlLeft)
+            }
+
+        composeTestRule
+            .onRoot()
+            .performKeyInput {
+                keyDown(Key.CtrlLeft)
+                pressKey(Key.C)
+                keyUp(Key.CtrlLeft)
+            }
+
+        val clipData = clipboardState.clipData
+        assertNotNull(clipData)
+        assertEquals(
+            """
+                #R 0 0
+                x = 3, y = 3, rule = B3/S23
+                bo$2bo$3o!
+            """.trimIndent(),
+            clipData.getItemAt(0).text,
+        )
     }
 
     private fun assertNodesAreAlive(cells: Set<IntOffset>) {
