@@ -120,12 +120,12 @@ fun GameOfLifeProgressIndicator(
             viewportInteractionConfig = ViewportInteractionConfig.Fixed(
                 cellWindowViewportState = CellWindowState(
                     offset = Offset(
-                        pattern.boundingBox.width / 2f,
-                        pattern.boundingBox.height / 2f,
+                        (pattern.boundingBox.width - 1) / 2f,
+                        (pattern.boundingBox.height - 1) / 2f,
                     ),
                     scale = 1f / max(
-                        pattern.boundingBox.width + 1,
-                        pattern.boundingBox.height + 1,
+                        pattern.boundingBox.width,
+                        pattern.boundingBox.height,
                     ),
                 ),
             ),

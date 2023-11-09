@@ -63,13 +63,13 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
 import androidx.compose.ui.util.unpackInt2
+import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.ui.app.resources.SelectingBoxHandle
 import com.alexvanyo.composelife.ui.app.resources.Strings
@@ -92,7 +92,7 @@ fun SelectionOverlay(
     selectionState: SelectionState,
     setSelectionState: (SelectionState) -> Unit,
     scaledCellDpSize: Dp,
-    cellWindow: IntRect,
+    cellWindow: CellWindow,
     modifier: Modifier = Modifier,
 ) {
     AnimatedContent(
@@ -111,8 +111,8 @@ fun SelectionOverlay(
         },
         modifier = modifier
             .requiredSize(
-                scaledCellDpSize * (cellWindow.width + 1),
-                scaledCellDpSize * (cellWindow.height + 1),
+                scaledCellDpSize * cellWindow.width,
+                scaledCellDpSize * cellWindow.height,
             ),
     ) { targetSelectionState ->
         when (targetSelectionState) {
@@ -147,7 +147,7 @@ private fun SelectingBoxOverlay(
     selectionState: SelectionState.SelectingBox,
     setSelectionState: (SelectionState) -> Unit,
     scaledCellPixelSize: Float,
-    cellWindow: IntRect,
+    cellWindow: CellWindow,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier) {

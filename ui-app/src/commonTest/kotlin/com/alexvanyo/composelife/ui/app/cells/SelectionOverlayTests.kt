@@ -25,9 +25,11 @@ import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.geometry.toPx
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.ui.app.resources.SelectingBoxHandle
@@ -53,9 +55,11 @@ class SelectionOverlayTests {
                 selectionState = SelectionState.NoSelection,
                 setSelectionState = {},
                 scaledCellDpSize = 50.dp,
-                cellWindow = IntRect(
-                    IntOffset(0, 0),
-                    IntOffset(8, 8),
+                cellWindow = CellWindow(
+                    IntRect(
+                        IntOffset(0, 0),
+                        IntSize(9, 9),
+                    ),
                 ),
             )
         }
@@ -81,9 +85,11 @@ class SelectionOverlayTests {
                 ),
                 setSelectionState = {},
                 scaledCellDpSize = 50.dp,
-                cellWindow = IntRect(
-                    IntOffset(0, 0),
-                    IntOffset(8, 8),
+                cellWindow = CellWindow(
+                    IntRect(
+                        IntOffset(0, 0),
+                        IntSize(9, 9),
+                    ),
                 ),
             )
         }
@@ -131,9 +137,11 @@ class SelectionOverlayTests {
                 selectionState = mutableSelectionStateHolder.selectionState,
                 setSelectionState = { mutableSelectionStateHolder.selectionState = it },
                 scaledCellDpSize = 50.dp,
-                cellWindow = IntRect(
-                    IntOffset(0, 0),
-                    IntOffset(8, 8),
+                cellWindow = CellWindow(
+                    IntRect(
+                        IntOffset(0, 0),
+                        IntSize(9, 9),
+                    ),
                 ),
             )
         }

@@ -26,8 +26,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.toOffset
+import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
@@ -37,7 +37,7 @@ import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 fun CanvasNonInteractableCells(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,
-    cellWindow: IntRect,
+    cellWindow: CellWindow,
     shape: CurrentShape,
     pixelOffsetFromCenter: Offset,
     modifier: Modifier = Modifier,
@@ -54,8 +54,8 @@ fun CanvasNonInteractableCells(
                 this.translationY = -pixelOffsetFromCenter.y
             }
             .requiredSize(
-                scaledCellDpSize * (cellWindow.width + 1),
-                scaledCellDpSize * (cellWindow.height + 1),
+                scaledCellDpSize * cellWindow.width,
+                scaledCellDpSize * cellWindow.height,
             ),
     ) {
         drawRect(

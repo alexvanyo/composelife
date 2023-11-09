@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntRect
+import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import kotlin.math.max
 import kotlin.math.min
@@ -97,11 +98,13 @@ fun rememberTrackingCellWindowViewportState(
      * Compute the bounding box that encompasses all of the tracked bounding boxes.
      */
     val maxBoundingBox = boundingBoxTracker.reduce { a, b ->
-        IntRect(
-            left = min(a.left, b.left),
-            right = max(a.right, b.right),
-            top = min(a.top, b.top),
-            bottom = max(a.bottom, b.bottom),
+        CellWindow(
+            IntRect(
+                left = min(a.left, b.left),
+                right = max(a.right, b.right),
+                top = min(a.top, b.top),
+                bottom = max(a.bottom, b.bottom),
+            ),
         )
     }
 
@@ -125,16 +128,16 @@ fun rememberTrackingCellWindowViewportState(
              * Compute the scale as the smallest (more zoomed out) to show the necessary height and width.
              */
             val scale = min(
-                baseCellHeight / boundingBox.height,
-                baseCellWidth / boundingBox.width,
+                baseCellHeight / (boundingBox.height - 1),
+                baseCellWidth / (boundingBox.width - 1),
             )
 
             /**
              * Compute the offset so that the entire target bounding box will be shown.
              */
             val offset = boundingBox.topLeft + Offset(
-                boundingBox.width * centerOffset.x,
-                boundingBox.height * centerOffset.y,
+                (boundingBox.width - 1) * centerOffset.x,
+                (boundingBox.height - 1) * centerOffset.y,
             )
 
             return CellWindowViewport(

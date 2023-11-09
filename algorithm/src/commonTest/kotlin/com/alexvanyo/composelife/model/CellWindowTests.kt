@@ -14,20 +14,29 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.geometry
+package com.alexvanyo.composelife.model
 
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class RectExtensionsTests {
+class CellWindowTests {
 
     @Test
-    fun empty_IntRect_returns_single_point() {
+    fun empty_IntRect_returns_empty_points() {
+        assertEquals(
+            emptyList(),
+            CellWindow(IntRect(IntOffset(2, 2), IntSize(0, 0))).containedPoints(),
+        )
+    }
+
+    @Test
+    fun size_one_IntRect_returns_single_point() {
         assertEquals(
             listOf(IntOffset(2, 2)),
-            IntRect(IntOffset(2, 2), 0).containedPoints(),
+            CellWindow(IntRect(IntOffset(2, 2), IntSize(1, 1))).containedPoints(),
         )
     }
 
@@ -45,9 +54,11 @@ class RectExtensionsTests {
                 IntOffset(3, 13),
                 IntOffset(4, 13),
             ),
-            IntRect(
-                IntOffset(2, 11),
-                IntOffset(4, 13),
+            CellWindow(
+                IntRect(
+                    IntOffset(2, 11),
+                    IntOffset(5, 14),
+                ),
             ).containedPoints(),
         )
     }

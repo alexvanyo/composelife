@@ -22,7 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
@@ -51,9 +53,11 @@ fun InteractableCellsPreview() {
                     ),
                     setSelectionState = {},
                     scaledCellDpSize = 32.dp,
-                    cellWindow = IntRect(
-                        IntOffset(0, 0),
-                        IntOffset(9, 9),
+                    cellWindow = CellWindow(
+                        IntRect(
+                            IntOffset(0, 0),
+                            IntSize(10, 10),
+                        ),
                     ),
                 )
             }
