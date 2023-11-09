@@ -20,6 +20,9 @@ import com.alexvanyo.composelife.scopes.UiComponent
 
 expect abstract class TestComposeLifeUiComponent :
     UiComponent<TestComposeLifeApplicationComponent, TestComposeLifeUiEntryPoint> {
+
+    override val entryPoint: TestComposeLifeUiEntryPoint
+
     companion object
 }
 

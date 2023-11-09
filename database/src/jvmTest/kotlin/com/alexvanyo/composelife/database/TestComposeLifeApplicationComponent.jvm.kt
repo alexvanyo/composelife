@@ -32,7 +32,7 @@ actual abstract class TestComposeLifeApplicationComponent :
     TestDispatchersComponent,
     UpdatableModule {
 
-    override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
+    actual override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
         object :
             TestComposeLifeApplicationEntryPoint,
             DispatchersModule by this,

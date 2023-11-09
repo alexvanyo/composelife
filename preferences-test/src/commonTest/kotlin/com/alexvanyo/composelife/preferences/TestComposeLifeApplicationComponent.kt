@@ -26,6 +26,9 @@ expect abstract class TestComposeLifeApplicationComponent :
     ApplicationComponent<TestComposeLifeApplicationEntryPoint>,
     TestPreferencesComponent,
     TestDispatchersComponent {
+
+    override val entryPoint: TestComposeLifeApplicationEntryPoint
+
     companion object
 }
 

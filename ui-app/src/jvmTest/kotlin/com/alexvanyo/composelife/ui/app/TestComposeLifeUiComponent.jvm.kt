@@ -25,7 +25,7 @@ import me.tatarka.inject.annotations.Component
 actual abstract class TestComposeLifeUiComponent(
     @Component override val applicationComponent: TestComposeLifeApplicationComponent,
 ) : UiComponent<TestComposeLifeApplicationComponent, TestComposeLifeUiEntryPoint>(applicationComponent) {
-    override val entryPoint: TestComposeLifeUiEntryPoint get() =
+    actual override val entryPoint: TestComposeLifeUiEntryPoint get() =
         object :
             TestComposeLifeUiEntryPoint,
             TestComposeLifeApplicationEntryPoint by applicationComponent.entryPoint {}
