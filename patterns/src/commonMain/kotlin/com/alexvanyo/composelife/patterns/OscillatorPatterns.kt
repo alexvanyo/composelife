@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.patterns
 
 import androidx.compose.ui.unit.IntRect
 import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.toCellState
 import com.livefront.sealedenum.GenSealedEnum
 
@@ -25,7 +26,7 @@ sealed class OscillatorPattern(
     patternName: String,
     seedCellState: CellState,
     internal val otherCellStates: List<CellState>,
-    val boundingBox: IntRect,
+    val boundingBox: CellWindow,
 ) : GameOfLifeTestPattern(
     patternName = patternName,
     seedCellState = seedCellState,
@@ -59,11 +60,13 @@ data object BlinkerPattern : OscillatorPattern(
         |.O.
         """.toCellState(),
     ),
-    IntRect(
-        left = 0,
-        top = 0,
-        right = 2,
-        bottom = 2,
+    CellWindow(
+        IntRect(
+            left = 0,
+            top = 0,
+            right = 3,
+            bottom = 3,
+        ),
     ),
 )
 
@@ -83,11 +86,13 @@ data object ToadPattern : OscillatorPattern(
         |..O.
         """.toCellState(),
     ),
-    IntRect(
-        left = 0,
-        top = 0,
-        right = 3,
-        bottom = 3,
+    CellWindow(
+        IntRect(
+            left = 0,
+            top = 0,
+            right = 4,
+            bottom = 4,
+        ),
     ),
 )
 
@@ -107,11 +112,13 @@ data object BeaconPattern : OscillatorPattern(
         |..OO
         """.toCellState(),
     ),
-    IntRect(
-        left = 0,
-        top = 0,
-        right = 3,
-        bottom = 3,
+    CellWindow(
+        IntRect(
+            left = 0,
+            top = 0,
+            right = 4,
+            bottom = 4,
+        ),
     ),
 )
 
@@ -170,10 +177,12 @@ data object PulsarPattern : OscillatorPattern(
         |...............
         """.toCellState(),
     ),
-    IntRect(
-        left = 0,
-        top = 0,
-        right = 14,
-        bottom = 14,
+    CellWindow(
+        IntRect(
+            left = 0,
+            top = 0,
+            right = 15,
+            bottom = 15,
+        ),
     ),
 )

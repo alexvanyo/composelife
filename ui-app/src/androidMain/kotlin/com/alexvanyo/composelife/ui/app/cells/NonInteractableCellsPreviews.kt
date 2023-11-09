@@ -23,7 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
@@ -50,9 +52,11 @@ fun NonInteractableCellsPreview() {
                     ).toCellState(),
                 ),
                 scaledCellDpSize = 32.dp,
-                cellWindow = IntRect(
-                    IntOffset(0, 0),
-                    IntOffset(9, 9),
+                cellWindow = CellWindow(
+                    IntRect(
+                        IntOffset(0, 0),
+                        IntSize(10, 10),
+                    ),
                 ),
                 pixelOffsetFromCenter = Offset.Zero,
                 modifier = Modifier.size(300.dp),

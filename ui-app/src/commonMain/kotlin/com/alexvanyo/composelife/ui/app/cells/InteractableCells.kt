@@ -43,10 +43,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
 import com.alexvanyo.composelife.geometry.LineSegmentPath
 import com.alexvanyo.composelife.geometry.cellIntersections
-import com.alexvanyo.composelife.geometry.containedPoints
+import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.setCellState
@@ -73,20 +72,20 @@ fun InteractableCells(
     gameOfLifeState: MutableGameOfLifeState,
     setSelectionState: (SelectionState) -> Unit,
     scaledCellDpSize: Dp,
-    cellWindow: IntRect,
+    cellWindow: CellWindow,
     modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier
             .requiredSize(
-                scaledCellDpSize * (cellWindow.width + 1),
-                scaledCellDpSize * (cellWindow.height + 1),
+                scaledCellDpSize * cellWindow.width,
+                scaledCellDpSize * cellWindow.height,
             ),
     ) {
         val scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() }
 
-        val numColumns = cellWindow.width + 1
-        val numRows = cellWindow.height + 1
+        val numColumns = cellWindow.width
+        val numRows = cellWindow.height
 
         val pendingCellChanges = remember { mutableStateMapOf<IntOffset, Boolean>() }
 
@@ -189,7 +188,7 @@ private fun Modifier.drawingCellInput(
     gameOfLifeState: MutableGameOfLifeState,
     pendingCellChanges: MutableMap<IntOffset, Boolean>,
     scaledCellPixelSize: Float,
-    cellWindow: IntRect,
+    cellWindow: CellWindow,
 ): Modifier = composed {
     val currentScaledCellPixelSize by rememberUpdatedState(scaledCellPixelSize)
     val currentCellWindow by rememberUpdatedState(cellWindow)

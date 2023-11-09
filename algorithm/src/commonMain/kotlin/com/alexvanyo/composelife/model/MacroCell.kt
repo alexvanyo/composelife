@@ -18,7 +18,6 @@ package com.alexvanyo.composelife.model
 
 import androidx.annotation.IntRange
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
 import com.alexvanyo.composelife.model.MacroCell.Cell
 import com.alexvanyo.composelife.model.MacroCell.Cell.AliveCell
 import com.alexvanyo.composelife.model.MacroCell.Cell.DeadCell
@@ -190,15 +189,15 @@ fun createEmptyMacroCell(@IntRange(from = 0) level: Int): MacroCell {
  */
 fun MacroCell.iterator(
     offset: IntOffset,
-    cellWindow: IntRect,
+    cellWindow: CellWindow,
 ): Iterator<IntOffset> {
     val macroCell = this
     return iterator {
         @Suppress("ComplexCondition")
         if (
             size > 0 &&
-            cellWindow.right >= 0 &&
-            cellWindow.bottom >= 0 &&
+            cellWindow.right >= 1 &&
+            cellWindow.bottom >= 1 &&
             cellWindow.left < 1 shl level &&
             cellWindow.top < 1 shl level
         ) {

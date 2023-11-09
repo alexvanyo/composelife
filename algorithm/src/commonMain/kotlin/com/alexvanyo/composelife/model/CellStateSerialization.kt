@@ -672,15 +672,16 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
     override fun serializeToString(cellState: CellState): Sequence<String> = sequence {
         val boundingBox = cellState.boundingBox
 
-        yield("#R ${boundingBox.topLeft.x} ${boundingBox.topLeft.y}")
-        yield("x = ${boundingBox.width + 1}, y = ${boundingBox.height + 1}, rule = B3/S23")
+        yield("#R ${boundingBox.left} ${boundingBox.top}")
+        yield("x = ${boundingBox.width}, y = ${boundingBox.height}, rule = B3/S23")
 
         /**
          * The sequence of items that can't be broken apart with line breaks
          */
         val itemSequence = sequence {
-            for (y in boundingBox.top..boundingBox.bottom) {
-                val iterator = (boundingBox.left..boundingBox.right).map { x -> IntOffset(x, y) }.iterator()
+            for (y in boundingBox.top until boundingBox.bottom) {
+                val iterator = (boundingBox.left until boundingBox.right)
+                    .map { x -> IntOffset(x, y) }.iterator()
                 var currentState = iterator.next() in cellState.aliveCells
                 var currentCount = 1
 
@@ -714,7 +715,7 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
                     yieldRun()
                 }
                 // Yield the line end, or the pattern end if on the last line
-                yield(if (y == boundingBox.bottom) "!" else "$")
+                yield(if (y == boundingBox.bottom - 1) "!" else "$")
             }
         }
 

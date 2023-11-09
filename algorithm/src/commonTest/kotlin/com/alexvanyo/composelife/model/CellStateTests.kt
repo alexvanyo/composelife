@@ -166,11 +166,13 @@ class CellStateTests {
         )
 
         assertEquals(
-            IntRect(
-                left = 1,
-                top = 0,
-                right = 5,
-                bottom = 2,
+            CellWindow(
+                IntRect(
+                    left = 1,
+                    top = 0,
+                    right = 6,
+                    bottom = 3,
+                ),
             ),
             testCellState.boundingBox,
         )
@@ -181,7 +183,7 @@ class CellStateTests {
         val testCellState = cellStateFactory.factory(emptyCellState())
 
         assertEquals(
-            IntRect.Zero,
+            CellWindow(IntRect.Zero),
             testCellState.boundingBox,
         )
     }

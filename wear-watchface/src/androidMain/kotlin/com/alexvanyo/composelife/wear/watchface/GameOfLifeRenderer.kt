@@ -37,8 +37,8 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.WatchFaceLayer
-import com.alexvanyo.composelife.geometry.containedPoints
 import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.model.toCellState
@@ -66,7 +66,7 @@ class GameOfLifeRenderer(
     watchState = watchState,
     interactiveDrawModeUpdateDelayMillis = 50,
 ) {
-    private val cellWindow = IntRect(IntOffset(0, 0), IntSize(69, 69))
+    private val cellWindow = CellWindow(IntRect(IntOffset(0, 0), IntSize(70, 70)))
 
     private val use24HourFormat = DateFormat.is24HourFormat(context)
 
@@ -95,7 +95,7 @@ class GameOfLifeRenderer(
     private lateinit var complicationShapes: List<ComplicationShape>
 
     override suspend fun onUiThreadGlSurfaceCreated(width: Int, height: Int) {
-        cellSize = width.toFloat() / (cellWindow.width + 1)
+        cellSize = width.toFloat() / cellWindow.width
 
         GLES20.glClearColor(0f, 0f, 0f, 0f)
 
@@ -129,11 +129,11 @@ class GameOfLifeRenderer(
 
         val cellState = temporalGameOfLifeState.cellState
 
-        val cellWindowSize = IntSize(cellWindow.width + 1, cellWindow.height + 1)
-        val cellsBuffer = IntBuffer.allocate(cellWindowSize.width * cellWindowSize.height)
+        val cellsBuffer = IntBuffer.allocate(cellWindow.width * cellWindow.height)
 
         cellState.getAliveCellsInWindow(cellWindow).forEach { cell ->
-            val index = (cellWindow.bottom - cell.y) * cellWindowSize.width + cell.x - cellWindow.left
+            val index = (cellWindow.bottom - 1 - cell.y) * cellWindow.width +
+                cell.x - cellWindow.left
             cellsBuffer.put(index, android.graphics.Color.WHITE)
         }
 
@@ -147,7 +147,7 @@ class GameOfLifeRenderer(
                     cells = cellsBuffer,
                     aliveColor = gameOfLifeColor,
                     deadColor = Color.Black,
-                    cellWindowSize = IntSize(cellWindow.width + 1, cellWindow.height + 1),
+                    cellWindowSize = cellWindow.size,
                     scaledCellPixelSize = cellSize,
                     pixelOffsetFromCenter = Offset.Zero,
                     sizeFraction = shape.sizeFraction,
@@ -281,9 +281,11 @@ private fun createTimeCellState(
 }
 
 val roundRandomPointPool =
-    IntRect(
-        IntOffset(-30, -30),
-        IntOffset(100, 100),
+    CellWindow(
+        IntRect(
+            IntOffset(-30, -30),
+            IntSize(131, 131),
+        ),
     )
         .containedPoints()
         .filter {
@@ -291,9 +293,11 @@ val roundRandomPointPool =
         }
 
 val notRoundRandomPointPool =
-    IntRect(
-        IntOffset(-10, -10),
-        IntOffset(80, 80),
+    CellWindow(
+        IntRect(
+            IntOffset(-30, -30),
+            IntSize(91, 91),
+        ),
     )
         .containedPoints()
         .filter {

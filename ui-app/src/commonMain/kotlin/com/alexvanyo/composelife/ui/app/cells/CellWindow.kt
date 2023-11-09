@@ -277,11 +277,13 @@ private fun CellWindowImpl(
         val topLeftCellOffset = IntOffset(-columnsToLeft, -rowsToTop)
 
         // Compute the cell window, describing all of the cells that will be drawn
-        val cellWindow = IntRect(
-            intOffset + topLeftCellOffset,
-            IntSize(
-                columnsToLeft + 1 + columnsToRight,
-                rowsToTop + 1 + rowsToBottom,
+        val cellWindow = com.alexvanyo.composelife.model.CellWindow(
+            IntRect(
+                intOffset + topLeftCellOffset,
+                IntSize(
+                    columnsToLeft + 1 + columnsToRight + 1,
+                    rowsToTop + 1 + rowsToBottom + 1,
+                ),
             ),
         )
 

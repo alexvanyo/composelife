@@ -19,7 +19,6 @@ package com.alexvanyo.composelife.model
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
-import com.alexvanyo.composelife.geometry.containedPoints
 import com.alexvanyo.composelife.geometry.toIntOffset
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -79,27 +78,29 @@ abstract class CellState {
      * This is overridable by subclasses in case the operation can be done more efficiently in a
      * particular implementation.
      */
-    open fun getAliveCellsInWindow(cellWindow: IntRect): Iterable<IntOffset> =
+    open fun getAliveCellsInWindow(cellWindow: CellWindow): Iterable<IntOffset> =
         cellWindow.containedPoints().filter { it in aliveCells }
 
     /**
-     * Returns the [IntRect] describing the minimal bounding box required to enclose all alive cells
-     * in this cell state. If the cell state is empty, this will return [IntRect.Zero].
+     * Returns the [CellWindow] describing the minimal bounding box required to enclose all alive cells
+     * in this cell state. If the cell state is empty, this will return a [CellWindow] of [IntRect.Zero].
      *
      * This is overridable by subclasses in case the operation can be done more efficiently in a
      * particular implementation.
      */
-    open val boundingBox: IntRect get() =
-        if (aliveCells.isEmpty()) {
-            IntRect.Zero
-        } else {
-            IntRect(
-                left = aliveCells.minOf { it.x },
-                top = aliveCells.minOf { it.y },
-                right = aliveCells.maxOf { it.x },
-                bottom = aliveCells.maxOf { it.y },
-            )
-        }
+    open val boundingBox: CellWindow get() =
+        CellWindow(
+            if (aliveCells.isEmpty()) {
+                IntRect.Zero
+            } else {
+                IntRect(
+                    left = aliveCells.minOf { it.x },
+                    top = aliveCells.minOf { it.y },
+                    right = aliveCells.maxOf { it.x } + 1,
+                    bottom = aliveCells.maxOf { it.y } + 1,
+                )
+            },
+        )
 
     override fun equals(other: Any?): Boolean =
         if (other !is CellState) {

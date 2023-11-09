@@ -43,6 +43,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntRect
 import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.isRunning
@@ -384,10 +385,10 @@ fun rememberInteractiveCellUniverseState(
 
                             if (currentSelectionState.width < 0) {
                                 left = currentSelectionState.topLeft.x + currentSelectionState.width + 1
-                                right = currentSelectionState.topLeft.x
+                                right = currentSelectionState.topLeft.x + 1
                             } else {
                                 left = currentSelectionState.topLeft.x
-                                right = currentSelectionState.topLeft.x + currentSelectionState.width - 1
+                                right = currentSelectionState.topLeft.x + currentSelectionState.width
                             }
 
                             val top: Int
@@ -395,17 +396,19 @@ fun rememberInteractiveCellUniverseState(
 
                             if (currentSelectionState.height < 0) {
                                 top = currentSelectionState.topLeft.y + currentSelectionState.height + 1
-                                bottom = currentSelectionState.topLeft.y
+                                bottom = currentSelectionState.topLeft.y + 1
                             } else {
                                 top = currentSelectionState.topLeft.y
-                                bottom = currentSelectionState.topLeft.y + currentSelectionState.height - 1
+                                bottom = currentSelectionState.topLeft.y + currentSelectionState.height
                             }
 
-                            val cellWindow = IntRect(
-                                left = left,
-                                top = top,
-                                right = right,
-                                bottom = bottom,
+                            val cellWindow = CellWindow(
+                                IntRect(
+                                    left = left,
+                                    top = top,
+                                    right = right,
+                                    bottom = bottom,
+                                ),
                             )
 
                             val aliveCells = temporalGameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).toSet()
