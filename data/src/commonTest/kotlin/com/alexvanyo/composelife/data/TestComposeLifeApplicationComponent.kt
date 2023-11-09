@@ -31,6 +31,9 @@ expect abstract class TestComposeLifeApplicationComponent :
     TestDatabaseComponent,
     TestDispatchersComponent,
     UpdatableModule {
+
+    override val entryPoint: TestComposeLifeApplicationEntryPoint
+
     companion object
 }
 

@@ -29,6 +29,8 @@ fun Project.configureKotlin() {
             freeCompilerArgs = freeCompilerArgs + listOf(
                 "-opt-in=kotlin.RequiresOptIn",
                 "-Xcontext-receivers",
+                // TODO: Remove when out of beta: https://youtrack.jetbrains.com/issue/KT-61573
+                "-Xexpect-actual-classes",
             )
         }
     }

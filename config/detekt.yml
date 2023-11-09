@@ -84,6 +84,8 @@ formatting:
     excludes: [ '**/generated/**' ]
   NoUnitReturn:
     excludes: [ '**/generated/**' ]
+  PackageName:
+    excludes: [ '**/generated/**' ]
   ParameterListWrapping:
     excludes: [ '**/generated/**' ]
   SpacingAroundAngleBrackets:

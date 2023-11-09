@@ -46,7 +46,7 @@ actual abstract class TestComposeLifeApplicationComponent :
     ClockComponent,
     UpdatableModule {
 
-    override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
+    actual override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
         object :
             TestComposeLifeApplicationEntryPoint,
             AlgorithmModule by this,

@@ -42,6 +42,9 @@ expect abstract class TestComposeLifeApplicationComponent :
     RandomComponent,
     ClockComponent,
     UpdatableModule {
+
+    override val entryPoint: TestComposeLifeApplicationEntryPoint
+
     companion object
 }
 
