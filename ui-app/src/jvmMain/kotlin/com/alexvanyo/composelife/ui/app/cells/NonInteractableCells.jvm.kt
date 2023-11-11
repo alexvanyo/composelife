@@ -20,7 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntRect
+import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 
 context(NonInteractableCellsLocalEntryPoint)
@@ -29,7 +29,7 @@ context(NonInteractableCellsLocalEntryPoint)
 actual fun NonInteractableCells(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,
-    cellWindow: IntRect,
+    cellWindow: CellWindow,
     pixelOffsetFromCenter: Offset,
     modifier: Modifier,
     inOverlay: Boolean,

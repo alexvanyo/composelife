@@ -82,17 +82,3 @@ fun IntRect.bottomEnd(layoutDirection: LayoutDirection): IntOffset = when (layou
     LayoutDirection.Ltr -> bottomRight
     LayoutDirection.Rtl -> bottomLeft
 }
-
-/**
- * Returns all [IntOffset]s that are contained in the [IntRect].
- *
- * This includes all [IntOffset] on the border of the [IntRect] ([IntRect.topLeft], [IntRect.bottomRight], etc.).
- *
- * The points are returned in row-major order.
- */
-fun IntRect.containedPoints(): List<IntOffset> =
-    (top..bottom).flatMap { row ->
-        (left..right).map { column ->
-            IntOffset(column, row)
-        }
-    }

@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
@@ -90,9 +91,11 @@ class NonInteractableCellsVisualTests {
                             ).toCellState(),
                         ),
                         scaledCellDpSize = with(LocalDensity.current) { 1.toDp() },
-                        cellWindow = IntRect(
-                            IntOffset(0, 0),
-                            IntOffset(9, 9),
+                        cellWindow = CellWindow(
+                            IntRect(
+                                IntOffset(0, 0),
+                                IntSize(10, 10),
+                            ),
                         ),
                         pixelOffsetFromCenter = Offset.Zero,
                         modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() }),
@@ -155,9 +158,11 @@ class NonInteractableCellsVisualTests {
                             ).toCellState(),
                         ),
                         scaledCellDpSize = with(LocalDensity.current) { 1.toDp() },
-                        cellWindow = IntRect(
-                            IntOffset(0, 0),
-                            IntOffset(9, 9),
+                        cellWindow = CellWindow(
+                            IntRect(
+                                IntOffset(0, 0),
+                                IntSize(10, 10),
+                            ),
                         ),
                         pixelOffsetFromCenter = Offset.Zero,
                         modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() }),

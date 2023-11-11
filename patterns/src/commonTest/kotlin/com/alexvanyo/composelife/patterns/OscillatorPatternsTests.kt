@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.patterns
 
 import androidx.compose.ui.unit.IntRect
+import com.alexvanyo.composelife.model.CellWindow
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import org.junit.runner.RunWith
@@ -57,16 +58,18 @@ class OscillatorPatternsTests {
 
         assertEquals(
             oscillatorPattern.boundingBox,
-            repeatingCellStates.fold(null) { acc: IntRect?, cellState ->
+            repeatingCellStates.fold(null) { acc: CellWindow?, cellState ->
                 val boundingBox = cellState.boundingBox
                 if (acc == null) {
                     boundingBox
                 } else {
-                    IntRect(
-                        left = minOf(boundingBox.left, acc.left),
-                        top = minOf(boundingBox.top, acc.top),
-                        right = maxOf(boundingBox.right, acc.right),
-                        bottom = maxOf(boundingBox.bottom, acc.bottom),
+                    CellWindow(
+                        IntRect(
+                            left = minOf(boundingBox.left, acc.left),
+                            top = minOf(boundingBox.top, acc.top),
+                            right = maxOf(boundingBox.right, acc.right),
+                            bottom = maxOf(boundingBox.bottom, acc.bottom),
+                        ),
                     )
                 }
             },

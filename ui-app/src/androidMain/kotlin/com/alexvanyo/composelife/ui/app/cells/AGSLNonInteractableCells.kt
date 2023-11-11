@@ -32,8 +32,8 @@ import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntRect
 import androidx.core.graphics.set
+import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
@@ -112,7 +112,7 @@ private val SHADER_SRC = """
 fun AGSLNonInteractableCells(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,
-    cellWindow: IntRect,
+    cellWindow: CellWindow,
     shape: CurrentShape,
     pixelOffsetFromCenter: Offset,
     modifier: Modifier = Modifier,
@@ -127,7 +127,7 @@ fun AGSLNonInteractableCells(
     }
 
     val cellBitmap = remember(cellWindow) {
-        Bitmap.createBitmap(cellWindow.width + 1, cellWindow.height + 1, Bitmap.Config.ARGB_8888)
+        Bitmap.createBitmap(cellWindow.width, cellWindow.height, Bitmap.Config.ARGB_8888)
     }
     val cellBitmapShader = remember(cellBitmap) {
         BitmapShader(cellBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
@@ -159,7 +159,7 @@ fun AGSLNonInteractableCells(
     }
 
     DisposableEffect(shader, cellWindow) {
-        shader.setIntUniform("cellWindowSize", cellWindow.width + 1, cellWindow.height + 1)
+        shader.setIntUniform("cellWindowSize", cellWindow.width, cellWindow.height)
 
         onDispose {}
     }

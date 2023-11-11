@@ -31,13 +31,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.getSystemService
 import androidx.core.view.isInvisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.openglrenderer.GameOfLifeShape
 import com.alexvanyo.composelife.openglrenderer.GameOfLifeShapeParameters
@@ -70,7 +69,7 @@ fun openGLSupported(): Boolean {
 fun OpenGLNonInteractableCells(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,
-    cellWindow: IntRect,
+    cellWindow: CellWindow,
     shape: CurrentShape,
     pixelOffsetFromCenter: Offset,
     modifier: Modifier = Modifier,
@@ -81,15 +80,12 @@ fun OpenGLNonInteractableCells(
     val aliveColor = ComposeLifeTheme.aliveCellColor
     val deadColor = ComposeLifeTheme.deadCellColor
 
-    val cellWindowSize = remember(cellWindow) {
-        IntSize(cellWindow.width + 1, cellWindow.height + 1)
-    }
-
-    val cellsBuffer = remember(cellWindow, cellWindowSize, gameOfLifeState.cellState) {
-        val buffer = IntBuffer.allocate(cellWindowSize.width * cellWindowSize.height)
+    val cellsBuffer = remember(cellWindow, gameOfLifeState.cellState) {
+        val buffer = IntBuffer.allocate(cellWindow.width * cellWindow.height)
 
         gameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).forEach { cell ->
-            val index = (cellWindow.bottom - cell.y) * cellWindowSize.width + cell.x - cellWindow.left
+            val index = (cellWindow.bottom - 1 - cell.y) * cellWindow.width +
+                cell.x - cellWindow.left
             buffer.put(index, android.graphics.Color.WHITE)
         }
 
@@ -102,7 +98,7 @@ fun OpenGLNonInteractableCells(
                 cells = cellsBuffer,
                 aliveColor = aliveColor,
                 deadColor = deadColor,
-                cellWindowSize = cellWindowSize,
+                cellWindowSize = cellWindow.size,
                 scaledCellPixelSize = scaledCellPixelSize,
                 pixelOffsetFromCenter = pixelOffsetFromCenter,
                 sizeFraction = shape.sizeFraction,

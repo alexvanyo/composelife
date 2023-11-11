@@ -141,7 +141,12 @@ class HashLifeCellState(
         override fun iterator(): Iterator<IntOffset> =
             macroCell.iterator(
                 offset,
-                IntRect(IntOffset.Zero, IntSize((1 shl macroCell.level) - 1, (1 shl macroCell.level) - 1)),
+                CellWindow(
+                    IntRect(
+                        IntOffset.Zero,
+                        IntSize(1 shl macroCell.level, 1 shl macroCell.level),
+                    ),
+                ),
             )
     }
 
@@ -171,7 +176,7 @@ class HashLifeCellState(
         )
     }
 
-    override fun getAliveCellsInWindow(cellWindow: IntRect): Iterable<IntOffset> =
+    override fun getAliveCellsInWindow(cellWindow: CellWindow): Iterable<IntOffset> =
         Iterable { macroCell.iterator(offset, cellWindow.translate(-offset)) }
 
     override fun toString(): String = "HashLifeCellState(${aliveCells.toSet()})"
