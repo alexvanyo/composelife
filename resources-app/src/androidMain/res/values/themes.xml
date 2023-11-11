@@ -16,12 +16,16 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.ComposeLifeBase" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Theme.ComposeLifeBase.NightAdjusted" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
     </style>
 
-    <style name="Theme.ComposeLife" parent="Theme.ComposeLifeBase" tools:ignore="UnusedResources">
+    <style name="Theme.ComposeLifeBase.ApiAdjusted" parent="Theme.ComposeLifeBase.NightAdjusted">
+        <item name="android:windowSoftInputMode">adjustResize</item>
+    </style>
+
+    <style name="Theme.ComposeLife" parent="Theme.ComposeLifeBase.ApiAdjusted" tools:ignore="UnusedResources">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
