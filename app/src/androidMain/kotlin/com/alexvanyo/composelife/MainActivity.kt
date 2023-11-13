@@ -25,7 +25,6 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.DisposableEffect
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.WindowCompat
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
 import com.alexvanyo.composelife.scopes.UiComponent
@@ -56,7 +55,7 @@ class MainActivity : AppCompatActivity(), UiComponentOwner {
             !mainActivityEntryPoint.composeLifePreferences.loadedPreferencesState.isSuccess()
         }
 
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        enableEdgeToEdge()
 
         setContent {
             with(mainActivityEntryPoint) {
