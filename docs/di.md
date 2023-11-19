@@ -1,7 +1,7 @@
 # Dependency Injection
 
-This project uses a combination of [kotlin-inject](https://github.com/evant/kotlin-inject) and
-[context receivers](https://github.com/Kotlin/KEEP/blob/master/proposals/context-receivers.md) to
+This project uses a combination of [kotlin-inject][kotlin_inject] and
+[context receivers][context_receivers] to
 implement dependency injection.
 
 kotlin-inject is used to create a dependency graph of singleton and `Activity`-scoped classes
@@ -63,7 +63,7 @@ fun OuterComposable(
 
 ## Context Receivers Step 1
 
-[Context receivers](https://github.com/Kotlin/KEEP/blob/master/proposals/context-receivers.md) are
+[Context receivers][context_receivers] are
 an experimental feature that allow an additional way to pass parameters to methods by adding
 additional receivers to methods. These are also experimentally supported by `@Composable` methods.
 
@@ -294,4 +294,13 @@ are available, with the loading state handled by a higher-level component.
 
 For `@Preview`s, each of these entry points can also be implemented directly with appropriate
 fakes or mock values, as in `ui-app`'s
-[`PreviewEntryPoint`](ui-app/src/androidMain/kotlin/com/alexvanyo/composelife/ui/app/entrypoints/PreviewEntryPoint.kt).
+[`PreviewEntryPoint`][preview_entry_point].
+
+[//]: # (website links)
+
+[context_receivers]: https://github.com/Kotlin/KEEP/blob/master/proposals/context-receivers.md
+[kotlin_inject]: https://github.com/evant/kotlin-inject
+
+[//]: # (relative links)
+
+[preview_entry_point]: ../ui-app/src/androidMain/kotlin/com/alexvanyo/composelife/ui/app/entrypoints/PreviewEntryPoint.kt
