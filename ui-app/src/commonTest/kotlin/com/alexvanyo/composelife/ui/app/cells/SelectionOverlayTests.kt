@@ -37,6 +37,7 @@ import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.util.isAndroid
 import org.junit.Assume.assumeTrue
 import org.junit.runner.RunWith
+import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -78,10 +79,12 @@ class SelectionOverlayTests {
             resolver = parameterizedStringResolver()
 
             SelectionOverlay(
-                selectionState = SelectionState.SelectingBox(
+                selectionState = SelectionState.SelectingBox.FixedSelectingBox(
+                    editingSessionKey = UUID.randomUUID(),
                     topLeft = IntOffset(1, 1),
                     width = 2,
                     height = 3,
+                    previousTransientSelectingBox = null,
                 ),
                 setSelectionState = {},
                 scaledCellDpSize = 50.dp,
@@ -122,11 +125,15 @@ class SelectionOverlayTests {
 
         lateinit var resolver: (ParameterizedString) -> String
 
+        val editingSessionKey = UUID.randomUUID()
+
         val mutableSelectionStateHolder = MutableSelectionStateHolder(
-            SelectionState.SelectingBox(
+            SelectionState.SelectingBox.FixedSelectingBox(
+                editingSessionKey = editingSessionKey,
                 topLeft = IntOffset(2, 2),
                 width = 2,
                 height = 3,
+                previousTransientSelectingBox = null,
             ),
         )
 
@@ -156,10 +163,12 @@ class SelectionOverlayTests {
             }
 
         assertEquals(
-            SelectionState.SelectingBox(
+            SelectionState.SelectingBox.FixedSelectingBox(
+                editingSessionKey = editingSessionKey,
                 topLeft = IntOffset(4, 5),
                 width = 2,
                 height = 1,
+                previousTransientSelectingBox = null,
             ),
             mutableSelectionStateHolder.selectionState,
         )
