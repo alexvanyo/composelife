@@ -23,6 +23,7 @@ import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
+import java.util.UUID
 
 @ThemePreviews
 @Composable
@@ -130,10 +131,12 @@ fun SelectingBoxActionControlRowPreview() {
                 setIsExpanded = {},
                 isViewportTracking = false,
                 setIsViewportTracking = {},
-                selectionState = SelectionState.SelectingBox(
+                selectionState = SelectionState.SelectingBox.FixedSelectingBox(
+                    editingSessionKey = UUID.randomUUID(),
                     topLeft = IntOffset.Zero,
                     width = 1,
                     height = 1,
+                    previousTransientSelectingBox = null,
                 ),
                 onClearSelection = {},
                 onCopy = {},

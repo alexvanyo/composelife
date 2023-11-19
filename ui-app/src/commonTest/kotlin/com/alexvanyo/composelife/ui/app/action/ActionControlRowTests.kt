@@ -45,6 +45,7 @@ import com.alexvanyo.composelife.ui.app.resources.Play
 import com.alexvanyo.composelife.ui.app.resources.Step
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import org.junit.runner.RunWith
+import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -166,10 +167,12 @@ class ActionControlRowTests {
                 setIsExpanded = {},
                 isViewportTracking = false,
                 setIsViewportTracking = {},
-                selectionState = SelectionState.SelectingBox(
+                selectionState = SelectionState.SelectingBox.FixedSelectingBox(
+                    editingSessionKey = UUID.randomUUID(),
                     topLeft = IntOffset.Zero,
                     width = 1,
                     height = 1,
+                    previousTransientSelectingBox = null,
                 ),
                 onClearSelection = {},
                 onCopy = {},
@@ -454,10 +457,12 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
-                selectionState = SelectionState.SelectingBox(
+                selectionState = SelectionState.SelectingBox.FixedSelectingBox(
+                    editingSessionKey = UUID.randomUUID(),
                     topLeft = IntOffset.Zero,
                     width = 1,
                     height = 1,
+                    previousTransientSelectingBox = null,
                 ),
                 onClearSelection = { onClearSelectionCount++ },
                 onCopy = {},
@@ -491,10 +496,12 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
-                selectionState = SelectionState.SelectingBox(
+                selectionState = SelectionState.SelectingBox.FixedSelectingBox(
+                    editingSessionKey = UUID.randomUUID(),
                     topLeft = IntOffset.Zero,
                     width = 1,
                     height = 1,
+                    previousTransientSelectingBox = null,
                 ),
                 onClearSelection = {},
                 onCopy = { onCopyCount++ },
@@ -528,10 +535,12 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
-                selectionState = SelectionState.SelectingBox(
+                selectionState = SelectionState.SelectingBox.FixedSelectingBox(
+                    editingSessionKey = UUID.randomUUID(),
                     topLeft = IntOffset.Zero,
                     width = 1,
                     height = 1,
+                    previousTransientSelectingBox = null,
                 ),
                 onClearSelection = {},
                 onCopy = {},

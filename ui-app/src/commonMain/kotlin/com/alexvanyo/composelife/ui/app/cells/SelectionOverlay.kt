@@ -17,6 +17,10 @@
 package com.alexvanyo.composelife.ui.app.cells
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector2D
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -38,6 +42,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -56,6 +61,7 @@ import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
@@ -79,7 +85,6 @@ import com.alexvanyo.composelife.ui.util.anchoredDraggable2D
 import com.alexvanyo.composelife.ui.util.snapTo
 import com.alexvanyo.composelife.ui.util.uuidSaver
 import kotlinx.coroutines.launch
-import java.util.UUID
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -105,8 +110,8 @@ fun SelectionOverlay(
         contentKey = {
             when (it) {
                 SelectionState.NoSelection -> 0
-                is SelectionState.SelectingBox -> 1
-                is SelectionState.Selection -> 2
+                is SelectionState.SelectingBox -> it.editingSessionKey
+                is SelectionState.Selection -> 1
             }
         },
         modifier = modifier
@@ -119,12 +124,20 @@ fun SelectionOverlay(
             SelectionState.NoSelection -> {
                 Spacer(Modifier.fillMaxSize())
             }
-            is SelectionState.SelectingBox -> {
-                SelectingBoxOverlay(
+            is SelectionState.SelectingBox.FixedSelectingBox -> {
+                FixedSelectingBoxOverlay(
                     selectionState = targetSelectionState,
                     scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() },
                     cellWindow = cellWindow,
                     setSelectionState = setSelectionState,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+            is SelectionState.SelectingBox.TransientSelectingBox -> {
+                TransientSelectingBoxOverlay(
+                    selectionState = targetSelectionState,
+                    scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() },
+                    cellWindow = cellWindow,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -135,16 +148,42 @@ fun SelectionOverlay(
     }
 }
 
+val SelectionState.SelectingBox.FixedSelectingBox.initialHandles get(): List<Offset> {
+    val initialHandleAOffset: Offset
+    val initialHandleBOffset: Offset
+    val initialHandleCOffset: Offset
+    val initialHandleDOffset: Offset
+
+    if (previousTransientSelectingBox != null) {
+        initialHandleAOffset = previousTransientSelectingBox.rect.topLeft
+        initialHandleBOffset = previousTransientSelectingBox.rect.topRight
+        initialHandleCOffset = previousTransientSelectingBox.rect.bottomRight
+        initialHandleDOffset = previousTransientSelectingBox.rect.bottomLeft
+    } else {
+        initialHandleAOffset = topLeft.toOffset()
+        initialHandleBOffset = (topLeft + IntOffset(width, 0)).toOffset()
+        initialHandleCOffset = (topLeft + IntOffset(width, height)).toOffset()
+        initialHandleDOffset = (topLeft + IntOffset(0, height)).toOffset()
+    }
+
+    return listOf(
+        initialHandleAOffset,
+        initialHandleBOffset,
+        initialHandleCOffset,
+        initialHandleDOffset,
+    )
+}
+
 /**
  * The overlay for a [SelectionState.SelectingBox] [selectionState].
  *
  * This includes the selection box, along with 4 handles draggable in two dimensions to allow changing the selecting
  * box bounds.
  */
-@Suppress("LongMethod", "CyclomaticComplexMethod")
+@Suppress("LongMethod", "CyclomaticComplexMethod", "LongParameterList")
 @Composable
-private fun SelectingBoxOverlay(
-    selectionState: SelectionState.SelectingBox,
+private fun FixedSelectingBoxOverlay(
+    selectionState: SelectionState.SelectingBox.FixedSelectingBox,
     setSelectionState: (SelectionState) -> Unit,
     scaledCellPixelSize: Float,
     cellWindow: CellWindow,
@@ -154,16 +193,10 @@ private fun SelectingBoxOverlay(
         /**
          * The key for the editing session, to allow wiping state on an external change.
          */
-        /**
-         * The key for the editing session, to allow wiping state on an external change.
-         */
         var editingSessionKey by rememberSaveable(stateSaver = uuidSaver) {
-            mutableStateOf(UUID.randomUUID())
+            mutableStateOf(selectionState.editingSessionKey)
         }
 
-        /**
-         * The known [SelectionState.SelectingBox] for valid values that we are setting.
-         */
         /**
          * The known [SelectionState.SelectingBox] for valid values that we are setting.
          */
@@ -175,33 +208,16 @@ private fun SelectingBoxOverlay(
          * If `true`, the [selectionState] was updated externally, and not via our own updates
          * (which would have updated [knownSelectionState])
          */
-        /**
-         * If `true`, the [selectionState] was updated externally, and not via our own updates
-         * (which would have updated [knownSelectionState])
-         */
         val didValueUpdateOutOfBand = knownSelectionState != selectionState
 
         // If a value update occurred out of band, then update our editing session
         if (didValueUpdateOutOfBand) {
             // Update the editing session key
-            editingSessionKey = UUID.randomUUID()
+            editingSessionKey = selectionState.editingSessionKey
             knownSelectionState = selectionState
         }
 
-        val initialHandleAOffset = selectionState.topLeft
-        val initialHandleBOffset = selectionState.topLeft +
-            IntOffset(selectionState.width, 0)
-        val initialHandleCOffset = selectionState.topLeft +
-            IntOffset(selectionState.width, selectionState.height)
-        val initialHandleDOffset = selectionState.topLeft +
-            IntOffset(0, selectionState.height)
-
-        val initialHandles = listOf(
-            initialHandleAOffset,
-            initialHandleBOffset,
-            initialHandleCOffset,
-            initialHandleDOffset,
-        )
+        val initialHandles = selectionState.initialHandles
 
         val handleAnchors = remember(scaledCellPixelSize, cellWindow) {
             object : DraggableAnchors2D<IntOffset> {
@@ -224,6 +240,26 @@ private fun SelectingBoxOverlay(
 
         val coroutineScope = rememberCoroutineScope()
 
+        val transientSelectingBoxAnimatables = initialHandles.mapIndexed { index, offset ->
+            key(index) {
+                remember {
+                    Animatable(
+                        initialValue = offset - offset.round().toOffset(),
+                        typeConverter = Offset.VectorConverter,
+                        visibilityThreshold = Offset.VisibilityThreshold / scaledCellPixelSize,
+                    )
+                }
+            }
+        }
+
+        transientSelectingBoxAnimatables.forEachIndexed { index, animatable ->
+            key(index) {
+                LaunchedEffect(animatable) {
+                    animatable.animateTo(Offset.Zero)
+                }
+            }
+        }
+
         @Stable
         class HandleState(
             val state: AnchoredDraggable2DState<IntOffset>,
@@ -234,6 +270,7 @@ private fun SelectingBoxOverlay(
         @Stable
         class SelectionDraggableHandleState(
             val state: HandleState,
+            transientSelectingBoxAnimatable: Animatable<Offset, AnimationVector2D>,
             val horizontalPairState: HandleState,
             val verticalPairState: HandleState,
             val oppositeCornerState: HandleState,
@@ -245,10 +282,12 @@ private fun SelectingBoxOverlay(
                     val minY = min(intOffset.y, oppositeCornerState.state.targetValue.y)
                     val maxY = max(intOffset.y, oppositeCornerState.state.targetValue.y)
 
-                    val newSelectionState = SelectionState.SelectingBox(
-                        IntOffset(minX, minY),
+                    val newSelectionState = SelectionState.SelectingBox.FixedSelectingBox(
+                        editingSessionKey = editingSessionKey,
+                        topLeft = IntOffset(minX, minY),
                         width = maxX - minX,
                         height = maxY - minY,
+                        previousTransientSelectingBox = null,
                     )
 
                     setSelectionState(newSelectionState)
@@ -299,7 +338,7 @@ private fun SelectingBoxOverlay(
                 Offset(
                     xReferenceState.state.requireOffset().x,
                     yReferenceState.state.requireOffset().y,
-                )
+                ) + transientSelectingBoxAnimatable.value * scaledCellPixelSize
             }
         }
 
@@ -321,7 +360,7 @@ private fun SelectingBoxOverlay(
                         ),
                     ) {
                         AnchoredDraggable2DState(
-                            initialValue = initialHandleOffset,
+                            initialValue = initialHandleOffset.round(),
                             animationSpec = spring(),
                             confirmValueChange = { intOffset ->
                                 confirmValueChangeStates[index].value.invoke(intOffset)
@@ -346,28 +385,32 @@ private fun SelectingBoxOverlay(
         val handleCState = handleStates[2]
         val handleDState = handleStates[3]
 
-        val selectionHandleStates = remember(handleStates) {
+        val selectionHandleStates = remember(handleStates, transientSelectingBoxAnimatables) {
             listOf(
                 SelectionDraggableHandleState(
                     state = handleAState,
+                    transientSelectingBoxAnimatable = transientSelectingBoxAnimatables[0],
                     horizontalPairState = handleBState,
                     verticalPairState = handleDState,
                     oppositeCornerState = handleCState,
                 ),
                 SelectionDraggableHandleState(
                     state = handleBState,
+                    transientSelectingBoxAnimatable = transientSelectingBoxAnimatables[1],
                     horizontalPairState = handleAState,
                     verticalPairState = handleCState,
                     oppositeCornerState = handleDState,
                 ),
                 SelectionDraggableHandleState(
                     state = handleCState,
+                    transientSelectingBoxAnimatable = transientSelectingBoxAnimatables[2],
                     horizontalPairState = handleDState,
                     verticalPairState = handleBState,
                     oppositeCornerState = handleAState,
                 ),
                 SelectionDraggableHandleState(
                     state = handleDState,
+                    transientSelectingBoxAnimatable = transientSelectingBoxAnimatables[3],
                     horizontalPairState = handleCState,
                     verticalPairState = handleAState,
                     oppositeCornerState = handleBState,
@@ -383,13 +426,11 @@ private fun SelectingBoxOverlay(
             it.updateAnchors(handleAnchors)
         }
 
-        val selectionColor = MaterialTheme.colorScheme.secondary
         SelectingBox(
             handleAOffsetCalculator = selectionHandleStates[0].offsetCalculator,
             handleBOffsetCalculator = selectionHandleStates[1].offsetCalculator,
             handleCOffsetCalculator = selectionHandleStates[2].offsetCalculator,
             handleDOffsetCalculator = selectionHandleStates[3].offsetCalculator,
-            selectionColor = selectionColor,
             modifier = Modifier.fillMaxSize(),
         )
 
@@ -399,17 +440,27 @@ private fun SelectingBoxOverlay(
             .forEachIndexed { index, selectionDraggableHandleState ->
                 key(index) {
                     val interactionSource = remember { MutableInteractionSource() }
-                    Box(
+
+                    val isDragged by interactionSource.collectIsDraggedAsState()
+                    val isHovered by interactionSource.collectIsHoveredAsState()
+                    val isPressed by interactionSource.collectIsPressedAsState()
+
+                    val isActive = isDragged || isHovered || isPressed
+
+                    SelectionHandle(
+                        isActive = isActive,
                         modifier = Modifier
                             .offset {
                                 selectionDraggableHandleState.offsetCalculator().round()
                             }
-                            .offset((-24).dp, (-24).dp)
+                            .graphicsLayer {
+                                translationX = -size.width / 2f
+                                translationY = -size.height / 2f
+                            }
                             .anchoredDraggable2D(
                                 state = selectionDraggableHandleState.state.state,
                                 interactionSource = interactionSource,
                             )
-                            .size(48.dp)
                             .semantics {
                                 val targetValue = selectionDraggableHandleState.state.state.targetValue
                                 contentDescription = parameterizedStringResolver(
@@ -419,24 +470,86 @@ private fun SelectingBoxOverlay(
                                     ),
                                 )
                             },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        val isDragged by interactionSource.collectIsDraggedAsState()
-                        val isHovered by interactionSource.collectIsHoveredAsState()
-                        val isPressed by interactionSource.collectIsPressedAsState()
-
-                        val isActive = isDragged || isHovered || isPressed
-                        val size by animateDpAsState(if (isActive) 24.dp else 16.dp)
-                        val elevation by animateDpAsState(if (isActive) 4.dp else 0.dp)
-                        Surface(
-                            modifier = Modifier.size(size),
-                            shape = CircleShape,
-                            shadowElevation = elevation,
-                            color = selectionColor,
-                        ) {}
-                    }
+                    )
                 }
             }
+    }
+}
+
+@Composable
+private fun TransientSelectingBoxOverlay(
+    selectionState: SelectionState.SelectingBox.TransientSelectingBox,
+    scaledCellPixelSize: Float,
+    cellWindow: CellWindow,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier) {
+        val selectionRect = selectionState.rect.translate(-cellWindow.topLeft.toOffset())
+
+        val handleAOffsetCalculator = { selectionRect.topLeft * scaledCellPixelSize }
+        val handleBOffsetCalculator = { selectionRect.topRight * scaledCellPixelSize }
+        val handleCOffsetCalculator = { selectionRect.bottomRight * scaledCellPixelSize }
+        val handleDOffsetCalculator = { selectionRect.bottomLeft * scaledCellPixelSize }
+
+        val handleOffsetCalculators = listOf(
+            handleAOffsetCalculator,
+            handleBOffsetCalculator,
+            handleCOffsetCalculator,
+            handleDOffsetCalculator,
+        )
+
+        SelectingBox(
+            handleAOffsetCalculator = {
+                selectionRect.topLeft * scaledCellPixelSize
+            },
+            handleBOffsetCalculator = {
+                selectionRect.topRight * scaledCellPixelSize
+            },
+            handleCOffsetCalculator = {
+                selectionRect.bottomRight * scaledCellPixelSize
+            },
+            handleDOffsetCalculator = {
+                selectionRect.bottomLeft * scaledCellPixelSize
+            },
+            modifier = Modifier.fillMaxSize(),
+        )
+
+        handleOffsetCalculators.mapIndexed { index, offsetCalculator ->
+            key(index) {
+                SelectionHandle(
+                    isActive = index == 2,
+                    modifier = Modifier
+                        .offset {
+                            offsetCalculator().round()
+                        }
+                        .graphicsLayer {
+                            translationX = -size.width / 2f
+                            translationY = -size.height / 2f
+                        },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SelectionHandle(
+    isActive: Boolean,
+    modifier: Modifier = Modifier,
+    selectionColor: Color = MaterialTheme.colorScheme.secondary,
+) {
+    Box(
+        modifier = modifier.size(48.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        val size by animateDpAsState(if (isActive) 24.dp else 16.dp)
+        val elevation by animateDpAsState(if (isActive) 4.dp else 0.dp)
+        Surface(
+            modifier = Modifier.size(size),
+            shape = CircleShape,
+            shadowElevation = elevation,
+            color = selectionColor,
+        ) {}
     }
 }
 
@@ -445,13 +558,13 @@ private fun SelectingBoxOverlay(
  */
 @Suppress("LongParameterList")
 @Composable
-private fun SelectingBox(
+fun SelectingBox(
     handleAOffsetCalculator: () -> Offset,
     handleBOffsetCalculator: () -> Offset,
     handleCOffsetCalculator: () -> Offset,
     handleDOffsetCalculator: () -> Offset,
-    selectionColor: Color,
     modifier: Modifier = Modifier,
+    selectionColor: Color = MaterialTheme.colorScheme.secondary,
 ) {
     Box(
         modifier = modifier
@@ -585,3 +698,6 @@ private fun DrawScope.drawSelectionRect(
         pathEffect = pathEffect,
     )
 }
+
+fun <T> AnchoredDraggable2DState<T>.isDraggingOrAnimating(): Boolean =
+    anchors.positionOf(currentValue) != requireOffset()

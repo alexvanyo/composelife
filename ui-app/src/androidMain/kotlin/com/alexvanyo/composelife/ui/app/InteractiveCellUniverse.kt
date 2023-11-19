@@ -66,6 +66,7 @@ import com.alexvanyo.composelife.ui.util.PredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.rememberClipboardState
 import com.alexvanyo.composelife.ui.util.rememberPredictiveBackStateHolder
+import java.util.UUID
 
 interface InteractiveCellUniverseInjectEntryPoint :
     InteractiveCellUniverseOverlayInjectEntryPoint
@@ -377,8 +378,9 @@ fun rememberInteractiveCellUniverseState(
                 when (val currentSelectionState = selectionState) {
                     SelectionState.NoSelection,
                     is SelectionState.Selection,
+                    is SelectionState.SelectingBox.TransientSelectingBox,
                     -> Unit
-                    is SelectionState.SelectingBox -> {
+                    is SelectionState.SelectingBox.FixedSelectingBox -> {
                         if (currentSelectionState.width != 0 && currentSelectionState.height != 0) {
                             val left: Int
                             val right: Int
@@ -436,10 +438,12 @@ fun rememberInteractiveCellUniverseState(
             override fun onSelectAll() {
                 val boundingBox = temporalGameOfLifeState.cellState.boundingBox
                 selectionState =
-                    SelectionState.SelectingBox(
+                    SelectionState.SelectingBox.FixedSelectingBox(
+                        editingSessionKey = UUID.randomUUID(),
                         topLeft = boundingBox.topLeft,
                         width = boundingBox.width + 1,
                         height = boundingBox.height + 1,
+                        previousTransientSelectingBox = null,
                     )
             }
         }

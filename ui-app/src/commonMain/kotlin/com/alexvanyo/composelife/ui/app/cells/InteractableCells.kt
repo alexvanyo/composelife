@@ -17,22 +17,25 @@
 
 package com.alexvanyo.composelife.ui.app.cells
 
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.input.pointer.HistoricalChange
 import androidx.compose.ui.input.pointer.PointerType
@@ -43,6 +46,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.toOffset
 import com.alexvanyo.composelife.geometry.LineSegmentPath
 import com.alexvanyo.composelife.geometry.cellIntersections
 import com.alexvanyo.composelife.model.CellWindow
@@ -54,7 +59,8 @@ import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.ui.app.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.app.resources.Strings
-import com.alexvanyo.composelife.ui.util.AnchoredDraggable2DState
+import com.alexvanyo.composelife.ui.util.detectDragGestures
+import java.util.UUID
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
@@ -101,6 +107,12 @@ fun InteractableCells(
                 PointerType.Stylus.takeIf { preferences.stylusToolConfig == ToolConfig.Erase },
                 PointerType.Mouse.takeIf { preferences.mouseToolConfig == ToolConfig.Erase },
             )
+        val selectingPointerTypes =
+            setOfNotNull(
+                PointerType.Touch.takeIf { preferences.touchToolConfig == ToolConfig.Select },
+                PointerType.Stylus.takeIf { preferences.stylusToolConfig == ToolConfig.Select },
+                PointerType.Mouse.takeIf { preferences.mouseToolConfig == ToolConfig.Select },
+            )
 
         Box(
             Modifier
@@ -114,6 +126,12 @@ fun InteractableCells(
                     erasingPointerTypes = erasingPointerTypes,
                     gameOfLifeState = gameOfLifeState,
                     pendingCellChanges = pendingCellChanges,
+                    scaledCellPixelSize = scaledCellPixelSize,
+                    cellWindow = cellWindow,
+                )
+                .selectingCellInput(
+                    selectingPointerTypes = selectingPointerTypes,
+                    setSelectionState = { setSelectionState(it) },
                     scaledCellPixelSize = scaledCellPixelSize,
                     cellWindow = cellWindow,
                 ),
@@ -147,10 +165,12 @@ fun InteractableCells(
                                 },
                                 onLongClick = {
                                     setSelectionState(
-                                        SelectionState.SelectingBox(
+                                        SelectionState.SelectingBox.FixedSelectingBox(
+                                            editingSessionKey = UUID.randomUUID(),
                                             topLeft = cell,
                                             width = 1,
                                             height = 1,
+                                            previousTransientSelectingBox = null,
                                         ),
                                     )
                                 },
@@ -195,6 +215,8 @@ private fun Modifier.drawingCellInput(
 
     pointerInput(drawingPointerTypes, erasingPointerTypes, pendingCellChanges, gameOfLifeState) {
         detectDragGestures(
+            excludedPointerTypes = setOf(PointerType.Touch, PointerType.Mouse, PointerType.Stylus) -
+                drawingPointerTypes - erasingPointerTypes,
             onDragStart = {
                 pendingCellChanges.clear()
             },
@@ -230,7 +252,7 @@ private fun Modifier.drawingCellInput(
                 val isAlive = when (change.type) {
                     in drawingPointerTypes -> true
                     in erasingPointerTypes -> false
-                    else -> throw CancellationException("Non-stylus type!")
+                    else -> throw CancellationException("Non-drawing type!")
                 }
                 path.cellIntersections().forEach { localCoordinate ->
                     pendingCellChanges[localCoordinate + currentCellWindow.topLeft] = isAlive
@@ -240,5 +262,74 @@ private fun Modifier.drawingCellInput(
     }
 }
 
-fun <T> AnchoredDraggable2DState<T>.isDraggingOrAnimating(): Boolean =
-    anchors.positionOf(currentValue) != requireOffset()
+@Suppress("LongMethod")
+private fun Modifier.selectingCellInput(
+    selectingPointerTypes: Set<PointerType>,
+    setSelectionState: (SelectionState) -> Unit,
+    scaledCellPixelSize: Float,
+    cellWindow: CellWindow,
+): Modifier = composed {
+    var isSelecting by remember { mutableStateOf(false) }
+    var start by remember { mutableStateOf(Offset.Zero) }
+    var end by remember { mutableStateOf(Offset.Zero) }
+    val currentScaledCellPixelSize by rememberUpdatedState(scaledCellPixelSize)
+    val currentCellWindow by rememberUpdatedState(cellWindow)
+    val currentSetSelectionState by rememberUpdatedState(setSelectionState)
+
+    val editingSessionKey = remember { UUID.randomUUID() }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            if (isSelecting) {
+                currentSetSelectionState(SelectionState.NoSelection)
+            }
+        }
+    }
+
+    pointerInput(selectingPointerTypes) {
+        detectDragGestures(
+            excludedPointerTypes = setOf(PointerType.Touch, PointerType.Mouse, PointerType.Stylus) -
+                selectingPointerTypes,
+            onDragStart = {
+                isSelecting = true
+                start = ((it / currentScaledCellPixelSize).round() + currentCellWindow.topLeft).toOffset()
+                end = it / currentScaledCellPixelSize + currentCellWindow.topLeft.toOffset()
+                setSelectionState(
+                    SelectionState.SelectingBox.TransientSelectingBox(
+                        editingSessionKey = editingSessionKey,
+                        rect = Rect(topLeft = start, bottomRight = end),
+                    ),
+                )
+            },
+            onDragEnd = {
+                isSelecting = false
+                currentSetSelectionState(
+                    SelectionState.SelectingBox.FixedSelectingBox(
+                        editingSessionKey = editingSessionKey,
+                        topLeft = start.round(),
+                        width = (end.x - start.x).roundToInt(),
+                        height = (end.y - start.y).roundToInt(),
+                        previousTransientSelectingBox = SelectionState.SelectingBox.TransientSelectingBox(
+                            editingSessionKey = editingSessionKey,
+                            rect = Rect(topLeft = start, bottomRight = end),
+                        ),
+                    ),
+                )
+            },
+            onDragCancel = {
+                isSelecting = false
+                currentSetSelectionState(SelectionState.NoSelection)
+            },
+            onDrag = { change, _ ->
+                end = change.position / currentScaledCellPixelSize + currentCellWindow.topLeft.toOffset()
+
+                setSelectionState(
+                    SelectionState.SelectingBox.TransientSelectingBox(
+                        editingSessionKey = editingSessionKey,
+                        rect = Rect(topLeft = start, bottomRight = end),
+                    ),
+                )
+            },
+        )
+    }
+}
