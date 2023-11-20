@@ -54,6 +54,7 @@ kotlin {
                 implementation(libs.jetbrains.compose.uiUtil)
                 implementation(libs.jetbrains.compose.materialIconsExtended)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.serialization.json)
                 implementation(libs.sealedEnum.runtime)
             }
         }

@@ -25,20 +25,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.util.packInts
-import androidx.compose.ui.util.unpackInt1
-import androidx.compose.ui.util.unpackInt2
 import com.alexvanyo.composelife.model.CellState
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.KSerializer
+import com.alexvanyo.composelife.ui.util.IntOffsetSerializer
+import com.alexvanyo.composelife.ui.util.RectSerializer
+import com.alexvanyo.composelife.ui.util.UUIDSerializer
+import com.alexvanyo.composelife.ui.util.saver
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.FloatArraySerializer
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.Json
 import java.util.UUID
 
 @Serializable
@@ -47,6 +39,7 @@ sealed interface SelectionState {
     @Serializable
     data object NoSelection : SelectionState
 
+    @Serializable
     sealed interface SelectingBox : SelectionState {
 
         val editingSessionKey: UUID
@@ -73,74 +66,7 @@ sealed interface SelectionState {
     ) : SelectionState
 
     companion object {
-        val Saver: Saver<SelectionState, String> = JsonSaver(serializer())
-    }
-}
-
-class JsonSaver<T>(serializer: KSerializer<T>) : Saver<T, String> by Saver(
-    { Json.encodeToString(serializer, it) },
-    { Json.decodeFromString(serializer, it) },
-)
-
-object IntOffsetSerializer : KSerializer<IntOffset> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
-        "androidx.compose.ui.unit.IntOffset",
-        PrimitiveKind.LONG,
-    )
-
-    override fun deserialize(decoder: Decoder): IntOffset {
-        val longValue = decoder.decodeLong()
-        return IntOffset(unpackInt1(longValue), unpackInt2(longValue))
-    }
-
-    override fun serialize(encoder: Encoder, value: IntOffset) {
-        encoder.encodeLong(packInts(value.x, value.y))
-    }
-}
-
-object RectSerializer : KSerializer<Rect> {
-    private val delegateSerializer = FloatArraySerializer()
-
-    @OptIn(ExperimentalSerializationApi::class)
-    override val descriptor: SerialDescriptor = SerialDescriptor(
-        "androidx.compose.ui.geometry.Rect",
-        delegateSerializer.descriptor,
-    )
-
-    override fun deserialize(decoder: Decoder): Rect {
-        val floatArray = delegateSerializer.deserialize(decoder)
-        return Rect(
-            left = floatArray[0],
-            top = floatArray[1],
-            right = floatArray[2],
-            bottom = floatArray[3],
-        )
-    }
-
-    override fun serialize(encoder: Encoder, value: Rect) {
-        delegateSerializer.serialize(
-            encoder,
-            floatArrayOf(
-                value.left,
-                value.top,
-                value.right,
-                value.bottom,
-            ),
-        )
-    }
-}
-
-object UUIDSerializer : KSerializer<UUID> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
-        "java.util.UUID",
-        PrimitiveKind.STRING,
-    )
-
-    override fun deserialize(decoder: Decoder): UUID =
-        UUID.fromString(decoder.decodeString())
-
-    override fun serialize(encoder: Encoder, value: UUID) {
-        encoder.encodeString(value.toString())
+        val Saver: Saver<SelectionState, String> = serializer().saver
     }
 }
 
