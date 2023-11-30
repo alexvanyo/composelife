@@ -153,12 +153,11 @@ class GameOfLifeWatchFaceService : WatchFaceService() {
             .launchIn(scope)
 
         return WatchFace(
-            watchFaceType = @Suppress("RestrictedApi") WatchFaceType.DIGITAL,
+            watchFaceType = WatchFaceType.DIGITAL,
             renderer = renderer,
         ).apply {
             setTapListener(
                 object : WatchFace.TapListener {
-                    @Suppress("RestrictedApi")
                     override fun onTapEvent(tapType: Int, tapEvent: TapEvent, complicationSlot: ComplicationSlot?) {
                         when (tapType) {
                             TapType.DOWN -> {
