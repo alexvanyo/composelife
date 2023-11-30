@@ -18,5 +18,5 @@ package com.alexvanyo.composelife.ui.util
 
 import androidx.compose.ui.platform.ViewConfiguration
 
-internal actual val ViewConfiguration.maxFlingVelocity: Int get() =
+internal actual val ViewConfiguration.maxFlingVelocity: Float get() =
     this.maximumFlingVelocity

@@ -21,4 +21,4 @@ import androidx.compose.ui.platform.ViewConfiguration
 /**
  * TODO: Replace with [ViewConfiguration.maximumFlingVelocity] once in multiplatform
  */
-internal expect val ViewConfiguration.maxFlingVelocity: Int
+internal expect val ViewConfiguration.maxFlingVelocity: Float
