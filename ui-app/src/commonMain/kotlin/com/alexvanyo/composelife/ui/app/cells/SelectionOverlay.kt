@@ -49,9 +49,11 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -84,6 +86,8 @@ import com.alexvanyo.composelife.ui.util.DraggableAnchors2D
 import com.alexvanyo.composelife.ui.util.anchoredDraggable2D
 import com.alexvanyo.composelife.ui.util.snapTo
 import com.alexvanyo.composelife.ui.util.uuidSaver
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
@@ -109,9 +113,9 @@ fun SelectionOverlay(
         contentAlignment = Alignment.Center,
         contentKey = {
             when (it) {
-                SelectionState.NoSelection -> 0
-                is SelectionState.SelectingBox -> it.editingSessionKey
-                is SelectionState.Selection -> 1
+                SelectionState.NoSelection -> 0 to ""
+                is SelectionState.SelectingBox -> 1 to it.editingSessionKey
+                is SelectionState.Selection -> 2 to it.editingSessionKey
             }
         },
         modifier = modifier
@@ -142,7 +146,13 @@ fun SelectionOverlay(
                 )
             }
             is SelectionState.Selection -> {
-                Spacer(Modifier.fillMaxSize())
+                SelectionBoxOverlay(
+                    selectionState = targetSelectionState,
+                    setSelectionState = setSelectionState,
+                    scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() },
+                    cellWindow = cellWindow,
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
     }
@@ -220,16 +230,7 @@ private fun FixedSelectingBoxOverlay(
         val initialHandles = selectionState.initialHandles
 
         val handleAnchors = remember(scaledCellPixelSize, cellWindow) {
-            object : DraggableAnchors2D<IntOffset> {
-                override fun positionOf(value: IntOffset): Offset =
-                    (value.toOffset() - cellWindow.topLeft.toOffset()) * scaledCellPixelSize
-
-                override fun hasAnchorFor(value: IntOffset): Boolean = true
-                override fun closestAnchor(position: Offset): IntOffset =
-                    (position / scaledCellPixelSize).round() + cellWindow.topLeft
-
-                override val size: Int = Int.MAX_VALUE
-            }
+            GridDraggableAnchors2d(scaledCellPixelSize, cellWindow)
         }
 
         val confirmValueChangeStates = List(initialHandles.size) { index ->
@@ -367,7 +368,10 @@ private fun FixedSelectingBoxOverlay(
                             },
                         )
                     }.apply {
-                        updateAnchors(handleAnchors)
+                        updateAnchors(
+                            newAnchors = handleAnchors,
+                            newTarget = targetValue,
+                        )
                     }
                 }
             }
@@ -422,16 +426,15 @@ private fun FixedSelectingBoxOverlay(
             confirmValueChangeStates[index].value = selectionDraggableHandleState.confirmValueChange
         }
 
-        handleAnchoredDraggable2DStates.forEach {
-            it.updateAnchors(handleAnchors)
-        }
-
         SelectingBox(
-            handleAOffsetCalculator = selectionHandleStates[0].offsetCalculator,
-            handleBOffsetCalculator = selectionHandleStates[1].offsetCalculator,
-            handleCOffsetCalculator = selectionHandleStates[2].offsetCalculator,
-            handleDOffsetCalculator = selectionHandleStates[3].offsetCalculator,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .boxLayoutByHandles(
+                    handleAOffsetCalculator = selectionHandleStates[0].offsetCalculator,
+                    handleBOffsetCalculator = selectionHandleStates[1].offsetCalculator,
+                    handleCOffsetCalculator = selectionHandleStates[2].offsetCalculator,
+                    handleDOffsetCalculator = selectionHandleStates[3].offsetCalculator,
+                ),
         )
 
         val parameterizedStringResolver = parameterizedStringResolver()
@@ -499,19 +502,22 @@ private fun TransientSelectingBoxOverlay(
         )
 
         SelectingBox(
-            handleAOffsetCalculator = {
-                selectionRect.topLeft * scaledCellPixelSize
-            },
-            handleBOffsetCalculator = {
-                selectionRect.topRight * scaledCellPixelSize
-            },
-            handleCOffsetCalculator = {
-                selectionRect.bottomRight * scaledCellPixelSize
-            },
-            handleDOffsetCalculator = {
-                selectionRect.bottomLeft * scaledCellPixelSize
-            },
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .boxLayoutByHandles(
+                    handleAOffsetCalculator = {
+                        selectionRect.topLeft * scaledCellPixelSize
+                    },
+                    handleBOffsetCalculator = {
+                        selectionRect.topRight * scaledCellPixelSize
+                    },
+                    handleCOffsetCalculator = {
+                        selectionRect.bottomRight * scaledCellPixelSize
+                    },
+                    handleDOffsetCalculator = {
+                        selectionRect.bottomLeft * scaledCellPixelSize
+                    },
+                ),
         )
 
         handleOffsetCalculators.mapIndexed { index, offsetCalculator ->
@@ -554,76 +560,77 @@ fun SelectionHandle(
 }
 
 /**
- * The selecting box itself.
+ * A custom [layout] modifier that measures a box bounded by the given 4 offsets, such that the box doesn't extend
+ * beyond the bounds of the parent.
  */
-@Suppress("LongParameterList")
-@Composable
-fun SelectingBox(
+fun Modifier.boxLayoutByHandles(
     handleAOffsetCalculator: () -> Offset,
     handleBOffsetCalculator: () -> Offset,
     handleCOffsetCalculator: () -> Offset,
     handleDOffsetCalculator: () -> Offset,
-    modifier: Modifier = Modifier,
+): Modifier = layout { measurable, constraints ->
+    // Calculate the offsets of the 4 handles
+    val aOffset = handleAOffsetCalculator()
+    val bOffset = handleBOffsetCalculator()
+    val cOffset = handleCOffsetCalculator()
+    val dOffset = handleDOffsetCalculator()
+
+    // Determine the top left and bottom right points of the offset, coercing to the edges of this box
+    // to avoid drawing the box outside of the bounds.
+    val minX = min(min(aOffset.x, bOffset.x), min(cOffset.x, dOffset.x))
+        .coerceIn(0f, constraints.maxWidth.toFloat())
+    val maxX = max(max(aOffset.x, bOffset.x), max(cOffset.x, dOffset.x))
+        .coerceIn(0f, constraints.maxWidth.toFloat())
+    val minY = min(min(aOffset.y, bOffset.y), min(cOffset.y, dOffset.y))
+        .coerceIn(0f, constraints.maxHeight.toFloat())
+    val maxY = max(max(aOffset.y, bOffset.y), max(cOffset.y, dOffset.y))
+        .coerceIn(0f, constraints.maxHeight.toFloat())
+
+    val topLeft = Offset(minX, minY)
+    val size = Size(maxX - minX, maxY - minY)
+
+    val selectionBoxConstraints = Constraints(
+        minWidth = size.width.roundToInt(),
+        maxWidth = size.width.roundToInt(),
+        minHeight = size.height.roundToInt(),
+        maxHeight = size.height.roundToInt(),
+    )
+
+    // Measure the contents exactly to the constraints.
+    val placeable = measurable.measure(selectionBoxConstraints)
+
+    layout(constraints.maxWidth, constraints.maxHeight) {
+        placeable.place(topLeft.round())
+    }
+}
+
+/**
+ * The selecting box itself.
+ */
+@Composable
+fun SelectingBox(
+    // noinspection ComposeModifierWithoutDefault
+    modifier: Modifier,
     selectionColor: Color = MaterialTheme.colorScheme.secondary,
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .layout { measurable, constraints ->
-                // Calculate the offsets of the 4 handles
-                val aOffset = handleAOffsetCalculator()
-                val bOffset = handleBOffsetCalculator()
-                val cOffset = handleCOffsetCalculator()
-                val dOffset = handleDOffsetCalculator()
-
-                // Determine the top left and bottom right points of the offset, coercing to the edges of this box
-                // to avoid drawing the box outside of the bounds.
-                val minX = min(min(aOffset.x, bOffset.x), min(cOffset.x, dOffset.x))
-                    .coerceIn(0f, constraints.maxWidth.toFloat())
-                val maxX = max(max(aOffset.x, bOffset.x), max(cOffset.x, dOffset.x))
-                    .coerceIn(0f, constraints.maxWidth.toFloat())
-                val minY = min(min(aOffset.y, bOffset.y), min(cOffset.y, dOffset.y))
-                    .coerceIn(0f, constraints.maxHeight.toFloat())
-                val maxY = max(max(aOffset.y, bOffset.y), max(cOffset.y, dOffset.y))
-                    .coerceIn(0f, constraints.maxHeight.toFloat())
-
-                val topLeft = Offset(minX, minY)
-                val size = Size(maxX - minX, maxY - minY)
-
-                val selectionBoxConstraints = Constraints(
-                    minWidth = size.width.roundToInt(),
-                    maxWidth = size.width.roundToInt(),
-                    minHeight = size.height.roundToInt(),
-                    maxHeight = size.height.roundToInt(),
-                )
-
-                // Measure the contents exactly to the constraints.
-                val placeable = measurable.measure(selectionBoxConstraints)
-
-                layout(constraints.maxWidth, constraints.maxHeight) {
-                    placeable.place(topLeft.round())
-                }
-            },
+    Canvas(
+        modifier = modifier.fillMaxSize(),
     ) {
-        Canvas(
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            drawRect(
-                color = selectionColor,
-                alpha = 0.2f,
-            )
-            drawSelectionRect(
-                selectionColor = selectionColor,
-                strokeWidth = 2.dp.toPx(),
-                pathEffect = PathEffect.dashPathEffect(
-                    floatArrayOf(
-                        24.dp.toPx(),
-                        24.dp.toPx(),
-                    ),
-                    phase = 12.dp.toPx(),
+        drawRect(
+            color = selectionColor,
+            alpha = 0.2f,
+        )
+        drawSelectionRect(
+            selectionColor = selectionColor,
+            strokeWidth = 2.dp.toPx(),
+            pathEffect = PathEffect.dashPathEffect(
+                floatArrayOf(
+                    24.dp.toPx(),
+                    24.dp.toPx(),
                 ),
-            )
-        }
+                phase = 12.dp.toPx(),
+            ),
+        )
     }
 }
 
@@ -696,6 +703,119 @@ private fun DrawScope.drawSelectionRect(
         end = rect.bottomRight,
         strokeWidth = strokeWidth,
         pathEffect = pathEffect,
+    )
+}
+
+data class GridDraggableAnchors2d(
+    private val scaledCellPixelSize: Float,
+    private val cellWindow: CellWindow,
+) : DraggableAnchors2D<IntOffset> {
+    override fun positionOf(value: IntOffset): Offset =
+        (value.toOffset() - cellWindow.topLeft.toOffset()) * scaledCellPixelSize
+
+    override fun hasAnchorFor(value: IntOffset): Boolean = true
+    override fun closestAnchor(position: Offset): IntOffset =
+        (position / scaledCellPixelSize).round() + cellWindow.topLeft
+
+    override val size: Int = Int.MAX_VALUE
+}
+
+@Suppress("LongParameterList", "LongMethod")
+@Composable
+private fun SelectionBoxOverlay(
+    selectionState: SelectionState.Selection,
+    setSelectionState: (SelectionState) -> Unit,
+    scaledCellPixelSize: Float,
+    cellWindow: CellWindow,
+    modifier: Modifier = Modifier,
+) {
+    val handleAnchors = remember(scaledCellPixelSize, cellWindow) {
+        GridDraggableAnchors2d(scaledCellPixelSize, cellWindow)
+    }
+
+    val initialOffset = selectionState.offset
+
+    val currentSelectionState by rememberUpdatedState(selectionState)
+    val currentSetSelectionState by rememberUpdatedState(setSelectionState)
+
+    val confirmValueChange = { intOffset: IntOffset ->
+        setSelectionState(
+            currentSelectionState.copy(
+                offset = intOffset,
+            ),
+        )
+        true
+    }
+
+    val draggable2DState = rememberSaveable(
+        saver = Saver(
+            save = { packInts(it.currentValue.x, it.currentValue.y) },
+            restore = {
+                AnchoredDraggable2DState(
+                    initialValue = IntOffset(unpackInt1(it), unpackInt2(it)),
+                    animationSpec = spring(),
+                    confirmValueChange = confirmValueChange,
+                )
+            },
+        ),
+    ) {
+        AnchoredDraggable2DState(
+            initialValue = initialOffset,
+            animationSpec = spring(),
+            confirmValueChange = confirmValueChange,
+        )
+    }.apply {
+        updateAnchors(
+            newAnchors = handleAnchors,
+            // Ensure the target value remains the same due to updating the anchors.
+            // This keeps the selection box stationary relative to the overall universe.
+            newTarget = targetValue,
+        )
+    }
+
+    // As a side-effect of dragging, update the underlying selection state to match the intermediate selection.
+    LaunchedEffect(draggable2DState) {
+        snapshotFlow { draggable2DState.currentValue }
+            .onEach { intOffset ->
+                currentSetSelectionState(
+                    currentSelectionState.copy(
+                        offset = intOffset,
+                    ),
+                )
+            }
+            .collect()
+    }
+
+    val boundingBox = selectionState.cellState.boundingBox
+
+    SelectingBox(
+        modifier = modifier
+            .fillMaxSize()
+            .boxLayoutByHandles(
+                handleAOffsetCalculator = {
+                    draggable2DState.requireOffset()
+                },
+                handleBOffsetCalculator = {
+                    draggable2DState.requireOffset() + Offset(
+                        boundingBox.width.toFloat(),
+                        0f,
+                    ) * scaledCellPixelSize
+                },
+                handleCOffsetCalculator = {
+                    draggable2DState.requireOffset() + Offset(
+                        boundingBox.width.toFloat(),
+                        boundingBox.height.toFloat(),
+                    ) * scaledCellPixelSize
+                },
+                handleDOffsetCalculator = {
+                    draggable2DState.requireOffset() + Offset(
+                        0f,
+                        boundingBox.height.toFloat(),
+                    ) * scaledCellPixelSize
+                },
+            )
+            .anchoredDraggable2D(draggable2DState),
+        selectionColor = MaterialTheme.colorScheme.tertiary,
     )
 }
 

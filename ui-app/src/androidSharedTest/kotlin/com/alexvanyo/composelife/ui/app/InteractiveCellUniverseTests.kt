@@ -57,8 +57,8 @@ import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.InjectTestActivity
-import com.alexvanyo.composelife.ui.util.ClipboardState
-import com.alexvanyo.composelife.ui.util.rememberClipboardState
+import com.alexvanyo.composelife.ui.util.ClipboardReader
+import com.alexvanyo.composelife.ui.util.rememberClipboardReader
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import leakcanary.SkipLeakDetection
 import org.junit.runner.RunWith
@@ -602,11 +602,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
     @SkipLeakDetection("appliedChanges", "Outer")
     @Test
     fun glider_is_copied_correctly_with_keyboard_shortcuts() = runAppTest {
-        lateinit var clipboardState: ClipboardState
+        lateinit var clipboardReader: ClipboardReader
 
         composeTestRule.setContent {
-            clipboardState = rememberClipboardState()
-
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 60.0,
             )
@@ -624,6 +622,8 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
             with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
+                    clipboardReader = rememberClipboardReader()
+
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
                         windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
@@ -671,7 +671,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 keyUp(Key.CtrlLeft)
             }
 
-        val clipData = clipboardState.clipData
+        val clipData = clipboardReader.getClipData()
         assertNotNull(clipData)
         assertEquals(
             """

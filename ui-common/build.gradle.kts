@@ -43,6 +43,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(projects.dispatchers)
                 implementation(projects.geometry)
                 implementation(projects.navigation)
                 implementation(projects.snapshotStateSet)
@@ -77,6 +78,7 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(projects.dispatchersTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
 
