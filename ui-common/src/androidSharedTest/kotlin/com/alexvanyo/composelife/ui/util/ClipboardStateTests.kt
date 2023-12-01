@@ -23,7 +23,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runAndroidComposeUiTest
 import androidx.core.content.getSystemService
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
+import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -38,7 +42,15 @@ class ClipboardStateTests {
         var clipData: ClipData? = null
 
         setContent {
-            clipData = rememberClipboardState().clipData
+            clipData = with(
+                object : ComposeLifeDispatchersProvider {
+                    override val dispatchers: ComposeLifeDispatchers = TestComposeLifeDispatchers(
+                        testDispatcher = StandardTestDispatcher(),
+                    )
+                },
+            ) {
+                rememberClipboardReader().getClipData()
+            }
         }
 
         val clipboardManager = requireNotNull(activity!!.getSystemService<ClipboardManager>())
@@ -57,14 +69,14 @@ class ClipboardStateTests {
 
     @Test
     fun writing_to_clipboard_state_is_correct() = runAndroidComposeUiTest<ComponentActivity> {
-        lateinit var clipboardState: ClipboardState
+        lateinit var clipboardWriter: ClipboardWriter
 
         val testClipData = ClipData.newPlainText("test clip data", "test value 2")
 
         setContent {
-            clipboardState = rememberClipboardState()
+            clipboardWriter = rememberClipboardWriter()
             LaunchedEffect(Unit) {
-                clipboardState.clipData = testClipData
+                clipboardWriter.setClipData(testClipData)
             }
         }
 

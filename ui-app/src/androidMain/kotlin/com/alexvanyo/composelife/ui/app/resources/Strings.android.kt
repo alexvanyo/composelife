@@ -208,3 +208,6 @@ internal actual val Strings.SeeAll: ParameterizedString get() =
 
 internal actual fun Strings.SelectingBoxHandle(x: Int, y: Int): ParameterizedString =
     ParameterizedString(R.string.selecting_box_handle, x, y)
+
+internal actual val Strings.EmptyClipboard: ParameterizedString get() =
+    ParameterizedString(R.string.empty_clipboard)

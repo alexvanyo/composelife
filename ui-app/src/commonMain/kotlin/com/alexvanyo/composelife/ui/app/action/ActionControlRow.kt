@@ -80,6 +80,8 @@ fun ActionControlRow(
     onClearSelection: () -> Unit,
     onCopy: () -> Unit,
     onCut: () -> Unit,
+    onPaste: () -> Unit,
+    onApplyPaste: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val elevation by animateDpAsState(targetValue = if (isElevated) 3.dp else 0.dp)
@@ -233,7 +235,7 @@ fun ActionControlRow(
                         },
                     ) {
                         IconButton(
-                            onClick = {},
+                            onClick = onPaste,
                             modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(
@@ -251,7 +253,7 @@ fun ActionControlRow(
                         },
                     ) {
                         IconButton(
-                            onClick = {},
+                            onClick = onClearSelection,
                             modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(
@@ -269,7 +271,7 @@ fun ActionControlRow(
                         },
                     ) {
                         IconButton(
-                            onClick = {},
+                            onClick = onApplyPaste,
                             modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(

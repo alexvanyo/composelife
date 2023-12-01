@@ -43,6 +43,8 @@ fun CollapsedRunningActionControlRowPreview() {
                 onClearSelection = {},
                 onCopy = {},
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
     }
@@ -66,6 +68,8 @@ fun CollapsedPausedActionControlRowPreview() {
                 onClearSelection = {},
                 onCopy = {},
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
     }
@@ -89,6 +93,8 @@ fun ExpandedActionControlRowPreview() {
                 onClearSelection = {},
                 onCopy = {},
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
     }
@@ -112,6 +118,8 @@ fun ViewportTrackingActionControlRowPreview() {
                 onClearSelection = {},
                 onCopy = {},
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
     }
@@ -141,6 +149,8 @@ fun SelectingBoxActionControlRowPreview() {
                 onClearSelection = {},
                 onCopy = {},
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
     }
@@ -162,10 +172,13 @@ fun SelectionActionControlRowPreview() {
                 setIsViewportTracking = {},
                 selectionState = SelectionState.Selection(
                     cellState = emptyCellState(),
+                    offset = IntOffset.Zero,
                 ),
                 onClearSelection = {},
                 onCopy = {},
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
     }
@@ -189,6 +202,8 @@ fun ElevatedExpandedActionControlRowPreview() {
                 onClearSelection = {},
                 onCopy = {},
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
     }

@@ -18,6 +18,7 @@ package com.alexvanyo.composelife
 
 import android.app.Activity
 import com.alexvanyo.composelife.scopes.UiComponent
+import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
 import me.tatarka.inject.annotations.Component
 
 @Suppress("UnnecessaryAbstractClass")
@@ -25,11 +26,13 @@ import me.tatarka.inject.annotations.Component
 abstract class ComposeLifeUiComponent(
     @Component override val applicationComponent: ComposeLifeApplicationComponent,
     activity: Activity,
-) : UiComponent<ComposeLifeApplicationComponent, ComposeLifeUiEntryPoint>(activity, applicationComponent) {
+) : UiComponent<ComposeLifeApplicationComponent, ComposeLifeUiEntryPoint>(activity, applicationComponent),
+    ClipboardCellStateParserProvider {
     override val entryPoint: ComposeLifeUiEntryPoint get() =
         object :
             ComposeLifeUiEntryPoint,
-            ComposeLifeApplicationEntryPoint by applicationComponent.entryPoint {}
+            ComposeLifeApplicationEntryPoint by applicationComponent.entryPoint,
+            ClipboardCellStateParserProvider by this {}
 }
 
 interface ComposeLifeUiEntryPoint :

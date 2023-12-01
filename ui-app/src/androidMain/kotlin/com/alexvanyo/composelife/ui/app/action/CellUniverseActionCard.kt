@@ -97,6 +97,8 @@ fun CellUniverseActionCard(
     onClearSelection: () -> Unit,
     onCopy: () -> Unit,
     onCut: () -> Unit,
+    onPaste: () -> Unit,
+    onApplyPaste: () -> Unit,
     actionCardState: CellUniverseActionCardState,
     modifier: Modifier = Modifier,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
@@ -123,6 +125,8 @@ fun CellUniverseActionCard(
         onClearSelection = onClearSelection,
         onCopy = onCopy,
         onCut = onCut,
+        onPaste = onPaste,
+        onApplyPaste = onApplyPaste,
         actionCardState = actionCardState,
         modifier = modifier,
     )
@@ -147,6 +151,8 @@ fun CellUniverseActionCard(
     onClearSelection: () -> Unit,
     onCopy: () -> Unit,
     onCut: () -> Unit,
+    onPaste: () -> Unit,
+    onApplyPaste: () -> Unit,
     actionCardState: CellUniverseActionCardState,
     modifier: Modifier = Modifier,
 ) {
@@ -240,6 +246,8 @@ fun CellUniverseActionCard(
                                         onClearSelection = onClearSelection,
                                         onCopy = onCopy,
                                         onCut = onCut,
+                                        onPaste = onPaste,
+                                        onApplyPaste = onApplyPaste,
                                     )
                                 }
 
