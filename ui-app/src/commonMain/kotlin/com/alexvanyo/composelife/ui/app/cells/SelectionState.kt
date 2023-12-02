@@ -62,7 +62,9 @@ sealed interface SelectionState {
 
     @Serializable
     data class Selection(
+        @Serializable(with = UUIDSerializer::class) val editingSessionKey: UUID = UUID.randomUUID(),
         val cellState: CellState,
+        @Serializable(with = IntOffsetSerializer::class) val offset: IntOffset,
     ) : SelectionState
 
     companion object {

@@ -74,6 +74,8 @@ class ActionControlRowTests {
                 onClearSelection = {},
                 onCopy = {},
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
 
@@ -118,6 +120,8 @@ class ActionControlRowTests {
                 onClearSelection = {},
                 onCopy = {},
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
 
@@ -177,6 +181,8 @@ class ActionControlRowTests {
                 onClearSelection = {},
                 onCopy = {},
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
 
@@ -236,6 +242,8 @@ class ActionControlRowTests {
                 onClearSelection = {},
                 onCopy = {},
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
 
@@ -268,6 +276,8 @@ class ActionControlRowTests {
                 onClearSelection = {},
                 onCopy = {},
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
 
@@ -300,6 +310,8 @@ class ActionControlRowTests {
                 onClearSelection = {},
                 onCopy = {},
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
 
@@ -332,6 +344,8 @@ class ActionControlRowTests {
                 onClearSelection = {},
                 onCopy = {},
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
 
@@ -364,6 +378,8 @@ class ActionControlRowTests {
                 onClearSelection = {},
                 onCopy = {},
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
 
@@ -396,6 +412,8 @@ class ActionControlRowTests {
                 onClearSelection = {},
                 onCopy = {},
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
 
@@ -428,6 +446,8 @@ class ActionControlRowTests {
                 onClearSelection = {},
                 onCopy = {},
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
 
@@ -467,6 +487,8 @@ class ActionControlRowTests {
                 onClearSelection = { onClearSelectionCount++ },
                 onCopy = {},
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
 
@@ -506,6 +528,8 @@ class ActionControlRowTests {
                 onClearSelection = {},
                 onCopy = { onCopyCount++ },
                 onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
 
@@ -545,6 +569,8 @@ class ActionControlRowTests {
                 onClearSelection = {},
                 onCopy = {},
                 onCut = { onCutCount++ },
+                onPaste = {},
+                onApplyPaste = {},
             )
         }
 

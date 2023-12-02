@@ -78,6 +78,8 @@ fun InteractiveCellUniverseOverlay(
     windowSizeClass: WindowSizeClass,
     onCopy: () -> Unit,
     onCut: () -> Unit,
+    onPaste: () -> Unit,
+    onApplyPaste: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
@@ -132,6 +134,8 @@ fun InteractiveCellUniverseOverlay(
                 },
                 onCopy = onCopy,
                 onCut = onCut,
+                onPaste = onPaste,
+                onApplyPaste = onApplyPaste,
                 actionCardState = interactiveCellUniverseState.actionCardState,
                 modifier = Modifier
                     .layoutId(CellUniverseActionCard)

@@ -35,11 +35,13 @@ import me.tatarka.inject.annotations.Component
 actual abstract class TestComposeLifeUiComponent(
     @Component override val applicationComponent: TestComposeLifeApplicationComponent,
     activity: Activity,
-) : UiComponent<TestComposeLifeApplicationComponent, TestComposeLifeUiEntryPoint>(activity, applicationComponent) {
+) : UiComponent<TestComposeLifeApplicationComponent, TestComposeLifeUiEntryPoint>(activity, applicationComponent),
+    ClipboardCellStateParserProvider {
     actual override val entryPoint: TestComposeLifeUiEntryPoint get() =
         object :
             TestComposeLifeUiEntryPoint,
-            TestComposeLifeApplicationEntryPoint by applicationComponent.entryPoint {}
+            TestComposeLifeApplicationEntryPoint by applicationComponent.entryPoint,
+            ClipboardCellStateParserProvider by this {}
 
     actual companion object
 }

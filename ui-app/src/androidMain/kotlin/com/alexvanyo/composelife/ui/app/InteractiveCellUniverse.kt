@@ -28,6 +28,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -41,9 +42,14 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
+import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.model.CellStateFormat
 import com.alexvanyo.composelife.model.CellWindow
+import com.alexvanyo.composelife.model.DeserializationResult
+import com.alexvanyo.composelife.model.FlexibleCellStateSerializer
 import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.isRunning
@@ -61,14 +67,24 @@ import com.alexvanyo.composelife.ui.app.cells.rememberMutableCellWindowViewportS
 import com.alexvanyo.composelife.ui.app.cells.rememberTrackingCellWindowViewportState
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
+import com.alexvanyo.composelife.ui.app.resources.EmptyClipboard
+import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.util.ClipboardReader
 import com.alexvanyo.composelife.ui.util.PredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.PredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
-import com.alexvanyo.composelife.ui.util.rememberClipboardState
+import com.alexvanyo.composelife.ui.util.rememberClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.rememberPredictiveBackStateHolder
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import me.tatarka.inject.annotations.Inject
 import java.util.UUID
 
 interface InteractiveCellUniverseInjectEntryPoint :
+    ClipboardCellStateParserProvider,
+    ComposeLifeDispatchersProvider,
     InteractiveCellUniverseOverlayInjectEntryPoint
 
 interface InteractiveCellUniverseLocalEntryPoint :
@@ -80,7 +96,7 @@ interface InteractiveCellUniverseLocalEntryPoint :
  * evolves.
  */
 context(InteractiveCellUniverseInjectEntryPoint, InteractiveCellUniverseLocalEntryPoint)
-@Suppress("LongParameterList", "LongMethod")
+@Suppress("LongParameterList", "LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
@@ -118,27 +134,39 @@ fun InteractiveCellUniverse(
                                         temporalGameOfLifeState.setIsRunning(!temporalGameOfLifeState.isRunning)
                                         true
                                     }
+
                                     Key.A -> if (keyEvent.isCtrlPressed) {
                                         interactiveCellUniverseState.onSelectAll()
                                         true
                                     } else {
                                         false
                                     }
+
                                     Key.C -> if (keyEvent.isCtrlPressed) {
                                         interactiveCellUniverseState.onCopy()
                                         true
                                     } else {
                                         false
                                     }
+
+                                    Key.V -> if (keyEvent.isCtrlPressed) {
+                                        interactiveCellUniverseState.onPaste()
+                                        true
+                                    } else {
+                                        false
+                                    }
+
                                     Key.X -> if (keyEvent.isCtrlPressed) {
                                         interactiveCellUniverseState.onCut()
                                         true
                                     } else {
                                         false
                                     }
+
                                     else -> false
                                 }
                             }
+
                             else -> false
                         }
                     }
@@ -160,6 +188,8 @@ fun InteractiveCellUniverse(
             windowSizeClass = windowSizeClass,
             onCopy = interactiveCellUniverseState::onCopy,
             onCut = interactiveCellUniverseState::onCut,
+            onPaste = interactiveCellUniverseState::onPaste,
+            onApplyPaste = interactiveCellUniverseState::onApplyPaste,
         )
     }
 }
@@ -219,11 +249,22 @@ interface InteractiveCellUniverseState {
     fun onCut()
 
     /**
+     * Pastes the current selection (if any) from the system clipboard.
+     */
+    fun onPaste()
+
+    /**
+     * Applies the current paste, updating the cell state.
+     */
+    fun onApplyPaste()
+
+    /**
      * Selects the entire cell state.
      */
     fun onSelectAll()
 }
 
+context(ClipboardCellStateParserProvider, ComposeLifeDispatchersProvider)
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun rememberInteractiveCellUniverseState(
@@ -235,6 +276,8 @@ fun rememberInteractiveCellUniverseState(
     var selectionState by rememberSaveable(stateSaver = SelectionState.Saver) {
         mutableStateOf(SelectionState.NoSelection)
     }
+
+    val coroutineScope = rememberCoroutineScope()
 
     var isViewportTracking by rememberSaveable { mutableStateOf(false) }
 
@@ -323,7 +366,7 @@ fun rememberInteractiveCellUniverseState(
             }
         }
 
-    val clipboardState = rememberClipboardState()
+    val clipboardReaderWriter = rememberClipboardReaderWriter()
 
     return remember(
         temporalGameOfLifeState,
@@ -331,7 +374,9 @@ fun rememberInteractiveCellUniverseState(
         trackingCellWindowViewportState,
         infoCardState,
         actionCardState,
-        clipboardState,
+        clipboardReaderWriter,
+        clipboardCellStateParser,
+        coroutineScope,
     ) {
         object : InteractiveCellUniverseState {
             override var isViewportTracking: Boolean
@@ -426,11 +471,46 @@ fun rememberInteractiveCellUniverseState(
                                 CellState(aliveCells),
                             )
 
-                            clipboardState.clipData = ClipData.newPlainText(
-                                "Cell state",
-                                serializedCellState.joinToString("\n"),
+                            clipboardReaderWriter.setText(serializedCellState.joinToString("\n"))
+                        }
+                    }
+                }
+            }
+
+            override fun onPaste() {
+                coroutineScope.launch {
+                    when (val deserializationResult = clipboardCellStateParser.parseCellState(clipboardReaderWriter)) {
+                        is DeserializationResult.Successful -> {
+                            selectionState = SelectionState.Selection(
+                                cellState = deserializationResult.cellState,
+                                offset = IntOffset.Zero,
                             )
                         }
+                        is DeserializationResult.Unsuccessful -> {
+                            // TODO: Show error for unsuccessful pasting
+                        }
+                    }
+                }
+            }
+
+            override fun onApplyPaste() {
+                when (val currentSelectionState = selectionState) {
+                    SelectionState.NoSelection,
+                    is SelectionState.SelectingBox,
+                    -> Unit
+                    is SelectionState.Selection -> {
+                        val selectionCellState = currentSelectionState.cellState
+
+                        temporalGameOfLifeState.cellState = selectionCellState.aliveCells
+                            .fold(temporalGameOfLifeState.cellState) { cellState, offset ->
+                                cellState.withCell(
+                                    offset = offset +
+                                        currentSelectionState.offset -
+                                        selectionCellState.boundingBox.topLeft,
+                                    isAlive = true,
+                                )
+                            }
+                        selectionState = SelectionState.NoSelection
                     }
                 }
             }
@@ -449,3 +529,55 @@ fun rememberInteractiveCellUniverseState(
         }
     }
 }
+
+interface ClipboardCellStateParserProvider {
+    val clipboardCellStateParser: ClipboardCellStateParser
+}
+
+@Inject
+class ClipboardCellStateParser(
+    private val flexibleCellStateSerializer: FlexibleCellStateSerializer,
+) {
+
+    suspend fun parseCellState(clipboardStateReader: ClipboardReader): DeserializationResult {
+        val clipData = clipboardStateReader.getClipData()
+        val items = clipData?.items.orEmpty()
+        if (items.isEmpty()) {
+            return DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(Strings.EmptyClipboard),
+            )
+        }
+
+        return coroutineScope {
+            items
+                .map { clipDataItem ->
+                    async {
+                        flexibleCellStateSerializer.deserializeToCellState(
+                            format = CellStateFormat.Unknown,
+                            lines = clipboardStateReader.resolveToText(clipDataItem).lineSequence(),
+                        )
+                    }
+                }
+                .awaitAll()
+                .reduce { a, b ->
+                    when (a) {
+                        is DeserializationResult.Unsuccessful -> b
+                        is DeserializationResult.Successful -> {
+                            when (b) {
+                                is DeserializationResult.Successful -> if (a.warnings.isEmpty()) {
+                                    a
+                                } else {
+                                    b
+                                }
+
+                                is DeserializationResult.Unsuccessful -> a
+                            }
+                        }
+                    }
+                }
+        }
+    }
+}
+
+private val ClipData.items: List<ClipData.Item> get() = List(itemCount, ::getItemAt)
