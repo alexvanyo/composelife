@@ -39,6 +39,8 @@ import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.random.di.RandomProvider
+import com.alexvanyo.composelife.ui.app.ClipboardCellStateParser
+import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseLocalEntryPoint
@@ -131,6 +133,11 @@ internal fun WithPreviewDependencies(
     ),
     random: Random = Random(1),
     clock: Clock = Clock.System,
+    clipboardCellStateParser: ClipboardCellStateParser = ClipboardCellStateParser(
+        flexibleCellStateSerializer = FlexibleCellStateSerializer(
+            dispatchers = dispatchers,
+        ),
+    ),
     content: @Composable context(PreviewEntryPoint) () -> Unit,
 ) {
     val driver = AndroidSqliteDriver(
@@ -171,6 +178,9 @@ internal fun WithPreviewDependencies(
     val clockProvider = object : ClockProvider {
         override val clock = clock
     }
+    val clipboardCellStateParserProvider = object : ClipboardCellStateParserProvider {
+        override val clipboardCellStateParser = clipboardCellStateParser
+    }
 
     val entryPoint = object :
         PreviewEntryPoint,
@@ -180,7 +190,8 @@ internal fun WithPreviewDependencies(
         CellStateRepositoryProvider by cellStateRepositoryProvider,
         LoadedComposeLifePreferencesProvider by loadedPreferencesProvider,
         RandomProvider by randomProvider,
-        ClockProvider by clockProvider {}
+        ClockProvider by clockProvider,
+        ClipboardCellStateParserProvider by clipboardCellStateParserProvider {}
 
     content(entryPoint)
 }
