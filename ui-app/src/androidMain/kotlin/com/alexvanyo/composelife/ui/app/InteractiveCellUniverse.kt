@@ -17,7 +17,6 @@
 
 package com.alexvanyo.composelife.ui.app
 
-import android.content.ClipData
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,10 +45,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.model.CellState
-import com.alexvanyo.composelife.model.CellStateFormat
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.DeserializationResult
-import com.alexvanyo.composelife.model.FlexibleCellStateSerializer
 import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.isRunning
@@ -67,19 +64,12 @@ import com.alexvanyo.composelife.ui.app.cells.rememberMutableCellWindowViewportS
 import com.alexvanyo.composelife.ui.app.cells.rememberTrackingCellWindowViewportState
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
-import com.alexvanyo.composelife.ui.app.resources.EmptyClipboard
-import com.alexvanyo.composelife.ui.app.resources.Strings
-import com.alexvanyo.composelife.ui.util.ClipboardReader
 import com.alexvanyo.composelife.ui.util.PredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.PredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.rememberClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.rememberPredictiveBackStateHolder
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import me.tatarka.inject.annotations.Inject
 import java.util.UUID
 
 interface InteractiveCellUniverseInjectEntryPoint :
@@ -529,55 +519,3 @@ fun rememberInteractiveCellUniverseState(
         }
     }
 }
-
-interface ClipboardCellStateParserProvider {
-    val clipboardCellStateParser: ClipboardCellStateParser
-}
-
-@Inject
-class ClipboardCellStateParser(
-    private val flexibleCellStateSerializer: FlexibleCellStateSerializer,
-) {
-
-    suspend fun parseCellState(clipboardStateReader: ClipboardReader): DeserializationResult {
-        val clipData = clipboardStateReader.getClipData()
-        val items = clipData?.items.orEmpty()
-        if (items.isEmpty()) {
-            return DeserializationResult.Unsuccessful(
-                warnings = emptyList(),
-                errors = listOf(Strings.EmptyClipboard),
-            )
-        }
-
-        return coroutineScope {
-            items
-                .map { clipDataItem ->
-                    async {
-                        flexibleCellStateSerializer.deserializeToCellState(
-                            format = CellStateFormat.Unknown,
-                            lines = clipboardStateReader.resolveToText(clipDataItem).lineSequence(),
-                        )
-                    }
-                }
-                .awaitAll()
-                .reduce { a, b ->
-                    when (a) {
-                        is DeserializationResult.Unsuccessful -> b
-                        is DeserializationResult.Successful -> {
-                            when (b) {
-                                is DeserializationResult.Successful -> if (a.warnings.isEmpty()) {
-                                    a
-                                } else {
-                                    b
-                                }
-
-                                is DeserializationResult.Unsuccessful -> a
-                            }
-                        }
-                    }
-                }
-        }
-    }
-}
-
-private val ClipData.items: List<ClipData.Item> get() = List(itemCount, ::getItemAt)
