@@ -29,11 +29,28 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
-tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-        allWarningsAsErrors = true
+tasks {
+    validatePlugins {
+        enableStricterValidation = true
+        failOnWarning = true
     }
+
+    withType<KotlinCompile>().configureEach {
+        kotlinOptions {
+            jvmTarget = JavaVersion.VERSION_17.toString()
+            allWarningsAsErrors = true
+        }
+    }
+
+    withType<Detekt>().configureEach {
+        jvmTarget = JavaVersion.VERSION_17.toString()
+    }
+
+    getByName("check").configure(
+        closureOf<Task> {
+            dependsOn(withType<Detekt>())
+        },
+    )
 }
 
 detekt {
@@ -42,16 +59,6 @@ detekt {
     autoCorrect = System.getenv("CI") != "true"
     config.setFrom("$rootDir/../config/detekt.yml")
 }
-
-tasks.withType<Detekt>().configureEach {
-    jvmTarget = JavaVersion.VERSION_11.toString()
-}
-
-tasks.getByName("check").configure(
-    closureOf<Task> {
-        dependsOn(tasks.withType<Detekt>())
-    },
-)
 
 dependencies {
     implementation(libs.android.r8)
