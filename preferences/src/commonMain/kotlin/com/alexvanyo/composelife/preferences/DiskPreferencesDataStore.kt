@@ -39,7 +39,7 @@ typealias PreferencesCoroutineScope = CoroutineScope
 @Inject
 class DiskPreferencesDataStore(
     fileSystem: FileSystem,
-    path: PreferencesProtoPath,
+    path: Lazy<PreferencesProtoPath>,
     scope: PreferencesCoroutineScope,
 ) : PreferencesDataStore,
     DataStore<PreferencesProto> by DataStoreFactory.create(
@@ -59,7 +59,7 @@ class DiskPreferencesDataStore(
                 override suspend fun writeTo(t: PreferencesProto, sink: BufferedSink) =
                     PreferencesProto.ADAPTER.encode(sink, t)
             },
-            producePath = { path },
+            producePath = path::value,
         ),
         corruptionHandler = null,
         migrations = emptyList(),
