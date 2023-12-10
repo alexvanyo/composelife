@@ -35,7 +35,7 @@ class DefaultComposeLifePreferencesTests {
         val composelifePreferences = DefaultComposeLifePreferences(
             DiskPreferencesDataStore(
                 fileSystem = FakeFileSystem(),
-                path = "/preferences.pb".toPath(),
+                path = lazy { "/preferences.pb".toPath() },
                 scope = this,
             ),
         )
