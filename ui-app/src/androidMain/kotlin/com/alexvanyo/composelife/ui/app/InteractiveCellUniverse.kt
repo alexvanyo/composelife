@@ -118,7 +118,7 @@ fun InteractiveCellUniverse(
                 } else {
                     Modifier.onKeyEvent { keyEvent ->
                         when (keyEvent.type) {
-                            KeyEventType.KeyUp -> {
+                            KeyEventType.KeyDown -> {
                                 when (keyEvent.key) {
                                     Key.Spacebar -> {
                                         temporalGameOfLifeState.setIsRunning(!temporalGameOfLifeState.isRunning)

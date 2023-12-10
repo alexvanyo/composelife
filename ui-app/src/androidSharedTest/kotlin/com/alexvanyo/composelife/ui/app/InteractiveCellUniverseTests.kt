@@ -667,8 +667,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             .onRoot()
             .performKeyInput {
                 keyDown(Key.CtrlLeft)
-                pressKey(Key.C)
-                keyUp(Key.CtrlLeft)
+                keyDown(Key.C)
             }
 
         val clipData = clipboardReader.getClipData()
@@ -681,6 +680,13 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             """.trimIndent(),
             clipData.getItemAt(0).text,
         )
+
+        composeTestRule
+            .onRoot()
+            .performKeyInput {
+                keyUp(Key.CtrlLeft)
+                keyUp(Key.C)
+            }
     }
 
     private fun assertNodesAreAlive(cells: Set<IntOffset>) {
