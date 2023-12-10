@@ -26,8 +26,10 @@ import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 
 fun Project.configureTesting(
     commonExtension: CommonExtension<*, *, *, *, *>,
@@ -113,7 +115,11 @@ fun Project.configureAndroidTesting(
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
     extensions.configure<KotlinMultiplatformExtension> {
-        androidTarget()
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        androidTarget {
+            unitTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
+            instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
+        }
 
         sourceSets.configure(
             closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
