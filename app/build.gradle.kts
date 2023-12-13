@@ -49,6 +49,7 @@ kotlin {
                 implementation(projects.appCompatSync)
                 implementation(projects.injectScopes)
                 implementation(projects.resourcesApp)
+                implementation(projects.strictMode)
                 implementation(projects.uiApp)
                 implementation(libs.kotlinx.serialization.core)
                 implementation(libs.kotlinInject.runtime)

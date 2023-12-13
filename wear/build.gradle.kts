@@ -45,6 +45,7 @@ kotlin {
             dependencies {
                 implementation(projects.injectScopes)
                 implementation(projects.processLifecycle)
+                implementation(projects.strictMode)
                 implementation(projects.wearWatchface)
 
                 implementation(libs.kotlinx.coroutines.core)

@@ -17,13 +17,12 @@
 package com.alexvanyo.composelife.wear
 
 import android.app.Application
-import android.content.pm.ApplicationInfo
-import android.os.StrictMode
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
 import com.alexvanyo.composelife.scopes.UiComponentArguments
+import com.alexvanyo.composelife.strictmode.initStrictModeIfNeeded
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
@@ -37,15 +36,7 @@ class ComposeLifeApplication : Application(), ApplicationComponentOwner {
     override fun onCreate() {
         super.onCreate()
 
-        if (isDebuggable) {
-            StrictMode.setThreadPolicy(
-                StrictMode.ThreadPolicy.Builder()
-                    .detectAll()
-                    .penaltyLog()
-                    .penaltyDeath()
-                    .build(),
-            )
-        }
+        initStrictModeIfNeeded()
 
         applicationComponent = ComposeLifeApplicationComponent::class.create(this)
 
@@ -67,6 +58,3 @@ class ComposeLifeApplication : Application(), ApplicationComponentOwner {
         }
     }
 }
-
-private val Application.isDebuggable get() =
-    applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
