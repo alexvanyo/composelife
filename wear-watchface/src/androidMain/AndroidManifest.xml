@@ -62,6 +62,10 @@
                 android:name="com.google.android.wearable.watchface.companionBuiltinConfigurationEnabled"
                 android:value="true" />
 
+            <meta-data
+                android:name="androidx.wear.watchface.MULTIPLE_INSTANCES_ALLOWED"
+                android:value="true" />
+
         </service>
     </application>
 </manifest>
