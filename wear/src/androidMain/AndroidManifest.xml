@@ -43,6 +43,11 @@
             android:shell="true"
             tools:targetApi="29" />
 
+        <activity
+            android:name="androidx.compose.ui.tooling.PreviewActivity"
+            tools:node="remove"
+            tools:ignore="WearRecents,MissingClass" />
+
     </application>
 
 </manifest>

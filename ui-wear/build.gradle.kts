@@ -46,6 +46,7 @@ kotlin {
                 implementation(projects.resourceState)
                 implementation(projects.resourcesWear)
                 api(projects.updatable)
+                implementation(projects.uiToolingPreview)
 
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.coroutines.core)
@@ -57,7 +58,6 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.compose.foundation)
                 implementation(libs.androidx.compose.runtime)
-                implementation(libs.androidx.compose.uiToolingPreview)
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.wear.compose.foundation)
                 implementation(libs.androidx.wear.compose.material)
