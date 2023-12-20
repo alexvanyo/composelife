@@ -18,6 +18,7 @@
 
 package com.alexvanyo.composelife.ui.util
 
+import androidx.activity.BackEventCompat
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,7 +41,17 @@ actual fun PredictiveBackHandler(
         PredictiveBackHandler(enabled = enabled) { progress ->
             try {
                 progress.collect { backEvent ->
-                    predictiveBackStateHolder.value = PredictiveBackState.Running(backEvent.progress)
+                    backEvent.swipeEdge
+                    predictiveBackStateHolder.value = PredictiveBackState.Running(
+                        backEvent.touchX,
+                        backEvent.touchY,
+                        backEvent.progress,
+                        when (backEvent.swipeEdge) {
+                            BackEventCompat.EDGE_LEFT -> SwipeEdge.Left
+                            BackEventCompat.EDGE_RIGHT -> SwipeEdge.Right
+                            else -> error("Unknown swipe edge")
+                        },
+                    )
                 }
                 currentOnBack()
             } finally {

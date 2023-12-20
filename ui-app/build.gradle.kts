@@ -57,6 +57,7 @@ kotlin {
                 implementation(projects.resourceState)
                 implementation(projects.snapshotStateSet)
                 implementation(projects.uiCommon)
+                implementation(projects.uiToolingPreview)
 
                 implementation(libs.jetbrains.compose.material3)
                 implementation(libs.jetbrains.compose.materialIconsExtended)
@@ -89,7 +90,6 @@ kotlin {
                 implementation(libs.androidx.compose.uiUtil)
                 implementation(libs.androidx.poolingContainer)
                 implementation(libs.androidx.compose.uiTooling)
-                implementation(libs.androidx.compose.uiToolingPreview)
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.lifecycle.runtime)
                 implementation(libs.androidx.window)

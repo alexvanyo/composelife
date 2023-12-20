@@ -37,8 +37,16 @@ sealed interface PredictiveBackState {
      * There is an ongoing predictive back animation, with the given [progress].
      */
     data class Running(
+        val touchX: Float,
+        val touchY: Float,
         val progress: Float,
+        val swipeEdge: SwipeEdge,
     ) : PredictiveBackState
+}
+
+sealed interface SwipeEdge {
+    data object Left : SwipeEdge
+    data object Right : SwipeEdge
 }
 
 @Composable
