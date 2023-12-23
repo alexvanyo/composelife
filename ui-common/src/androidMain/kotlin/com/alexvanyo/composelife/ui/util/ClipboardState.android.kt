@@ -22,14 +22,18 @@ import android.os.Build
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.getSystemService
+import androidx.lifecycle.compose.LifecycleStartEffect
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.ui.common.R
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 @Stable
 actual interface ClipboardReader {
@@ -51,15 +55,25 @@ actual fun rememberClipboardReader(): ClipboardReader {
     val context = LocalContext.current
     val clipboardManager = remember(context) { requireNotNull(context.getSystemService<ClipboardManager>()) }
 
-    val clipData by produceState(clipboardManager.primaryClip) {
+    var keyToReadClipData by remember(clipboardManager) { mutableStateOf(UUID.randomUUID()) }
+
+    LifecycleStartEffect(clipboardManager) {
+        keyToReadClipData = UUID.randomUUID()
         val listener = ClipboardManager.OnPrimaryClipChangedListener {
-            value = clipboardManager.primaryClip
+            keyToReadClipData = UUID.randomUUID()
         }
         clipboardManager.addPrimaryClipChangedListener(listener)
-        awaitDispose {
+        onStopOrDispose {
             clipboardManager.removePrimaryClipChangedListener(listener)
         }
     }
+
+    val clipData by remember(keyToReadClipData) {
+        // Avoid reading clipboard immediately, and instead read it lazily via derivedStateOf
+        // This avoids reading from clipboard until the clip data is used
+        derivedStateOf { clipboardManager.primaryClip }
+    }
+
     return remember(dispatchers) {
         object : ClipboardReader {
             override fun getClipData(): ClipData? = clipData
