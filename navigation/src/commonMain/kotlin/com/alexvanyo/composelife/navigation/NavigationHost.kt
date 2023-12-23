@@ -108,7 +108,10 @@ fun <T : NavigationEntry, S : NavigationState<T>> NavigationHost(
 
     LaunchedEffect(keySet) {
         // Remove the state for a given key if it doesn't correspond to an entry in the backstack map
-        (allKeys - keySet).forEach(stateHolder::removeState)
+        (allKeys - keySet).forEach { entryToRemove ->
+            stateHolder.removeState(entryToRemove)
+            allKeys.remove(entryToRemove)
+        }
         // Keep track of the ids we've seen, to know which ones we may need to clear out later.
         allKeys.addAll(keySet)
     }
