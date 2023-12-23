@@ -44,9 +44,9 @@ import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.InjectTestActivity
+import com.alexvanyo.composelife.ui.app.ComposeLifeNavigation
 import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
-import com.alexvanyo.composelife.ui.app.action.ActionCardNavigation
 import com.alexvanyo.composelife.ui.app.create
 import com.google.accompanist.testharness.TestHarness
 import leakcanary.SkipLeakDetection
@@ -74,7 +74,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun show_list_screen_is_displayed_correctly_with_compact_width() = runAppTest {
-        val fullscreen = ActionCardNavigation.FullscreenSettings(
+        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
             initialShowDetails = false,
             initialSettingToScrollTo = null,
@@ -92,7 +92,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
-                                fullscreen = fullscreen,
+                                navEntryValue = navEntryValue,
                                 onBackButtonPressed = {
                                     onBackButtonPressedCount++
                                 },
@@ -140,7 +140,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun show_list_screen_is_displayed_correctly_with_medium_width() = runAppTest {
-        val fullscreen = ActionCardNavigation.FullscreenSettings(
+        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
             initialShowDetails = false,
             initialSettingToScrollTo = null,
@@ -158,7 +158,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
-                                fullscreen = fullscreen,
+                                navEntryValue = navEntryValue,
                                 onBackButtonPressed = {
                                     onBackButtonPressedCount++
                                 },
@@ -210,7 +210,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
     @Test
     @SkipLeakDetection("appliedChanges", "Outer", "Inner")
     fun show_detail_screen_is_displayed_correctly_with_compact_width() = runAppTest {
-        val fullscreen = ActionCardNavigation.FullscreenSettings(
+        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
             initialShowDetails = true,
             initialSettingToScrollTo = null,
@@ -228,7 +228,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
-                                fullscreen = fullscreen,
+                                navEntryValue = navEntryValue,
                                 onBackButtonPressed = {
                                     onBackButtonPressedCount++
                                 },
@@ -257,14 +257,14 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
             .assertHasClickAction()
             .performClick()
 
-        assertFalse(fullscreen.showDetails)
+        assertFalse(navEntryValue.showDetails)
         assertEquals(0, onBackButtonPressedCount)
     }
 
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun show_detail_screen_is_displayed_correctly_with_medium_width() = runAppTest {
-        val fullscreen = ActionCardNavigation.FullscreenSettings(
+        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
             initialShowDetails = true,
             initialSettingToScrollTo = null,
@@ -282,7 +282,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
-                                fullscreen = fullscreen,
+                                navEntryValue = navEntryValue,
                                 onBackButtonPressed = {
                                     onBackButtonPressedCount++
                                 },
@@ -328,7 +328,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun click_on_detail_is_displayed_correctly_with_compact_width() = runAppTest {
-        val fullscreen = ActionCardNavigation.FullscreenSettings(
+        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
             initialShowDetails = false,
             initialSettingToScrollTo = null,
@@ -345,7 +345,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
-                                fullscreen = fullscreen,
+                                navEntryValue = navEntryValue,
                                 onBackButtonPressed = {},
                             )
                         }
@@ -376,7 +376,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun click_on_detail_is_displayed_correctly_with_medium_width() = runAppTest {
-        val fullscreen = ActionCardNavigation.FullscreenSettings(
+        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
             initialShowDetails = false,
             initialSettingToScrollTo = null,
@@ -393,7 +393,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
-                                fullscreen = fullscreen,
+                                navEntryValue = navEntryValue,
                                 onBackButtonPressed = {},
                             )
                         }
@@ -437,7 +437,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun no_detail_to_scroll_to_is_displayed_correctly() = runAppTest {
-        val fullscreen = ActionCardNavigation.FullscreenSettings(
+        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Visual,
             initialShowDetails = true,
             initialSettingToScrollTo = null,
@@ -454,7 +454,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
-                                fullscreen = fullscreen,
+                                navEntryValue = navEntryValue,
                                 onBackButtonPressed = {},
                             )
                         }
@@ -484,7 +484,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun detail_to_scroll_to_is_displayed_correctly() = runAppTest {
-        val fullscreen = ActionCardNavigation.FullscreenSettings(
+        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Visual,
             initialShowDetails = true,
             initialSettingToScrollTo = Setting.CellShapeConfig,
@@ -501,7 +501,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
-                                fullscreen = fullscreen,
+                                navEntryValue = navEntryValue,
                                 onBackButtonPressed = {},
                             )
                         }
@@ -512,7 +512,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
 
         composeTestRule.waitForIdle()
 
-        assertNull(fullscreen.settingToScrollTo)
+        assertNull(navEntryValue.settingToScrollTo)
 
         composeTestRule
             .onNode(
@@ -536,7 +536,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun reducing_size_keeps_selected_detail() = runAppTest {
-        val fullscreen = ActionCardNavigation.FullscreenSettings(
+        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
             initialShowDetails = false,
             initialSettingToScrollTo = null,
@@ -554,7 +554,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
-                                fullscreen = fullscreen,
+                                navEntryValue = navEntryValue,
                                 onBackButtonPressed = {},
                             )
                         }
@@ -581,7 +581,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun expanding_size_keeps_selected_detail() = runAppTest {
-        val fullscreen = ActionCardNavigation.FullscreenSettings(
+        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
             initialSettingsCategory = SettingsCategory.Algorithm,
             initialShowDetails = false,
             initialSettingToScrollTo = null,
@@ -599,7 +599,7 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         with(fullscreenSettingsScreenLocalEntryPoint) {
                             FullscreenSettingsScreen(
                                 windowSizeClass = windowSizeClass,
-                                fullscreen = fullscreen,
+                                navEntryValue = navEntryValue,
                                 onBackButtonPressed = {},
                             )
                         }

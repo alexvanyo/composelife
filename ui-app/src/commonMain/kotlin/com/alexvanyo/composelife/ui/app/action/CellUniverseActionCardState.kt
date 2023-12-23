@@ -27,14 +27,9 @@ import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.canNavigateBack
-import com.alexvanyo.composelife.navigation.currentEntry
-import com.alexvanyo.composelife.navigation.navigate
 import com.alexvanyo.composelife.navigation.popBackstack
-import com.alexvanyo.composelife.navigation.previousEntry
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
-import com.alexvanyo.composelife.ui.app.action.settings.Setting
-import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.util.PredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.PredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
@@ -57,21 +52,9 @@ interface CellUniverseActionCardState {
     val expandedTargetState: TargetState<Boolean>
 
     /**
-     * The [TargetState] for whether the card is fullscreen.
-     */
-    val fullscreenTargetState: TargetState<Boolean>
-
-    val navigationState: BackstackState<out ActionCardNavigation>
-
-    /**
      * The inline navigation state of the card.
      */
     val inlineNavigationState: BackstackState<out InlineActionCardNavigation>
-
-    /**
-     * The [PredictiveBackState] for the outer navigation of the [CellUniverseActionCard].
-     */
-    val predictiveBackState: PredictiveBackState
 
     /**
      * The [PredictiveBackState] for the inline navigation of the [CellUniverseActionCard].
@@ -89,15 +72,6 @@ interface CellUniverseActionCardState {
 
     fun onSettingsClicked(actorBackstackEntryId: UUID? = null)
 
-    fun onSeeMoreSettingsClicked(actorBackstackEntryId: UUID? = null)
-
-    fun onOpenInSettingsClicked(
-        setting: Setting,
-        actorBackstackEntryId: UUID? = null,
-    )
-
-    fun onBackPressed(actorBackstackEntryId: UUID? = null)
-
     fun inlineOnBackPressed(inlineActorBackstackEntryId: UUID? = null)
 }
 
@@ -111,16 +85,6 @@ fun rememberCellUniverseActionCardState(
     setIsExpanded: (Boolean) -> Unit,
     expandedTargetState: TargetState<Boolean>,
 ): CellUniverseActionCardState {
-    val navController = rememberMutableBackstackNavigationController(
-        initialBackstackEntries = listOf(
-            BackstackEntry(
-                value = ActionCardNavigation.Inline,
-                previous = null,
-            ),
-        ),
-        backstackValueSaverFactory = ActionCardNavigation.SaverFactory,
-    )
-
     var currentInlineBackstack: InlineActionCardBackstack by rememberSaveable(
         stateSaver = InlineActionCardBackstack.Saver,
     ) {
@@ -167,13 +131,7 @@ fun rememberCellUniverseActionCardState(
         }
     }
 
-    val canOuterNavigateBack by remember {
-        derivedStateOf {
-            navController.canNavigateBack
-        }
-    }
-
-    val canInnerNavigateBack by remember {
+    val canNavigateBack by remember {
         derivedStateOf {
             currentInlineNavController.canNavigateBack || when (currentInlineBackstack) {
                 InlineActionCardBackstack.Speed -> false
@@ -182,10 +140,6 @@ fun rememberCellUniverseActionCardState(
                 -> true
             }
         }
-    }
-
-    val canNavigateBack by remember {
-        derivedStateOf { canOuterNavigateBack || canInnerNavigateBack }
     }
 
     val inlineNavigationState = remember {
@@ -212,15 +166,7 @@ fun rememberCellUniverseActionCardState(
         }
     }
 
-    val onBackPressed = { actorBackstackEntryId: UUID? ->
-        navController.withExpectedActor(actorBackstackEntryId) {
-            if (navController.canNavigateBack) {
-                navController.popBackstack()
-            }
-        }
-    }
-
-    val inlineOnBackPressed = { inlineActorBackstackEntryId: UUID? ->
+    val onBackPressed = { inlineActorBackstackEntryId: UUID? ->
         currentInlineNavController.withExpectedActor(inlineActorBackstackEntryId) {
             if (currentInlineNavController.canNavigateBack) {
                 currentInlineNavController.popBackstack()
@@ -229,23 +175,13 @@ fun rememberCellUniverseActionCardState(
             }
         }
     }
-    val predictiveBackStateHolder = rememberPredictiveBackStateHolder()
-    PredictiveBackHandler(
-        predictiveBackStateHolder = predictiveBackStateHolder,
-        enabled = enableBackHandler && expandedTargetState.current && canOuterNavigateBack,
-    ) {
-        onBackPressed(navController.currentEntryId)
-    }
 
     val inlinePredictiveBackStateHolder = rememberPredictiveBackStateHolder()
     PredictiveBackHandler(
         predictiveBackStateHolder = inlinePredictiveBackStateHolder,
-        enabled = enableBackHandler &&
-            expandedTargetState.current &&
-            navController.currentEntry.value == ActionCardNavigation.Inline &&
-            canInnerNavigateBack,
+        enabled = enableBackHandler && expandedTargetState.current && canNavigateBack,
     ) {
-        inlineOnBackPressed(inlineNavigationState.currentEntryId)
+        onBackPressed(inlineNavigationState.currentEntryId)
     }
 
     return object : CellUniverseActionCardState {
@@ -257,38 +193,11 @@ fun rememberCellUniverseActionCardState(
         override val expandedTargetState: TargetState<Boolean>
             get() = expandedTargetState
 
-        override val navigationState get() = navController
-
         override val inlineNavigationState get() = inlineNavigationState
-
-        override val predictiveBackState get() = predictiveBackStateHolder.value
 
         override val inlinePredictiveBackState get() = inlinePredictiveBackStateHolder.value
 
         override val canNavigateBack: Boolean get() = canNavigateBack
-
-        override val fullscreenTargetState: TargetState<Boolean> get() =
-            when (val currentPredictiveBackState = predictiveBackState) {
-                PredictiveBackState.NotRunning ->
-                    TargetState.Single(
-                        this.expandedTargetState.current && navigationState.currentEntry.value.isFullscreen,
-                    )
-                is PredictiveBackState.Running ->
-                    if (this.expandedTargetState.current) {
-                        val currentIsFullscreen = navigationState.currentEntry.value.isFullscreen
-                        when (val previousIsFullscreen = navigationState.previousEntry?.value?.isFullscreen) {
-                            null -> TargetState.Single(currentIsFullscreen)
-                            currentIsFullscreen -> TargetState.Single(currentIsFullscreen)
-                            else -> TargetState.InProgress(
-                                current = currentIsFullscreen,
-                                provisional = previousIsFullscreen,
-                                progress = currentPredictiveBackState.progress,
-                            )
-                        }
-                    } else {
-                        TargetState.Single(false)
-                    }
-            }
 
         override fun onSpeedClicked(actorBackstackEntryId: UUID?) {
             currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
@@ -306,36 +215,6 @@ fun rememberCellUniverseActionCardState(
             currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
                 currentInlineBackstack = InlineActionCardBackstack.Settings
             }
-        }
-
-        override fun onSeeMoreSettingsClicked(actorBackstackEntryId: UUID?) {
-            currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
-                check(this === settingsNavController)
-                navController.navigate(
-                    ActionCardNavigation.FullscreenSettings(
-                        initialSettingsCategory = SettingsCategory.Algorithm,
-                        initialShowDetails = false,
-                        initialSettingToScrollTo = null,
-                    ),
-                )
-            }
-        }
-
-        override fun onOpenInSettingsClicked(setting: Setting, actorBackstackEntryId: UUID?) {
-            currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
-                check(this === settingsNavController)
-                navController.navigate(
-                    ActionCardNavigation.FullscreenSettings(
-                        initialSettingsCategory = setting.category,
-                        initialShowDetails = true,
-                        initialSettingToScrollTo = setting,
-                    ),
-                )
-            }
-        }
-
-        override fun onBackPressed(actorBackstackEntryId: UUID?) {
-            onBackPressed(actorBackstackEntryId)
         }
 
         override fun inlineOnBackPressed(inlineActorBackstackEntryId: UUID?) {

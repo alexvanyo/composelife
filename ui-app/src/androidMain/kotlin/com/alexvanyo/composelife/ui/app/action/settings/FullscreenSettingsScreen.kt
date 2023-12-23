@@ -107,8 +107,8 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.ui.app.ComposeLifeNavigation
 import com.alexvanyo.composelife.ui.app.R
-import com.alexvanyo.composelife.ui.app.action.ActionCardNavigation
 import com.alexvanyo.composelife.ui.app.component.PlainTooltipBox
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
@@ -135,7 +135,7 @@ context(FullscreenSettingsScreenInjectEntryPoint, FullscreenSettingsScreenLocalE
 @Composable
 fun FullscreenSettingsScreen(
     windowSizeClass: WindowSizeClass,
-    fullscreen: ActionCardNavigation.FullscreenSettings,
+    navEntryValue: ComposeLifeNavigation.FullscreenSettings,
     onBackButtonPressed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -148,13 +148,13 @@ fun FullscreenSettingsScreen(
 
     fun showList() =
         when (currentWindowSizeClass.widthSizeClass) {
-            WindowWidthSizeClass.Compact -> !fullscreen.showDetails
+            WindowWidthSizeClass.Compact -> !navEntryValue.showDetails
             else -> true
         }
 
     fun showDetail() =
         when (currentWindowSizeClass.widthSizeClass) {
-            WindowWidthSizeClass.Compact -> fullscreen.showDetails
+            WindowWidthSizeClass.Compact -> navEntryValue.showDetails
             else -> true
         }
 
@@ -165,18 +165,18 @@ fun FullscreenSettingsScreen(
         predictiveBackStateHolder = predictiveBackStateHolder,
         enabled = showDetail() && !showList(),
     ) {
-        fullscreen.showDetails = false
+        navEntryValue.showDetails = false
     }
 
-    val listContent = remember(fullscreen) {
+    val listContent = remember(navEntryValue) {
         movableContentOf {
             SettingsCategoryList(
-                currentSettingsCategory = fullscreen.settingsCategory,
+                currentSettingsCategory = navEntryValue.settingsCategory,
                 showSelectedSettingsCategory = showListAndDetail(),
                 listScrollState = listScrollState,
                 setSettingsCategory = {
-                    fullscreen.settingsCategory = it
-                    fullscreen.showDetails = true
+                    navEntryValue.settingsCategory = it
+                    navEntryValue.showDetails = true
                 },
                 showFloatingAppBar = showListAndDetail(),
                 onBackButtonPressed = onBackButtonPressed,
@@ -185,7 +185,7 @@ fun FullscreenSettingsScreen(
         }
     }
 
-    val detailContent = remember(fullscreen) {
+    val detailContent = remember(navEntryValue) {
         movableContentOf { settingsCategory: SettingsCategory ->
             val detailScrollState = detailScrollStates.getValue(settingsCategory)
 
@@ -193,9 +193,9 @@ fun FullscreenSettingsScreen(
                 settingsCategory = settingsCategory,
                 detailScrollState = detailScrollState,
                 showAppBar = !showListAndDetail(),
-                onBackButtonPressed = { fullscreen.showDetails = false },
-                settingToScrollTo = fullscreen.settingToScrollTo,
-                onFinishedScrollingToSetting = { fullscreen.onFinishedScrollingToSetting() },
+                onBackButtonPressed = { navEntryValue.showDetails = false },
+                settingToScrollTo = navEntryValue.settingToScrollTo,
+                onFinishedScrollingToSetting = { navEntryValue.onFinishedScrollingToSetting() },
                 modifier = Modifier.fillMaxSize(),
             )
         }
@@ -263,7 +263,9 @@ fun FullscreenSettingsScreen(
                             .weight(1f)
                             .consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical)),
                     ) {
-                        Crossfade(targetState = TargetState.Single(fullscreen.settingsCategory)) { settingsCategory ->
+                        Crossfade(
+                            targetState = TargetState.Single(navEntryValue.settingsCategory),
+                        ) { settingsCategory ->
                             detailContent(settingsCategory)
                         }
                     }
@@ -400,7 +402,7 @@ fun FullscreenSettingsScreen(
             if (showList) {
                 listContent()
             } else {
-                detailContent(fullscreen.settingsCategory)
+                detailContent(navEntryValue.settingsCategory)
             }
         }
     }
@@ -758,7 +760,7 @@ fun FullscreenSettingsScreenListPreview() {
                 Surface {
                     FullscreenSettingsScreen(
                         windowSizeClass = WindowSizeClass.calculateFromSize(size),
-                        fullscreen = ActionCardNavigation.FullscreenSettings(
+                        navEntryValue = ComposeLifeNavigation.FullscreenSettings(
                             initialSettingsCategory = SettingsCategory.Algorithm,
                             initialShowDetails = false,
                             initialSettingToScrollTo = null,
@@ -783,7 +785,7 @@ fun FullscreenSettingsScreenAlgorithmPreview() {
                 Surface {
                     FullscreenSettingsScreen(
                         windowSizeClass = WindowSizeClass.calculateFromSize(size),
-                        fullscreen = ActionCardNavigation.FullscreenSettings(
+                        navEntryValue = ComposeLifeNavigation.FullscreenSettings(
                             initialSettingsCategory = SettingsCategory.Algorithm,
                             initialShowDetails = true,
                             initialSettingToScrollTo = null,
@@ -808,7 +810,7 @@ fun FullscreenSettingsScreenVisualPreview() {
                 Surface {
                     FullscreenSettingsScreen(
                         windowSizeClass = WindowSizeClass.calculateFromSize(size),
-                        fullscreen = ActionCardNavigation.FullscreenSettings(
+                        navEntryValue = ComposeLifeNavigation.FullscreenSettings(
                             initialSettingsCategory = SettingsCategory.Visual,
                             initialShowDetails = true,
                             initialSettingToScrollTo = null,
@@ -833,7 +835,7 @@ fun FullscreenSettingsScreenFeatureFlagsPreview() {
                 Surface {
                     FullscreenSettingsScreen(
                         windowSizeClass = WindowSizeClass.calculateFromSize(size),
-                        fullscreen = ActionCardNavigation.FullscreenSettings(
+                        navEntryValue = ComposeLifeNavigation.FullscreenSettings(
                             initialSettingsCategory = SettingsCategory.FeatureFlags,
                             initialShowDetails = true,
                             initialSettingToScrollTo = null,
