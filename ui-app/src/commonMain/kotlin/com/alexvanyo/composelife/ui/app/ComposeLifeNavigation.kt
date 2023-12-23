@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.app.action
+package com.alexvanyo.composelife.ui.app
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -22,6 +22,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
+import com.alexvanyo.composelife.data.model.SaveableCellState
+import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackValueSaverFactory
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
@@ -30,28 +32,26 @@ import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
 
 @Stable
-sealed interface ActionCardNavigation {
+sealed interface ComposeLifeNavigation {
     /**
      * The type of the destination.
      */
-    val type: ActionCardNavigationType
+    val type: ComposeLifeNavigationType
 
-    /**
-     * True if this destination represents a fullscreen destination.
-     */
-    val isFullscreen: Boolean
+    class CellUniverse : ComposeLifeNavigation {
 
-    data object Inline : ActionCardNavigation {
+        var initialSaveableCellState: SaveableCellState? by mutableStateOf(null)
+
+        var temporalGameOfLifeState: TemporalGameOfLifeState? by mutableStateOf(null)
 
         override val type = Companion
-        override val isFullscreen: Boolean = false
 
-        object Companion : ActionCardNavigationType {
+        companion object : ComposeLifeNavigationType {
             override fun saverFactory(
-                previous: BackstackEntry<ActionCardNavigation>?,
-            ): Saver<Inline, Any> = Saver(
+                previous: BackstackEntry<ComposeLifeNavigation>?,
+            ): Saver<CellUniverse, Any> = Saver(
                 save = { 0 },
-                restore = { Inline },
+                restore = { CellUniverse() },
             )
         }
     }
@@ -60,7 +60,7 @@ sealed interface ActionCardNavigation {
         initialSettingsCategory: SettingsCategory,
         initialShowDetails: Boolean,
         initialSettingToScrollTo: Setting?,
-    ) : ActionCardNavigation {
+    ) : ComposeLifeNavigation {
         /**
          * The currently selected settings category.
          */
@@ -85,12 +85,11 @@ sealed interface ActionCardNavigation {
         }
 
         override val type = Companion
-        override val isFullscreen: Boolean = true
 
-        companion object : ActionCardNavigationType {
+        companion object : ComposeLifeNavigationType {
             @Suppress("UnsafeCallOnNullableType")
             override fun saverFactory(
-                previous: BackstackEntry<ActionCardNavigation>?,
+                previous: BackstackEntry<ComposeLifeNavigation>?,
             ): Saver<FullscreenSettings, Any> =
                 listSaver(
                     save = { fullscreen ->
@@ -113,26 +112,26 @@ sealed interface ActionCardNavigation {
 
     companion object {
         @Suppress("UnsafeCallOnNullableType")
-        val SaverFactory: BackstackValueSaverFactory<ActionCardNavigation> = BackstackValueSaverFactory { previous ->
+        val SaverFactory: BackstackValueSaverFactory<ComposeLifeNavigation> = BackstackValueSaverFactory { previous ->
             listSaver(
-                save = { actionCardNavigation ->
+                save = { composeLifeNavigation ->
                     listOf(
-                        with(ActionCardNavigationType.Saver) { save(actionCardNavigation.type) },
-                        when (actionCardNavigation) {
-                            is Inline ->
-                                with(actionCardNavigation.type.saverFactory(previous)) {
-                                    save(actionCardNavigation)
+                        with(ComposeLifeNavigationType.Saver) { save(composeLifeNavigation.type) },
+                        when (composeLifeNavigation) {
+                            is CellUniverse ->
+                                with(composeLifeNavigation.type.saverFactory(previous)) {
+                                    save(composeLifeNavigation)
                                 }
 
                             is FullscreenSettings ->
-                                with(actionCardNavigation.type.saverFactory(previous)) {
-                                    save(actionCardNavigation)
+                                with(composeLifeNavigation.type.saverFactory(previous)) {
+                                    save(composeLifeNavigation)
                                 }
                         },
                     )
                 },
                 restore = { list ->
-                    val type = ActionCardNavigationType.Saver.restore(list[0] as Int)!!
+                    val type = ComposeLifeNavigationType.Saver.restore(list[0] as Int)!!
                     type.saverFactory(previous).restore(list[1]!!)
                 },
             )
@@ -141,13 +140,13 @@ sealed interface ActionCardNavigation {
 }
 
 /**
- * The type for each [ActionCardNavigation].
+ * The type for each [ComposeLifeNavigation].
  *
  * These classes must be objects, since they need to statically be able to save and restore concrete
- * [ActionCardNavigation] types.
+ * [ComposeLifeNavigation] types.
  */
-sealed interface ActionCardNavigationType {
-    fun saverFactory(previous: BackstackEntry<ActionCardNavigation>?): Saver<out ActionCardNavigation, Any>
+sealed interface ComposeLifeNavigationType {
+    fun saverFactory(previous: BackstackEntry<ComposeLifeNavigation>?): Saver<out ComposeLifeNavigation, Any>
 
     @GenSealedEnum
     companion object {

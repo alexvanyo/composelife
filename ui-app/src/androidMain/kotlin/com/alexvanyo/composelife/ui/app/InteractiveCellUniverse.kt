@@ -52,6 +52,7 @@ import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.isRunning
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardState
 import com.alexvanyo.composelife.ui.app.action.rememberCellUniverseActionCardState
+import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.MutableCellWindow
@@ -91,6 +92,8 @@ context(InteractiveCellUniverseInjectEntryPoint, InteractiveCellUniverseLocalEnt
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     windowSizeClass: WindowSizeClass,
+    onSeeMoreSettingsClicked: () -> Unit,
+    onOpenInSettingsClicked: (setting: Setting) -> Unit,
     modifier: Modifier = Modifier,
     interactiveCellUniverseState: InteractiveCellUniverseState =
         rememberInteractiveCellUniverseState(temporalGameOfLifeState),
@@ -112,64 +115,56 @@ fun InteractiveCellUniverse(
                 hasFocus = it.hasFocus
             }
             .focusable()
-            .then(
-                if (interactiveCellUniverseState.isOverlayShowingFullscreen) {
-                    Modifier
-                } else {
-                    Modifier.onKeyEvent { keyEvent ->
-                        when (keyEvent.type) {
-                            KeyEventType.KeyDown -> {
-                                when (keyEvent.key) {
-                                    Key.Spacebar -> {
-                                        temporalGameOfLifeState.setIsRunning(!temporalGameOfLifeState.isRunning)
-                                        true
-                                    }
+            .onKeyEvent { keyEvent ->
+                when (keyEvent.type) {
+                    KeyEventType.KeyDown -> {
+                        when (keyEvent.key) {
+                            Key.Spacebar -> {
+                                temporalGameOfLifeState.setIsRunning(!temporalGameOfLifeState.isRunning)
+                                true
+                            }
 
-                                    Key.A -> if (keyEvent.isCtrlPressed) {
-                                        interactiveCellUniverseState.onSelectAll()
-                                        true
-                                    } else {
-                                        false
-                                    }
+                            Key.A -> if (keyEvent.isCtrlPressed) {
+                                interactiveCellUniverseState.onSelectAll()
+                                true
+                            } else {
+                                false
+                            }
 
-                                    Key.C -> if (keyEvent.isCtrlPressed) {
-                                        interactiveCellUniverseState.onCopy()
-                                        true
-                                    } else {
-                                        false
-                                    }
+                            Key.C -> if (keyEvent.isCtrlPressed) {
+                                interactiveCellUniverseState.onCopy()
+                                true
+                            } else {
+                                false
+                            }
 
-                                    Key.V -> if (keyEvent.isCtrlPressed) {
-                                        interactiveCellUniverseState.onPaste()
-                                        true
-                                    } else {
-                                        false
-                                    }
+                            Key.V -> if (keyEvent.isCtrlPressed) {
+                                interactiveCellUniverseState.onPaste()
+                                true
+                            } else {
+                                false
+                            }
 
-                                    Key.X -> if (keyEvent.isCtrlPressed) {
-                                        interactiveCellUniverseState.onCut()
-                                        true
-                                    } else {
-                                        false
-                                    }
-
-                                    else -> false
-                                }
+                            Key.X -> if (keyEvent.isCtrlPressed) {
+                                interactiveCellUniverseState.onCut()
+                                true
+                            } else {
+                                false
                             }
 
                             else -> false
                         }
                     }
-                },
-            ),
+
+                    else -> false
+                }
+            },
     ) {
-        if (!interactiveCellUniverseState.isOverlayShowingFullscreen) {
-            MutableCellWindow(
-                gameOfLifeState = temporalGameOfLifeState,
-                modifier = Modifier.testTag("MutableCellWindow"),
-                cellWindowInteractionState = interactiveCellUniverseState.cellWindowInteractionState,
-            )
-        }
+        MutableCellWindow(
+            gameOfLifeState = temporalGameOfLifeState,
+            modifier = Modifier.testTag("MutableCellWindow"),
+            cellWindowInteractionState = interactiveCellUniverseState.cellWindowInteractionState,
+        )
 
         InteractiveCellUniverseOverlay(
             temporalGameOfLifeState = temporalGameOfLifeState,
@@ -180,6 +175,8 @@ fun InteractiveCellUniverse(
             onCut = interactiveCellUniverseState::onCut,
             onPaste = interactiveCellUniverseState::onPaste,
             onApplyPaste = interactiveCellUniverseState::onApplyPaste,
+            onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
+            onOpenInSettingsClicked = onOpenInSettingsClicked,
         )
     }
 }
@@ -221,12 +218,6 @@ interface InteractiveCellUniverseState {
      * The action card state.
      */
     val actionCardState: CellUniverseActionCardState
-
-    /**
-     * `true` if the overlay is showing fullscreen. If this is the case, then the main cell window is entirely
-     * obscured.
-     */
-    val isOverlayShowingFullscreen: Boolean
 
     /**
      * Copies the current selection (if any) to the system clipboard.
@@ -394,16 +385,6 @@ fun rememberInteractiveCellUniverseState(
                 get() = isActionCardTopCard
             override val infoCardState: CellUniverseInfoCardState = infoCardState
             override val actionCardState: CellUniverseActionCardState = actionCardState
-
-            override val isOverlayShowingFullscreen: Boolean by derivedStateOf {
-                val isTargetingFullscreen = when (
-                    val fullscreenTargetState = actionCardState.fullscreenTargetState
-                ) {
-                    is TargetState.InProgress -> false
-                    is TargetState.Single -> fullscreenTargetState.current
-                }
-                isTargetingFullscreen
-            }
 
             override fun onCopy() = onCopy(isCut = false)
 

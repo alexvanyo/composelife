@@ -54,11 +54,11 @@ import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutType
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCard
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLocalEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.util.Layout
-import com.alexvanyo.composelife.ui.util.isInProgress
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.coroutines.launch
 
@@ -80,6 +80,8 @@ fun InteractiveCellUniverseOverlay(
     onCut: () -> Unit,
     onPaste: () -> Unit,
     onApplyPaste: () -> Unit,
+    onSeeMoreSettingsClicked: () -> Unit,
+    onOpenInSettingsClicked: (setting: Setting) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
@@ -125,7 +127,6 @@ fun InteractiveCellUniverseOverlay(
             // TODO: Calling order is weird here, but required due to https://youtrack.jetbrains.com/issue/KT-51863
             CellUniverseActionCard(
                 temporalGameOfLifeState = temporalGameOfLifeState,
-                windowSizeClass = windowSizeClass,
                 isViewportTracking = interactiveCellUniverseState.isViewportTracking,
                 setIsViewportTracking = { interactiveCellUniverseState.isViewportTracking = it },
                 selectionState = interactiveCellUniverseState.cellWindowInteractionState.selectionState,
@@ -136,6 +137,8 @@ fun InteractiveCellUniverseOverlay(
                 onCut = onCut,
                 onPaste = onPaste,
                 onApplyPaste = onApplyPaste,
+                onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
+                onOpenInSettingsClicked = onOpenInSettingsClicked,
                 actionCardState = interactiveCellUniverseState.actionCardState,
                 modifier = Modifier
                     .layoutId(CellUniverseActionCard)
@@ -155,13 +158,10 @@ fun InteractiveCellUniverseOverlay(
                 val displayInfoCardOffscreen: Boolean
                 val displayActionCardOffscreen: Boolean
 
-                // If we aren't trying to show fullscreen and we can fit both cards, place them both on screen.
+                // If we can fit both cards, place them both on screen.
                 // Otherwise, place the top-card (as determined by isActionCardTopCard) only aligned to the correct
                 // side of the screen, and align the hidden card just off-screen.
-                val fullscreenTargetState =
-                    interactiveCellUniverseState.actionCardState.fullscreenTargetState
                 if (
-                    (fullscreenTargetState.isInProgress() || !fullscreenTargetState.current) &&
                     infoCardPlaceable.height + actionCardPlaceable.height -
                     topInsetsPlaceable.height - bottomInsetsPlaceable.height <= constraints.maxHeight
                 ) {

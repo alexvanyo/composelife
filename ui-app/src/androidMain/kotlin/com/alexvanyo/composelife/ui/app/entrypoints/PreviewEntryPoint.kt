@@ -39,6 +39,8 @@ import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.random.di.RandomProvider
+import com.alexvanyo.composelife.ui.app.CellUniverseScreenInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.CellUniverseScreenLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.ClipboardCellStateParser
 import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
@@ -86,6 +88,8 @@ internal interface PreviewEntryPoint :
     CellStatePreviewUiLocalEntryPoint,
     CellWindowLocalEntryPoint,
     CellUniverseActionCardInjectEntryPoint,
+    CellUniverseScreenInjectEntryPoint,
+    CellUniverseScreenLocalEntryPoint,
     ComposeLifeAppInjectEntryPoint,
     DarkThemeConfigUiInjectEntryPoint,
     DarkThemeConfigUiLocalEntryPoint,

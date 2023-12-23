@@ -29,15 +29,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.layout
@@ -46,41 +41,42 @@ import androidx.compose.ui.unit.DpSize
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.clock.di.ClockProvider
 import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
-import com.alexvanyo.composelife.data.model.CellStateMetadata
-import com.alexvanyo.composelife.data.model.SaveableCellState
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
-import com.alexvanyo.composelife.model.TemporalGameOfLifeState
-import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
-import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
-import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.navigation.BackstackEntry
+import com.alexvanyo.composelife.navigation.BackstackState
+import com.alexvanyo.composelife.navigation.canNavigateBack
+import com.alexvanyo.composelife.navigation.navigate
+import com.alexvanyo.composelife.navigation.popBackstack
+import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
+import com.alexvanyo.composelife.navigation.withExpectedActor
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicator
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreen
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenLocalEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.Setting
+import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.conflate
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.transform
-import kotlin.random.Random
-import kotlin.time.Duration.Companion.seconds
+import com.alexvanyo.composelife.ui.util.PredictiveBackHandler
+import com.alexvanyo.composelife.ui.util.PredictiveNavigationHost
+import com.alexvanyo.composelife.ui.util.rememberPredictiveBackStateHolder
+import java.util.UUID
 
 interface ComposeLifeAppInjectEntryPoint :
     ComposeLifePreferencesProvider,
     CellStateRepositoryProvider,
+    ClockProvider,
     GameOfLifeProgressIndicatorInjectEntryPoint,
-    InteractiveCellUniverseInjectEntryPoint,
-    ClockProvider
+    CellUniverseScreenInjectEntryPoint,
+    FullscreenSettingsScreenInjectEntryPoint
 
 context(ComposeLifeAppInjectEntryPoint)
 @Suppress("LongMethod")
-@OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ComposeLifeApp(
     windowSizeClass: WindowSizeClass,
@@ -97,9 +93,8 @@ fun ComposeLifeApp(
                 contentKey = {
                     when (it) {
                         ComposeLifeAppState.ErrorLoadingPreferences -> 0
-                        is ComposeLifeAppState.LoadedPreferences.LoadedCellState -> 1
-                        is ComposeLifeAppState.LoadedPreferences.LoadingCellState -> 2
-                        ComposeLifeAppState.LoadingPreferences -> 3
+                        is ComposeLifeAppState.LoadedPreferences -> 1
+                        ComposeLifeAppState.LoadingPreferences -> 2
                     }
                 },
                 modifier = Modifier.layout { measurable, constraints ->
@@ -122,30 +117,51 @@ fun ComposeLifeApp(
                         }
                     }
                     is ComposeLifeAppState.LoadedPreferences -> {
+                        ReportDrawn()
+
                         val localEntryPoint = remember {
                             object :
-                                InteractiveCellUniverseLocalEntryPoint,
-                                GameOfLifeProgressIndicatorLocalEntryPoint,
+                                CellUniverseScreenLocalEntryPoint,
+                                FullscreenSettingsScreenLocalEntryPoint,
                                 LoadedComposeLifePreferencesProvider by targetComposeLifeAppState {}
                         }
 
-                        with(localEntryPoint) {
-                            when (targetComposeLifeAppState) {
-                                is ComposeLifeAppState.LoadedPreferences.LoadingCellState -> {
-                                    Box(
-                                        contentAlignment = Alignment.Center,
-                                        modifier = Modifier.fillMaxSize(),
-                                    ) {
-                                        GameOfLifeProgressIndicator()
-                                    }
-                                }
-                                is ComposeLifeAppState.LoadedPreferences.LoadedCellState -> {
-                                    ReportDrawn()
+                        val predictiveBackStateHolder = rememberPredictiveBackStateHolder()
 
-                                    InteractiveCellUniverse(
-                                        temporalGameOfLifeState = targetComposeLifeAppState.temporalGameOfLifeState,
-                                        windowSizeClass = windowSizeClass,
-                                    )
+                        PredictiveBackHandler(
+                            predictiveBackStateHolder = predictiveBackStateHolder,
+                            enabled = targetComposeLifeAppState.canNavigateBack,
+                        ) {
+                            targetComposeLifeAppState.onBackPressed(null)
+                        }
+
+                        with(localEntryPoint) {
+                            PredictiveNavigationHost(
+                                predictiveBackState = predictiveBackStateHolder.value,
+                                backstackState = targetComposeLifeAppState.navigationState,
+                            ) { entry ->
+                                when (val value = entry.value) {
+                                    is ComposeLifeNavigation.CellUniverse -> {
+                                        CellUniverseScreen(
+                                            windowSizeClass = windowSizeClass,
+                                            navEntryValue = value,
+                                            onSeeMoreSettingsClicked = {
+                                                targetComposeLifeAppState.onSeeMoreSettingsClicked(entry.id)
+                                            },
+                                            onOpenInSettingsClicked = { setting ->
+                                                targetComposeLifeAppState.onOpenInSettingsClicked(setting, entry.id)
+                                            },
+                                        )
+                                    }
+                                    is ComposeLifeNavigation.FullscreenSettings -> {
+                                        FullscreenSettingsScreen(
+                                            windowSizeClass = windowSizeClass,
+                                            navEntryValue = value,
+                                            onBackButtonPressed = {
+                                                targetComposeLifeAppState.onBackPressed(entry.id)
+                                            },
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -163,88 +179,62 @@ context(
 @Suppress("LongMethod")
 @Composable
 fun rememberComposeLifeAppState(): ComposeLifeAppState {
-    val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-
-    var initialSaveableCellState by remember { mutableStateOf<SaveableCellState?>(null) }
-    val currentInitialSaveableCellState = initialSaveableCellState
-
-    if (currentInitialSaveableCellState == null) {
-        LaunchedEffect(cellStateRepository) {
-            initialSaveableCellState = cellStateRepository.getAutosavedCellState()
-                ?: SaveableCellState(
-                    gosperGliderGun,
-                    CellStateMetadata(null, null, null, 0, false),
-                )
-        }
-    }
-
-    return when (loadedPreferencesState) {
+    return when (val loadedPreferencesState = composeLifePreferences.loadedPreferencesState) {
         is ResourceState.Failure -> ComposeLifeAppState.ErrorLoadingPreferences
         ResourceState.Loading -> ComposeLifeAppState.LoadingPreferences
         is ResourceState.Success -> {
             val currentLoadedPreferences by rememberUpdatedState(loadedPreferencesState.value)
 
-            if (currentInitialSaveableCellState == null) {
-                remember {
-                    object : ComposeLifeAppState.LoadedPreferences.LoadingCellState {
-                        override val preferences get() = currentLoadedPreferences
-                    }
-                }
-            } else {
-                val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                    seedCellState = currentInitialSaveableCellState.cellState,
-                    isRunning = false,
-                )
+            val navController = rememberMutableBackstackNavigationController(
+                initialBackstackEntries = listOf(
+                    BackstackEntry(
+                        value = ComposeLifeNavigation.CellUniverse(),
+                        previous = null,
+                    ),
+                ),
+                backstackValueSaverFactory = ComposeLifeNavigation.SaverFactory,
+            )
 
-                val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                    dispatchers = dispatchers,
-                    clock = clock,
-                )
+            remember(navController) {
+                object : ComposeLifeAppState.LoadedPreferences {
+                    override val preferences get() = currentLoadedPreferences
 
-                LaunchedEffect(temporalGameOfLifeStateMutator) {
-                    temporalGameOfLifeStateMutator.update()
-                }
+                    override val navigationState: BackstackState<out ComposeLifeNavigation>
+                        get() = navController
 
-                var cellStateMetadataId by remember {
-                    mutableStateOf(currentInitialSaveableCellState.cellStateMetadata.id)
-                }
+                    override val canNavigateBack
+                        get() = navController.canNavigateBack
 
-                LaunchedEffect(temporalGameOfLifeState) {
-                    snapshotFlow { temporalGameOfLifeState.cellState }
-                        .conflate()
-                        .transform {
-                            emit(it)
-                            delay(5.seconds)
+                    override fun onBackPressed(actorBackstackEntryId: UUID?) {
+                        navController.withExpectedActor(actorBackstackEntryId) {
+                            if (navController.canNavigateBack) {
+                                navController.popBackstack()
+                            }
                         }
-                        .onEach { cellState ->
-                            cellStateMetadataId = cellStateRepository.autosaveCellState(
-                                saveableCellState = SaveableCellState(
-                                    cellState = cellState,
-                                    cellStateMetadata = CellStateMetadata(
-                                        id = cellStateMetadataId,
-                                        name = currentInitialSaveableCellState.cellStateMetadata.name,
-                                        description = currentInitialSaveableCellState
-                                            .cellStateMetadata
-                                            .description,
-                                        generation = currentInitialSaveableCellState
-                                            .cellStateMetadata
-                                            .generation,
-                                        wasAutosaved = currentInitialSaveableCellState
-                                            .cellStateMetadata
-                                            .wasAutosaved,
-                                    ),
+                    }
+
+                    override fun onSeeMoreSettingsClicked(actorBackstackEntryId: UUID?) {
+                        navController.withExpectedActor(actorBackstackEntryId) {
+                            navController.navigate(
+                                ComposeLifeNavigation.FullscreenSettings(
+                                    initialSettingsCategory = SettingsCategory.Algorithm,
+                                    initialShowDetails = false,
+                                    initialSettingToScrollTo = null,
                                 ),
                             )
                         }
-                        .collect()
-                }
+                    }
 
-                remember(temporalGameOfLifeState) {
-                    object : ComposeLifeAppState.LoadedPreferences.LoadedCellState {
-                        override val preferences: LoadedComposeLifePreferences get() = currentLoadedPreferences
-                        override val temporalGameOfLifeState = temporalGameOfLifeState
+                    override fun onOpenInSettingsClicked(setting: Setting, actorBackstackEntryId: UUID?) {
+                        navController.withExpectedActor(actorBackstackEntryId) {
+                            navController.navigate(
+                                ComposeLifeNavigation.FullscreenSettings(
+                                    initialSettingsCategory = setting.category,
+                                    initialShowDetails = true,
+                                    initialSettingToScrollTo = setting,
+                                ),
+                            )
+                        }
                     }
                 }
             }
@@ -266,33 +256,19 @@ sealed interface ComposeLifeAppState {
     /**
      * The user's preferences are loaded, so the state can be a [LoadedComposeLifePreferencesProvider].
      */
-    sealed interface LoadedPreferences : ComposeLifeAppState, LoadedComposeLifePreferencesProvider {
+    interface LoadedPreferences : ComposeLifeAppState, LoadedComposeLifePreferencesProvider {
 
-        /**
-         * The initial cell state is loading
-         */
-        interface LoadingCellState : LoadedPreferences
+        val navigationState: BackstackState<out ComposeLifeNavigation>
 
-        /**
-         * The cell state is loaded
-         */
-        interface LoadedCellState : LoadedPreferences {
-            val temporalGameOfLifeState: TemporalGameOfLifeState
-        }
+        val canNavigateBack: Boolean
+
+        fun onBackPressed(actorBackstackEntryId: UUID?)
+
+        fun onSeeMoreSettingsClicked(actorBackstackEntryId: UUID?)
+
+        fun onOpenInSettingsClicked(setting: Setting, actorBackstackEntryId: UUID?)
     }
 }
-
-private val gosperGliderGun = """
-    |........................O...........
-    |......................O.O...........
-    |............OO......OO............OO
-    |...........O...O....OO............OO
-    |OO........O.....O...OO..............
-    |OO........O...O.OO....O.O...........
-    |..........O.....O.......O...........
-    |...........O...O....................
-    |............OO......................
-""".toCellState()
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @MobileDevicePreviews
@@ -305,53 +281,6 @@ fun LoadingPreferencesComposeLifeAppPreview() {
                 ComposeLifeApp(
                     windowSizeClass = WindowSizeClass.calculateFromSize(size),
                     composeLifeAppState = ComposeLifeAppState.LoadingPreferences,
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@MobileDevicePreviews
-@Composable
-fun LoadingCellStateComposeLifeAppPreview() {
-    WithPreviewDependencies {
-        val preferences = preferences
-        ComposeLifeTheme {
-            BoxWithConstraints {
-                val size = DpSize(maxWidth, maxHeight)
-                ComposeLifeApp(
-                    windowSizeClass = WindowSizeClass.calculateFromSize(size),
-                    composeLifeAppState = object : ComposeLifeAppState.LoadedPreferences.LoadingCellState {
-                        override val preferences = preferences
-                    },
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@MobileDevicePreviews
-@Composable
-fun LoadedComposeLifeAppPreview() {
-    WithPreviewDependencies(
-        random = Random(1), // Fix to Beacon loading pattern
-    ) {
-        val preferences = preferences
-        ComposeLifeTheme {
-            BoxWithConstraints {
-                val size = DpSize(maxWidth, maxHeight)
-                val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                    seedCellState = gosperGliderGun,
-                    isRunning = false,
-                )
-                ComposeLifeApp(
-                    windowSizeClass = WindowSizeClass.calculateFromSize(size),
-                    composeLifeAppState = object : ComposeLifeAppState.LoadedPreferences.LoadedCellState {
-                        override val preferences = preferences
-                        override val temporalGameOfLifeState = temporalGameOfLifeState
-                    },
                 )
             }
         }
