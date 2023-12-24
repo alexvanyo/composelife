@@ -72,6 +72,7 @@ kotlin {
                 implementation(libs.androidx.compose.foundation)
                 implementation(libs.androidx.compose.materialIconsExtended)
                 implementation(libs.androidx.lifecycle.runtime)
+                implementation(libs.androidx.lifecycle.runtime.compose)
                 implementation(libs.androidx.core)
                 implementation(libs.kotlinx.coroutines.android)
             }
