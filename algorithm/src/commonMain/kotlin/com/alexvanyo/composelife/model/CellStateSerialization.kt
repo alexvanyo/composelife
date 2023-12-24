@@ -570,17 +570,11 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
                     if (char.isDigit()) {
                         countString.append(char)
                     } else if (char == '$') {
-                        if (countString.isNotEmpty()) {
-                            warnings.add(
-                                UnexpectedInputMessage(
-                                    input = "$countString$char",
-                                    lineIndex = lineIndex + 1,
-                                    characterIndex = charIndex + 1 - countString.length,
-                                ),
-                            )
+                        val rowEndCount = if (countString.isEmpty()) 1 else countString.toString().toInt()
+                        repeat(rowEndCount) {
+                            yield(RunItem.RowEnd)
                         }
-
-                        yield(RunItem.RowEnd)
+                        countString = StringBuilder()
                     } else if (char == '!') {
                         if (countString.isNotEmpty()) {
                             warnings.add(
@@ -676,51 +670,58 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
         yield("x = ${boundingBox.width}, y = ${boundingBox.height}, rule = B3/S23")
 
         /**
-         * The sequence of items that can't be broken apart with line breaks
+         * The direct sequence of raw tags, without run length encoding optimizations applied (yet)
          */
-        val itemSequence = sequence {
+        val tagSequence = sequence {
             for (y in boundingBox.top until boundingBox.bottom) {
-                val iterator = (boundingBox.left until boundingBox.right)
-                    .map { x -> IntOffset(x, y) }.iterator()
-                var currentState = iterator.next() in cellState.aliveCells
-                var currentCount = 1
-
-                suspend fun SequenceScope<String>.yieldRun() {
-                    yield(
-                        buildString {
-                            // We can omit the number if the run count is 1
-                            if (currentCount > 1) {
-                                append("$currentCount")
-                            }
-                            append(if (currentState) "o" else "b")
-                        },
-                    )
+                for (x in boundingBox.left until boundingBox.right) {
+                    val cell = IntOffset(x, y)
+                    yield(if (cell in cellState.aliveCells) "o" else "b")
                 }
-
-                while (iterator.hasNext()) {
-                    val state = iterator.next() in cellState.aliveCells
-                    if (state == currentState) {
-                        // If the run continues, increment the count and continue
-                        currentCount++
-                    } else {
-                        // If the run stopped, yield it, and swap to the new state with 1 entry seen
-                        yieldRun()
-                        currentState = state
-                        currentCount = 1
-                    }
+                // Yield the line end if it isn't the last line
+                if (y != boundingBox.bottom - 1) {
+                    yield("$")
                 }
-
-                // If the last state was on, yield the run. We can skip yielding dead cells at the end of the line
-                if (currentState) {
-                    yieldRun()
-                }
-                // Yield the line end, or the pattern end if on the last line
-                yield(if (y == boundingBox.bottom - 1) "!" else "$")
             }
+            yield("!")
         }
 
+        /**
+         * The sequence of items that can't be broken apart with line breaks
+         */
+        val runLengthEncodedItemSequence = tagSequence.runLengthEncode()
+
+        /**
+         * The optimized sequence of items that can't be broken apart with line breaks, removing ones that aren't
+         * needed.
+         */
+        val optimizedRunLengthEncodedItemSequence = sequence {
+            val iterator = runLengthEncodedItemSequence.iterator()
+
+            var currentItem = iterator.next()
+
+            while (iterator.hasNext()) {
+                val nextItem = iterator.next()
+                val currentItemLast = currentItem.last()
+                val nextItemLast = nextItem.last()
+
+                // We can skip emitting dead space at the end of a line
+                val isDeadSpaceAtEndOfLine = currentItemLast == 'b' && (nextItemLast == '$' || nextItemLast == '!')
+                if (!isDeadSpaceAtEndOfLine) {
+                    yield(currentItem)
+                }
+
+                currentItem = nextItem
+            }
+
+            // Yield the last item
+            yield(currentItem)
+        }
+            // Run length encode again, to combine line breaks for fully empty lines
+            .runLengthEncode()
+
         val lineSequence = sequence {
-            val itemIterator = itemSequence.iterator()
+            val itemIterator = optimizedRunLengthEncodedItemSequence.iterator()
             var line = StringBuilder()
 
             while (itemIterator.hasNext()) {
@@ -738,6 +739,43 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
 
         yieldAll(lineSequence)
     }
+}
+
+private fun parseRunLengthEncodedItem(item: String): Pair<Char, Int> =
+    item.last() to if (item.length == 1) 1 else item.dropLast(1).toInt()
+
+private fun Sequence<String>.runLengthEncode(): Sequence<String> = sequence {
+    val iterator = iterator()
+
+    var (currentChar, currentCount) = parseRunLengthEncodedItem(iterator.next())
+
+    suspend fun SequenceScope<String>.yieldRun() {
+        yield(
+            buildString {
+                // We can omit the number if the run count is 1
+                if (currentCount > 1) {
+                    append("$currentCount")
+                }
+                append(currentChar)
+            },
+        )
+    }
+
+    while (iterator.hasNext()) {
+        val (nextChar, nextCount) = parseRunLengthEncodedItem(iterator.next())
+        if (nextChar == currentChar) {
+            // If the run continues, increase the count and continue
+            currentCount += nextCount
+        } else {
+            // If the run stopped, yield it, and swap to the new state with the next count seen
+            yieldRun()
+            currentChar = nextChar
+            currentCount = nextCount
+        }
+    }
+
+    // Yield the last run
+    yieldRun()
 }
 
 fun String.toCellState(
