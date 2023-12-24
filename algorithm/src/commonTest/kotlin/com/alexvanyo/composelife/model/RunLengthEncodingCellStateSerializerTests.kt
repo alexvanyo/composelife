@@ -44,7 +44,7 @@ class RunLengthEncodingCellStateSerializerTests {
             serializer.deserializeToCellState(
                 """
                 |x = 5, y = 5, rule = B3/S23
-                |obobo${'$'}${'$'}obobo${'$'}${'$'}obobo!
+                |obobo2${'$'}obobo2${'$'}obobo!
                 """.trimMargin().lineSequence(),
             ),
         )
@@ -72,7 +72,7 @@ class RunLengthEncodingCellStateSerializerTests {
                 """
                 |#C This is a comment
                 |x = 5, y = 5, rule = B3/S23
-                |obobo${'$'}${'$'}obobo${'$'}${'$'}obobo!
+                |obobo2${'$'}obobo2${'$'}obobo!
                 """.trimMargin().lineSequence(),
             ),
         )
@@ -100,7 +100,7 @@ class RunLengthEncodingCellStateSerializerTests {
                 """
                 |#R -3 7
                 |x = 5, y = 5, rule = B3/S23
-                |obobo${'$'}${'$'}obobo${'$'}${'$'}obobo!
+                |obobo2${'$'}obobo2${'$'}obobo!
                 """.trimMargin().lineSequence(),
             ),
         )
@@ -128,7 +128,7 @@ class RunLengthEncodingCellStateSerializerTests {
                 """
                 |#P -3 7
                 |x = 5, y = 5, rule = B3/S23
-                |obobo${'$'}${'$'}obobo${'$'}${'$'}obobo!
+                |obobo2${'$'}obobo2${'$'}obobo!
                 """.trimMargin().lineSequence(),
             ),
         )
@@ -140,7 +140,7 @@ class RunLengthEncodingCellStateSerializerTests {
             """
             |#R 0 0
             |x = 5, y = 5, rule = B3/S23
-            |obobo${'$'}${'$'}obobo${'$'}${'$'}obobo!
+            |obobo2${'$'}obobo2${'$'}obobo!
             """.trimMargin(),
             serializer.serializeToString(
                 setOf(
