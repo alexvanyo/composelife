@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isCtrlPressed
@@ -41,8 +42,8 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.round
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellWindow
@@ -250,8 +251,8 @@ context(ClipboardCellStateParserProvider, ComposeLifeDispatchersProvider)
 @Composable
 fun rememberInteractiveCellUniverseState(
     temporalGameOfLifeState: TemporalGameOfLifeState,
+    mutableCellWindowViewportState: MutableCellWindowViewportState = rememberMutableCellWindowViewportState(),
 ): InteractiveCellUniverseState {
-    val mutableCellWindowViewportState = rememberMutableCellWindowViewportState()
     val trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(temporalGameOfLifeState)
 
     var selectionState by rememberSaveable(stateSaver = SelectionState.Saver) {
@@ -450,11 +451,19 @@ fun rememberInteractiveCellUniverseState(
 
             override fun onPaste() {
                 coroutineScope.launch {
-                    when (val deserializationResult = clipboardCellStateParser.parseCellState(clipboardReaderWriter)) {
+                    when (
+                        val deserializationResult = clipboardCellStateParser.parseCellState(clipboardReaderWriter)
+                    ) {
                         is DeserializationResult.Successful -> {
+                            val cellState = deserializationResult.cellState
+                            val boundingBoxSize = cellState.boundingBox.size
+
                             selectionState = SelectionState.Selection(
-                                cellState = deserializationResult.cellState,
-                                offset = IntOffset.Zero,
+                                cellState = cellState,
+                                offset = (
+                                    mutableCellWindowViewportState.cellWindowViewport.offset -
+                                        Offset(boundingBoxSize.width - 1f, boundingBoxSize.height - 1f) / 2f
+                                    ).round(),
                             )
                         }
                         is DeserializationResult.Unsuccessful -> {
