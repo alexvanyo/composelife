@@ -21,6 +21,7 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsActions.ScrollToIndex
@@ -57,15 +58,20 @@ import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.InjectTestActivity
+import com.alexvanyo.composelife.ui.app.cells.rememberMutableCellWindowViewportState
 import com.alexvanyo.composelife.ui.util.ClipboardReader
+import com.alexvanyo.composelife.ui.util.ClipboardWriter
 import com.alexvanyo.composelife.ui.util.rememberClipboardReader
+import com.alexvanyo.composelife.ui.util.rememberClipboardWriter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import leakcanary.SkipLeakDetection
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
+@Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
@@ -705,6 +711,91 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 keyUp(Key.CtrlLeft)
                 keyUp(Key.C)
             }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @SkipLeakDetection("appliedChanges", "Outer")
+    @Test
+    fun glider_is_pasted_correctly_with_keyboard_shortcuts() = runAppTest {
+        lateinit var clipboardWriter: ClipboardWriter
+
+        composeTestRule.setContent {
+            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
+                targetStepsPerSecond = 60.0,
+            )
+
+            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
+                temporalGameOfLifeState = temporalGameOfLifeState,
+                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                clock = testDispatcher.scheduler.clock,
+                dispatchers = dispatchers,
+            )
+
+            LaunchedEffect(temporalGameOfLifeStateMutator) {
+                temporalGameOfLifeStateMutator.update()
+            }
+
+            with(interactiveCellUniverseInjectEntryPoint) {
+                with(interactiveCellUniverseLocalEntryPoint) {
+                    clipboardWriter = rememberClipboardWriter()
+
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        modifier = Modifier.fillMaxSize(),
+                        interactiveCellUniverseState = rememberInteractiveCellUniverseState(
+                            temporalGameOfLifeState = temporalGameOfLifeState,
+                            mutableCellWindowViewportState = rememberMutableCellWindowViewportState(
+                                offset = Offset(30.5f, -18.5f),
+                            ),
+                        ),
+                    )
+                }
+            }
+        }
+
+        composeTestRule
+            .onRoot()
+            .performKeyInput {
+                pressKey(Key.Spacebar)
+            }
+
+        composeTestRule.runOnUiThread {
+            clipboardWriter.setText(
+                """
+                #R 0 0
+                x = 3, y = 3, rule = B3/S23
+                bo$2bo$3o!
+                """.trimIndent(),
+            )
+        }
+
+        composeTestRule
+            .onRoot()
+            .performKeyInput {
+                keyDown(Key.CtrlLeft)
+                pressKey(Key.V)
+                keyUp(Key.CtrlLeft)
+            }
+
+        testDispatcher.scheduler.advanceUntilIdle()
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithContentDescription(context.getString(R.string.apply_paste))
+            .performClick()
+
+        assertNodesAreAlive(
+            setOf(
+                IntOffset(31, -19),
+                IntOffset(32, -18),
+                IntOffset(30, -17),
+                IntOffset(31, -17),
+                IntOffset(32, -17),
+            ),
+        )
     }
 
     private fun assertNodesAreAlive(cells: Set<IntOffset>) {

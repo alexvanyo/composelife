@@ -42,6 +42,8 @@ value class CellWindow(private val intRect: IntRect) {
 
     val bottomLeft: IntOffset get() = intRect.bottomLeft
 
+    val center: IntOffset get() = intRect.center
+
     val top: Int get() = intRect.top
 
     val left: Int get() = intRect.left
