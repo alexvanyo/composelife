@@ -157,7 +157,17 @@ private class SizeAnimationModifierNode(
         val oldData = animData
         val animSpec = animationSpec
 
-        val newData = if (oldData == null || (animSpec is SnapSpec<*> && animSpec.delay == 0)) {
+        /**
+         * True if we should perform a synchronous snap, to replace the [AnimData] entirely.
+         *
+         * This is only necessary if we have an old animation data, that is running or targeting a
+         * different size.
+         */
+        val performSynchronousSnap =
+            oldData != null && animSpec is SnapSpec<*> && animSpec.delay == 0 &&
+                (oldData.anim.isRunning || oldData.anim.targetValue != targetSize)
+
+        val newData = if (oldData == null || performSynchronousSnap) {
             AnimData(
                 Animatable(
                     targetSize,
@@ -170,7 +180,20 @@ private class SizeAnimationModifierNode(
             oldData
         }
 
-        oldData?.run {
+        /**
+         * If the instance of data has changed, cancel the old data to ensure it is cleaned up
+         * as soon as possible.
+         */
+        if (oldData !== newData) {
+            coroutineScope.launch {
+                oldData?.anim?.stop()
+            }
+        }
+
+        /**
+         * On the new data, run the animation (if necessary).
+         */
+        newData.run {
             if (targetSize != anim.targetValue) {
                 startSize = anim.value
                 coroutineScope.launch {
