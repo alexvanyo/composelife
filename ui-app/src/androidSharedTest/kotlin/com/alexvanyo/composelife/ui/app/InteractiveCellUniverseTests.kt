@@ -64,7 +64,6 @@ import com.alexvanyo.composelife.ui.util.ClipboardWriter
 import com.alexvanyo.composelife.ui.util.rememberClipboardReader
 import com.alexvanyo.composelife.ui.util.rememberClipboardWriter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.advanceUntilIdle
 import leakcanary.SkipLeakDetection
 import org.junit.runner.RunWith
 import kotlin.test.Test
@@ -711,6 +710,84 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 keyUp(Key.CtrlLeft)
                 keyUp(Key.C)
             }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @SkipLeakDetection("appliedChanges", "Outer")
+    @Test
+    fun selection_is_cleared_correctly_with_keyboard_shortcuts() = runAppTest {
+        composeTestRule.setContent {
+            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
+                targetStepsPerSecond = 60.0,
+            )
+
+            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
+                temporalGameOfLifeState = temporalGameOfLifeState,
+                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                clock = testDispatcher.scheduler.clock,
+                dispatchers = dispatchers,
+            )
+
+            LaunchedEffect(temporalGameOfLifeStateMutator) {
+                temporalGameOfLifeStateMutator.update()
+            }
+
+            with(interactiveCellUniverseInjectEntryPoint) {
+                with(interactiveCellUniverseLocalEntryPoint) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+        }
+
+        composeTestRule
+            .onRoot()
+            .performKeyInput {
+                pressKey(Key.Spacebar)
+            }
+
+        listOf(
+            IntOffset(1, 0),
+            IntOffset(2, 1),
+            IntOffset(0, 2),
+            IntOffset(1, 2),
+            IntOffset(2, 2),
+        ).forEach { cell ->
+            scrollToCell(cell)
+
+            composeTestRule
+                .onNodeWithContentDescription(
+                    context.getString(R.string.cell_content_description, cell.x, cell.y),
+                )
+                .performTouchInput { click(topLeft) }
+        }
+
+        composeTestRule
+            .onRoot()
+            .performKeyInput {
+                keyDown(Key.CtrlLeft)
+                pressKey(Key.A)
+                keyUp(Key.CtrlLeft)
+            }
+
+        composeTestRule
+            .onNodeWithContentDescription(context.getString(R.string.copy))
+            .assertExists()
+
+        composeTestRule
+            .onRoot()
+            .performKeyInput {
+                pressKey(Key.Escape)
+            }
+
+        composeTestRule
+            .onNodeWithContentDescription(context.getString(R.string.copy))
+            .assertDoesNotExist()
     }
 
     @OptIn(ExperimentalTestApi::class)
