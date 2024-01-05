@@ -153,6 +153,12 @@ fun InteractiveCellUniverse(
                                 false
                             }
 
+                            Key.Escape -> {
+                                interactiveCellUniverseState.cellWindowInteractionState.selectionState =
+                                    SelectionState.NoSelection
+                                true
+                            }
+
                             else -> false
                         }
                     }
