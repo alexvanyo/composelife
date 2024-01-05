@@ -32,5 +32,11 @@ fun Project.configureKotlin() {
                 "-Xexpect-actual-classes",
             )
         }
+        compilerOptions {
+            freeCompilerArgs.addAll(
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:experimentalStrongSkipping=true",
+            )
+        }
     }
 }
