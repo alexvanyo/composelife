@@ -333,6 +333,7 @@ private class TemporalGameOfLifeStateImpl(
                     emptyFlow()
                 }
             }
+            .flowOn(CellTicker)
             .buffer(0) // No buffer, so the ticks are only consumed upon a cell state being computed
 
         val stepTicker = merge(

@@ -45,7 +45,8 @@ class ClipboardStateTests {
             clipData = with(
                 object : ComposeLifeDispatchersProvider {
                     override val dispatchers: ComposeLifeDispatchers = TestComposeLifeDispatchers(
-                        testDispatcher = StandardTestDispatcher(),
+                        generalTestDispatcher = StandardTestDispatcher(),
+                        cellTickerTestDispatcher = StandardTestDispatcher(),
                     )
                 },
             ) {
