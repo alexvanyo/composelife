@@ -36,7 +36,7 @@ class CellStateRepositoryTests : BaseInjectTest<TestComposeLifeApplicationCompon
 
     private val cellStateQueries get() = applicationComponent.cellStateQueries
 
-    private val testDispatcher get() = applicationComponent.testDispatcher
+    private val testDispatcher get() = applicationComponent.generalTestDispatcher
 
     @Test
     fun get_autosaved_cell_state_returns_null_initially() = runAppTest(testDispatcher) {

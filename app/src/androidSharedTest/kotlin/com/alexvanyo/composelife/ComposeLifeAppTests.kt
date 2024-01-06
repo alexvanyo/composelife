@@ -56,16 +56,13 @@ class ComposeLifeAppTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
     { TestComposeLifeApplicationComponent.create() },
     MainActivity::class.java,
 ) {
-    private val testDispatcher get() = applicationComponent.testDispatcher
+    private val testDispatcher get() = applicationComponent.generalTestDispatcher
 
     private val preferences get() = applicationComponent.composeLifePreferences
 
     @SkipLeakDetection("recomposer", "Outer")
     @Test
-    fun app_does_not_crash() = runAppTest {
-        composeTestRule.waitForIdle()
-        testDispatcher.scheduler.runCurrent()
-
+    fun app_does_not_crash() = runAppTest(testDispatcher) {
         composeTestRule.onNodeWithContentDescription(context.getString(R.string.play)).performClick()
 
         composeTestRule.onNodeWithContentDescription(context.getString(R.string.pause)).performClick()
@@ -75,10 +72,7 @@ class ComposeLifeAppTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
 
     @SkipLeakDetection("recomposer", "Outer", "Inner")
     @Test
-    fun app_does_not_crash_when_recreating() = runAppTest {
-        composeTestRule.waitForIdle()
-        testDispatcher.scheduler.runCurrent()
-
+    fun app_does_not_crash_when_recreating() = runAppTest(testDispatcher) {
         composeTestRule.onNodeWithContentDescription(context.getString(R.string.play)).performClick()
 
         composeTestRule.onNodeWithContentDescription(context.getString(R.string.pause)).performClick()
@@ -90,7 +84,7 @@ class ComposeLifeAppTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
 
     @SkipLeakDetection("recomposer", "Outer", "Inner")
     @Test
-    fun can_change_theme_to_dark_mode() = runAppTest {
+    fun can_change_theme_to_dark_mode() = runAppTest(testDispatcher) {
         val windowSizeClass = WindowSizeClass.calculateFromSize(
             composeTestRule.activityRule.scenario.withActivity {
                 with(Density(this)) {
@@ -103,9 +97,6 @@ class ComposeLifeAppTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                 }
             },
         )
-
-        composeTestRule.waitForIdle()
-        testDispatcher.scheduler.runCurrent()
 
         composeTestRule
             .onNode(
@@ -179,7 +170,7 @@ class ComposeLifeAppTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
 
     @SkipLeakDetection("recomposer", "Outer", "Inner")
     @Test
-    fun can_save_theme_to_quick_access() = runAppTest {
+    fun can_save_theme_to_quick_access() = runAppTest(testDispatcher) {
         val windowSizeClass = WindowSizeClass.calculateFromSize(
             composeTestRule.activityRule.scenario.withActivity {
                 with(Density(this)) {
@@ -192,9 +183,6 @@ class ComposeLifeAppTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                 }
             },
         )
-
-        composeTestRule.waitForIdle()
-        testDispatcher.scheduler.runCurrent()
 
         composeTestRule
             .onNode(
@@ -312,7 +300,7 @@ class ComposeLifeAppTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
 
     @SkipLeakDetection("recomposer", "Outer", "Inner")
     @Test
-    fun can_change_algorithm_implementation_to_naive() = runAppTest {
+    fun can_change_algorithm_implementation_to_naive() = runAppTest(testDispatcher) {
         val windowSizeClass = WindowSizeClass.calculateFromSize(
             composeTestRule.activityRule.scenario.withActivity {
                 with(Density(this)) {
@@ -325,9 +313,6 @@ class ComposeLifeAppTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                 }
             },
         )
-
-        composeTestRule.waitForIdle()
-        testDispatcher.scheduler.runCurrent()
 
         composeTestRule
             .onNode(

@@ -16,16 +16,23 @@
 
 package com.alexvanyo.composelife.dispatchers.di
 
+import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.scopes.Singleton
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestDispatcher
 import me.tatarka.inject.annotations.Provides
 
 interface TestDispatcherComponent {
 
-    val testDispatcher: TestDispatcher
+    val generalTestDispatcher: GeneralTestDispatcher
+
+    val cellTickerTestDispatcher: CellTickerTestDispatcher
 
     @Provides
     @Singleton
-    fun providesTestDispatcher(): TestDispatcher = StandardTestDispatcher()
+    fun providesGeneralTestDispatcher(): GeneralTestDispatcher = StandardTestDispatcher()
+
+    @Provides
+    @Singleton
+    fun providesCellTickerTestDispatcher(): CellTickerTestDispatcher = StandardTestDispatcher()
 }
