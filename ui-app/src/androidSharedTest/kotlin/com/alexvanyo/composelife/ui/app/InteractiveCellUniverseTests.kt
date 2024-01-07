@@ -246,7 +246,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
             advanceUntilIdle()
             composeTestRule.waitForIdle()
-            cellTickerTestDispatcher.scheduler.advanceTimeBy(16)
+            cellTickerTestDispatcher.scheduler.advanceTimeBy(17)
             cellTickerTestDispatcher.scheduler.runCurrent()
             advanceUntilIdle()
             composeTestRule.waitForIdle()
@@ -313,7 +313,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
             advanceUntilIdle()
             composeTestRule.waitForIdle()
-            cellTickerTestDispatcher.scheduler.advanceTimeBy(16)
+            cellTickerTestDispatcher.scheduler.advanceTimeBy(17)
             cellTickerTestDispatcher.scheduler.runCurrent()
             advanceUntilIdle()
             composeTestRule.waitForIdle()

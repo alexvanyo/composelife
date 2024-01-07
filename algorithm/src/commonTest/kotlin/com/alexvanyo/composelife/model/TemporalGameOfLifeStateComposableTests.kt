@@ -122,14 +122,14 @@ class TemporalGameOfLifeStateComposableTests {
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
             testDispatcher.scheduler.runCurrent()
             waitForIdle()
-            testDispatcher.scheduler.advanceTimeBy(16)
+            testDispatcher.scheduler.advanceTimeBy(17)
             testDispatcher.scheduler.runCurrent()
             waitForIdle()
 
             assertEquals(expectedCellState, temporalGameOfLifeState.cellState)
             temporalGameOfLifeState.status.let { status ->
                 assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+                assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
             }
         }
     }
@@ -180,14 +180,14 @@ class TemporalGameOfLifeStateComposableTests {
 
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
-        testDispatcher.scheduler.advanceTimeBy(8)
+        testDispatcher.scheduler.advanceTimeBy(9)
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-            assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+            assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
         testDispatcher.scheduler.runCurrent()
@@ -199,19 +199,19 @@ class TemporalGameOfLifeStateComposableTests {
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-            assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+            assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
-        testDispatcher.scheduler.advanceTimeBy(8)
+        testDispatcher.scheduler.advanceTimeBy(9)
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-            assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+            assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
         temporalGameOfLifeState.setIsRunning(false)
@@ -272,14 +272,14 @@ class TemporalGameOfLifeStateComposableTests {
 
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
-        testDispatcher.scheduler.advanceTimeBy(8)
+        testDispatcher.scheduler.advanceTimeBy(9)
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-            assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+            assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
         testDispatcher.scheduler.runCurrent()
@@ -291,19 +291,19 @@ class TemporalGameOfLifeStateComposableTests {
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-            assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+            assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
-        testDispatcher.scheduler.advanceTimeBy(8)
+        testDispatcher.scheduler.advanceTimeBy(9)
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-            assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+            assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
         temporalGameOfLifeState.targetStepsPerSecond = 10.0
@@ -317,7 +317,7 @@ class TemporalGameOfLifeStateComposableTests {
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-            assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+            assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
         testDispatcher.scheduler.runCurrent()
@@ -329,7 +329,7 @@ class TemporalGameOfLifeStateComposableTests {
         assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-            assertEquals(22.727, status.averageGenerationsPerSecond, 0.001)
+            assertEquals(22.388, status.averageGenerationsPerSecond, 0.001)
         }
     }
 
@@ -379,14 +379,14 @@ class TemporalGameOfLifeStateComposableTests {
 
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
-        testDispatcher.scheduler.advanceTimeBy(8)
+        testDispatcher.scheduler.advanceTimeBy(9)
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-            assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+            assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
         testDispatcher.scheduler.runCurrent()
@@ -398,19 +398,19 @@ class TemporalGameOfLifeStateComposableTests {
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-            assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+            assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
-        testDispatcher.scheduler.advanceTimeBy(8)
+        testDispatcher.scheduler.advanceTimeBy(9)
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-            assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+            assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
         temporalGameOfLifeState.cellState = SingleCellPattern.seedCellState
@@ -424,19 +424,19 @@ class TemporalGameOfLifeStateComposableTests {
         assertEquals(SingleCellPattern.seedCellState, temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-            assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+            assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
-        testDispatcher.scheduler.advanceTimeBy(8)
+        testDispatcher.scheduler.advanceTimeBy(9)
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SingleCellPattern.cellStates[0], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-            assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+            assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
     }
 
@@ -494,14 +494,14 @@ class TemporalGameOfLifeStateComposableTests {
 
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
-        testDispatcher.scheduler.advanceTimeBy(8)
+        testDispatcher.scheduler.advanceTimeBy(9)
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-            assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+            assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
         testDispatcher.scheduler.runCurrent()
@@ -513,19 +513,19 @@ class TemporalGameOfLifeStateComposableTests {
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-            assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+            assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
-        testDispatcher.scheduler.advanceTimeBy(8)
+        testDispatcher.scheduler.advanceTimeBy(9)
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-            assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+            assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
         runFirstMutator = false
@@ -539,19 +539,19 @@ class TemporalGameOfLifeStateComposableTests {
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-            assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+            assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
-        testDispatcher.scheduler.advanceTimeBy(8)
+        testDispatcher.scheduler.advanceTimeBy(9)
         testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-            assertEquals(62.5, status.averageGenerationsPerSecond, 0.001)
+            assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
     }
 
