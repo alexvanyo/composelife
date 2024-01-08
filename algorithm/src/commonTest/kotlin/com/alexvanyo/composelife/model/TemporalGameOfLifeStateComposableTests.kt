@@ -50,7 +50,10 @@ class TemporalGameOfLifeStateComposableTests {
 
     private val testDispatcher = StandardTestDispatcher()
 
-    private val dispatchers = TestComposeLifeDispatchers(testDispatcher)
+    private val dispatchers = TestComposeLifeDispatchers(
+        generalTestDispatcher = testDispatcher,
+        cellTickerTestDispatcher = testDispatcher,
+    )
 
     @Test
     fun state_is_instance_state_saved_correctly() = runComposeUiTest {

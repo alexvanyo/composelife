@@ -20,6 +20,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.TestDispatcher
 import me.tatarka.inject.annotations.Inject
+import kotlin.coroutines.CoroutineContext
 
 /**
  * A test implementation of [ComposeLifeDispatchers], which delegates [Default], [Main] and [IO] to the provided
@@ -30,10 +31,12 @@ import me.tatarka.inject.annotations.Inject
 @Suppress("InjectDispatcher")
 @Inject
 class TestComposeLifeDispatchers(
-    testDispatcher: TestDispatcher,
+    generalTestDispatcher: GeneralTestDispatcher,
+    cellTickerTestDispatcher: CellTickerTestDispatcher,
 ) : ComposeLifeDispatchers {
-    override val Default: CoroutineDispatcher = testDispatcher
-    override val Main: CoroutineDispatcher = testDispatcher
+    override val Default: CoroutineDispatcher = generalTestDispatcher
+    override val Main: CoroutineDispatcher = generalTestDispatcher
     override val Unconfined: CoroutineDispatcher = Dispatchers.Unconfined
-    override val IO: CoroutineDispatcher = testDispatcher
+    override val IO: CoroutineDispatcher = generalTestDispatcher
+    override val CellTicker: CoroutineContext = cellTickerTestDispatcher
 }
