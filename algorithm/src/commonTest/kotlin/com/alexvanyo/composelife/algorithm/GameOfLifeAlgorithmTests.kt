@@ -122,10 +122,13 @@ class GameOfLifeAlgorithmTests {
 
     @Test
     fun one_generation_step_flow() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+
         val (algorithm, job) = algorithmFactory.factory(
             this,
             TestComposeLifeDispatchers(
-                StandardTestDispatcher(testScheduler),
+                generalTestDispatcher = testDispatcher,
+                cellTickerTestDispatcher = testDispatcher,
             ),
         )
 
@@ -147,10 +150,13 @@ class GameOfLifeAlgorithmTests {
 
     @Test
     fun two_generation_step_flow() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+
         val (algorithm, job) = algorithmFactory.factory(
             this,
             TestComposeLifeDispatchers(
-                StandardTestDispatcher(testScheduler),
+                generalTestDispatcher = testDispatcher,
+                cellTickerTestDispatcher = testDispatcher,
             ),
         )
 
@@ -174,10 +180,13 @@ class GameOfLifeAlgorithmTests {
 
     @Test
     fun subsequent_one_generation_step() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+
         val (algorithm, job) = algorithmFactory.factory(
             this,
             TestComposeLifeDispatchers(
-                StandardTestDispatcher(testScheduler),
+                generalTestDispatcher = testDispatcher,
+                cellTickerTestDispatcher = testDispatcher,
             ),
         )
 
@@ -197,10 +206,13 @@ class GameOfLifeAlgorithmTests {
 
     @Test
     fun subsequent_two_generation_step() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+
         val (algorithm, job) = algorithmFactory.factory(
             this,
             TestComposeLifeDispatchers(
-                StandardTestDispatcher(testScheduler),
+                generalTestDispatcher = testDispatcher,
+                cellTickerTestDispatcher = testDispatcher,
             ),
         )
 

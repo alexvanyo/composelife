@@ -64,6 +64,7 @@ import com.alexvanyo.composelife.ui.util.ClipboardWriter
 import com.alexvanyo.composelife.ui.util.rememberClipboardReader
 import com.alexvanyo.composelife.ui.util.rememberClipboardWriter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import leakcanary.SkipLeakDetection
 import org.junit.runner.RunWith
 import kotlin.test.Test
@@ -77,7 +78,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
     { TestComposeLifeApplicationComponent.create() },
     InjectTestActivity::class.java,
 ) {
-    private val testDispatcher get() = applicationComponent.testDispatcher
+    private val generalTestDispatcher get() = applicationComponent.generalTestDispatcher
+
+    private val cellTickerTestDispatcher get() = applicationComponent.cellTickerTestDispatcher
 
     private val gameOfLifeAlgorithm get() = applicationComponent.gameOfLifeAlgorithm
 
@@ -92,7 +95,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
     @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun info_card_closes_upon_back_press() = runAppTest {
+    fun info_card_closes_upon_back_press() = runAppTest(generalTestDispatcher) {
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 isRunning = false,
@@ -102,7 +105,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
+                clock = cellTickerTestDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
 
@@ -130,6 +133,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             )
             .performClick()
 
+        advanceUntilIdle()
         composeTestRule.waitForIdle()
 
         Espresso.pressBack()
@@ -141,7 +145,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
     @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun action_card_closes_upon_back_press() = runAppTest {
+    fun action_card_closes_upon_back_press() = runAppTest(generalTestDispatcher) {
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 isRunning = false,
@@ -151,7 +155,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
+                clock = cellTickerTestDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
 
@@ -179,6 +183,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             )
             .performClick()
 
+        advanceUntilIdle()
         composeTestRule.waitForIdle()
 
         Espresso.pressBack()
@@ -190,7 +195,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
     @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun six_long_line_evolves_correctly() = runAppTest {
+    fun six_long_line_evolves_correctly() = runAppTest(generalTestDispatcher) {
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 60.0,
@@ -199,7 +204,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
+                clock = cellTickerTestDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
 
@@ -239,10 +244,11 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             .performClick()
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
-            testDispatcher.scheduler.runCurrent()
+            advanceUntilIdle()
             composeTestRule.waitForIdle()
-            testDispatcher.scheduler.advanceTimeBy(16)
-            testDispatcher.scheduler.runCurrent()
+            cellTickerTestDispatcher.scheduler.advanceTimeBy(16)
+            cellTickerTestDispatcher.scheduler.runCurrent()
+            advanceUntilIdle()
             composeTestRule.waitForIdle()
 
             assertNodesAreAlive(expectedCellState.aliveCells)
@@ -252,7 +258,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
     @OptIn(ExperimentalTestApi::class)
     @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun six_long_line_evolves_correctly_with_spacebar() = runAppTest {
+    fun six_long_line_evolves_correctly_with_spacebar() = runAppTest(generalTestDispatcher) {
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 60.0,
@@ -261,7 +267,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
+                clock = cellTickerTestDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
 
@@ -305,10 +311,11 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             }
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
-            testDispatcher.scheduler.runCurrent()
+            advanceUntilIdle()
             composeTestRule.waitForIdle()
-            testDispatcher.scheduler.advanceTimeBy(16)
-            testDispatcher.scheduler.runCurrent()
+            cellTickerTestDispatcher.scheduler.advanceTimeBy(16)
+            cellTickerTestDispatcher.scheduler.runCurrent()
+            advanceUntilIdle()
             composeTestRule.waitForIdle()
 
             assertNodesAreAlive(expectedCellState.aliveCells)
@@ -317,7 +324,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
     @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun six_long_line_evolves_correctly_after_slowing_down() = runAppTest {
+    fun six_long_line_evolves_correctly_after_slowing_down() = runAppTest(generalTestDispatcher) {
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 60.0,
@@ -326,7 +333,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
+                clock = cellTickerTestDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
 
@@ -384,10 +391,11 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             .performClick()
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
-            testDispatcher.scheduler.runCurrent()
+            advanceUntilIdle()
             composeTestRule.waitForIdle()
-            testDispatcher.scheduler.advanceTimeBy(1000)
-            testDispatcher.scheduler.runCurrent()
+            cellTickerTestDispatcher.scheduler.advanceTimeBy(1000)
+            cellTickerTestDispatcher.scheduler.runCurrent()
+            advanceUntilIdle()
             composeTestRule.waitForIdle()
 
             assertNodesAreAlive(expectedCellState.aliveCells)
@@ -396,7 +404,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
     @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun six_long_line_evolves_correctly_with_step() = runAppTest {
+    fun six_long_line_evolves_correctly_with_step() = runAppTest(generalTestDispatcher) {
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 0.001,
@@ -405,7 +413,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
+                clock = cellTickerTestDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
 
@@ -445,9 +453,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 .onNodeWithContentDescription(context.getString(R.string.step))
                 .performClick()
 
-            testDispatcher.scheduler.runCurrent()
-            composeTestRule.waitForIdle()
-            testDispatcher.scheduler.runCurrent()
+            advanceUntilIdle()
             composeTestRule.waitForIdle()
 
             assertNodesAreAlive(expectedCellState.aliveCells)
@@ -456,7 +462,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
     @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun six_long_line_evolves_correctly_with_double_step_via_slider() = runAppTest {
+    fun six_long_line_evolves_correctly_with_double_step_via_slider() = runAppTest(generalTestDispatcher) {
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 0.001,
@@ -465,7 +471,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
+                clock = cellTickerTestDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
 
@@ -523,9 +529,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 .onNodeWithContentDescription(context.getString(R.string.step))
                 .performClick()
 
-            testDispatcher.scheduler.runCurrent()
-            composeTestRule.waitForIdle()
-            testDispatcher.scheduler.runCurrent()
+            advanceUntilIdle()
             composeTestRule.waitForIdle()
 
             assertNodesAreAlive(expectedCellState.aliveCells)
@@ -534,7 +538,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
     @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun six_long_line_evolves_correctly_with_double_step_via_text() = runAppTest {
+    fun six_long_line_evolves_correctly_with_double_step_via_text() = runAppTest(generalTestDispatcher) {
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 0.001,
@@ -543,7 +547,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
+                clock = cellTickerTestDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
 
@@ -610,9 +614,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 .onNodeWithContentDescription(context.getString(R.string.step))
                 .performClick()
 
-            testDispatcher.scheduler.runCurrent()
-            composeTestRule.waitForIdle()
-            testDispatcher.scheduler.runCurrent()
+            advanceUntilIdle()
             composeTestRule.waitForIdle()
 
             assertNodesAreAlive(expectedCellState.aliveCells)
@@ -622,7 +624,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
     @OptIn(ExperimentalTestApi::class)
     @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun glider_is_copied_correctly_with_keyboard_shortcuts() = runAppTest {
+    fun glider_is_copied_correctly_with_keyboard_shortcuts() = runAppTest(generalTestDispatcher) {
         lateinit var clipboardReader: ClipboardReader
 
         composeTestRule.setContent {
@@ -633,7 +635,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
+                clock = cellTickerTestDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
 
@@ -715,7 +717,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
     @OptIn(ExperimentalTestApi::class)
     @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun selection_is_cleared_correctly_with_keyboard_shortcuts() = runAppTest {
+    fun selection_is_cleared_correctly_with_keyboard_shortcuts() = runAppTest(generalTestDispatcher) {
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 60.0,
@@ -724,7 +726,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
+                clock = cellTickerTestDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
 
@@ -793,7 +795,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
     @OptIn(ExperimentalTestApi::class)
     @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun glider_is_pasted_correctly_with_keyboard_shortcuts() = runAppTest {
+    fun glider_is_pasted_correctly_with_keyboard_shortcuts() = runAppTest(generalTestDispatcher) {
         lateinit var clipboardWriter: ClipboardWriter
 
         composeTestRule.setContent {
@@ -804,7 +806,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
+                clock = cellTickerTestDispatcher.scheduler.clock,
                 dispatchers = dispatchers,
             )
 
@@ -857,7 +859,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 keyUp(Key.CtrlLeft)
             }
 
-        testDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
         composeTestRule.waitForIdle()
 
         composeTestRule

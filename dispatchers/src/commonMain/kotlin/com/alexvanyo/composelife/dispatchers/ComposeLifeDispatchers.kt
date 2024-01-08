@@ -20,6 +20,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainCoroutineDispatcher
 import me.tatarka.inject.annotations.Inject
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * A custom interface version of [Dispatchers], so that dispatchers can be injected.
@@ -45,6 +47,11 @@ interface ComposeLifeDispatchers {
      * @see Dispatchers.IO
      */
     val IO: CoroutineDispatcher
+
+    /**
+     * The [CoroutineContext] for driving cell state ticks, in response to time delays.
+     */
+    val CellTicker: CoroutineContext
 }
 
 /**
@@ -57,4 +64,5 @@ class DefaultComposeLifeDispatchers : ComposeLifeDispatchers {
     override val Main: MainCoroutineDispatcher = Dispatchers.Main
     override val Unconfined: CoroutineDispatcher = Dispatchers.Unconfined
     override val IO: CoroutineDispatcher = Dispatchers.IO
+    override val CellTicker: CoroutineContext = EmptyCoroutineContext
 }
