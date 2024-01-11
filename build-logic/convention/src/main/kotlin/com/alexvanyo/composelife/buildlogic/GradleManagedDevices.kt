@@ -39,7 +39,7 @@ sealed interface FormFactor {
 
 fun configureGradleManagedDevices(
     formFactors: Set<FormFactor>,
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
+    commonExtension: CommonExtension<*, *, *, *, *>,
 ) {
     commonExtension.testOptions.managedDevices.devices {
         formFactors
