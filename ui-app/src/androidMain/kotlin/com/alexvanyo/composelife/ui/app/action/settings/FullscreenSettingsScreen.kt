@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -468,7 +467,7 @@ sealed interface ListAndDetailLayoutTypes {
     companion object
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
 private fun SettingsCategoryList(
@@ -573,7 +572,6 @@ private fun SettingsCategoryList(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 private fun SettingsCategoryButton(
     settingsCategory: SettingsCategory,
     showSelectedSettingsCategory: Boolean,
