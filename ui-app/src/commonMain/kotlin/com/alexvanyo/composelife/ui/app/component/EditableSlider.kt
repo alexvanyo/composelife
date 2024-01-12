@@ -20,7 +20,6 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -42,7 +41,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.alexvanyo.composelife.ui.util.uuidSaver
 import java.util.UUID
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 fun <T : Comparable<T>> EditableSlider(
