@@ -113,8 +113,12 @@ private val mobileDevices = run {
         }
     }
         .filterNot {
-            // ATD is only supported on some versions
-            "atd" in it.systemImageSource && it.apiLevel !in 30..33
+            // aosp-atd is only supported on some versions
+            it.systemImageSource == "aosp-atd" && it.apiLevel !in 30..34
+        }
+        .filterNot {
+            // google-atd is only supported on some versions
+            it.systemImageSource == "google-atd" && it.apiLevel !in 30..33
         }
         .filterNot {
             // Desktop images only make sense on desktop devices
