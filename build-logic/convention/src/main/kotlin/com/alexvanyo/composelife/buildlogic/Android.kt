@@ -35,7 +35,6 @@ fun Project.configureAndroid(
             warningsAsErrors = true
             disable.addAll(listOf("GradleDependency", "OldTargetApi", "AndroidGradlePluginVersion"))
             enable.addAll(listOf("UnsupportedChromeOsHardware"))
-            baseline = file("lint-baseline.xml")
         }
 
         defaultConfig {
