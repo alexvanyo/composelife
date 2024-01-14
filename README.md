@@ -32,8 +32,7 @@ These include:
 ## Setup
 
 Requirements:
-Flamingo
-- Android Studio Iguana
+- Android Studio Jellyfish
 - JDK 17+
 
 Clone the project, and build! (no API keys or other setup necessary)
