@@ -25,6 +25,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
@@ -42,28 +43,29 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(projects.algorithm)
+
+                implementation(libs.kotlinInject.runtime)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
                 implementation(projects.geometry)
                 implementation(projects.injectScopes)
                 implementation(projects.openglRenderer)
                 implementation(projects.uiWear)
                 implementation(projects.wearWatchfaceConfiguration)
-
-                implementation(libs.kotlinx.datetime)
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinInject.runtime)
             }
         }
         val androidMain by getting {
             configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
+                api(libs.androidx.wear.watchface)
+
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.appcompat)
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.androidx.compose.ui)
                 implementation(libs.androidx.lifecycle.runtime)
                 implementation(libs.androidx.wear.compose.material)
-                api(libs.androidx.wear.watchface)
                 implementation(libs.androidx.wear.watchface.complications.data)
                 implementation(libs.androidx.wear.watchface.complications.dataSource)
                 implementation(libs.androidx.wear.watchface.complications.rendering)

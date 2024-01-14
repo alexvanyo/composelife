@@ -19,6 +19,7 @@ plugins {
     alias(libs.plugins.convention.androidLibrary)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {

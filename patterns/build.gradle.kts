@@ -24,6 +24,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryJacoco)
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
@@ -41,9 +42,9 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(projects.algorithm)
                 api(libs.jetbrains.compose.ui)
                 api(libs.sealedEnum.runtime)
+                api(projects.algorithm)
             }
         }
         val androidMain by getting {

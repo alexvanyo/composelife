@@ -22,6 +22,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryRoborazzi)
     alias(libs.plugins.roborazzi)
     alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
@@ -37,20 +38,20 @@ kotlin {
     sourceSets {
         val androidMain by getting {
             dependencies {
-                implementation(projects.uiWear)
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.foundation)
                 implementation(libs.androidx.compose.ui)
+                implementation(projects.uiWear)
             }
         }
 
         val androidUnitTest by getting {
             dependencies {
-                implementation(projects.testActivity)
-                implementation(libs.testParameterInjector.junit4)
+                implementation(libs.accompanist.testharness)
                 implementation(libs.androidx.compose.uiTestJunit4)
                 implementation(libs.roborazzi.compose)
-                implementation(libs.accompanist.testharness)
+                implementation(libs.testParameterInjector.junit4)
+                implementation(projects.testActivity)
             }
         }
     }

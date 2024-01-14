@@ -25,6 +25,7 @@ plugins {
     alias(libs.plugins.convention.androidApplicationKsp)
     alias(libs.plugins.convention.androidApplicationTesting)
     alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
@@ -45,14 +46,14 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.doNotKeepProcess)
+                implementation(libs.kotlinInject.runtime)
+                implementation(libs.kotlinx.serialization.core)
                 implementation(projects.appCompatSync)
+                implementation(projects.doNotKeepProcess)
                 implementation(projects.injectScopes)
                 implementation(projects.resourcesApp)
                 implementation(projects.strictMode)
                 implementation(projects.uiApp)
-                implementation(libs.kotlinx.serialization.core)
-                implementation(libs.kotlinInject.runtime)
             }
         }
         val androidMain by getting {

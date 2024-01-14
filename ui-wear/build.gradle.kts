@@ -23,6 +23,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryCompose)
     alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
@@ -39,18 +40,18 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(projects.updatable)
+
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.serialization.core)
                 implementation(projects.navigation)
-                implementation(projects.snapshotStateSet)
-                implementation(projects.uiCommon)
-                implementation(projects.wearWatchfaceConfiguration)
                 implementation(projects.resourceState)
                 implementation(projects.resourcesWear)
-                api(projects.updatable)
+                implementation(projects.snapshotStateSet)
+                implementation(projects.uiCommon)
                 implementation(projects.uiToolingPreview)
-
-                implementation(libs.kotlinx.datetime)
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.serialization.core)
+                implementation(projects.wearWatchfaceConfiguration)
             }
         }
         val androidMain by getting {
@@ -69,8 +70,8 @@ kotlin {
                 implementation(libs.androidx.wear.watchface.data)
                 implementation(libs.androidx.wear.watchface.editor)
                 implementation(libs.androidx.wear.watchface.style)
-                implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.horologist.composeLayout)
+                implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.sealedEnum.runtime)
             }
         }

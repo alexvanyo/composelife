@@ -25,6 +25,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
@@ -42,20 +43,20 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(libs.kotlinx.coroutines.core)
                 api(projects.dispatchers)
-                implementation(projects.injectScopes)
                 api(projects.updatable)
 
-                api(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinInject.runtime)
                 implementation(libs.sqldelight.coroutinesExtensions)
                 implementation(libs.sqldelight.primitiveAdapters)
-
-                implementation(libs.kotlinInject.runtime)
+                implementation(projects.injectScopes)
             }
         }
         val androidMain by getting {
             dependencies {
                 api(libs.kotlinx.coroutines.android)
+
                 implementation(libs.sqldelight.androidDriver)
             }
         }
@@ -66,12 +67,11 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.turbine)
                 implementation(projects.databaseTest)
                 implementation(projects.dispatchersTest)
                 implementation(projects.kmpAndroidRunner)
-
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.turbine)
             }
         }
         val androidSharedTest by getting {

@@ -18,6 +18,7 @@ plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
     alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
@@ -34,14 +35,14 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(kotlin("test"))
+                implementation(libs.kotlin.test)
             }
         }
         val androidMain by getting {
             dependencies {
-                implementation(libs.androidx.test.core)
                 implementation(libs.androidx.compose.foundation)
                 implementation(libs.androidx.compose.uiTestJunit4)
+                implementation(libs.androidx.test.core)
             }
         }
     }

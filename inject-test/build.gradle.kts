@@ -18,6 +18,7 @@ plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
     alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
@@ -34,21 +35,22 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(libs.kotlinx.coroutines.test)
                 api(projects.databaseTest)
-                implementation(projects.injectScopes)
                 api(projects.kmpAndroidRunner)
                 api(projects.preferencesTest)
 
-                implementation(kotlin("test-junit"))
-                api(libs.kotlinx.coroutines.test)
+                implementation(libs.kotlin.test.junit)
+                implementation(projects.injectScopes)
             }
         }
         val androidMain by getting {
             dependencies {
-                api(libs.androidx.test.runner)
                 api(libs.androidx.compose.uiTestJunit4)
-                implementation(libs.leakCanary.android)
+                api(libs.androidx.test.runner)
                 api(libs.leakCanary.instrumentation)
+
+                implementation(libs.leakCanary.android)
             }
         }
     }
