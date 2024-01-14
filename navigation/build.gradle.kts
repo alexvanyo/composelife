@@ -25,6 +25,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
@@ -42,13 +43,12 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.snapshotStateSet)
-
                 api(libs.jetbrains.compose.animation)
                 api(libs.jetbrains.compose.runtime)
                 api(libs.jetbrains.compose.ui)
 
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(projects.snapshotStateSet)
             }
         }
         val jvmMain by getting {
@@ -67,21 +67,20 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                api(libs.jetbrains.compose.foundation)
+
+                implementation(libs.jetbrains.compose.uiTestJunit4)
+                implementation(libs.kotlinx.coroutines.test)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
-
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.jetbrains.compose.uiTestJunit4)
-                api(libs.jetbrains.compose.foundation)
             }
         }
         val androidSharedTest by getting {
             dependencies {
-                implementation(projects.testActivity)
-
+                implementation(libs.androidx.compose.uiTestJunit4)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
-                implementation(libs.androidx.compose.uiTestJunit4)
+                implementation(projects.testActivity)
             }
         }
     }

@@ -18,6 +18,7 @@ plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidTest)
     alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
@@ -46,10 +47,10 @@ kotlin {
     sourceSets {
         val androidMain by getting {
             dependencies {
-                implementation(kotlin("test-junit"))
                 implementation(libs.androidx.benchmark.macro.junit4)
-                implementation(libs.androidx.test.runner)
                 implementation(libs.androidx.test.junit)
+                implementation(libs.androidx.test.runner)
+                implementation(libs.kotlin.test.junit)
             }
         }
     }

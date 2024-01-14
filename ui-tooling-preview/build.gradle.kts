@@ -18,6 +18,7 @@ plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
     alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
@@ -34,8 +35,8 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.resourcesApp)
                 implementation(libs.jetbrains.compose.uiToolingPreview)
+                implementation(projects.resourcesApp)
             }
         }
         val androidMain by getting {

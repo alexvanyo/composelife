@@ -27,6 +27,7 @@ plugins {
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
     kotlin("plugin.serialization") version libs.versions.kotlin
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
@@ -46,20 +47,20 @@ kotlin {
             dependencies {
                 api(projects.dispatchers)
                 api(projects.geometry)
-                implementation(projects.injectScopes)
                 api(projects.parameterizedString)
                 api(projects.preferences)
                 api(projects.updatable)
 
                 implementation(libs.androidx.annotation)
-                implementation(libs.kotlinx.datetime)
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.serialization.json)
-                implementation(libs.jetbrains.compose.ui)
-                implementation(libs.jetbrains.compose.runtime)
-                implementation(libs.sealedEnum.runtime)
                 implementation(libs.guava.android)
+                implementation(libs.jetbrains.compose.runtime)
+                implementation(libs.jetbrains.compose.ui)
                 implementation(libs.kotlinInject.runtime)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.serialization.json)
+                implementation(libs.sealedEnum.runtime)
+                implementation(projects.injectScopes)
             }
         }
         val androidMain by getting {
@@ -76,24 +77,22 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.testParameterInjector.junit4)
+                implementation(libs.turbine)
                 implementation(projects.dispatchersTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.patterns)
-
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.turbine)
-                implementation(libs.testParameterInjector.junit4)
             }
         }
         val androidSharedTest by getting {
             dependencies {
-                implementation(projects.preferencesTest)
-                implementation(projects.testActivity)
-
                 implementation(libs.androidx.compose.uiTestJunit4)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
+                implementation(projects.preferencesTest)
+                implementation(projects.testActivity)
             }
         }
     }

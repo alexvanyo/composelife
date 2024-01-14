@@ -25,6 +25,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
@@ -42,13 +43,15 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.core)
                 api(libs.jetbrains.compose.runtime)
+
+                implementation(libs.kotlinx.coroutines.core)
             }
         }
         val androidMain by getting {
             dependencies {
                 api(libs.androidx.compose.foundation)
+
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.tracing)
                 implementation(libs.kotlinx.coroutines.android)
@@ -61,10 +64,10 @@ kotlin {
         }
         val androidSharedTest by getting {
             dependencies {
-                implementation(projects.testActivity)
+                implementation(libs.androidx.compose.uiTestJunit4)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
-                implementation(libs.androidx.compose.uiTestJunit4)
+                implementation(projects.testActivity)
             }
         }
     }

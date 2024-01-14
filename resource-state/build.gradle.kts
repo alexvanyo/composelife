@@ -25,6 +25,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
@@ -42,10 +43,10 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.kotlinx.coroutines.core)
                 api(libs.jetbrains.compose.foundation)
                 api(libs.jetbrains.compose.runtime)
                 api(libs.jetbrains.compose.ui)
+                api(libs.kotlinx.coroutines.core)
             }
         }
         val jvmMain by getting {
@@ -56,27 +57,27 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 api(libs.kotlinx.coroutines.android)
-                implementation(libs.androidx.core)
+
                 implementation(libs.androidx.compose.ui)
-                implementation(libs.androidx.tracing)
+                implementation(libs.androidx.core)
                 implementation(libs.androidx.lifecycle.viewmodel.savedstate)
+                implementation(libs.androidx.tracing)
             }
         }
         val commonTest by getting {
             dependencies {
-                implementation(projects.kmpAndroidRunner)
+                implementation(libs.jetbrains.compose.uiTestJunit4)
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
-                implementation(libs.jetbrains.compose.uiTestJunit4)
+                implementation(projects.kmpAndroidRunner)
             }
         }
         val androidSharedTest by getting {
             dependencies {
-                implementation(projects.testActivity)
-
+                implementation(libs.androidx.compose.uiTestJunit4)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
-                implementation(libs.androidx.compose.uiTestJunit4)
+                implementation(projects.testActivity)
             }
         }
     }

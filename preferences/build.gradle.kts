@@ -24,6 +24,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
@@ -41,20 +42,19 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(libs.androidx.dataStore)
+                api(libs.jetbrains.compose.runtime)
+                api(libs.kotlinx.coroutines.core)
+                api(libs.sealedEnum.runtime)
                 api(projects.dispatchers)
-                implementation(projects.injectScopes)
-                implementation(projects.preferencesProto)
                 api(projects.resourceState)
                 api(projects.updatable)
 
-                api(libs.kotlinx.coroutines.core)
-                api(libs.jetbrains.compose.runtime)
-                api(libs.androidx.dataStore)
                 implementation(libs.androidx.dataStore.core.okio)
-                implementation(libs.okio)
-                api(libs.sealedEnum.runtime)
-
                 implementation(libs.kotlinInject.runtime)
+                implementation(libs.okio)
+                implementation(projects.injectScopes)
+                implementation(projects.preferencesProto)
             }
         }
         val androidMain by getting {
@@ -62,6 +62,7 @@ kotlin {
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
                 api(libs.kotlinx.coroutines.android)
+
                 implementation(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.androidx.lifecycle.viewmodel.savedstate)
             }
@@ -72,13 +73,12 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.okio.fakefilesystem)
+                implementation(libs.turbine)
+                implementation(projects.dispatchersTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.preferencesTest)
-                implementation(projects.dispatchersTest)
-
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.turbine)
-                implementation(libs.okio.fakefilesystem)
             }
         }
         val androidSharedTest by getting {

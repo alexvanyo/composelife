@@ -23,6 +23,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryCompose)
     alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
@@ -39,11 +40,10 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
                 implementation(projects.resourcesWear)
                 implementation(projects.uiCommon)
-
-                implementation(libs.kotlinx.datetime)
-                implementation(libs.kotlinx.coroutines.core)
             }
         }
         val androidMain by getting {

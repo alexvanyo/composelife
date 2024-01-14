@@ -26,6 +26,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
@@ -43,20 +44,20 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(libs.androidx.annotation)
+                implementation(libs.jetbrains.compose.animation)
+                implementation(libs.jetbrains.compose.foundation)
+                implementation(libs.jetbrains.compose.materialIconsExtended)
+                implementation(libs.jetbrains.compose.ui)
+                implementation(libs.jetbrains.compose.uiUtil)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.serialization.json)
+                implementation(libs.sealedEnum.runtime)
                 implementation(projects.dispatchers)
                 implementation(projects.geometry)
                 implementation(projects.navigation)
                 implementation(projects.snapshotStateSet)
                 implementation(projects.uiToolingPreview)
-                implementation(libs.androidx.annotation)
-                implementation(libs.jetbrains.compose.animation)
-                implementation(libs.jetbrains.compose.foundation)
-                implementation(libs.jetbrains.compose.ui)
-                implementation(libs.jetbrains.compose.uiUtil)
-                implementation(libs.jetbrains.compose.materialIconsExtended)
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.serialization.json)
-                implementation(libs.sealedEnum.runtime)
             }
         }
         val jvmMain by getting {
@@ -72,20 +73,19 @@ kotlin {
                 implementation(libs.androidx.compose.foundation)
                 implementation(libs.androidx.compose.materialIconsExtended)
                 implementation(libs.androidx.compose.uiTooling)
+                implementation(libs.androidx.core)
                 implementation(libs.androidx.lifecycle.runtime)
                 implementation(libs.androidx.lifecycle.runtime.compose)
-                implementation(libs.androidx.core)
                 implementation(libs.kotlinx.coroutines.android)
             }
         }
         val commonTest by getting {
             dependencies {
+                implementation(libs.jetbrains.compose.uiTestJunit4)
+                implementation(libs.kotlinx.coroutines.test)
                 implementation(projects.dispatchersTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
-
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.jetbrains.compose.uiTestJunit4)
             }
         }
         val androidSharedTest by getting {

@@ -24,6 +24,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
@@ -41,10 +42,11 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.injectScopes)
                 api(projects.preferences)
-                implementation(libs.kotlinInject.runtime)
+
                 implementation(libs.jetbrains.compose.runtime)
+                implementation(libs.kotlinInject.runtime)
+                implementation(projects.injectScopes)
             }
         }
         val jvmMain by getting {
@@ -58,9 +60,9 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(projects.kmpAndroidRunner)
-                implementation(projects.injectScopes)
                 implementation(projects.dispatchersTest)
+                implementation(projects.injectScopes)
+                implementation(projects.kmpAndroidRunner)
             }
         }
         val androidSharedTest by getting {
