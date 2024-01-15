@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
+import com.alexvanyo.composelife.navigation.NavigationHost
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.ActionControlRow
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.NavContainer
 import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenInjectEntryPoint
@@ -54,8 +55,8 @@ import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.Layout
-import com.alexvanyo.composelife.ui.util.PredictiveNavigationHost
 import com.alexvanyo.composelife.ui.util.WindowInsets
+import com.alexvanyo.composelife.ui.util.crossfadePredictiveNavigationDecoration
 import com.alexvanyo.composelife.ui.util.isInProgress
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.coroutines.CoroutineScope
@@ -211,12 +212,14 @@ fun CellUniverseActionCard(
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            PredictiveNavigationHost(
-                                predictiveBackState = actionCardState.inlinePredictiveBackState,
-                                backstackState = actionCardState.inlineNavigationState,
+                            NavigationHost(
+                                navigationState = actionCardState.inlineNavigationState,
                                 modifier = Modifier.weight(1f, fill = false),
-                                contentAlignment = Alignment.BottomCenter,
-                                animateInternalContentSizeChanges = !isImeAnimating,
+                                decoration = crossfadePredictiveNavigationDecoration(
+                                    predictiveBackState = actionCardState.inlinePredictiveBackState,
+                                    contentAlignment = Alignment.BottomCenter,
+                                    animateInternalContentSizeChanges = !isImeAnimating,
+                                ),
                             ) { entry ->
                                 // Cache the scroll state based for the target entry id.
                                 // This value won't change normally, but it will ensure we keep using

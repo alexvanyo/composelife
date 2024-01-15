@@ -85,7 +85,7 @@ class CellUniverseInfoItemContent(
 @Composable
 fun ColumnScope.InfoItem(
     cellUniverseInfoItemContent: CellUniverseInfoItemContent,
-    editingTargetState: TargetState<Boolean>,
+    editingTargetState: TargetState<Boolean, *>,
     modifier: Modifier = Modifier,
 ) {
     // Animate the appearance and disappearance of this item.
