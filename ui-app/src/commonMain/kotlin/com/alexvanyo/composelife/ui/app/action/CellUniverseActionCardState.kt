@@ -49,7 +49,7 @@ interface CellUniverseActionCardState {
     /**
      * The target state for whether the card is expanded.
      */
-    val expandedTargetState: TargetState<Boolean>
+    val expandedTargetState: TargetState<Boolean, *>
 
     /**
      * The inline navigation state of the card.
@@ -83,7 +83,7 @@ interface CellUniverseActionCardState {
 fun rememberCellUniverseActionCardState(
     enableBackHandler: Boolean,
     setIsExpanded: (Boolean) -> Unit,
-    expandedTargetState: TargetState<Boolean>,
+    expandedTargetState: TargetState<Boolean, *>,
 ): CellUniverseActionCardState {
     var currentInlineBackstack: InlineActionCardBackstack by rememberSaveable(
         stateSaver = InlineActionCardBackstack.Saver,
@@ -190,7 +190,7 @@ fun rememberCellUniverseActionCardState(
             setIsExpanded(isExpanded)
         }
 
-        override val expandedTargetState: TargetState<Boolean>
+        override val expandedTargetState: TargetState<Boolean, *>
             get() = expandedTargetState
 
         override val inlineNavigationState get() = inlineNavigationState

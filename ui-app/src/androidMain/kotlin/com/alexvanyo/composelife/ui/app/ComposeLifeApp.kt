@@ -140,27 +140,29 @@ fun ComposeLifeApp(
                                 predictiveBackState = predictiveBackStateHolder.value,
                                 backstackState = targetComposeLifeAppState.navigationState,
                             ) { entry ->
-                                when (val value = entry.value) {
-                                    is ComposeLifeNavigation.CellUniverse -> {
-                                        CellUniverseScreen(
-                                            windowSizeClass = windowSizeClass,
-                                            navEntryValue = value,
-                                            onSeeMoreSettingsClicked = {
-                                                targetComposeLifeAppState.onSeeMoreSettingsClicked(entry.id)
-                                            },
-                                            onOpenInSettingsClicked = { setting ->
-                                                targetComposeLifeAppState.onOpenInSettingsClicked(setting, entry.id)
-                                            },
-                                        )
-                                    }
-                                    is ComposeLifeNavigation.FullscreenSettings -> {
-                                        FullscreenSettingsScreen(
-                                            windowSizeClass = windowSizeClass,
-                                            navEntryValue = value,
-                                            onBackButtonPressed = {
-                                                targetComposeLifeAppState.onBackPressed(entry.id)
-                                            },
-                                        )
+                                Surface {
+                                    when (val value = entry.value) {
+                                        is ComposeLifeNavigation.CellUniverse -> {
+                                            CellUniverseScreen(
+                                                windowSizeClass = windowSizeClass,
+                                                navEntryValue = value,
+                                                onSeeMoreSettingsClicked = {
+                                                    targetComposeLifeAppState.onSeeMoreSettingsClicked(entry.id)
+                                                },
+                                                onOpenInSettingsClicked = { setting ->
+                                                    targetComposeLifeAppState.onOpenInSettingsClicked(setting, entry.id)
+                                                },
+                                            )
+                                        }
+                                        is ComposeLifeNavigation.FullscreenSettings -> {
+                                            FullscreenSettingsScreen(
+                                                windowSizeClass = windowSizeClass,
+                                                navEntryValue = value,
+                                                onBackButtonPressed = {
+                                                    targetComposeLifeAppState.onBackPressed(entry.id)
+                                                },
+                                            )
+                                        }
                                     }
                                 }
                             }

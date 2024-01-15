@@ -78,7 +78,7 @@ interface CellUniverseInfoCardState {
     /**
      * The target state for whether the card is expanded.
      */
-    val expandedTargetState: TargetState<Boolean>
+    val expandedTargetState: TargetState<Boolean, *>
 }
 
 /**
@@ -87,14 +87,14 @@ interface CellUniverseInfoCardState {
 @Composable
 fun rememberCellUniverseInfoCardState(
     setIsExpanded: (Boolean) -> Unit,
-    expandedTargetState: TargetState<Boolean>,
+    expandedTargetState: TargetState<Boolean, *>,
 ): CellUniverseInfoCardState =
     object : CellUniverseInfoCardState {
         override fun setIsExpanded(isExpanded: Boolean) {
             setIsExpanded(isExpanded)
         }
 
-        override val expandedTargetState: TargetState<Boolean>
+        override val expandedTargetState: TargetState<Boolean, *>
             get() = expandedTargetState
     }
 
@@ -106,13 +106,13 @@ class CellUniverseInfoCardContent(
         cellUniverseInfoCardState.setIsExpanded(isExpanded)
     }
 
-    val expandedTargetState: TargetState<Boolean> get() =
+    val expandedTargetState: TargetState<Boolean, *> get() =
         cellUniverseInfoCardState.expandedTargetState
 
-    val editingTargetState: TargetState<Boolean> get() =
+    val editingTargetState: TargetState<Boolean, *> get() =
         expandedTargetState or cellUniverseInfoItemContents.none { it.isChecked }
 
-    val showColumnTargetState: TargetState<Boolean> get() =
+    val showColumnTargetState: TargetState<Boolean, *> get() =
         expandedTargetState or cellUniverseInfoItemContents.any { it.isChecked }
 }
 

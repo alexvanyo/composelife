@@ -26,7 +26,7 @@ import kotlin.contracts.contract
  * Although a [TargetState] may result in showing multiple states [T] for an indeterminate amount of time, there is
  * still a single current semantic state given by [current].
  */
-sealed interface TargetState<T> {
+sealed interface TargetState<T, out M> {
 
     /**
      * The "current" value of the [TargetState]. This represents the current semantic value for the target state,
@@ -39,7 +39,7 @@ sealed interface TargetState<T> {
      */
     data class Single<T>(
         override val current: T,
-    ) : TargetState<T>
+    ) : TargetState<T, Nothing>
 
     /**
      * The target state is partway between [current] and [provisional], with the fraction given by [progress] from
@@ -48,7 +48,7 @@ sealed interface TargetState<T> {
      * [current] should be different from [provisional], since otherwise [Single] should be used instead (with the
      * single value).
      */
-    data class InProgress<T>(
+    data class InProgress<T, M>(
         override val current: T,
 
         /**
@@ -62,11 +62,33 @@ sealed interface TargetState<T> {
          */
         @FloatRange(from = 0.0, to = 1.0)
         val progress: Float,
-    ) : TargetState<T> {
+
+        /**
+         * Additional metadata accompanying the [InProgress] target state. This can be any arbitrary data useful
+         * for driving an animation for an in-progress state.
+         */
+        val metadata: M,
+    ) : TargetState<T, M> {
         init {
             require(current != provisional) {
                 "current is the same as provisional, should be using TargetState.Single instead"
             }
+        }
+
+        companion object {
+            /**
+             * Creates an [InProgress] value with a [Unit] metadata.
+             */
+            operator fun <T> invoke(
+                current: T,
+                provisional: T,
+                progress: Float,
+            ): InProgress<T, Unit> = InProgress(
+                current = current,
+                provisional = provisional,
+                progress = progress,
+                metadata = Unit,
+            )
         }
     }
 }
@@ -75,10 +97,10 @@ sealed interface TargetState<T> {
  * Returns `true` if this [TargetState] is in progress, otherwise `false`.
  */
 @OptIn(ExperimentalContracts::class)
-fun <T> TargetState<T>.isInProgress(): Boolean {
+fun <T, M> TargetState<T, M>.isInProgress(): Boolean {
     contract {
         returns(false) implies (this@isInProgress is TargetState.Single<T>)
-        returns(true) implies (this@isInProgress is TargetState.InProgress<T>)
+        returns(true) implies (this@isInProgress is TargetState.InProgress<T, M>)
     }
     return when (this) {
         is TargetState.Single -> false
@@ -91,7 +113,7 @@ fun <T> TargetState<T>.isInProgress(): Boolean {
  *
  * [TargetState.Single] of `true` will map to `1f,` and [TargetState.Single] of `false` will map to `0f`.
  */
-val TargetState<Boolean>.progressToTrue: Float get() =
+val TargetState<Boolean, *>.progressToTrue: Float get() =
     when (this) {
         is TargetState.InProgress -> if (provisional) progress else 1f - progress
         is TargetState.Single -> if (current) 1f else 0f
@@ -101,7 +123,7 @@ val TargetState<Boolean>.progressToTrue: Float get() =
  * Negates the [TargetState]. This negation is transitive for [TargetState.current]: that is,
  * `targetState.not().current` will be equal to `targetState.current.not()`.
  */
-operator fun TargetState<Boolean>.not(): TargetState<Boolean> = map(Boolean::not)
+operator fun <M> TargetState<Boolean, M>.not(): TargetState<Boolean, M> = map(Boolean::not)
 
 /**
  * Applies an and operation on a [TargetState] with a non-[TargetState] [Boolean] value.
@@ -109,7 +131,7 @@ operator fun TargetState<Boolean>.not(): TargetState<Boolean> = map(Boolean::not
  * Because [value] is not animating, this will collapse a [TargetState.InProgress] value to a [TargetState.Single] of
  * `false` if [value] is `false`.
  */
-infix fun TargetState<Boolean>.and(value: Boolean): TargetState<Boolean> =
+infix fun <M> TargetState<Boolean, M>.and(value: Boolean): TargetState<Boolean, M> =
     if (value) {
         this
     } else {
@@ -122,7 +144,7 @@ infix fun TargetState<Boolean>.and(value: Boolean): TargetState<Boolean> =
  * Because [value] is not animating, this will collapse a [TargetState.InProgress] value to a [TargetState.Single] of
  * `true` if [value] is `true`.
  */
-infix fun TargetState<Boolean>.or(value: Boolean): TargetState<Boolean> =
+infix fun <M> TargetState<Boolean, M>.or(value: Boolean): TargetState<Boolean, M> =
     if (value) {
         TargetState.Single(true)
     } else {
@@ -132,12 +154,13 @@ infix fun TargetState<Boolean>.or(value: Boolean): TargetState<Boolean> =
 /**
  * Maps this [TargetState] of type [T] to the [TargetState] of type [R] using [lambda].
  */
-fun <T, R> TargetState<T>.map(lambda: (T) -> R): TargetState<R> =
+fun <T, M, R> TargetState<T, M>.map(lambda: (T) -> R): TargetState<R, M> =
     when (this) {
         is TargetState.Single -> TargetState.Single(current.let(lambda))
         is TargetState.InProgress -> TargetState.InProgress(
             current = current.let(lambda),
             provisional = provisional.let(lambda),
             progress = progress,
+            metadata = metadata,
         )
     }

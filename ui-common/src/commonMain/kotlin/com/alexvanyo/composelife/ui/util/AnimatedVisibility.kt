@@ -16,8 +16,6 @@
 
 package com.alexvanyo.composelife.ui.util
 
-import androidx.compose.animation.core.EaseInOut
-import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -36,10 +34,9 @@ import androidx.compose.ui.unit.IntSize
 @Suppress("LongParameterList")
 @Composable
 fun AnimatedVisibility(
-    targetState: TargetState<Boolean>,
+    targetState: TargetState<Boolean, *>,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
-    alphaEasing: Easing = Easing({ 0f }, (0.5f to EaseInOut)),
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     content: @Composable () -> Unit,
 ) {
@@ -47,7 +44,6 @@ fun AnimatedVisibility(
         targetState = targetState,
         modifier = modifier,
         contentAlignment = contentAlignment,
-        alphaEasing = alphaEasing,
         contentSizeAnimationSpec = contentSizeAnimationSpec,
     ) { isVisible ->
         if (isVisible) {
@@ -63,10 +59,9 @@ fun AnimatedVisibility(
 @Suppress("LongParameterList")
 @Composable
 fun ColumnScope.AnimatedVisibility(
-    targetState: TargetState<Boolean>,
+    targetState: TargetState<Boolean, *>,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
-    alphaEasing: Easing = Easing({ 0f }, (0.5f to EaseInOut)),
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     content: @Composable () -> Unit,
 ) {
@@ -74,7 +69,6 @@ fun ColumnScope.AnimatedVisibility(
         targetState = targetState,
         modifier = modifier,
         contentAlignment = contentAlignment,
-        alphaEasing = alphaEasing,
         contentSizeAnimationSpec = contentSizeAnimationSpec,
     ) { isVisible ->
         if (isVisible) {
