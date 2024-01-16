@@ -33,9 +33,6 @@ android {
     defaultConfig {
         minSdk = 21
     }
-    lint {
-        lintConfig = file("lint.xml")
-    }
     configureGradleManagedDevices(FormFactor.All, this)
 }
 
