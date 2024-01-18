@@ -54,9 +54,8 @@ jobs:
         uses: actions/cache@v4
         id: avd-cache
         with:
-          path: |
-            ~/.android/avd/*
-          key: v3-${{ runner.os }}-baseline-profile
+          path: ~/.android/avd/**
+          key: v4-${{ runner.os }}-baseline-profile
 
       - name: Configure JDK
         uses: actions/setup-java@v4
