@@ -51,7 +51,7 @@ jobs:
           cp .github/ci-gradle.properties ~/.gradle/gradle.properties
 
       - name: Cache AVD
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: avd-cache
         with:
           path: |
