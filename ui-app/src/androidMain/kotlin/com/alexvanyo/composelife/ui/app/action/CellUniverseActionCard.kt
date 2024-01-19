@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -218,7 +219,7 @@ fun CellUniverseActionCard(
                                 decoration = crossfadePredictiveNavigationDecoration(
                                     repeatablePredictiveBackState = actionCardState.inlineRepeatablePredictiveBackState,
                                     contentAlignment = Alignment.BottomCenter,
-                                    animateInternalContentSizeChanges = !isImeAnimating,
+                                    animateInternalContentSizeChanges = false,
                                 ),
                             ) { entry ->
                                 // Cache the scroll state based for the target entry id.
