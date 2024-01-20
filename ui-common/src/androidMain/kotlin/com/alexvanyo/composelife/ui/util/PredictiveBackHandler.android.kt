@@ -24,25 +24,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberUpdatedState
+import kotlinx.coroutines.CancellationException
 
 @Composable
-actual fun PredictiveBackHandler(
-    predictiveBackStateHolder: PredictiveBackStateHolder,
+actual fun RepeatablePredictiveBackHandler(
+    repeatablePredictiveBackStateHolder: RepeatablePredictiveBackStateHolder,
     enabled: Boolean,
     onBack: () -> Unit,
 ) {
     // Safely update the current `onBack` lambda when a new one is provided
     val currentOnBack by rememberUpdatedState(onBack)
 
-    key(predictiveBackStateHolder) {
-        when (predictiveBackStateHolder) {
-            is PredictiveBackStateHolderImpl -> Unit
+    key(repeatablePredictiveBackStateHolder) {
+        when (repeatablePredictiveBackStateHolder) {
+            is RepeatablePredictiveBackStateHolderImpl -> Unit
         }
         PredictiveBackHandler(enabled = enabled) { progress ->
             try {
                 progress.collect { backEvent ->
                     backEvent.swipeEdge
-                    predictiveBackStateHolder.value = PredictiveBackState.Running(
+                    repeatablePredictiveBackStateHolder.value = RepeatablePredictiveBackState.Running(
                         backEvent.touchX,
                         backEvent.touchY,
                         backEvent.progress,
@@ -55,7 +56,45 @@ actual fun PredictiveBackHandler(
                 }
                 currentOnBack()
             } finally {
-                predictiveBackStateHolder.value = PredictiveBackState.NotRunning
+                repeatablePredictiveBackStateHolder.value = RepeatablePredictiveBackState.NotRunning
+            }
+        }
+    }
+}
+
+@Composable
+actual fun CompletablePredictiveBackStateHandler(
+    completablePredictiveBackStateHolder: CompletablePredictiveBackStateHolder,
+    enabled: Boolean,
+    onBack: () -> Unit,
+) {
+    // Safely update the current `onBack` lambda when a new one is provided
+    val currentOnBack by rememberUpdatedState(onBack)
+
+    key(completablePredictiveBackStateHolder) {
+        when (completablePredictiveBackStateHolder) {
+            is CompletablePredictiveBackStateHolderImpl -> Unit
+        }
+        PredictiveBackHandler(enabled = enabled) { progress ->
+            try {
+                progress.collect { backEvent ->
+                    backEvent.swipeEdge
+                    completablePredictiveBackStateHolder.value = CompletablePredictiveBackState.Running(
+                        backEvent.touchX,
+                        backEvent.touchY,
+                        backEvent.progress,
+                        when (backEvent.swipeEdge) {
+                            BackEventCompat.EDGE_LEFT -> SwipeEdge.Left
+                            BackEventCompat.EDGE_RIGHT -> SwipeEdge.Right
+                            else -> error("Unknown swipe edge")
+                        },
+                    )
+                }
+                currentOnBack()
+                completablePredictiveBackStateHolder.value = CompletablePredictiveBackState.Completed
+            } catch (cancellationException: CancellationException) {
+                completablePredictiveBackStateHolder.value = CompletablePredictiveBackState.NotRunning
+                throw cancellationException
             }
         }
     }

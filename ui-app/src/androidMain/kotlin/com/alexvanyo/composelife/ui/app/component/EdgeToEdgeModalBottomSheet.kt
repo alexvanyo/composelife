@@ -100,8 +100,8 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.window.DialogProperties
+import com.alexvanyo.composelife.ui.util.CompletablePredictiveBackState
 import com.alexvanyo.composelife.ui.util.EdgeToEdgeDialog
-import com.alexvanyo.composelife.ui.util.PredictiveBackState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
@@ -266,8 +266,9 @@ fun EdgeToEdgeModalBottomSheet(
                             1f,
                             1f - (48.dp.toPx() / fullWidth),
                             when (predictiveBackState) {
-                                PredictiveBackState.NotRunning -> 0f
-                                is PredictiveBackState.Running -> predictiveBackState.progress
+                                CompletablePredictiveBackState.NotRunning -> 0f
+                                is CompletablePredictiveBackState.Running -> predictiveBackState.progress
+                                CompletablePredictiveBackState.Completed -> 1f
                             },
                         )
                         scaleX = scale

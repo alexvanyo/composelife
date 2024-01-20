@@ -61,9 +61,9 @@ import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInj
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
-import com.alexvanyo.composelife.ui.util.PredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.PredictiveNavigationHost
-import com.alexvanyo.composelife.ui.util.rememberPredictiveBackStateHolder
+import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
+import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import java.util.UUID
 
 interface ComposeLifeAppInjectEntryPoint :
@@ -126,10 +126,10 @@ fun ComposeLifeApp(
                                 LoadedComposeLifePreferencesProvider by targetComposeLifeAppState {}
                         }
 
-                        val predictiveBackStateHolder = rememberPredictiveBackStateHolder()
+                        val predictiveBackStateHolder = rememberRepeatablePredictiveBackStateHolder()
 
-                        PredictiveBackHandler(
-                            predictiveBackStateHolder = predictiveBackStateHolder,
+                        RepeatablePredictiveBackHandler(
+                            repeatablePredictiveBackStateHolder = predictiveBackStateHolder,
                             enabled = targetComposeLifeAppState.canNavigateBack,
                         ) {
                             targetComposeLifeAppState.onBackPressed(null)
@@ -137,7 +137,7 @@ fun ComposeLifeApp(
 
                         with(localEntryPoint) {
                             PredictiveNavigationHost(
-                                predictiveBackState = predictiveBackStateHolder.value,
+                                repeatablePredictiveBackState = predictiveBackStateHolder.value,
                                 backstackState = targetComposeLifeAppState.navigationState,
                             ) { entry ->
                                 Surface {

@@ -21,8 +21,15 @@ package com.alexvanyo.composelife.ui.util
 import androidx.compose.runtime.Composable
 
 @Composable
-actual fun PredictiveBackHandler(
-    predictiveBackStateHolder: PredictiveBackStateHolder,
+actual fun RepeatablePredictiveBackHandler(
+    repeatablePredictiveBackStateHolder: RepeatablePredictiveBackStateHolder,
+    enabled: Boolean,
+    onBack: () -> Unit,
+) = Unit
+
+@Composable
+actual fun CompletablePredictiveBackStateHandler(
+    completablePredictiveBackStateHolder: CompletablePredictiveBackStateHolder,
     enabled: Boolean,
     onBack: () -> Unit,
 ) = Unit
