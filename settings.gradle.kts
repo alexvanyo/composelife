@@ -50,6 +50,25 @@ dependencyResolutionManagement {
     }
 }
 
+plugins {
+    id("com.gradle.enterprise") version "3.16.1"
+}
+
+gradleEnterprise {
+    buildScan {
+        publishAlways()
+
+        termsOfServiceUrl = "https://gradle.com/terms-of-service"
+        termsOfServiceAgree = "yes"
+
+        obfuscation {
+            username { "REDACTED" }
+            hostname { "REDACTED" }
+            ipAddresses { it.map { "0.0.0.0" } }
+        }
+    }
+}
+
 rootProject.name = "ComposeLife"
 include(":algorithm")
 include(":app")
