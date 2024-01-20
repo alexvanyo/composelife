@@ -24,7 +24,6 @@ import android.graphics.Shader
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -107,7 +106,7 @@ private val SHADER_SRC = """
 """.trimMargin()
 
 @RequiresApi(33)
-@Suppress("LongParameterList", "LongMethod")
+@Suppress("LongParameterList")
 @Composable
 fun AGSLNonInteractableCells(
     gameOfLifeState: GameOfLifeState,
@@ -122,18 +121,20 @@ fun AGSLNonInteractableCells(
     val aliveColor = ComposeLifeTheme.aliveCellColor
     val deadColor = ComposeLifeTheme.deadCellColor
 
-    val shader = remember {
-        RuntimeShader(SHADER_SRC)
-    }
-
+    val shader = remember { RuntimeShader(SHADER_SRC) }
     val cellBitmap = remember(cellWindow) {
         Bitmap.createBitmap(cellWindow.width, cellWindow.height, Bitmap.Config.ARGB_8888)
     }
     val cellBitmapShader = remember(cellBitmap) {
         BitmapShader(cellBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
     }
+    val brush = remember(shader) { ShaderBrush(shader) }
 
-    DisposableEffect(shader, shape) {
+    Canvas(
+        modifier = modifier,
+    ) {
+        shader.setFloatUniform("size", size.width, size.height)
+
         when (shape) {
             is CurrentShape.RoundRectangle -> {
                 shader.setIntUniform("shapeType", 0)
@@ -141,57 +142,16 @@ fun AGSLNonInteractableCells(
                 shader.setFloatUniform("cornerFraction", shape.cornerFraction)
             }
         }
-
-        onDispose {}
-    }
-
-    DisposableEffect(shader, aliveColor, deadColor) {
         shader.setColorUniform("aliveColor", aliveColor.toArgb())
         shader.setColorUniform("deadColor", deadColor.toArgb())
-
-        onDispose {}
-    }
-
-    DisposableEffect(shader, cellBitmapShader) {
         shader.setInputBuffer("cells", cellBitmapShader)
-
-        onDispose {}
-    }
-
-    DisposableEffect(shader, cellWindow) {
         shader.setIntUniform("cellWindowSize", cellWindow.width, cellWindow.height)
-
-        onDispose {}
-    }
-
-    DisposableEffect(shader, pixelOffsetFromCenter) {
         shader.setFloatUniform("pixelOffsetFromCenter", pixelOffsetFromCenter.x, pixelOffsetFromCenter.y)
-
-        onDispose {}
-    }
-
-    DisposableEffect(shader, scaledCellPixelSize) {
         shader.setFloatUniform("scaledCellPixelSize", scaledCellPixelSize)
-
-        onDispose {}
-    }
-
-    DisposableEffect(shader, cellBitmap, cellWindow, gameOfLifeState.cellState) {
         cellBitmap.eraseColor(Color.TRANSPARENT)
         gameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).forEach { cell ->
             cellBitmap[cell.x - cellWindow.left, cell.y - cellWindow.top] = Color.WHITE
         }
-
-        onDispose {}
-    }
-
-    val brush = remember(shader) { ShaderBrush(shader) }
-
-    Canvas(
-        modifier = modifier,
-    ) {
-        pixelOffsetFromCenter.let {}
-        shader.setFloatUniform("size", size.width, size.height)
 
         drawRect(
             brush = brush,
