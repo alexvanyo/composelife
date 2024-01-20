@@ -17,13 +17,14 @@
 package com.alexvanyo.composelife.ui.util
 
 import androidx.compose.animation.core.EaseInOut
-import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -76,11 +77,73 @@ import kotlinx.coroutines.flow.onEach
 @OptIn(ExperimentalComposeUiApi::class)
 @Suppress("LongMethod", "CyclomaticComplexMethod", "LongParameterList")
 @Composable
-fun <T> AnimatedContent(
-    targetState: TargetState<T>,
+fun <T, M> AnimatedContent(
+    targetState: TargetState<T, M>,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
-    alphaEasing: Easing = Easing({ 0f }, (0.5f to EaseInOut)),
+    /**
+     * A [Comparable] wrapper around a content, that is transitioning with the given [ContentStatus].
+     *
+     * By default, this performs a cross-fade between content.
+     */
+    transitionSpec: @Composable Transition<ContentStatus<M>>.(contentWithStatus: @Composable () -> Unit) -> Unit =
+        { contentWithStatus ->
+            val changingVisibilityEasing = Easing({ 0f }, (0.5f to EaseInOut))
+            val alpha by animateFloat(
+                transitionSpec = {
+                    when (initialState) {
+                        is ContentStatus.Appearing,
+                        is ContentStatus.Disappearing,
+                        -> spring()
+                        ContentStatus.NotVisible,
+                        ContentStatus.Visible,
+                        -> when (this@animateFloat.targetState) {
+                            is ContentStatus.Appearing,
+                            is ContentStatus.Disappearing,
+                            -> spring()
+                            ContentStatus.NotVisible -> tween(durationMillis = 90)
+                            ContentStatus.Visible -> tween(durationMillis = 220, delayMillis = 90)
+                        }
+                    }
+                },
+                label = "alpha",
+            ) {
+                when (it) {
+                    is ContentStatus.Appearing -> changingVisibilityEasing.transform(it.progressToVisible)
+                    is ContentStatus.Disappearing -> changingVisibilityEasing.transform(1f - it.progressToNotVisible)
+                    ContentStatus.NotVisible -> 0f
+                    ContentStatus.Visible -> 1f
+                }
+            }
+
+            Box(
+                modifier = Modifier.graphicsLayer { this.alpha = alpha },
+                propagateMinConstraints = true,
+            ) {
+                contentWithStatus()
+            }
+        },
+    /**
+     * The [Comparator] governing the order in which targets are rendered.
+     *
+     * Targets will be rendered in ascending order, as given by the [targetRenderingComparator].
+     *
+     * By default, this will render the provisional target first (if any), then the current target, and then any
+     * remaining targets.
+     */
+    targetRenderingComparator: Comparator<T> = compareBy {
+        when (targetState) {
+            is TargetState.InProgress -> when (it) {
+                targetState.current -> 1f
+                targetState.provisional -> 0f
+                else -> 2f
+            }
+            is TargetState.Single -> if (it == targetState.current) 1f else 2f
+        }
+    },
+    /**
+     * The animation specification for animating the content size, if it is enabled.
+     */
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     /**
      * Whether or not the content size animation should be run when the size of the content itself changes.
@@ -109,29 +172,39 @@ fun <T> AnimatedContent(
 
     val targetsWithTransitions = currentTargetsInTransition.associateWith { target ->
         key(target) {
-            val targetAlpha = when (targetState) {
+            val targetContentStatus = when (targetState) {
                 is TargetState.InProgress -> when (target) {
-                    targetState.provisional -> targetState.progress
-                    targetState.current -> 1f - targetState.progress
-                    else -> 0f
+                    targetState.provisional -> ContentStatus.Appearing(
+                        progressToVisible = targetState.progress,
+                        metadata = targetState.metadata,
+                    )
+                    targetState.current -> ContentStatus.Disappearing(
+                        progressToNotVisible = targetState.progress,
+                        metadata = targetState.metadata,
+                    )
+                    else -> ContentStatus.NotVisible
                 }
-                is TargetState.Single -> if (targetState.current == target) 1f else 0f
+                is TargetState.Single -> if (targetState.current == target) {
+                    ContentStatus.Visible
+                } else {
+                    ContentStatus.NotVisible
+                }
             }
 
             val transitionState = remember {
                 MutableTransitionState(
                     initialState = if (previousTargetsInTransition.isEmpty()) {
-                        targetAlpha
+                        targetContentStatus
                     } else {
-                        0f
+                        ContentStatus.NotVisible
                     },
                 )
             }
             updateTransition(
                 transitionState = transitionState.apply {
-                    this.targetState = targetAlpha
+                    this.targetState = targetContentStatus
                 },
-                label = "AnimatedContent",
+                label = "Content Status",
             )
         }
     }
@@ -175,7 +248,7 @@ fun <T> AnimatedContent(
     data class TargetStateLayoutId(val value: T)
 
     var completedTargetSizeAnimation by remember(targetState) {
-        mutableStateOf(false)
+        mutableStateOf(true)
     }
 
     Layout(
@@ -187,17 +260,13 @@ fun <T> AnimatedContent(
                      */
                     val isGhostElement = LocalGhostElement.current || target != targetState.current
                     CompositionLocalProvider(LocalGhostElement provides isGhostElement) {
-                        val smoothedAlpha by transition.animateFloat(
-                            label = "smoothedAlpha",
-                        ) { alphaEasing.transform(it) }
-
                         Box(
-                            modifier = Modifier
-                                .layoutId(TargetStateLayoutId(target))
-                                .graphicsLayer { alpha = smoothedAlpha },
+                            modifier = Modifier.layoutId(TargetStateLayoutId(target)),
                             propagateMinConstraints = true,
                         ) {
-                            content(target)
+                            transition.transitionSpec {
+                                content(target)
+                            }
                         }
                     }
                 }
@@ -218,7 +287,7 @@ fun <T> AnimatedContent(
                 val constraintsType = ConstraintsType(
                     isLookahead = isLookingAhead,
                 )
-                val placeablesMaps = measurablesMap.mapValues { (target, measurable) ->
+                val placeablesMap = measurablesMap.mapValues { (target, measurable) ->
                     // Determine the contraints to measure with
                     val resolvedConstraints = if (isIntrinsic) {
                         // If this is an intrinsic measurement, the constraints have no external dependency, so we
@@ -252,24 +321,31 @@ fun <T> AnimatedContent(
                 val targetSize = when (targetState) {
                     is TargetState.InProgress -> {
                         lerp(
-                            placeablesMaps.getValue(targetState.current).size,
-                            placeablesMaps.getValue(targetState.provisional).size,
+                            placeablesMap.getValue(targetState.current).size,
+                            placeablesMap.getValue(targetState.provisional).size,
                             targetState.progress,
                         )
                     }
-                    is TargetState.Single -> placeablesMaps.getValue(targetState.current).size
+                    is TargetState.Single -> placeablesMap.getValue(targetState.current).size
                 }
 
                 return layout(targetSize.width, targetSize.height) {
-                    placeablesMaps.values.forEach {
-                        it.place(
-                            contentAlignment.align(
-                                size = it.size,
-                                space = targetSize,
-                                layoutDirection = layoutDirection,
+                    placeablesMap.entries
+                        .sortedWith(
+                            Comparator.comparing(
+                                Map.Entry<T, Placeable>::key,
+                                targetRenderingComparator,
                             ),
                         )
-                    }
+                        .forEach { (_, placeable) ->
+                            placeable.place(
+                                contentAlignment.align(
+                                    size = placeable.size,
+                                    space = targetSize,
+                                    layoutDirection = layoutDirection,
+                                ),
+                            )
+                        }
                 }
             }
 
@@ -366,6 +442,19 @@ fun <T> AnimatedContent(
             },
         ),
     )
+}
+
+sealed interface ContentStatus<out M> {
+    data object Visible : ContentStatus<Nothing>
+    data class Appearing<M>(
+        val progressToVisible: Float,
+        val metadata: M,
+    ) : ContentStatus<M>
+    data class Disappearing<M>(
+        val progressToNotVisible: Float,
+        val metadata: M,
+    ) : ContentStatus<M>
+    data object NotVisible : ContentStatus<Nothing>
 }
 
 // Adapted from MeasurePolicy.kt

@@ -29,6 +29,8 @@ import android.view.ViewOutlineProvider
 import android.view.Window
 import android.view.WindowManager
 import androidx.activity.ComponentDialog
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,6 +59,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
@@ -73,6 +76,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
@@ -104,14 +108,14 @@ import java.util.UUID
  * [DialogProperties] will be respected, but [DialogProperties.decorFitsSystemWindows] and
  * [DialogProperties.usePlatformDefaultWidth] are ignored.
  *
- * The [content] will be passed a [PredictiveBackStateHolder] that encapsulates the predictive back state if
+ * The [content] will be passed a [CompletablePredictiveBackStateHolder] that encapsulates the predictive back state if
  * [DialogProperties.dismissOnBackPress] is true.
  */
 @Composable
 fun EdgeToEdgeDialog(
     onDismissRequest: () -> Unit,
     properties: DialogProperties = DialogProperties(),
-    content: @Composable (PredictiveBackStateHolder) -> Unit,
+    content: @Composable (CompletablePredictiveBackStateHolder) -> Unit,
 ) {
     val view = LocalView.current
     val density = LocalDensity.current
@@ -132,10 +136,10 @@ fun EdgeToEdgeDialog(
             dialogId = dialogId,
         ).apply {
             setContent(composition) {
-                val predictiveBackStateHolder = rememberPredictiveBackStateHolder()
+                val completablePredictiveBackStateHolder = rememberCompletablePredictiveBackStateHolder()
 
-                PredictiveBackHandler(
-                    predictiveBackStateHolder = predictiveBackStateHolder,
+                CompletablePredictiveBackStateHandler(
+                    completablePredictiveBackStateHolder = completablePredictiveBackStateHolder,
                     enabled = currentDismissOnBackPress,
                     onBack = { currentOnDismissRequest() },
                 )
@@ -143,7 +147,7 @@ fun EdgeToEdgeDialog(
                 DialogLayout(
                     Modifier.semantics { dialog() },
                 ) {
-                    currentContent(predictiveBackStateHolder)
+                    currentContent(completablePredictiveBackStateHolder)
                 }
             }
         }
@@ -179,7 +183,7 @@ fun EdgeToEdgeDialog(
  * If [DialogProperties.dismissOnBackPress] is true, the [content] will automatically start to animate out with a
  * predictive back gestures from the dialog.
  */
-@Suppress("ComposeModifierMissing")
+@Suppress("ComposeModifierMissing", "LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun PlatformEdgeToEdgeDialog(
     onDismissRequest: () -> Unit,
@@ -245,21 +249,77 @@ fun PlatformEdgeToEdgeDialog(
             Modifier
         }
 
+        val predictiveBackState = predictiveBackStateHolder.value
+
+        val lastRunningValue by remember {
+            mutableStateOf<CompletablePredictiveBackState.Running?>(null)
+        }.apply {
+            when (predictiveBackState) {
+                CompletablePredictiveBackState.NotRunning -> value = null
+                is CompletablePredictiveBackState.Running -> if (predictiveBackState.progress >= 0.01f) {
+                    // Only save that we were disappearing if the progress is at least 1% along
+                    value = predictiveBackState
+                }
+                CompletablePredictiveBackState.Completed -> Unit
+            }
+        }
+        val scale by animateFloatAsState(
+            targetValue = when (predictiveBackState) {
+                CompletablePredictiveBackState.NotRunning -> 1f
+                is CompletablePredictiveBackState.Running -> lerp(1f, 0.9f, predictiveBackState.progress)
+                CompletablePredictiveBackState.Completed -> 0.9f
+            },
+            label = "scale",
+        ) {
+        }
+        val translationX by animateDpAsState(
+            targetValue = when (predictiveBackState) {
+                CompletablePredictiveBackState.NotRunning -> 0.dp
+                is CompletablePredictiveBackState.Running -> lerp(
+                    0.dp,
+                    8.dp,
+                    predictiveBackState.progress,
+                ) * when (predictiveBackState.swipeEdge) {
+                    SwipeEdge.Left -> -1f
+                    SwipeEdge.Right -> 1f
+                }
+                CompletablePredictiveBackState.Completed -> {
+                    8.dp * when (lastRunningValue?.swipeEdge) {
+                        null -> 0f
+                        SwipeEdge.Left -> -1f
+                        SwipeEdge.Right -> 1f
+                    }
+                }
+            },
+            label = "translationX",
+        )
+        val pivotFractionX by animateFloatAsState(
+            targetValue = when (predictiveBackState) {
+                CompletablePredictiveBackState.NotRunning -> 0.5f
+                is CompletablePredictiveBackState.Running -> when (predictiveBackState.swipeEdge) {
+                    SwipeEdge.Left -> 1f
+                    SwipeEdge.Right -> 0f
+                }
+                CompletablePredictiveBackState.Completed -> {
+                    when (lastRunningValue?.swipeEdge) {
+                        null -> 0.5f
+                        SwipeEdge.Left -> 1f
+                        SwipeEdge.Right -> 0f
+                    }
+                }
+            },
+            label = "pivotFractionX",
+        )
+
         Box(
             modifier = Modifier
                 .safeDrawingPadding()
                 .graphicsLayer {
-                    val predictiveBackState = predictiveBackStateHolder.value
-                    val scale = lerp(
-                        1f,
-                        0.9f,
-                        when (predictiveBackState) {
-                            PredictiveBackState.NotRunning -> 0f
-                            is PredictiveBackState.Running -> predictiveBackState.progress
-                        },
-                    )
-                    scaleX = scale
-                    scaleY = scale
+                    this.translationX = translationX.toPx()
+                    this.alpha = alpha
+                    this.scaleX = scale
+                    this.scaleY = scale
+                    this.transformOrigin = TransformOrigin(pivotFractionX, 0.5f)
                 }
                 .then(sizeModifier),
         ) {
