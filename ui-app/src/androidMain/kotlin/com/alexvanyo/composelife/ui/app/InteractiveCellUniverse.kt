@@ -66,11 +66,11 @@ import com.alexvanyo.composelife.ui.app.cells.rememberMutableCellWindowViewportS
 import com.alexvanyo.composelife.ui.app.cells.rememberTrackingCellWindowViewportState
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
-import com.alexvanyo.composelife.ui.util.PredictiveBackHandler
-import com.alexvanyo.composelife.ui.util.PredictiveBackState
+import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
+import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.rememberClipboardReaderWriter
-import com.alexvanyo.composelife.ui.util.rememberPredictiveBackStateHolder
+import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -292,17 +292,17 @@ fun rememberInteractiveCellUniverseState(
         }
     }
 
-    val infoCardExpandedPredictiveBackStateHolder = rememberPredictiveBackStateHolder()
-    PredictiveBackHandler(
-        predictiveBackStateHolder = infoCardExpandedPredictiveBackStateHolder,
+    val infoCardExpandedPredictiveBackStateHolder = rememberRepeatablePredictiveBackStateHolder()
+    RepeatablePredictiveBackHandler(
+        repeatablePredictiveBackStateHolder = infoCardExpandedPredictiveBackStateHolder,
         enabled = isInfoCardExpanded && !isActionCardTopCard,
     ) {
         setIsInfoCardExpanded(false)
     }
 
-    val actionCardExpandedPredictiveBackStateHolder = rememberPredictiveBackStateHolder()
-    PredictiveBackHandler(
-        predictiveBackStateHolder = actionCardExpandedPredictiveBackStateHolder,
+    val actionCardExpandedPredictiveBackStateHolder = rememberRepeatablePredictiveBackStateHolder()
+    RepeatablePredictiveBackHandler(
+        repeatablePredictiveBackStateHolder = actionCardExpandedPredictiveBackStateHolder,
         enabled = isActionCardExpanded,
     ) {
         setIsActionCardExpanded(false)
@@ -311,8 +311,8 @@ fun rememberInteractiveCellUniverseState(
     val infoCardState = rememberCellUniverseInfoCardState(
         setIsExpanded = ::setIsInfoCardExpanded,
         expandedTargetState = when (val predictiveBackState = infoCardExpandedPredictiveBackStateHolder.value) {
-            PredictiveBackState.NotRunning -> TargetState.Single(isInfoCardExpanded)
-            is PredictiveBackState.Running -> {
+            RepeatablePredictiveBackState.NotRunning -> TargetState.Single(isInfoCardExpanded)
+            is RepeatablePredictiveBackState.Running -> {
                 check(isInfoCardExpanded)
                 TargetState.InProgress(
                     current = true,
@@ -326,8 +326,8 @@ fun rememberInteractiveCellUniverseState(
         setIsExpanded = ::setIsActionCardExpanded,
         enableBackHandler = isActionCardTopCard,
         expandedTargetState = when (val predictiveBackState = actionCardExpandedPredictiveBackStateHolder.value) {
-            PredictiveBackState.NotRunning -> TargetState.Single(isActionCardExpanded)
-            is PredictiveBackState.Running -> {
+            RepeatablePredictiveBackState.NotRunning -> TargetState.Single(isActionCardExpanded)
+            is RepeatablePredictiveBackState.Running -> {
                 check(isActionCardExpanded)
                 TargetState.InProgress(
                     current = true,

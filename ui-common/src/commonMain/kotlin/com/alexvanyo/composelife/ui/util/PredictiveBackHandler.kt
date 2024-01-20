@@ -25,13 +25,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
 /**
- * The state describing an in-progress predictive back animation.
+ * The state describing a repeatable back state, with use in a [RepeatablePredictiveBackHandler].
+ *
+ * Because the back handler can be used repeatedly, there are only two states that [RepeatablePredictiveBackState] can
+ * be in:
+ *
+ * - [NotRunning], which will always be the case on API 33 and below
+ * - [Running], which can happen on API 34 and above if a predictive back is in progress.
  */
-sealed interface PredictiveBackState {
+sealed interface RepeatablePredictiveBackState {
     /**
      * There is no predictive back ongoing. On API 33 and below, this will always be the case.
      */
-    data object NotRunning : PredictiveBackState
+    data object NotRunning : RepeatablePredictiveBackState
 
     /**
      * There is an ongoing predictive back animation, with the given [progress].
@@ -41,7 +47,39 @@ sealed interface PredictiveBackState {
         val touchY: Float,
         val progress: Float,
         val swipeEdge: SwipeEdge,
-    ) : PredictiveBackState
+    ) : RepeatablePredictiveBackState
+}
+
+/**
+ * The state describing a one-shot back state, with use in a [CompletablePredictiveBackStateHandler].
+ *
+ * Because the back handler can only be used once there are three states that [CompletablePredictiveBackState] can
+ * be in:
+ *
+ * - [NotRunning]
+ * - [Running], which can happen on API 34 and above if a predictive back is in progress.
+ * - [Completed]
+ */
+sealed interface CompletablePredictiveBackState {
+    /**
+     * There is no predictive back ongoing, and the back has not been completed.
+     */
+    data object NotRunning : CompletablePredictiveBackState
+
+    /**
+     * There is an ongoing predictive back animation, with the given [progress].
+     */
+    data class Running(
+        val touchX: Float,
+        val touchY: Float,
+        val progress: Float,
+        val swipeEdge: SwipeEdge,
+    ) : CompletablePredictiveBackState
+
+    /**
+     * The back has completed.
+     */
+    data object Completed : CompletablePredictiveBackState
 }
 
 sealed interface SwipeEdge {
@@ -50,22 +88,43 @@ sealed interface SwipeEdge {
 }
 
 @Composable
-fun rememberPredictiveBackStateHolder(): PredictiveBackStateHolder =
+fun rememberRepeatablePredictiveBackStateHolder(): RepeatablePredictiveBackStateHolder =
     remember {
-        PredictiveBackStateHolderImpl()
+        RepeatablePredictiveBackStateHolderImpl()
     }
 
-sealed interface PredictiveBackStateHolder {
-    val value: PredictiveBackState
+sealed interface RepeatablePredictiveBackStateHolder {
+    val value: RepeatablePredictiveBackState
 }
 
-internal class PredictiveBackStateHolderImpl : PredictiveBackStateHolder {
-    override var value: PredictiveBackState by mutableStateOf(PredictiveBackState.NotRunning)
+internal class RepeatablePredictiveBackStateHolderImpl : RepeatablePredictiveBackStateHolder {
+    override var value: RepeatablePredictiveBackState by mutableStateOf(RepeatablePredictiveBackState.NotRunning)
 }
 
 @Composable
-expect fun PredictiveBackHandler(
-    predictiveBackStateHolder: PredictiveBackStateHolder,
+expect fun RepeatablePredictiveBackHandler(
+    repeatablePredictiveBackStateHolder: RepeatablePredictiveBackStateHolder,
+    enabled: Boolean = true,
+    onBack: () -> Unit,
+)
+
+@Composable
+fun rememberCompletablePredictiveBackStateHolder(): CompletablePredictiveBackStateHolder =
+    remember {
+        CompletablePredictiveBackStateHolderImpl()
+    }
+
+sealed interface CompletablePredictiveBackStateHolder {
+    val value: CompletablePredictiveBackState
+}
+
+internal class CompletablePredictiveBackStateHolderImpl : CompletablePredictiveBackStateHolder {
+    override var value: CompletablePredictiveBackState by mutableStateOf(CompletablePredictiveBackState.NotRunning)
+}
+
+@Composable
+expect fun CompletablePredictiveBackStateHandler(
+    completablePredictiveBackStateHolder: CompletablePredictiveBackStateHolder,
     enabled: Boolean = true,
     onBack: () -> Unit,
 )

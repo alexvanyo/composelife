@@ -216,7 +216,7 @@ fun CellUniverseActionCard(
                                 navigationState = actionCardState.inlineNavigationState,
                                 modifier = Modifier.weight(1f, fill = false),
                                 decoration = crossfadePredictiveNavigationDecoration(
-                                    predictiveBackState = actionCardState.inlinePredictiveBackState,
+                                    repeatablePredictiveBackState = actionCardState.inlineRepeatablePredictiveBackState,
                                     contentAlignment = Alignment.BottomCenter,
                                     animateInternalContentSizeChanges = !isImeAnimating,
                                 ),

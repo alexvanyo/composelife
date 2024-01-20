@@ -49,7 +49,7 @@ import com.alexvanyo.composelife.navigation.previousEntry
 @Composable
 @Suppress("LongParameterList")
 fun <T> PredictiveNavigationHost(
-    predictiveBackState: PredictiveBackState,
+    repeatablePredictiveBackState: RepeatablePredictiveBackState,
     backstackState: BackstackState<T>,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
@@ -60,7 +60,7 @@ fun <T> PredictiveNavigationHost(
     navigationState = backstackState,
     modifier = modifier,
     decoration = materialPredictiveNavigationDecoration(
-        predictiveBackState = predictiveBackState,
+        repeatablePredictiveBackState = repeatablePredictiveBackState,
         backstackState = backstackState,
         contentAlignment = contentAlignment,
         contentSizeAnimationSpec = contentSizeAnimationSpec,
@@ -70,7 +70,7 @@ fun <T> PredictiveNavigationHost(
 )
 
 fun <T> crossfadePredictiveNavigationDecoration(
-    predictiveBackState: PredictiveBackState,
+    repeatablePredictiveBackState: RepeatablePredictiveBackState,
     contentAlignment: Alignment = Alignment.TopStart,
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     animateInternalContentSizeChanges: Boolean = false,
@@ -87,15 +87,15 @@ fun <T> crossfadePredictiveNavigationDecoration(
         }
     }
 
-    val targetState = when (predictiveBackState) {
-        PredictiveBackState.NotRunning -> TargetState.Single(currentEntry)
-        is PredictiveBackState.Running -> {
+    val targetState = when (repeatablePredictiveBackState) {
+        RepeatablePredictiveBackState.NotRunning -> TargetState.Single(currentEntry)
+        is RepeatablePredictiveBackState.Running -> {
             val previous = previousEntry
             if (previous != null) {
                 TargetState.InProgress(
                     current = currentEntry,
                     provisional = previous,
-                    progress = predictiveBackState.progress,
+                    progress = repeatablePredictiveBackState.progress,
                 )
             } else {
                 TargetState.Single(currentEntry)
@@ -125,7 +125,7 @@ fun <T> crossfadePredictiveNavigationDecoration(
  */
 @Suppress("CyclomaticComplexMethod", "LongMethod")
 fun <T> materialPredictiveNavigationDecoration(
-    predictiveBackState: PredictiveBackState,
+    repeatablePredictiveBackState: RepeatablePredictiveBackState,
     backstackState: BackstackState<T>,
     contentAlignment: Alignment = Alignment.TopStart,
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
@@ -143,16 +143,16 @@ fun <T> materialPredictiveNavigationDecoration(
         }
     }
 
-    val targetState = when (predictiveBackState) {
-        PredictiveBackState.NotRunning -> TargetState.Single(currentEntry)
-        is PredictiveBackState.Running -> {
+    val targetState = when (repeatablePredictiveBackState) {
+        RepeatablePredictiveBackState.NotRunning -> TargetState.Single(currentEntry)
+        is RepeatablePredictiveBackState.Running -> {
             val previous = previousEntry
             if (previous != null) {
                 TargetState.InProgress(
                     current = currentEntry,
                     provisional = previous,
-                    progress = predictiveBackState.progress,
-                    metadata = predictiveBackState,
+                    progress = repeatablePredictiveBackState.progress,
+                    metadata = repeatablePredictiveBackState,
                 )
             } else {
                 TargetState.Single(currentEntry)
@@ -193,7 +193,7 @@ fun <T> materialPredictiveNavigationDecoration(
                 }
             }
             val lastDisappearingValue by remember {
-                mutableStateOf<ContentStatus.Disappearing<out PredictiveBackState.Running>?>(null)
+                mutableStateOf<ContentStatus.Disappearing<out RepeatablePredictiveBackState.Running>?>(null)
             }.apply {
                 when (contentStatusTargetState) {
                     is ContentStatus.Appearing -> value = null
@@ -232,14 +232,10 @@ fun <T> materialPredictiveNavigationDecoration(
                         }
                     }
                     ContentStatus.NotVisible -> {
-                        val metadata = lastDisappearingValue?.metadata
-                        if (metadata == null) {
-                            0.dp
-                        } else {
-                            8.dp * when (metadata.swipeEdge) {
-                                SwipeEdge.Left -> -1f
-                                SwipeEdge.Right -> 1f
-                            }
+                        8.dp * when (lastDisappearingValue?.metadata?.swipeEdge) {
+                            null -> 0f
+                            SwipeEdge.Left -> -1f
+                            SwipeEdge.Right -> 1f
                         }
                     }
                     ContentStatus.Visible -> 0.dp
@@ -261,25 +257,16 @@ fun <T> materialPredictiveNavigationDecoration(
                 when (it) {
                     is ContentStatus.Appearing -> 0.5f
                     is ContentStatus.Disappearing -> {
-                        val metadata = it.metadata as PredictiveBackState.Running?
-                        if (metadata == null) {
-                            0.5f
-                        } else {
-                            when (metadata.swipeEdge) {
-                                SwipeEdge.Left -> 1f
-                                SwipeEdge.Right -> 0f
-                            }
+                        when (it.metadata.swipeEdge) {
+                            SwipeEdge.Left -> 1f
+                            SwipeEdge.Right -> 0f
                         }
                     }
                     ContentStatus.NotVisible -> {
-                        val metadata = lastDisappearingValue?.metadata
-                        if (metadata == null) {
-                            0.5f
-                        } else {
-                            when (metadata.swipeEdge) {
-                                SwipeEdge.Left -> 1f
-                                SwipeEdge.Right -> 0f
-                            }
+                        when (lastDisappearingValue?.metadata?.swipeEdge) {
+                            null -> 0.5f
+                            SwipeEdge.Left -> 1f
+                            SwipeEdge.Right -> 0f
                         }
                     }
                     ContentStatus.Visible -> 0.5f
