@@ -16,6 +16,8 @@
 
 package com.alexvanyo.composelife.ui.app.component
 
+import androidx.activity.ComponentActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -83,6 +85,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.collapse
@@ -218,6 +221,7 @@ fun EdgeToEdgeModalBottomSheet(
                             } else {
                                 Hidden
                             }
+
                             Expanded -> if (newAnchors.hasAnchorFor(Expanded)) {
                                 Expanded
                             } else if (newAnchors.hasAnchorFor(PartiallyExpanded)) {
@@ -681,6 +685,11 @@ fun rememberModalBottomSheetState(
 fun EdgeToEdgeModalBottomSheetPreview() {
     var showEdgeToEdgeModalBottomSheet by rememberSaveable { mutableStateOf(false) }
     var showModalBottomSheet by rememberSaveable { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    SideEffect {
+        (context as? ComponentActivity)?.enableEdgeToEdge()
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),

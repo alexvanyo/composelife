@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     Copyright 2023 The Android Open Source Project
+     Copyright 2024 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -16,12 +16,8 @@
 -->
 <resources>
 
-    <style name="Theme.ComposeLifeBase.WindowSoftInputModeAdjusted" parent="Theme.ComposeLifeBase.NightAdjusted">
-        <item name="android:windowSoftInputMode">adjustNothing</item>
-    </style>
-
     <style name="Theme.ComposeLifeBase.WindowLayoutInDisplayCutoutModeAdjusted" parent="Theme.ComposeLifeBase.WindowSoftInputModeAdjusted">
-        <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
     </style>
 
 </resources>
