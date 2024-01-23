@@ -54,6 +54,7 @@ actual fun RepeatablePredictiveBackHandler(
                         },
                     )
                 }
+                repeatablePredictiveBackStateHolder.value = RepeatablePredictiveBackState.NotRunning
                 currentOnBack()
             } finally {
                 repeatablePredictiveBackStateHolder.value = RepeatablePredictiveBackState.NotRunning
@@ -75,7 +76,10 @@ actual fun CompletablePredictiveBackStateHandler(
         when (completablePredictiveBackStateHolder) {
             is CompletablePredictiveBackStateHolderImpl -> Unit
         }
-        PredictiveBackHandler(enabled = enabled) { progress ->
+        PredictiveBackHandler(
+            enabled = enabled &&
+                completablePredictiveBackStateHolder.value !is CompletablePredictiveBackState.Completed,
+        ) { progress ->
             try {
                 progress.collect { backEvent ->
                     backEvent.swipeEdge
@@ -90,8 +94,8 @@ actual fun CompletablePredictiveBackStateHandler(
                         },
                     )
                 }
-                currentOnBack()
                 completablePredictiveBackStateHolder.value = CompletablePredictiveBackState.Completed
+                currentOnBack()
             } catch (cancellationException: CancellationException) {
                 completablePredictiveBackStateHolder.value = CompletablePredictiveBackState.NotRunning
                 throw cancellationException
