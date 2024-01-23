@@ -28,7 +28,9 @@ import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.Window
 import android.view.WindowManager
+import androidx.activity.ComponentActivity
 import androidx.activity.ComponentDialog
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
@@ -322,6 +324,7 @@ fun PlatformEdgeToEdgeDialog(
                     this.transformOrigin = TransformOrigin(pivotFractionX, 0.5f)
                 }
                 .then(sizeModifier),
+            contentAlignment = Alignment.Center,
         ) {
             content()
         }
@@ -536,6 +539,11 @@ fun EdgeToEdgeDialogPreview() {
     var showEdgeToEdgeDialog by remember { mutableStateOf(false) }
     var showBuiltInDialog by remember { mutableStateOf(false) }
     var showPlatformEdgeToEdgeDialog by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    SideEffect {
+        (context as? ComponentActivity)?.enableEdgeToEdge()
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),

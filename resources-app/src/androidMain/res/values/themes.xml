@@ -21,11 +21,13 @@
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
     </style>
 
-    <style name="Theme.ComposeLifeBase.ApiAdjusted" parent="Theme.ComposeLifeBase.NightAdjusted">
+    <style name="Theme.ComposeLifeBase.WindowSoftInputModeAdjusted" parent="Theme.ComposeLifeBase.NightAdjusted">
         <item name="android:windowSoftInputMode">adjustResize</item>
     </style>
 
-    <style name="Theme.ComposeLife" parent="Theme.ComposeLifeBase.ApiAdjusted" tools:ignore="UnusedResources">
+    <style name="Theme.ComposeLifeBase.WindowLayoutInDisplayCutoutModeAdjusted" parent="Theme.ComposeLifeBase.WindowSoftInputModeAdjusted" />
+
+    <style name="Theme.ComposeLife" parent="Theme.ComposeLifeBase.WindowLayoutInDisplayCutoutModeAdjusted" tools:ignore="UnusedResources">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
