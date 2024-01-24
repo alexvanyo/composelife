@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Draw
@@ -55,8 +56,6 @@ import com.alexvanyo.composelife.ui.app.resources.Stylus
 import com.alexvanyo.composelife.ui.app.resources.StylusTool
 import com.alexvanyo.composelife.ui.app.resources.Touch
 import com.alexvanyo.composelife.ui.app.resources.TouchTool
-import com.alexvanyo.composelife.ui.util.autoMirrored
-import com.alexvanyo.composelife.ui.util.filled
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
@@ -191,7 +190,7 @@ sealed interface ToolDropdownOption : DropdownOption {
         override val displayText = Strings.Erase
         override val leadingIcon: (@Composable () -> Unit) = {
             Icon(
-                imageVector = Icons.autoMirrored.filled.Backspace,
+                imageVector = Icons.AutoMirrored.Filled.Backspace,
                 contentDescription = null,
             )
         }
