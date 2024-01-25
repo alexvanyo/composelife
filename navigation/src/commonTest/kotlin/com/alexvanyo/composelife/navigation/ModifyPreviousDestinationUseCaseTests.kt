@@ -138,23 +138,19 @@ class ModifyPreviousDestinationUseCaseTests {
         onNodeWithText("increment previous").assertDoesNotExist()
 
         onNodeWithText("increment current").performClick()
-        waitForIdle()
 
         onNodeWithText("count: 1").assertExists()
 
         onNodeWithText("navigate forward").performClick()
-        waitForIdle()
 
         onNodeWithText("count: 0").assertExists()
         onNodeWithText("navigate back").assertExists()
 
         onNodeWithText("increment previous").performClick()
-        waitForIdle()
 
         onNodeWithText("count: 0").assertExists()
 
         onNodeWithText("navigate back").performClick()
-        waitForIdle()
 
         onNodeWithText("count: 2").assertExists()
     }
@@ -228,12 +224,10 @@ class ModifyPreviousDestinationUseCaseTests {
         onNodeWithText("increment previous").assertDoesNotExist()
 
         onNodeWithText("increment current").performClick()
-        waitForIdle()
 
         onNodeWithText("count: 1").assertExists()
 
         onNodeWithText("navigate forward").performClick()
-        waitForIdle()
 
         onNodeWithText("count: 0").assertExists()
         onNodeWithText("navigate back").assertExists()
@@ -241,12 +235,10 @@ class ModifyPreviousDestinationUseCaseTests {
         stateRestorationTester.emulateSavedInstanceStateRestore()
 
         onNodeWithText("increment previous").performClick()
-        waitForIdle()
 
         onNodeWithText("count: 0").assertExists()
 
         onNodeWithText("navigate back").performClick()
-        waitForIdle()
 
         onNodeWithText("count: 2").assertExists()
     }
