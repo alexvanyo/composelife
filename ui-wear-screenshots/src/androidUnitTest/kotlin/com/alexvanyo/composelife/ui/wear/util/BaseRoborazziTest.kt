@@ -20,6 +20,7 @@ import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -30,14 +31,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.FontScale
+import androidx.compose.ui.test.RoundScreen
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.then
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.ui.wear.theme.ComposeLifeTheme
 import com.github.takahirom.roborazzi.captureRoboImage
-import com.google.accompanist.testharness.TestHarness
 import org.junit.Rule
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
@@ -73,10 +77,9 @@ abstract class BaseRoborazziTest(
 
         setContent {
             val lifecycleOwner = LocalLifecycleOwner.current
-            TestHarness(
-                size = currentParameterization.size,
-                isScreenRound = currentParameterization.isScreenRound,
-                fontScale = currentParameterization.fontScale,
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.FontScale(currentParameterization.fontScale)
+                    then DeviceConfigurationOverride.RoundScreen(currentParameterization.isScreenRound),
             ) {
                 CompositionLocalProvider(
                     LocalInspectionMode provides true,
@@ -88,9 +91,15 @@ abstract class BaseRoborazziTest(
                     },
                 ) {
                     ComposeLifeTheme {
-                        Box(modifier = Modifier.testTag("contentContainer")) {
-                            key(currentParameterization) {
-                                composable()
+                        Box(
+                            modifier = Modifier.size(currentParameterization.size),
+                        ) {
+                            Box(
+                                modifier = Modifier.testTag("contentContainer"),
+                            ) {
+                                key(currentParameterization) {
+                                    composable()
+                                }
                             }
                         }
                     }

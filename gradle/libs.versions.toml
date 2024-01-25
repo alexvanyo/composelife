@@ -1,5 +1,4 @@
 [versions]
-accompanist = "0.34.0"
 androidDesugarJdkLibs = "2.0.4"
 androidGradlePlugin = "8.4.0-alpha04"
 androidTools = "31.4.0-alpha04"
@@ -54,7 +53,6 @@ turbine = "1.0.0"
 wire = "4.9.3"
 
 [libraries]
-accompanist-testharness = { group = "com.google.accompanist", name = "accompanist-testharness", version.ref = "accompanist" }
 android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "androidDesugarJdkLibs" }
 android-r8 = { group = "com.android.tools", name = "r8", version.ref = "androidR8" }
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }

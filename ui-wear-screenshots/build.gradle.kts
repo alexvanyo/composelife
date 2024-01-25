@@ -47,7 +47,6 @@ kotlin {
 
         val androidUnitTest by getting {
             dependencies {
-                implementation(libs.accompanist.testharness)
                 implementation(libs.androidx.compose.uiTestJunit4)
                 implementation(libs.roborazzi.compose)
                 implementation(libs.testParameterInjector.junit4)

@@ -23,6 +23,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.ForcedSize
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
@@ -48,7 +50,6 @@ import com.alexvanyo.composelife.ui.app.ComposeLifeNavigation
 import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.create
-import com.google.accompanist.testharness.TestHarness
 import leakcanary.SkipLeakDetection
 import org.junit.Ignore
 import org.junit.runner.RunWith
@@ -82,8 +83,8 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
         var onBackButtonPressedCount = 0
 
         composeTestRule.setContent {
-            TestHarness(
-                size = DpSize(500.dp, 500.dp),
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(500.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
@@ -148,8 +149,8 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
         var onBackButtonPressedCount = 0
 
         composeTestRule.setContent {
-            TestHarness(
-                size = DpSize(700.dp, 500.dp),
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(700.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
@@ -218,8 +219,8 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
         var onBackButtonPressedCount = 0
 
         composeTestRule.setContent {
-            TestHarness(
-                size = DpSize(500.dp, 500.dp),
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(500.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
@@ -272,8 +273,8 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
         var onBackButtonPressedCount = 0
 
         composeTestRule.setContent {
-            TestHarness(
-                size = DpSize(700.dp, 500.dp),
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(700.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
@@ -335,8 +336,8 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
         )
 
         composeTestRule.setContent {
-            TestHarness(
-                size = DpSize(500.dp, 500.dp),
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(500.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
@@ -383,8 +384,8 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
         )
 
         composeTestRule.setContent {
-            TestHarness(
-                size = DpSize(700.dp, 500.dp),
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(700.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
@@ -444,8 +445,8 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
         )
 
         composeTestRule.setContent {
-            TestHarness(
-                size = DpSize(300.dp, 300.dp),
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(300.dp, 300.dp)),
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
@@ -491,8 +492,8 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
         )
 
         composeTestRule.setContent {
-            TestHarness(
-                size = DpSize(300.dp, 300.dp),
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(300.dp, 300.dp)),
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
@@ -544,8 +545,8 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
         var size by mutableStateOf(DpSize(700.dp, 500.dp))
 
         composeTestRule.setContent {
-            TestHarness(
-                size = size,
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(size),
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
@@ -589,8 +590,8 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
         var size by mutableStateOf(DpSize(500.dp, 500.dp))
 
         composeTestRule.setContent {
-            TestHarness(
-                size = size,
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(size),
             ) {
                 BoxWithConstraints {
                     val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
