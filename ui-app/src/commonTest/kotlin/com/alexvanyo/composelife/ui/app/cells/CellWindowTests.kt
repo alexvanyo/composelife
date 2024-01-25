@@ -188,8 +188,6 @@ class CellWindowTests {
             }
         }
 
-        waitForIdle()
-
         assertTrue(mutableCellWindowViewportState.offset.x > 3f)
         assertTrue(mutableCellWindowViewportState.offset.y > 3f)
     }
@@ -249,8 +247,6 @@ class CellWindowTests {
             }
         }
 
-        waitForIdle()
-
         assertEquals(
             Offset.Zero,
             mutableCellWindowViewportState.offset,
@@ -296,7 +292,6 @@ class CellWindowTests {
         onRoot().performMouseInput {
             scroll(-1f, ScrollWheel.Vertical)
         }
-        waitForIdle()
 
         assertEquals(10f / 9f, mutableCellWindowViewportState.scale)
     }
@@ -340,7 +335,6 @@ class CellWindowTests {
         onRoot().performMouseInput {
             scroll(1f, ScrollWheel.Vertical)
         }
-        waitForIdle()
 
         assertEquals(9f / 10f, mutableCellWindowViewportState.scale)
     }

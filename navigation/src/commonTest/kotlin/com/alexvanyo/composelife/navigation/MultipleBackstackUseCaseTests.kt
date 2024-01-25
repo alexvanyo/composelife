@@ -209,27 +209,22 @@ class MultipleBackstackUseCaseTests {
         onNodeWithText("navigate back").assertDoesNotExist()
 
         onNodeWithText("increment").performClick()
-        waitForIdle()
 
         onNodeWithText("value: first 1, count: 1").assertExists()
 
         onNodeWithText("navigate to second").performClick()
-        waitForIdle()
 
         onNodeWithText("value: second 1, count: 0").assertExists()
 
         onNodeWithText("increment").performClick()
-        waitForIdle()
 
         onNodeWithText("value: second 1, count: 1").assertExists()
 
         onNodeWithText("navigate back").performClick()
-        waitForIdle()
 
         onNodeWithText("value: first 1, count: 1").assertExists()
 
         onNodeWithText("navigate to second").performClick()
-        waitForIdle()
 
         onNodeWithText("value: second 1, count: 1").assertExists()
     }
