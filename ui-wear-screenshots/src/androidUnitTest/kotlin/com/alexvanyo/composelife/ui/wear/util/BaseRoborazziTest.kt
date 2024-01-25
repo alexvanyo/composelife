@@ -117,7 +117,6 @@ abstract class BaseRoborazziTest(
                     "${description.testClass.name}." +
                         "${description.methodName.takeWhile { it != '[' }}." +
                         "${parameterization.size}." +
-                        "${parameterization.locale}." +
                         "font-${parameterization.fontScale}." +
                         "png",
                 ),
@@ -150,15 +149,12 @@ abstract class BaseRoborazziTest(
             DpSize(192.dp, 192.dp) to true, // Small round
             DpSize(180.dp, 180.dp) to false, // Square
         ).flatMap { (size, isScreenRound) ->
-            listOf("en", "b+en+XA", "b+ar+XB").flatMap { locale ->
-                listOf(1.0f, 1.5f).map { fontScale ->
-                    SingleRoborazziParameterization(
-                        size = size,
-                        isScreenRound = isScreenRound,
-                        locale = locale,
-                        fontScale = fontScale,
-                    )
-                }
+            listOf(1.0f, 1.5f).map { fontScale ->
+                SingleRoborazziParameterization(
+                    size = size,
+                    isScreenRound = isScreenRound,
+                    fontScale = fontScale,
+                )
             }
         }
     }
@@ -175,7 +171,6 @@ sealed interface RoborazziParameterization
 data class SingleRoborazziParameterization(
     val size: DpSize,
     val isScreenRound: Boolean,
-    val locale: String,
     val fontScale: Float,
 ) : RoborazziParameterization
 
