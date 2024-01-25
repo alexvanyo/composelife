@@ -118,7 +118,6 @@ abstract class BaseRoborazziTest(
                     "${description.testClass.name}." +
                         "${description.methodName.takeWhile { it != '[' }}." +
                         "${parameterization.size}." +
-                        "${parameterization.locale}." +
                         "${ if (parameterization.darkTheme) "dark" else "light" }." +
                         "font-${parameterization.fontScale}." +
                         "png",
@@ -153,16 +152,13 @@ abstract class BaseRoborazziTest(
             DpSize(393.dp, 851.dp), // Pixel 5 portrait
             DpSize(1200.dp, 800.dp), // Pixel Tablet landscape
         ).flatMap { size ->
-            listOf("en", "b+en+XA", "b+ar+XB").flatMap { locale ->
-                listOf(false, true).flatMap { darkTheme ->
-                    listOf(1.0f, 1.5f).map { fontScale ->
-                        SingleRoborazziParameterization(
-                            size = size,
-                            locale = locale,
-                            darkTheme = darkTheme,
-                            fontScale = fontScale,
-                        )
-                    }
+            listOf(false, true).flatMap { darkTheme ->
+                listOf(1.0f, 1.5f).map { fontScale ->
+                    SingleRoborazziParameterization(
+                        size = size,
+                        darkTheme = darkTheme,
+                        fontScale = fontScale,
+                    )
                 }
             }
         }
@@ -179,7 +175,6 @@ sealed interface RoborazziParameterization
  */
 data class SingleRoborazziParameterization(
     val size: DpSize,
-    val locale: String,
     val darkTheme: Boolean,
     val fontScale: Float,
 ) : RoborazziParameterization
