@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.ui.app.action.settings
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -205,14 +206,16 @@ fun FullscreenSettingsScreen(
         saver = AnchoredDraggableState.Saver(
             positionalThreshold = { totalDistance -> totalDistance * 0.5f },
             velocityThreshold = { with(density) { 200.dp.toPx() } },
-            animationSpec = spring(),
+            snapAnimationSpec = spring(),
+            decayAnimationSpec = exponentialDecay(),
         ),
     ) {
         AnchoredDraggableState(
             initialValue = 0.5f,
             positionalThreshold = { totalDistance -> totalDistance * 0.5f },
             velocityThreshold = { with(density) { 200.dp.toPx() } },
-            animationSpec = spring(),
+            snapAnimationSpec = spring(),
+            decayAnimationSpec = exponentialDecay(),
         )
     }
 
