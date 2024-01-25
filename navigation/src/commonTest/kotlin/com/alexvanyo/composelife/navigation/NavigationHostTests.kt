@@ -142,17 +142,14 @@ class NavigationHostTests {
         onNodeWithText("value: a, id: $id1, count: 0").assertExists()
 
         onNodeWithText("+").performClick()
-        waitForIdle()
 
         onNodeWithText("value: a, id: $id1, count: 1").assertExists()
 
         currentEntryId = id2
-        waitForIdle()
 
         onNodeWithText("value: b, id: $id2, count: 0").assertExists()
 
         currentEntryId = id1
-        waitForIdle()
 
         onNodeWithText("value: a, id: $id1, count: 1").assertExists()
     }
@@ -200,19 +197,16 @@ class NavigationHostTests {
         onNodeWithText("value: a, id: $id1, count: 0").assertExists()
 
         onNodeWithText("+").performClick()
-        waitForIdle()
 
         onNodeWithText("value: a, id: $id1, count: 1").assertExists()
 
         currentEntryId = id2
         backstackMap.remove(id1)
-        waitForIdle()
 
         onNodeWithText("value: b, id: $id2, count: 0").assertExists()
 
         currentEntryId = id1
         backstackMap[id1] = entry1
-        waitForIdle()
 
         onNodeWithText("value: a, id: $id1, count: 0").assertExists()
     }
@@ -262,19 +256,16 @@ class NavigationHostTests {
         onNodeWithText("value: a, id: $id1, count: 0").assertExists()
 
         onNodeWithText("+").performClick()
-        waitForIdle()
 
         onNodeWithText("value: a, id: $id1, count: 1").assertExists()
 
         currentEntryId = id2
-        waitForIdle()
 
         onNodeWithText("value: b, id: $id2, count: 0").assertExists()
 
         stateRestorationTester.emulateSavedInstanceStateRestore()
 
         currentEntryId = id1
-        waitForIdle()
 
         onNodeWithText("value: a, id: $id1, count: 1").assertExists()
     }
