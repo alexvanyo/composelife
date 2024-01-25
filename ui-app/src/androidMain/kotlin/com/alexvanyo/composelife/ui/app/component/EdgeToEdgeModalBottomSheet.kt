@@ -20,6 +20,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -29,6 +30,7 @@ import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.animateTo
+import androidx.compose.foundation.gestures.animateToWithDecay
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.layout.Arrangement
@@ -587,7 +589,7 @@ class SheetState(
         targetValue: SheetValue,
         velocity: Float = anchoredDraggableState.lastVelocity,
     ) {
-        anchoredDraggableState.animateTo(targetValue, velocity)
+        anchoredDraggableState.animateToWithDecay(targetValue, velocity)
     }
 
     /**
@@ -611,7 +613,8 @@ class SheetState(
 
     internal var anchoredDraggableState = AnchoredDraggableState(
         initialValue = initialValue,
-        animationSpec = spring(),
+        snapAnimationSpec = spring(),
+        decayAnimationSpec = exponentialDecay(),
         confirmValueChange = confirmValueChange,
         positionalThreshold = { with(density) { 56.dp.toPx() } },
         velocityThreshold = { with(density) { 125.dp.toPx() } },
