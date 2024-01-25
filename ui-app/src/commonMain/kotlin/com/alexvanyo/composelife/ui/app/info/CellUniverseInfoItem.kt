@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.app.info
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -25,13 +24,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.triStateToggleable
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -103,8 +100,6 @@ fun ColumnScope.InfoItem(
                     },
                     enabled = true,
                     role = Role.Checkbox,
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple(),
                 )
             } else {
                 Modifier

@@ -19,10 +19,7 @@ package com.alexvanyo.composelife.ui.app.cells
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -57,13 +54,7 @@ fun InteractableCell(
 ) {
     val aliveColor = ComposeLifeTheme.aliveCellColor
     val pendingAliveColor = ComposeLifeTheme.pendingAliveCellColor
-    val deadColor = ComposeLifeTheme.deadCellColor
     val pendingDeadColor = ComposeLifeTheme.pendingDeadCellColor
-
-    val rippleColor = when (drawState) {
-        DrawState.Alive, DrawState.PendingAlive -> deadColor
-        DrawState.Dead, DrawState.PendingDead -> aliveColor
-    }
 
     val value = when (drawState) {
         DrawState.Alive, DrawState.PendingAlive -> true
@@ -80,8 +71,6 @@ fun InteractableCell(
                 this.contentDescription = contentDescription
             }
             .combinedClickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = rememberRipple(color = rippleColor),
                 role = Role.Switch,
                 onClick = onClick,
                 onLongClick = onLongClick,
