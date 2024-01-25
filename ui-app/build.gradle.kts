@@ -116,7 +116,6 @@ kotlin {
         }
         val androidSharedTest by getting {
             dependencies {
-                implementation(libs.accompanist.testharness)
                 implementation(libs.androidx.compose.uiTestJunit4)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
