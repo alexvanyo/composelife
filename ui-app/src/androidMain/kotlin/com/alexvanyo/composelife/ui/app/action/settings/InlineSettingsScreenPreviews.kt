@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.ui.app.action.settings
 
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
@@ -26,10 +27,10 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 @ThemePreviews
 @Composable
-fun InlineSettingsScreenNoQuickAccessPreview() {
+fun InlineSettingsScreenNoQuickAccessPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            Surface {
+            Surface(modifier) {
                 InlineSettingsScreen(
                     onSeeMoreClicked = {},
                     onOpenInSettingsClicked = {},
@@ -41,7 +42,7 @@ fun InlineSettingsScreenNoQuickAccessPreview() {
 
 @ThemePreviews
 @Composable
-fun InlineSettingsScreenWithQuickAccessPreview() {
+fun InlineSettingsScreenWithQuickAccessPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies(
         loadedComposeLifePreferences = LoadedComposeLifePreferences.Defaults.copy(
             quickAccessSettings = setOf(
@@ -51,7 +52,7 @@ fun InlineSettingsScreenWithQuickAccessPreview() {
         ),
     ) {
         ComposeLifeTheme {
-            Surface {
+            Surface(modifier) {
                 InlineSettingsScreen(
                     onSeeMoreClicked = {},
                     onOpenInSettingsClicked = {},

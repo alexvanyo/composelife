@@ -51,6 +51,7 @@ import kotlinx.coroutines.launch
  * Modifier.windowInsetsPadding(animateWindowInsetsAsState(targetWindowInsets, animationSpec, label))
  * ```
  */
+@Suppress("ComposeModifierComposed")
 fun Modifier.animatedWindowInsetsPadding(
     targetWindowInsets: WindowInsets,
     animationSpec: AnimationSpec<Int> = spring(visibilityThreshold = Int.VisibilityThreshold),

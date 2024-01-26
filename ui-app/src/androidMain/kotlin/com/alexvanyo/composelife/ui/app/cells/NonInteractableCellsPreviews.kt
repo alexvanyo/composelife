@@ -34,7 +34,7 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 @ThemePreviews
 @Composable
-fun NonInteractableCellsPreview() {
+fun NonInteractableCellsPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             NonInteractableCells(
@@ -59,7 +59,7 @@ fun NonInteractableCellsPreview() {
                     ),
                 ),
                 pixelOffsetFromCenter = Offset.Zero,
-                modifier = Modifier.size(300.dp),
+                modifier = modifier.size(300.dp),
             )
         }
     }

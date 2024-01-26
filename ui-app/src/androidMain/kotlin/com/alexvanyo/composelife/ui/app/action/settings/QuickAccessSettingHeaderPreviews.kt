@@ -18,16 +18,17 @@ package com.alexvanyo.composelife.ui.app.action.settings
 
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 @ThemePreviews
 @Composable
-fun QuickAccessSettingHeaderIsFavoritePreview() {
+fun QuickAccessSettingHeaderIsFavoritePreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            Surface {
+            Surface(modifier) {
                 QuickAccessSettingHeader(
                     isFavorite = true,
                     setIsFavorite = {},
@@ -39,10 +40,10 @@ fun QuickAccessSettingHeaderIsFavoritePreview() {
 
 @ThemePreviews
 @Composable
-fun QuickAccessSettingHeaderWithOpenInSettingsPreview() {
+fun QuickAccessSettingHeaderWithOpenInSettingsPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            Surface {
+            Surface(modifier) {
                 QuickAccessSettingHeader(
                     isFavorite = true,
                     setIsFavorite = {},
@@ -55,10 +56,10 @@ fun QuickAccessSettingHeaderWithOpenInSettingsPreview() {
 
 @ThemePreviews
 @Composable
-fun QuickAccessSettingHeaderIsNotFavoritePreview() {
+fun QuickAccessSettingHeaderIsNotFavoritePreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            Surface {
+            Surface(modifier) {
                 QuickAccessSettingHeader(
                     isFavorite = false,
                     setIsFavorite = {},

@@ -16,12 +16,14 @@
 
 package com.alexvanyo.composelife.ui.app.action.settings
 
+import androidx.compose.runtime.Immutable
 import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
 
 /**
  * The category for a particular setting.
  */
+@Immutable
 sealed interface SettingsCategory {
     /**
      * A setting impacting the algorithm.

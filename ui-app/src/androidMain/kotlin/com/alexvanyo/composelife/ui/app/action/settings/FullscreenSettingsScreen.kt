@@ -753,10 +753,10 @@ private val SettingsCategory.outlinedIcon: ImageVector
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @MobileDevicePreviews
 @Composable
-fun FullscreenSettingsScreenListPreview() {
+fun FullscreenSettingsScreenListPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            BoxWithConstraints {
+            BoxWithConstraints(modifier) {
                 val size = DpSize(maxWidth, maxHeight)
                 Surface {
                     FullscreenSettingsScreen(
@@ -778,10 +778,10 @@ fun FullscreenSettingsScreenListPreview() {
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @MobileDevicePreviews
 @Composable
-fun FullscreenSettingsScreenAlgorithmPreview() {
+fun FullscreenSettingsScreenAlgorithmPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            BoxWithConstraints {
+            BoxWithConstraints(modifier) {
                 val size = DpSize(maxWidth, maxHeight)
                 Surface {
                     FullscreenSettingsScreen(
@@ -803,10 +803,10 @@ fun FullscreenSettingsScreenAlgorithmPreview() {
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @MobileDevicePreviews
 @Composable
-fun FullscreenSettingsScreenVisualPreview() {
+fun FullscreenSettingsScreenVisualPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            BoxWithConstraints {
+            BoxWithConstraints(modifier) {
                 val size = DpSize(maxWidth, maxHeight)
                 Surface {
                     FullscreenSettingsScreen(
@@ -828,10 +828,10 @@ fun FullscreenSettingsScreenVisualPreview() {
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @MobileDevicePreviews
 @Composable
-fun FullscreenSettingsScreenFeatureFlagsPreview() {
+fun FullscreenSettingsScreenFeatureFlagsPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            BoxWithConstraints {
+            BoxWithConstraints(modifier) {
                 val size = DpSize(maxWidth, maxHeight)
                 Surface {
                     FullscreenSettingsScreen(

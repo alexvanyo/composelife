@@ -33,10 +33,10 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 @ThemePreviews
 @Composable
-fun InteractableCellsPreview() {
+fun InteractableCellsPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            Box(modifier = Modifier.size(300.dp)) {
+            Box(modifier = modifier.size(300.dp)) {
                 InteractableCells(
                     gameOfLifeState = MutableGameOfLifeState(
                         setOf(
