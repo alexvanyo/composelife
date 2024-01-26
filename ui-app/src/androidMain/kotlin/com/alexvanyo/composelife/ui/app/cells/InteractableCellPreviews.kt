@@ -27,11 +27,11 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 @ThemePreviews
 @Composable
-fun AliveCellPreview() {
+fun AliveCellPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             InteractableCell(
-                modifier = Modifier.size(50.dp),
+                modifier = modifier.size(50.dp),
                 drawState = DrawState.Alive,
                 shape = CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
@@ -46,11 +46,11 @@ fun AliveCellPreview() {
 
 @ThemePreviews
 @Composable
-fun PendingAliveCellPreview() {
+fun PendingAliveCellPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             InteractableCell(
-                modifier = Modifier.size(50.dp),
+                modifier = modifier.size(50.dp),
                 drawState = DrawState.PendingAlive,
                 shape = CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
@@ -65,11 +65,11 @@ fun PendingAliveCellPreview() {
 
 @ThemePreviews
 @Composable
-fun DeadCellPreview() {
+fun DeadCellPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             InteractableCell(
-                modifier = Modifier.size(50.dp),
+                modifier = modifier.size(50.dp),
                 drawState = DrawState.Dead,
                 shape = CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
@@ -84,11 +84,11 @@ fun DeadCellPreview() {
 
 @ThemePreviews
 @Composable
-fun PendingDeadCellPreview() {
+fun PendingDeadCellPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             InteractableCell(
-                modifier = Modifier.size(50.dp),
+                modifier = modifier.size(50.dp),
                 drawState = DrawState.PendingDead,
                 shape = CurrentShape.RoundRectangle(
                     sizeFraction = 1f,

@@ -500,6 +500,7 @@ private class DialogLayout(
         createComposition()
     }
 
+    @Suppress("ComposeUnstableReceiver")
     @Composable
     override fun Content() {
         content()
@@ -535,7 +536,7 @@ internal fun View.isFlagSecureEnabled(): Boolean {
 @Suppress("LongMethod")
 @Preview
 @Composable
-fun EdgeToEdgeDialogPreview() {
+internal fun EdgeToEdgeDialogPreview() {
     var showEdgeToEdgeDialog by remember { mutableStateOf(false) }
     var showBuiltInDialog by remember { mutableStateOf(false) }
     var showPlatformEdgeToEdgeDialog by remember { mutableStateOf(false) }

@@ -66,6 +66,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -161,7 +162,7 @@ fun EdgeToEdgeModalBottomSheet(
             .collect()
     }
 
-    var fullWidth by remember { mutableStateOf(0) }
+    var fullWidth by remember { mutableIntStateOf(0) }
 
     EdgeToEdgeDialog(
         properties = properties,
@@ -685,7 +686,7 @@ fun rememberModalBottomSheetState(
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-fun EdgeToEdgeModalBottomSheetPreview() {
+internal fun EdgeToEdgeModalBottomSheetPreview() {
     var showEdgeToEdgeModalBottomSheet by rememberSaveable { mutableStateOf(false) }
     var showModalBottomSheet by rememberSaveable { mutableStateOf(false) }
 

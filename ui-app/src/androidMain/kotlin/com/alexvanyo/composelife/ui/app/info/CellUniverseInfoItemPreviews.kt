@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.ui.app.info
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.TargetState
@@ -25,10 +26,10 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 @ThemePreviews
 @Composable
-fun CellUniverseInfoItemNotEditingPreview() {
+fun CellUniverseInfoItemNotEditingPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            Column {
+            Column(modifier) {
                 InfoItem(
                     cellUniverseInfoItemContent = CellUniverseInfoItemContent(
                         cellUniverseInfoCardState = rememberCellUniverseInfoItemState(),
@@ -42,10 +43,10 @@ fun CellUniverseInfoItemNotEditingPreview() {
 
 @ThemePreviews
 @Composable
-fun CellUniverseInfoItemEditingPreview() {
+fun CellUniverseInfoItemEditingPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            Column {
+            Column(modifier) {
                 InfoItem(
                     cellUniverseInfoItemContent = CellUniverseInfoItemContent(
                         cellUniverseInfoCardState = rememberCellUniverseInfoItemState(),

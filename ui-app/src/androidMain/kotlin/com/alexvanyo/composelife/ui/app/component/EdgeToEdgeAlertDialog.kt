@@ -355,7 +355,7 @@ private val ButtonsCrossAxisSpacing = 12.dp
 
 @Preview
 @Composable
-fun EdgeToEdgeAlertDialogPreview() {
+internal fun EdgeToEdgeAlertDialogPreview() {
     var showEdgeToEdgeAlertDialog by rememberSaveable { mutableStateOf(false) }
     var showAlertDialog by rememberSaveable { mutableStateOf(false) }
 

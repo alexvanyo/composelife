@@ -18,16 +18,17 @@ package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 @ThemePreviews
 @Composable
-fun InlineSpeedScreenPreview() {
+fun InlineSpeedScreenPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            Surface {
+            Surface(modifier) {
                 InlineSpeedScreen(
                     targetStepsPerSecond = 60.0,
                     setTargetStepsPerSecond = {},
