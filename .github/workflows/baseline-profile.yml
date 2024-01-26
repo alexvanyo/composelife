@@ -60,7 +60,7 @@ jobs:
           path: |
             ${{ env.ANDROID_USER_HOME }}/avd/gradle-managed/*
             ${{ env.ANDROID_USER_HOME }}/adb*
-          key: v6-${{ runner.os }}-baseline-profile
+          key: v7-${{ runner.os }}-baseline-profile
 
       - name: Configure JDK
         uses: actions/setup-java@v4
@@ -86,11 +86,11 @@ jobs:
       - name: Generate baseline profile for wear
         run: |
           # generate the baseline profile, with one retry attempt
-          generate_profile () { ./gradlew :wear-baseline-profile-generator:wearwearoslargeroundapi33Check --stacktrace -Pcom.alexvanyo.composelife.generateBaselineProfile=true; }
+          generate_profile () { ./gradlew :wear-baseline-profile-generator:wearwearoslargeroundapi28Check --stacktrace -Pcom.alexvanyo.composelife.generateBaselineProfile=true; }
           (echo "==== Attempt 1 ====" && generate_profile) || (echo "==== Attempt 2 ====" && generate_profile) || (echo "==== Both attempts failed ====" && exit 1)
 
       - name: Copy baseline profile to wear
-        run: cp wear-baseline-profile-generator/build/intermediates/managed_device_android_test_additional_output/benchmark/wearwearoslargeroundapi33/BaselineProfileGenerator_startup-baseline-prof.txt wear/src/androidMain/baseline-prof.txt
+        run: cp wear-baseline-profile-generator/build/intermediates/managed_device_android_test_additional_output/benchmark/wearwearoslargeroundapi28/BaselineProfileGenerator_startup-baseline-prof.txt wear/src/androidMain/baseline-prof.txt
 
       - name: Auto-commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
