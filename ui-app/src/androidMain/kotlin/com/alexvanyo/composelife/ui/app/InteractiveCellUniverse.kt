@@ -134,7 +134,6 @@ fun InteractiveCellUniverse(
 
                             Key.C -> if (keyEvent.isCtrlPressed) {
                                 interactiveCellUniverseState.onCopy()
-                                true
                             } else {
                                 false
                             }
@@ -148,7 +147,6 @@ fun InteractiveCellUniverse(
 
                             Key.X -> if (keyEvent.isCtrlPressed) {
                                 interactiveCellUniverseState.onCut()
-                                true
                             } else {
                                 false
                             }
@@ -228,13 +226,17 @@ interface InteractiveCellUniverseState {
 
     /**
      * Copies the current selection (if any) to the system clipboard.
+     *
+     * Returns `true` if the copy is triggered.
      */
-    fun onCopy()
+    fun onCopy(): Boolean
 
     /**
      * Cuts the current selection (if any) to the system clipboard.
+     *
+     * Returns `true` if the cut is triggered.
      */
-    fun onCut()
+    fun onCut(): Boolean
 
     /**
      * Pastes the current selection (if any) from the system clipboard.
@@ -243,8 +245,10 @@ interface InteractiveCellUniverseState {
 
     /**
      * Applies the current paste, updating the cell state.
+     *
+     * Returns `true` if the paste is applied.
      */
-    fun onApplyPaste()
+    fun onApplyPaste(): Boolean
 
     /**
      * Selects the entire cell state.
@@ -397,12 +401,12 @@ fun rememberInteractiveCellUniverseState(
 
             override fun onCut() = onCopy(isCut = true)
 
-            private fun onCopy(isCut: Boolean) {
+            private fun onCopy(isCut: Boolean): Boolean =
                 when (val currentSelectionState = selectionState) {
                     SelectionState.NoSelection,
                     is SelectionState.Selection,
                     is SelectionState.SelectingBox.TransientSelectingBox,
-                    -> Unit
+                    -> false
                     is SelectionState.SelectingBox.FixedSelectingBox -> {
                         if (currentSelectionState.width != 0 && currentSelectionState.height != 0) {
                             val left: Int
@@ -450,10 +454,12 @@ fun rememberInteractiveCellUniverseState(
                             )
 
                             clipboardReaderWriter.setText(serializedCellState.joinToString("\n"))
+                            true
+                        } else {
+                            false
                         }
                     }
                 }
-            }
 
             override fun onPaste() {
                 coroutineScope.launch {
@@ -479,11 +485,11 @@ fun rememberInteractiveCellUniverseState(
                 }
             }
 
-            override fun onApplyPaste() {
+            override fun onApplyPaste(): Boolean =
                 when (val currentSelectionState = selectionState) {
                     SelectionState.NoSelection,
                     is SelectionState.SelectingBox,
-                    -> Unit
+                    -> false
                     is SelectionState.Selection -> {
                         val selectionCellState = currentSelectionState.cellState
 
@@ -497,9 +503,9 @@ fun rememberInteractiveCellUniverseState(
                                 )
                             }
                         selectionState = SelectionState.NoSelection
+                        true
                     }
                 }
-            }
 
             override fun onSelectAll() {
                 val boundingBox = temporalGameOfLifeState.cellState.boundingBox
