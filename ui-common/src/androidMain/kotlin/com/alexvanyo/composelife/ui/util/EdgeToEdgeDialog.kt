@@ -398,6 +398,12 @@ private class DialogWrapper(
 
         // Turn of all clipping so shadows can be drawn outside the window
         (window.decorView as? ViewGroup)?.disableClipping()
+
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = false
+            isAppearanceLightNavigationBars = false
+        }
+
         setContentView(dialogLayout)
         dialogLayout.setViewTreeLifecycleOwner(composeView.findViewTreeLifecycleOwner())
         dialogLayout.setViewTreeViewModelStoreOwner(composeView.findViewTreeViewModelStoreOwner())

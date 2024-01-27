@@ -123,9 +123,15 @@ fun EdgeToEdgeModalBottomSheet(
     modifier: Modifier = Modifier,
     sheetState: SheetState = rememberModalBottomSheetState(),
     sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
+    sheetWindowInsets: @Composable () -> WindowInsets = {
+        WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
+    },
     shape: Shape = BottomSheetDefaults.ExpandedShape,
     containerColor: Color = BottomSheetDefaults.ContainerColor,
     contentColor: Color = contentColorFor(containerColor),
+    contentWindowInsets: @Composable () -> WindowInsets = {
+        WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)
+    },
     tonalElevation: Dp = BottomSheetDefaults.Elevation,
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
     dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
@@ -162,16 +168,10 @@ fun EdgeToEdgeModalBottomSheet(
             .collect()
     }
 
-    var fullWidth by remember { mutableIntStateOf(0) }
-
     EdgeToEdgeDialog(
         properties = properties,
         onDismissRequest = {
-            if (sheetState.currentValue == Expanded && sheetState.hasPartiallyExpandedState) {
-                scope.launch { sheetState.partialExpand() }
-            } else { // Is expanded without collapsed state or is collapsed.
-                scope.launch { sheetState.hide() }
-            }
+            scope.launch { sheetState.hide() }
         },
     ) { predictiveBackStateHolder ->
         Box(
@@ -186,14 +186,25 @@ fun EdgeToEdgeModalBottomSheet(
 
             val ime = WindowInsets.ime
 
+            val lastRunningValue by remember {
+                mutableStateOf<CompletablePredictiveBackState.Running?>(null)
+            }.apply {
+                when (val predictiveBackState = predictiveBackStateHolder.value) {
+                    CompletablePredictiveBackState.NotRunning -> value = null
+                    is CompletablePredictiveBackState.Running -> if (predictiveBackState.progress >= 0.01f) {
+                        // Only save that we were disappearing if the progress is at least 1% along
+                        value = predictiveBackState
+                    }
+                    CompletablePredictiveBackState.Completed -> Unit
+                }
+            }
+
+            var fullWidth by remember { mutableIntStateOf(0) }
+
             Surface(
                 modifier = modifier
                     .fillMaxSize()
-                    .windowInsetsPadding(
-                        WindowInsets.safeDrawing.only(
-                            WindowInsetsSides.Horizontal + WindowInsetsSides.Top,
-                        ),
-                    )
+                    .windowInsetsPadding(sheetWindowInsets())
                     .wrapContentSize()
                     .widthIn(max = sheetMaxWidth)
                     .fillMaxWidth()
@@ -275,7 +286,7 @@ fun EdgeToEdgeModalBottomSheet(
                             when (predictiveBackState) {
                                 CompletablePredictiveBackState.NotRunning -> 0f
                                 is CompletablePredictiveBackState.Running -> predictiveBackState.progress
-                                CompletablePredictiveBackState.Completed -> 1f
+                                CompletablePredictiveBackState.Completed -> if (lastRunningValue == null) 0f else 1f
                             },
                         )
                         scaleX = scale
@@ -295,7 +306,7 @@ fun EdgeToEdgeModalBottomSheet(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)),
+                        .windowInsetsPadding(contentWindowInsets()),
                 ) {
                     if (dragHandle != null) {
                         val collapseActionLabel =
