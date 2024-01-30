@@ -40,6 +40,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -104,7 +105,8 @@ import java.util.UUID
  * The [content] will fill the entire window, going entirely edge-to-edge.
  *
  * This [EdgeToEdgeDialog] provides no scrim or dismissing when the scrim is pressed: if this is desired, it must be
- * implemented by the [content]. For the most simple implementation of this that acts like a platform dialog, use
+ * implemented by the [content] or supplied by enabling background dim on the dialog's window.
+ * For the most simple implementation of this that acts like a platform dialog, use
  * [PlatformEdgeToEdgeDialog].
  *
  * [DialogProperties] will be respected, but [DialogProperties.decorFitsSystemWindows] and
@@ -117,6 +119,7 @@ import java.util.UUID
 fun EdgeToEdgeDialog(
     onDismissRequest: () -> Unit,
     properties: DialogProperties = DialogProperties(),
+    windowTheme: Int = R.style.EdgeToEdgeFloatingDialogWindowTheme,
     content: @Composable (CompletablePredictiveBackStateHolder) -> Unit,
 ) {
     val view = LocalView.current
@@ -133,6 +136,7 @@ fun EdgeToEdgeDialog(
             onDismissRequest = onDismissRequest,
             properties = properties,
             composeView = view,
+            windowTheme = windowTheme,
             layoutDirection = layoutDirection,
             density = density,
             dialogId = dialogId,
@@ -191,8 +195,7 @@ fun PlatformEdgeToEdgeDialog(
     onDismissRequest: () -> Unit,
     properties: DialogProperties = DialogProperties(),
     scrim: @Composable () -> Unit = {
-        val scrimColor = Color.Black.copy(alpha = 0.6f)
-        Canvas(
+        Spacer(
             modifier = Modifier
                 .fillMaxSize()
                 .then(
@@ -204,17 +207,12 @@ fun PlatformEdgeToEdgeDialog(
                         Modifier
                     },
                 ),
-        ) {
-            drawRect(
-                color = scrimColor,
-                topLeft = -Offset(size.width, size.height),
-                size = size * 3f,
-            )
-        }
+        )
     },
     content: @Composable () -> Unit,
 ) = EdgeToEdgeDialog(
     onDismissRequest = onDismissRequest,
+    windowTheme = R.style.PlatformEdgeToEdgeFloatingDialogWindowTheme,
     properties = properties,
 ) { predictiveBackStateHolder ->
     Box(
@@ -331,24 +329,16 @@ fun PlatformEdgeToEdgeDialog(
     }
 }
 
+@Suppress("LongParameterList")
 private class DialogWrapper(
     private var onDismissRequest: () -> Unit,
     private var properties: DialogProperties,
     private val composeView: View,
+    windowTheme: Int,
     layoutDirection: LayoutDirection,
     density: Density,
     dialogId: UUID,
-) : ComponentDialog(
-    /**
-     * [Window.setClipToOutline] is only available from 22+, but the style attribute exists on 21.
-     * So use a wrapped context that sets this attribute for compatibility back to 21.
-     */
-    ContextThemeWrapper(
-        composeView.context,
-        R.style.EdgeToEdgeFloatingDialogWindowTheme,
-    ),
-),
-    ViewRootForInspector {
+) : ComponentDialog(ContextThemeWrapper(composeView.context, windowTheme)), ViewRootForInspector {
 
     private val dialogLayout: DialogLayout
 
