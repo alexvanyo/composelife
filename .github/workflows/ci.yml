@@ -123,7 +123,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: matrix.sdk == '34'
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           # TODO: Remove once https://github.com/codecov/codecov-action/issues/837 is resolved
           token: ${{ secrets.CODECOV_TOKEN }}
