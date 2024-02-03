@@ -34,6 +34,10 @@ plugins {
     alias(libs.plugins.convention.kotlinMultiplatformCompose) apply false
 
     alias(libs.plugins.convention.mergeJacoco)
+    // Ensure the correct transitive dependencies are resolved for the wire plugin in combination
+    // with the other plugins applied throughout the project.
+    // See https://github.com/square/wire/issues/2818#issuecomment-1924641275 for more details
+    alias(libs.plugins.wire) apply false
 }
 
 buildscript {
