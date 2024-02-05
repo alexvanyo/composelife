@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:Suppress("MatchingDeclarationName")
+
 package com.alexvanyo.composelife.ui.app
 
 import android.content.ClipData
@@ -28,11 +31,11 @@ import kotlinx.coroutines.coroutineScope
 import me.tatarka.inject.annotations.Inject
 
 @Inject
-class ClipboardCellStateParser(
+actual class ClipboardCellStateParser actual constructor(
     private val flexibleCellStateSerializer: FlexibleCellStateSerializer,
 ) {
 
-    suspend fun parseCellState(clipboardStateReader: ClipboardReader): DeserializationResult {
+    actual suspend fun parseCellState(clipboardStateReader: ClipboardReader): DeserializationResult {
         val clipData = clipboardStateReader.getClipData()
         val items = clipData?.items.orEmpty()
         if (items.isEmpty()) {

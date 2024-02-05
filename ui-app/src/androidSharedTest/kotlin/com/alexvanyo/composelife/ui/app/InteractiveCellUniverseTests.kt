@@ -63,6 +63,7 @@ import com.alexvanyo.composelife.ui.util.ClipboardReader
 import com.alexvanyo.composelife.ui.util.ClipboardWriter
 import com.alexvanyo.composelife.ui.util.rememberClipboardReader
 import com.alexvanyo.composelife.ui.util.rememberClipboardWriter
+import com.alexvanyo.composelife.ui.util.setText
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import leakcanary.SkipLeakDetection

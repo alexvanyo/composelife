@@ -34,14 +34,25 @@ import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
+import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
+import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.resourcestate.asResourceState
+import com.alexvanyo.composelife.resourcestate.collectAsState
+import com.alexvanyo.composelife.resourcestate.isSuccess
+import com.alexvanyo.composelife.ui.app.ClipboardCellStateParser
+import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
 import com.alexvanyo.composelife.ui.app.component.DropdownOption
 import com.alexvanyo.composelife.ui.app.component.TextFieldDropdown
 import com.alexvanyo.composelife.ui.app.resources.Draw
@@ -56,51 +67,54 @@ import com.alexvanyo.composelife.ui.app.resources.Stylus
 import com.alexvanyo.composelife.ui.app.resources.StylusTool
 import com.alexvanyo.composelife.ui.app.resources.Touch
 import com.alexvanyo.composelife.ui.app.resources.TouchTool
+import com.alexvanyo.composelife.ui.util.clipboardStateKey
+import com.alexvanyo.composelife.ui.util.rememberClipboardReader
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 interface InlineEditScreenInjectEntryPoint :
-    ComposeLifePreferencesProvider
+    ComposeLifePreferencesProvider,
+    ComposeLifeDispatchersProvider,
+    ClipboardCellStateParserProvider,
+    ClipboardCellStatePreviewInjectEntryPoint
 
 interface InlineEditScreenLocalEntryPoint :
-    LoadedComposeLifePreferencesProvider
+    LoadedComposeLifePreferencesProvider,
+    ClipboardCellStatePreviewLocalEntryPoint
 
 context(InlineEditScreenInjectEntryPoint, InlineEditScreenLocalEntryPoint)
 @Composable
 fun InlineEditScreen(
+    setSelectionToCellState: (CellState) -> Unit,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
 ) = InlineEditScreen(
-    touchToolConfig = preferences.touchToolConfig,
-    setTouchToolConfig = composeLifePreferences::setTouchToolConfig,
-    stylusToolConfig = preferences.stylusToolConfig,
-    setStylusToolConfig = composeLifePreferences::setStylusToolConfig,
-    mouseToolConfig = preferences.mouseToolConfig,
-    setMouseToolConfig = composeLifePreferences::setMouseToolConfig,
+    state = rememberInlineEditScreenState(setSelectionToCellState),
     modifier = modifier,
     scrollState = scrollState,
 )
 
+context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 fun InlineEditScreen(
-    touchToolConfig: ToolConfig,
-    setTouchToolConfig: suspend (ToolConfig) -> Unit,
-    stylusToolConfig: ToolConfig,
-    setStylusToolConfig: suspend (ToolConfig) -> Unit,
-    mouseToolConfig: ToolConfig,
-    setMouseToolConfig: suspend (ToolConfig) -> Unit,
+    state: InlineEditScreenState,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
 ) {
-    val coroutineScope = rememberCoroutineScope()
-
     Column(
         modifier
             .verticalScroll(scrollState)
             .padding(vertical = 8.dp),
     ) {
+        ClipboardCellStatePreview(
+            clipboardCellStateResourceState = state.clipboardCellStateResourceState,
+            onPaste = state::onPasteClipboard,
+            onPin = state::onPinClipboard,
+        )
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -113,13 +127,9 @@ fun InlineEditScreen(
             )
             TextFieldDropdown(
                 label = parameterizedStringResource(Strings.TouchTool),
-                currentValue = touchToolConfig.toToolDropdownOption(),
+                currentValue = state.touchToolDropdownOption,
                 allValues = ToolDropdownOption.values.toImmutableList(),
-                setValue = {
-                    coroutineScope.launch {
-                        setTouchToolConfig(it.toToolConfig())
-                    }
-                },
+                setValue = state::setTouchToolDropdownOption,
             )
         }
         Row(
@@ -134,13 +144,9 @@ fun InlineEditScreen(
             )
             TextFieldDropdown(
                 label = parameterizedStringResource(Strings.StylusTool),
-                currentValue = stylusToolConfig.toToolDropdownOption(),
+                currentValue = state.stylusToolDropdownOption,
                 allValues = ToolDropdownOption.values.toImmutableList(),
-                setValue = {
-                    coroutineScope.launch {
-                        setStylusToolConfig(it.toToolConfig())
-                    }
-                },
+                setValue = state::setStylusToolDropdownOption,
             )
         }
         Row(
@@ -155,13 +161,9 @@ fun InlineEditScreen(
             )
             TextFieldDropdown(
                 label = parameterizedStringResource(Strings.MouseTool),
-                currentValue = mouseToolConfig.toToolDropdownOption(),
+                currentValue = state.mouseToolDropdownOption,
                 allValues = ToolDropdownOption.values.toImmutableList(),
-                setValue = {
-                    coroutineScope.launch {
-                        setMouseToolConfig(it.toToolConfig())
-                    }
-                },
+                setValue = state::setMouseToolDropdownOption,
             )
         }
     }
@@ -218,7 +220,7 @@ sealed interface ToolDropdownOption : DropdownOption {
     companion object
 }
 
-fun ToolDropdownOption.toToolConfig(): ToolConfig =
+private fun ToolDropdownOption.toToolConfig(): ToolConfig =
     when (this) {
         ToolDropdownOption.Draw -> ToolConfig.Draw
         ToolDropdownOption.Erase -> ToolConfig.Erase
@@ -227,7 +229,7 @@ fun ToolDropdownOption.toToolConfig(): ToolConfig =
         ToolDropdownOption.Select -> ToolConfig.Select
     }
 
-fun ToolConfig.toToolDropdownOption(): ToolDropdownOption =
+private fun ToolConfig.toToolDropdownOption(): ToolDropdownOption =
     when (this) {
         ToolConfig.Draw -> ToolDropdownOption.Draw
         ToolConfig.Erase -> ToolDropdownOption.Erase
@@ -235,3 +237,88 @@ fun ToolConfig.toToolDropdownOption(): ToolDropdownOption =
         ToolConfig.Pan -> ToolDropdownOption.Pan
         ToolConfig.Select -> ToolDropdownOption.Select
     }
+
+interface InlineEditScreenState {
+    val touchToolDropdownOption: ToolDropdownOption
+    fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption)
+    val stylusToolDropdownOption: ToolDropdownOption
+    fun setStylusToolDropdownOption(toolDropdownOption: ToolDropdownOption)
+    val mouseToolDropdownOption: ToolDropdownOption
+    fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption)
+    val clipboardCellStateResourceState: ResourceState<DeserializationResult>
+
+    fun onPasteClipboard()
+
+    fun onPinClipboard()
+}
+
+context(
+    ComposeLifePreferencesProvider,
+    LoadedComposeLifePreferencesProvider,
+    ComposeLifeDispatchersProvider,
+    ClipboardCellStateParserProvider
+)
+@Composable
+fun rememberInlineEditScreenState(
+    setSelectionToCellState: (CellState) -> Unit,
+): InlineEditScreenState {
+    val coroutineScope = rememberCoroutineScope()
+
+    val clipboardReader = rememberClipboardReader()
+    val parser: ClipboardCellStateParser = clipboardCellStateParser
+
+    val clipboardCellStateResourceState: ResourceState<DeserializationResult> by
+        remember(clipboardReader, clipboardReader.clipboardStateKey, parser) {
+            flow { emit(parser.parseCellState(clipboardReader)) }.asResourceState()
+        }
+            .collectAsState()
+
+    return remember(coroutineScope, composeLifePreferences, preferences, setSelectionToCellState) {
+        object : InlineEditScreenState {
+            override val touchToolDropdownOption: ToolDropdownOption get() =
+                preferences.touchToolConfig.toToolDropdownOption()
+
+            override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) {
+                coroutineScope.launch {
+                    composeLifePreferences.setTouchToolConfig(toolDropdownOption.toToolConfig())
+                }
+            }
+
+            override val stylusToolDropdownOption: ToolDropdownOption get() =
+                preferences.stylusToolConfig.toToolDropdownOption()
+
+            override fun setStylusToolDropdownOption(toolDropdownOption: ToolDropdownOption) {
+                coroutineScope.launch {
+                    composeLifePreferences.setStylusToolConfig(toolDropdownOption.toToolConfig())
+                }
+            }
+
+            override val mouseToolDropdownOption: ToolDropdownOption get() =
+                preferences.mouseToolConfig.toToolDropdownOption()
+
+            override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) {
+                coroutineScope.launch {
+                    composeLifePreferences.setMouseToolConfig(toolDropdownOption.toToolConfig())
+                }
+            }
+
+            override val clipboardCellStateResourceState get() = clipboardCellStateResourceState
+
+            override fun onPasteClipboard() {
+                val clipboardResourceState = clipboardCellStateResourceState
+                if (clipboardResourceState.isSuccess()) {
+                    when (val clipboardDeserializationResult = clipboardResourceState.value) {
+                        is DeserializationResult.Successful -> {
+                            setSelectionToCellState(clipboardDeserializationResult.cellState)
+                        }
+                        is DeserializationResult.Unsuccessful -> Unit
+                    }
+                }
+            }
+
+            override fun onPinClipboard() {
+                // TODO: Implement clipboard pinning
+            }
+        }
+    }
+}

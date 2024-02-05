@@ -28,13 +28,25 @@ import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 expect interface ClipboardReader
 
 /**
+ * Retrieves a snapshot-state aware indicator that the clipboard state may have changed.
+ *
+ * If this [clipboardStateKey] object doesn't change (the previous value is equal to the current value) then the
+ * clipboard state has not changed.
+ *
+ * The type of this object may be platform-specific, and not be the text represented by the clipboard itself.
+ */
+expect val ClipboardReader.clipboardStateKey: Any?
+
+/**
  * A reader for the system clipboard.
  */
 @Stable
-expect interface ClipboardWriter {
+expect interface ClipboardWriter
 
-    fun setText(value: String)
-}
+/**
+ * Sets the clipboard to the given text.
+ */
+expect fun ClipboardWriter.setText(value: String)
 
 @Stable
 interface ClipboardReaderWriter : ClipboardReader, ClipboardWriter

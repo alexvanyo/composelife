@@ -29,7 +29,9 @@ fun InlineEditScreenPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             Surface(modifier) {
-                InlineEditScreen()
+                InlineEditScreen(
+                    setSelectionToCellState = {},
+                )
             }
         }
     }
