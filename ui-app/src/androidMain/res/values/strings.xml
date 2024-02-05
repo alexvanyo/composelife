@@ -83,4 +83,5 @@
     <string name="do_not_keep_process">Do not keep process</string>
     <string name="selecting_box_handle">Selection handle: %1$d, %2$d</string>
     <string name="empty_clipboard">Clipboard was empty</string>
+    <string name="pin">Pin</string>
 </resources>

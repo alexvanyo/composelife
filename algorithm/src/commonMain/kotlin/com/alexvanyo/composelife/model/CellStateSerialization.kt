@@ -516,7 +516,8 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
 
         val headerLine = lineAfterComments
         val headerRegexWithoutRule = Regex("""x = (\d+), y = (\d+)""")
-        val headerRegexWithRule = Regex("""x = (\d+), y = (\d+), rule = B(\d+)/S(\d+)""")
+        val headerRegexWithRuleFormat1 = Regex("""x = (\d+), y = (\d+), rule = B(\d+)/S(\d+)""")
+        val headerRegexWithRuleFormat2 = Regex("""x = (\d+), y = (\d+), rule = (\d+)/(\d+)""")
 
         if (headerLine == null) {
             return DeserializationResult.Unsuccessful(
@@ -526,7 +527,8 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
         }
 
         val withoutRuleMatchResult = headerRegexWithoutRule.matchEntire(headerLine)
-        val withRuleMatchResult = headerRegexWithRule.matchEntire(headerLine)
+        val withRuleFormat1MatchResult = headerRegexWithRuleFormat1.matchEntire(headerLine)
+        val withRuleFormat2MatchResult = headerRegexWithRuleFormat2.matchEntire(headerLine)
 
         @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         val size: IntSize
@@ -536,14 +538,29 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
             val height = withoutRuleMatchResult.groupValues[2].toInt()
             @Suppress("UNUSED_VALUE")
             size = IntSize(width, height)
-        } else if (withRuleMatchResult != null) {
-            val width = withRuleMatchResult.groupValues[1].toInt()
-            val height = withRuleMatchResult.groupValues[2].toInt()
+        } else if (withRuleFormat1MatchResult != null) {
+            val width = withRuleFormat1MatchResult.groupValues[1].toInt()
+            val height = withRuleFormat1MatchResult.groupValues[2].toInt()
             @Suppress("UNUSED_VALUE")
             size = IntSize(width, height)
 
-            val birth = withRuleMatchResult.groupValues[3].map { it.digitToInt() }.toSet()
-            val survival = withRuleMatchResult.groupValues[4].map { it.digitToInt() }.toSet()
+            val birth = withRuleFormat1MatchResult.groupValues[3].map { it.digitToInt() }.toSet()
+            val survival = withRuleFormat1MatchResult.groupValues[4].map { it.digitToInt() }.toSet()
+
+            if (survival != setOf(2, 3) || birth != setOf(3)) {
+                return DeserializationResult.Unsuccessful(
+                    warnings = warnings,
+                    errors = listOf(RuleNotSupportedMessage()),
+                )
+            }
+        } else if (withRuleFormat2MatchResult != null) {
+            val width = withRuleFormat2MatchResult.groupValues[1].toInt()
+            val height = withRuleFormat2MatchResult.groupValues[2].toInt()
+            @Suppress("UNUSED_VALUE")
+            size = IntSize(width, height)
+
+            val birth = withRuleFormat2MatchResult.groupValues[4].map { it.digitToInt() }.toSet()
+            val survival = withRuleFormat2MatchResult.groupValues[3].map { it.digitToInt() }.toSet()
 
             if (survival != setOf(2, 3) || birth != setOf(3)) {
                 return DeserializationResult.Unsuccessful(

@@ -211,3 +211,6 @@ internal actual fun Strings.SelectingBoxHandle(x: Int, y: Int): ParameterizedStr
 
 internal actual val Strings.EmptyClipboard: ParameterizedString get() =
     ParameterizedString(R.string.empty_clipboard)
+
+internal actual val Strings.Pin: ParameterizedString get() =
+    ParameterizedString(R.string.pin)

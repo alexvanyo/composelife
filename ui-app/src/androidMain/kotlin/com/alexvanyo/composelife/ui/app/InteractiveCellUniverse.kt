@@ -71,6 +71,7 @@ import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.rememberClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
+import com.alexvanyo.composelife.ui.util.setText
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -176,10 +177,6 @@ fun InteractiveCellUniverse(
             interactiveCellUniverseState = interactiveCellUniverseState,
             cellWindowViewportState = interactiveCellUniverseState.mutableCellWindowViewportState,
             windowSizeClass = windowSizeClass,
-            onCopy = interactiveCellUniverseState::onCopy,
-            onCut = interactiveCellUniverseState::onCut,
-            onPaste = interactiveCellUniverseState::onPaste,
-            onApplyPaste = interactiveCellUniverseState::onApplyPaste,
             onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
             onOpenInSettingsClicked = onOpenInSettingsClicked,
         )
@@ -254,6 +251,18 @@ interface InteractiveCellUniverseState {
      * Selects the entire cell state.
      */
     fun onSelectAll()
+
+    /**
+     * Sets the selection to the given [cellState].
+     *
+     * The resulting selection will be centered on the current viewport.
+     */
+    fun setSelectionToCellState(cellState: CellState)
+
+    /**
+     * Clears the selection (if any)
+     */
+    fun onClearSelection()
 }
 
 context(ClipboardCellStateParserProvider, ComposeLifeDispatchersProvider)
@@ -467,16 +476,7 @@ fun rememberInteractiveCellUniverseState(
                         val deserializationResult = clipboardCellStateParser.parseCellState(clipboardReaderWriter)
                     ) {
                         is DeserializationResult.Successful -> {
-                            val cellState = deserializationResult.cellState
-                            val boundingBoxSize = cellState.boundingBox.size
-
-                            selectionState = SelectionState.Selection(
-                                cellState = cellState,
-                                offset = (
-                                    mutableCellWindowViewportState.cellWindowViewport.offset -
-                                        Offset(boundingBoxSize.width - 1f, boundingBoxSize.height - 1f) / 2f
-                                    ).round(),
-                            )
+                            setSelectionToCellState(deserializationResult.cellState)
                         }
                         is DeserializationResult.Unsuccessful -> {
                             // TODO: Show error for unsuccessful pasting
@@ -517,6 +517,21 @@ fun rememberInteractiveCellUniverseState(
                         height = boundingBox.height + 1,
                         previousTransientSelectingBox = null,
                     )
+            }
+
+            override fun onClearSelection() {
+                selectionState = SelectionState.NoSelection
+            }
+
+            override fun setSelectionToCellState(cellState: CellState) {
+                val boundingBoxSize = cellState.boundingBox.size
+                selectionState = SelectionState.Selection(
+                    cellState = cellState,
+                    offset = (
+                        mutableCellWindowViewportState.cellWindowViewport.offset -
+                            Offset(boundingBoxSize.width - 1f, boundingBoxSize.height - 1f) / 2f
+                        ).round(),
+                )
             }
         }
     }

@@ -21,6 +21,7 @@ import android.content.ClipboardManager
 import android.os.Build
 import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -28,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.core.content.getSystemService
 import androidx.lifecycle.compose.LifecycleStartEffect
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
@@ -37,27 +39,55 @@ import java.util.UUID
 
 @Stable
 actual interface ClipboardReader {
+    val androidClipboardStateKey: ClipboardStateKey
+
     fun getClipData(): ClipData?
 
     suspend fun resolveToText(clipDataItem: ClipData.Item): CharSequence
 }
 
+actual val ClipboardReader.clipboardStateKey: Any? get() = androidClipboardStateKey
+
 @Stable
 actual interface ClipboardWriter {
     fun setClipData(clipData: ClipData?)
+}
 
-    actual fun setText(value: String)
+actual fun ClipboardWriter.setText(value: String) {
+    setClipData(ClipData.newPlainText(null, value))
+}
+
+sealed interface ClipboardStateKey {
+    data object Empty : ClipboardStateKey
+    data class PlaintextClipboard(
+        val value: String,
+    ) : ClipboardStateKey
+    data class Unknown(
+        val id: UUID = UUID.randomUUID(),
+    ) : ClipboardStateKey
 }
 
 context(ComposeLifeDispatchersProvider)
 @Composable
 actual fun rememberClipboardReader(): ClipboardReader {
+    var windowFocusKey by remember { mutableStateOf(UUID.randomUUID()) }
+    val isWindowFocused = LocalWindowInfo.current.isWindowFocused
+    DisposableEffect(isWindowFocused) {
+        if (isWindowFocused) {
+            windowFocusKey = UUID.randomUUID()
+        }
+        onDispose {}
+    }
+
     val context = LocalContext.current
     val clipboardManager = remember(context) { requireNotNull(context.getSystemService<ClipboardManager>()) }
 
     var keyToReadClipData by remember(clipboardManager) { mutableStateOf(UUID.randomUUID()) }
 
-    LifecycleStartEffect(clipboardManager) {
+    LifecycleStartEffect(
+        clipboardManager,
+        windowFocusKey,
+    ) {
         keyToReadClipData = UUID.randomUUID()
         val listener = ClipboardManager.OnPrimaryClipChangedListener {
             keyToReadClipData = UUID.randomUUID()
@@ -76,6 +106,21 @@ actual fun rememberClipboardReader(): ClipboardReader {
 
     return remember(dispatchers) {
         object : ClipboardReader {
+            override val androidClipboardStateKey: ClipboardStateKey
+                get() {
+                    val currentClipData = clipData
+                    return if (currentClipData == null) {
+                        ClipboardStateKey.Empty
+                    } else if (currentClipData.itemCount == 1) {
+                        currentClipData.getItemAt(0)
+                            .text
+                            ?.toString()
+                            ?.let(ClipboardStateKey::PlaintextClipboard) ?: ClipboardStateKey.Unknown()
+                    } else {
+                        ClipboardStateKey.Unknown()
+                    }
+                }
+
             override fun getClipData(): ClipData? = clipData
 
             override suspend fun resolveToText(clipDataItem: ClipData.Item): CharSequence =
@@ -108,10 +153,6 @@ actual fun rememberClipboardWriter(): ClipboardWriter {
                         Toast.makeText(context, R.string.copied, Toast.LENGTH_SHORT).show()
                     }
                 }
-            }
-
-            override fun setText(value: String) {
-                setClipData(ClipData.newPlainText(null, value))
             }
         }
     }
