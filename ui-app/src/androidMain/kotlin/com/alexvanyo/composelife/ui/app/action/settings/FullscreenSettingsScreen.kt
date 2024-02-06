@@ -74,9 +74,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -109,7 +113,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.ui.app.ComposeLifeNavigation
 import com.alexvanyo.composelife.ui.app.R
-import com.alexvanyo.composelife.ui.app.component.PlainTooltipBox
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.AnimatedContent
@@ -524,14 +527,17 @@ private fun SettingsCategoryList(
                     Box(
                         modifier = Modifier.align(Alignment.CenterStart),
                     ) {
-                        PlainTooltipBox(
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                             tooltip = {
-                                Text(stringResource(id = R.string.back))
+                                PlainTooltip {
+                                    Text(stringResource(id = R.string.back))
+                                }
                             },
+                            state = rememberTooltipState(),
                         ) {
                             IconButton(
                                 onClick = onBackButtonPressed,
-                                modifier = Modifier.tooltipAnchor(),
                             ) {
                                 Icon(
                                     Icons.AutoMirrored.Filled.ArrowBack,
@@ -656,14 +662,17 @@ private fun SettingsCategoryDetail(
                     Box(
                         modifier = Modifier.align(Alignment.CenterStart),
                     ) {
-                        PlainTooltipBox(
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                             tooltip = {
-                                Text(stringResource(id = R.string.back))
+                                PlainTooltip {
+                                    Text(stringResource(id = R.string.back))
+                                }
                             },
+                            state = rememberTooltipState(),
                         ) {
                             IconButton(
                                 onClick = onBackButtonPressed,
-                                modifier = Modifier.tooltipAnchor(),
                             ) {
                                 Icon(
                                     Icons.AutoMirrored.Default.ArrowBack,
