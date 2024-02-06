@@ -110,7 +110,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import com.alexvanyo.composelife.ui.app.ComposeLifeNavigation
 import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
@@ -766,10 +768,10 @@ fun FullscreenSettingsScreenListPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             BoxWithConstraints(modifier) {
-                val size = DpSize(maxWidth, maxHeight)
+                val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 Surface {
                     FullscreenSettingsScreen(
-                        windowSizeClass = WindowSizeClass.calculateFromSize(size),
+                        windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
                         navEntryValue = ComposeLifeNavigation.FullscreenSettings(
                             initialSettingsCategory = SettingsCategory.Algorithm,
                             initialShowDetails = false,
@@ -791,10 +793,10 @@ fun FullscreenSettingsScreenAlgorithmPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             BoxWithConstraints(modifier) {
-                val size = DpSize(maxWidth, maxHeight)
+                val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 Surface {
                     FullscreenSettingsScreen(
-                        windowSizeClass = WindowSizeClass.calculateFromSize(size),
+                        windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
                         navEntryValue = ComposeLifeNavigation.FullscreenSettings(
                             initialSettingsCategory = SettingsCategory.Algorithm,
                             initialShowDetails = true,
@@ -816,10 +818,10 @@ fun FullscreenSettingsScreenVisualPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             BoxWithConstraints(modifier) {
-                val size = DpSize(maxWidth, maxHeight)
+                val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 Surface {
                     FullscreenSettingsScreen(
-                        windowSizeClass = WindowSizeClass.calculateFromSize(size),
+                        windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
                         navEntryValue = ComposeLifeNavigation.FullscreenSettings(
                             initialSettingsCategory = SettingsCategory.Visual,
                             initialShowDetails = true,
@@ -841,10 +843,10 @@ fun FullscreenSettingsScreenFeatureFlagsPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             BoxWithConstraints(modifier) {
-                val size = DpSize(maxWidth, maxHeight)
+                val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 Surface {
                     FullscreenSettingsScreen(
-                        windowSizeClass = WindowSizeClass.calculateFromSize(size),
+                        windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
                         navEntryValue = ComposeLifeNavigation.FullscreenSettings(
                             initialSettingsCategory = SettingsCategory.FeatureFlags,
                             initialShowDetails = true,
