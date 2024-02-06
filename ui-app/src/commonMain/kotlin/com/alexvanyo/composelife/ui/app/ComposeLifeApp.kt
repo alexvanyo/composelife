@@ -17,16 +17,13 @@
 
 package com.alexvanyo.composelife.ui.app
 
-import androidx.activity.compose.ReportDrawn
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,11 +32,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LookaheadScope
-import androidx.compose.ui.layout.layout
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.toSize
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.clock.di.ClockProvider
 import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
@@ -60,11 +52,9 @@ import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreen
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
 import com.alexvanyo.composelife.ui.util.PredictiveNavigationHost
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
+import com.alexvanyo.composelife.ui.util.ReportDrawn
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import java.util.UUID
 
@@ -88,23 +78,12 @@ fun ComposeLifeApp(
     Surface(modifier = modifier.fillMaxSize()) {
         LookaheadScope {
             val transition = updateTransition(composeLifeAppState, "ComposeLifeAppState Crossfade")
-            val configuration = LocalConfiguration.current
-
-            @Suppress("UNUSED_EXPRESSION")
             transition.Crossfade(
                 contentKey = {
                     when (it) {
                         ComposeLifeAppState.ErrorLoadingPreferences -> 0
                         is ComposeLifeAppState.LoadedPreferences -> 1
                         ComposeLifeAppState.LoadingPreferences -> 2
-                    }
-                },
-                modifier = Modifier.layout { measurable, constraints ->
-                    // TODO: This force remeasuring and placing should not be necessary
-                    configuration
-                    val placeable = measurable.measure(constraints)
-                    layout(placeable.width, placeable.height) {
-                        placeable.place(0, 0)
                     }
                 },
             ) { targetComposeLifeAppState ->
@@ -271,22 +250,5 @@ sealed interface ComposeLifeAppState {
         fun onSeeMoreSettingsClicked(actorBackstackEntryId: UUID?)
 
         fun onOpenInSettingsClicked(setting: Setting, actorBackstackEntryId: UUID?)
-    }
-}
-
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@MobileDevicePreviews
-@Composable
-fun LoadingPreferencesComposeLifeAppPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            BoxWithConstraints {
-                val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
-                ComposeLifeApp(
-                    windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
-                    composeLifeAppState = ComposeLifeAppState.LoadingPreferences,
-                )
-            }
-        }
     }
 }
