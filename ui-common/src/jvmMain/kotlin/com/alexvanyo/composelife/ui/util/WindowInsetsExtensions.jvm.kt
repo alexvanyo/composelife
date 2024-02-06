@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,5 @@ package com.alexvanyo.composelife.ui.util
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.Dp
 
-/**
- * Returns an empty [WindowInsets] object.
- */
-val WindowInsets.Companion.Zero get(): WindowInsets = WindowInsets(0, 0, 0, 0)
-
-/**
- * Returns a [WindowInsets] with all sides set to [all].
- */
-fun WindowInsets(all: Dp): WindowInsets = WindowInsets(all, all, all, all)
-
-/**
- * Returns `true` if the IME is currently animating.
- */
-expect val WindowInsets.Companion.isImeAnimating: Boolean @Composable get
+actual val WindowInsets.Companion.isImeAnimating: Boolean @Composable get() = false

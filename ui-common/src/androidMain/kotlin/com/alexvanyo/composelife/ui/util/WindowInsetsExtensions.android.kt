@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,15 @@
 
 package com.alexvanyo.composelife.ui.util
 
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.imeAnimationSource
+import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.platform.LocalDensity
 
-/**
- * Returns an empty [WindowInsets] object.
- */
-val WindowInsets.Companion.Zero get(): WindowInsets = WindowInsets(0, 0, 0, 0)
-
-/**
- * Returns a [WindowInsets] with all sides set to [all].
- */
-fun WindowInsets(all: Dp): WindowInsets = WindowInsets(all, all, all, all)
-
-/**
- * Returns `true` if the IME is currently animating.
- */
-expect val WindowInsets.Companion.isImeAnimating: Boolean @Composable get
+@Suppress("ComposeUnstableReceiver")
+@OptIn(ExperimentalLayoutApi::class)
+actual val WindowInsets.Companion.isImeAnimating: Boolean @Composable get() =
+    WindowInsets.imeAnimationSource.getBottom(LocalDensity.current) !=
+        WindowInsets.imeAnimationTarget.getBottom(LocalDensity.current)
