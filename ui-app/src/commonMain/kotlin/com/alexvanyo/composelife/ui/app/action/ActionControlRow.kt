@@ -39,8 +39,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -48,7 +52,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.app.cells.SelectionState
-import com.alexvanyo.composelife.ui.app.component.PlainTooltipBox
 import com.alexvanyo.composelife.ui.app.resources.ApplyPaste
 import com.alexvanyo.composelife.ui.app.resources.CancelPaste
 import com.alexvanyo.composelife.ui.app.resources.ClearSelection
@@ -117,18 +120,22 @@ fun ActionControlRow(
                 }
 
                 AnimatedVisibility(showTimeControls) {
-                    PlainTooltipBox(
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                         tooltip = {
-                            Text(
-                                parameterizedStringResource(
-                                    if (isRunning) {
-                                        Strings.Pause
-                                    } else {
-                                        Strings.Play
-                                    },
-                                ),
-                            )
+                            PlainTooltip {
+                                Text(
+                                    parameterizedStringResource(
+                                        if (isRunning) {
+                                            Strings.Pause
+                                        } else {
+                                            Strings.Play
+                                        },
+                                    ),
+                                )
+                            }
                         },
+                        state = rememberTooltipState(),
                     ) {
                         IconToggleButton(
                             checked = isRunning,
@@ -136,7 +143,6 @@ fun ActionControlRow(
                             colors = IconButtonDefaults.iconToggleButtonColors(
                                 checkedContentColor = LocalContentColor.current,
                             ),
-                            modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(
                                 imageVector = if (isRunning) {
@@ -157,14 +163,17 @@ fun ActionControlRow(
                 }
 
                 AnimatedVisibility(showTimeControls) {
-                    PlainTooltipBox(
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                         tooltip = {
-                            Text(parameterizedStringResource(Strings.Step))
+                            PlainTooltip {
+                                Text(parameterizedStringResource(Strings.Step))
+                            }
                         },
+                        state = rememberTooltipState(),
                     ) {
                         IconButton(
                             onClick = onStep,
-                            modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.SkipNext,
@@ -175,14 +184,17 @@ fun ActionControlRow(
                 }
 
                 AnimatedVisibility(showSelectingControls) {
-                    PlainTooltipBox(
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                         tooltip = {
-                            Text(parameterizedStringResource(Strings.ClearSelection))
+                            PlainTooltip {
+                                Text(parameterizedStringResource(Strings.ClearSelection))
+                            }
                         },
+                        state = rememberTooltipState(),
                     ) {
                         IconButton(
                             onClick = onClearSelection,
-                            modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Cancel,
@@ -193,14 +205,17 @@ fun ActionControlRow(
                 }
 
                 AnimatedVisibility(showSelectingControls) {
-                    PlainTooltipBox(
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                         tooltip = {
-                            Text(parameterizedStringResource(Strings.Copy))
+                            PlainTooltip {
+                                Text(parameterizedStringResource(Strings.Copy))
+                            }
                         },
+                        state = rememberTooltipState(),
                     ) {
                         IconButton(
                             onClick = onCopy,
-                            modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.ContentCopy,
@@ -211,14 +226,17 @@ fun ActionControlRow(
                 }
 
                 AnimatedVisibility(showSelectingControls) {
-                    PlainTooltipBox(
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                         tooltip = {
-                            Text(parameterizedStringResource(Strings.Cut))
+                            PlainTooltip {
+                                Text(parameterizedStringResource(Strings.Cut))
+                            }
                         },
+                        state = rememberTooltipState(),
                     ) {
                         IconButton(
                             onClick = onCut,
-                            modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.ContentCut,
@@ -229,14 +247,17 @@ fun ActionControlRow(
                 }
 
                 AnimatedVisibility(showTimeControls || showSelectingControls) {
-                    PlainTooltipBox(
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                         tooltip = {
-                            Text(parameterizedStringResource(Strings.Paste))
+                            PlainTooltip {
+                                Text(parameterizedStringResource(Strings.Paste))
+                            }
                         },
+                        state = rememberTooltipState(),
                     ) {
                         IconButton(
                             onClick = onPaste,
-                            modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.ContentPaste,
@@ -247,14 +268,17 @@ fun ActionControlRow(
                 }
 
                 AnimatedVisibility(showSelectionControls) {
-                    PlainTooltipBox(
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                         tooltip = {
-                            Text(parameterizedStringResource(Strings.CancelPaste))
+                            PlainTooltip {
+                                Text(parameterizedStringResource(Strings.CancelPaste))
+                            }
                         },
+                        state = rememberTooltipState(),
                     ) {
                         IconButton(
                             onClick = onClearSelection,
-                            modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Cancel,
@@ -265,14 +289,17 @@ fun ActionControlRow(
                 }
 
                 AnimatedVisibility(showSelectionControls) {
-                    PlainTooltipBox(
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                         tooltip = {
-                            Text(parameterizedStringResource(Strings.ApplyPaste))
+                            PlainTooltip {
+                                Text(parameterizedStringResource(Strings.ApplyPaste))
+                            }
                         },
+                        state = rememberTooltipState(),
                     ) {
                         IconButton(
                             onClick = onApplyPaste,
-                            modifier = Modifier.tooltipAnchor(),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Done,
@@ -282,23 +309,26 @@ fun ActionControlRow(
                     }
                 }
 
-                PlainTooltipBox(
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                     tooltip = {
-                        Text(
-                            parameterizedStringResource(
-                                if (isViewportTracking) {
-                                    Strings.DisableAutofit
-                                } else {
-                                    Strings.EnableAutofit
-                                },
-                            ),
-                        )
+                        PlainTooltip {
+                            Text(
+                                parameterizedStringResource(
+                                    if (isViewportTracking) {
+                                        Strings.DisableAutofit
+                                    } else {
+                                        Strings.EnableAutofit
+                                    },
+                                ),
+                            )
+                        }
                     },
+                    state = rememberTooltipState(),
                 ) {
                     IconToggleButton(
                         checked = isViewportTracking,
                         onCheckedChange = setIsViewportTracking,
-                        modifier = Modifier.tooltipAnchor(),
                     ) {
                         Icon(
                             imageVector = Icons.Filled.AutoMode,
@@ -313,18 +343,22 @@ fun ActionControlRow(
                     }
                 }
 
-                PlainTooltipBox(
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                     tooltip = {
-                        Text(
-                            parameterizedStringResource(
-                                if (isExpanded) {
-                                    Strings.Collapse
-                                } else {
-                                    Strings.Expand
-                                },
-                            ),
-                        )
+                        PlainTooltip {
+                            Text(
+                                parameterizedStringResource(
+                                    if (isExpanded) {
+                                        Strings.Collapse
+                                    } else {
+                                        Strings.Expand
+                                    },
+                                ),
+                            )
+                        }
                     },
+                    state = rememberTooltipState(),
                 ) {
                     IconToggleButton(
                         checked = isExpanded,
@@ -332,7 +366,6 @@ fun ActionControlRow(
                         colors = IconButtonDefaults.iconToggleButtonColors(
                             checkedContentColor = LocalContentColor.current,
                         ),
-                        modifier = Modifier.tooltipAnchor(),
                     ) {
                         Icon(
                             imageVector = if (isExpanded) {

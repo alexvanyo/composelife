@@ -35,7 +35,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,7 +58,6 @@ import com.alexvanyo.composelife.ui.app.cells.rememberTrackingCellWindowViewport
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicator
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.component.PlainTooltipBox
 import com.alexvanyo.composelife.ui.app.resources.Paste
 import com.alexvanyo.composelife.ui.app.resources.Pin
 import com.alexvanyo.composelife.ui.app.resources.Strings
@@ -152,14 +155,17 @@ fun LoadedCellStatePreview(
             inOverlay = true,
         )
         Column {
-            PlainTooltipBox(
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                 tooltip = {
-                    Text(parameterizedStringResource(Strings.Paste))
+                    PlainTooltip {
+                        Text(parameterizedStringResource(Strings.Paste))
+                    }
                 },
+                state = rememberTooltipState(),
             ) {
                 IconButton(
                     onClick = onPaste,
-                    modifier = Modifier.tooltipAnchor(),
                 ) {
                     Icon(
                         imageVector = Icons.Filled.ContentPaste,
@@ -167,14 +173,17 @@ fun LoadedCellStatePreview(
                     )
                 }
             }
-            PlainTooltipBox(
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                 tooltip = {
-                    Text(parameterizedStringResource(Strings.Pin))
+                    PlainTooltip {
+                        Text(parameterizedStringResource(Strings.Pin))
+                    }
                 },
+                state = rememberTooltipState(),
             ) {
                 IconButton(
                     onClick = onPin,
-                    modifier = Modifier.tooltipAnchor(),
                 ) {
                     Icon(
                         imageVector = Icons.Default.PushPin,

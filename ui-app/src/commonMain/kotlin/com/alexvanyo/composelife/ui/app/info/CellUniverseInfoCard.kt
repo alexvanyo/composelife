@@ -37,7 +37,11 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -50,7 +54,6 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.app.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.app.cells.offset
 import com.alexvanyo.composelife.ui.app.cells.scale
-import com.alexvanyo.composelife.ui.app.component.PlainTooltipBox
 import com.alexvanyo.composelife.ui.app.resources.Collapse
 import com.alexvanyo.composelife.ui.app.resources.Expand
 import com.alexvanyo.composelife.ui.app.resources.GenerationsPerSecondLongMessage
@@ -258,18 +261,23 @@ private fun CellUniverseInfoExpandButton(
     setIsExpanded: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    PlainTooltipBox(
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
         tooltip = {
-            Text(
-                parameterizedStringResource(
-                    if (isExpanded) {
-                        Strings.Collapse
-                    } else {
-                        Strings.Expand
-                    },
-                ),
-            )
+            PlainTooltip {
+                Text(
+                    parameterizedStringResource(
+                        if (isExpanded) {
+                            Strings.Collapse
+                        } else {
+                            Strings.Expand
+                        },
+                    ),
+                )
+            }
         },
+        state = rememberTooltipState(),
+        modifier = modifier,
     ) {
         IconToggleButton(
             checked = isExpanded,
@@ -277,7 +285,6 @@ private fun CellUniverseInfoExpandButton(
             colors = IconButtonDefaults.iconToggleButtonColors(
                 checkedContentColor = LocalContentColor.current,
             ),
-            modifier = modifier.tooltipAnchor(),
         ) {
             Icon(
                 imageVector = if (isExpanded) {
