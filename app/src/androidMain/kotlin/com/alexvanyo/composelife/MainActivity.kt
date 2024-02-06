@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity(), UiComponentOwner {
 
                 ComposeLifeTheme(darkTheme) {
                     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-                    ComposeLifeApp(calculateWindowSizeClass())
+                    (ComposeLifeApp(calculateWindowSizeClass()))
                 }
             }
         }

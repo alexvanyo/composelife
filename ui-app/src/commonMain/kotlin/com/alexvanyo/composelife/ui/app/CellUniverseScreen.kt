@@ -17,9 +17,7 @@
 package com.alexvanyo.composelife.ui.app
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,9 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.toSize
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.clock.di.ClockProvider
 import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
@@ -40,22 +35,17 @@ import com.alexvanyo.composelife.data.model.CellStateMetadata
 import com.alexvanyo.composelife.data.model.SaveableCellState
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
-import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicator
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.transform
-import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
 interface CellUniverseScreenInjectEntryPoint :
@@ -201,7 +191,7 @@ sealed interface CellUniverseScreenState {
     }
 }
 
-private val gosperGliderGun = """
+internal val gosperGliderGun = """
     |........................O...........
     |......................O.O...........
     |............OO......OO............OO
@@ -212,51 +202,3 @@ private val gosperGliderGun = """
     |...........O...O....................
     |............OO......................
 """.toCellState()
-
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@MobileDevicePreviews
-@Composable
-fun LoadingCellStateCellUniverseScreenPreview() {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            BoxWithConstraints {
-                val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
-                CellUniverseScreen(
-                    windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
-                    navEntryValue = ComposeLifeNavigation.CellUniverse(),
-                    onSeeMoreSettingsClicked = {},
-                    onOpenInSettingsClicked = {},
-                    cellUniverseScreenState = CellUniverseScreenState.LoadingCellState,
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@MobileDevicePreviews
-@Composable
-fun LoadedCellUniverseScreenPreview() {
-    WithPreviewDependencies(
-        random = Random(1), // Fix to Beacon loading pattern
-    ) {
-        ComposeLifeTheme {
-            BoxWithConstraints {
-                val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
-                val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                    seedCellState = gosperGliderGun,
-                    isRunning = false,
-                )
-                CellUniverseScreen(
-                    windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
-                    navEntryValue = ComposeLifeNavigation.CellUniverse(),
-                    onSeeMoreSettingsClicked = {},
-                    onOpenInSettingsClicked = {},
-                    cellUniverseScreenState = object : CellUniverseScreenState.LoadedCellState {
-                        override val temporalGameOfLifeState = temporalGameOfLifeState
-                    },
-                )
-            }
-        }
-    }
-}

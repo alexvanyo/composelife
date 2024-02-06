@@ -213,3 +213,15 @@ internal actual val Strings.EmptyClipboard: ParameterizedString get() =
 
 internal actual val Strings.Pin: ParameterizedString get() =
     ParameterizedString("Pin")
+
+internal actual val Strings.Back: ParameterizedString get() =
+    ParameterizedString("Back")
+
+internal actual val Strings.Algorithm: ParameterizedString get() =
+    ParameterizedString("Algorithm")
+
+internal actual val Strings.FeatureFlags: ParameterizedString get() =
+    ParameterizedString("Feature flags")
+
+internal actual val Strings.Visual: ParameterizedString get() =
+    ParameterizedString("Visual")

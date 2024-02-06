@@ -35,7 +35,6 @@ import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -81,7 +80,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -106,21 +104,23 @@ import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toSize
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.app.ComposeLifeNavigation
-import com.alexvanyo.composelife.ui.app.R
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.app.resources.Algorithm
+import com.alexvanyo.composelife.ui.app.resources.Back
+import com.alexvanyo.composelife.ui.app.resources.FeatureFlags
+import com.alexvanyo.composelife.ui.app.resources.Settings
+import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.app.resources.Visual
+import com.alexvanyo.composelife.ui.util.AnchoredDraggableState
+import com.alexvanyo.composelife.ui.util.AnchoredDraggableStateSaver
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.Crossfade
 import com.alexvanyo.composelife.ui.util.Layout
-import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
@@ -208,7 +208,7 @@ fun FullscreenSettingsScreen(
 
     val density = LocalDensity.current
     val anchoredDraggableState = rememberSaveable(
-        saver = AnchoredDraggableState.Saver(
+        saver = AnchoredDraggableStateSaver(
             positionalThreshold = { totalDistance -> totalDistance * 0.5f },
             velocityThreshold = { with(density) { 200.dp.toPx() } },
             snapAnimationSpec = spring(),
@@ -533,7 +533,7 @@ private fun SettingsCategoryList(
                             positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                             tooltip = {
                                 PlainTooltip {
-                                    Text(stringResource(id = R.string.back))
+                                    Text(parameterizedStringResource(Strings.Back))
                                 }
                             },
                             state = rememberTooltipState(),
@@ -543,14 +543,14 @@ private fun SettingsCategoryList(
                             ) {
                                 Icon(
                                     Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = stringResource(id = R.string.back),
+                                    contentDescription = parameterizedStringResource(Strings.Back),
                                 )
                             }
                         }
                     }
 
                     Text(
-                        stringResource(id = R.string.settings),
+                        parameterizedStringResource(Strings.Settings),
                         modifier = Modifier.align(Alignment.Center),
                         style = MaterialTheme.typography.titleLarge,
                     )
@@ -668,7 +668,7 @@ private fun SettingsCategoryDetail(
                             positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                             tooltip = {
                                 PlainTooltip {
-                                    Text(stringResource(id = R.string.back))
+                                    Text(parameterizedStringResource(Strings.Back))
                                 }
                             },
                             state = rememberTooltipState(),
@@ -678,7 +678,7 @@ private fun SettingsCategoryDetail(
                             ) {
                                 Icon(
                                     Icons.AutoMirrored.Default.ArrowBack,
-                                    contentDescription = stringResource(id = R.string.back),
+                                    contentDescription = parameterizedStringResource(Strings.Back),
                                 )
                             }
                         }
@@ -740,9 +740,9 @@ private fun SettingsCategoryDetail(
 private val SettingsCategory.title: String
     @Composable
     get() = when (this) {
-        SettingsCategory.Algorithm -> stringResource(id = R.string.algorithm)
-        SettingsCategory.FeatureFlags -> stringResource(id = R.string.feature_flags)
-        SettingsCategory.Visual -> stringResource(id = R.string.visual)
+        SettingsCategory.Algorithm -> parameterizedStringResource(Strings.Algorithm)
+        SettingsCategory.FeatureFlags -> parameterizedStringResource(Strings.FeatureFlags)
+        SettingsCategory.Visual -> parameterizedStringResource(Strings.Visual)
     }
 
 private val SettingsCategory.filledIcon: ImageVector
@@ -760,103 +760,3 @@ private val SettingsCategory.outlinedIcon: ImageVector
         SettingsCategory.FeatureFlags -> Icons.Outlined.Flag
         SettingsCategory.Visual -> Icons.Outlined.Palette
     }
-
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@MobileDevicePreviews
-@Composable
-fun FullscreenSettingsScreenListPreview(modifier: Modifier = Modifier) {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            BoxWithConstraints(modifier) {
-                val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
-                Surface {
-                    FullscreenSettingsScreen(
-                        windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
-                        navEntryValue = ComposeLifeNavigation.FullscreenSettings(
-                            initialSettingsCategory = SettingsCategory.Algorithm,
-                            initialShowDetails = false,
-                            initialSettingToScrollTo = null,
-                        ),
-                        onBackButtonPressed = {},
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@MobileDevicePreviews
-@Composable
-fun FullscreenSettingsScreenAlgorithmPreview(modifier: Modifier = Modifier) {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            BoxWithConstraints(modifier) {
-                val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
-                Surface {
-                    FullscreenSettingsScreen(
-                        windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
-                        navEntryValue = ComposeLifeNavigation.FullscreenSettings(
-                            initialSettingsCategory = SettingsCategory.Algorithm,
-                            initialShowDetails = true,
-                            initialSettingToScrollTo = null,
-                        ),
-                        onBackButtonPressed = {},
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@MobileDevicePreviews
-@Composable
-fun FullscreenSettingsScreenVisualPreview(modifier: Modifier = Modifier) {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            BoxWithConstraints(modifier) {
-                val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
-                Surface {
-                    FullscreenSettingsScreen(
-                        windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
-                        navEntryValue = ComposeLifeNavigation.FullscreenSettings(
-                            initialSettingsCategory = SettingsCategory.Visual,
-                            initialShowDetails = true,
-                            initialSettingToScrollTo = null,
-                        ),
-                        onBackButtonPressed = {},
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@MobileDevicePreviews
-@Composable
-fun FullscreenSettingsScreenFeatureFlagsPreview(modifier: Modifier = Modifier) {
-    WithPreviewDependencies {
-        ComposeLifeTheme {
-            BoxWithConstraints(modifier) {
-                val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
-                Surface {
-                    FullscreenSettingsScreen(
-                        windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
-                        navEntryValue = ComposeLifeNavigation.FullscreenSettings(
-                            initialSettingsCategory = SettingsCategory.FeatureFlags,
-                            initialShowDetails = true,
-                            initialSettingToScrollTo = null,
-                        ),
-                        onBackButtonPressed = {},
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
-            }
-        }
-    }
-}
