@@ -9,14 +9,15 @@
 
 ComposeLife is a
 work-in-progress [Game of Life][wikipedia_gameoflife] simulator
-Android app.
+multiplatform app.
 
 This project is a personal sandbox of sorts, experimenting with the latest libraries and tools.
 These include:
 
 - Written in [Kotlin][kotlin]
 - UI written in [Jetpack Compose][jetpack_compose]
-- Watchface for Wear OS with configuration
+  - Mobile Android app and desktop app for exploring Game of Life patterns.
+  - Watchface for Wear OS with configuration
 - Dependency injection using [kotlin-inject][kotlin_inject] and [context receivers][context_receivers]
 - [AGSL][agsl] and [OpenGL](https://developer.android.com/develop/ui/views/graphics/opengl/about-opengl) rendering
 - Fully functional CI system with GitHub Actions with:
@@ -40,6 +41,9 @@ Clone the project, and build! (no API keys or other setup necessary)
 ## Runnable Modules
 
 [app][app] contains the mobile app simulator for running, editing, and exploring Game of Life
+patterns.
+
+[desktop-app] contains the desktop app simulator for running, editing, and exploring Game of Life
 patterns.
 
 [wear][wear] contains a Game of Life watchface, with a stable pattern displaying the time with a
