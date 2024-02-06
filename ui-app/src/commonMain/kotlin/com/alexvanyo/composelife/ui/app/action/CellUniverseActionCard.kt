@@ -20,12 +20,9 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imeAnimationSource
-import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -39,7 +36,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import com.alexvanyo.composelife.model.CellState
@@ -47,8 +43,6 @@ import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.NavigationHost
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.ActionControlRow
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.NavContainer
-import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreen
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenLocalEntryPoint
@@ -58,6 +52,7 @@ import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.WindowInsets
 import com.alexvanyo.composelife.ui.util.crossfadePredictiveNavigationDecoration
+import com.alexvanyo.composelife.ui.util.isImeAnimating
 import com.alexvanyo.composelife.ui.util.isInProgress
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.coroutines.CoroutineScope
@@ -65,12 +60,10 @@ import kotlinx.coroutines.launch
 import kotlin.math.max
 
 interface CellUniverseActionCardInjectEntryPoint :
-    FullscreenSettingsScreenInjectEntryPoint,
     InlineEditScreenInjectEntryPoint,
     InlineSettingsScreenInjectEntryPoint
 
 interface CellUniverseActionCardLocalEntryPoint :
-    FullscreenSettingsScreenLocalEntryPoint,
     InlineEditScreenLocalEntryPoint,
     InlineSettingsScreenLocalEntryPoint
 
@@ -126,7 +119,6 @@ fun CellUniverseActionCard(
 }
 
 context(CellUniverseActionCardInjectEntryPoint, CellUniverseActionCardLocalEntryPoint)
-@OptIn(ExperimentalLayoutApi::class)
 @Suppress("LongParameterList", "LongMethod", "ComplexMethod")
 @Composable
 fun CellUniverseActionCard(
@@ -151,10 +143,6 @@ fun CellUniverseActionCard(
     actionCardState: CellUniverseActionCardState,
     modifier: Modifier = Modifier,
 ) {
-    val isImeAnimating =
-        WindowInsets.imeAnimationSource.getBottom(LocalDensity.current) !=
-            WindowInsets.imeAnimationTarget.getBottom(LocalDensity.current)
-
     val contentScrollStateMap =
         actionCardState.inlineNavigationState.entryMap.mapValues { (entryId, _) ->
             key(entryId) {
@@ -209,7 +197,7 @@ fun CellUniverseActionCard(
                     contentSizeAnimationSpec = spring(
                         stiffness = Spring.StiffnessMedium,
                     ),
-                    animateInternalContentSizeChanges = !isImeAnimating,
+                    animateInternalContentSizeChanges = !WindowInsets.isImeAnimating,
                     modifier = Modifier.layoutId(NavContainer),
                 ) { isExpanded ->
                     if (isExpanded) {
