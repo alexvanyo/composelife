@@ -118,7 +118,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        windowSizeClass = calculateWindowSizeClass(),
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -168,7 +168,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        windowSizeClass = calculateWindowSizeClass(),
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -217,7 +217,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        windowSizeClass = calculateWindowSizeClass(),
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -280,7 +280,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        windowSizeClass = calculateWindowSizeClass(),
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -346,7 +346,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        windowSizeClass = calculateWindowSizeClass(),
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -426,7 +426,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        windowSizeClass = calculateWindowSizeClass(),
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -484,7 +484,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        windowSizeClass = calculateWindowSizeClass(),
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -560,7 +560,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        windowSizeClass = calculateWindowSizeClass(),
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -650,7 +650,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        windowSizeClass = calculateWindowSizeClass(),
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -739,7 +739,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 with(interactiveCellUniverseLocalEntryPoint) {
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        windowSizeClass = calculateWindowSizeClass(),
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -821,7 +821,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        windowSizeClass = calculateWindowSizeClass(activity = composeTestRule.activity),
+                        windowSizeClass = calculateWindowSizeClass(),
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),

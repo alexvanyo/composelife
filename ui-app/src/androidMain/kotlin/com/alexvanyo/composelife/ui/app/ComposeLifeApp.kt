@@ -37,7 +37,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toSize
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.clock.di.ClockProvider
 import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
@@ -279,9 +281,9 @@ fun LoadingPreferencesComposeLifeAppPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             BoxWithConstraints {
-                val size = DpSize(maxWidth, maxHeight)
+                val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 ComposeLifeApp(
-                    windowSizeClass = WindowSizeClass.calculateFromSize(size),
+                    windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
                     composeLifeAppState = ComposeLifeAppState.LoadingPreferences,
                 )
             }
