@@ -45,6 +45,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(libs.material3.windowSizeClass.multiplatform)
                 api(projects.algorithm)
                 api(projects.clock)
                 api(projects.data)
@@ -82,8 +83,6 @@ kotlin {
             configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
-                api(libs.androidx.compose.material3.windowSizeClass)
-
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.animation)
                 implementation(libs.androidx.compose.material3)

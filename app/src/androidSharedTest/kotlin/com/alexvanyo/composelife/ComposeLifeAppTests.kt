@@ -35,6 +35,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Density
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
+import androidx.window.layout.WindowMetricsCalculator
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
@@ -85,18 +86,17 @@ class ComposeLifeAppTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
     @SkipLeakDetection("recomposer", "Outer", "Inner")
     @Test
     fun can_change_theme_to_dark_mode() = runAppTest(testDispatcher) {
-        val windowSizeClass = WindowSizeClass.calculateFromSize(
+        val windowSizeClass =
             composeTestRule.activityRule.scenario.withActivity {
-                with(Density(this)) {
-                    androidx.window.layout.WindowMetricsCalculator.getOrCreate()
-                        .computeCurrentWindowMetrics(this@withActivity)
+                WindowSizeClass.calculateFromSize(
+                    WindowMetricsCalculator.getOrCreate()
+                        .computeCurrentWindowMetrics(this)
                         .bounds
                         .toComposeRect()
-                        .size
-                        .toDpSize()
-                }
-            },
-        )
+                        .size,
+                    Density(this),
+                )
+            }
 
         composeTestRule
             .onNode(
@@ -171,18 +171,17 @@ class ComposeLifeAppTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
     @SkipLeakDetection("recomposer", "Outer", "Inner")
     @Test
     fun can_save_theme_to_quick_access() = runAppTest(testDispatcher) {
-        val windowSizeClass = WindowSizeClass.calculateFromSize(
+        val windowSizeClass =
             composeTestRule.activityRule.scenario.withActivity {
-                with(Density(this)) {
-                    androidx.window.layout.WindowMetricsCalculator.getOrCreate()
-                        .computeCurrentWindowMetrics(this@withActivity)
+                WindowSizeClass.calculateFromSize(
+                    WindowMetricsCalculator.getOrCreate()
+                        .computeCurrentWindowMetrics(this)
                         .bounds
                         .toComposeRect()
-                        .size
-                        .toDpSize()
-                }
-            },
-        )
+                        .size,
+                    Density(this),
+                )
+            }
 
         composeTestRule
             .onNode(
@@ -301,18 +300,17 @@ class ComposeLifeAppTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
     @SkipLeakDetection("recomposer", "Outer", "Inner")
     @Test
     fun can_change_algorithm_implementation_to_naive() = runAppTest(testDispatcher) {
-        val windowSizeClass = WindowSizeClass.calculateFromSize(
+        val windowSizeClass =
             composeTestRule.activityRule.scenario.withActivity {
-                with(Density(this)) {
-                    androidx.window.layout.WindowMetricsCalculator.getOrCreate()
-                        .computeCurrentWindowMetrics(this@withActivity)
+                WindowSizeClass.calculateFromSize(
+                    WindowMetricsCalculator.getOrCreate()
+                        .computeCurrentWindowMetrics(this)
                         .bounds
                         .toComposeRect()
-                        .size
-                        .toDpSize()
-                }
-            },
-        )
+                        .size,
+                    Density(this),
+                )
+            }
 
         composeTestRule
             .onNode(

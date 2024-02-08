@@ -22,6 +22,7 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.ForcedSize
@@ -41,7 +42,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
@@ -87,7 +90,10 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 DeviceConfigurationOverride.ForcedSize(DpSize(500.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
+                    val windowSizeClass = WindowSizeClass.calculateFromSize(
+                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
+                        LocalDensity.current,
+                    )
 
                     with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
@@ -153,7 +159,10 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 DeviceConfigurationOverride.ForcedSize(DpSize(700.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
+                    val windowSizeClass = WindowSizeClass.calculateFromSize(
+                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
+                        LocalDensity.current,
+                    )
 
                     with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
@@ -223,7 +232,10 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 DeviceConfigurationOverride.ForcedSize(DpSize(500.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
+                    val windowSizeClass = WindowSizeClass.calculateFromSize(
+                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
+                        LocalDensity.current,
+                    )
 
                     with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
@@ -277,7 +289,10 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 DeviceConfigurationOverride.ForcedSize(DpSize(700.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
+                    val windowSizeClass = WindowSizeClass.calculateFromSize(
+                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
+                        LocalDensity.current,
+                    )
 
                     with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
@@ -340,7 +355,10 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 DeviceConfigurationOverride.ForcedSize(DpSize(500.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
+                    val windowSizeClass = WindowSizeClass.calculateFromSize(
+                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
+                        LocalDensity.current,
+                    )
 
                     with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
@@ -388,7 +406,10 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 DeviceConfigurationOverride.ForcedSize(DpSize(700.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
+                    val windowSizeClass = WindowSizeClass.calculateFromSize(
+                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
+                        LocalDensity.current,
+                    )
 
                     with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
@@ -449,7 +470,10 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 DeviceConfigurationOverride.ForcedSize(DpSize(300.dp, 300.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
+                    val windowSizeClass = WindowSizeClass.calculateFromSize(
+                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
+                        LocalDensity.current,
+                    )
 
                     with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
@@ -496,7 +520,10 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 DeviceConfigurationOverride.ForcedSize(DpSize(300.dp, 300.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
+                    val windowSizeClass = WindowSizeClass.calculateFromSize(
+                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
+                        LocalDensity.current,
+                    )
 
                     with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
@@ -549,7 +576,10 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 DeviceConfigurationOverride.ForcedSize(size),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
+                    val windowSizeClass = WindowSizeClass.calculateFromSize(
+                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
+                        LocalDensity.current,
+                    )
 
                     with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {
@@ -594,7 +624,10 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                 DeviceConfigurationOverride.ForcedSize(size),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
+                    val windowSizeClass = WindowSizeClass.calculateFromSize(
+                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
+                        LocalDensity.current,
+                    )
 
                     with(fullscreenSettingsScreenInjectEntryPoint) {
                         with(fullscreenSettingsScreenLocalEntryPoint) {

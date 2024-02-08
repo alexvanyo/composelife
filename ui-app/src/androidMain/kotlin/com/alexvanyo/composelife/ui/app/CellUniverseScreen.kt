@@ -30,7 +30,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toSize
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.clock.di.ClockProvider
 import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
@@ -218,9 +220,9 @@ fun LoadingCellStateCellUniverseScreenPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             BoxWithConstraints {
-                val size = DpSize(maxWidth, maxHeight)
+                val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 CellUniverseScreen(
-                    windowSizeClass = WindowSizeClass.calculateFromSize(size),
+                    windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
                     navEntryValue = ComposeLifeNavigation.CellUniverse(),
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
@@ -240,13 +242,13 @@ fun LoadedCellUniverseScreenPreview() {
     ) {
         ComposeLifeTheme {
             BoxWithConstraints {
-                val size = DpSize(maxWidth, maxHeight)
+                val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                     seedCellState = gosperGliderGun,
                     isRunning = false,
                 )
                 CellUniverseScreen(
-                    windowSizeClass = WindowSizeClass.calculateFromSize(size),
+                    windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
                     navEntryValue = ComposeLifeNavigation.CellUniverse(),
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
