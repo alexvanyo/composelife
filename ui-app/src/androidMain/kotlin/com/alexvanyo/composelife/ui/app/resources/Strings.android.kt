@@ -214,3 +214,15 @@ internal actual val Strings.EmptyClipboard: ParameterizedString get() =
 
 internal actual val Strings.Pin: ParameterizedString get() =
     ParameterizedString(R.string.pin)
+
+internal actual val Strings.Back: ParameterizedString get() =
+    ParameterizedString(R.string.back)
+
+internal actual val Strings.Algorithm: ParameterizedString get() =
+    ParameterizedString(R.string.algorithm)
+
+internal actual val Strings.FeatureFlags: ParameterizedString get() =
+    ParameterizedString(R.string.feature_flags)
+
+internal actual val Strings.Visual: ParameterizedString get() =
+    ParameterizedString(R.string.visual)
