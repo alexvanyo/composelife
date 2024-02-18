@@ -34,12 +34,23 @@ actual fun NonInteractableCells(
     modifier: Modifier,
     inOverlay: Boolean,
 ) {
-    CanvasNonInteractableCells(
-        gameOfLifeState = gameOfLifeState,
-        scaledCellDpSize = scaledCellDpSize,
-        cellWindow = cellWindow,
-        shape = preferences.currentShape,
-        pixelOffsetFromCenter = pixelOffsetFromCenter,
-        modifier = modifier,
-    )
+    if (!preferences.disableAGSL) {
+        SKSLNonInteractableCells(
+            gameOfLifeState = gameOfLifeState,
+            scaledCellDpSize = scaledCellDpSize,
+            cellWindow = cellWindow,
+            shape = preferences.currentShape,
+            pixelOffsetFromCenter = pixelOffsetFromCenter,
+            modifier = modifier,
+        )
+    } else {
+        CanvasNonInteractableCells(
+            gameOfLifeState = gameOfLifeState,
+            scaledCellDpSize = scaledCellDpSize,
+            cellWindow = cellWindow,
+            shape = preferences.currentShape,
+            pixelOffsetFromCenter = pixelOffsetFromCenter,
+            modifier = modifier,
+        )
+    }
 }
