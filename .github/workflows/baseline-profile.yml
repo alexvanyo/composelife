@@ -85,12 +85,14 @@ jobs:
         run: cp app-baseline-profile-generator/build/intermediates/managed_device_android_test_additional_output/benchmark/aosppixel2api30BenchmarkAndroidTest/BaselineProfileGenerator_startup-baseline-prof.txt app/src/androidMain/baseline-prof.txt
 
       - name: Generate baseline profile for wear
+        if: false # TODO: https://github.com/alexvanyo/composelife/issues/1159
         run: |
           # generate the baseline profile, with one retry attempt
           generate_profile () { ./gradlew :wear-baseline-profile-generator:wearwearoslargeroundapi28Check --stacktrace -Pcom.alexvanyo.composelife.generateBaselineProfile=true; }
           (echo "==== Attempt 1 ====" && generate_profile) || (echo "==== Attempt 2 ====" && generate_profile) || (echo "==== Both attempts failed ====" && exit 1)
 
       - name: Copy baseline profile to wear
+        if: false # TODO: https://github.com/alexvanyo/composelife/issues/1159
         run: cp wear-baseline-profile-generator/build/intermediates/managed_device_android_test_additional_output/benchmark/wearwearoslargeroundapi28/BaselineProfileGenerator_startup-baseline-prof.txt wear/src/androidMain/baseline-prof.txt
 
       - name: Auto-commit changes
