@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.database.di
 
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import com.alexvanyo.composelife.database.ComposeLifeDatabase
 import com.alexvanyo.composelife.scopes.Singleton
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.awaitCancellation
@@ -30,7 +31,7 @@ actual interface DriverComponent {
     @Provides
     @Singleton
     fun providesDriver(): SqlDriver =
-        JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
+        JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY).also { ComposeLifeDatabase.Schema.create(it) }
 
     @Provides
     @Singleton

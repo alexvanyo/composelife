@@ -40,11 +40,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.sync.Mutex
@@ -293,19 +296,16 @@ private class TemporalGameOfLifeStateImpl(
 
     context(GameOfLifeAlgorithm, Clock, ComposeLifeDispatchers)
     override suspend fun evolve(): Nothing {
-        @Suppress("InjectDispatcher") // Dispatchers are injected via dispatchers
-        withContext(Default) {
-            evolveMutex.withLock {
-                try {
-                    // coroutineScope to ensure all child coroutines finish
-                    coroutineScope {
-                        evolveImpl()
-                    }
-                } finally {
-                    // Update the seedCellState with the current cell state to ensure that the next evolve picks up at
-                    // the correct spot
-                    seedCellState = cellState
+        evolveMutex.withLock {
+            try {
+                // coroutineScope to ensure all child coroutines finish
+                coroutineScope {
+                    evolveImpl()
                 }
+            } finally {
+                // Update the seedCellState with the current cell state to ensure that the next evolve picks up at
+                // the correct spot
+                seedCellState = cellState
             }
         }
     }
@@ -342,27 +342,36 @@ private class TemporalGameOfLifeStateImpl(
         )
             .buffer(0) // No buffer, so the ticks are only consumed upon a cell state being computed
 
-        snapshotFlow { cellStateGenealogy }
-            .flowOn(Main)
-            .collectLatest { cellStateGenealogy ->
-                completedGenerationTracker = completedGenerationTracker + ComputationRecord(
-                    computedGenerations = 0,
-                    computedTime = now(),
-                )
-                cellStateGenealogy.evolve(stepTicker) { generationsPerStep ->
-                    val lastTick = now()
-                    lastTickFlow.tryEmit(lastTick)
-                    val newRecord = ComputationRecord(
-                        computedGenerations = generationsPerStep,
-                        computedTime = lastTick,
-                    )
+        coroutineScope {
+            val currentCellStateGenealogy = snapshotFlow { cellStateGenealogy }
+                .conflate()
+                .produceIn(this)
 
-                    // Remove entries that are more than about a second old to get a running average from the last
-                    // second
-                    completedGenerationTracker = (completedGenerationTracker + newRecord)
-                        .dropWhile { lastTick - it.computedTime > 1010.milliseconds }
-                }
+            withContext(Default) {
+                currentCellStateGenealogy
+                    .consumeAsFlow()
+                    .collectLatest {
+                        completedGenerationTracker = completedGenerationTracker + ComputationRecord(
+                            computedGenerations = 0,
+                            computedTime = now(),
+                        )
+
+                        cellStateGenealogy.evolve(stepTicker) { generationsPerStep ->
+                            val lastTick = now()
+                            lastTickFlow.tryEmit(lastTick)
+                            val newRecord = ComputationRecord(
+                                computedGenerations = generationsPerStep,
+                                computedTime = lastTick,
+                            )
+
+                            // Remove entries that are more than about a second old to get a running average from the
+                            // last second
+                            completedGenerationTracker = (completedGenerationTracker + newRecord)
+                                .dropWhile { lastTick - it.computedTime > 1010.milliseconds }
+                        }
+                    }
             }
+        }
 
         error("snapshotFlow can not complete normally")
     }
