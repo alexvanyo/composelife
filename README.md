@@ -43,7 +43,7 @@ Clone the project, and build! (no API keys or other setup necessary)
 [app][app] contains the mobile app simulator for running, editing, and exploring Game of Life
 patterns.
 
-[desktop-app] contains the desktop app simulator for running, editing, and exploring Game of Life
+[desktop-app][desktop-app] contains the desktop app simulator for running, editing, and exploring Game of Life
 patterns.
 
 [wear][wear] contains a Game of Life watchface, with a stable pattern displaying the time with a
@@ -95,6 +95,7 @@ limitations under the License.
 [//]: # (relative links)
 
 [app]: app
+[desktop-app]: desktop-app
 [icon]: app/src/androidMain/ic_launcher-playstore.png
 [watchface]: resources-wear/src/androidMain/res/drawable-nodpi/watchface_round.png
 [wear]: wear
