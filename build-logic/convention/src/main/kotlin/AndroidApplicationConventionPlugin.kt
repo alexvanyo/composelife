@@ -20,8 +20,6 @@ import com.alexvanyo.composelife.buildlogic.configureBadgingTasks
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.gradle.BaseExtension
-import org.gradle.api.Task
-import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.exclude
 import org.gradle.kotlin.dsl.getByType
@@ -36,11 +34,9 @@ class AndroidApplicationConventionPlugin : ConventionPlugin({
         extensions.getByType<ApplicationAndroidComponentsExtension>(),
     )
 
-    tasks.getByName("check").configure(
-        closureOf<Task> {
-            dependsOn("checkReleaseBadging")
-        },
-    )
+    tasks.named("check").configure {
+        dependsOn("checkReleaseBadging")
+    }
 
     extensions.configure<ApplicationExtension> {
         configureAndroid(this)

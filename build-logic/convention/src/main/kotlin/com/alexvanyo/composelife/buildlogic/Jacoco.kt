@@ -55,8 +55,8 @@ fun Project.configureJacocoMerge() {
     val variantJacocoTestReports = variants.map { variant ->
         tasks.register("jacocoTest${variant.capitalizeForTaskName()}UnitTestReport", JacocoReport::class) {
             dependsOn(
-                subprojects.mapNotNull {
-                    it.tasks.findByName("create${variant.capitalizeForTaskName()}UnitTestCoverageReport")
+                subprojects.flatMap {
+                    it.getTasksByName("create${variant.capitalizeForTaskName()}UnitTestCoverageReport", false)
                 },
             )
 
@@ -84,9 +84,6 @@ fun Project.configureJacocoMerge() {
             )
             executionData.setFrom(
                 subprojects
-                    .filter {
-                        it.tasks.findByName("create${variant.capitalizeForTaskName()}UnitTestCoverageReport") != null
-                    }
                     .map {
                         it.layout.buildDirectory.file(
                             "outputs/unit_test_code_coverage/" +
