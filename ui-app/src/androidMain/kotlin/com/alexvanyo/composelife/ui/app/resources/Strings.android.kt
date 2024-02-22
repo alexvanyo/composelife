@@ -226,3 +226,15 @@ internal actual val Strings.FeatureFlags: ParameterizedString get() =
 
 internal actual val Strings.Visual: ParameterizedString get() =
     ParameterizedString(R.string.visual)
+
+internal actual val Strings.ClipboardWatchingOnboarding: ParameterizedString get() =
+    ParameterizedString(R.string.clipboard_watching_onboarding)
+
+internal actual val Strings.Allow: ParameterizedString get() =
+    ParameterizedString(R.string.allow)
+
+internal actual val Strings.Disallow: ParameterizedString get() =
+    ParameterizedString(R.string.disallow)
+
+internal actual val Strings.EnableClipboardWatching: ParameterizedString get() =
+    ParameterizedString(R.string.enable_clipboard_watching)

@@ -92,12 +92,15 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
 
-                        override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                            ResourceState.Loading
+                        override val clipboardWatchingState: ClipboardWatchingState
+                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
+                                    ResourceState.Loading
 
-                        override fun onPasteClipboard() = Unit
+                                override fun onPasteClipboard() = Unit
 
-                        override fun onPinClipboard() = Unit
+                                override fun onPinClipboard() = Unit
+                            }
                     },
                 )
             }
@@ -133,18 +136,21 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
 
-                        override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                            ResourceState.Success(
-                                DeserializationResult.Successful(
-                                    warnings = emptyList(),
-                                    cellState = GliderPattern.seedCellState,
-                                    format = CellStateFormat.FixedFormat.Plaintext,
-                                ),
-                            )
+                        override val clipboardWatchingState: ClipboardWatchingState
+                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
+                                    ResourceState.Success(
+                                        DeserializationResult.Successful(
+                                            warnings = emptyList(),
+                                            cellState = GliderPattern.seedCellState,
+                                            format = CellStateFormat.FixedFormat.Plaintext,
+                                        ),
+                                    )
 
-                        override fun onPasteClipboard() = Unit
+                                override fun onPasteClipboard() = Unit
 
-                        override fun onPinClipboard() = Unit
+                                override fun onPinClipboard() = Unit
+                            }
                     },
                 )
             }
@@ -190,20 +196,23 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
 
-                        override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                            ResourceState.Success(
-                                DeserializationResult.Successful(
-                                    warnings = emptyList(),
-                                    cellState = GliderPattern.seedCellState,
-                                    format = CellStateFormat.FixedFormat.Plaintext,
-                                ),
-                            )
+                        override val clipboardWatchingState: ClipboardWatchingState
+                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
+                                    ResourceState.Success(
+                                        DeserializationResult.Successful(
+                                            warnings = emptyList(),
+                                            cellState = GliderPattern.seedCellState,
+                                            format = CellStateFormat.FixedFormat.Plaintext,
+                                        ),
+                                    )
 
-                        override fun onPasteClipboard() {
-                            onPasteClipboardClickedCount++
-                        }
+                                override fun onPasteClipboard() {
+                                    onPasteClipboardClickedCount++
+                                }
 
-                        override fun onPinClipboard() = Unit
+                                override fun onPinClipboard() = Unit
+                            }
                     },
                 )
             }
@@ -243,20 +252,23 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
 
-                        override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                            ResourceState.Success(
-                                DeserializationResult.Successful(
-                                    warnings = emptyList(),
-                                    cellState = GliderPattern.seedCellState,
-                                    format = CellStateFormat.FixedFormat.Plaintext,
-                                ),
-                            )
+                        override val clipboardWatchingState: ClipboardWatchingState
+                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
+                                    ResourceState.Success(
+                                        DeserializationResult.Successful(
+                                            warnings = emptyList(),
+                                            cellState = GliderPattern.seedCellState,
+                                            format = CellStateFormat.FixedFormat.Plaintext,
+                                        ),
+                                    )
 
-                        override fun onPasteClipboard() = Unit
+                                override fun onPasteClipboard() = Unit
 
-                        override fun onPinClipboard() {
-                            onPinClipboardClickedCount++
-                        }
+                                override fun onPinClipboard() {
+                                    onPinClipboardClickedCount++
+                                }
+                            }
                     },
                 )
             }
@@ -294,12 +306,15 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
 
-                        override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                            ResourceState.Loading
+                        override val clipboardWatchingState: ClipboardWatchingState
+                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
+                                    ResourceState.Loading
 
-                        override fun onPasteClipboard() = Unit
+                                override fun onPasteClipboard() = Unit
 
-                        override fun onPinClipboard() = Unit
+                                override fun onPinClipboard() = Unit
+                            }
                     },
                 )
             }
@@ -336,12 +351,15 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
 
-                        override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                            ResourceState.Loading
+                        override val clipboardWatchingState: ClipboardWatchingState
+                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
+                                    ResourceState.Loading
 
-                        override fun onPasteClipboard() = Unit
+                                override fun onPasteClipboard() = Unit
 
-                        override fun onPinClipboard() = Unit
+                                override fun onPinClipboard() = Unit
+                            }
                     },
                 )
             }
@@ -378,12 +396,15 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
 
-                        override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                            ResourceState.Loading
+                        override val clipboardWatchingState: ClipboardWatchingState
+                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
+                                    ResourceState.Loading
 
-                        override fun onPasteClipboard() = Unit
+                                override fun onPasteClipboard() = Unit
 
-                        override fun onPinClipboard() = Unit
+                                override fun onPinClipboard() = Unit
+                            }
                     },
                 )
             }
@@ -420,12 +441,15 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
 
-                        override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                            ResourceState.Loading
+                        override val clipboardWatchingState: ClipboardWatchingState
+                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
+                                    ResourceState.Loading
 
-                        override fun onPasteClipboard() = Unit
+                                override fun onPasteClipboard() = Unit
 
-                        override fun onPinClipboard() = Unit
+                                override fun onPinClipboard() = Unit
+                            }
                     },
                 )
             }
@@ -462,12 +486,15 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
 
-                        override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                            ResourceState.Loading
+                        override val clipboardWatchingState: ClipboardWatchingState
+                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
+                                    ResourceState.Loading
 
-                        override fun onPasteClipboard() = Unit
+                                override fun onPasteClipboard() = Unit
 
-                        override fun onPinClipboard() = Unit
+                                override fun onPinClipboard() = Unit
+                            }
                     },
                 )
             }
@@ -508,12 +535,15 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
 
-                        override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                            ResourceState.Loading
+                        override val clipboardWatchingState: ClipboardWatchingState
+                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
+                                    ResourceState.Loading
 
-                        override fun onPasteClipboard() = Unit
+                                override fun onPasteClipboard() = Unit
 
-                        override fun onPinClipboard() = Unit
+                                override fun onPinClipboard() = Unit
+                            }
                     },
                 )
             }

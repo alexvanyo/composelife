@@ -44,6 +44,10 @@ interface ComposeLifePreferences : Updatable {
 
     val mouseToolConfigState: ResourceState<ToolConfig>
 
+    val completedClipboardWatchingOnboardingState: ResourceState<Boolean>
+
+    val enableClipboardWatchingState: ResourceState<Boolean>
+
     suspend fun setAlgorithmChoice(algorithm: AlgorithmType)
 
     suspend fun setCurrentShapeType(currentShapeType: CurrentShapeType)
@@ -67,4 +71,8 @@ interface ComposeLifePreferences : Updatable {
     suspend fun setStylusToolConfig(toolConfig: ToolConfig)
 
     suspend fun setMouseToolConfig(toolConfig: ToolConfig)
+
+    suspend fun setCompletedClipboardWatchingOnboarding(completed: Boolean)
+
+    suspend fun setEnableClipboardWatching(enabled: Boolean)
 }

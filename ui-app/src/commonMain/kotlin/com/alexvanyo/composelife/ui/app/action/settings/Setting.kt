@@ -78,6 +78,11 @@ sealed interface Setting {
         override val quickAccessSetting = QuickAccessSetting.DoNotKeepProcess
     }
 
+    data object EnableClipboardWatching : Setting {
+        override val category = SettingsCategory.FeatureFlags
+        override val quickAccessSetting = QuickAccessSetting.EnableClipboardWatching
+    }
+
     @GenSealedEnum
     companion object {
         val Saver = sealedEnumSaver(sealedEnum)

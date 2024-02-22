@@ -34,7 +34,8 @@ interface SettingUiInjectEntryPoint :
     DarkThemeConfigUiInjectEntryPoint,
     DisableAGSLUiInjectEntryPoint,
     DisableOpenGLUiInjectEntryPoint,
-    DoNotKeepProcessUiInjectEntryPoint
+    DoNotKeepProcessUiInjectEntryPoint,
+    EnableClipboardWatchingUiInjectEntryPoint
 
 interface SettingUiLocalEntryPoint :
     AlgorithmImplementationUiLocalEntryPoint,
@@ -44,6 +45,7 @@ interface SettingUiLocalEntryPoint :
     DisableAGSLUiLocalEntryPoint,
     DisableOpenGLUiLocalEntryPoint,
     DoNotKeepProcessUiLocalEntryPoint,
+    EnableClipboardWatchingUiLocalEntryPoint,
     LoadedComposeLifePreferencesProvider
 
 /**
@@ -88,6 +90,7 @@ fun SettingUi(
             Setting.DisableAGSL -> DisableAGSLUi()
             Setting.DisableOpenGL -> DisableOpenGLUi()
             Setting.DoNotKeepProcess -> DoNotKeepProcessUi()
+            Setting.EnableClipboardWatching -> EnableClipboardWatchingUi()
         }
     }
 }
@@ -110,6 +113,7 @@ fun SettingUi(
             QuickAccessSetting.DisableAGSL -> Setting.DisableAGSL
             QuickAccessSetting.DisableOpenGL -> Setting.DisableOpenGL
             QuickAccessSetting.DoNotKeepProcess -> Setting.DoNotKeepProcess
+            QuickAccessSetting.EnableClipboardWatching -> Setting.EnableClipboardWatching
         },
         modifier = modifier,
         onOpenInSettingsClicked = onOpenInSettingsClicked,

@@ -109,10 +109,8 @@ fun InlineEditScreen(
             .verticalScroll(scrollState)
             .padding(vertical = 8.dp),
     ) {
-        ClipboardCellStatePreview(
-            clipboardCellStateResourceState = state.clipboardCellStateResourceState,
-            onPaste = state::onPasteClipboard,
-            onPin = state::onPinClipboard,
+        ClipboardWatchingSection(
+            clipboardWatchingState = state.clipboardWatchingState,
         )
 
         Row(
@@ -245,11 +243,29 @@ interface InlineEditScreenState {
     fun setStylusToolDropdownOption(toolDropdownOption: ToolDropdownOption)
     val mouseToolDropdownOption: ToolDropdownOption
     fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption)
-    val clipboardCellStateResourceState: ResourceState<DeserializationResult>
 
-    fun onPasteClipboard()
+    val clipboardWatchingState: ClipboardWatchingState
+}
 
-    fun onPinClipboard()
+sealed interface ClipboardWatchingState {
+
+    interface Onboarding : ClipboardWatchingState {
+
+        fun onAllowClipboardWatching()
+
+        fun onDisallowClipboardWatching()
+    }
+
+    data object ClipboardWatchingDisabled : ClipboardWatchingState
+
+    interface ClipboardWatchingEnabled : ClipboardWatchingState {
+
+        val clipboardCellStateResourceState: ResourceState<DeserializationResult>
+
+        fun onPasteClipboard()
+
+        fun onPinClipboard()
+    }
 }
 
 context(
@@ -264,16 +280,62 @@ fun rememberInlineEditScreenState(
 ): InlineEditScreenState {
     val coroutineScope = rememberCoroutineScope()
 
-    val clipboardReader = rememberClipboardReader()
-    val parser: ClipboardCellStateParser = clipboardCellStateParser
+    val clipboardWatchingState = if (preferences.completedClipboardWatchingOnboarding) {
+        if (preferences.enableClipboardWatching) {
+            val clipboardReader = rememberClipboardReader()
+            val parser: ClipboardCellStateParser = clipboardCellStateParser
 
-    val clipboardCellStateResourceState: ResourceState<DeserializationResult> by
-        remember(clipboardReader, clipboardReader.clipboardStateKey, parser) {
-            flow { emit(parser.parseCellState(clipboardReader)) }.asResourceState()
+            val clipboardCellStateResourceState: ResourceState<DeserializationResult> by
+                remember(clipboardReader, clipboardReader.clipboardStateKey, parser) {
+                    flow { emit(parser.parseCellState(clipboardReader)) }.asResourceState()
+                }
+                    .collectAsState()
+
+            remember(setSelectionToCellState) {
+                object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                    override val clipboardCellStateResourceState get() = clipboardCellStateResourceState
+
+                    override fun onPasteClipboard() {
+                        val clipboardResourceState = clipboardCellStateResourceState
+                        if (clipboardResourceState.isSuccess()) {
+                            when (val clipboardDeserializationResult = clipboardResourceState.value) {
+                                is DeserializationResult.Successful -> {
+                                    setSelectionToCellState(clipboardDeserializationResult.cellState)
+                                }
+                                is DeserializationResult.Unsuccessful -> Unit
+                            }
+                        }
+                    }
+
+                    override fun onPinClipboard() {
+                        // TODO: Implement clipboard pinning
+                    }
+                }
+            }
+        } else {
+            ClipboardWatchingState.ClipboardWatchingDisabled
         }
-            .collectAsState()
+    } else {
+        remember(coroutineScope, composeLifePreferences) {
+            object : ClipboardWatchingState.Onboarding {
+                override fun onAllowClipboardWatching() {
+                    coroutineScope.launch {
+                        composeLifePreferences.setEnableClipboardWatching(true)
+                        composeLifePreferences.setCompletedClipboardWatchingOnboarding(true)
+                    }
+                }
 
-    return remember(coroutineScope, composeLifePreferences, preferences, setSelectionToCellState) {
+                override fun onDisallowClipboardWatching() {
+                    coroutineScope.launch {
+                        composeLifePreferences.setEnableClipboardWatching(false)
+                        composeLifePreferences.setCompletedClipboardWatchingOnboarding(true)
+                    }
+                }
+            }
+        }
+    }
+
+    return remember(coroutineScope, composeLifePreferences, preferences, clipboardWatchingState) {
         object : InlineEditScreenState {
             override val touchToolDropdownOption: ToolDropdownOption get() =
                 preferences.touchToolConfig.toToolDropdownOption()
@@ -302,23 +364,7 @@ fun rememberInlineEditScreenState(
                 }
             }
 
-            override val clipboardCellStateResourceState get() = clipboardCellStateResourceState
-
-            override fun onPasteClipboard() {
-                val clipboardResourceState = clipboardCellStateResourceState
-                if (clipboardResourceState.isSuccess()) {
-                    when (val clipboardDeserializationResult = clipboardResourceState.value) {
-                        is DeserializationResult.Successful -> {
-                            setSelectionToCellState(clipboardDeserializationResult.cellState)
-                        }
-                        is DeserializationResult.Unsuccessful -> Unit
-                    }
-                }
-            }
-
-            override fun onPinClipboard() {
-                // TODO: Implement clipboard pinning
-            }
+            override val clipboardWatchingState get() = clipboardWatchingState
         }
     }
 }
