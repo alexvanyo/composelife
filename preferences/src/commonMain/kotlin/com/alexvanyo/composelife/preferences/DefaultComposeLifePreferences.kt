@@ -28,10 +28,11 @@ import com.alexvanyo.composelife.preferences.proto.QuickAccessSettingProto
 import com.alexvanyo.composelife.preferences.proto.RoundRectangleProto
 import com.alexvanyo.composelife.preferences.proto.ToolConfigProto
 import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.resourcestate.asResourceState
 import com.alexvanyo.composelife.resourcestate.map
 import com.alexvanyo.composelife.scopes.Singleton
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retry
 import me.tatarka.inject.annotations.Inject
@@ -87,7 +88,7 @@ class DefaultComposeLifePreferences(
     override suspend fun update(): Nothing {
         dataStore.data
             .retry()
-            .onEach { preferencesProto ->
+            .map { preferencesProto ->
                 val quickAccessSettings =
                     preferencesProto.quick_access_settings.mapNotNull { quickAccessSettingProto ->
                         when (quickAccessSettingProto) {
@@ -171,28 +172,25 @@ class DefaultComposeLifePreferences(
                     preferencesProto.completed_clipboard_watching_onboarding
                 val enableClipboardWatching = preferencesProto.enable_clipboard_watching
 
-                Snapshot.withMutableSnapshot {
-                    loadedPreferencesState = ResourceState.Success(
-                        LoadedComposeLifePreferences(
-                            quickAccessSettings = quickAccessSettings,
-                            algorithmChoice = algorithmChoice,
-                            currentShape = currentShape,
-                            darkThemeConfig = darkThemeConfig,
-                            disableAGSL = disableAGSL,
-                            disableOpenGL = disableOpenGL,
-                            doNotKeepProcess = doNotKeepProcess,
-                            touchToolConfig = touchToolConfig,
-                            stylusToolConfig = stylusToolConfig,
-                            mouseToolConfig = mouseToolConfig,
-                            completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
-                            enableClipboardWatching = enableClipboardWatching,
-                        ),
-                    )
-                }
+                LoadedComposeLifePreferences(
+                    quickAccessSettings = quickAccessSettings,
+                    algorithmChoice = algorithmChoice,
+                    currentShape = currentShape,
+                    darkThemeConfig = darkThemeConfig,
+                    disableAGSL = disableAGSL,
+                    disableOpenGL = disableOpenGL,
+                    doNotKeepProcess = doNotKeepProcess,
+                    touchToolConfig = touchToolConfig,
+                    stylusToolConfig = stylusToolConfig,
+                    mouseToolConfig = mouseToolConfig,
+                    completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
+                    enableClipboardWatching = enableClipboardWatching,
+                )
             }
-            .catch {
+            .asResourceState()
+            .onEach {
                 Snapshot.withMutableSnapshot {
-                    loadedPreferencesState = ResourceState.Failure(it)
+                    loadedPreferencesState = it
                 }
             }
             .collect()
