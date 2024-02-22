@@ -25,6 +25,7 @@ sealed interface QuickAccessSetting {
     data object DisableAGSL : QuickAccessSetting
     data object DisableOpenGL : QuickAccessSetting
     data object DoNotKeepProcess : QuickAccessSetting
+    data object EnableClipboardWatching : QuickAccessSetting
 
     @GenSealedEnum
     companion object

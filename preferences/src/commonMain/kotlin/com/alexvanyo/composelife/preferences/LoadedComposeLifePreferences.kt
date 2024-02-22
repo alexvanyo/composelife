@@ -27,6 +27,8 @@ data class LoadedComposeLifePreferences(
     val touchToolConfig: ToolConfig,
     val stylusToolConfig: ToolConfig,
     val mouseToolConfig: ToolConfig,
+    val completedClipboardWatchingOnboarding: Boolean,
+    val enableClipboardWatching: Boolean,
 ) {
     companion object {
         val Defaults = LoadedComposeLifePreferences(
@@ -43,6 +45,8 @@ data class LoadedComposeLifePreferences(
             touchToolConfig = ToolConfig.Pan,
             stylusToolConfig = ToolConfig.Draw,
             mouseToolConfig = ToolConfig.Draw,
+            completedClipboardWatchingOnboarding = false,
+            enableClipboardWatching = false,
         )
     }
 }

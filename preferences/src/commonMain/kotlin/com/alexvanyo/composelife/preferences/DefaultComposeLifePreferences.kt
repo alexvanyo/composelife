@@ -73,6 +73,12 @@ class DefaultComposeLifePreferences(
     override val mouseToolConfigState: ResourceState<ToolConfig>
         get() = loadedPreferencesState.map(LoadedComposeLifePreferences::mouseToolConfig)
 
+    override val completedClipboardWatchingOnboardingState: ResourceState<Boolean>
+        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::completedClipboardWatchingOnboarding)
+
+    override val enableClipboardWatchingState: ResourceState<Boolean>
+        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::enableClipboardWatching)
+
     override var loadedPreferencesState:
         ResourceState<LoadedComposeLifePreferences> by mutableStateOf(ResourceState.Loading)
         private set
@@ -97,6 +103,8 @@ class DefaultComposeLifePreferences(
                                 QuickAccessSetting.DisableOpenGL
                             QuickAccessSettingProto.DO_NOT_KEEP_PROCESS ->
                                 QuickAccessSetting.DoNotKeepProcess
+                            QuickAccessSettingProto.ENABLE_CLIPBOARD_WATCHING ->
+                                QuickAccessSetting.EnableClipboardWatching
                             QuickAccessSettingProto.SETTINGS_UNKNOWN,
                             -> null
                         }
@@ -159,6 +167,9 @@ class DefaultComposeLifePreferences(
                         ToolConfigProto.SELECT -> ToolConfig.Select
                         ToolConfigProto.NONE -> ToolConfig.None
                     }
+                val completedClipboardWatchingOnboarding =
+                    preferencesProto.completed_clipboard_watching_onboarding
+                val enableClipboardWatching = preferencesProto.enable_clipboard_watching
 
                 Snapshot.withMutableSnapshot {
                     loadedPreferencesState = ResourceState.Success(
@@ -173,6 +184,8 @@ class DefaultComposeLifePreferences(
                             touchToolConfig = touchToolConfig,
                             stylusToolConfig = stylusToolConfig,
                             mouseToolConfig = mouseToolConfig,
+                            completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
+                            enableClipboardWatching = enableClipboardWatching,
                         ),
                     )
                 }
@@ -243,6 +256,7 @@ class DefaultComposeLifePreferences(
                 QuickAccessSetting.DisableAGSL -> QuickAccessSettingProto.DISABLE_AGSL
                 QuickAccessSetting.DisableOpenGL -> QuickAccessSettingProto.DISABLE_OPENGL
                 QuickAccessSetting.DoNotKeepProcess -> QuickAccessSettingProto.DO_NOT_KEEP_PROCESS
+                QuickAccessSetting.EnableClipboardWatching -> QuickAccessSettingProto.ENABLE_CLIPBOARD_WATCHING
             }
 
             val oldQuickAccessSettings = preferencesProto.quick_access_settings.toSet()
@@ -302,6 +316,22 @@ class DefaultComposeLifePreferences(
         dataStore.updateData { preferencesProto ->
             preferencesProto.copy(
                 mouse_tool_config = toolConfig.toProto(),
+            )
+        }
+    }
+
+    override suspend fun setCompletedClipboardWatchingOnboarding(completed: Boolean) {
+        dataStore.updateData { preferencesProto ->
+            preferencesProto.copy(
+                completed_clipboard_watching_onboarding = completed,
+            )
+        }
+    }
+
+    override suspend fun setEnableClipboardWatching(enabled: Boolean) {
+        dataStore.updateData { preferencesProto ->
+            preferencesProto.copy(
+                enable_clipboard_watching = enabled,
             )
         }
     }
