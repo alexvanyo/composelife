@@ -161,3 +161,11 @@ internal expect val Strings.Algorithm: ParameterizedString
 internal expect val Strings.FeatureFlags: ParameterizedString
 
 internal expect val Strings.Visual: ParameterizedString
+
+internal expect val Strings.ClipboardWatchingOnboarding: ParameterizedString
+
+internal expect val Strings.Allow: ParameterizedString
+
+internal expect val Strings.Disallow: ParameterizedString
+
+internal expect val Strings.EnableClipboardWatching: ParameterizedString

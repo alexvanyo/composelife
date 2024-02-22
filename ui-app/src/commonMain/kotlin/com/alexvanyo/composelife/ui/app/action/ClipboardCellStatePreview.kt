@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.PushPin
@@ -82,13 +81,12 @@ fun ClipboardCellStatePreview(
 ) {
     Card(
         modifier = modifier
-            .padding(horizontal = 24.dp)
             .fillMaxWidth()
             .height(160.dp),
     ) {
         AnimatedContent(
             targetState = clipboardCellStateResourceState,
-            modifier = modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             transitionSpec = {
                 fadeIn(animationSpec = tween(220, delayMillis = 90))
                     .togetherWith(fadeOut(animationSpec = tween(90)))

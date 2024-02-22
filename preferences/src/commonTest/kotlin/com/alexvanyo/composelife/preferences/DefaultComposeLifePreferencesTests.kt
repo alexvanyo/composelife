@@ -695,4 +695,80 @@ class DefaultComposeLifePreferencesTests {
             loadedPreferencesState.value.mouseToolConfig,
         )
     }
+
+    @Test
+    fun default_completed_clipboard_watching_onboarding_is_false() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.completedClipboardWatchingOnboardingState)
+
+        delay(1.milliseconds)
+
+        assertEquals(
+            ResourceState.Success(false),
+            composelifePreferences.completedClipboardWatchingOnboardingState,
+        )
+    }
+
+    @Test
+    fun setting_completed_clipboard_watching_onboarding_updates_value() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.completedClipboardWatchingOnboardingState)
+
+        delay(1.milliseconds)
+
+        assertEquals(
+            ResourceState.Success(false),
+            composelifePreferences.completedClipboardWatchingOnboardingState,
+        )
+
+        composelifePreferences.setCompletedClipboardWatchingOnboarding(true)
+        delay(1.milliseconds)
+
+        assertEquals(
+            ResourceState.Success(true),
+            composelifePreferences.completedClipboardWatchingOnboardingState,
+        )
+
+        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertTrue(
+            loadedPreferencesState.value.completedClipboardWatchingOnboarding,
+        )
+    }
+
+    @Test
+    fun default_enable_clipboard_watching_is_false() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.enableClipboardWatchingState)
+
+        delay(1.milliseconds)
+
+        assertEquals(
+            ResourceState.Success(false),
+            composelifePreferences.enableClipboardWatchingState,
+        )
+    }
+
+    @Test
+    fun setting_enable_clipboard_watching_updates_value() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.enableClipboardWatchingState)
+
+        delay(1.milliseconds)
+
+        assertEquals(
+            ResourceState.Success(false),
+            composelifePreferences.enableClipboardWatchingState,
+        )
+
+        composelifePreferences.setEnableClipboardWatching(true)
+        delay(1.milliseconds)
+
+        assertEquals(
+            ResourceState.Success(true),
+            composelifePreferences.enableClipboardWatchingState,
+        )
+
+        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertTrue(
+            loadedPreferencesState.value.enableClipboardWatching,
+        )
+    }
 }

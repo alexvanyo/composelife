@@ -71,6 +71,14 @@ class TestComposeLifePreferences : ComposeLifePreferences {
     override var mouseToolConfigState: ResourceState<ToolConfig> by mutableStateOf(ResourceState.Loading)
         private set
 
+    override var completedClipboardWatchingOnboardingState:
+        ResourceState<Boolean> by mutableStateOf(ResourceState.Loading)
+        private set
+
+    override var enableClipboardWatchingState:
+        ResourceState<Boolean> by mutableStateOf(ResourceState.Loading)
+        private set
+
     override val loadedPreferencesState: ResourceState<LoadedComposeLifePreferences>
         get() = combine(
             quickAccessSettingsState,
@@ -83,6 +91,8 @@ class TestComposeLifePreferences : ComposeLifePreferences {
             touchToolConfigState,
             stylusToolConfigState,
             mouseToolConfigState,
+            completedClipboardWatchingOnboardingState,
+            enableClipboardWatchingState,
         ) {
             @Suppress("UNCHECKED_CAST")
             LoadedComposeLifePreferences(
@@ -96,6 +106,8 @@ class TestComposeLifePreferences : ComposeLifePreferences {
                 touchToolConfig = it[7] as ToolConfig,
                 stylusToolConfig = it[8] as ToolConfig,
                 mouseToolConfig = it[9] as ToolConfig,
+                completedClipboardWatchingOnboarding = it[10] as Boolean,
+                enableClipboardWatching = it[11] as Boolean,
             )
         }
 
@@ -182,6 +194,18 @@ class TestComposeLifePreferences : ComposeLifePreferences {
         }
     }
 
+    override suspend fun setCompletedClipboardWatchingOnboarding(completed: Boolean) {
+        Snapshot.withMutableSnapshot {
+            completedClipboardWatchingOnboardingState = ResourceState.Success(completed)
+        }
+    }
+
+    override suspend fun setEnableClipboardWatching(enabled: Boolean) {
+        Snapshot.withMutableSnapshot {
+            enableClipboardWatchingState = ResourceState.Success(enabled)
+        }
+    }
+
     fun testSetAlgorithmChoice(algorithm: AlgorithmType) {
         Snapshot.withMutableSnapshot {
             algorithmChoiceState = ResourceState.Success(algorithm)
@@ -248,6 +272,18 @@ class TestComposeLifePreferences : ComposeLifePreferences {
         }
     }
 
+    fun testSetCompletedClipboardWatchingOnboarding(completed: Boolean) {
+        Snapshot.withMutableSnapshot {
+            completedClipboardWatchingOnboardingState = ResourceState.Success(completed)
+        }
+    }
+
+    fun testSetEnableClipboardWatching(enabled: Boolean) {
+        Snapshot.withMutableSnapshot {
+            enableClipboardWatchingState = ResourceState.Success(enabled)
+        }
+    }
+
     companion object {
         @Suppress("LongParameterList")
         fun Loaded(
@@ -265,6 +301,8 @@ class TestComposeLifePreferences : ComposeLifePreferences {
             touchToolConfig: ToolConfig = ToolConfig.Pan,
             stylusToolConfig: ToolConfig = ToolConfig.Draw,
             mouseToolConfig: ToolConfig = ToolConfig.Draw,
+            completedClipboardWatchingOnboarding: Boolean = false,
+            enableClipboardWatching: Boolean = false,
         ) = TestComposeLifePreferences().apply {
             testSetAlgorithmChoice(algorithmChoice)
             testSetCurrentShapeType(currentShapeType)
@@ -277,6 +315,8 @@ class TestComposeLifePreferences : ComposeLifePreferences {
             testSetTouchToolConfig(touchToolConfig)
             testSetStylusToolConfig(stylusToolConfig)
             testSetMouseToolConfig(mouseToolConfig)
+            testSetCompletedClipboardWatchingOnboarding(completedClipboardWatchingOnboarding)
+            testSetEnableClipboardWatching(enableClipboardWatching)
         }
     }
 }

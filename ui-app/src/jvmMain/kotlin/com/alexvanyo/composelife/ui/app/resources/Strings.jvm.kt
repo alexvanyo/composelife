@@ -225,3 +225,18 @@ internal actual val Strings.FeatureFlags: ParameterizedString get() =
 
 internal actual val Strings.Visual: ParameterizedString get() =
     ParameterizedString("Visual")
+
+internal actual val Strings.ClipboardWatchingOnboarding: ParameterizedString get() =
+    ParameterizedString(
+        "Allow watching the contents of the system clipboard to provide a preview of the cell state? " +
+            "This can be changed later in settings.",
+    )
+
+internal actual val Strings.Allow: ParameterizedString get() =
+    ParameterizedString("Allow")
+
+internal actual val Strings.Disallow: ParameterizedString get() =
+    ParameterizedString("Don't allow")
+
+internal actual val Strings.EnableClipboardWatching: ParameterizedString get() =
+    ParameterizedString("Enable clipboard watching")

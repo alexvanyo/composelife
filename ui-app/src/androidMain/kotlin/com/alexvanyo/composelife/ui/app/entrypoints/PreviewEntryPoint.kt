@@ -62,6 +62,8 @@ import com.alexvanyo.composelife.ui.app.action.settings.DisableAGSLUiInjectEntry
 import com.alexvanyo.composelife.ui.app.action.settings.DisableAGSLUiLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.DisableOpenGLUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.DisableOpenGLUiLocalEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.EnableClipboardWatchingUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.EnableClipboardWatchingUiLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenInjectEntryPoint
@@ -97,6 +99,8 @@ internal interface PreviewEntryPoint :
     DisableAGSLUiLocalEntryPoint,
     DisableOpenGLUiInjectEntryPoint,
     DisableOpenGLUiLocalEntryPoint,
+    EnableClipboardWatchingUiInjectEntryPoint,
+    EnableClipboardWatchingUiLocalEntryPoint,
     FullscreenSettingsScreenInjectEntryPoint,
     FullscreenSettingsScreenLocalEntryPoint,
     GameOfLifeProgressIndicatorInjectEntryPoint,
