@@ -40,7 +40,7 @@ fun Project.configureAndroidCompose(
 
         // TODO: Add metrics and report to non-test KotlinCompile tasks
         afterEvaluate {
-            tasks.withType<KotlinCompile>().all {
+            tasks.withType<KotlinCompile>().configureEach {
                 if (!name.contains("test", true)) {
                     kotlinOptions {
                         val metricsFolder = layout.buildDirectory.dir("build/compose-metrics")

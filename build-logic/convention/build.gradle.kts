@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.detekt)
+    alias(libs.plugins.android.lint)
 }
 
 group = "com.alexvanyo.composelife.buildlogic"
@@ -46,11 +47,9 @@ tasks {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
-    getByName("check").configure(
-        closureOf<Task> {
-            dependsOn(withType<Detekt>())
-        },
-    )
+    named("check").configure {
+        dependsOn(withType<Detekt>())
+    }
 }
 
 detekt {
@@ -70,6 +69,7 @@ dependencies {
     implementation(libs.ksp.gradlePlugin)
     implementation(libs.jetbrains.compose.gradlePlugin)
     detektPlugins(libs.detekt.formatting)
+    lintChecks(libs.androidx.lint.gradle)
 }
 
 gradlePlugin {
