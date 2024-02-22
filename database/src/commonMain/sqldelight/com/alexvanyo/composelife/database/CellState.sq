@@ -23,7 +23,9 @@ WHERE id=:id;
 getMostRecentAutosavedCellState:
 SELECT *
 FROM cellState
-WHERE wasAutosaved=1;
+WHERE wasAutosaved=1
+ORDER BY id DESC
+LIMIT 1;
 
 insertCellState:
 INSERT INTO cellState (
