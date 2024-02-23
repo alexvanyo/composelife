@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -38,7 +39,6 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.patterns.GliderPattern
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.InjectTestActivity
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
@@ -53,6 +53,7 @@ import com.alexvanyo.composelife.ui.app.resources.Select
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import leakcanary.SkipLeakDetection
 import org.junit.runner.RunWith
+import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -94,12 +95,9 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                                    ResourceState.Loading
+                                override val isLoading = true
 
-                                override fun onPasteClipboard() = Unit
-
-                                override fun onPinClipboard() = Unit
+                                override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
                             }
                     },
                 )
@@ -122,6 +120,23 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
                     ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
                     ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
             ) {
+                val clipboardPreviewStates = remember {
+                    listOf(
+                        object : ClipboardPreviewState {
+                            override val id = UUID.randomUUID()
+                            override val deserializationResult = DeserializationResult.Successful(
+                                warnings = emptyList(),
+                                cellState = GliderPattern.seedCellState,
+                                format = CellStateFormat.FixedFormat.Plaintext,
+                            )
+
+                            override fun onPaste() = Unit
+
+                            override fun onPin() = Unit
+                        },
+                    )
+                }
+
                 InlineEditScreen(
                     state = object : InlineEditScreenState {
                         override val touchToolDropdownOption = ToolDropdownOption.Pan
@@ -138,18 +153,9 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                                    ResourceState.Success(
-                                        DeserializationResult.Successful(
-                                            warnings = emptyList(),
-                                            cellState = GliderPattern.seedCellState,
-                                            format = CellStateFormat.FixedFormat.Plaintext,
-                                        ),
-                                    )
+                                override val isLoading = false
 
-                                override fun onPasteClipboard() = Unit
-
-                                override fun onPinClipboard() = Unit
+                                override val clipboardPreviewStates = clipboardPreviewStates
                             }
                     },
                 )
@@ -182,6 +188,25 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
                     ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
                     ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
             ) {
+                val clipboardPreviewStates = remember {
+                    listOf(
+                        object : ClipboardPreviewState {
+                            override val id = UUID.randomUUID()
+                            override val deserializationResult = DeserializationResult.Successful(
+                                warnings = emptyList(),
+                                cellState = GliderPattern.seedCellState,
+                                format = CellStateFormat.FixedFormat.Plaintext,
+                            )
+
+                            override fun onPaste() {
+                                onPasteClipboardClickedCount++
+                            }
+
+                            override fun onPin() = Unit
+                        },
+                    )
+                }
+
                 InlineEditScreen(
                     state = object : InlineEditScreenState {
                         override val touchToolDropdownOption = ToolDropdownOption.Pan
@@ -198,20 +223,9 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                                    ResourceState.Success(
-                                        DeserializationResult.Successful(
-                                            warnings = emptyList(),
-                                            cellState = GliderPattern.seedCellState,
-                                            format = CellStateFormat.FixedFormat.Plaintext,
-                                        ),
-                                    )
+                                override val isLoading = false
 
-                                override fun onPasteClipboard() {
-                                    onPasteClipboardClickedCount++
-                                }
-
-                                override fun onPinClipboard() = Unit
+                                override val clipboardPreviewStates = clipboardPreviewStates
                             }
                     },
                 )
@@ -238,6 +252,25 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
                     ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
                     ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
             ) {
+                val clipboardPreviewStates = remember {
+                    listOf(
+                        object : ClipboardPreviewState {
+                            override val id = UUID.randomUUID()
+                            override val deserializationResult = DeserializationResult.Successful(
+                                warnings = emptyList(),
+                                cellState = GliderPattern.seedCellState,
+                                format = CellStateFormat.FixedFormat.Plaintext,
+                            )
+
+                            override fun onPaste() = Unit
+
+                            override fun onPin() {
+                                onPinClipboardClickedCount++
+                            }
+                        },
+                    )
+                }
+
                 InlineEditScreen(
                     state = object : InlineEditScreenState {
                         override val touchToolDropdownOption = ToolDropdownOption.Pan
@@ -254,20 +287,9 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                                    ResourceState.Success(
-                                        DeserializationResult.Successful(
-                                            warnings = emptyList(),
-                                            cellState = GliderPattern.seedCellState,
-                                            format = CellStateFormat.FixedFormat.Plaintext,
-                                        ),
-                                    )
+                                override val isLoading = false
 
-                                override fun onPasteClipboard() = Unit
-
-                                override fun onPinClipboard() {
-                                    onPinClipboardClickedCount++
-                                }
+                                override val clipboardPreviewStates = clipboardPreviewStates
                             }
                     },
                 )
@@ -308,12 +330,9 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                                    ResourceState.Loading
+                                override val isLoading = true
 
-                                override fun onPasteClipboard() = Unit
-
-                                override fun onPinClipboard() = Unit
+                                override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
                             }
                     },
                 )
@@ -353,12 +372,9 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                                    ResourceState.Loading
+                                override val isLoading = true
 
-                                override fun onPasteClipboard() = Unit
-
-                                override fun onPinClipboard() = Unit
+                                override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
                             }
                     },
                 )
@@ -398,12 +414,9 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                                    ResourceState.Loading
+                                override val isLoading = true
 
-                                override fun onPasteClipboard() = Unit
-
-                                override fun onPinClipboard() = Unit
+                                override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
                             }
                     },
                 )
@@ -443,12 +456,9 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                                    ResourceState.Loading
+                                override val isLoading = true
 
-                                override fun onPasteClipboard() = Unit
-
-                                override fun onPinClipboard() = Unit
+                                override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
                             }
                     },
                 )
@@ -488,12 +498,9 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                                    ResourceState.Loading
+                                override val isLoading = true
 
-                                override fun onPasteClipboard() = Unit
-
-                                override fun onPinClipboard() = Unit
+                                override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
                             }
                     },
                 )
@@ -537,12 +544,9 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val clipboardCellStateResourceState: ResourceState<DeserializationResult> =
-                                    ResourceState.Loading
+                                override val isLoading = true
 
-                                override fun onPasteClipboard() = Unit
-
-                                override fun onPinClipboard() = Unit
+                                override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
                             }
                     },
                 )

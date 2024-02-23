@@ -17,6 +17,10 @@
 package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector2D
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -30,21 +34,32 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.intermediateLayout
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.app.resources.Allow
 import com.alexvanyo.composelife.ui.app.resources.ClipboardWatchingOnboarding
 import com.alexvanyo.composelife.ui.app.resources.Disallow
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.util.animatePlacement
+import kotlinx.coroutines.launch
 
 context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ClipboardWatchingSection(
     clipboardWatchingState: ClipboardWatchingState,
@@ -67,40 +82,97 @@ fun ClipboardWatchingSection(
     ) { targetState ->
         when (targetState) {
             ClipboardWatchingState.ClipboardWatchingDisabled -> Unit
-            is ClipboardWatchingState.ClipboardWatchingEnabled -> {
-                ClipboardCellStatePreview(
-                    clipboardCellStateResourceState = targetState.clipboardCellStateResourceState,
-                    onPaste = targetState::onPasteClipboard,
-                    onPin = targetState::onPinClipboard,
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                )
-            }
-            is ClipboardWatchingState.Onboarding -> {
-                Column {
-                    Text(
-                        text = parameterizedStringResource(Strings.ClipboardWatchingOnboarding),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                    )
+            is ClipboardWatchingState.ClipboardWatchingEnabled -> { ClipboardWatchingEnabled(targetState) }
+            is ClipboardWatchingState.Onboarding -> { ClipboardWatchingOnboarding(targetState) }
+        }
+    }
+}
 
-                    Spacer(modifier = Modifier.height(8.dp))
+context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
+@Composable
+fun ClipboardWatchingEnabled(
+    clipboardWatchingState: ClipboardWatchingState.ClipboardWatchingEnabled,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        AnimatedVisibility(clipboardWatchingState.isLoading) {
+            LinearProgressIndicator(Modifier.fillMaxWidth())
+        }
 
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
-                    ) {
-                        OutlinedButton(
-                            onClick = targetState::onDisallowClipboardWatching,
-                        ) {
-                            Text(parameterizedStringResource(Strings.Disallow))
-                        }
-                        Button(
-                            onClick = targetState::onAllowClipboardWatching,
-                        ) {
-                            Text(parameterizedStringResource(Strings.Allow))
-                        }
+        FlowRow(
+            modifier = Modifier.padding(horizontal = 16.dp),
+        ) {
+            clipboardWatchingState.clipboardPreviewStates.forEachIndexed { index, clipboardPreviewState ->
+                key(clipboardPreviewState.id) {
+                    var sizeAnimation: Animatable<IntSize, AnimationVector2D>? by remember {
+                        mutableStateOf(null)
                     }
+
+                    ClipboardCellStatePreview(
+                        deserializationResult = clipboardPreviewState.deserializationResult,
+                        onPaste = clipboardPreviewState::onPaste,
+                        onPin = clipboardPreviewState::onPin,
+                        modifier = Modifier
+                            .animatePlacement()
+                            .fillMaxWidth(if (index == 0) 1f else 0.5f)
+                            .intermediateLayout { measurable, _ ->
+                                // When layout changes, the lookahead pass will calculate a new final size for
+                                // the child layout. This lookahead size can be used to animate the size
+                                // change, such that the animation starts from the current size and gradually
+                                // change towards `lookaheadSize`.
+                                if (lookaheadSize != sizeAnimation?.targetValue) {
+                                    sizeAnimation?.run {
+                                        launch { animateTo(lookaheadSize) }
+                                    } ?: Animatable(lookaheadSize, IntSize.VectorConverter).let {
+                                        sizeAnimation = it
+                                    }
+                                }
+                                val (width, height) = sizeAnimation!!.value
+                                // Creates a fixed set of constraints using the animated size
+                                val animatedConstraints = Constraints.fixed(width, height)
+                                // Measure child with animated constraints.
+                                val placeable = measurable.measure(animatedConstraints)
+                                layout(lookaheadSize.width, lookaheadSize.height) {
+                                    placeable.placeRelative(0, 0)
+                                }
+                            }
+                            .padding(8.dp),
+                    )
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun ClipboardWatchingOnboarding(
+    clipboardWatchingState: ClipboardWatchingState.Onboarding,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = parameterizedStringResource(Strings.ClipboardWatchingOnboarding),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 16.dp),
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
+        ) {
+            OutlinedButton(
+                onClick = clipboardWatchingState::onDisallowClipboardWatching,
+            ) {
+                Text(parameterizedStringResource(Strings.Disallow))
+            }
+            Button(
+                onClick = clipboardWatchingState::onAllowClipboardWatching,
+            ) {
+                Text(parameterizedStringResource(Strings.Allow))
             }
         }
     }

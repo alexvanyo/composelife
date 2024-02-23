@@ -238,3 +238,9 @@ internal actual val Strings.Disallow: ParameterizedString get() =
 
 internal actual val Strings.EnableClipboardWatching: ParameterizedString get() =
     ParameterizedString(R.string.enable_clipboard_watching)
+
+internal actual val Strings.DeserializationFailed: ParameterizedString get() =
+    ParameterizedString(R.string.deserialization_failed)
+
+internal actual val Strings.Warnings: ParameterizedString get() =
+    ParameterizedString(R.string.warnings)

@@ -169,3 +169,7 @@ internal expect val Strings.Allow: ParameterizedString
 internal expect val Strings.Disallow: ParameterizedString
 
 internal expect val Strings.EnableClipboardWatching: ParameterizedString
+
+internal expect val Strings.DeserializationFailed: ParameterizedString
+
+internal expect val Strings.Warnings: ParameterizedString
