@@ -51,16 +51,16 @@ class ClipboardWatchingSectionSnapshotTests(
     }
 
     @Test
-    fun clipboard_watching_section_enabled_failure_preview() {
+    fun clipboard_watching_section_enabled_unsuccessful_preview() {
         snapshot {
-            ClipboardWatchingSectionEnabledFailurePreview()
+            ClipboardWatchingSectionEnabledUnsuccessfulPreview()
         }
     }
 
     @Test
-    fun clipboard_watching_section_enabled_success_successful_preview() {
+    fun clipboard_watching_section_enabled_successful_preview() {
         snapshot {
-            ClipboardWatchingSectionEnabledSuccessSuccessfulPreview()
+            ClipboardWatchingSectionEnabledSuccessfulPreview()
         }
     }
 }

@@ -22,10 +22,10 @@ import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.model.CellStateFormat
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.patterns.GliderPattern
-import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
+import java.util.UUID
 
 @ThemePreviews
 @Composable
@@ -66,11 +66,8 @@ fun ClipboardWatchingSectionEnabledLoadingPreview(modifier: Modifier = Modifier)
             Surface(modifier) {
                 ClipboardWatchingSection(
                     clipboardWatchingState = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                        override val clipboardCellStateResourceState get() = ResourceState.Loading
-
-                        override fun onPasteClipboard() = Unit
-
-                        override fun onPinClipboard() = Unit
+                        override val isLoading = true
+                        override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
                     },
                 )
             }
@@ -80,18 +77,26 @@ fun ClipboardWatchingSectionEnabledLoadingPreview(modifier: Modifier = Modifier)
 
 @ThemePreviews
 @Composable
-fun ClipboardWatchingSectionEnabledFailurePreview(modifier: Modifier = Modifier) {
+fun ClipboardWatchingSectionEnabledUnsuccessfulPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             Surface(modifier) {
                 ClipboardWatchingSection(
                     clipboardWatchingState = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                        override val clipboardCellStateResourceState: ResourceState<DeserializationResult>
-                            get() = ResourceState.Failure(Exception("Test exception"))
+                        override val isLoading: Boolean = true
+                        override val clipboardPreviewStates: List<ClipboardPreviewState> = listOf(
+                            object : ClipboardPreviewState {
+                                override val id = UUID.randomUUID()
+                                override val deserializationResult: DeserializationResult =
+                                    DeserializationResult.Unsuccessful(
+                                        warnings = emptyList(),
+                                        errors = emptyList(),
+                                    )
 
-                        override fun onPasteClipboard() = Unit
-
-                        override fun onPinClipboard() = Unit
+                                override fun onPaste() = Unit
+                                override fun onPin() = Unit
+                            },
+                        )
                     },
                 )
             }
@@ -101,24 +106,27 @@ fun ClipboardWatchingSectionEnabledFailurePreview(modifier: Modifier = Modifier)
 
 @ThemePreviews
 @Composable
-fun ClipboardWatchingSectionEnabledSuccessSuccessfulPreview(modifier: Modifier = Modifier) {
+fun ClipboardWatchingSectionEnabledSuccessfulPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             Surface(modifier) {
                 ClipboardWatchingSection(
                     clipboardWatchingState = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                        override val clipboardCellStateResourceState: ResourceState<DeserializationResult>
-                            get() = ResourceState.Success(
-                                DeserializationResult.Successful(
-                                    cellState = GliderPattern.seedCellState,
-                                    warnings = emptyList(),
-                                    format = CellStateFormat.FixedFormat.RunLengthEncoding,
-                                ),
-                            )
+                        override val isLoading: Boolean = true
+                        override val clipboardPreviewStates: List<ClipboardPreviewState> = listOf(
+                            object : ClipboardPreviewState {
+                                override val id = UUID.randomUUID()
+                                override val deserializationResult: DeserializationResult =
+                                    DeserializationResult.Successful(
+                                        cellState = GliderPattern.seedCellState,
+                                        warnings = emptyList(),
+                                        format = CellStateFormat.FixedFormat.RunLengthEncoding,
+                                    )
 
-                        override fun onPasteClipboard() = Unit
-
-                        override fun onPinClipboard() = Unit
+                                override fun onPaste() = Unit
+                                override fun onPin() = Unit
+                            },
+                        )
                     },
                 )
             }

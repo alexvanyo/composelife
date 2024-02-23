@@ -88,4 +88,6 @@
     <string name="allow">Allow</string>
     <string name="disallow">Don\'t allow</string>
     <string name="enable_clipboard_watching">Enable clipboard watching</string>
+    <string name="deserialization_failed">Deserialization failed</string>
+    <string name="warnings">Warnings</string>
 </resources>

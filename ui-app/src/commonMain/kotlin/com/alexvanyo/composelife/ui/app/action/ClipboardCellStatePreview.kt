@@ -21,15 +21,19 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentPaste
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -40,26 +44,27 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
-import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.app.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.ImmutableCellWindow
 import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.cells.ViewportInteractionConfig
 import com.alexvanyo.composelife.ui.app.cells.rememberTrackingCellWindowViewportState
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicator
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorLocalEntryPoint
+import com.alexvanyo.composelife.ui.app.resources.DeserializationFailed
 import com.alexvanyo.composelife.ui.app.resources.Paste
 import com.alexvanyo.composelife.ui.app.resources.Pin
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.app.resources.Warnings
 
 interface ClipboardCellStatePreviewInjectEntryPoint :
     GameOfLifeProgressIndicatorInjectEntryPoint
@@ -74,7 +79,7 @@ interface ClipboardCellStatePreviewLocalEntryPoint :
 context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
 @Composable
 fun ClipboardCellStatePreview(
-    clipboardCellStateResourceState: ResourceState<DeserializationResult>,
+    deserializationResult: DeserializationResult,
     onPaste: () -> Unit,
     onPin: () -> Unit,
     modifier: Modifier = Modifier,
@@ -85,7 +90,7 @@ fun ClipboardCellStatePreview(
             .height(160.dp),
     ) {
         AnimatedContent(
-            targetState = clipboardCellStateResourceState,
+            targetState = deserializationResult,
             modifier = Modifier.fillMaxWidth(),
             transitionSpec = {
                 fadeIn(animationSpec = tween(220, delayMillis = 90))
@@ -98,26 +103,23 @@ fun ClipboardCellStatePreview(
                 contentAlignment = Alignment.Center,
             ) {
                 when (targetState) {
-                    is ResourceState.Failure -> {
-                        // TODO
+                    is DeserializationResult.Successful -> {
+                        LoadedCellStatePreview(
+                            deserializationResult = targetState,
+                            onPaste = onPaste,
+                            onPin = onPin,
+                        )
                     }
-
-                    ResourceState.Loading -> {
-                        GameOfLifeProgressIndicator()
-                    }
-
-                    is ResourceState.Success -> {
-                        when (val deserializationResult = targetState.value) {
-                            is DeserializationResult.Successful -> {
-                                LoadedCellStatePreview(
-                                    cellState = deserializationResult.cellState,
-                                    onPaste = onPaste,
-                                    onPin = onPin,
-                                )
-                            }
-                            is DeserializationResult.Unsuccessful -> {
-                                // TODO
-                            }
+                    is DeserializationResult.Unsuccessful -> {
+                        Row(
+                            modifier = Modifier.padding(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        ) {
+                            Text(parameterizedStringResource(Strings.DeserializationFailed))
+                            Icon(
+                                imageVector = Icons.Default.Error,
+                                contentDescription = null,
+                            )
                         }
                     }
                 }
@@ -127,15 +129,16 @@ fun ClipboardCellStatePreview(
 }
 
 context(CellWindowLocalEntryPoint)
+@Suppress("LongMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoadedCellStatePreview(
-    cellState: CellState,
+    deserializationResult: DeserializationResult.Successful,
     onPaste: () -> Unit,
     onPin: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val gameOfLifeState = GameOfLifeState(cellState)
+    val gameOfLifeState = GameOfLifeState(deserializationResult.cellState)
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -166,7 +169,7 @@ fun LoadedCellStatePreview(
                     onClick = onPaste,
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.ContentPaste,
+                        imageVector = Icons.Default.ContentPaste,
                         contentDescription = parameterizedStringResource(Strings.Paste),
                     )
                 }
@@ -187,6 +190,26 @@ fun LoadedCellStatePreview(
                         imageVector = Icons.Default.PushPin,
                         contentDescription = parameterizedStringResource(Strings.Pin),
                     )
+                }
+            }
+            if (deserializationResult.warnings.isNotEmpty()) {
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    tooltip = {
+                        PlainTooltip {
+                            Text(parameterizedStringResource(Strings.Warnings))
+                        }
+                    },
+                    state = rememberTooltipState(),
+                ) {
+                    IconButton(
+                        onClick = { /* TODO: Show warnings */ },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = parameterizedStringResource(Strings.Warnings),
+                        )
+                    }
                 }
             }
         }
