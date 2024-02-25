@@ -38,4 +38,6 @@ message PreferencesProto {
   ToolConfigProto touch_tool_config = 9;
   ToolConfigProto stylus_tool_config = 10;
   ToolConfigProto mouse_tool_config = 11;
+  bool completed_clipboard_watching_onboarding = 12;
+  bool enable_clipboard_watching = 13;
 }

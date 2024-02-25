@@ -27,4 +27,5 @@ enum QuickAccessSettingProto {
   DISABLE_AGSL = 4;
   DISABLE_OPENGL = 5;
   DO_NOT_KEEP_PROCESS = 6;
+  ENABLE_CLIPBOARD_WATCHING = 7;
 }
