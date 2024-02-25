@@ -22,10 +22,11 @@ import android.graphics.Color
 import android.graphics.RuntimeShader
 import android.graphics.Shader
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.toArgb
@@ -130,31 +131,32 @@ fun AGSLNonInteractableCells(
     }
     val brush = remember(shader) { ShaderBrush(shader) }
 
-    Canvas(
-        modifier = modifier,
-    ) {
-        shader.setFloatUniform("size", size.width, size.height)
+    Spacer(
+        modifier = modifier
+            .drawWithCache {
+                shader.setFloatUniform("size", size.width, size.height)
 
-        when (shape) {
-            is CurrentShape.RoundRectangle -> {
-                shader.setIntUniform("shapeType", 0)
-                shader.setFloatUniform("sizeFraction", shape.sizeFraction)
-                shader.setFloatUniform("cornerFraction", shape.cornerFraction)
-            }
-        }
-        shader.setColorUniform("aliveColor", aliveColor.toArgb())
-        shader.setColorUniform("deadColor", deadColor.toArgb())
-        shader.setInputBuffer("cells", cellBitmapShader)
-        shader.setIntUniform("cellWindowSize", cellWindow.width, cellWindow.height)
-        shader.setFloatUniform("pixelOffsetFromCenter", pixelOffsetFromCenter.x, pixelOffsetFromCenter.y)
-        shader.setFloatUniform("scaledCellPixelSize", scaledCellPixelSize)
-        cellBitmap.eraseColor(Color.TRANSPARENT)
-        gameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).forEach { cell ->
-            cellBitmap[cell.x - cellWindow.left, cell.y - cellWindow.top] = Color.WHITE
-        }
+                when (shape) {
+                    is CurrentShape.RoundRectangle -> {
+                        shader.setIntUniform("shapeType", 0)
+                        shader.setFloatUniform("sizeFraction", shape.sizeFraction)
+                        shader.setFloatUniform("cornerFraction", shape.cornerFraction)
+                    }
+                }
+                shader.setColorUniform("aliveColor", aliveColor.toArgb())
+                shader.setColorUniform("deadColor", deadColor.toArgb())
+                shader.setInputBuffer("cells", cellBitmapShader)
+                shader.setIntUniform("cellWindowSize", cellWindow.width, cellWindow.height)
+                shader.setFloatUniform("pixelOffsetFromCenter", pixelOffsetFromCenter.x, pixelOffsetFromCenter.y)
+                shader.setFloatUniform("scaledCellPixelSize", scaledCellPixelSize)
+                cellBitmap.eraseColor(Color.TRANSPARENT)
+                gameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).forEach { cell ->
+                    cellBitmap[cell.x - cellWindow.left, cell.y - cellWindow.top] = Color.WHITE
+                }
 
-        drawRect(
-            brush = brush,
-        )
-    }
+                onDrawWithContent {
+                    drawRect(brush)
+                }
+            },
+    )
 }
