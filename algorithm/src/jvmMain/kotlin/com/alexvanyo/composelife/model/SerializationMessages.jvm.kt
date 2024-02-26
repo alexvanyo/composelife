@@ -24,29 +24,39 @@ actual fun UnexpectedInputMessage(
     lineIndex: Int,
     characterIndex: Int,
 ): ParameterizedString =
-    ParameterizedString("Unexpected input \"$input\" starting on line $lineIndex, character $characterIndex")
+    ParameterizedString(
+        "Unexpected input \"%s\" starting on line %d, character %d",
+        input,
+        lineIndex,
+        characterIndex,
+    )
 
 actual fun UnexpectedCharacterMessage(
     character: Char,
     lineIndex: Int,
     characterIndex: Int,
 ): ParameterizedString =
-    ParameterizedString("Unexpected character $character on line $lineIndex, offset $characterIndex interpreted as on")
+    ParameterizedString(
+        "Unexpected character %c on line %d, offset %d interpreted as on",
+        character,
+        lineIndex,
+        characterIndex,
+    )
 
 actual fun UnexpectedHeaderMessage(
     header: String,
 ): ParameterizedString =
-    ParameterizedString("Unexpected header, found $header")
+    ParameterizedString("Unexpected header, found %s", header)
 
 actual fun UnexpectedShortLineMessage(
     lineIndex: Int,
 ): ParameterizedString =
-    ParameterizedString("Line $lineIndex is unexpectedly short")
+    ParameterizedString("Line %dx is unexpectedly short", lineIndex)
 
 actual fun UnexpectedBlankLineMessage(
     lineIndex: Int,
 ): ParameterizedString =
-    ParameterizedString("Unexpected blank line at line $lineIndex")
+    ParameterizedString("Unexpected blank line at line %d", lineIndex)
 
 actual fun UnexpectedEmptyFileMessage(): ParameterizedString =
     ParameterizedString("Unexpected empty file, assuming blank pattern")
@@ -58,9 +68,7 @@ actual fun DuplicateTopLeftCoordinateMessage(
     overwritingOffset: IntOffset,
 ): ParameterizedString =
     ParameterizedString(
-        "Duplicate top-left coordinate instruction, overwriting with (${
-            overwritingOffset.x
-        }, ${
-            overwritingOffset.y
-        })",
+        "Duplicate top-left coordinate instruction, overwriting with (%d, %d)",
+        overwritingOffset.x,
+        overwritingOffset.y,
     )

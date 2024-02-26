@@ -44,6 +44,14 @@ class ParameterizedStringTests {
     }
 
     @Test
+    fun zero_arg_raw_string_is_correct() {
+        assertEquals(
+            "Zero",
+            context.getParameterizedString(ParameterizedString("Zero")),
+        )
+    }
+
+    @Test
     fun quantity_arg_string_with_number_is_correct_for_zero() {
         assertEquals(
             "0 things",
@@ -115,9 +123,38 @@ class ParameterizedStringTests {
         )
     }
 
+    @Test
+    fun one_arg_raw_string_is_correct() {
+        assertEquals(
+            "One: (a)",
+            context.getParameterizedString(ParameterizedString("One: (%s)", "a")),
+        )
+    }
+
+    @Test
+    fun two_arg_raw_string_is_correct() {
+        assertEquals(
+            "Two: (a) (b)",
+            context.getParameterizedString(ParameterizedString("Two: (%s) (%s)", "a", "b")),
+        )
+    }
+
+    @Test
+    fun three_arg_raw_string_is_correct() {
+        assertEquals(
+            "Three: (a) (b) (c)",
+            context.getParameterizedString(ParameterizedString("Three: (%s) (%s) (%s)", "a", "b", "c")),
+        )
+    }
+
     @Test(expected = MissingFormatArgumentException::class)
     fun three_arg_string_with_two_args_throws() {
         context.getParameterizedString(ParameterizedString(R.string.three_arg_string, "a", "b"))
+    }
+
+    @Test(expected = MissingFormatArgumentException::class)
+    fun three_arg_raw_string_with_two_args_throws() {
+        context.getParameterizedString(ParameterizedString("Three (%s) (%s) (%s)", "a", "b"))
     }
 
     @Test

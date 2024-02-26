@@ -20,10 +20,10 @@ package com.alexvanyo.composelife.ui.app.resources
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 
 internal actual fun Strings.TargetStepsPerSecondLabelAndValue(targetStepsPerSecond: Double): ParameterizedString =
-    ParameterizedString("Target steps per second: %.2f".format(targetStepsPerSecond))
+    ParameterizedString("Target steps per second: %.2f", targetStepsPerSecond)
 
 internal actual fun Strings.TargetStepsPerSecondValue(targetStepsPerSecond: Double): ParameterizedString =
-    ParameterizedString("%.2f".format(targetStepsPerSecond))
+    ParameterizedString("%.2f", targetStepsPerSecond)
 
 internal actual val Strings.TargetStepsPerSecondLabel: ParameterizedString get() =
     ParameterizedString("Target steps per second")
@@ -41,19 +41,19 @@ internal actual fun Strings.InteractableCellContentDescription(x: Int, y: Int): 
     ParameterizedString("$x, $y")
 
 internal actual fun Strings.OffsetInfoMessage(x: Float, y: Float): ParameterizedString =
-    ParameterizedString("Offset: x = %.1f, y = %.1f".format(x, y))
+    ParameterizedString("Offset: x = %.1f, y = %.1f", x, y)
 
 internal actual fun Strings.ScaleInfoMessage(scale: Float): ParameterizedString =
-    ParameterizedString("Scale: %.2f".format(scale))
+    ParameterizedString("Scale: %.2f", scale)
 
 internal actual val Strings.PausedMessage: ParameterizedString get() =
     ParameterizedString("Paused")
 
 internal actual fun Strings.GenerationsPerSecondShortMessage(generationsPerSecond: Double): ParameterizedString =
-    ParameterizedString("GPS: %.2f".format(generationsPerSecond))
+    ParameterizedString("GPS: %.2f", generationsPerSecond)
 
 internal actual fun Strings.GenerationsPerSecondLongMessage(generationsPerSecond: Double): ParameterizedString =
-    ParameterizedString("Generations per second: %.2f".format(generationsPerSecond))
+    ParameterizedString("Generations per second: %.2f", generationsPerSecond)
 
 internal actual val Strings.Collapse: ParameterizedString get() =
     ParameterizedString("Collapse")
@@ -167,19 +167,19 @@ internal actual val Strings.Shape: ParameterizedString get() =
     ParameterizedString("Shape")
 
 internal actual fun Strings.SizeFractionLabelAndValue(sizeFraction: Float): ParameterizedString =
-    ParameterizedString("Size fraction: %.2f".format(sizeFraction))
+    ParameterizedString("Size fraction: %.2f", sizeFraction)
 
 internal actual fun Strings.SizeFractionValue(sizeFraction: Float): ParameterizedString =
-    ParameterizedString("%.2f".format(sizeFraction))
+    ParameterizedString("%.2f", sizeFraction)
 
 internal actual val Strings.SizeFractionLabel: ParameterizedString get() =
     ParameterizedString("Size fraction")
 
 internal actual fun Strings.CornerFractionLabelAndValue(cornerFraction: Float): ParameterizedString =
-    ParameterizedString("Corner fraction: %.2f".format(cornerFraction))
+    ParameterizedString("Corner fraction: %.2f", cornerFraction)
 
 internal actual fun Strings.CornerFractionValue(cornerFraction: Float): ParameterizedString =
-    ParameterizedString("%.2f".format(cornerFraction))
+    ParameterizedString("%.2f", cornerFraction)
 
 internal actual val Strings.CornerFractionLabel: ParameterizedString get() =
     ParameterizedString("Corner fraction")
@@ -206,7 +206,7 @@ internal actual val Strings.SeeAll: ParameterizedString get() =
     ParameterizedString("See all…")
 
 internal actual fun Strings.SelectingBoxHandle(x: Int, y: Int) =
-    ParameterizedString("Selection handle: %d, %d".format(x, y))
+    ParameterizedString("Selection handle: %d, %d", x, y)
 
 internal actual val Strings.EmptyClipboard: ParameterizedString get() =
     ParameterizedString("Empty clipboard")

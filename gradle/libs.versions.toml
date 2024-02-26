@@ -122,6 +122,7 @@ jetbrains-compose-runtime = { group = "org.jetbrains.compose.runtime", name = "r
 jetbrains-compose-ui = { group = "org.jetbrains.compose.ui", name = "ui", version.ref = "jetbrainsCompose" }
 jetbrains-compose-uiGeometry = { group = "org.jetbrains.compose.ui", name = "ui-geometry", version.ref = "jetbrainsCompose" }
 jetbrains-compose-uiTestJunit4 = { group = "org.jetbrains.compose.ui", name = "ui-test-junit4", version.ref = "jetbrainsCompose" }
+jetbrains-compose-uiText = { group = "org.jetbrains.compose.ui", name = "ui-text", version.ref = "jetbrainsCompose" }
 jetbrains-compose-uiToolingPreview = { group = "org.jetbrains.compose.ui", name = "ui-tooling-preview", version.ref = "jetbrainsCompose" }
 jetbrains-compose-uiUnit = { group = "org.jetbrains.compose.ui", name = "ui-unit", version.ref = "jetbrainsCompose" }
 jetbrains-compose-uiUtil = { group = "org.jetbrains.compose.ui", name = "ui-util", version.ref = "jetbrainsCompose" }

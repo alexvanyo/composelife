@@ -17,18 +17,19 @@
 package com.alexvanyo.composelife.parameterizedstring
 
 import android.content.Context
-import android.content.res.Resources
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.os.ConfigurationCompat
 
 /**
  * A nestable representation of a string resource or a quantity string resource.
  */
 actual sealed class ParameterizedString {
+
     internal abstract val args: List<Any>
 
     internal data class NormalString(
@@ -41,7 +42,20 @@ actual sealed class ParameterizedString {
         val quantity: Int,
         override val args: List<Any>,
     ) : ParameterizedString()
+
+    internal data class BasicString(
+        val value: String,
+        override val args: List<Any>,
+    ) : ParameterizedString()
 }
+
+/**
+ * Creates a representation of a plain-text string.
+ */
+fun ParameterizedString(
+    value: String,
+    vararg args: Any,
+): ParameterizedString = ParameterizedString.BasicString(value, args.toList())
 
 /**
  * Creates a representation of a string resource [stringRes] with optional [args].
@@ -70,13 +84,7 @@ fun ParameterizedQuantityString(
 /**
  * Resolves the [ParameterizedString] to a [String] using the current [Context].
  */
-fun Context.getParameterizedString(parameterizedString: ParameterizedString): String =
-    resources.getParameterizedString(parameterizedString)
-
-/**
- * Resolves the [ParameterizedString] to a [String] using the current [Resources].
- */
-fun Resources.getParameterizedString(parameterizedString: ParameterizedString): String {
+fun Context.getParameterizedString(parameterizedString: ParameterizedString): String {
     val resolvedArgs = parameterizedString.args.map { arg ->
         when (arg) {
             is ParameterizedString -> getParameterizedString(arg)
@@ -94,9 +102,16 @@ fun Resources.getParameterizedString(parameterizedString: ParameterizedString): 
         }
         is ParameterizedString.QuantityString -> {
             @Suppress("SpreadOperator")
-            getQuantityString(
+            resources.getQuantityString(
                 parameterizedString.pluralsRes,
                 parameterizedString.quantity,
+                *resolvedArgs,
+            )
+        }
+        is ParameterizedString.BasicString -> {
+            @Suppress("SpreadOperator")
+            parameterizedString.value.format(
+                locale = ConfigurationCompat.getLocales(resources.configuration)[0],
                 *resolvedArgs,
             )
         }

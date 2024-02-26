@@ -18,13 +18,18 @@ package com.alexvanyo.composelife.parameterizedstring
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.text.intl.Locale
 
 /**
  * A nestable representation of a string resource or a quantity string resource.
  */
 actual sealed class ParameterizedString {
+
+    internal abstract val args: List<Any>
+
     internal data class BasicString(
         val value: String,
+        override val args: List<Any>,
     ) : ParameterizedString()
 }
 
@@ -33,19 +38,42 @@ actual sealed class ParameterizedString {
  */
 fun ParameterizedString(
     value: String,
+    vararg args: Any,
 ): ParameterizedString = ParameterizedString.BasicString(
     value = value,
+    args = args.toList(),
 )
+
+/**
+ * Resolves the [ParameterizedString] to a [String] using the current [Context].
+ */
+fun getParameterizedString(locale: Locale, parameterizedString: ParameterizedString): String {
+    val resolvedArgs = parameterizedString.args.map { arg ->
+        when (arg) {
+            is ParameterizedString -> getParameterizedString(locale, arg)
+            else -> arg
+        }
+    }.toTypedArray()
+
+    return when (parameterizedString) {
+        is ParameterizedString.BasicString -> {
+            @Suppress("SpreadOperator")
+            parameterizedString.value.format(
+                locale = java.util.Locale.forLanguageTag(locale.toLanguageTag()),
+                *resolvedArgs,
+            )
+        }
+    }
+}
 
 /**
  * Creates a lambda to resolve the [ParameterizedString] to a [String].
  */
 @Composable
 actual fun parameterizedStringResolver(): (ParameterizedString) -> String {
+    val locale = Locale.current
     return {
-        when (it) {
-            is ParameterizedString.BasicString -> it.value
-        }
+        getParameterizedString(locale, it)
     }
 }
 
@@ -55,6 +83,4 @@ actual fun parameterizedStringResolver(): (ParameterizedString) -> String {
 @Composable
 @ReadOnlyComposable
 actual fun parameterizedStringResource(parameterizedString: ParameterizedString): String =
-    when (parameterizedString) {
-        is ParameterizedString.BasicString -> parameterizedString.value
-    }
+    getParameterizedString(Locale.current, parameterizedString)
