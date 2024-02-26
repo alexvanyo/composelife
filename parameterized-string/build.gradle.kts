@@ -44,6 +44,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(libs.jetbrains.compose.runtime)
+                api(libs.jetbrains.compose.uiText)
 
                 implementation(libs.kotlinx.coroutines.core)
             }
