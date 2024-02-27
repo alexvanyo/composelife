@@ -47,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.intermediateLayout
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
@@ -58,6 +59,7 @@ import com.alexvanyo.composelife.ui.app.resources.Disallow
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.util.animatePlacement
 import kotlinx.coroutines.launch
+import kotlin.math.floor
 
 context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
 @Composable
@@ -115,7 +117,19 @@ fun ClipboardWatchingEnabled(
                         onPin = clipboardPreviewState::onPin,
                         modifier = Modifier
                             .animatePlacement()
-                            .fillMaxWidth(if (index == 0) 1f else 0.5f)
+                            .layout { measurable, constraints ->
+                                val maxWidth = floor(constraints.maxWidth * if (index == 0) 1f else 0.5f).toInt()
+
+                                val placeable = measurable.measure(
+                                    constraints.copy(
+                                        maxWidth = maxWidth,
+                                    ),
+                                )
+
+                                layout(placeable.width, placeable.height) {
+                                    placeable.placeRelative(0, 0)
+                                }
+                            }
                             .intermediateLayout { measurable, _ ->
                                 // When layout changes, the lookahead pass will calculate a new final size for
                                 // the child layout. This lookahead size can be used to animate the size
