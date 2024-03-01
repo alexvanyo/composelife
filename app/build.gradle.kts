@@ -46,6 +46,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(libs.circuit.retained)
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.serialization.core)
                 implementation(projects.appCompatSync)
