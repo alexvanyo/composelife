@@ -14,65 +14,99 @@
  * limitations under the License.
  */
 
+@file:Suppress("TooManyFunctions")
+
 package com.alexvanyo.composelife.preferences
 
-import com.alexvanyo.composelife.preferences.CurrentShape.RoundRectangle
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.updatable.Updatable
+import com.alexvanyo.composelife.resourcestate.map
 
-@Suppress("TooManyFunctions")
-interface ComposeLifePreferences : Updatable {
-    val quickAccessSettingsState: ResourceState<Set<QuickAccessSetting>>
-
-    val algorithmChoiceState: ResourceState<AlgorithmType>
-
-    val currentShapeState: ResourceState<CurrentShape>
-
-    val darkThemeConfigState: ResourceState<DarkThemeConfig>
-
-    val disableAGSLState: ResourceState<Boolean>
-
-    val disableOpenGLState: ResourceState<Boolean>
-
-    val doNotKeepProcessState: ResourceState<Boolean>
-
+interface ComposeLifePreferences {
     val loadedPreferencesState: ResourceState<LoadedComposeLifePreferences>
 
-    val touchToolConfigState: ResourceState<ToolConfig>
-
-    val stylusToolConfigState: ResourceState<ToolConfig>
-
-    val mouseToolConfigState: ResourceState<ToolConfig>
-
-    val completedClipboardWatchingOnboardingState: ResourceState<Boolean>
-
-    val enableClipboardWatchingState: ResourceState<Boolean>
-
-    suspend fun setAlgorithmChoice(algorithm: AlgorithmType)
-
-    suspend fun setCurrentShapeType(currentShapeType: CurrentShapeType)
-
-    suspend fun setDarkThemeConfig(darkThemeConfig: DarkThemeConfig)
-
-    suspend fun setRoundRectangleConfig(update: (RoundRectangle) -> RoundRectangle)
-
-    suspend fun addQuickAccessSetting(quickAccessSetting: QuickAccessSetting)
-
-    suspend fun removeQuickAccessSetting(quickAccessSetting: QuickAccessSetting)
-
-    suspend fun setDisabledAGSL(disabled: Boolean)
-
-    suspend fun setDisableOpenGL(disabled: Boolean)
-
-    suspend fun setDoNotKeepProcess(doNotKeepProcess: Boolean)
-
-    suspend fun setTouchToolConfig(toolConfig: ToolConfig)
-
-    suspend fun setStylusToolConfig(toolConfig: ToolConfig)
-
-    suspend fun setMouseToolConfig(toolConfig: ToolConfig)
-
-    suspend fun setCompletedClipboardWatchingOnboarding(completed: Boolean)
-
-    suspend fun setEnableClipboardWatching(enabled: Boolean)
+    /**
+     * Runs the given block to update the preferences.
+     *
+     * All updates on [ComposeLifePreferencesTransform] in the [block] are run together as a single transaction.
+     */
+    suspend fun update(block: ComposeLifePreferencesTransform.() -> Unit)
 }
+
+val ComposeLifePreferences.quickAccessSettingsState: ResourceState<Set<QuickAccessSetting>>
+    get() = loadedPreferencesState.map(LoadedComposeLifePreferences::quickAccessSettings)
+
+val ComposeLifePreferences.algorithmChoiceState: ResourceState<AlgorithmType>
+    get() = loadedPreferencesState.map(LoadedComposeLifePreferences::algorithmChoice)
+
+val ComposeLifePreferences.currentShapeState: ResourceState<CurrentShape>
+    get() = loadedPreferencesState.map(LoadedComposeLifePreferences::currentShape)
+
+val ComposeLifePreferences.darkThemeConfigState: ResourceState<DarkThemeConfig>
+    get() = loadedPreferencesState.map(LoadedComposeLifePreferences::darkThemeConfig)
+
+val ComposeLifePreferences.disableAGSLState: ResourceState<Boolean>
+    get() = loadedPreferencesState.map(LoadedComposeLifePreferences::disableAGSL)
+
+val ComposeLifePreferences.disableOpenGLState: ResourceState<Boolean>
+    get() = loadedPreferencesState.map(LoadedComposeLifePreferences::disableOpenGL)
+
+val ComposeLifePreferences.doNotKeepProcessState: ResourceState<Boolean>
+    get() = loadedPreferencesState.map(LoadedComposeLifePreferences::doNotKeepProcess)
+
+val ComposeLifePreferences.touchToolConfigState: ResourceState<ToolConfig>
+    get() = loadedPreferencesState.map(LoadedComposeLifePreferences::touchToolConfig)
+
+val ComposeLifePreferences.stylusToolConfigState: ResourceState<ToolConfig>
+    get() = loadedPreferencesState.map(LoadedComposeLifePreferences::stylusToolConfig)
+
+val ComposeLifePreferences.mouseToolConfigState: ResourceState<ToolConfig>
+    get() = loadedPreferencesState.map(LoadedComposeLifePreferences::mouseToolConfig)
+
+val ComposeLifePreferences.completedClipboardWatchingOnboardingState: ResourceState<Boolean>
+    get() = loadedPreferencesState.map(LoadedComposeLifePreferences::completedClipboardWatchingOnboarding)
+
+val ComposeLifePreferences.enableClipboardWatchingState: ResourceState<Boolean>
+    get() = loadedPreferencesState.map(LoadedComposeLifePreferences::enableClipboardWatching)
+
+suspend fun ComposeLifePreferences.setAlgorithmChoice(algorithm: AlgorithmType) =
+    update { setAlgorithmChoice(algorithm) }
+
+suspend fun ComposeLifePreferences.setCurrentShapeType(currentShapeType: CurrentShapeType) =
+    update { setCurrentShapeType(currentShapeType) }
+
+suspend fun ComposeLifePreferences.setDarkThemeConfig(darkThemeConfig: DarkThemeConfig) =
+    update { setDarkThemeConfig(darkThemeConfig) }
+
+suspend fun ComposeLifePreferences.setRoundRectangleConfig(
+    update: (CurrentShape.RoundRectangle) -> CurrentShape.RoundRectangle,
+) = update { setRoundRectangleConfig(update) }
+
+suspend fun ComposeLifePreferences.addQuickAccessSetting(quickAccessSetting: QuickAccessSetting) =
+    update { addQuickAccessSetting(quickAccessSetting) }
+
+suspend fun ComposeLifePreferences.removeQuickAccessSetting(quickAccessSetting: QuickAccessSetting) =
+    update { removeQuickAccessSetting(quickAccessSetting) }
+
+suspend fun ComposeLifePreferences.setDisabledAGSL(disabled: Boolean) =
+    update { setDisabledAGSL(disabled) }
+
+suspend fun ComposeLifePreferences.setDisableOpenGL(disabled: Boolean) =
+    update { setDisableOpenGL(disabled) }
+
+suspend fun ComposeLifePreferences.setDoNotKeepProcess(doNotKeepProcess: Boolean) =
+    update { setDoNotKeepProcess(doNotKeepProcess) }
+
+suspend fun ComposeLifePreferences.setTouchToolConfig(toolConfig: ToolConfig) =
+    update { setTouchToolConfig(toolConfig) }
+
+suspend fun ComposeLifePreferences.setStylusToolConfig(toolConfig: ToolConfig) =
+    update { setStylusToolConfig(toolConfig) }
+
+suspend fun ComposeLifePreferences.setMouseToolConfig(toolConfig: ToolConfig) =
+    update { setMouseToolConfig(toolConfig) }
+
+suspend fun ComposeLifePreferences.setCompletedClipboardWatchingOnboarding(completed: Boolean) =
+    update { setCompletedClipboardWatchingOnboarding(completed) }
+
+suspend fun ComposeLifePreferences.setEnableClipboardWatching(enabled: Boolean) =
+    update { setEnableClipboardWatching(enabled) }

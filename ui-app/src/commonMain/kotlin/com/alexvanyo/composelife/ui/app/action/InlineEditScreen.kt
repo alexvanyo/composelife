@@ -51,6 +51,9 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
+import com.alexvanyo.composelife.preferences.setMouseToolConfig
+import com.alexvanyo.composelife.preferences.setStylusToolConfig
+import com.alexvanyo.composelife.preferences.setTouchToolConfig
 import com.alexvanyo.composelife.ui.app.ClipboardCellStateParser
 import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
 import com.alexvanyo.composelife.ui.app.component.DropdownOption
@@ -357,15 +360,19 @@ fun rememberClipboardWatchingOnboardingState(
         object : ClipboardWatchingState.Onboarding {
             override fun onAllowClipboardWatching() {
                 coroutineScope.launch {
-                    composeLifePreferences.setEnableClipboardWatching(true)
-                    composeLifePreferences.setCompletedClipboardWatchingOnboarding(true)
+                    composeLifePreferences.update {
+                        setEnableClipboardWatching(true)
+                        setCompletedClipboardWatchingOnboarding(true)
+                    }
                 }
             }
 
             override fun onDisallowClipboardWatching() {
                 coroutineScope.launch {
-                    composeLifePreferences.setEnableClipboardWatching(false)
-                    composeLifePreferences.setCompletedClipboardWatchingOnboarding(true)
+                    composeLifePreferences.update {
+                        setEnableClipboardWatching(false)
+                        setCompletedClipboardWatchingOnboarding(true)
+                    }
                 }
             }
         }

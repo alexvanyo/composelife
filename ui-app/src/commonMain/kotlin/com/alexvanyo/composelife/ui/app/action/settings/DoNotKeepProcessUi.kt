@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
+import com.alexvanyo.composelife.preferences.setDoNotKeepProcess
 import com.alexvanyo.composelife.ui.app.component.LabeledSwitch
 import com.alexvanyo.composelife.ui.app.resources.DoNotKeepProcess
 import com.alexvanyo.composelife.ui.app.resources.Strings
