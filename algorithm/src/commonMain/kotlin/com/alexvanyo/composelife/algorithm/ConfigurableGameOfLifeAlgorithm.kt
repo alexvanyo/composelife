@@ -20,6 +20,7 @@ import androidx.compose.runtime.snapshotFlow
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.preferences.algorithmChoiceState
 import com.alexvanyo.composelife.resourcestate.firstSuccess
 import com.alexvanyo.composelife.resourcestate.map
 import com.alexvanyo.composelife.resourcestate.successes

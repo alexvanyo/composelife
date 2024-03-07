@@ -24,169 +24,34 @@ import com.alexvanyo.composelife.preferences.CurrentShape.RoundRectangle
 import com.alexvanyo.composelife.preferences.proto.AlgorithmProto
 import com.alexvanyo.composelife.preferences.proto.CurrentShapeTypeProto
 import com.alexvanyo.composelife.preferences.proto.DarkThemeConfigProto
+import com.alexvanyo.composelife.preferences.proto.PreferencesProto
 import com.alexvanyo.composelife.preferences.proto.QuickAccessSettingProto
 import com.alexvanyo.composelife.preferences.proto.RoundRectangleProto
 import com.alexvanyo.composelife.preferences.proto.ToolConfigProto
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.asResourceState
-import com.alexvanyo.composelife.resourcestate.map
 import com.alexvanyo.composelife.scopes.Singleton
+import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retry
 import me.tatarka.inject.annotations.Inject
 
-@Suppress("TooManyFunctions")
 @Singleton
 @Inject
 class DefaultComposeLifePreferences(
     private val dataStore: PreferencesDataStore,
-) : ComposeLifePreferences {
-
-    override val quickAccessSettingsState: ResourceState<Set<QuickAccessSetting>>
-        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::quickAccessSettings)
-
-    override val algorithmChoiceState: ResourceState<AlgorithmType>
-        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::algorithmChoice)
-
-    override val currentShapeState: ResourceState<CurrentShape>
-        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::currentShape)
-
-    override val darkThemeConfigState: ResourceState<DarkThemeConfig>
-        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::darkThemeConfig)
-
-    override val disableAGSLState: ResourceState<Boolean>
-        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::disableAGSL)
-
-    override val disableOpenGLState: ResourceState<Boolean>
-        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::disableOpenGL)
-
-    override val doNotKeepProcessState: ResourceState<Boolean>
-        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::doNotKeepProcess)
-
-    override val touchToolConfigState: ResourceState<ToolConfig>
-        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::touchToolConfig)
-
-    override val stylusToolConfigState: ResourceState<ToolConfig>
-        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::stylusToolConfig)
-
-    override val mouseToolConfigState: ResourceState<ToolConfig>
-        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::mouseToolConfig)
-
-    override val completedClipboardWatchingOnboardingState: ResourceState<Boolean>
-        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::completedClipboardWatchingOnboarding)
-
-    override val enableClipboardWatchingState: ResourceState<Boolean>
-        get() = loadedPreferencesState.map(LoadedComposeLifePreferences::enableClipboardWatching)
+) : ComposeLifePreferences, Updatable {
 
     override var loadedPreferencesState:
         ResourceState<LoadedComposeLifePreferences> by mutableStateOf(ResourceState.Loading)
         private set
 
-    @Suppress("LongMethod", "ComplexMethod")
     override suspend fun update(): Nothing {
         dataStore.data
             .retry()
-            .map { preferencesProto ->
-                val quickAccessSettings =
-                    preferencesProto.quick_access_settings.mapNotNull { quickAccessSettingProto ->
-                        when (quickAccessSettingProto) {
-                            QuickAccessSettingProto.ALGORITHM_IMPLEMENTATION ->
-                                QuickAccessSetting.AlgorithmImplementation
-                            QuickAccessSettingProto.DARK_THEME_CONFIG ->
-                                QuickAccessSetting.DarkThemeConfig
-                            QuickAccessSettingProto.CELL_SHAPE_CONFIG ->
-                                QuickAccessSetting.CellShapeConfig
-                            QuickAccessSettingProto.DISABLE_AGSL ->
-                                QuickAccessSetting.DisableAGSL
-                            QuickAccessSettingProto.DISABLE_OPENGL ->
-                                QuickAccessSetting.DisableOpenGL
-                            QuickAccessSettingProto.DO_NOT_KEEP_PROCESS ->
-                                QuickAccessSetting.DoNotKeepProcess
-                            QuickAccessSettingProto.ENABLE_CLIPBOARD_WATCHING ->
-                                QuickAccessSetting.EnableClipboardWatching
-                            QuickAccessSettingProto.SETTINGS_UNKNOWN,
-                            -> null
-                        }
-                    }.toSet()
-
-                val algorithmChoice =
-                    when (preferencesProto.algorithm) {
-                        AlgorithmProto.ALGORITHM_UNKNOWN,
-                        AlgorithmProto.DEFAULT,
-                        AlgorithmProto.HASHLIFE,
-                        -> AlgorithmType.HashLifeAlgorithm
-                        AlgorithmProto.NAIVE -> AlgorithmType.NaiveAlgorithm
-                    }
-
-                val currentShape =
-                    when (preferencesProto.current_shape_type) {
-                        CurrentShapeTypeProto.CURRENT_SHAPE_TYPE_UNKNOWN,
-                        CurrentShapeTypeProto.ROUND_RECTANGLE,
-                        -> preferencesProto.round_rectangle.toResolved()
-                    }
-
-                val darkThemeConfig =
-                    when (preferencesProto.dark_theme_config) {
-                        DarkThemeConfigProto.DARK_THEME_UNKNOWN,
-                        DarkThemeConfigProto.SYSTEM,
-                        -> DarkThemeConfig.FollowSystem
-                        DarkThemeConfigProto.DARK -> DarkThemeConfig.Dark
-                        DarkThemeConfigProto.LIGHT -> DarkThemeConfig.Light
-                    }
-                val disableAGSL = preferencesProto.disable_agsl
-                val disableOpenGL = preferencesProto.disable_opengl
-                val doNotKeepProcess = preferencesProto.do_not_keep_process
-                val touchToolConfig =
-                    when (preferencesProto.touch_tool_config) {
-                        ToolConfigProto.TOOL_CONFIG_UNKNOWN,
-                        ToolConfigProto.PAN,
-                        -> ToolConfig.Pan
-                        ToolConfigProto.DRAW -> ToolConfig.Draw
-                        ToolConfigProto.ERASE -> ToolConfig.Erase
-                        ToolConfigProto.SELECT -> ToolConfig.Select
-                        ToolConfigProto.NONE -> ToolConfig.None
-                    }
-                val stylusToolConfig =
-                    when (preferencesProto.stylus_tool_config) {
-                        ToolConfigProto.PAN -> ToolConfig.Pan
-                        ToolConfigProto.TOOL_CONFIG_UNKNOWN,
-                        ToolConfigProto.DRAW,
-                        -> ToolConfig.Draw
-                        ToolConfigProto.ERASE -> ToolConfig.Erase
-                        ToolConfigProto.SELECT -> ToolConfig.Select
-                        ToolConfigProto.NONE -> ToolConfig.None
-                    }
-                val mouseToolConfig =
-                    when (preferencesProto.mouse_tool_config) {
-                        ToolConfigProto.PAN -> ToolConfig.Pan
-                        ToolConfigProto.TOOL_CONFIG_UNKNOWN,
-                        ToolConfigProto.DRAW,
-                        -> ToolConfig.Draw
-                        ToolConfigProto.ERASE -> ToolConfig.Erase
-                        ToolConfigProto.SELECT -> ToolConfig.Select
-                        ToolConfigProto.NONE -> ToolConfig.None
-                    }
-                val completedClipboardWatchingOnboarding =
-                    preferencesProto.completed_clipboard_watching_onboarding
-                val enableClipboardWatching = preferencesProto.enable_clipboard_watching
-
-                LoadedComposeLifePreferences(
-                    quickAccessSettings = quickAccessSettings,
-                    algorithmChoice = algorithmChoice,
-                    currentShape = currentShape,
-                    darkThemeConfig = darkThemeConfig,
-                    disableAGSL = disableAGSL,
-                    disableOpenGL = disableOpenGL,
-                    doNotKeepProcess = doNotKeepProcess,
-                    touchToolConfig = touchToolConfig,
-                    stylusToolConfig = stylusToolConfig,
-                    mouseToolConfig = mouseToolConfig,
-                    completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
-                    enableClipboardWatching = enableClipboardWatching,
-                )
-            }
+            .map(PreferencesProto::toLoadedComposeLifePreferences)
             .asResourceState()
             .onEach {
                 Snapshot.withMutableSnapshot {
@@ -198,141 +63,233 @@ class DefaultComposeLifePreferences(
         error("data can not complete normally")
     }
 
-    override suspend fun setAlgorithmChoice(algorithm: AlgorithmType) {
+    override suspend fun update(
+        block: ComposeLifePreferencesTransform.() -> Unit,
+    ) {
         dataStore.updateData { preferencesProto ->
-            preferencesProto.copy(
-                algorithm = when (algorithm) {
-                    AlgorithmType.HashLifeAlgorithm -> AlgorithmProto.HASHLIFE
-                    AlgorithmType.NaiveAlgorithm -> AlgorithmProto.NAIVE
-                },
-            )
+            PreferencesProtoTransform(preferencesProto).apply(block).newPreferencesProto
         }
     }
+}
 
-    override suspend fun setCurrentShapeType(currentShapeType: CurrentShapeType) {
-        dataStore.updateData { preferencesProto ->
-            preferencesProto.copy(
-                current_shape_type = when (currentShapeType) {
-                    CurrentShapeType.RoundRectangle -> CurrentShapeTypeProto.ROUND_RECTANGLE
-                },
-            )
-        }
+@Suppress("TooManyFunctions")
+private class PreferencesProtoTransform(
+    previousPreferencesProto: PreferencesProto,
+) : ComposeLifePreferencesTransform {
+    var newPreferencesProto: PreferencesProto = previousPreferencesProto
+
+    override val previousLoadedComposeLifePreferences: LoadedComposeLifePreferences =
+        previousPreferencesProto.toLoadedComposeLifePreferences()
+
+    override fun setAlgorithmChoice(algorithm: AlgorithmType) {
+        newPreferencesProto = newPreferencesProto.copy(
+            algorithm = when (algorithm) {
+                AlgorithmType.HashLifeAlgorithm -> AlgorithmProto.HASHLIFE
+                AlgorithmType.NaiveAlgorithm -> AlgorithmProto.NAIVE
+            },
+        )
     }
 
-    override suspend fun setDarkThemeConfig(darkThemeConfig: DarkThemeConfig) {
-        dataStore.updateData { preferencesProto ->
-            preferencesProto.copy(
-                dark_theme_config = when (darkThemeConfig) {
-                    DarkThemeConfig.FollowSystem -> DarkThemeConfigProto.SYSTEM
-                    DarkThemeConfig.Dark -> DarkThemeConfigProto.DARK
-                    DarkThemeConfig.Light -> DarkThemeConfigProto.LIGHT
-                },
-            )
-        }
+    override fun setCurrentShapeType(currentShapeType: CurrentShapeType) {
+        newPreferencesProto = newPreferencesProto.copy(
+            current_shape_type = when (currentShapeType) {
+                CurrentShapeType.RoundRectangle -> CurrentShapeTypeProto.ROUND_RECTANGLE
+            },
+        )
     }
 
-    override suspend fun setRoundRectangleConfig(update: (RoundRectangle) -> RoundRectangle) {
-        dataStore.updateData { preferencesProto ->
-            preferencesProto.copy(
-                round_rectangle = update(preferencesProto.round_rectangle.toResolved()).toProto(),
-            )
-        }
+    override fun setDarkThemeConfig(darkThemeConfig: DarkThemeConfig) {
+        newPreferencesProto = newPreferencesProto.copy(
+            dark_theme_config = when (darkThemeConfig) {
+                DarkThemeConfig.FollowSystem -> DarkThemeConfigProto.SYSTEM
+                DarkThemeConfig.Dark -> DarkThemeConfigProto.DARK
+                DarkThemeConfig.Light -> DarkThemeConfigProto.LIGHT
+            },
+        )
     }
 
-    override suspend fun addQuickAccessSetting(quickAccessSetting: QuickAccessSetting) =
+    override fun setRoundRectangleConfig(update: (RoundRectangle) -> RoundRectangle) {
+        newPreferencesProto = newPreferencesProto.copy(
+            round_rectangle = update(newPreferencesProto.round_rectangle.toResolved()).toProto(),
+        )
+    }
+
+    override fun addQuickAccessSetting(quickAccessSetting: QuickAccessSetting) =
         updateQuickAccessSetting(true, quickAccessSetting)
 
-    override suspend fun removeQuickAccessSetting(quickAccessSetting: QuickAccessSetting) =
+    override fun removeQuickAccessSetting(quickAccessSetting: QuickAccessSetting) =
         updateQuickAccessSetting(false, quickAccessSetting)
 
-    private suspend fun updateQuickAccessSetting(include: Boolean, quickAccessSetting: QuickAccessSetting) {
-        dataStore.updateData { preferencesProto ->
-            val quickAccessSettingProto = when (quickAccessSetting) {
-                QuickAccessSetting.AlgorithmImplementation -> QuickAccessSettingProto.ALGORITHM_IMPLEMENTATION
-                QuickAccessSetting.CellShapeConfig -> QuickAccessSettingProto.CELL_SHAPE_CONFIG
-                QuickAccessSetting.DarkThemeConfig -> QuickAccessSettingProto.DARK_THEME_CONFIG
-                QuickAccessSetting.DisableAGSL -> QuickAccessSettingProto.DISABLE_AGSL
-                QuickAccessSetting.DisableOpenGL -> QuickAccessSettingProto.DISABLE_OPENGL
-                QuickAccessSetting.DoNotKeepProcess -> QuickAccessSettingProto.DO_NOT_KEEP_PROCESS
-                QuickAccessSetting.EnableClipboardWatching -> QuickAccessSettingProto.ENABLE_CLIPBOARD_WATCHING
+    private fun updateQuickAccessSetting(include: Boolean, quickAccessSetting: QuickAccessSetting) {
+        val quickAccessSettingProto = when (quickAccessSetting) {
+            QuickAccessSetting.AlgorithmImplementation -> QuickAccessSettingProto.ALGORITHM_IMPLEMENTATION
+            QuickAccessSetting.CellShapeConfig -> QuickAccessSettingProto.CELL_SHAPE_CONFIG
+            QuickAccessSetting.DarkThemeConfig -> QuickAccessSettingProto.DARK_THEME_CONFIG
+            QuickAccessSetting.DisableAGSL -> QuickAccessSettingProto.DISABLE_AGSL
+            QuickAccessSetting.DisableOpenGL -> QuickAccessSettingProto.DISABLE_OPENGL
+            QuickAccessSetting.DoNotKeepProcess -> QuickAccessSettingProto.DO_NOT_KEEP_PROCESS
+            QuickAccessSetting.EnableClipboardWatching -> QuickAccessSettingProto.ENABLE_CLIPBOARD_WATCHING
+        }
+
+        val oldQuickAccessSettings = newPreferencesProto.quick_access_settings.toSet()
+        val newQuickAccessSetting = if (include) {
+            oldQuickAccessSettings + quickAccessSettingProto
+        } else {
+            oldQuickAccessSettings - quickAccessSettingProto
+        }
+
+        newPreferencesProto = newPreferencesProto.copy(
+            quick_access_settings = newQuickAccessSetting.toList(),
+        )
+    }
+
+    override fun setDisabledAGSL(disabled: Boolean) {
+        newPreferencesProto = newPreferencesProto.copy(
+            disable_agsl = disabled,
+        )
+    }
+
+    override fun setDisableOpenGL(disabled: Boolean) {
+        newPreferencesProto = newPreferencesProto.copy(
+            disable_opengl = disabled,
+        )
+    }
+
+    override fun setDoNotKeepProcess(doNotKeepProcess: Boolean) {
+        newPreferencesProto = newPreferencesProto.copy(
+            do_not_keep_process = doNotKeepProcess,
+        )
+    }
+
+    override fun setTouchToolConfig(toolConfig: ToolConfig) {
+        newPreferencesProto = newPreferencesProto.copy(
+            touch_tool_config = toolConfig.toProto(),
+        )
+    }
+
+    override fun setStylusToolConfig(toolConfig: ToolConfig) {
+        newPreferencesProto = newPreferencesProto.copy(
+            stylus_tool_config = toolConfig.toProto(),
+        )
+    }
+
+    override fun setMouseToolConfig(toolConfig: ToolConfig) {
+        newPreferencesProto = newPreferencesProto.copy(
+            mouse_tool_config = toolConfig.toProto(),
+        )
+    }
+
+    override fun setCompletedClipboardWatchingOnboarding(completed: Boolean) {
+        newPreferencesProto = newPreferencesProto.copy(
+            completed_clipboard_watching_onboarding = completed,
+        )
+    }
+
+    override fun setEnableClipboardWatching(enabled: Boolean) {
+        newPreferencesProto = newPreferencesProto.copy(
+            enable_clipboard_watching = enabled,
+        )
+    }
+}
+
+@Suppress("LongMethod", "ComplexMethod")
+private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLifePreferences {
+    val quickAccessSettings =
+        quick_access_settings.mapNotNull { quickAccessSettingProto ->
+            when (quickAccessSettingProto) {
+                QuickAccessSettingProto.ALGORITHM_IMPLEMENTATION ->
+                    QuickAccessSetting.AlgorithmImplementation
+                QuickAccessSettingProto.DARK_THEME_CONFIG ->
+                    QuickAccessSetting.DarkThemeConfig
+                QuickAccessSettingProto.CELL_SHAPE_CONFIG ->
+                    QuickAccessSetting.CellShapeConfig
+                QuickAccessSettingProto.DISABLE_AGSL ->
+                    QuickAccessSetting.DisableAGSL
+                QuickAccessSettingProto.DISABLE_OPENGL ->
+                    QuickAccessSetting.DisableOpenGL
+                QuickAccessSettingProto.DO_NOT_KEEP_PROCESS ->
+                    QuickAccessSetting.DoNotKeepProcess
+                QuickAccessSettingProto.ENABLE_CLIPBOARD_WATCHING ->
+                    QuickAccessSetting.EnableClipboardWatching
+                QuickAccessSettingProto.SETTINGS_UNKNOWN,
+                -> null
             }
+        }.toSet()
 
-            val oldQuickAccessSettings = preferencesProto.quick_access_settings.toSet()
-            val newQuickAccessSetting = if (include) {
-                oldQuickAccessSettings + quickAccessSettingProto
-            } else {
-                oldQuickAccessSettings - quickAccessSettingProto
-            }
-
-            preferencesProto.copy(
-                quick_access_settings = newQuickAccessSetting.toList(),
-            )
+    val algorithmChoice =
+        when (algorithm) {
+            AlgorithmProto.ALGORITHM_UNKNOWN,
+            AlgorithmProto.DEFAULT,
+            AlgorithmProto.HASHLIFE,
+            -> AlgorithmType.HashLifeAlgorithm
+            AlgorithmProto.NAIVE -> AlgorithmType.NaiveAlgorithm
         }
-    }
 
-    override suspend fun setDisabledAGSL(disabled: Boolean) {
-        dataStore.updateData { preferencesProto ->
-            preferencesProto.copy(
-                disable_agsl = disabled,
-            )
+    val currentShape =
+        when (current_shape_type) {
+            CurrentShapeTypeProto.CURRENT_SHAPE_TYPE_UNKNOWN,
+            CurrentShapeTypeProto.ROUND_RECTANGLE,
+            -> round_rectangle.toResolved()
         }
-    }
 
-    override suspend fun setDisableOpenGL(disabled: Boolean) {
-        dataStore.updateData { preferencesProto ->
-            preferencesProto.copy(
-                disable_opengl = disabled,
-            )
+    val darkThemeConfig =
+        when (dark_theme_config) {
+            DarkThemeConfigProto.DARK_THEME_UNKNOWN,
+            DarkThemeConfigProto.SYSTEM,
+            -> DarkThemeConfig.FollowSystem
+            DarkThemeConfigProto.DARK -> DarkThemeConfig.Dark
+            DarkThemeConfigProto.LIGHT -> DarkThemeConfig.Light
         }
-    }
+    val disableAGSL = disable_agsl
+    val disableOpenGL = disable_opengl
+    val doNotKeepProcess = do_not_keep_process
+    val touchToolConfig =
+        when (touch_tool_config) {
+            ToolConfigProto.TOOL_CONFIG_UNKNOWN,
+            ToolConfigProto.PAN,
+            -> ToolConfig.Pan
+            ToolConfigProto.DRAW -> ToolConfig.Draw
+            ToolConfigProto.ERASE -> ToolConfig.Erase
+            ToolConfigProto.SELECT -> ToolConfig.Select
+            ToolConfigProto.NONE -> ToolConfig.None
+        }
+    val stylusToolConfig =
+        when (stylus_tool_config) {
+            ToolConfigProto.PAN -> ToolConfig.Pan
+            ToolConfigProto.TOOL_CONFIG_UNKNOWN,
+            ToolConfigProto.DRAW,
+            -> ToolConfig.Draw
+            ToolConfigProto.ERASE -> ToolConfig.Erase
+            ToolConfigProto.SELECT -> ToolConfig.Select
+            ToolConfigProto.NONE -> ToolConfig.None
+        }
+    val mouseToolConfig =
+        when (mouse_tool_config) {
+            ToolConfigProto.PAN -> ToolConfig.Pan
+            ToolConfigProto.TOOL_CONFIG_UNKNOWN,
+            ToolConfigProto.DRAW,
+            -> ToolConfig.Draw
+            ToolConfigProto.ERASE -> ToolConfig.Erase
+            ToolConfigProto.SELECT -> ToolConfig.Select
+            ToolConfigProto.NONE -> ToolConfig.None
+        }
+    val completedClipboardWatchingOnboarding = completed_clipboard_watching_onboarding
+    val enableClipboardWatching = enable_clipboard_watching
 
-    override suspend fun setDoNotKeepProcess(doNotKeepProcess: Boolean) {
-        dataStore.updateData { preferencesProto ->
-            preferencesProto.copy(
-                do_not_keep_process = doNotKeepProcess,
-            )
-        }
-    }
-
-    override suspend fun setTouchToolConfig(toolConfig: ToolConfig) {
-        dataStore.updateData { preferencesProto ->
-            preferencesProto.copy(
-                touch_tool_config = toolConfig.toProto(),
-            )
-        }
-    }
-
-    override suspend fun setStylusToolConfig(toolConfig: ToolConfig) {
-        dataStore.updateData { preferencesProto ->
-            preferencesProto.copy(
-                stylus_tool_config = toolConfig.toProto(),
-            )
-        }
-    }
-
-    override suspend fun setMouseToolConfig(toolConfig: ToolConfig) {
-        dataStore.updateData { preferencesProto ->
-            preferencesProto.copy(
-                mouse_tool_config = toolConfig.toProto(),
-            )
-        }
-    }
-
-    override suspend fun setCompletedClipboardWatchingOnboarding(completed: Boolean) {
-        dataStore.updateData { preferencesProto ->
-            preferencesProto.copy(
-                completed_clipboard_watching_onboarding = completed,
-            )
-        }
-    }
-
-    override suspend fun setEnableClipboardWatching(enabled: Boolean) {
-        dataStore.updateData { preferencesProto ->
-            preferencesProto.copy(
-                enable_clipboard_watching = enabled,
-            )
-        }
-    }
+    return LoadedComposeLifePreferences(
+        quickAccessSettings = quickAccessSettings,
+        algorithmChoice = algorithmChoice,
+        currentShape = currentShape,
+        darkThemeConfig = darkThemeConfig,
+        disableAGSL = disableAGSL,
+        disableOpenGL = disableOpenGL,
+        doNotKeepProcess = doNotKeepProcess,
+        touchToolConfig = touchToolConfig,
+        stylusToolConfig = stylusToolConfig,
+        mouseToolConfig = mouseToolConfig,
+        completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
+        enableClipboardWatching = enableClipboardWatching,
+    )
 }
 
 private fun RoundRectangleProto?.toResolved(): RoundRectangle =
