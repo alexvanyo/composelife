@@ -24,10 +24,10 @@ import me.tatarka.inject.annotations.Provides
 
 interface PreferencesComponent : PreferencesModule, PreferencesDataStoreComponent {
 
-    val DefaultComposeLifePreferences.bind: ComposeLifePreferences
+    val DefaultComposeLifePreferences.bindComposeLifePreferences: ComposeLifePreferences
         @Provides get() = this
 
-    val ComposeLifePreferences.bind: Updatable
+    val DefaultComposeLifePreferences.bindUpdatable: Updatable
         @IntoSet
         @Provides
         get() = this

@@ -49,7 +49,7 @@ class InlineEditScreenStateTests {
             val testDispatcher = StandardTestDispatcher(testScheduler)
             val dispatchers = TestComposeLifeDispatchers(testDispatcher, testDispatcher)
             val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
-            val composeLifePreferences = TestComposeLifePreferences.Loaded(
+            val composeLifePreferences = TestComposeLifePreferences(
                 touchToolConfig = ToolConfig.Pan,
                 mouseToolConfig = ToolConfig.Select,
                 stylusToolConfig = ToolConfig.Draw,
@@ -107,7 +107,7 @@ class InlineEditScreenStateTests {
             val testDispatcher = StandardTestDispatcher(testScheduler)
             val dispatchers = TestComposeLifeDispatchers(testDispatcher, testDispatcher)
             val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
-            val composeLifePreferences = TestComposeLifePreferences.Loaded(
+            val composeLifePreferences = TestComposeLifePreferences(
                 touchToolConfig = ToolConfig.Pan,
                 mouseToolConfig = ToolConfig.Select,
                 stylusToolConfig = ToolConfig.Draw,
@@ -166,7 +166,7 @@ class InlineEditScreenStateTests {
             val testDispatcher = StandardTestDispatcher(testScheduler)
             val dispatchers = TestComposeLifeDispatchers(testDispatcher, testDispatcher)
             val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
-            val composeLifePreferences = TestComposeLifePreferences.Loaded(
+            val composeLifePreferences = TestComposeLifePreferences(
                 touchToolConfig = ToolConfig.Pan,
                 mouseToolConfig = ToolConfig.Select,
                 stylusToolConfig = ToolConfig.Draw,
@@ -225,7 +225,7 @@ class InlineEditScreenStateTests {
             val testDispatcher = StandardTestDispatcher(testScheduler)
             val dispatchers = TestComposeLifeDispatchers(testDispatcher, testDispatcher)
             val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
-            val composeLifePreferences = TestComposeLifePreferences.Loaded(
+            val composeLifePreferences = TestComposeLifePreferences(
                 touchToolConfig = ToolConfig.Pan,
                 mouseToolConfig = ToolConfig.Select,
                 stylusToolConfig = ToolConfig.Draw,
@@ -283,7 +283,7 @@ class InlineEditScreenStateTests {
             val testDispatcher = StandardTestDispatcher(testScheduler)
             val dispatchers = TestComposeLifeDispatchers(testDispatcher, testDispatcher)
             val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
-            val composeLifePreferences = TestComposeLifePreferences.Loaded(
+            val composeLifePreferences = TestComposeLifePreferences(
                 touchToolConfig = ToolConfig.Pan,
                 mouseToolConfig = ToolConfig.Select,
                 stylusToolConfig = ToolConfig.Draw,
