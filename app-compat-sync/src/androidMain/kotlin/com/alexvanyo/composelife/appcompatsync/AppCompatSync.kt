@@ -23,6 +23,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.core.content.getSystemService
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
+import com.alexvanyo.composelife.preferences.darkThemeConfigState
 import com.alexvanyo.composelife.resourcestate.successes
 import com.alexvanyo.composelife.scopes.ApplicationContext
 import com.alexvanyo.composelife.updatable.Updatable

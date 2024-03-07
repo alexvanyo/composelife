@@ -23,8 +23,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
+import com.alexvanyo.composelife.preferences.addQuickAccessSetting
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
+import com.alexvanyo.composelife.preferences.removeQuickAccessSetting
 import kotlinx.coroutines.launch
 
 interface SettingUiInjectEntryPoint :
