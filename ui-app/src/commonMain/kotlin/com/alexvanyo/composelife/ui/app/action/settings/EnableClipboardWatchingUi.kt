@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
+import com.alexvanyo.composelife.preferences.setEnableClipboardWatching
 import com.alexvanyo.composelife.ui.app.component.LabeledSwitch
 import com.alexvanyo.composelife.ui.app.resources.EnableClipboardWatching
 import com.alexvanyo.composelife.ui.app.resources.Strings

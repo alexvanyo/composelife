@@ -22,301 +22,154 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.resourcestate.combine
 import com.alexvanyo.composelife.resourcestate.firstSuccess
-import kotlinx.coroutines.awaitCancellation
 
-@Suppress("TooManyFunctions")
-class TestComposeLifePreferences : ComposeLifePreferences {
-    override var quickAccessSettingsState:
-        ResourceState<Set<QuickAccessSetting>> by mutableStateOf(ResourceState.Loading)
-        private set
+@Suppress("TooManyFunctions", "LongParameterList")
+class TestComposeLifePreferences(
+    isLoaded: Boolean = true,
+    algorithmChoice: AlgorithmType = AlgorithmType.NaiveAlgorithm,
+    currentShapeType: CurrentShapeType = CurrentShapeType.RoundRectangle,
+    roundRectangleConfig: CurrentShape.RoundRectangle = CurrentShape.RoundRectangle(
+        sizeFraction = 1.0f,
+        cornerFraction = 0.0f,
+    ),
+    darkThemeConfig: DarkThemeConfig = DarkThemeConfig.FollowSystem,
+    quickAccessSettings: Set<QuickAccessSetting> = emptySet(),
+    disableAGSL: Boolean = false,
+    disableOpenGL: Boolean = false,
+    doNotKeepProcess: Boolean = false,
+    touchToolConfig: ToolConfig = ToolConfig.Pan,
+    stylusToolConfig: ToolConfig = ToolConfig.Draw,
+    mouseToolConfig: ToolConfig = ToolConfig.Draw,
+    completedClipboardWatchingOnboarding: Boolean = false,
+    enableClipboardWatching: Boolean = false,
+) : ComposeLifePreferences {
+    var quickAccessSettings: Set<QuickAccessSetting> by mutableStateOf(quickAccessSettings)
 
-    override var algorithmChoiceState: ResourceState<AlgorithmType> by mutableStateOf(ResourceState.Loading)
-        private set
+    var algorithmChoice: AlgorithmType by mutableStateOf(algorithmChoice)
 
-    private var currentShapeType: ResourceState<CurrentShapeType> by mutableStateOf(ResourceState.Loading)
+    var currentShapeType: CurrentShapeType by mutableStateOf(currentShapeType)
 
-    private var roundRectangleConfig:
-        ResourceState<CurrentShape.RoundRectangle> by mutableStateOf(ResourceState.Loading)
+    var roundRectangleConfig: CurrentShape.RoundRectangle by mutableStateOf(roundRectangleConfig)
 
-    override val currentShapeState: ResourceState<CurrentShape> get() =
-        combine(
-            currentShapeType,
-            roundRectangleConfig,
-        ) { currentShapeType, roundRectangleConfig ->
-            when (currentShapeType) {
-                CurrentShapeType.RoundRectangle -> roundRectangleConfig
-            }
-        }
+    var darkThemeConfig: DarkThemeConfig by mutableStateOf(darkThemeConfig)
 
-    override var darkThemeConfigState: ResourceState<DarkThemeConfig> by mutableStateOf(ResourceState.Loading)
-        private set
+    var disableAGSL: Boolean by mutableStateOf(disableAGSL)
 
-    override var disableAGSLState: ResourceState<Boolean> by mutableStateOf(ResourceState.Loading)
-        private set
+    var disableOpenGL: Boolean by mutableStateOf(disableOpenGL)
 
-    override var disableOpenGLState: ResourceState<Boolean> by mutableStateOf(ResourceState.Loading)
-        private set
+    var doNotKeepProcess: Boolean by mutableStateOf(doNotKeepProcess)
 
-    override var doNotKeepProcessState: ResourceState<Boolean> by mutableStateOf(ResourceState.Loading)
-        private set
+    var touchToolConfig: ToolConfig by mutableStateOf(touchToolConfig)
 
-    override var touchToolConfigState: ResourceState<ToolConfig> by mutableStateOf(ResourceState.Loading)
-        private set
+    var stylusToolConfig: ToolConfig by mutableStateOf(stylusToolConfig)
 
-    override var stylusToolConfigState: ResourceState<ToolConfig> by mutableStateOf(ResourceState.Loading)
-        private set
+    var mouseToolConfig: ToolConfig by mutableStateOf(mouseToolConfig)
 
-    override var mouseToolConfigState: ResourceState<ToolConfig> by mutableStateOf(ResourceState.Loading)
-        private set
+    var completedClipboardWatchingOnboarding:
+        Boolean by mutableStateOf(completedClipboardWatchingOnboarding)
 
-    override var completedClipboardWatchingOnboardingState:
-        ResourceState<Boolean> by mutableStateOf(ResourceState.Loading)
-        private set
+    var enableClipboardWatching:
+        Boolean by mutableStateOf(enableClipboardWatching)
 
-    override var enableClipboardWatchingState:
-        ResourceState<Boolean> by mutableStateOf(ResourceState.Loading)
-        private set
+    var isLoaded by mutableStateOf(isLoaded)
 
     override val loadedPreferencesState: ResourceState<LoadedComposeLifePreferences>
-        get() = combine(
-            quickAccessSettingsState,
-            algorithmChoiceState,
-            currentShapeState,
-            darkThemeConfigState,
-            disableAGSLState,
-            disableOpenGLState,
-            doNotKeepProcessState,
-            touchToolConfigState,
-            stylusToolConfigState,
-            mouseToolConfigState,
-            completedClipboardWatchingOnboardingState,
-            enableClipboardWatchingState,
-        ) {
-            @Suppress("UNCHECKED_CAST")
-            LoadedComposeLifePreferences(
-                quickAccessSettings = it[0] as Set<QuickAccessSetting>,
-                algorithmChoice = it[1] as AlgorithmType,
-                currentShape = it[2] as CurrentShape,
-                darkThemeConfig = it[3] as DarkThemeConfig,
-                disableAGSL = it[4] as Boolean,
-                disableOpenGL = it[5] as Boolean,
-                doNotKeepProcess = it[6] as Boolean,
-                touchToolConfig = it[7] as ToolConfig,
-                stylusToolConfig = it[8] as ToolConfig,
-                mouseToolConfig = it[9] as ToolConfig,
-                completedClipboardWatchingOnboarding = it[10] as Boolean,
-                enableClipboardWatching = it[11] as Boolean,
+        get() = if (isLoaded) {
+            ResourceState.Success(
+                LoadedComposeLifePreferences(
+                    quickAccessSettings = quickAccessSettings,
+                    algorithmChoice = algorithmChoice,
+                    currentShape = when (currentShapeType) {
+                        CurrentShapeType.RoundRectangle -> roundRectangleConfig
+                    },
+                    darkThemeConfig = darkThemeConfig,
+                    disableAGSL = disableAGSL,
+                    disableOpenGL = disableOpenGL,
+                    doNotKeepProcess = doNotKeepProcess,
+                    touchToolConfig = touchToolConfig,
+                    stylusToolConfig = stylusToolConfig,
+                    mouseToolConfig = mouseToolConfig,
+                    completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
+                    enableClipboardWatching = enableClipboardWatching,
+                ),
             )
+        } else {
+            ResourceState.Loading
         }
 
-    override suspend fun update() = awaitCancellation()
-
-    override suspend fun setAlgorithmChoice(algorithm: AlgorithmType) {
-        Snapshot.withMutableSnapshot {
-            algorithmChoiceState = ResourceState.Success(algorithm)
-        }
-    }
-
-    override suspend fun setCurrentShapeType(currentShapeType: CurrentShapeType) {
-        Snapshot.withMutableSnapshot {
-            this.currentShapeType = ResourceState.Success(currentShapeType)
-        }
-    }
-
-    override suspend fun setDarkThemeConfig(darkThemeConfig: DarkThemeConfig) {
-        Snapshot.withMutableSnapshot {
-            darkThemeConfigState = ResourceState.Success(darkThemeConfig)
-        }
-    }
-
-    override suspend fun setRoundRectangleConfig(update: (CurrentShape.RoundRectangle) -> CurrentShape.RoundRectangle) {
-        val oldRoundRectangleConfig = snapshotFlow { roundRectangleConfig }.firstSuccess().value
-        Snapshot.withMutableSnapshot {
-            roundRectangleConfig = ResourceState.Success(update(oldRoundRectangleConfig))
-        }
-    }
-
-    override suspend fun addQuickAccessSetting(quickAccessSetting: QuickAccessSetting) =
-        updateQuickAccessSetting(true, quickAccessSetting)
-
-    override suspend fun removeQuickAccessSetting(quickAccessSetting: QuickAccessSetting) =
-        updateQuickAccessSetting(false, quickAccessSetting)
-
-    private suspend fun updateQuickAccessSetting(include: Boolean, quickAccessSetting: QuickAccessSetting) {
-        val oldQuickAccessSettings = snapshotFlow { quickAccessSettingsState }.firstSuccess().value
+    override suspend fun update(block: ComposeLifePreferencesTransform.() -> Unit) {
+        val previousLoadedComposeLifePreferences = snapshotFlow { loadedPreferencesState }.firstSuccess().value
 
         Snapshot.withMutableSnapshot {
-            quickAccessSettingsState = ResourceState.Success(
-                if (include) {
-                    oldQuickAccessSettings + quickAccessSetting
-                } else {
-                    oldQuickAccessSettings - quickAccessSetting
-                },
-            )
-        }
-    }
+            object : ComposeLifePreferencesTransform {
+                override val previousLoadedComposeLifePreferences: LoadedComposeLifePreferences
+                    get() = previousLoadedComposeLifePreferences
 
-    override suspend fun setDisabledAGSL(disabled: Boolean) {
-        Snapshot.withMutableSnapshot {
-            disableAGSLState = ResourceState.Success(disabled)
-        }
-    }
+                override fun setAlgorithmChoice(algorithm: AlgorithmType) {
+                    algorithmChoice = algorithm
+                }
 
-    override suspend fun setDisableOpenGL(disabled: Boolean) {
-        Snapshot.withMutableSnapshot {
-            disableOpenGLState = ResourceState.Success(disabled)
-        }
-    }
+                override fun setCurrentShapeType(currentShapeType: CurrentShapeType) {
+                    this@TestComposeLifePreferences.currentShapeType = currentShapeType
+                }
 
-    override suspend fun setDoNotKeepProcess(doNotKeepProcess: Boolean) {
-        Snapshot.withMutableSnapshot {
-            doNotKeepProcessState = ResourceState.Success(doNotKeepProcess)
-        }
-    }
+                override fun setDarkThemeConfig(darkThemeConfig: DarkThemeConfig) {
+                    this@TestComposeLifePreferences.darkThemeConfig = darkThemeConfig
+                }
 
-    override suspend fun setTouchToolConfig(toolConfig: ToolConfig) {
-        Snapshot.withMutableSnapshot {
-            touchToolConfigState = ResourceState.Success(toolConfig)
-        }
-    }
+                override fun setRoundRectangleConfig(
+                    update: (CurrentShape.RoundRectangle) -> CurrentShape.RoundRectangle,
+                ) {
+                    roundRectangleConfig = update(roundRectangleConfig)
+                }
 
-    override suspend fun setStylusToolConfig(toolConfig: ToolConfig) {
-        Snapshot.withMutableSnapshot {
-            stylusToolConfigState = ResourceState.Success(toolConfig)
-        }
-    }
+                override fun addQuickAccessSetting(quickAccessSetting: QuickAccessSetting) =
+                    updateQuickAccessSetting(true, quickAccessSetting)
 
-    override suspend fun setMouseToolConfig(toolConfig: ToolConfig) {
-        Snapshot.withMutableSnapshot {
-            mouseToolConfigState = ResourceState.Success(toolConfig)
-        }
-    }
+                override fun removeQuickAccessSetting(quickAccessSetting: QuickAccessSetting) =
+                    updateQuickAccessSetting(false, quickAccessSetting)
 
-    override suspend fun setCompletedClipboardWatchingOnboarding(completed: Boolean) {
-        Snapshot.withMutableSnapshot {
-            completedClipboardWatchingOnboardingState = ResourceState.Success(completed)
-        }
-    }
+                private fun updateQuickAccessSetting(include: Boolean, quickAccessSetting: QuickAccessSetting) {
+                    if (include) {
+                        quickAccessSettings += quickAccessSetting
+                    } else {
+                        quickAccessSettings -= quickAccessSetting
+                    }
+                }
 
-    override suspend fun setEnableClipboardWatching(enabled: Boolean) {
-        Snapshot.withMutableSnapshot {
-            enableClipboardWatchingState = ResourceState.Success(enabled)
-        }
-    }
+                override fun setDisabledAGSL(disabled: Boolean) {
+                    disableAGSL = disabled
+                }
 
-    fun testSetAlgorithmChoice(algorithm: AlgorithmType) {
-        Snapshot.withMutableSnapshot {
-            algorithmChoiceState = ResourceState.Success(algorithm)
-        }
-    }
+                override fun setDisableOpenGL(disabled: Boolean) {
+                    disableOpenGL = disabled
+                }
 
-    fun testSetCurrentShapeType(currentShapeType: CurrentShapeType) {
-        Snapshot.withMutableSnapshot {
-            this.currentShapeType = ResourceState.Success(currentShapeType)
-        }
-    }
+                override fun setDoNotKeepProcess(doNotKeepProcess: Boolean) {
+                    this@TestComposeLifePreferences.doNotKeepProcess = doNotKeepProcess
+                }
 
-    fun testSetDarkThemeConfig(darkThemeConfig: DarkThemeConfig) {
-        Snapshot.withMutableSnapshot {
-            darkThemeConfigState = ResourceState.Success(darkThemeConfig)
-        }
-    }
+                override fun setTouchToolConfig(toolConfig: ToolConfig) {
+                    touchToolConfig = toolConfig
+                }
 
-    fun testSetRoundRectangleConfig(roundRectangle: CurrentShape.RoundRectangle) {
-        Snapshot.withMutableSnapshot {
-            roundRectangleConfig = ResourceState.Success(roundRectangle)
-        }
-    }
+                override fun setStylusToolConfig(toolConfig: ToolConfig) {
+                    stylusToolConfig = toolConfig
+                }
 
-    fun testSetQuickAccessSetting(quickAccessSettings: Set<QuickAccessSetting>) {
-        Snapshot.withMutableSnapshot {
-            this.quickAccessSettingsState = ResourceState.Success(quickAccessSettings)
-        }
-    }
+                override fun setMouseToolConfig(toolConfig: ToolConfig) {
+                    mouseToolConfig = toolConfig
+                }
 
-    fun testSetDisabledAGSL(disabled: Boolean) {
-        Snapshot.withMutableSnapshot {
-            disableAGSLState = ResourceState.Success(disabled)
-        }
-    }
+                override fun setCompletedClipboardWatchingOnboarding(completed: Boolean) {
+                    completedClipboardWatchingOnboarding = completed
+                }
 
-    fun testSetDisableOpenGL(disabled: Boolean) {
-        Snapshot.withMutableSnapshot {
-            disableOpenGLState = ResourceState.Success(disabled)
-        }
-    }
-
-    fun testSetDoNotKeepProcess(doNotKeepProcess: Boolean) {
-        Snapshot.withMutableSnapshot {
-            doNotKeepProcessState = ResourceState.Success(doNotKeepProcess)
-        }
-    }
-
-    fun testSetTouchToolConfig(toolConfig: ToolConfig) {
-        Snapshot.withMutableSnapshot {
-            touchToolConfigState = ResourceState.Success(toolConfig)
-        }
-    }
-
-    fun testSetStylusToolConfig(toolConfig: ToolConfig) {
-        Snapshot.withMutableSnapshot {
-            stylusToolConfigState = ResourceState.Success(toolConfig)
-        }
-    }
-
-    fun testSetMouseToolConfig(toolConfig: ToolConfig) {
-        Snapshot.withMutableSnapshot {
-            mouseToolConfigState = ResourceState.Success(toolConfig)
-        }
-    }
-
-    fun testSetCompletedClipboardWatchingOnboarding(completed: Boolean) {
-        Snapshot.withMutableSnapshot {
-            completedClipboardWatchingOnboardingState = ResourceState.Success(completed)
-        }
-    }
-
-    fun testSetEnableClipboardWatching(enabled: Boolean) {
-        Snapshot.withMutableSnapshot {
-            enableClipboardWatchingState = ResourceState.Success(enabled)
-        }
-    }
-
-    companion object {
-        @Suppress("LongParameterList")
-        fun Loaded(
-            algorithmChoice: AlgorithmType = AlgorithmType.NaiveAlgorithm,
-            currentShapeType: CurrentShapeType = CurrentShapeType.RoundRectangle,
-            roundRectangleConfig: CurrentShape.RoundRectangle = CurrentShape.RoundRectangle(
-                sizeFraction = 1.0f,
-                cornerFraction = 0.0f,
-            ),
-            darkThemeConfig: DarkThemeConfig = DarkThemeConfig.FollowSystem,
-            quickAccessSettings: Set<QuickAccessSetting> = emptySet(),
-            disableAGSL: Boolean = false,
-            disableOpenGL: Boolean = false,
-            doNotKeepProcess: Boolean = false,
-            touchToolConfig: ToolConfig = ToolConfig.Pan,
-            stylusToolConfig: ToolConfig = ToolConfig.Draw,
-            mouseToolConfig: ToolConfig = ToolConfig.Draw,
-            completedClipboardWatchingOnboarding: Boolean = false,
-            enableClipboardWatching: Boolean = false,
-        ) = TestComposeLifePreferences().apply {
-            testSetAlgorithmChoice(algorithmChoice)
-            testSetCurrentShapeType(currentShapeType)
-            testSetRoundRectangleConfig(roundRectangleConfig)
-            testSetDarkThemeConfig(darkThemeConfig)
-            testSetQuickAccessSetting(quickAccessSettings)
-            testSetDisabledAGSL(disableAGSL)
-            testSetDisableOpenGL(disableOpenGL)
-            testSetDoNotKeepProcess(doNotKeepProcess)
-            testSetTouchToolConfig(touchToolConfig)
-            testSetStylusToolConfig(stylusToolConfig)
-            testSetMouseToolConfig(mouseToolConfig)
-            testSetCompletedClipboardWatchingOnboarding(completedClipboardWatchingOnboarding)
-            testSetEnableClipboardWatching(enableClipboardWatching)
+                override fun setEnableClipboardWatching(enabled: Boolean) {
+                    enableClipboardWatching = enabled
+                }
+            }.run(block)
         }
     }
 }
