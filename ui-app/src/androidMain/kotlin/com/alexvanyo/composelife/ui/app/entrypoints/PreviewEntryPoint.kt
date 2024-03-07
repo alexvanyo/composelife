@@ -129,7 +129,7 @@ internal fun WithPreviewDependencies(
     dispatchers: ComposeLifeDispatchers = DefaultComposeLifeDispatchers(),
     gameOfLifeAlgorithm: GameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
     loadedComposeLifePreferences: LoadedComposeLifePreferences = LoadedComposeLifePreferences.Defaults,
-    composeLifePreferences: ComposeLifePreferences = TestComposeLifePreferences.Loaded(
+    composeLifePreferences: ComposeLifePreferences = TestComposeLifePreferences(
         algorithmChoice = loadedComposeLifePreferences.algorithmChoice,
         currentShapeType = loadedComposeLifePreferences.currentShape.type,
         roundRectangleConfig = when (loadedComposeLifePreferences.currentShape) {

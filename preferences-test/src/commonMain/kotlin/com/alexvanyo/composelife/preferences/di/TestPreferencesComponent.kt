@@ -26,5 +26,5 @@ interface TestPreferencesComponent : PreferencesModule {
     @Singleton
     @Provides
     fun providesComposeLifePreferences(): ComposeLifePreferences =
-        TestComposeLifePreferences.Loaded()
+        TestComposeLifePreferences()
 }

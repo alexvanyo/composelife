@@ -62,7 +62,7 @@ class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCom
     @Test
     @SkipLeakDetection("appliedChanges", "Outer", "Inner")
     fun saving_settings_onboarding_is_shown_with_no_quick_access_settings_saved() = runAppTest {
-        testComposeLifePreferences.testSetQuickAccessSetting(emptySet())
+        testComposeLifePreferences.quickAccessSettings = emptySet()
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
         var onSeeMoreClickedCount = 0
@@ -106,9 +106,7 @@ class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCom
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun saved_opengl_setting_is_displayed_correctly() = runAppTest {
-        testComposeLifePreferences.testSetQuickAccessSetting(
-            setOf(QuickAccessSetting.DisableOpenGL),
-        )
+        testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
         composeTestRule.setContent {
@@ -160,9 +158,7 @@ class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCom
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun opening_saved_setting_functions_correctly() = runAppTest {
-        testComposeLifePreferences.testSetQuickAccessSetting(
-            setOf(QuickAccessSetting.DisableOpenGL),
-        )
+        testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
         var onOpenInSettingsClickedCount = 0
@@ -205,9 +201,7 @@ class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCom
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun removing_saved_setting_functions_correctly() = runAppTest {
-        testComposeLifePreferences.testSetQuickAccessSetting(
-            setOf(QuickAccessSetting.DisableOpenGL),
-        )
+        testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
         composeTestRule.setContent {

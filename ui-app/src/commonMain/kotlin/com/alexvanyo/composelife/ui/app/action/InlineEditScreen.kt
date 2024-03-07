@@ -51,6 +51,11 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
+import com.alexvanyo.composelife.preferences.setCompletedClipboardWatchingOnboarding
+import com.alexvanyo.composelife.preferences.setEnableClipboardWatching
+import com.alexvanyo.composelife.preferences.setMouseToolConfig
+import com.alexvanyo.composelife.preferences.setStylusToolConfig
+import com.alexvanyo.composelife.preferences.setTouchToolConfig
 import com.alexvanyo.composelife.ui.app.ClipboardCellStateParser
 import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
 import com.alexvanyo.composelife.ui.app.component.DropdownOption
