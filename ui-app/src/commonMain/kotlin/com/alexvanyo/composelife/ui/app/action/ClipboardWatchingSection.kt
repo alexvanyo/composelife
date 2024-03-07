@@ -111,6 +111,7 @@ fun ClipboardWatchingEnabled(
                         mutableStateOf(null)
                     }
 
+                    @Suppress("DEPRECATION")
                     ClipboardCellStatePreview(
                         deserializationResult = clipboardPreviewState.deserializationResult,
                         onPaste = clipboardPreviewState::onPaste,
