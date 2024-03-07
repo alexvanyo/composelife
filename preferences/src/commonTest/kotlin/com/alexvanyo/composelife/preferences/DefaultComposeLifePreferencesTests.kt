@@ -36,7 +36,7 @@ class DefaultComposeLifePreferencesTests {
             DiskPreferencesDataStore(
                 fileSystem = FakeFileSystem(),
                 path = lazy { "/preferences.pb".toPath() },
-                scope = this,
+                scope = backgroundScope,
             ),
         )
         backgroundScope.launch {
