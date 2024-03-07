@@ -40,6 +40,9 @@ import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
+import com.alexvanyo.composelife.preferences.algorithmChoiceState
+import com.alexvanyo.composelife.preferences.darkThemeConfigState
+import com.alexvanyo.composelife.preferences.quickAccessSettingsState
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.ui.app.R

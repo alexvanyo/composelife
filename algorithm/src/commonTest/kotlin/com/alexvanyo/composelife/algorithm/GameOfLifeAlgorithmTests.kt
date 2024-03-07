@@ -25,6 +25,7 @@ import com.alexvanyo.composelife.patterns.GameOfLifeTestPatternEnum
 import com.alexvanyo.composelife.patterns.sealedObject
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
+import com.alexvanyo.composelife.preferences.setAlgorithmChoice
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import kotlinx.coroutines.Job
