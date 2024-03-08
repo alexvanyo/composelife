@@ -27,8 +27,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
@@ -154,10 +153,7 @@ fun CellUniverseActionCard(
         actionCardState.inlineNavigationState.currentEntryId,
     )
 
-    Surface(
-        shape = RoundedCornerShape(12.dp),
-        tonalElevation = 1.dp,
-        shadowElevation = 1.dp,
+    ElevatedCard(
         modifier = modifier.windowInsetsPadding(
             WindowInsets.safeDrawing.add(WindowInsets(all = 8.dp)),
         ),
