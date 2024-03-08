@@ -24,8 +24,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.gestures.AnchoredDraggableState
-import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.hoverable
@@ -120,10 +118,12 @@ import com.alexvanyo.composelife.ui.util.AnchoredDraggableState
 import com.alexvanyo.composelife.ui.util.AnchoredDraggableStateSaver
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.Crossfade
+import com.alexvanyo.composelife.ui.util.DraggableAnchors
 import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
+import com.alexvanyo.composelife.ui.util.asFoundationDraggableAnchors
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import com.livefront.sealedenum.GenSealedEnum
 import kotlin.math.roundToInt
@@ -360,6 +360,8 @@ fun FullscreenSettingsScreen(
                         newAnchors = ContinuousDraggableAnchors(
                             minAnchoredDraggablePosition = minAnchoredDraggablePosition,
                             maxAnchoredDraggablePosition = maxAnchoredDraggablePosition,
+                        ).asFoundationDraggableAnchors(
+                            equalsKey = minAnchoredDraggablePosition to maxAnchoredDraggablePosition,
                         ),
                         newTarget = anchoredDraggableState.targetValue,
                     )
@@ -415,11 +417,11 @@ fun FullscreenSettingsScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 data class ContinuousDraggableAnchors(
     private val minAnchoredDraggablePosition: Float,
     private val maxAnchoredDraggablePosition: Float,
 ) : DraggableAnchors<Float> {
+
     override val size: Int = 1
 
     override fun closestAnchor(position: Float): Float =
@@ -462,6 +464,8 @@ data class ContinuousDraggableAnchors(
 
     override fun hasAnchorFor(value: Float): Boolean =
         value in minAnchoredDraggablePosition..maxAnchoredDraggablePosition
+
+    override fun forEach(block: (anchor: Float, position: Float) -> Unit) = Unit
 }
 
 sealed interface ListAndDetailLayoutTypes {
