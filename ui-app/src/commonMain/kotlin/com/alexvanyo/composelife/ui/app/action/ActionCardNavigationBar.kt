@@ -16,7 +16,7 @@
 
 package com.alexvanyo.composelife.ui.app.action
 
-import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -26,13 +26,13 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.app.resources.Speed
@@ -48,11 +48,17 @@ fun ActionCardNavigationBar(
     isElevated: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val elevation by animateDpAsState(targetValue = if (isElevated) 3.dp else 0.dp)
+    val color by animateColorAsState(
+        targetValue = if (isElevated) {
+            MaterialTheme.colorScheme.surfaceContainerHigh
+        } else {
+            MaterialTheme.colorScheme.surfaceContainerLow
+        },
+    )
 
     NavigationBar(
         modifier = modifier,
-        tonalElevation = elevation,
+        containerColor = color,
         windowInsets = WindowInsets.Zero,
     ) {
         val speedSelected =
