@@ -34,7 +34,8 @@ import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleComponent
 import com.alexvanyo.composelife.random.di.RandomComponent
 import com.alexvanyo.composelife.random.di.RandomModule
-import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.AndroidApplicationComponent
+import com.alexvanyo.composelife.scopes.AndroidUiComponent
 import com.alexvanyo.composelife.test.TestInjectApplication
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import me.tatarka.inject.annotations.Component
@@ -42,7 +43,7 @@ import me.tatarka.inject.annotations.Component
 @Component
 abstract class TestComposeLifeApplicationComponent(
     application: Application,
-) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
+) : AndroidApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
     AlgorithmComponent,
     RepositoryComponent,
     TestDatabaseComponent,
@@ -68,12 +69,13 @@ abstract class TestComposeLifeApplicationComponent(
     companion object
 }
 
+@Suppress("UNCHECKED_CAST")
 fun TestComposeLifeApplicationComponent.Companion.create(): TestComposeLifeApplicationComponent {
     val application = ApplicationProvider.getApplicationContext<TestInjectApplication>()
     val applicationComponent = TestComposeLifeApplicationComponent::class.create(application)
-    application.applicationComponent = applicationComponent
+    application.applicationComponent = applicationComponent as AndroidApplicationComponent<Any>
     application.uiComponentFactory = {
-        TestComposeLifeUiComponent::class.create(applicationComponent, it.activity)
+        TestComposeLifeUiComponent::class.create(applicationComponent, it.activity) as AndroidUiComponent<Any, Any>
     }
     return applicationComponent
 }

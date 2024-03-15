@@ -33,14 +33,15 @@ import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleComponent
 import com.alexvanyo.composelife.random.di.RandomComponent
 import com.alexvanyo.composelife.random.di.RandomModule
-import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.AndroidApplicationComponent
+import com.alexvanyo.composelife.scopes.Singleton
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import me.tatarka.inject.annotations.Component
 
 @Component
 abstract class ComposeLifeApplicationComponent(
     application: Application,
-) : ApplicationComponent<ComposeLifeApplicationEntryPoint>(application),
+) : AndroidApplicationComponent<ComposeLifeApplicationEntryPoint>(application),
     AppCompatSyncComponent,
     ProcessLifecycleComponent,
     AlgorithmComponent,

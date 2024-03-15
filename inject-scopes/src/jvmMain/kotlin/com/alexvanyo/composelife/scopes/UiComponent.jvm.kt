@@ -21,9 +21,6 @@ import me.tatarka.inject.annotations.Component
 
 @Suppress("UnnecessaryAbstractClass")
 @Ui
-actual abstract class UiComponent<T : ApplicationComponent<*>, E>(
-    @Component open val applicationComponent: T,
-) {
-
-    actual abstract val entryPoint: E
-}
+abstract class DesktopUiComponent<AE, UE>(
+    @Component open val applicationComponent: DesktopApplicationComponent<AE>,
+) : UiComponent<AE, UE>()

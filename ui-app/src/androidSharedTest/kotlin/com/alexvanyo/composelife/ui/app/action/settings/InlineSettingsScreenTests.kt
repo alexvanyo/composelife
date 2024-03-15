@@ -38,6 +38,7 @@ import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.firstSuccess
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.InjectTestActivity
+import com.alexvanyo.composelife.ui.app.AndroidTestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.create
@@ -48,8 +49,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 @RunWith(KmpAndroidJUnit4::class)
-class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
-    { TestComposeLifeApplicationComponent.create() },
+class InlineSettingsScreenTests : BaseUiInjectTest<AndroidTestComposeLifeApplicationComponent, InjectTestActivity>(
+    { AndroidTestComposeLifeApplicationComponent.create() },
     InjectTestActivity::class.java,
 ) {
     private val composeLifePreferences get() = applicationComponent.composeLifePreferences

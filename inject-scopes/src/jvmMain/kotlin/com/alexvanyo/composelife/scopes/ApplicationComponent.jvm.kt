@@ -19,6 +19,6 @@ package com.alexvanyo.composelife.scopes
 
 @Suppress("UnnecessaryAbstractClass")
 @Singleton
-actual abstract class ApplicationComponent<E> {
-    actual abstract val entryPoint: E
+abstract class DesktopApplicationComponent<E> : ApplicationComponent<E>() {
+    abstract override val entryPoint: E
 }

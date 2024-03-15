@@ -20,17 +20,19 @@ import android.app.Application
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
-import com.alexvanyo.composelife.scopes.UiComponentArguments
+import com.alexvanyo.composelife.scopes.AndroidApplicationComponentOwner
+import com.alexvanyo.composelife.scopes.AndroidUiComponentArguments
 import com.alexvanyo.composelife.strictmode.initStrictModeIfNeeded
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
-class ComposeLifeApplication : Application(), ApplicationComponentOwner {
+class ComposeLifeApplication :
+    Application(),
+    AndroidApplicationComponentOwner<ComposeLifeApplicationEntryPoint, ComposeLifeUiEntryPoint> {
 
     override lateinit var applicationComponent: ComposeLifeApplicationComponent
 
-    override val uiComponentFactory: (UiComponentArguments) -> ComposeLifeUiComponent =
+    override val uiComponentFactory: (AndroidUiComponentArguments) -> ComposeLifeUiComponent =
         { ComposeLifeUiComponent::class.create(applicationComponent, it.activity) }
 
     override fun onCreate() {

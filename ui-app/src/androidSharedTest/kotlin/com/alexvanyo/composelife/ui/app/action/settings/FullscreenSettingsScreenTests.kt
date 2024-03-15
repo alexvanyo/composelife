@@ -49,6 +49,7 @@ import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.InjectTestActivity
+import com.alexvanyo.composelife.ui.app.AndroidTestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.ComposeLifeNavigation
 import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
@@ -63,8 +64,8 @@ import kotlin.test.assertNull
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
-    { TestComposeLifeApplicationComponent.create() },
+class FullscreenSettingsScreenTests : BaseUiInjectTest<AndroidTestComposeLifeApplicationComponent, InjectTestActivity>(
+    { AndroidTestComposeLifeApplicationComponent.create() },
     InjectTestActivity::class.java,
 ) {
 

@@ -29,11 +29,9 @@ import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.random.di.RandomComponent
 import com.alexvanyo.composelife.random.di.RandomModule
-import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 
-expect abstract class TestComposeLifeApplicationComponent :
-    ApplicationComponent<TestComposeLifeApplicationEntryPoint>,
+interface TestComposeLifeApplicationComponent :
     AlgorithmComponent,
     RepositoryComponent,
     TestDatabaseComponent,
@@ -43,12 +41,10 @@ expect abstract class TestComposeLifeApplicationComponent :
     ClockComponent,
     UpdatableModule {
 
-    override val entryPoint: TestComposeLifeApplicationEntryPoint
-
     companion object
 }
 
-expect interface TestComposeLifeApplicationEntryPoint :
+interface TestComposeLifeApplicationEntryPoint :
     ClockModule,
     RandomModule,
     RepositoryModule,

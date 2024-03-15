@@ -18,6 +18,8 @@
 package com.alexvanyo.composelife.ui.app
 
 import android.app.Activity
+import com.alexvanyo.composelife.scopes.AndroidUiComponent
+import com.alexvanyo.composelife.scopes.Ui
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.AlgorithmImplementationUiInjectEntryPoint
@@ -32,21 +34,24 @@ import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInj
 import me.tatarka.inject.annotations.Component
 
 @Component
-actual abstract class TestComposeLifeUiComponent(
-    @Component override val applicationComponent: TestComposeLifeApplicationComponent,
+abstract class AndroidTestComposeLifeUiComponent(
+    @Component override val applicationComponent: AndroidTestComposeLifeApplicationComponent,
     activity: Activity,
-) : UiComponent<TestComposeLifeApplicationComponent, TestComposeLifeUiEntryPoint>(activity, applicationComponent),
-    ClipboardCellStateParserProvider {
-    actual override val entryPoint: TestComposeLifeUiEntryPoint get() =
+) : AndroidUiComponent<TestComposeLifeApplicationEntryPoint, AndroidTestComposeLifeUiEntryPoint>(
+    activity,
+    applicationComponent
+), ClipboardCellStateParserProvider {
+    override val entryPoint: AndroidTestComposeLifeUiEntryPoint get() =
         object :
-            TestComposeLifeUiEntryPoint,
+            AndroidTestComposeLifeUiEntryPoint,
             TestComposeLifeApplicationEntryPoint by applicationComponent.entryPoint,
             ClipboardCellStateParserProvider by this {}
 
-    actual companion object
+    companion object
 }
 
-actual interface TestComposeLifeUiEntryPoint :
+interface AndroidTestComposeLifeUiEntryPoint :
+    TestComposeLifeUiEntryPoint,
     TestComposeLifeApplicationEntryPoint,
     AlgorithmImplementationUiInjectEntryPoint,
     CellShapeConfigUiInjectEntryPoint,

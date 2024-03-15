@@ -75,8 +75,8 @@ import kotlin.test.assertNotNull
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
-    { TestComposeLifeApplicationComponent.create() },
+class InteractiveCellUniverseTests : BaseUiInjectTest<AndroidTestComposeLifeApplicationComponent, InjectTestActivity>(
+    { AndroidTestComposeLifeApplicationComponent.create() },
     InjectTestActivity::class.java,
 ) {
     private val generalTestDispatcher get() = applicationComponent.generalTestDispatcher

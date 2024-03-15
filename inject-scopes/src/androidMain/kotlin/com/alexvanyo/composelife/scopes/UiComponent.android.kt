@@ -23,12 +23,10 @@ import me.tatarka.inject.annotations.Provides
 
 @Suppress("UnnecessaryAbstractClass")
 @Ui
-actual abstract class UiComponent<T : ApplicationComponent<*>, E>(
+abstract class AndroidUiComponent<AE, UE>(
     @get:Provides val activity: Activity,
-    @Component open val applicationComponent: T,
-) {
+    @Component open val applicationComponent: AndroidApplicationComponent<AE>,
+) : UiComponent<AE, UE>() {
     val Activity.bind: ActivityContext
         @Provides get() = this
-
-    actual abstract val entryPoint: E
 }

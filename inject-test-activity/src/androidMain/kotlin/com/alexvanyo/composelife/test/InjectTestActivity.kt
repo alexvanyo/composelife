@@ -19,6 +19,8 @@ package com.alexvanyo.composelife.test
 import android.app.Activity
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.alexvanyo.composelife.scopes.AndroidApplicationComponentOwner
+import com.alexvanyo.composelife.scopes.AndroidUiComponentArguments
 import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
@@ -30,9 +32,9 @@ class InjectTestActivity : AppCompatActivity(), UiComponentOwner {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val application = application as ApplicationComponentOwner
+        val application = application as AndroidApplicationComponentOwner<*, *>
         uiComponent = application.uiComponentFactory(
-            object : UiComponentArguments {
+            object : AndroidUiComponentArguments {
                 override val activity: Activity = this@InjectTestActivity
             },
         )

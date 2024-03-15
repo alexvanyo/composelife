@@ -41,6 +41,7 @@ import com.alexvanyo.composelife.patterns.GliderPattern
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.InjectTestActivity
+import com.alexvanyo.composelife.ui.app.AndroidTestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.create
 import com.alexvanyo.composelife.ui.app.resources.Draw
@@ -58,8 +59,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @RunWith(KmpAndroidJUnit4::class)
-class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
-    { TestComposeLifeApplicationComponent.create() },
+class InlineEditScreenTests : BaseUiInjectTest<AndroidTestComposeLifeApplicationComponent, InjectTestActivity>(
+    { AndroidTestComposeLifeApplicationComponent.create() },
     InjectTestActivity::class.java,
 ) {
 

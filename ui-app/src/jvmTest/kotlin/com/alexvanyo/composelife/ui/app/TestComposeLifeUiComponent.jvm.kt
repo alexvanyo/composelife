@@ -17,21 +17,21 @@
 
 package com.alexvanyo.composelife.ui.app
 
-import com.alexvanyo.composelife.scopes.UiComponent
+import com.alexvanyo.composelife.scopes.DesktopUiComponent
 import me.tatarka.inject.annotations.Component
 
-@Component
 @Suppress("UnnecessaryAbstractClass")
-actual abstract class TestComposeLifeUiComponent(
-    @Component override val applicationComponent: TestComposeLifeApplicationComponent,
-) : UiComponent<TestComposeLifeApplicationComponent, TestComposeLifeUiEntryPoint>(applicationComponent) {
-    actual override val entryPoint: TestComposeLifeUiEntryPoint get() =
+@Component
+abstract class DesktopTestComposeLifeUiComponent(
+    @Component override val applicationComponent: DesktopTestComposeLifeApplicationComponent,
+) : DesktopUiComponent<TestComposeLifeApplicationEntryPoint, DesktopTestComposeLifeUiEntryPoint>(applicationComponent) {
+    override val entryPoint: DesktopTestComposeLifeUiEntryPoint get() =
         object :
-            TestComposeLifeUiEntryPoint,
+            DesktopTestComposeLifeUiEntryPoint,
             TestComposeLifeApplicationEntryPoint by applicationComponent.entryPoint {}
 
-    actual companion object
+    companion object
 }
 
-actual interface TestComposeLifeUiEntryPoint :
-    TestComposeLifeApplicationEntryPoint
+interface DesktopTestComposeLifeUiEntryPoint :
+    TestComposeLifeUiEntryPoint

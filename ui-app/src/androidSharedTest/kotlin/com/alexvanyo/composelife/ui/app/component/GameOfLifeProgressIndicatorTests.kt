@@ -24,13 +24,14 @@ import androidx.compose.ui.test.hasProgressBarRangeInfo
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.InjectTestActivity
+import com.alexvanyo.composelife.ui.app.AndroidTestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.create
 import leakcanary.SkipLeakDetection
 import kotlin.test.Test
 
-class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
-    { TestComposeLifeApplicationComponent.create() },
+class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<AndroidTestComposeLifeApplicationComponent, InjectTestActivity>(
+    { AndroidTestComposeLifeApplicationComponent.create() },
     InjectTestActivity::class.java,
 ) {
     private val gameOfLifeProgressIndicatorInjectEntryPoint get() =

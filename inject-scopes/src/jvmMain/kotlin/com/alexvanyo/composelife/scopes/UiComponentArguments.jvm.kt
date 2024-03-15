@@ -17,4 +17,4 @@
 
 package com.alexvanyo.composelife.scopes
 
-actual interface UiComponentArguments
+interface DesktopUiComponentArguments : UiComponentArguments

@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife
 
+import com.alexvanyo.composelife.scopes.DesktopUiComponent
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
 import me.tatarka.inject.annotations.Component
@@ -24,7 +25,7 @@ import me.tatarka.inject.annotations.Component
 @Component
 abstract class ComposeLifeUiComponent(
     @Component override val applicationComponent: ComposeLifeApplicationComponent,
-) : UiComponent<ComposeLifeApplicationComponent, ComposeLifeUiEntryPoint>(applicationComponent),
+) : DesktopUiComponent<ComposeLifeApplicationEntryPoint, ComposeLifeUiEntryPoint>(applicationComponent),
     ClipboardCellStateParserProvider {
     override val entryPoint: ComposeLifeUiEntryPoint get() =
         object :

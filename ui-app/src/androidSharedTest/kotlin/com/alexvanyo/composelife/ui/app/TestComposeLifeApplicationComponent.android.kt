@@ -32,25 +32,21 @@ import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.random.di.RandomComponent
 import com.alexvanyo.composelife.random.di.RandomModule
+import com.alexvanyo.composelife.scopes.AndroidApplicationComponent
+import com.alexvanyo.composelife.scopes.AndroidUiComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.Singleton
 import com.alexvanyo.composelife.test.TestInjectApplication
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import me.tatarka.inject.annotations.Component
 
 @Component
-actual abstract class TestComposeLifeApplicationComponent(
+abstract class AndroidTestComposeLifeApplicationComponent(
     application: Application,
-) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
-    AlgorithmComponent,
-    RepositoryComponent,
-    TestDatabaseComponent,
-    TestDispatchersComponent,
-    TestPreferencesComponent,
-    RandomComponent,
-    ClockComponent,
-    UpdatableModule {
+) : AndroidApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
+    TestComposeLifeApplicationComponent {
 
-    actual override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
+    override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
         object :
             TestComposeLifeApplicationEntryPoint,
             AlgorithmModule by this,
@@ -61,24 +57,20 @@ actual abstract class TestComposeLifeApplicationComponent(
             PreferencesModule by this,
             UpdatableModule by this {}
 
-    actual companion object
+    companion object
 }
 
-actual interface TestComposeLifeApplicationEntryPoint :
-    ClockModule,
-    RandomModule,
-    RepositoryModule,
-    AlgorithmModule,
-    DispatchersModule,
-    PreferencesModule,
-    UpdatableModule
-
-actual fun TestComposeLifeApplicationComponent.Companion.create(): TestComposeLifeApplicationComponent {
+@Suppress("UNCHECKED_CAST")
+fun AndroidTestComposeLifeApplicationComponent.Companion.create(): AndroidTestComposeLifeApplicationComponent {
     val application = ApplicationProvider.getApplicationContext<TestInjectApplication>()
-    val applicationComponent = TestComposeLifeApplicationComponent::class.create(application)
-    application.applicationComponent = applicationComponent
+    val applicationComponent = AndroidTestComposeLifeApplicationComponent::class.create(application)
+    application.applicationComponent = applicationComponent as AndroidApplicationComponent<Any>
     application.uiComponentFactory = {
-        TestComposeLifeUiComponent::class.create(applicationComponent, it.activity)
+        AndroidTestComposeLifeUiComponent::class.create(applicationComponent, it.activity)
+                as AndroidUiComponent<Any, Any>
     }
     return applicationComponent
 }
+
+actual fun TestComposeLifeApplicationComponent.Companion.create(): TestComposeLifeApplicationComponent =
+    AndroidTestComposeLifeApplicationComponent.create()

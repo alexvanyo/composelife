@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.scopes
 
-@Ui
-expect abstract class UiComponent<T : ApplicationComponent<*>, E> {
-    abstract val entryPoint: E
+abstract class UiComponent<AE, UE> {
+    abstract val entryPoint: UE
 }

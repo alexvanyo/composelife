@@ -27,9 +27,9 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.DisposableEffect
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.alexvanyo.composelife.resourcestate.isSuccess
-import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
+import com.alexvanyo.composelife.scopes.AndroidApplicationComponentOwner
+import com.alexvanyo.composelife.scopes.AndroidUiComponentArguments
 import com.alexvanyo.composelife.scopes.UiComponent
-import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.scopes.UiComponentOwner
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
@@ -43,9 +43,9 @@ class MainActivity : AppCompatActivity(), UiComponentOwner {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        val application = application as ApplicationComponentOwner
+        val application = application as AndroidApplicationComponentOwner<*, *>
         uiComponent = application.uiComponentFactory(
-            object : UiComponentArguments {
+            object : AndroidUiComponentArguments {
                 override val activity: Activity = this@MainActivity
             },
         )

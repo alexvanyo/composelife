@@ -17,12 +17,12 @@
 package com.alexvanyo.composelife.test
 
 import android.app.Application
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
-import com.alexvanyo.composelife.scopes.UiComponent
-import com.alexvanyo.composelife.scopes.UiComponentArguments
+import com.alexvanyo.composelife.scopes.AndroidApplicationComponent
+import com.alexvanyo.composelife.scopes.AndroidApplicationComponentOwner
+import com.alexvanyo.composelife.scopes.AndroidUiComponent
+import com.alexvanyo.composelife.scopes.AndroidUiComponentArguments
 
-class TestInjectApplication : Application(), ApplicationComponentOwner {
-    override lateinit var applicationComponent: ApplicationComponent<*>
-    override lateinit var uiComponentFactory: (UiComponentArguments) -> UiComponent<*, *>
+class TestInjectApplication : Application(), AndroidApplicationComponentOwner<Any, Any> {
+    override lateinit var applicationComponent: AndroidApplicationComponent<Any>
+    override lateinit var uiComponentFactory: (AndroidUiComponentArguments) -> AndroidUiComponent<Any, Any>
 }

@@ -19,6 +19,6 @@ package com.alexvanyo.composelife.scopes
 
 import android.app.Activity
 
-actual interface UiComponentArguments {
+interface AndroidUiComponentArguments : UiComponentArguments {
     val activity: Activity
 }

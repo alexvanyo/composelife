@@ -16,14 +16,4 @@
 
 package com.alexvanyo.composelife.ui.app
 
-import com.alexvanyo.composelife.scopes.UiComponent
-
-expect abstract class TestComposeLifeUiComponent :
-    UiComponent<TestComposeLifeApplicationComponent, TestComposeLifeUiEntryPoint> {
-
-    override val entryPoint: TestComposeLifeUiEntryPoint
-
-    companion object
-}
-
-expect interface TestComposeLifeUiEntryPoint : TestComposeLifeApplicationEntryPoint
+interface TestComposeLifeUiEntryPoint : TestComposeLifeApplicationEntryPoint

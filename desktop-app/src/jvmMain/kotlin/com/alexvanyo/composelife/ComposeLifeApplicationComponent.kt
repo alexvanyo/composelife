@@ -30,12 +30,13 @@ import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.random.di.RandomComponent
 import com.alexvanyo.composelife.random.di.RandomModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.DesktopApplicationComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import me.tatarka.inject.annotations.Component
 
 @Component
 abstract class ComposeLifeApplicationComponent :
-    ApplicationComponent<ComposeLifeApplicationEntryPoint>(),
+    DesktopApplicationComponent<ComposeLifeApplicationEntryPoint>(),
     AlgorithmComponent,
     DatabaseComponent,
     RepositoryComponent,
