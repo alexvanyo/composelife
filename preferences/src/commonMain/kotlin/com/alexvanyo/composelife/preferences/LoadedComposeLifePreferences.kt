@@ -16,10 +16,14 @@
 
 package com.alexvanyo.composelife.preferences
 
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
+import java.util.UUID
+
 data class LoadedComposeLifePreferences(
     val quickAccessSettings: Set<QuickAccessSetting>,
     val algorithmChoice: AlgorithmType,
-    val currentShape: CurrentShape,
+    val currentShapeType: CurrentShapeType,
+    val roundRectangleSessionValue: SessionValue<CurrentShape.RoundRectangle>,
     val darkThemeConfig: DarkThemeConfig,
     val disableAGSL: Boolean,
     val disableOpenGL: Boolean,
@@ -31,12 +35,21 @@ data class LoadedComposeLifePreferences(
     val enableClipboardWatching: Boolean,
 ) {
     companion object {
+        internal val defaultRoundRectangleSessionId = UUID.randomUUID()
+
+        internal val defaultRoundRectangleValueId = UUID.randomUUID()
+
         val Defaults = LoadedComposeLifePreferences(
             quickAccessSettings = emptySet(),
             algorithmChoice = AlgorithmType.HashLifeAlgorithm,
-            currentShape = CurrentShape.RoundRectangle(
-                sizeFraction = 1f,
-                cornerFraction = 0f,
+            currentShapeType = CurrentShapeType.RoundRectangle,
+            roundRectangleSessionValue = SessionValue(
+                sessionId = defaultRoundRectangleSessionId,
+                valueId = defaultRoundRectangleValueId,
+                value = CurrentShape.RoundRectangle(
+                    sizeFraction = 1f,
+                    cornerFraction = 0f,
+                ),
             ),
             darkThemeConfig = DarkThemeConfig.FollowSystem,
             disableAGSL = false,
@@ -50,3 +63,8 @@ data class LoadedComposeLifePreferences(
         )
     }
 }
+
+val LoadedComposeLifePreferences.currentShape: CurrentShape get() =
+    when (currentShapeType) {
+        CurrentShapeType.RoundRectangle -> roundRectangleSessionValue.value
+    }

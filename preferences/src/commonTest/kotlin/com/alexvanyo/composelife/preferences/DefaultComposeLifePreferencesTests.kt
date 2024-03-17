@@ -18,17 +18,22 @@ package com.alexvanyo.composelife.preferences
 
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.isSuccess
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
+import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 
+@Suppress("LargeClass")
 class DefaultComposeLifePreferencesTests {
 
     private fun runPreferencesTest(testBody: suspend TestScope.(ComposeLifePreferences) -> Unit) = runTest {
@@ -94,6 +99,18 @@ class DefaultComposeLifePreferencesTests {
     }
 
     @Test
+    fun default_current_shape_type_is_round_rectangle() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.currentShapeTypeState)
+
+        delay(1.milliseconds)
+
+        assertEquals(
+            ResourceState.Success(CurrentShapeType.RoundRectangle),
+            composelifePreferences.currentShapeTypeState,
+        )
+    }
+
+    @Test
     fun default_current_shape_is_round_rectangle() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.currentShapeState)
 
@@ -111,49 +128,91 @@ class DefaultComposeLifePreferencesTests {
     }
 
     @Test
-    fun setting_round_rectangle_config_updates_value() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.currentShapeState)
+    fun default_round_rectangle_session_state_is_correct() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.roundRectangleSessionState)
 
         delay(1.milliseconds)
 
+        val roundRectangleSessionState = composelifePreferences.roundRectangleSessionState
+
+        assertIs<ResourceState.Success<SessionValue<CurrentShape.RoundRectangle>>>(roundRectangleSessionState)
+
+        val roundRectangleSessionValue = roundRectangleSessionState.value
+
+        assertNotNull(roundRectangleSessionValue.sessionId)
+        assertNotNull(roundRectangleSessionValue.valueId)
         assertEquals(
-            ResourceState.Success(
-                CurrentShape.RoundRectangle(
-                    sizeFraction = 1f,
-                    cornerFraction = 0f,
-                ),
+            CurrentShape.RoundRectangle(
+                sizeFraction = 1f,
+                cornerFraction = 0f,
             ),
-            composelifePreferences.currentShapeState,
+            roundRectangleSessionValue.value,
         )
+    }
 
-        composelifePreferences.setRoundRectangleConfig { roundRectangle ->
-            roundRectangle.copy(
-                sizeFraction = 0.8f,
-                cornerFraction = 0.25f,
+    @Test
+    fun setting_round_rectangle_config_with_null_old_session_id_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.currentShapeState)
+
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(
+                    CurrentShape.RoundRectangle(
+                        sizeFraction = 1f,
+                        cornerFraction = 0f,
+                    ),
+                ),
+                composelifePreferences.currentShapeState,
             )
-        }
-        delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(
+            val newSessionId = UUID.randomUUID()
+            val newValueId = UUID.randomUUID()
+
+            composelifePreferences.setRoundRectangleConfig(
+                oldSessionId = null,
+                newSessionId = newSessionId,
+                valueId = newValueId,
+            ) { roundRectangle ->
+                roundRectangle.copy(
+                    sizeFraction = 0.8f,
+                    cornerFraction = 0.25f,
+                )
+            }
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(
+                    CurrentShape.RoundRectangle(
+                        sizeFraction = 0.8f,
+                        cornerFraction = 0.25f,
+                    ),
+                ),
+                composelifePreferences.currentShapeState,
+            )
+
+            val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            assertEquals(
+                SessionValue(
+                    sessionId = newSessionId,
+                    valueId = newValueId,
+                    value = CurrentShape.RoundRectangle(
+                        sizeFraction = 0.8f,
+                        cornerFraction = 0.25f,
+                    ),
+                ),
+                loadedPreferencesState.value.roundRectangleSessionValue,
+            )
+            assertEquals(
                 CurrentShape.RoundRectangle(
                     sizeFraction = 0.8f,
                     cornerFraction = 0.25f,
                 ),
-            ),
-            composelifePreferences.currentShapeState,
-        )
-
-        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        assertEquals(
-            CurrentShape.RoundRectangle(
-                sizeFraction = 0.8f,
-                cornerFraction = 0.25f,
-            ),
-            loadedPreferencesState.value.currentShape,
-        )
-    }
+                loadedPreferencesState.value.currentShape,
+            )
+        }
 
     @Test
     fun default_dark_theme_config_is_follow_system() = runPreferencesTest { composelifePreferences ->
