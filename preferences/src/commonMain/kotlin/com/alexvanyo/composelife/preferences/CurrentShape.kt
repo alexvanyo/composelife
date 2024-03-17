@@ -16,6 +16,8 @@
 
 package com.alexvanyo.composelife.preferences
 
+import com.alexvanyo.composelife.preferences.proto.RoundRectangleProto
+
 sealed interface CurrentShape {
     val type: CurrentShapeType
 
@@ -26,3 +28,22 @@ sealed interface CurrentShape {
         override val type: CurrentShapeType = CurrentShapeType.RoundRectangle
     }
 }
+
+internal fun RoundRectangleProto?.toResolved(): CurrentShape.RoundRectangle =
+    if (this == null) {
+        CurrentShape.RoundRectangle(
+            sizeFraction = 1f,
+            cornerFraction = 0f,
+        )
+    } else {
+        CurrentShape.RoundRectangle(
+            sizeFraction = size_fraction,
+            cornerFraction = corner_fraction,
+        )
+    }
+
+internal fun CurrentShape.RoundRectangle.toProto(): RoundRectangleProto =
+    RoundRectangleProto(
+        size_fraction = sizeFraction,
+        corner_fraction = cornerFraction,
+    )
