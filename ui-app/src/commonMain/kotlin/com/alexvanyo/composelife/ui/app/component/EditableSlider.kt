@@ -25,7 +25,6 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -38,7 +37,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import com.alexvanyo.composelife.ui.util.uuidSaver
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
+import com.alexvanyo.composelife.sessionvaluekey.UpgradableSessionKey
 import java.util.UUID
 
 @Suppress("LongParameterList", "LongMethod")
@@ -48,8 +48,8 @@ fun <T : Comparable<T>> EditableSlider(
     valueText: (T) -> String,
     labelText: String,
     textToValue: (String) -> T?,
-    value: T,
-    onValueChange: (T) -> Unit,
+    sessionValue: SessionValue<T>,
+    onSessionValueChange: (SessionValue<T>) -> Unit,
     valueRange: ClosedRange<T>,
     sliderBijection: SliderBijection<T>,
     modifier: Modifier = Modifier,
@@ -60,43 +60,26 @@ fun <T : Comparable<T>> EditableSlider(
     sliderOverlay: @Composable () -> Unit = {},
     keyboardType: KeyboardType = KeyboardType.Decimal,
 ) {
+    val value = sessionValue.value
+
     /**
      * The [String] representation of the [value] passed in.
      */
     val nonTransientValueText = valueText(value)
 
-    /**
-     * The key for the editing session, to allow wiping away transient text input.
-     */
-    var editingSessionKey by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(UUID.randomUUID()) }
-
-    /**
-     * The known transient [String] for valid values that we are setting opportunistically via the [TextField].
-     */
-    var knownTransientValueText: String? by key(editingSessionKey) {
-        rememberSaveable { mutableStateOf(nonTransientValueText) }
-    }
-
-    /**
-     * If `true`, the [value] was updated externally, and not via our own [TextField] updates (which would have updated
-     * [knownTransientValueText])
-     */
-    val didValueUpdateOutOfBand = knownTransientValueText != nonTransientValueText
+    val oldSessionId = sessionValue.sessionId
+    val nextSessionId = remember(oldSessionId) { UUID.randomUUID() }
+    val upgradableSessionKey = UpgradableSessionKey(
+        a = oldSessionId,
+        b = nextSessionId,
+    )
+    val currentSessionId = remember(upgradableSessionKey) { nextSessionId }
 
     /**
      * The transient [TextField] value that the user is editing.
      */
-    var transientTextFieldValue by key(editingSessionKey) {
+    var transientTextFieldValue by key(currentSessionId) {
         rememberSaveable { mutableStateOf(nonTransientValueText) }
-    }
-
-    // If a value update occurred out of band, then update our editing session
-    if (didValueUpdateOutOfBand) {
-        DisposableEffect(Unit) {
-            // Update the editing session key
-            editingSessionKey = UUID.randomUUID()
-            onDispose {}
-        }
     }
 
     /**
@@ -105,16 +88,13 @@ fun <T : Comparable<T>> EditableSlider(
     fun parseValue(text: String): T? =
         textToValue(text)?.coerceIn(valueRange)
 
-    val transientText = if (didValueUpdateOutOfBand) nonTransientValueText else transientTextFieldValue
-
     /**
      * If non-null, this is the value [T] created from the currently entered string in the current edit session, as
-     * stored in [transientTextFieldValue]. If there was an update out of band, this will be the
-     * [nonTransientValueText] as determined by the persisted [value].
+     * stored in [transientTextFieldValue].
      *
      * If null, the currently entered string cannot be turned into a value of type [T].
      */
-    val transientValue = parseValue(transientText)
+    val transientValue = parseValue(transientTextFieldValue)
 
     /**
      * The current value to display. This is either the current transient value, or the persisted [value] if the
@@ -128,7 +108,9 @@ fun <T : Comparable<T>> EditableSlider(
     LabeledSlider(
         label = labelAndValueText(currentValue),
         value = currentValue,
-        onValueChange = onValueChange,
+        onValueChange = {
+            onSessionValueChange(SessionValue(UUID.randomUUID(), UUID.randomUUID(), it))
+        },
         valueRange = valueRange,
         sliderBijection = sliderBijection,
         modifier = modifier
@@ -153,8 +135,7 @@ fun <T : Comparable<T>> EditableSlider(
                     parseValue(value)?.let { newTransientValue ->
                         // If successful, call onValueChange with the new transient value, and update the known
                         // transient value text we will receive by converting back to text.
-                        onValueChange(newTransientValue)
-                        knownTransientValueText = valueText(newTransientValue)
+                        onSessionValueChange(SessionValue(currentSessionId, UUID.randomUUID(), newTransientValue))
                     }
                 },
                 modifier = Modifier
@@ -163,8 +144,8 @@ fun <T : Comparable<T>> EditableSlider(
                     .onFocusChanged {
                         if (!isFirstFocusedChanged && !it.isFocused) {
                             // If we are no longer focused, the current editing session has ended, so update the
-                            // editing session key and invoke the finished listener.
-                            editingSessionKey = UUID.randomUUID()
+                            // value with a randomized session id and invoke the finished listener.
+                            onSessionValueChange(SessionValue(UUID.randomUUID(), UUID.randomUUID(), value))
                             onValueChangeFinished?.invoke()
                         }
                         isFirstFocusedChanged = false

@@ -16,10 +16,6 @@
 
 package com.alexvanyo.composelife.ui.app.action.settings
 
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -44,6 +40,10 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
+import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
+import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
+import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
+import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.ui.app.resources.CornerFractionLabel
 import com.alexvanyo.composelife.ui.app.resources.CornerFractionLabelAndValue
 import com.alexvanyo.composelife.ui.app.resources.CornerFractionValue
@@ -55,6 +55,7 @@ import com.alexvanyo.composelife.ui.app.resources.Strings
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
@@ -64,16 +65,26 @@ class CellShapeConfigUiTests {
     fun round_rectangle_is_displayed_correctly() = runComposeUiTest {
         lateinit var resolver: (ParameterizedString) -> String
 
+        val composeLifePreferences = TestComposeLifePreferences(
+            roundRectangleConfig = CurrentShape.RoundRectangle(0.8f, 0.4f),
+        )
+        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        val preferences = loadedPreferencesState.value
+
         setContent {
             resolver = parameterizedStringResolver()
-            CellShapeConfigUi(
-                currentShape = CurrentShape.RoundRectangle(
-                    sizeFraction = 0.8f,
-                    cornerFraction = 0.4f,
-                ),
-                setCurrentShapeType = {},
-                setRoundRectangleConfig = {},
-            )
+
+            val cellShapeConfigUiState = with(
+                object : LoadedComposeLifePreferencesProvider, ComposeLifePreferencesProvider {
+                    override val composeLifePreferences = composeLifePreferences
+                    override val preferences = preferences
+                },
+            ) {
+                rememberCellShapeConfigUiState()
+            }
+
+            CellShapeConfigUi(cellShapeConfigUiState = cellShapeConfigUiState)
         }
 
         onNodeWithText(resolver(Strings.RoundRectangle))
@@ -105,29 +116,28 @@ class CellShapeConfigUiTests {
 
     @Test
     fun round_rectangle_size_fraction_slider_updates_state() = runComposeUiTest {
-        var sizeFraction by mutableStateOf(0.8f)
-        var cornerFraction by mutableStateOf(0.4f)
-
-        val roundRectangleShape by derivedStateOf {
-            CurrentShape.RoundRectangle(
-                sizeFraction = sizeFraction,
-                cornerFraction = cornerFraction,
-            )
-        }
-
         lateinit var resolver: (ParameterizedString) -> String
+
+        val composeLifePreferences = TestComposeLifePreferences(
+            roundRectangleConfig = CurrentShape.RoundRectangle(0.8f, 0.4f),
+        )
+        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        val preferences = loadedPreferencesState.value
 
         setContent {
             resolver = parameterizedStringResolver()
-            CellShapeConfigUi(
-                currentShape = roundRectangleShape,
-                setCurrentShapeType = {},
-                setRoundRectangleConfig = {
-                    val result = it(roundRectangleShape)
-                    sizeFraction = result.sizeFraction
-                    cornerFraction = result.cornerFraction
+
+            val cellShapeConfigUiState = with(
+                object : LoadedComposeLifePreferencesProvider, ComposeLifePreferencesProvider {
+                    override val composeLifePreferences = composeLifePreferences
+                    override val preferences = preferences
                 },
-            )
+            ) {
+                rememberCellShapeConfigUiState()
+            }
+
+            CellShapeConfigUi(cellShapeConfigUiState = cellShapeConfigUiState)
         }
 
         onNodeWithContentDescription(
@@ -145,29 +155,28 @@ class CellShapeConfigUiTests {
 
     @Test
     fun round_rectangle_corner_fraction_slider_updates_state() = runComposeUiTest {
-        var sizeFraction by mutableStateOf(0.8f)
-        var cornerFraction by mutableStateOf(0.4f)
-
-        val roundRectangleShape by derivedStateOf {
-            CurrentShape.RoundRectangle(
-                sizeFraction = sizeFraction,
-                cornerFraction = cornerFraction,
-            )
-        }
-
         lateinit var resolver: (ParameterizedString) -> String
+
+        val composeLifePreferences = TestComposeLifePreferences(
+            roundRectangleConfig = CurrentShape.RoundRectangle(0.8f, 0.4f),
+        )
+        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        val preferences = loadedPreferencesState.value
 
         setContent {
             resolver = parameterizedStringResolver()
-            CellShapeConfigUi(
-                currentShape = roundRectangleShape,
-                setCurrentShapeType = {},
-                setRoundRectangleConfig = {
-                    val result = it(roundRectangleShape)
-                    sizeFraction = result.sizeFraction
-                    cornerFraction = result.cornerFraction
+
+            val cellShapeConfigUiState = with(
+                object : LoadedComposeLifePreferencesProvider, ComposeLifePreferencesProvider {
+                    override val composeLifePreferences = composeLifePreferences
+                    override val preferences = preferences
                 },
-            )
+            ) {
+                rememberCellShapeConfigUiState()
+            }
+
+            CellShapeConfigUi(cellShapeConfigUiState = cellShapeConfigUiState)
         }
 
         onNodeWithContentDescription(
@@ -185,22 +194,28 @@ class CellShapeConfigUiTests {
 
     @Test
     fun round_rectangle_popup_displays_options() = runComposeUiTest {
-        var setCurrentShapeType: CurrentShapeType? = null
-
         lateinit var resolver: (ParameterizedString) -> String
+
+        val composeLifePreferences = TestComposeLifePreferences(
+            roundRectangleConfig = CurrentShape.RoundRectangle(0.8f, 0.4f),
+        )
+        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        val preferences = loadedPreferencesState.value
 
         setContent {
             resolver = parameterizedStringResolver()
-            CellShapeConfigUi(
-                currentShape = CurrentShape.RoundRectangle(
-                    sizeFraction = 0.8f,
-                    cornerFraction = 0.4f,
-                ),
-                setCurrentShapeType = {
-                    setCurrentShapeType = it
+
+            val cellShapeConfigUiState = with(
+                object : LoadedComposeLifePreferencesProvider, ComposeLifePreferencesProvider {
+                    override val composeLifePreferences = composeLifePreferences
+                    override val preferences = preferences
                 },
-                setRoundRectangleConfig = {},
-            )
+            ) {
+                rememberCellShapeConfigUiState()
+            }
+
+            CellShapeConfigUi(cellShapeConfigUiState = cellShapeConfigUiState)
         }
 
         onNodeWithText(resolver(Strings.RoundRectangle))
@@ -210,7 +225,7 @@ class CellShapeConfigUiTests {
             .assertHasClickAction()
             .performClick()
 
-        assertEquals(CurrentShapeType.RoundRectangle, setCurrentShapeType)
+        assertEquals(CurrentShapeType.RoundRectangle, composeLifePreferences.currentShapeType)
 
         onNode(isPopup())
             .assertDoesNotExist()

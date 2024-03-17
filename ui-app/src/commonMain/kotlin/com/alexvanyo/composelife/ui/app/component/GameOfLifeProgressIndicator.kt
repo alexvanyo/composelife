@@ -38,12 +38,14 @@ import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.patterns.OscillatorPattern
 import com.alexvanyo.composelife.patterns.values
 import com.alexvanyo.composelife.random.di.RandomProvider
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
 import com.alexvanyo.composelife.ui.app.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.CellWindowState
 import com.alexvanyo.composelife.ui.app.cells.ImmutableCellWindow
 import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.cells.ViewportInteractionConfig
+import java.util.UUID
 import kotlin.math.max
 
 interface GameOfLifeProgressIndicatorInjectEntryPoint :
@@ -109,6 +111,13 @@ fun GameOfLifeProgressIndicator(
     gameOfLifeState: GameOfLifeState,
     modifier: Modifier = Modifier,
 ) {
+    val selectionSessionState = remember {
+        SessionValue(
+            sessionId = UUID.randomUUID(),
+            valueId = UUID.randomUUID(),
+            value = SelectionState.NoSelection,
+        )
+    }
     ImmutableCellWindow(
         gameOfLifeState = gameOfLifeState,
         modifier = modifier
@@ -129,7 +138,7 @@ fun GameOfLifeProgressIndicator(
                     ),
                 ),
             ),
-            selectionState = SelectionState.NoSelection,
+            selectionSessionState = selectionSessionState,
         ),
         cellDpSize = 48.dp,
     )

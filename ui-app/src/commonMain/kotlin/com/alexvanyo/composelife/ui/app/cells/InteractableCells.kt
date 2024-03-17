@@ -56,7 +56,9 @@ import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.setCellState
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.ToolConfig
+import com.alexvanyo.composelife.preferences.currentShape
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
 import com.alexvanyo.composelife.ui.app.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.util.detectDragGestures
@@ -76,7 +78,7 @@ context(InteractableCellsLocalEntryPoint)
 @Composable
 fun InteractableCells(
     gameOfLifeState: MutableGameOfLifeState,
-    setSelectionState: (SelectionState) -> Unit,
+    setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
     scaledCellDpSize: Dp,
     cellWindow: CellWindow,
     modifier: Modifier = Modifier,
@@ -131,7 +133,7 @@ fun InteractableCells(
                 )
                 .selectingCellInput(
                     selectingPointerTypes = selectingPointerTypes,
-                    setSelectionState = { setSelectionState(it) },
+                    setSelectionSessionState = { setSelectionSessionState(it) },
                     scaledCellPixelSize = scaledCellPixelSize,
                     cellWindow = cellWindow,
                 ),
@@ -164,13 +166,16 @@ fun InteractableCells(
                                     )
                                 },
                                 onLongClick = {
-                                    setSelectionState(
-                                        SelectionState.SelectingBox.FixedSelectingBox(
-                                            editingSessionKey = UUID.randomUUID(),
-                                            topLeft = cell,
-                                            width = 1,
-                                            height = 1,
-                                            previousTransientSelectingBox = null,
+                                    setSelectionSessionState(
+                                        SessionValue(
+                                            sessionId = UUID.randomUUID(),
+                                            valueId = UUID.randomUUID(),
+                                            value = SelectionState.SelectingBox.FixedSelectingBox(
+                                                topLeft = cell,
+                                                width = 1,
+                                                height = 1,
+                                                previousTransientSelectingBox = null,
+                                            ),
                                         ),
                                     )
                                 },
@@ -265,7 +270,7 @@ private fun Modifier.drawingCellInput(
 @Suppress("LongMethod")
 private fun Modifier.selectingCellInput(
     selectingPointerTypes: Set<PointerType>,
-    setSelectionState: (SelectionState) -> Unit,
+    setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
     scaledCellPixelSize: Float,
     cellWindow: CellWindow,
 ): Modifier = composed {
@@ -274,14 +279,20 @@ private fun Modifier.selectingCellInput(
     var end by remember { mutableStateOf(Offset.Zero) }
     val currentScaledCellPixelSize by rememberUpdatedState(scaledCellPixelSize)
     val currentCellWindow by rememberUpdatedState(cellWindow)
-    val currentSetSelectionState by rememberUpdatedState(setSelectionState)
+    val currentSetSelectionSessionState by rememberUpdatedState(setSelectionSessionState)
 
-    val editingSessionKey = remember { UUID.randomUUID() }
+    val editingSessionId = remember { UUID.randomUUID() }
 
     DisposableEffect(Unit) {
         onDispose {
             if (isSelecting) {
-                currentSetSelectionState(SelectionState.NoSelection)
+                currentSetSelectionSessionState(
+                    SessionValue(
+                        sessionId = editingSessionId,
+                        valueId = UUID.randomUUID(),
+                        value = SelectionState.NoSelection,
+                    ),
+                )
             }
         }
     }
@@ -294,39 +305,53 @@ private fun Modifier.selectingCellInput(
                 isSelecting = true
                 start = ((it / currentScaledCellPixelSize).round() + currentCellWindow.topLeft).toOffset()
                 end = it / currentScaledCellPixelSize + currentCellWindow.topLeft.toOffset()
-                setSelectionState(
-                    SelectionState.SelectingBox.TransientSelectingBox(
-                        editingSessionKey = editingSessionKey,
-                        rect = Rect(topLeft = start, bottomRight = end),
+                currentSetSelectionSessionState(
+                    SessionValue(
+                        sessionId = editingSessionId,
+                        valueId = UUID.randomUUID(),
+                        value = SelectionState.SelectingBox.TransientSelectingBox(
+                            rect = Rect(topLeft = start, bottomRight = end),
+                        ),
                     ),
                 )
             },
             onDragEnd = {
                 isSelecting = false
-                currentSetSelectionState(
-                    SelectionState.SelectingBox.FixedSelectingBox(
-                        editingSessionKey = editingSessionKey,
-                        topLeft = start.round(),
-                        width = (end.x - start.x).roundToInt(),
-                        height = (end.y - start.y).roundToInt(),
-                        previousTransientSelectingBox = SelectionState.SelectingBox.TransientSelectingBox(
-                            editingSessionKey = editingSessionKey,
-                            rect = Rect(topLeft = start, bottomRight = end),
+                currentSetSelectionSessionState(
+                    SessionValue(
+                        sessionId = editingSessionId,
+                        valueId = UUID.randomUUID(),
+                        value = SelectionState.SelectingBox.FixedSelectingBox(
+                            topLeft = start.round(),
+                            width = (end.x - start.x).roundToInt(),
+                            height = (end.y - start.y).roundToInt(),
+                            previousTransientSelectingBox = SelectionState.SelectingBox.TransientSelectingBox(
+                                rect = Rect(topLeft = start, bottomRight = end),
+                            ),
                         ),
                     ),
                 )
             },
             onDragCancel = {
                 isSelecting = false
-                currentSetSelectionState(SelectionState.NoSelection)
+                currentSetSelectionSessionState(
+                    SessionValue(
+                        sessionId = editingSessionId,
+                        valueId = UUID.randomUUID(),
+                        value = SelectionState.NoSelection,
+                    ),
+                )
             },
             onDrag = { change, _ ->
                 end = change.position / currentScaledCellPixelSize + currentCellWindow.topLeft.toOffset()
 
-                setSelectionState(
-                    SelectionState.SelectingBox.TransientSelectingBox(
-                        editingSessionKey = editingSessionKey,
-                        rect = Rect(topLeft = start, bottomRight = end),
+                currentSetSelectionSessionState(
+                    SessionValue(
+                        sessionId = editingSessionId,
+                        valueId = UUID.randomUUID(),
+                        value = SelectionState.SelectingBox.TransientSelectingBox(
+                            rect = Rect(topLeft = start, bottomRight = end),
+                        ),
                     ),
                 )
             },

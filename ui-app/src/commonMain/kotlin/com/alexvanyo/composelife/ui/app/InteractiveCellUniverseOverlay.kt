@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.BottomInsets
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseActionCard
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseInfoCard
@@ -61,6 +62,7 @@ import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.util.Layout
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 interface InteractiveCellUniverseOverlayInjectEntryPoint :
     CellUniverseActionCardInjectEntryPoint
@@ -125,10 +127,11 @@ fun InteractiveCellUniverseOverlay(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 isViewportTracking = interactiveCellUniverseState.isViewportTracking,
                 setIsViewportTracking = { interactiveCellUniverseState.isViewportTracking = it },
-                selectionState = interactiveCellUniverseState.cellWindowInteractionState.selectionState,
+                selectionState = interactiveCellUniverseState.cellWindowInteractionState.selectionSessionState.value,
                 setSelectionToCellState = interactiveCellUniverseState::setSelectionToCellState,
                 onClearSelection = {
-                    interactiveCellUniverseState.cellWindowInteractionState.selectionState = SelectionState.NoSelection
+                    interactiveCellUniverseState.cellWindowInteractionState.selectionSessionState =
+                        SessionValue(UUID.randomUUID(), UUID.randomUUID(), SelectionState.NoSelection)
                 },
                 onCopy = interactiveCellUniverseState::onCopy,
                 onCut = interactiveCellUniverseState::onCut,
