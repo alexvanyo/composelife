@@ -16,6 +16,8 @@
 
 package com.alexvanyo.composelife.preferences
 
+import java.util.UUID
+
 @Suppress("TooManyFunctions")
 interface ComposeLifePreferencesTransform {
     /**
@@ -31,7 +33,12 @@ interface ComposeLifePreferencesTransform {
 
     fun setDarkThemeConfig(darkThemeConfig: DarkThemeConfig)
 
-    fun setRoundRectangleConfig(update: (CurrentShape.RoundRectangle) -> CurrentShape.RoundRectangle)
+    fun setRoundRectangleConfig(
+        oldSessionId: UUID?,
+        newSessionId: UUID,
+        valueId: UUID,
+        update: (CurrentShape.RoundRectangle) -> CurrentShape.RoundRectangle,
+    )
 
     fun addQuickAccessSetting(quickAccessSetting: QuickAccessSetting)
 

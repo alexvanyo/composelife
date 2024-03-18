@@ -26,12 +26,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
 import com.alexvanyo.composelife.ui.util.IntOffsetSerializer
 import com.alexvanyo.composelife.ui.util.RectSerializer
-import com.alexvanyo.composelife.ui.util.UUIDSerializer
 import com.alexvanyo.composelife.ui.util.saver
 import kotlinx.serialization.Serializable
-import java.util.UUID
 
 @Serializable
 sealed interface SelectionState {
@@ -42,11 +41,8 @@ sealed interface SelectionState {
     @Serializable
     sealed interface SelectingBox : SelectionState {
 
-        val editingSessionKey: UUID
-
         @Serializable
         data class FixedSelectingBox(
-            @Serializable(with = UUIDSerializer::class) override val editingSessionKey: UUID,
             @Serializable(with = IntOffsetSerializer::class) val topLeft: IntOffset,
             val width: Int,
             val height: Int,
@@ -55,14 +51,12 @@ sealed interface SelectionState {
 
         @Serializable
         data class TransientSelectingBox(
-            @Serializable(with = UUIDSerializer::class) override val editingSessionKey: UUID,
             @Serializable(with = RectSerializer::class) val rect: Rect,
         ) : SelectingBox
     }
 
     @Serializable
     data class Selection(
-        @Serializable(with = UUIDSerializer::class) val editingSessionKey: UUID = UUID.randomUUID(),
         val cellState: CellState,
         @Serializable(with = IntOffsetSerializer::class) val offset: IntOffset,
     ) : SelectionState
@@ -74,47 +68,49 @@ sealed interface SelectionState {
 
 @Stable
 interface SelectionStateHolder {
-    val selectionState: SelectionState
+    val selectionSessionState: SessionValue<SelectionState>
 }
 
 fun SelectionStateHolder(
-    selectionState: SelectionState,
+    selectionSessionState: SessionValue<SelectionState>,
 ) = object : SelectionStateHolder {
-    override val selectionState: SelectionState = selectionState
+    override val selectionSessionState = selectionSessionState
 }
 
 @Stable
-interface MutableSelectionStateHolder {
-    var selectionState: SelectionState
+interface MutableSelectionStateHolder : SelectionStateHolder {
+    override var selectionSessionState: SessionValue<SelectionState>
 }
 
 fun MutableSelectionStateHolder(
-    initialSelectionState: SelectionState,
+    initialSelectionState: SessionValue<SelectionState>,
 ): MutableSelectionStateHolder = MutableSelectionStateHolderImpl(initialSelectionState)
 
 @Composable
 fun rememberMutableSelectionStateHolder(
-    initialSelectionState: SelectionState,
+    initialSelectionState: SessionValue<SelectionState>,
 ): MutableSelectionStateHolder =
     rememberSaveable(saver = MutableSelectionStateHolderImpl.Saver) {
         MutableSelectionStateHolder(initialSelectionState)
     }
 
 private class MutableSelectionStateHolderImpl(
-    initialSelectionState: SelectionState,
+    initialSelectionSessionState: SessionValue<SelectionState>,
 ) : MutableSelectionStateHolder {
-    override var selectionState: SelectionState by mutableStateOf(initialSelectionState)
+    override var selectionSessionState by mutableStateOf(initialSelectionSessionState)
 
     companion object {
-        val Saver: Saver<MutableSelectionStateHolder, String> = Saver(
+        private val sessionValueSaver = SessionValue.Saver(SelectionState.Saver)
+
+        val Saver: Saver<MutableSelectionStateHolder, Any> = Saver(
             save = {
-                with(SelectionState.Saver) {
-                    save(it.selectionState)
+                with(sessionValueSaver) {
+                    save(it.selectionSessionState)
                 }
             },
             restore = {
                 MutableSelectionStateHolderImpl(
-                    SelectionState.Saver.restore(it)!!,
+                    sessionValueSaver.restore(it)!!,
                 )
             },
         )

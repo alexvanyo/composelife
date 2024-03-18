@@ -22,7 +22,7 @@ import java.util.UUID
 /**
  * A [Saver] for a [UUID].
  */
-val uuidSaver: Saver<UUID, *> = Saver(
+val uuidSaver: Saver<UUID, String> = Saver(
     save = { it.toString() },
     restore = UUID::fromString,
 )

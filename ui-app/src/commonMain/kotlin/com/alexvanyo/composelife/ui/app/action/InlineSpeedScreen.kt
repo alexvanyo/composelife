@@ -25,12 +25,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
 import com.alexvanyo.composelife.ui.app.component.EditableSlider
 import com.alexvanyo.composelife.ui.app.component.SliderBijection
 import com.alexvanyo.composelife.ui.app.component.toValue
@@ -41,6 +46,8 @@ import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondLabel
 import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondLabelAndValue
 import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondValue
+import com.alexvanyo.composelife.ui.util.uuidSaver
+import java.util.UUID
 import kotlin.math.log2
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -91,6 +98,9 @@ fun TargetStepsPerSecondControl(
         (minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat()).toValue()
     }
 
+    var sessionId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(UUID.randomUUID()) }
+    var valueId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(UUID.randomUUID()) }
+
     val resolver = parameterizedStringResolver()
     EditableSlider(
         labelAndValueText = {
@@ -99,8 +109,12 @@ fun TargetStepsPerSecondControl(
         valueText = { resolver(Strings.TargetStepsPerSecondValue(it)) },
         labelText = parameterizedStringResource(Strings.TargetStepsPerSecondLabel),
         textToValue = { it.toDoubleOrNull() },
-        value = targetStepsPerSecond,
-        onValueChange = setTargetStepsPerSecond,
+        sessionValue = SessionValue(sessionId, valueId, targetStepsPerSecond),
+        onSessionValueChange = {
+            sessionId = it.sessionId
+            valueId = it.valueId
+            setTargetStepsPerSecond(it.value)
+        },
         valueRange = valueRange,
         sliderBijection = TargetStepsPerSecondSliderBijection,
         sliderOverlay = {
@@ -144,18 +158,23 @@ fun GenerationsPerStepControl(
         (minGenerationsPerStepPowerOfTwo.toFloat()..maxGenerationsPerStepPowerOfTwo.toFloat()).toValue()
     }
 
+    var sessionId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(UUID.randomUUID()) }
+    var valueId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(UUID.randomUUID()) }
+
     val resolver = parameterizedStringResolver()
     EditableSlider(
         labelAndValueText = { parameterizedStringResource(Strings.GenerationsPerStepLabelAndValue(it)) },
         valueText = { resolver(Strings.GenerationsPerStepValue(it)) },
         labelText = parameterizedStringResource(Strings.GenerationsPerStepLabel),
         textToValue = { it.toIntOrNull() },
-        value = generationsPerStep,
+        sessionValue = SessionValue(sessionId, valueId, generationsPerStep),
         valueRange = valueRange,
         sliderBijection = GenerationsPerStepSliderBijection,
         steps = maxGenerationsPerStepPowerOfTwo - minGenerationsPerStepPowerOfTwo - 1,
-        onValueChange = {
-            setGenerationsPerStep(it)
+        onSessionValueChange = {
+            sessionId = it.sessionId
+            valueId = it.valueId
+            setGenerationsPerStep(it.value)
         },
         keyboardType = KeyboardType.Number,
         modifier = modifier,

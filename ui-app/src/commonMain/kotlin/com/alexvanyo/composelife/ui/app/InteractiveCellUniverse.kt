@@ -51,6 +51,7 @@ import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.isRunning
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardState
 import com.alexvanyo.composelife.ui.app.action.rememberCellUniverseActionCardState
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
@@ -59,10 +60,12 @@ import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.MutableCellWindow
 import com.alexvanyo.composelife.ui.app.cells.MutableCellWindowInteractionState
 import com.alexvanyo.composelife.ui.app.cells.MutableCellWindowViewportState
+import com.alexvanyo.composelife.ui.app.cells.MutableSelectionStateHolder
 import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.cells.TrackingCellWindowViewportState
 import com.alexvanyo.composelife.ui.app.cells.ViewportInteractionConfig
 import com.alexvanyo.composelife.ui.app.cells.rememberMutableCellWindowViewportState
+import com.alexvanyo.composelife.ui.app.cells.rememberMutableSelectionStateHolder
 import com.alexvanyo.composelife.ui.app.cells.rememberTrackingCellWindowViewportState
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
@@ -153,8 +156,8 @@ fun InteractiveCellUniverse(
                             }
 
                             Key.Escape -> {
-                                interactiveCellUniverseState.cellWindowInteractionState.selectionState =
-                                    SelectionState.NoSelection
+                                interactiveCellUniverseState.cellWindowInteractionState.selectionSessionState =
+                                    SessionValue(UUID.randomUUID(), UUID.randomUUID(), SelectionState.NoSelection)
                                 true
                             }
 
@@ -274,9 +277,9 @@ fun rememberInteractiveCellUniverseState(
 ): InteractiveCellUniverseState {
     val trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(temporalGameOfLifeState)
 
-    var selectionState by rememberSaveable(stateSaver = SelectionState.Saver) {
-        mutableStateOf(SelectionState.NoSelection)
-    }
+    val selectionStateHolder = rememberMutableSelectionStateHolder(
+        SessionValue(UUID.randomUUID(), UUID.randomUUID(), SelectionState.NoSelection),
+    )
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -391,13 +394,10 @@ fun rememberInteractiveCellUniverseState(
                 trackingCellWindowViewportState
 
             override val cellWindowInteractionState: MutableCellWindowInteractionState by derivedStateOf {
-                object : MutableCellWindowInteractionState {
+                object :
+                    MutableCellWindowInteractionState,
+                    MutableSelectionStateHolder by selectionStateHolder {
                     override val viewportInteractionConfig: ViewportInteractionConfig = viewportInteractionConfig
-                    override var selectionState: SelectionState
-                        get() = selectionState
-                        set(value) {
-                            selectionState = value
-                        }
                 }
             }
 
@@ -411,7 +411,7 @@ fun rememberInteractiveCellUniverseState(
             override fun onCut() = onCopy(isCut = true)
 
             private fun onCopy(isCut: Boolean): Boolean =
-                when (val currentSelectionState = selectionState) {
+                when (val currentSelectionState = selectionStateHolder.selectionSessionState.value) {
                     SelectionState.NoSelection,
                     is SelectionState.Selection,
                     is SelectionState.SelectingBox.TransientSelectingBox,
@@ -486,7 +486,7 @@ fun rememberInteractiveCellUniverseState(
             }
 
             override fun onApplyPaste(): Boolean =
-                when (val currentSelectionState = selectionState) {
+                when (val currentSelectionState = selectionStateHolder.selectionSessionState.value) {
                     SelectionState.NoSelection,
                     is SelectionState.SelectingBox,
                     -> false
@@ -502,35 +502,43 @@ fun rememberInteractiveCellUniverseState(
                                     isAlive = true,
                                 )
                             }
-                        selectionState = SelectionState.NoSelection
+                        selectionStateHolder.selectionSessionState =
+                            SessionValue(UUID.randomUUID(), UUID.randomUUID(), SelectionState.NoSelection)
                         true
                     }
                 }
 
             override fun onSelectAll() {
                 val boundingBox = temporalGameOfLifeState.cellState.boundingBox
-                selectionState =
-                    SelectionState.SelectingBox.FixedSelectingBox(
-                        editingSessionKey = UUID.randomUUID(),
+                selectionStateHolder.selectionSessionState = SessionValue(
+                    sessionId = UUID.randomUUID(),
+                    valueId = UUID.randomUUID(),
+                    value = SelectionState.SelectingBox.FixedSelectingBox(
                         topLeft = boundingBox.topLeft,
                         width = boundingBox.width + 1,
                         height = boundingBox.height + 1,
                         previousTransientSelectingBox = null,
-                    )
+                    ),
+                )
             }
 
             override fun onClearSelection() {
-                selectionState = SelectionState.NoSelection
+                selectionStateHolder.selectionSessionState =
+                    SessionValue(UUID.randomUUID(), UUID.randomUUID(), SelectionState.NoSelection)
             }
 
             override fun setSelectionToCellState(cellState: CellState) {
                 val boundingBoxSize = cellState.boundingBox.size
-                selectionState = SelectionState.Selection(
-                    cellState = cellState,
-                    offset = (
-                        mutableCellWindowViewportState.cellWindowViewport.offset -
-                            Offset(boundingBoxSize.width - 1f, boundingBoxSize.height - 1f) / 2f
-                        ).round(),
+                selectionStateHolder.selectionSessionState = SessionValue(
+                    sessionId = UUID.randomUUID(),
+                    valueId = UUID.randomUUID(),
+                    value = SelectionState.Selection(
+                        cellState = cellState,
+                        offset = (
+                            mutableCellWindowViewportState.cellWindowViewport.offset -
+                                Offset(boundingBoxSize.width - 1f, boundingBoxSize.height - 1f) / 2f
+                            ).round(),
+                    ),
                 )
             }
         }

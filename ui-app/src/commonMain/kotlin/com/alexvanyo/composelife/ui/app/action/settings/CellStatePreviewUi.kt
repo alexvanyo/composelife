@@ -21,6 +21,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -28,12 +32,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
 import com.alexvanyo.composelife.ui.app.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.CellWindowState
 import com.alexvanyo.composelife.ui.app.cells.ImmutableCellWindow
 import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.cells.ViewportInteractionConfig
+import java.util.UUID
 
 interface CellStatePreviewUiLocalEntryPoint :
     CellWindowLocalEntryPoint
@@ -48,6 +54,15 @@ fun CellStatePreviewUi(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,
     ) {
+        var selectionSessionState by remember {
+            mutableStateOf<SessionValue<SelectionState>>(
+                SessionValue(
+                    sessionId = UUID.randomUUID(),
+                    valueId = UUID.randomUUID(),
+                    value = SelectionState.NoSelection,
+                ),
+            )
+        }
         ImmutableCellWindow(
             gameOfLifeState = GameOfLifeState(
                 """
@@ -67,9 +82,11 @@ fun CellStatePreviewUi(
                     ),
                 )
 
-                override var selectionState: SelectionState
-                    get() = SelectionState.NoSelection
-                    set(_) {}
+                override var selectionSessionState: SessionValue<SelectionState>
+                    get() = selectionSessionState
+                    set(value) {
+                        selectionSessionState = value
+                    }
             },
             cellDpSize = 96.dp / 5,
             inOverlay = true,

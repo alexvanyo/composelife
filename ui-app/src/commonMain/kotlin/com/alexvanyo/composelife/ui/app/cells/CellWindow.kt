@@ -395,7 +395,9 @@ private fun CellWindowImpl(
                 ) {
                     InteractableCells(
                         gameOfLifeState = cellWindowUiState.gameOfLifeState,
-                        setSelectionState = { cellWindowUiState.cellWindowInteractionState.selectionState = it },
+                        setSelectionSessionState = {
+                            cellWindowUiState.cellWindowInteractionState.selectionSessionState = it
+                        },
                         scaledCellDpSize = scaledCellDpSize,
                         cellWindow = cellWindow,
                         modifier = cellWindowOffsetModifier,
@@ -407,8 +409,10 @@ private fun CellWindowImpl(
                 is CellWindowUiState.ImmutableState -> Unit
                 is CellWindowUiState.MutableState -> {
                     SelectionOverlay(
-                        selectionState = cellWindowUiState.cellWindowInteractionState.selectionState,
-                        setSelectionState = { cellWindowUiState.cellWindowInteractionState.selectionState = it },
+                        selectionSessionState = cellWindowUiState.cellWindowInteractionState.selectionSessionState,
+                        setSelectionSessionState = {
+                            cellWindowUiState.cellWindowInteractionState.selectionSessionState = it
+                        },
                         scaledCellDpSize = scaledCellDpSize,
                         cellWindow = cellWindow,
                         modifier = cellWindowOffsetModifier,

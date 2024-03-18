@@ -19,10 +19,11 @@ package com.alexvanyo.composelife.ui.app.action.settings
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.alexvanyo.composelife.preferences.CurrentShape
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
+import java.util.UUID
 
 @ThemePreviews
 @Composable
@@ -31,12 +32,20 @@ fun CellShapeConfigUiRoundRectanglePreview(modifier: Modifier = Modifier) {
         ComposeLifeTheme {
             Surface(modifier) {
                 CellShapeConfigUi(
-                    currentShape = CurrentShape.RoundRectangle(
-                        sizeFraction = 0.8f,
-                        cornerFraction = 0.4f,
-                    ),
-                    setCurrentShapeType = {},
-                    setRoundRectangleConfig = {},
+                    cellShapeConfigUiState = object : CellShapeConfigUiState {
+                        override val currentShapeDropdownOption = ShapeDropdownOption.RoundRectangle
+                        override val currentShapeConfigUiState =
+                            object : CurrentShapeConfigUiState.RoundRectangleConfigUi {
+                                override val sizeFractionSessionValue =
+                                    SessionValue(UUID.randomUUID(), UUID.randomUUID(), 0.8f)
+                                override val cornerFractionSessionValue =
+                                    SessionValue(UUID.randomUUID(), UUID.randomUUID(), 0.4f)
+
+                                override fun onSizeFractionSessionValueChange(value: SessionValue<Float>) = Unit
+                                override fun onCornerFractionSessionValueChange(value: SessionValue<Float>) = Unit
+                            }
+                        override fun setCurrentShapeType(option: ShapeDropdownOption) = Unit
+                    },
                 )
             }
         }

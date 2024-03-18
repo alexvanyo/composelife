@@ -21,11 +21,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,12 +35,13 @@ import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
-import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.setCurrentShapeType
 import com.alexvanyo.composelife.preferences.setRoundRectangleConfig
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
+import com.alexvanyo.composelife.sessionvaluekey.UpgradableSessionKey
 import com.alexvanyo.composelife.ui.app.component.DropdownOption
 import com.alexvanyo.composelife.ui.app.component.EditableSlider
 import com.alexvanyo.composelife.ui.app.component.IdentitySliderBijection
@@ -52,9 +55,11 @@ import com.alexvanyo.composelife.ui.app.resources.SizeFractionLabel
 import com.alexvanyo.composelife.ui.app.resources.SizeFractionLabelAndValue
 import com.alexvanyo.composelife.ui.app.resources.SizeFractionValue
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.util.uuidSaver
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 interface CellShapeConfigUiInjectEntryPoint :
     ComposeLifePreferencesProvider
@@ -68,9 +73,7 @@ fun CellShapeConfigUi(
     modifier: Modifier = Modifier,
 ) {
     CellShapeConfigUi(
-        currentShape = preferences.currentShape,
-        setCurrentShapeType = composeLifePreferences::setCurrentShapeType,
-        setRoundRectangleConfig = composeLifePreferences::setRoundRectangleConfig,
+        cellShapeConfigUiState = rememberCellShapeConfigUiState(),
         modifier = modifier,
     )
 }
@@ -78,51 +81,25 @@ fun CellShapeConfigUi(
 @Suppress("LongMethod")
 @Composable
 fun CellShapeConfigUi(
-    currentShape: CurrentShape,
-    setCurrentShapeType: suspend (CurrentShapeType) -> Unit,
-    setRoundRectangleConfig: suspend ((CurrentShape.RoundRectangle) -> CurrentShape.RoundRectangle) -> Unit,
+    cellShapeConfigUiState: CellShapeConfigUiState,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val coroutineScope = rememberCoroutineScope()
-
         TextFieldDropdown(
             label = parameterizedStringResource(Strings.Shape),
-            currentValue = when (currentShape) {
-                is CurrentShape.RoundRectangle -> ShapeDropdownOption.RoundRectangle
-            },
+            currentValue = cellShapeConfigUiState.currentShapeDropdownOption,
             allValues = ShapeDropdownOption.values.toImmutableList(),
-            setValue = { option ->
-                coroutineScope.launch {
-                    setCurrentShapeType(
-                        when (option) {
-                            ShapeDropdownOption.RoundRectangle -> CurrentShapeType.RoundRectangle
-                        },
-                    )
-                }
-            },
+            setValue = cellShapeConfigUiState::setCurrentShapeType,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         @Suppress("USELESS_IS_CHECK")
-        when (currentShape) {
-            is CurrentShape.RoundRectangle -> {
-                var sizeFraction by remember { mutableFloatStateOf(currentShape.sizeFraction) }
-                var cornerFraction by remember { mutableFloatStateOf(currentShape.cornerFraction) }
-
-                LaunchedEffect(sizeFraction, cornerFraction) {
-                    setRoundRectangleConfig { roundRectangle ->
-                        roundRectangle.copy(
-                            sizeFraction = sizeFraction,
-                            cornerFraction = cornerFraction,
-                        )
-                    }
-                }
-
+        when (val currentShapeConfigUiState = cellShapeConfigUiState.currentShapeConfigUiState) {
+            is CurrentShapeConfigUiState.RoundRectangleConfigUi -> {
                 val resolver = parameterizedStringResolver()
 
                 EditableSlider(
@@ -130,8 +107,8 @@ fun CellShapeConfigUi(
                     valueText = { resolver(Strings.SizeFractionValue(it)) },
                     labelText = parameterizedStringResource(Strings.SizeFractionLabel),
                     textToValue = { it.toFloatOrNull() },
-                    value = sizeFraction,
-                    onValueChange = { sizeFraction = it },
+                    sessionValue = currentShapeConfigUiState.sizeFractionSessionValue,
+                    onSessionValueChange = currentShapeConfigUiState::onSizeFractionSessionValueChange,
                     valueRange = 0.1f..1f,
                     sliderBijection = Float.IdentitySliderBijection,
                 )
@@ -141,8 +118,8 @@ fun CellShapeConfigUi(
                     valueText = { resolver(Strings.CornerFractionValue(it)) },
                     labelText = parameterizedStringResource(Strings.CornerFractionLabel),
                     textToValue = { it.toFloatOrNull() },
-                    value = cornerFraction,
-                    onValueChange = { cornerFraction = it },
+                    sessionValue = currentShapeConfigUiState.cornerFractionSessionValue,
+                    onSessionValueChange = currentShapeConfigUiState::onCornerFractionSessionValueChange,
                     valueRange = 0f..0.5f,
                     sliderBijection = Float.IdentitySliderBijection,
                 )
@@ -158,4 +135,138 @@ sealed interface ShapeDropdownOption : DropdownOption {
 
     @GenSealedEnum
     companion object
+}
+
+interface CellShapeConfigUiState {
+    val currentShapeDropdownOption: ShapeDropdownOption
+
+    val currentShapeConfigUiState: CurrentShapeConfigUiState
+
+    fun setCurrentShapeType(option: ShapeDropdownOption)
+}
+
+sealed interface CurrentShapeConfigUiState {
+
+    interface RoundRectangleConfigUi : CurrentShapeConfigUiState {
+        val sizeFractionSessionValue: SessionValue<Float>
+
+        val cornerFractionSessionValue: SessionValue<Float>
+
+        fun onSizeFractionSessionValueChange(value: SessionValue<Float>)
+
+        fun onCornerFractionSessionValueChange(value: SessionValue<Float>)
+    }
+}
+
+context(ComposeLifePreferencesProvider, LoadedComposeLifePreferencesProvider)
+@Suppress("LongMethod")
+@Composable
+fun rememberCellShapeConfigUiState(): CellShapeConfigUiState {
+    val currentShapeType = preferences.currentShapeType
+    val coroutineScope = rememberCoroutineScope()
+
+    val currentShapeConfigUiState = when (currentShapeType) {
+        is CurrentShapeType.RoundRectangle -> {
+            val roundRectangleSessionValue = preferences.roundRectangleSessionValue
+
+            val oldSessionId = roundRectangleSessionValue.sessionId
+            val nextSessionId = remember(oldSessionId) { UUID.randomUUID() }
+            val upgradableSessionKey = UpgradableSessionKey(
+                a = oldSessionId,
+                b = nextSessionId,
+            )
+            val currentSessionId = remember(upgradableSessionKey) { nextSessionId }
+
+            val initialSizeFraction = remember(currentSessionId) { roundRectangleSessionValue.value.sizeFraction }
+            val initialCornerFraction = remember(currentSessionId) { roundRectangleSessionValue.value.cornerFraction }
+            var sizeFraction by remember(currentSessionId) { mutableFloatStateOf(initialSizeFraction) }
+            var cornerFraction by remember(currentSessionId) { mutableFloatStateOf(initialCornerFraction) }
+
+            var sizeFractionSessionId by key(currentSessionId) {
+                rememberSaveable(stateSaver = uuidSaver) {
+                    mutableStateOf(UUID.randomUUID())
+                }
+            }
+            var sizeFractionValueId by key(currentSessionId) {
+                rememberSaveable(stateSaver = uuidSaver) {
+                    mutableStateOf(UUID.randomUUID())
+                }
+            }
+            var cornerFractionSessionId by key(currentSessionId) {
+                rememberSaveable(stateSaver = uuidSaver) {
+                    mutableStateOf(UUID.randomUUID())
+                }
+            }
+            var cornerFractionValueId by key(currentSessionId) {
+                rememberSaveable(stateSaver = uuidSaver) {
+                    mutableStateOf(UUID.randomUUID())
+                }
+            }
+
+            object : CurrentShapeConfigUiState.RoundRectangleConfigUi {
+                override val sizeFractionSessionValue: SessionValue<Float> get() =
+                    SessionValue(
+                        sessionId = sizeFractionSessionId,
+                        valueId = sizeFractionValueId,
+                        value = sizeFraction,
+                    )
+
+                override val cornerFractionSessionValue: SessionValue<Float> get() =
+                    SessionValue(
+                        sessionId = cornerFractionSessionId,
+                        valueId = cornerFractionValueId,
+                        value = cornerFraction,
+                    )
+
+                override fun onSizeFractionSessionValueChange(value: SessionValue<Float>) {
+                    sizeFractionSessionId = value.sessionId
+                    sizeFractionValueId = value.valueId
+                    sizeFraction = value.value
+                    launchRoundRectangleConfigUpdate()
+                }
+
+                override fun onCornerFractionSessionValueChange(value: SessionValue<Float>) {
+                    cornerFractionSessionId = value.sessionId
+                    cornerFractionValueId = value.valueId
+                    cornerFraction = value.value
+                    launchRoundRectangleConfigUpdate()
+                }
+
+                private fun launchRoundRectangleConfigUpdate() {
+                    coroutineScope.launch {
+                        composeLifePreferences.setRoundRectangleConfig(
+                            oldSessionId = oldSessionId,
+                            newSessionId = currentSessionId,
+                            valueId = UUID.randomUUID(),
+                        ) { roundRectangle ->
+                            roundRectangle.copy(
+                                sizeFraction = sizeFraction,
+                                cornerFraction = cornerFraction,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return object : CellShapeConfigUiState {
+        override val currentShapeDropdownOption: ShapeDropdownOption
+            get() = when (currentShapeType) {
+                CurrentShapeType.RoundRectangle -> ShapeDropdownOption.RoundRectangle
+            }
+
+        override val currentShapeConfigUiState: CurrentShapeConfigUiState
+            get() = currentShapeConfigUiState
+
+        override fun setCurrentShapeType(option: ShapeDropdownOption) {
+            coroutineScope.launch {
+                composeLifePreferences.setCurrentShapeType(
+                    when (option) {
+                        ShapeDropdownOption.RoundRectangle -> CurrentShapeType.RoundRectangle
+                    },
+                )
+            }
+        }
+    }
 }

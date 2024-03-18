@@ -16,6 +16,8 @@
 
 package com.alexvanyo.composelife.preferences
 
+import com.alexvanyo.composelife.preferences.proto.ToolConfigProto
+
 sealed interface ToolConfig {
     data object Pan : ToolConfig
     data object Draw : ToolConfig
@@ -23,3 +25,12 @@ sealed interface ToolConfig {
     data object Select : ToolConfig
     data object None : ToolConfig
 }
+
+internal fun ToolConfig.toProto(): ToolConfigProto =
+    when (this) {
+        ToolConfig.Pan -> ToolConfigProto.PAN
+        ToolConfig.Draw -> ToolConfigProto.DRAW
+        ToolConfig.Erase -> ToolConfigProto.ERASE
+        ToolConfig.None -> ToolConfigProto.NONE
+        ToolConfig.Select -> ToolConfigProto.SELECT
+    }

@@ -79,7 +79,7 @@ class InteractableCellsTests {
 
                 InteractableCells(
                     gameOfLifeState = mutableGameOfLifeState,
-                    setSelectionState = {},
+                    setSelectionSessionState = {},
                     scaledCellDpSize = 50.dp,
                     cellWindow = CellWindow(
                         IntRect(
@@ -181,7 +181,7 @@ class InteractableCellsTests {
 
                 InteractableCells(
                     gameOfLifeState = mutableGameOfLifeState,
-                    setSelectionState = {},
+                    setSelectionSessionState = {},
                     scaledCellDpSize = 50.dp,
                     cellWindow = CellWindow(
                         IntRect(
@@ -243,7 +243,7 @@ class InteractableCellsTests {
             ) {
                 InteractableCells(
                     gameOfLifeState = mutableGameOfLifeState,
-                    setSelectionState = {},
+                    setSelectionSessionState = {},
                     scaledCellDpSize = 50.dp,
                     cellWindow = CellWindow(
                         IntRect(
@@ -310,7 +310,7 @@ class InteractableCellsTests {
             ) {
                 InteractableCells(
                     gameOfLifeState = mutableGameOfLifeState,
-                    setSelectionState = {},
+                    setSelectionSessionState = {},
                     scaledCellDpSize = 50.dp,
                     cellWindow = CellWindow(
                         IntRect(

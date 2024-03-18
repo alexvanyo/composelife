@@ -39,9 +39,11 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
 import com.alexvanyo.composelife.ui.app.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import org.junit.runner.RunWith
+import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -70,6 +72,14 @@ class CellWindowTests {
             ).toCellState(),
         )
 
+        val selectionStateHolder = MutableSelectionStateHolder(
+            SessionValue(
+                sessionId = UUID.randomUUID(),
+                valueId = UUID.randomUUID(),
+                value = SelectionState.NoSelection,
+            ),
+        )
+
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
@@ -79,7 +89,9 @@ class CellWindowTests {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(50.dp),
-                    cellWindowInteractionState = object : MutableCellWindowInteractionState {
+                    cellWindowInteractionState = object :
+                        MutableCellWindowInteractionState,
+                        MutableSelectionStateHolder by selectionStateHolder {
                         override val viewportInteractionConfig: ViewportInteractionConfig
                             get() = ViewportInteractionConfig.Fixed(
                                 CellWindowState(
@@ -87,10 +99,6 @@ class CellWindowTests {
                                     scale = 1f,
                                 ),
                             )
-
-                        override var selectionState: SelectionState
-                            get() = SelectionState.NoSelection
-                            set(_) {}
                     },
                     cellDpSize = 10.dp,
                 )
@@ -150,6 +158,13 @@ class CellWindowTests {
         )
 
         val mutableCellWindowViewportState = MutableCellWindowViewportState()
+        val selectionStateHolder = MutableSelectionStateHolder(
+            SessionValue(
+                sessionId = UUID.randomUUID(),
+                valueId = UUID.randomUUID(),
+                value = SelectionState.NoSelection,
+            ),
+        )
 
         lateinit var density: Density
 
@@ -166,13 +181,11 @@ class CellWindowTests {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),
-                    cellWindowInteractionState = object : MutableCellWindowInteractionState {
+                    cellWindowInteractionState = object :
+                        MutableCellWindowInteractionState,
+                        MutableSelectionStateHolder by selectionStateHolder {
                         override val viewportInteractionConfig: ViewportInteractionConfig
                             get() = ViewportInteractionConfig.Navigable(mutableCellWindowViewportState)
-
-                        override var selectionState: SelectionState
-                            get() = SelectionState.NoSelection
-                            set(_) {}
                     },
                     cellDpSize = 30.dp,
                 )
@@ -209,6 +222,13 @@ class CellWindowTests {
         )
 
         val mutableCellWindowViewportState = MutableCellWindowViewportState()
+        val selectionStateHolder = MutableSelectionStateHolder(
+            SessionValue(
+                sessionId = UUID.randomUUID(),
+                valueId = UUID.randomUUID(),
+                value = SelectionState.NoSelection,
+            ),
+        )
 
         lateinit var density: Density
 
@@ -225,13 +245,11 @@ class CellWindowTests {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),
-                    cellWindowInteractionState = object : MutableCellWindowInteractionState {
+                    cellWindowInteractionState = object :
+                        MutableCellWindowInteractionState,
+                        MutableSelectionStateHolder by selectionStateHolder {
                         override val viewportInteractionConfig: ViewportInteractionConfig
                             get() = ViewportInteractionConfig.Navigable(mutableCellWindowViewportState)
-
-                        override var selectionState: SelectionState
-                            get() = SelectionState.NoSelection
-                            set(_) {}
                     },
                     cellDpSize = 30.dp,
                 )
@@ -270,19 +288,24 @@ class CellWindowTests {
         )
 
         val mutableCellWindowViewportState = MutableCellWindowViewportState()
+        val selectionStateHolder = MutableSelectionStateHolder(
+            SessionValue(
+                sessionId = UUID.randomUUID(),
+                valueId = UUID.randomUUID(),
+                value = SelectionState.NoSelection,
+            ),
+        )
 
         setContent {
             with(cellWindowLocalEntryPoint) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),
-                    cellWindowInteractionState = object : MutableCellWindowInteractionState {
+                    cellWindowInteractionState = object :
+                        MutableCellWindowInteractionState,
+                        MutableSelectionStateHolder by selectionStateHolder {
                         override val viewportInteractionConfig: ViewportInteractionConfig
                             get() = ViewportInteractionConfig.Navigable(mutableCellWindowViewportState)
-
-                        override var selectionState: SelectionState
-                            get() = SelectionState.NoSelection
-                            set(_) {}
                     },
                     cellDpSize = 30.dp,
                 )
@@ -313,19 +336,24 @@ class CellWindowTests {
         )
 
         val mutableCellWindowViewportState = MutableCellWindowViewportState()
+        val selectionStateHolder = MutableSelectionStateHolder(
+            SessionValue(
+                sessionId = UUID.randomUUID(),
+                valueId = UUID.randomUUID(),
+                value = SelectionState.NoSelection,
+            ),
+        )
 
         setContent {
             with(cellWindowLocalEntryPoint) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),
-                    cellWindowInteractionState = object : MutableCellWindowInteractionState {
+                    cellWindowInteractionState = object :
+                        MutableCellWindowInteractionState,
+                        MutableSelectionStateHolder by selectionStateHolder {
                         override val viewportInteractionConfig: ViewportInteractionConfig
                             get() = ViewportInteractionConfig.Navigable(mutableCellWindowViewportState)
-
-                        override var selectionState: SelectionState
-                            get() = SelectionState.NoSelection
-                            set(_) {}
                     },
                     cellDpSize = 30.dp,
                 )

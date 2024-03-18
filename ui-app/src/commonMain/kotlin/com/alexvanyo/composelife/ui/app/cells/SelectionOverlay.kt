@@ -79,16 +79,18 @@ import androidx.compose.ui.util.unpackInt1
 import androidx.compose.ui.util.unpackInt2
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
+import com.alexvanyo.composelife.sessionvaluekey.UpgradableSessionKey
 import com.alexvanyo.composelife.ui.app.resources.SelectingBoxHandle
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.util.AnchoredDraggable2DState
 import com.alexvanyo.composelife.ui.util.DraggableAnchors2D
 import com.alexvanyo.composelife.ui.util.anchoredDraggable2D
 import com.alexvanyo.composelife.ui.util.snapTo
-import com.alexvanyo.composelife.ui.util.uuidSaver
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.util.UUID
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -96,44 +98,55 @@ import kotlin.math.roundToInt
 /**
  * The overlay based on the [selectionState].
  */
+@Suppress("LongMethod")
 @Composable
 fun SelectionOverlay(
-    selectionState: SelectionState,
-    setSelectionState: (SelectionState) -> Unit,
+    selectionSessionState: SessionValue<SelectionState>,
+    setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
     scaledCellDpSize: Dp,
     cellWindow: CellWindow,
     modifier: Modifier = Modifier,
 ) {
+    val oldSessionId = selectionSessionState.sessionId
+    val nextSessionId = remember(oldSessionId) { UUID.randomUUID() }
+    val upgradableSessionKey = UpgradableSessionKey(
+        a = oldSessionId,
+        b = nextSessionId,
+    )
+    val currentSessionId = remember(upgradableSessionKey) { nextSessionId }
+
     AnimatedContent(
-        targetState = selectionState,
+        targetState = selectionSessionState.copy(sessionId = currentSessionId),
         transitionSpec = {
             fadeIn(animationSpec = tween(220, delayMillis = 90))
                 .togetherWith(fadeOut(animationSpec = tween(90)))
         },
         contentAlignment = Alignment.Center,
-        contentKey = {
-            when (it) {
-                SelectionState.NoSelection -> 0 to ""
-                is SelectionState.SelectingBox -> 1 to it.editingSessionKey
-                is SelectionState.Selection -> 2 to it.editingSessionKey
-            }
+        contentKey = { targetSelectionSessionState ->
+            when (targetSelectionSessionState.value) {
+                SelectionState.NoSelection -> 0
+                is SelectionState.SelectingBox -> 1
+                is SelectionState.Selection -> 2
+            } to targetSelectionSessionState.sessionId
         },
         modifier = modifier
             .requiredSize(
                 scaledCellDpSize * cellWindow.width,
                 scaledCellDpSize * cellWindow.height,
             ),
-    ) { targetSelectionState ->
-        when (targetSelectionState) {
+    ) { targetSelectionSessionState ->
+        when (val targetSelectionState = targetSelectionSessionState.value) {
             SelectionState.NoSelection -> {
                 Spacer(Modifier.fillMaxSize())
             }
             is SelectionState.SelectingBox.FixedSelectingBox -> {
+                @Suppress("UNCHECKED_CAST")
                 FixedSelectingBoxOverlay(
-                    selectionState = targetSelectionState,
+                    selectionSessionState = targetSelectionSessionState as
+                        SessionValue<SelectionState.SelectingBox.FixedSelectingBox>,
+                    setSelectionSessionState = setSelectionSessionState,
                     scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() },
                     cellWindow = cellWindow,
-                    setSelectionState = setSelectionState,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -146,9 +159,10 @@ fun SelectionOverlay(
                 )
             }
             is SelectionState.Selection -> {
+                @Suppress("UNCHECKED_CAST")
                 SelectionBoxOverlay(
-                    selectionState = targetSelectionState,
-                    setSelectionState = setSelectionState,
+                    selectionSessionState = targetSelectionSessionState as SessionValue<SelectionState.Selection>,
+                    setSelectionSessionState = setSelectionSessionState,
                     scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() },
                     cellWindow = cellWindow,
                     modifier = Modifier.fillMaxSize(),
@@ -193,41 +207,14 @@ val SelectionState.SelectingBox.FixedSelectingBox.initialHandles get(): List<Off
 @Suppress("LongMethod", "CyclomaticComplexMethod", "LongParameterList")
 @Composable
 private fun FixedSelectingBoxOverlay(
-    selectionState: SelectionState.SelectingBox.FixedSelectingBox,
-    setSelectionState: (SelectionState) -> Unit,
+    selectionSessionState: SessionValue<SelectionState.SelectingBox.FixedSelectingBox>,
+    setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
     scaledCellPixelSize: Float,
     cellWindow: CellWindow,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier) {
-        /**
-         * The key for the editing session, to allow wiping state on an external change.
-         */
-        var editingSessionKey by rememberSaveable(stateSaver = uuidSaver) {
-            mutableStateOf(selectionState.editingSessionKey)
-        }
-
-        /**
-         * The known [SelectionState.SelectingBox] for valid values that we are setting.
-         */
-        var knownSelectionState: SelectionState.SelectingBox by remember {
-            mutableStateOf(selectionState)
-        }
-
-        /**
-         * If `true`, the [selectionState] was updated externally, and not via our own updates
-         * (which would have updated [knownSelectionState])
-         */
-        val didValueUpdateOutOfBand = knownSelectionState != selectionState
-
-        // If a value update occurred out of band, then update our editing session
-        if (didValueUpdateOutOfBand) {
-            // Update the editing session key
-            editingSessionKey = selectionState.editingSessionKey
-            knownSelectionState = selectionState
-        }
-
-        val initialHandles = selectionState.initialHandles
+        val initialHandles = selectionSessionState.value.initialHandles
 
         val handleAnchors = remember(scaledCellPixelSize, cellWindow) {
             GridDraggableAnchors2d(scaledCellPixelSize, cellWindow)
@@ -283,16 +270,18 @@ private fun FixedSelectingBoxOverlay(
                     val minY = min(intOffset.y, oppositeCornerState.state.targetValue.y)
                     val maxY = max(intOffset.y, oppositeCornerState.state.targetValue.y)
 
-                    val newSelectionState = SelectionState.SelectingBox.FixedSelectingBox(
-                        editingSessionKey = editingSessionKey,
-                        topLeft = IntOffset(minX, minY),
-                        width = maxX - minX,
-                        height = maxY - minY,
-                        previousTransientSelectingBox = null,
+                    setSelectionSessionState(
+                        SessionValue(
+                            sessionId = selectionSessionState.sessionId,
+                            valueId = UUID.randomUUID(),
+                            value = SelectionState.SelectingBox.FixedSelectingBox(
+                                topLeft = IntOffset(minX, minY),
+                                width = maxX - minX,
+                                height = maxY - minY,
+                                previousTransientSelectingBox = null,
+                            ),
+                        ),
                     )
-
-                    setSelectionState(newSelectionState)
-                    knownSelectionState = newSelectionState
 
                     coroutineScope.launch {
                         try {
@@ -345,7 +334,7 @@ private fun FixedSelectingBoxOverlay(
 
         val handleAnchoredDraggable2DStates =
             initialHandles.mapIndexed { index, initialHandleOffset ->
-                key(index, editingSessionKey, scaledCellPixelSize, cellWindow) {
+                key(index, scaledCellPixelSize, cellWindow) {
                     rememberSaveable(
                         saver = Saver(
                             save = { packInts(it.currentValue.x, it.currentValue.y) },
@@ -723,8 +712,8 @@ data class GridDraggableAnchors2d(
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 private fun SelectionBoxOverlay(
-    selectionState: SelectionState.Selection,
-    setSelectionState: (SelectionState) -> Unit,
+    selectionSessionState: SessionValue<SelectionState.Selection>,
+    setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
     scaledCellPixelSize: Float,
     cellWindow: CellWindow,
     modifier: Modifier = Modifier,
@@ -733,15 +722,17 @@ private fun SelectionBoxOverlay(
         GridDraggableAnchors2d(scaledCellPixelSize, cellWindow)
     }
 
-    val initialOffset = selectionState.offset
+    val initialOffset = selectionSessionState.value.offset
 
-    val currentSelectionState by rememberUpdatedState(selectionState)
-    val currentSetSelectionState by rememberUpdatedState(setSelectionState)
+    val currentSelectionSessionState by rememberUpdatedState(selectionSessionState)
+    val currentSetSelectionSessionState by rememberUpdatedState(setSelectionSessionState)
 
     val confirmValueChange = { intOffset: IntOffset ->
-        setSelectionState(
-            currentSelectionState.copy(
-                offset = intOffset,
+        setSelectionSessionState(
+            currentSelectionSessionState.copy(
+                value = currentSelectionSessionState.value.copy(
+                    offset = intOffset,
+                ),
             ),
         )
         true
@@ -777,16 +768,18 @@ private fun SelectionBoxOverlay(
     LaunchedEffect(draggable2DState) {
         snapshotFlow { draggable2DState.currentValue }
             .onEach { intOffset ->
-                currentSetSelectionState(
-                    currentSelectionState.copy(
-                        offset = intOffset,
+                currentSetSelectionSessionState(
+                    currentSelectionSessionState.copy(
+                        value = currentSelectionSessionState.value.copy(
+                            offset = intOffset,
+                        ),
                     ),
                 )
             }
             .collect()
     }
 
-    val boundingBox = selectionState.cellState.boundingBox
+    val boundingBox = selectionSessionState.value.cellState.boundingBox
 
     SelectingBox(
         modifier = modifier

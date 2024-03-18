@@ -32,6 +32,7 @@ import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
 import com.alexvanyo.composelife.ui.app.resources.SelectingBoxHandle
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.util.isAndroid
@@ -53,8 +54,12 @@ class SelectionOverlayTests {
             resolver = parameterizedStringResolver()
 
             SelectionOverlay(
-                selectionState = SelectionState.NoSelection,
-                setSelectionState = {},
+                selectionSessionState = SessionValue(
+                    sessionId = UUID.randomUUID(),
+                    valueId = UUID.randomUUID(),
+                    value = SelectionState.NoSelection,
+                ),
+                setSelectionSessionState = {},
                 scaledCellDpSize = 50.dp,
                 cellWindow = CellWindow(
                     IntRect(
@@ -79,14 +84,17 @@ class SelectionOverlayTests {
             resolver = parameterizedStringResolver()
 
             SelectionOverlay(
-                selectionState = SelectionState.SelectingBox.FixedSelectingBox(
-                    editingSessionKey = UUID.randomUUID(),
-                    topLeft = IntOffset(1, 1),
-                    width = 2,
-                    height = 3,
-                    previousTransientSelectingBox = null,
+                selectionSessionState = SessionValue(
+                    sessionId = UUID.randomUUID(),
+                    valueId = UUID.randomUUID(),
+                    value = SelectionState.SelectingBox.FixedSelectingBox(
+                        topLeft = IntOffset(1, 1),
+                        width = 2,
+                        height = 3,
+                        previousTransientSelectingBox = null,
+                    ),
                 ),
-                setSelectionState = {},
+                setSelectionSessionState = {},
                 scaledCellDpSize = 50.dp,
                 cellWindow = CellWindow(
                     IntRect(
@@ -125,15 +133,16 @@ class SelectionOverlayTests {
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        val editingSessionKey = UUID.randomUUID()
-
         val mutableSelectionStateHolder = MutableSelectionStateHolder(
-            SelectionState.SelectingBox.FixedSelectingBox(
-                editingSessionKey = editingSessionKey,
-                topLeft = IntOffset(2, 2),
-                width = 2,
-                height = 3,
-                previousTransientSelectingBox = null,
+            SessionValue(
+                sessionId = UUID.randomUUID(),
+                valueId = UUID.randomUUID(),
+                value = SelectionState.SelectingBox.FixedSelectingBox(
+                    topLeft = IntOffset(2, 2),
+                    width = 2,
+                    height = 3,
+                    previousTransientSelectingBox = null,
+                ),
             ),
         )
 
@@ -141,8 +150,8 @@ class SelectionOverlayTests {
             resolver = parameterizedStringResolver()
 
             SelectionOverlay(
-                selectionState = mutableSelectionStateHolder.selectionState,
-                setSelectionState = { mutableSelectionStateHolder.selectionState = it },
+                selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
+                setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
                 scaledCellDpSize = 50.dp,
                 cellWindow = CellWindow(
                     IntRect(
@@ -164,13 +173,12 @@ class SelectionOverlayTests {
 
         assertEquals(
             SelectionState.SelectingBox.FixedSelectingBox(
-                editingSessionKey = editingSessionKey,
                 topLeft = IntOffset(4, 5),
                 width = 2,
                 height = 1,
                 previousTransientSelectingBox = null,
             ),
-            mutableSelectionStateHolder.selectionState,
+            mutableSelectionStateHolder.selectionSessionState.value,
         )
     }
 }

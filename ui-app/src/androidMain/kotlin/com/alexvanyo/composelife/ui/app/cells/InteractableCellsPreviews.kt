@@ -51,7 +51,7 @@ fun InteractableCellsPreview(modifier: Modifier = Modifier) {
                             4 to 4,
                         ).toCellState(),
                     ),
-                    setSelectionState = {},
+                    setSelectionSessionState = {},
                     scaledCellDpSize = 32.dp,
                     cellWindow = CellWindow(
                         IntRect(

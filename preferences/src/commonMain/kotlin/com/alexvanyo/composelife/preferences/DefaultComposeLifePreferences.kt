@@ -26,17 +26,18 @@ import com.alexvanyo.composelife.preferences.proto.CurrentShapeTypeProto
 import com.alexvanyo.composelife.preferences.proto.DarkThemeConfigProto
 import com.alexvanyo.composelife.preferences.proto.PreferencesProto
 import com.alexvanyo.composelife.preferences.proto.QuickAccessSettingProto
-import com.alexvanyo.composelife.preferences.proto.RoundRectangleProto
 import com.alexvanyo.composelife.preferences.proto.ToolConfigProto
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.asResourceState
 import com.alexvanyo.composelife.scopes.Singleton
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retry
 import me.tatarka.inject.annotations.Inject
+import java.util.UUID
 
 @Singleton
 @Inject
@@ -108,10 +109,24 @@ private class PreferencesProtoTransform(
         )
     }
 
-    override fun setRoundRectangleConfig(update: (RoundRectangle) -> RoundRectangle) {
-        newPreferencesProto = newPreferencesProto.copy(
-            round_rectangle = update(newPreferencesProto.round_rectangle.toResolved()).toProto(),
-        )
+    override fun setRoundRectangleConfig(
+        oldSessionId: UUID?,
+        newSessionId: UUID,
+        valueId: UUID,
+        update: (RoundRectangle) -> RoundRectangle,
+    ) {
+        val oldRoundRectangleSessionId = newPreferencesProto.round_rectangle_session_id.toResolved()
+        if (
+            oldSessionId == null ||
+            oldRoundRectangleSessionId == oldSessionId ||
+            oldRoundRectangleSessionId == newSessionId
+        ) {
+            newPreferencesProto = newPreferencesProto.copy(
+                round_rectangle = update(newPreferencesProto.round_rectangle.toResolved()).toProto(),
+                round_rectangle_session_id = newSessionId.toProto(),
+                round_rectangle_value_id = valueId.toProto(),
+            )
+        }
     }
 
     override fun addQuickAccessSetting(quickAccessSetting: QuickAccessSetting) =
@@ -225,12 +240,24 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
             AlgorithmProto.NAIVE -> AlgorithmType.NaiveAlgorithm
         }
 
-    val currentShape =
+    val currentShapeType =
         when (current_shape_type) {
             CurrentShapeTypeProto.CURRENT_SHAPE_TYPE_UNKNOWN,
             CurrentShapeTypeProto.ROUND_RECTANGLE,
-            -> round_rectangle.toResolved()
+            -> CurrentShapeType.RoundRectangle
         }
+    val roundRectangleConfig = round_rectangle.toResolved()
+    val roundRectangleSessionId = checkNotNull(round_rectangle_session_id.toResolved()) {
+        "Round rectangle session id was null!"
+    }
+    val roundRectangleValueId = checkNotNull(round_rectangle_value_id.toResolved()) {
+        "Round rectangle value id was null!"
+    }
+    val roundRectangleSessionValue = SessionValue(
+        sessionId = roundRectangleSessionId,
+        valueId = roundRectangleValueId,
+        value = roundRectangleConfig,
+    )
 
     val darkThemeConfig =
         when (dark_theme_config) {
@@ -279,7 +306,8 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
     return LoadedComposeLifePreferences(
         quickAccessSettings = quickAccessSettings,
         algorithmChoice = algorithmChoice,
-        currentShape = currentShape,
+        currentShapeType = currentShapeType,
+        roundRectangleSessionValue = roundRectangleSessionValue,
         darkThemeConfig = darkThemeConfig,
         disableAGSL = disableAGSL,
         disableOpenGL = disableOpenGL,
@@ -291,31 +319,3 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
         enableClipboardWatching = enableClipboardWatching,
     )
 }
-
-private fun RoundRectangleProto?.toResolved(): RoundRectangle =
-    if (this == null) {
-        RoundRectangle(
-            sizeFraction = 1f,
-            cornerFraction = 0f,
-        )
-    } else {
-        RoundRectangle(
-            sizeFraction = size_fraction,
-            cornerFraction = corner_fraction,
-        )
-    }
-
-private fun RoundRectangle.toProto(): RoundRectangleProto =
-    RoundRectangleProto(
-        size_fraction = sizeFraction,
-        corner_fraction = cornerFraction,
-    )
-
-private fun ToolConfig.toProto(): ToolConfigProto =
-    when (this) {
-        ToolConfig.Pan -> ToolConfigProto.PAN
-        ToolConfig.Draw -> ToolConfigProto.DRAW
-        ToolConfig.Erase -> ToolConfigProto.ERASE
-        ToolConfig.None -> ToolConfigProto.NONE
-        ToolConfig.Select -> ToolConfigProto.SELECT
-    }

@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.ui.app.cells
 
 import androidx.compose.runtime.Stable
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
 
 @Stable
 interface CellWindowInteractionState : SelectionStateHolder {
@@ -25,8 +26,8 @@ interface CellWindowInteractionState : SelectionStateHolder {
 
 fun CellWindowInteractionState(
     viewportInteractionConfig: ViewportInteractionConfig,
-    selectionState: SelectionState,
+    selectionSessionState: SessionValue<SelectionState>,
 ) = object : CellWindowInteractionState {
     override val viewportInteractionConfig: ViewportInteractionConfig = viewportInteractionConfig
-    override val selectionState: SelectionState = selectionState
+    override val selectionSessionState: SessionValue<SelectionState> = selectionSessionState
 }
