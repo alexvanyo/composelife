@@ -119,6 +119,7 @@ jetbrains-compose-gradlePlugin = { group = "org.jetbrains.compose", name = "comp
 jetbrains-compose-material3 = { group = "org.jetbrains.compose.material3", name = "material3", version.ref = "jetbrainsCompose" }
 jetbrains-compose-materialIconsExtended = { group = "org.jetbrains.compose.material", name = "material-icons-extended", version.ref = "jetbrainsCompose" }
 jetbrains-compose-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime", version.ref = "jetbrainsCompose" }
+jetbrains-compose-runtime-saveable = { group = "org.jetbrains.compose.runtime", name = "runtime-saveable", version.ref = "jetbrainsCompose" }
 jetbrains-compose-ui = { group = "org.jetbrains.compose.ui", name = "ui", version.ref = "jetbrainsCompose" }
 jetbrains-compose-uiGeometry = { group = "org.jetbrains.compose.ui", name = "ui-geometry", version.ref = "jetbrainsCompose" }
 jetbrains-compose-uiTestJunit4 = { group = "org.jetbrains.compose.ui", name = "ui-test-junit4", version.ref = "jetbrainsCompose" }

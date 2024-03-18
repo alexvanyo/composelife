@@ -44,14 +44,13 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
 import com.alexvanyo.composelife.ui.app.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.ImmutableCellWindow
@@ -65,6 +64,7 @@ import com.alexvanyo.composelife.ui.app.resources.Paste
 import com.alexvanyo.composelife.ui.app.resources.Pin
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.resources.Warnings
+import java.util.UUID
 
 interface ClipboardCellStatePreviewInjectEntryPoint :
     GameOfLifeProgressIndicatorInjectEntryPoint
@@ -150,7 +150,7 @@ fun LoadedCellStatePreview(
                 viewportInteractionConfig = ViewportInteractionConfig.Tracking(
                     rememberTrackingCellWindowViewportState(gameOfLifeState),
                 ),
-                selectionState = SelectionState.NoSelection,
+                selectionSessionState = SessionValue(UUID.randomUUID(), UUID.randomUUID(), SelectionState.NoSelection),
             ),
             modifier = Modifier.weight(1f),
             inOverlay = true,

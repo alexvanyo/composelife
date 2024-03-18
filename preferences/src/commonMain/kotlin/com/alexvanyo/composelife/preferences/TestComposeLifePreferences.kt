@@ -23,6 +23,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.firstSuccess
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
+import java.util.UUID
 
 @Suppress("TooManyFunctions", "LongParameterList")
 class TestComposeLifePreferences(
@@ -33,6 +35,8 @@ class TestComposeLifePreferences(
         sizeFraction = 1.0f,
         cornerFraction = 0.0f,
     ),
+    roundRectangleSessionId: UUID = UUID.randomUUID(),
+    roundRectangleValueId: UUID = UUID.randomUUID(),
     darkThemeConfig: DarkThemeConfig = DarkThemeConfig.FollowSystem,
     quickAccessSettings: Set<QuickAccessSetting> = emptySet(),
     disableAGSL: Boolean = false,
@@ -51,6 +55,10 @@ class TestComposeLifePreferences(
     var currentShapeType: CurrentShapeType by mutableStateOf(currentShapeType)
 
     var roundRectangleConfig: CurrentShape.RoundRectangle by mutableStateOf(roundRectangleConfig)
+
+    var roundRectangleSessionId: UUID by mutableStateOf(roundRectangleSessionId)
+
+    var roundRectangleValueId: UUID by mutableStateOf(roundRectangleValueId)
 
     var darkThemeConfig: DarkThemeConfig by mutableStateOf(darkThemeConfig)
 
@@ -80,9 +88,12 @@ class TestComposeLifePreferences(
                 LoadedComposeLifePreferences(
                     quickAccessSettings = quickAccessSettings,
                     algorithmChoice = algorithmChoice,
-                    currentShape = when (currentShapeType) {
-                        CurrentShapeType.RoundRectangle -> roundRectangleConfig
-                    },
+                    currentShapeType = currentShapeType,
+                    roundRectangleSessionValue = SessionValue(
+                        sessionId = roundRectangleSessionId,
+                        valueId = roundRectangleValueId,
+                        value = roundRectangleConfig,
+                    ),
                     darkThemeConfig = darkThemeConfig,
                     disableAGSL = disableAGSL,
                     disableOpenGL = disableOpenGL,
@@ -119,9 +130,20 @@ class TestComposeLifePreferences(
                 }
 
                 override fun setRoundRectangleConfig(
+                    oldSessionId: UUID?,
+                    newSessionId: UUID,
+                    valueId: UUID,
                     update: (CurrentShape.RoundRectangle) -> CurrentShape.RoundRectangle,
                 ) {
-                    roundRectangleConfig = update(roundRectangleConfig)
+                    if (
+                        oldSessionId == null ||
+                        roundRectangleSessionId == oldSessionId ||
+                        roundRectangleSessionId == newSessionId
+                    ) {
+                        roundRectangleConfig = update(roundRectangleConfig)
+                        roundRectangleSessionId = newSessionId
+                        roundRectangleValueId = valueId
+                    }
                 }
 
                 override fun addQuickAccessSetting(quickAccessSetting: QuickAccessSetting) =

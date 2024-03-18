@@ -19,9 +19,11 @@ import androidx.compose.runtime.Composable
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
+import com.alexvanyo.composelife.sessionvaluekey.SessionValue
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
+import java.util.UUID
 
 @ThemePreviews
 @Composable
@@ -46,7 +48,11 @@ fun NavigableImmutableCellWindowPreview() {
                     viewportInteractionConfig = ViewportInteractionConfig.Navigable(
                         mutableCellWindowViewportState = rememberMutableCellWindowViewportState(),
                     ),
-                    selectionState = SelectionState.NoSelection,
+                    selectionSessionState = SessionValue(
+                        sessionId = UUID.randomUUID(),
+                        valueId = UUID.randomUUID(),
+                        value = SelectionState.NoSelection,
+                    ),
                 ),
             )
         }
@@ -79,7 +85,11 @@ fun TrackingImmutableCellWindowPreview() {
                     viewportInteractionConfig = ViewportInteractionConfig.Tracking(
                         trackingCellWindowViewportState = trackingCellWindowViewportState,
                     ),
-                    selectionState = SelectionState.NoSelection,
+                    selectionSessionState = SessionValue(
+                        sessionId = UUID.randomUUID(),
+                        valueId = UUID.randomUUID(),
+                        value = SelectionState.NoSelection,
+                    ),
                 ),
             )
         }
@@ -93,7 +103,13 @@ fun NavigableMutableCellWindowPreview() {
         ComposeLifeTheme {
             val mutableCellWindowViewportState = rememberMutableCellWindowViewportState()
 
-            val selectionStateHolder = rememberMutableSelectionStateHolder(SelectionState.NoSelection)
+            val selectionStateHolder = rememberMutableSelectionStateHolder(
+                SessionValue(
+                    sessionId = UUID.randomUUID(),
+                    valueId = UUID.randomUUID(),
+                    value = SelectionState.NoSelection,
+                ),
+            )
 
             MutableCellWindow(
                 gameOfLifeState = MutableGameOfLifeState(
@@ -141,7 +157,13 @@ fun TrackingMutableCellWindowPreview() {
             )
             val trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(gameOfLifeState)
 
-            val selectionStateHolder = rememberMutableSelectionStateHolder(SelectionState.NoSelection)
+            val selectionStateHolder = rememberMutableSelectionStateHolder(
+                SessionValue(
+                    sessionId = UUID.randomUUID(),
+                    valueId = UUID.randomUUID(),
+                    value = SelectionState.NoSelection,
+                ),
+            )
 
             MutableCellWindow(
                 gameOfLifeState = MutableGameOfLifeState(
