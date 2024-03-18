@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.preferences
 
 import androidx.datastore.core.CorruptionException
+import androidx.datastore.core.DataMigration
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.okio.OkioSerializer
@@ -62,6 +63,23 @@ class DiskPreferencesDataStore(
             producePath = path::value,
         ),
         corruptionHandler = null,
-        migrations = emptyList(),
+        migrations = listOf(
+            object : DataMigration<PreferencesProto> {
+                override suspend fun shouldMigrate(currentData: PreferencesProto): Boolean =
+                    currentData.round_rectangle_session_id == null
+
+                override suspend fun migrate(currentData: PreferencesProto): PreferencesProto =
+                    currentData.copy(
+                        round_rectangle_session_id = LoadedComposeLifePreferences
+                            .defaultRoundRectangleSessionId
+                            .toProto(),
+                        round_rectangle_value_id = LoadedComposeLifePreferences
+                            .defaultRoundRectangleValueId
+                            .toProto(),
+                    )
+
+                override suspend fun cleanUp() = Unit
+            },
+        ),
         scope = scope,
     )

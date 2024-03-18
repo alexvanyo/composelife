@@ -22,6 +22,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
+import com.alexvanyo.composelife.preferences.currentShape
 
 context(NonInteractableCellsLocalEntryPoint)
 @Composable
