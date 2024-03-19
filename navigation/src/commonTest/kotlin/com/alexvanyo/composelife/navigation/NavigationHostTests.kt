@@ -16,10 +16,10 @@
 
 package com.alexvanyo.composelife.navigation
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -32,17 +32,20 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
+import com.slack.circuit.retained.LocalRetainedStateRegistry
+import com.slack.circuit.retained.RetainedStateRegistry
+import com.slack.circuit.retained.rememberRetained
 import org.junit.runner.RunWith
 import java.util.UUID
 import kotlin.test.Test
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class NavigationHostTests {
 
     @Test
     fun navigation_host_displays_current_entry() = runComposeUiTest {
-        val id = UUID.randomUUID()
+        val id = UUID.fromString("00000000-0000-0000-0000-000000000000")
         val entry = BackstackEntry(
             value = "a",
             previous = null,
@@ -67,8 +70,8 @@ class NavigationHostTests {
 
     @Test
     fun navigation_host_displays_current_entry_with_multiple_entries() = runComposeUiTest {
-        val id1 = UUID.randomUUID()
-        val id2 = UUID.randomUUID()
+        val id1 = UUID.fromString("00000000-0000-0000-0000-000000000000")
+        val id2 = UUID.fromString("11111111-1111-1111-1111-111111111111")
         val entry1 = BackstackEntry(
             value = "a",
             previous = null,
@@ -101,8 +104,8 @@ class NavigationHostTests {
 
     @Test
     fun navigation_host_keeps_state_for_entries_in_map() = runComposeUiTest {
-        val id1 = UUID.randomUUID()
-        val id2 = UUID.randomUUID()
+        val id1 = UUID.fromString("00000000-0000-0000-0000-000000000000")
+        val id2 = UUID.fromString("11111111-1111-1111-1111-111111111111")
         val entry1 = BackstackEntry(
             value = "a",
             previous = null,
@@ -126,38 +129,53 @@ class NavigationHostTests {
             override val currentEntryId get() = currentEntryId
         }
 
-        setContent {
-            NavigationHost(
-                navigationState = navigationState,
-            ) { entry ->
-                var count by rememberSaveable { mutableStateOf(0) }
+        val retainedStateRegistry = RetainedStateRegistry()
 
-                Column {
-                    BasicText("value: ${entry.value}, id: ${entry.id}, count: $count")
-                    BasicText("+", modifier = Modifier.clickable { count++ })
+        setContent {
+            CompositionLocalProvider(LocalRetainedStateRegistry provides retainedStateRegistry) {
+                NavigationHost(
+                    navigationState = navigationState,
+                ) { entry ->
+                    var rememberSaveableCount by rememberSaveable { mutableStateOf(0) }
+                    var rememberRetainedCount by rememberRetained { mutableStateOf(0) }
+
+                    Column {
+                        BasicText(
+                            "value: ${entry.value}, id: ${entry.id}, " +
+                                "rememberSaveableCount: $rememberSaveableCount, " +
+                                "rememberRetainedCount: $rememberRetainedCount",
+                        )
+                        BasicText(
+                            "+",
+                            modifier = Modifier.clickable {
+                                rememberSaveableCount++
+                                rememberRetainedCount++
+                            },
+                        )
+                    }
                 }
             }
         }
 
-        onNodeWithText("value: a, id: $id1, count: 0").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
 
         onNodeWithText("+").performClick()
 
-        onNodeWithText("value: a, id: $id1, count: 1").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 1, rememberRetainedCount: 1").assertExists()
 
         currentEntryId = id2
 
-        onNodeWithText("value: b, id: $id2, count: 0").assertExists()
+        onNodeWithText("value: b, id: $id2, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
 
         currentEntryId = id1
 
-        onNodeWithText("value: a, id: $id1, count: 1").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 1, rememberRetainedCount: 1").assertExists()
     }
 
     @Test
     fun navigation_host_does_not_keep_state_for_entries_not_in_map() = runComposeUiTest {
-        val id1 = UUID.randomUUID()
-        val id2 = UUID.randomUUID()
+        val id1 = UUID.fromString("00000000-0000-0000-0000-000000000000")
+        val id2 = UUID.fromString("11111111-1111-1111-1111-111111111111")
         val entry1 = BackstackEntry(
             value = "a",
             previous = null,
@@ -181,34 +199,139 @@ class NavigationHostTests {
             override val currentEntryId get() = currentEntryId
         }
 
-        setContent {
-            NavigationHost(
-                navigationState = navigationState,
-            ) { entry ->
-                var count by rememberSaveable { mutableStateOf(0) }
+        val retainedStateRegistry = RetainedStateRegistry()
 
-                Column {
-                    BasicText("value: ${entry.value}, id: ${entry.id}, count: $count")
-                    BasicText("+", modifier = Modifier.clickable { count++ })
+        setContent {
+            CompositionLocalProvider(LocalRetainedStateRegistry provides retainedStateRegistry) {
+                NavigationHost(
+                    navigationState = navigationState,
+                ) { entry ->
+                    var rememberSaveableCount by rememberSaveable { mutableStateOf(0) }
+                    var rememberRetainedCount by rememberRetained(key = "rememberRetainedCount") {
+                        mutableStateOf(0)
+                    }
+
+                    Column {
+                        BasicText(
+                            "value: ${entry.value}, id: ${entry.id}, " +
+                                "rememberSaveableCount: $rememberSaveableCount, " +
+                                "rememberRetainedCount: $rememberRetainedCount",
+                        )
+                        BasicText(
+                            "+",
+                            modifier = Modifier.clickable {
+                                rememberSaveableCount++
+                                rememberRetainedCount++
+                            },
+                        )
+                    }
                 }
             }
         }
 
-        onNodeWithText("value: a, id: $id1, count: 0").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
 
         onNodeWithText("+").performClick()
 
-        onNodeWithText("value: a, id: $id1, count: 1").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 1, rememberRetainedCount: 1").assertExists()
 
         currentEntryId = id2
         backstackMap.remove(id1)
 
-        onNodeWithText("value: b, id: $id2, count: 0").assertExists()
+        onNodeWithText("value: b, id: $id2, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
 
         currentEntryId = id1
         backstackMap[id1] = entry1
 
-        onNodeWithText("value: a, id: $id1, count: 0").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
+    }
+
+    @Test
+    fun navigation_host_does_not_keep_state_for_entries_not_in_map_and_not_rendered() = runComposeUiTest {
+        val id1 = UUID.fromString("00000000-0000-0000-0000-000000000000")
+        val id2 = UUID.fromString("11111111-1111-1111-1111-111111111111")
+        val id3 = UUID.fromString("22222222-2222-2222-2222-222222222222")
+        val entry1 = BackstackEntry(
+            value = "a",
+            previous = null,
+            id = id1,
+        )
+        val entry2 = BackstackEntry(
+            value = "b",
+            previous = null,
+            id = id2,
+        )
+        val entry3 = BackstackEntry(
+            value = "c",
+            previous = null,
+            id = id3,
+        )
+
+        val backstackMap = mutableStateMapOf<UUID, BackstackEntry<String>>(
+            id1 to entry1,
+            id2 to entry2,
+            id3 to entry3,
+        )
+
+        var currentEntryId by mutableStateOf(id1)
+
+        val navigationState = object : BackstackState<String> {
+            override val entryMap get() = backstackMap
+            override val currentEntryId get() = currentEntryId
+        }
+
+        val retainedStateRegistry = RetainedStateRegistry()
+
+        setContent {
+            CompositionLocalProvider(LocalRetainedStateRegistry provides retainedStateRegistry) {
+                NavigationHost(
+                    navigationState = navigationState,
+                ) { entry ->
+                    var rememberSaveableCount by rememberSaveable { mutableStateOf(0) }
+                    var rememberRetainedCount by rememberRetained(key = "rememberRetainedCount") {
+                        mutableStateOf(0)
+                    }
+
+                    Column {
+                        BasicText(
+                            "value: ${entry.value}, id: ${entry.id}, " +
+                                "rememberSaveableCount: $rememberSaveableCount, " +
+                                "rememberRetainedCount: $rememberRetainedCount",
+                        )
+                        BasicText(
+                            "+",
+                            modifier = Modifier.clickable {
+                                rememberSaveableCount++
+                                rememberRetainedCount++
+                            },
+                        )
+                    }
+                }
+            }
+        }
+
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
+
+        onNodeWithText("+").performClick()
+
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 1, rememberRetainedCount: 1").assertExists()
+
+        currentEntryId = id2
+
+        onNodeWithText("value: b, id: $id2, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
+
+        currentEntryId = id3
+
+        onNodeWithText("value: c, id: $id3, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
+
+        backstackMap.remove(id1)
+
+        onNodeWithText("value: c, id: $id3, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
+
+        backstackMap[id1] = entry1
+        currentEntryId = id1
+
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
     }
 
     @Test
@@ -240,33 +363,48 @@ class NavigationHostTests {
             override val currentEntryId get() = currentEntryId
         }
 
-        stateRestorationTester.setContent {
-            NavigationHost(
-                navigationState = navigationState,
-            ) { entry ->
-                var count by rememberSaveable { mutableStateOf(0) }
+        val retainedStateRegistry = RetainedStateRegistry()
 
-                Column {
-                    BasicText("value: ${entry.value}, id: ${entry.id}, count: $count")
-                    BasicText("+", modifier = Modifier.clickable { count++ })
+        stateRestorationTester.setContent {
+            CompositionLocalProvider(LocalRetainedStateRegistry provides retainedStateRegistry) {
+                NavigationHost(
+                    navigationState = navigationState,
+                ) { entry ->
+                    var rememberSaveableCount by rememberSaveable { mutableStateOf(0) }
+                    var rememberRetainedCount by rememberRetained { mutableStateOf(0) }
+
+                    Column {
+                        BasicText(
+                            "value: ${entry.value}, id: ${entry.id}, " +
+                                "rememberSaveableCount: $rememberSaveableCount, " +
+                                "rememberRetainedCount: $rememberRetainedCount",
+                        )
+                        BasicText(
+                            "+",
+                            modifier = Modifier.clickable {
+                                rememberSaveableCount++
+                                rememberRetainedCount++
+                            },
+                        )
+                    }
                 }
             }
         }
 
-        onNodeWithText("value: a, id: $id1, count: 0").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
 
         onNodeWithText("+").performClick()
 
-        onNodeWithText("value: a, id: $id1, count: 1").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 1, rememberRetainedCount: 1").assertExists()
 
         currentEntryId = id2
 
-        onNodeWithText("value: b, id: $id2, count: 0").assertExists()
+        onNodeWithText("value: b, id: $id2, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
 
         stateRestorationTester.emulateSavedInstanceStateRestore()
 
         currentEntryId = id1
 
-        onNodeWithText("value: a, id: $id1, count: 1").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 1, rememberRetainedCount: 1").assertExists()
     }
 }

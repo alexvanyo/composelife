@@ -43,6 +43,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(libs.circuit.retained)
                 api(libs.jetbrains.compose.animation)
                 api(libs.jetbrains.compose.runtime)
                 api(libs.jetbrains.compose.ui)

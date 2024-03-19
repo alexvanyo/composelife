@@ -18,6 +18,7 @@ package com.alexvanyo.composelife
 
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -25,6 +26,8 @@ import androidx.compose.ui.window.rememberWindowState
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.app.theme.shouldUseDarkTheme
+import com.slack.circuit.retained.LocalRetainedStateRegistry
+import com.slack.circuit.retained.continuityRetainedStateRegistry
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
@@ -50,13 +53,15 @@ fun main() = application {
         title = "ComposeLife",
         state = windowState,
     ) {
-        val uiComponent = ComposeLifeUiComponent::class.create(applicationComponent)
-        val mainInjectEntryPoint = uiComponent.entryPoint as MainInjectEntryPoint
+        CompositionLocalProvider(LocalRetainedStateRegistry provides continuityRetainedStateRegistry()) {
+            val uiComponent = ComposeLifeUiComponent::class.create(applicationComponent)
+            val mainInjectEntryPoint = uiComponent.entryPoint as MainInjectEntryPoint
 
-        with(mainInjectEntryPoint) {
-            ComposeLifeTheme(shouldUseDarkTheme()) {
-                @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-                (ComposeLifeApp(calculateWindowSizeClass()))
+            with(mainInjectEntryPoint) {
+                ComposeLifeTheme(shouldUseDarkTheme()) {
+                    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+                    ComposeLifeApp(calculateWindowSizeClass())
+                }
             }
         }
     }

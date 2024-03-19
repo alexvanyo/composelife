@@ -26,19 +26,21 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.alexvanyo.composelife.snapshotstateset.mutableStateSetOf
-import java.util.UUID
+import com.slack.circuit.retained.CanRetainChecker
+import com.slack.circuit.retained.LocalCanRetainChecker
+import com.slack.circuit.retained.LocalRetainedStateRegistry
+import com.slack.circuit.retained.RetainedStateRegistry
+import com.slack.circuit.retained.rememberRetained
 
 /**
  * The primary composable for displaying a [NavigationState].
@@ -79,41 +81,78 @@ fun <T : NavigationEntry, S : NavigationState<T>> NavigationHost(
     decoration: NavigationDecoration<T, S>,
     content: @Composable (T) -> Unit,
 ) {
-    val stateHolder = rememberSaveableStateHolder()
-    val allKeys = rememberSaveable(
-        saver = listSaver(
-            save = { it.map(UUID::toString) },
-            restore = {
-                mutableStateSetOf<UUID>().apply {
-                    addAll(it.map(UUID::fromString))
+    val saveableStateHolder = rememberSaveableStateHolder()
+
+    /**
+     * Create a [RetainedStateRegistry] for the NavigationHost.
+     * This will keep all individual entry's [RetainedStateRegistry]s retained even if they are not composed.
+     */
+    val retainedStateRegistry = rememberRetained { RetainedStateRegistry() }
+
+    val currentEntryKeySet by rememberUpdatedState(navigationState.entryMap.keys.toSet())
+
+    // Set up a DisposableEffect for each entry key in the backstack to clear a particular entry's state from the
+    // retainedStateRegistry when the entry is no longer in the backstack.
+    // Without this, entry state would leak and be kept around indefinitely in the case where an entry is removed
+    // from the backstack while not currently being rendered.
+    currentEntryKeySet.forEach { entryKey ->
+        key(entryKey) {
+            DisposableEffect(Unit) {
+                // Ordering note: This will happen _after_ the entryRetainedStateRegistry's onDispose in
+                // due to LIFO ordering of DisposableEffect, so any retained entry state saved there will be cleared.
+                onDispose {
+                    if (entryKey !in currentEntryKeySet) {
+                        retainedStateRegistry.consumeValue(entryKey.toString())
+                    }
                 }
-            },
-        ),
-    ) { mutableStateSetOf<UUID>() }
+            }
+        }
+    }
 
     Box(
         modifier = modifier,
         propagateMinConstraints = true,
     ) {
         decoration(navigationState) { entry ->
-            key(entry.id) {
-                stateHolder.SaveableStateProvider(key = entry.id) {
-                    content(entry)
+            saveableStateHolder.SaveableStateProvider(key = entry.id) {
+                CompositionLocalProvider(
+                    LocalRetainedStateRegistry provides retainedStateRegistry,
+                    /**
+                     * Only retain the entry [RetainedStateRegistry] when it is in the backstack.
+                     */
+                    LocalCanRetainChecker provides { entry.id in currentEntryKeySet },
+                ) {
+                    val entryRetainedStateRegistry = rememberRetained(key = entry.id.toString()) {
+                        RetainedStateRegistry()
+                    }
+
+                    CompositionLocalProvider(
+                        LocalRetainedStateRegistry provides entryRetainedStateRegistry,
+                        LocalCanRetainChecker provides CanRetainChecker.Always,
+                    ) {
+                        content(entry)
+                    }
                 }
             }
         }
     }
 
-    val keySet = navigationState.entryMap.keys.toSet()
-
-    LaunchedEffect(keySet) {
-        // Remove the state for a given key if it doesn't correspond to an entry in the backstack map
-        (allKeys - keySet).forEach { entryToRemove ->
-            stateHolder.removeState(entryToRemove)
-            allKeys.remove(entryToRemove)
+    // Set up a DisposableEffect for each entry key in the backstack to clear a particular entry's state from the
+    // saveableStateHolder when the entry is no longer in the backstack.
+    // Without this, entry state would leak and be kept around indefinitely in the case where an entry is removed
+    // from the backstack while not currently being rendered.
+    currentEntryKeySet.forEach { entryKey ->
+        key(entryKey) {
+            DisposableEffect(Unit) {
+                // Ordering note: This will happen _before_ the content's onDispose in SaveableStateProvider due to
+                // LIFO ordering of DisposableEffect, so the removed entry state saving will be skipped.
+                onDispose {
+                    if (entryKey !in currentEntryKeySet) {
+                        saveableStateHolder.removeState(entryKey)
+                    }
+                }
+            }
         }
-        // Keep track of the ids we've seen, to know which ones we may need to clear out later.
-        allKeys.addAll(keySet)
     }
 }
 
