@@ -74,6 +74,7 @@ import com.alexvanyo.composelife.ui.util.ClipboardReader
 import com.alexvanyo.composelife.ui.util.clipboardStateKey
 import com.alexvanyo.composelife.ui.util.rememberClipboardReader
 import com.livefront.sealedenum.GenSealedEnum
+import com.slack.circuit.retained.rememberRetained
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -396,13 +397,13 @@ fun rememberClipboardWatchingEnabledState(
     setSelectionToCellState: (CellState) -> Unit,
 ): ClipboardWatchingState.ClipboardWatchingEnabled {
     var isLoading by remember { mutableStateOf(false) }
-    var currentClipboardCellStateId: UUID by remember {
+    var currentClipboardCellStateId: UUID by rememberRetained {
         mutableStateOf(UUID.randomUUID())
     }
-    var currentDeserializationResult: DeserializationResult? by remember {
+    var currentDeserializationResult: DeserializationResult? by rememberRetained {
         mutableStateOf(null)
     }
-    val previousClipboardCellStates: MutableList<Pair<UUID, DeserializationResult.Successful>> = remember {
+    val previousClipboardCellStates: MutableList<Pair<UUID, DeserializationResult.Successful>> = rememberRetained {
         mutableStateListOf()
     }
 

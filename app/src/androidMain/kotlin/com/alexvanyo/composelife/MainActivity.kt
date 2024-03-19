@@ -24,6 +24,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.alexvanyo.composelife.resourcestate.isSuccess
@@ -34,6 +35,8 @@ import com.alexvanyo.composelife.scopes.UiComponentOwner
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.app.theme.shouldUseDarkTheme
+import com.slack.circuit.retained.LocalRetainedStateRegistry
+import com.slack.circuit.retained.continuityRetainedStateRegistry
 
 class MainActivity : AppCompatActivity(), UiComponentOwner {
 
@@ -59,25 +62,27 @@ class MainActivity : AppCompatActivity(), UiComponentOwner {
         enableEdgeToEdge()
 
         setContent {
-            with(mainActivityEntryPoint) {
-                val darkTheme = shouldUseDarkTheme()
-                DisposableEffect(darkTheme) {
-                    enableEdgeToEdge(
-                        statusBarStyle = SystemBarStyle.auto(
-                            android.graphics.Color.TRANSPARENT,
-                            android.graphics.Color.TRANSPARENT,
-                        ) { darkTheme },
-                        navigationBarStyle = SystemBarStyle.auto(
-                            lightScrim,
-                            darkScrim,
-                        ) { darkTheme },
-                    )
-                    onDispose {}
-                }
+            CompositionLocalProvider(LocalRetainedStateRegistry provides continuityRetainedStateRegistry()) {
+                with(mainActivityEntryPoint) {
+                    val darkTheme = shouldUseDarkTheme()
+                    DisposableEffect(darkTheme) {
+                        enableEdgeToEdge(
+                            statusBarStyle = SystemBarStyle.auto(
+                                android.graphics.Color.TRANSPARENT,
+                                android.graphics.Color.TRANSPARENT,
+                            ) { darkTheme },
+                            navigationBarStyle = SystemBarStyle.auto(
+                                lightScrim,
+                                darkScrim,
+                            ) { darkTheme },
+                        )
+                        onDispose {}
+                    }
 
-                ComposeLifeTheme(darkTheme) {
-                    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-                    (ComposeLifeApp(calculateWindowSizeClass()))
+                    ComposeLifeTheme(darkTheme) {
+                        @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+                        ComposeLifeApp(calculateWindowSizeClass())
+                    }
                 }
             }
         }
