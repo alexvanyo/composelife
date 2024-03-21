@@ -95,6 +95,12 @@ internal actual val Strings.DisableAutofit: ParameterizedString get() =
 internal actual val Strings.EnableAutofit: ParameterizedString get() =
     ParameterizedString(R.string.enable_autofit)
 
+internal actual val Strings.DisableImmersiveMode: ParameterizedString get() =
+    ParameterizedString(R.string.disable_immersive_mode)
+
+internal actual val Strings.EnableImmersiveMode: ParameterizedString get() =
+    ParameterizedString(R.string.enable_immersive_mode)
+
 internal actual val Strings.Speed: ParameterizedString get() =
     ParameterizedString(R.string.speed)
 

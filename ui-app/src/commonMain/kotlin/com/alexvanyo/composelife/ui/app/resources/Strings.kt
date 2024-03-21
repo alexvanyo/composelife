@@ -74,6 +74,10 @@ internal expect val Strings.DisableAutofit: ParameterizedString
 
 internal expect val Strings.EnableAutofit: ParameterizedString
 
+internal expect val Strings.DisableImmersiveMode: ParameterizedString
+
+internal expect val Strings.EnableImmersiveMode: ParameterizedString
+
 internal expect val Strings.Speed: ParameterizedString
 
 internal expect val Strings.Edit: ParameterizedString
