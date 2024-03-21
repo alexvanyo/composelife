@@ -90,4 +90,6 @@
     <string name="enable_clipboard_watching">Enable clipboard watching</string>
     <string name="deserialization_failed">Deserialization failed</string>
     <string name="warnings">Warnings</string>
+    <string name="disable_immersive_mode">Disable immersive mode</string>
+    <string name="enable_immersive_mode">Enable immersive mode</string>
 </resources>

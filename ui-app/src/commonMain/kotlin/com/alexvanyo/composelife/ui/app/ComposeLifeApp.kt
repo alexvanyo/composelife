@@ -55,6 +55,7 @@ import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInj
 import com.alexvanyo.composelife.ui.util.PredictiveNavigationHost
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.ReportDrawn
+import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import java.util.UUID
 
@@ -75,6 +76,8 @@ fun ComposeLifeApp(
     modifier: Modifier = Modifier,
     composeLifeAppState: ComposeLifeAppState = rememberComposeLifeAppState(),
 ) {
+    val immersiveModeManager = rememberImmersiveModeManager()
+
     Surface(modifier = modifier.fillMaxSize()) {
         LookaheadScope {
             val transition = updateTransition(composeLifeAppState, "ComposeLifeAppState Crossfade")
@@ -126,6 +129,7 @@ fun ComposeLifeApp(
                                         is ComposeLifeNavigation.CellUniverse -> {
                                             CellUniverseScreen(
                                                 windowSizeClass = windowSizeClass,
+                                                immersiveModeManager = immersiveModeManager,
                                                 onSeeMoreSettingsClicked = {
                                                     targetComposeLifeAppState.onSeeMoreSettingsClicked(entry.id)
                                                 },

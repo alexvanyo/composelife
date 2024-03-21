@@ -38,6 +38,8 @@ fun CollapsedRunningActionControlRowPreview() {
                 setIsExpanded = {},
                 isViewportTracking = false,
                 setIsViewportTracking = {},
+                isImmersiveMode = false,
+                setIsImmersiveMode = {},
                 selectionState = SelectionState.NoSelection,
                 onClearSelection = {},
                 onCopy = {},
@@ -63,6 +65,8 @@ fun CollapsedPausedActionControlRowPreview() {
                 setIsExpanded = {},
                 isViewportTracking = false,
                 setIsViewportTracking = {},
+                isImmersiveMode = false,
+                setIsImmersiveMode = {},
                 selectionState = SelectionState.NoSelection,
                 onClearSelection = {},
                 onCopy = {},
@@ -88,6 +92,8 @@ fun ExpandedActionControlRowPreview() {
                 setIsExpanded = {},
                 isViewportTracking = false,
                 setIsViewportTracking = {},
+                isImmersiveMode = false,
+                setIsImmersiveMode = {},
                 selectionState = SelectionState.NoSelection,
                 onClearSelection = {},
                 onCopy = {},
@@ -113,6 +119,35 @@ fun ViewportTrackingActionControlRowPreview() {
                 setIsExpanded = {},
                 isViewportTracking = true,
                 setIsViewportTracking = {},
+                isImmersiveMode = false,
+                setIsImmersiveMode = {},
+                selectionState = SelectionState.NoSelection,
+                onClearSelection = {},
+                onCopy = {},
+                onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
+            )
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun ImmersiveModeActionControlRowPreview() {
+    WithPreviewDependencies {
+        ComposeLifeTheme {
+            ActionControlRow(
+                isElevated = false,
+                isRunning = false,
+                setIsRunning = {},
+                onStep = {},
+                isExpanded = false,
+                setIsExpanded = {},
+                isViewportTracking = true,
+                setIsViewportTracking = {},
+                isImmersiveMode = true,
+                setIsImmersiveMode = {},
                 selectionState = SelectionState.NoSelection,
                 onClearSelection = {},
                 onCopy = {},
@@ -138,6 +173,8 @@ fun SelectingBoxActionControlRowPreview() {
                 setIsExpanded = {},
                 isViewportTracking = false,
                 setIsViewportTracking = {},
+                isImmersiveMode = false,
+                setIsImmersiveMode = {},
                 selectionState = SelectionState.SelectingBox.FixedSelectingBox(
                     topLeft = IntOffset.Zero,
                     width = 1,
@@ -168,6 +205,8 @@ fun SelectionActionControlRowPreview() {
                 setIsExpanded = {},
                 isViewportTracking = false,
                 setIsViewportTracking = {},
+                isImmersiveMode = false,
+                setIsImmersiveMode = {},
                 selectionState = SelectionState.Selection(
                     cellState = emptyCellState(),
                     offset = IntOffset.Zero,
@@ -196,6 +235,8 @@ fun ElevatedExpandedActionControlRowPreview() {
                 setIsExpanded = {},
                 isViewportTracking = false,
                 setIsViewportTracking = {},
+                isImmersiveMode = false,
+                setIsImmersiveMode = {},
                 selectionState = SelectionState.NoSelection,
                 onClearSelection = {},
                 onCopy = {},

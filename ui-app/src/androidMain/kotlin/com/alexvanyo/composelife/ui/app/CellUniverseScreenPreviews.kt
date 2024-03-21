@@ -27,6 +27,7 @@ import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
+import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -39,6 +40,7 @@ fun LoadingCellStateCellUniverseScreenPreview() {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 CellUniverseScreen(
                     windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
+                    immersiveModeManager = rememberImmersiveModeManager(),
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
                     cellUniverseScreenState = CellUniverseScreenState.LoadingCellState,
@@ -64,6 +66,7 @@ fun LoadedCellUniverseScreenPreview() {
                 )
                 CellUniverseScreen(
                     windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
+                    immersiveModeManager = rememberImmersiveModeManager(),
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
                     cellUniverseScreenState = object : CellUniverseScreenState.LoadedCellState {
