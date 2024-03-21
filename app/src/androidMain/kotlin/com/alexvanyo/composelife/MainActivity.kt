@@ -27,6 +27,7 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowInsetsControllerCompat
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
 import com.alexvanyo.composelife.scopes.UiComponent
@@ -60,6 +61,8 @@ class MainActivity : AppCompatActivity(), UiComponentOwner {
         }
 
         enableEdgeToEdge()
+        WindowInsetsControllerCompat(window, window.decorView).systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
         setContent {
             CompositionLocalProvider(LocalRetainedStateRegistry provides continuityRetainedStateRegistry()) {

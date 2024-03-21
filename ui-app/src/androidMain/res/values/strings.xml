@@ -35,6 +35,8 @@
     <string name="collapse">Collapse</string>
     <string name="enable_autofit">Enable autofit</string>
     <string name="disable_autofit">Disable autofit</string>
+    <string name="enable_immersive_mode">Enable immersive mode</string>
+    <string name="disable_immersive_mode">Disable immersive mode</string>
     <string name="offset">Offset: x = %1$.1f, y = %2$.1f</string>
     <string name="scale">Scale: %1$.2f</string>
     <string name="paused">Paused</string>

@@ -41,6 +41,7 @@ import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicator
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorLocalEntryPoint
+import com.alexvanyo.composelife.ui.util.ImmersiveModeManager
 import com.slack.circuit.retained.rememberRetained
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -65,6 +66,7 @@ context(CellUniversePaneInjectEntryPoint, CellUniversePaneLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun CellUniversePane(
+    immersiveModeManager: ImmersiveModeManager,
     windowSizeClass: WindowSizeClass,
     onSeeMoreSettingsClicked: () -> Unit,
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
@@ -85,6 +87,7 @@ fun CellUniversePane(
             is CellUniversePaneState.LoadedCellState -> {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = cellUniversePaneState.temporalGameOfLifeState,
+                    immersiveModeManager = immersiveModeManager,
                     windowSizeClass = windowSizeClass,
                     onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
                     onOpenInSettingsClicked = onOpenInSettingsClicked,

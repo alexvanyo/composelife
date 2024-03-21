@@ -127,6 +127,8 @@ fun InteractiveCellUniverseOverlay(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 isViewportTracking = interactiveCellUniverseState.isViewportTracking,
                 setIsViewportTracking = { interactiveCellUniverseState.isViewportTracking = it },
+                isImmersiveMode = interactiveCellUniverseState.isImmersiveMode,
+                setIsImmersiveMode = { interactiveCellUniverseState.isImmersiveMode = it },
                 selectionState = interactiveCellUniverseState.cellWindowInteractionState.selectionSessionState.value,
                 setSelectionToCellState = interactiveCellUniverseState::setSelectionToCellState,
                 onClearSelection = {
