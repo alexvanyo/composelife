@@ -523,11 +523,11 @@ interface SessionValueProbabilityInfo {
    * If [oldSessionId] is non-null, and the current session id is different from [oldSessionId] and
    * [newSessionId], then the update will not go through.
    * 
-   * If the update succeeds, then the value will be updated, and the session id will be set to
-   * [newSessionId]. [oldSessionId] and [newSessionId] can be the same, for instance if the same
-   * local session is updating the probability value repeatedly.
+   * If the update succeeds, then the value will be updated, the [valueId] will be updated, and the
+   * session id will be set to [newSessionId]. [oldSessionId] and [newSessionId] can be the same,
+   * for instance if the same local session is updating the probability value repeatedly.
    */
-  fun updateProbability(oldSessionId: UUID?, newSessionId: UUID, value: Float)
+  fun updateProbability(oldSessionId: UUID?, newSessionId: UUID, valueId: UUID, value: Float)
 }
 ```
 
