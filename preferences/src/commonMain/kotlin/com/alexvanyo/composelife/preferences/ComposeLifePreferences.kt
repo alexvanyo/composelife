@@ -20,7 +20,7 @@ package com.alexvanyo.composelife.preferences
 
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.map
-import com.alexvanyo.composelife.sessionvaluekey.SessionValue
+import com.alexvanyo.composelife.sessionvalue.SessionValue
 import java.util.UUID
 
 interface ComposeLifePreferences {

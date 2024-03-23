@@ -1,4 +1,4 @@
-# session-value-key
+# session-value
 
 A utility library defining a value wrapper that indicates the value is associated with a particular
 session.
@@ -465,6 +465,27 @@ Storing and using these ids allows distinguishing between situations like:
   update the value should fail to update?
 - Has the asynchronous source reported the most recently set value?
 
+The tool for updating this value is `SessionValueHolder`:
+
+```kotlin
+sealed interface SessionValueHolder<T> {
+    val sessionValue: SessionValue<T>
+    val info: LocalSessionInfo
+
+    fun setValue(
+        value: T,
+        valueId: UUID = UUID.randomUUID(),
+    )
+}
+
+@Composable
+fun <T> rememberSessionValueHolder(
+    upstreamSessionValue: SessionValue<T>,
+    setUpstreamSessionValue: (upstreamSessionId: UUID, SessionValue<T>) -> Unit,
+    valueSaver: Saver<T, *> = autoSaver(),
+): SessionValueHolder<T>
+```
+
 The general flow for updating this value is:
 
 - The asynchronous value contains the current value, and the id for the previous session.
@@ -477,32 +498,6 @@ The general flow for updating this value is:
 - This will invalidate all sessions other than the local session, which will be able to
   synchronously update the local value while safely ignoring updates from the asynchronous state,
   because they are asynchronous reflections of the local session.
-
-To achieve this gracefully in Compose code, we need one more tool: a way to "upgrade" a key from
-the previous session, to the new local session.
-We can achieve this with an `UpgradableSessionKey`:
-
-```kotlin
-/**
- * An upgradable key made of [UUID]s.
- *
- * A [UpgradableSessionKey] is equal to another [UpgradableSessionKey] if any of the [UUID]s used to
- * construct this [UpgradableSessionKey] match any of the [UUID]s used to construct the other
- * [UpgradableSessionKey].
- */
-class UpgradableSessionKey {
-    constructor(
-        a: UUID,
-    )
-    constructor(
-        a: UUID,
-        b: UUID,
-    )
-}
-```
-
-This allows directly encoding our session logic into `remember` and `key` functions in Compose,
-which rely on `equals` to decide whether to re-initialize state explicitly or implicitly.
 
 Using both of these tools, we can update our `SessionValueProbabilityInfo` interface and both the
 confirmation case, and the continuous case:
@@ -536,25 +531,29 @@ interface SessionValueProbabilityInfo {
 fun Example10(
     probabilityInfo: ProbabilityInfo
 ) {
-    val asyncProbabilitySessionValue by probabilityInfo.probabilityState.collectAsState()
+    val upstreamSessionValue by probabilityInfo.probabilityState.collectAsState()
 
-    val oldSessionId = asyncProbabilitySessionValue.id
-    val nextSessionId = remember(oldSessionId) { UUID.randomUUID() }
-    val upgradableSessionKey = UpgradableSessionKey(oldSessionId, nextSessionId)
-    val currentSessionId = remember(upgradableSessionKey) { nextSessionId }
+    val sessionValueHolder = rememberSessionValueHolder(
+        upstreamSessionValue = upstreamSessionValue,
+        setUpstreamSessionValue = { sessionId, sessionValue ->
+            probabilityInfo.updateProbability(
+                sessionId,
+                sessionValue.sessionId,
+                sessionValue.valueId,
+                sessionValue.value
+            )
+        },
+    )
+  
+    val sessionValue = sessionValueHolder.sessionValue
 
     /**
      * The local source of truth for the probability.
      * This is initialized to the asynchronously-updated value, and is reset to the
-     * asynchronously-updated value if the session changes to anything other than
-     * [currentSessionId].
+     * asynchronously-updated value if the session changes.
      */
-    val localProbability by rememberSaveable(upgradableSessionKey) {
-        mutableStateOf(asyncProbabilitySessionValue.value)
-    }
-
-    var mostRecentlyUpdatedValueId: UUID? by remember(currentSessionId) {
-        mutableStateOf(null)
+    val localProbability by rememberSaveable(sessionValueHolder.info.localSessionId) {
+        mutableStateOf(sessionValue.value)
     }
   
     /**
@@ -562,11 +561,7 @@ fun Example10(
      * or we have updated the value, we see the most recent update in the asynchronous state,
      * and the value is different than the local one.
      */
-    val enableButtons =
-        (mostRecentlyUpdatedValueId == null &&
-            asyncProbabilitySessionValue.value != localProbability) ||
-                (asyncProbabilitySessionValue.valueId == mostRecentlyUpdatedValueId &&
-                      asyncProbabilitySessionValue.value != localProbability)
+    val enableButtons = sessionValue.value != localProbability
     
     Column {
         MySlider(
@@ -586,14 +581,7 @@ fun Example10(
         }
         Button(
             onClick = {
-                val valueId = UUID.randomUUID()
-                mostRecentlyUpdatedValueId = valueId
-                probabilityInfo.updateProbability(
-                  oldSessionId = oldSessionId,
-                  newSessionId = currentSessionId,
-                  valueId = valueId,
-                  value = localProbability,
-                )
+                sessionValueHolder.setValue(localProbability)
             },
             enabled = enableButtons
         ) {
@@ -621,39 +609,36 @@ fun MySlider(
 fun Example11(
     probabilityInfo: ProbabilityInfo
 ) {
-    val asyncProbabilitySessionValue by probabilityInfo.probabilityState.collectAsState()
+    val upstreamSessionValue by probabilityInfo.probabilityState.collectAsState()
   
-    val oldSessionId = asyncProbabilitySessionValue.id
-    val nextSessionId = remember(oldSessionId) { UUID.randomUUID() }
-    val upgradableSessionKey = UpgradableSessionKey(oldSessionId, nextSessionId)
-    val currentSessionId = remember(upgradableSessionKey) { nextSessionId }
+    val sessionValueHolder = rememberSessionValueHolder(
+        upstreamSessionValue = upstreamSessionValue,
+        setUpstreamSessionValue = { sessionId, sessionValue ->
+            probabilityInfo.updateProbability(
+                sessionId,
+                sessionValue.sessionId,
+                sessionValue.valueId,
+                sessionValue.value
+            )
+        },
+    )
+
+    val sessionValue = sessionValueHolder.sessionValue
 
     /**
      * The local source of truth for the probability.
      * This is initialized to the asynchronously-updated value, and is reset to the
-     * asynchronously-updated value if the session changes to anything other than
-     * [currentSessionId].
+     * asynchronously-updated value if the session changes.
      */
-    val localProbability by rememberSaveable(upgradableSessionKey) {
-        mutableStateOf(asyncProbabilitySessionValue.value)
-    }
-
-    var mostRecentlyUpdatedValueId: UUID? by remember(currentSessionId) {
-        mutableStateOf(null)
+    val localProbability by rememberSaveable(sessionValueHolder.info.localSessionId) {
+        mutableStateOf(sessionValue.value)
     }
   
     MySlider(
         value = localProbability,
         onValueChange = {
             localProbability = it
-            val valueId = UUID.randomUUID()
-            mostRecentlyUpdatedValueId = valueId
-            probabilityInfo.updateProbability(
-                oldSessionId = oldSessionId,
-                newSessionId = currentSessionId,
-                valueId = valueId,
-                value = localProbability,
-            )
+            sessionValueHolder.setValue(localProbability)
         }
     )
 }
