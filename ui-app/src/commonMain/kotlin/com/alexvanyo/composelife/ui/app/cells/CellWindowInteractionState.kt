@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.ui.app.cells
 
 import androidx.compose.runtime.Stable
-import com.alexvanyo.composelife.sessionvaluekey.SessionValue
+import com.alexvanyo.composelife.sessionvalue.SessionValue
 
 @Stable
 interface CellWindowInteractionState : SelectionStateHolder {
