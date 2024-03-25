@@ -126,7 +126,6 @@ fun ComposeLifeApp(
                                         is ComposeLifeNavigation.CellUniverse -> {
                                             CellUniverseScreen(
                                                 windowSizeClass = windowSizeClass,
-                                                navEntryValue = value,
                                                 onSeeMoreSettingsClicked = {
                                                     targetComposeLifeAppState.onSeeMoreSettingsClicked(entry.id)
                                                 },
@@ -171,7 +170,7 @@ fun rememberComposeLifeAppState(): ComposeLifeAppState {
             val navController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
-                        value = ComposeLifeNavigation.CellUniverse(),
+                        value = ComposeLifeNavigation.CellUniverse,
                         previous = null,
                     ),
                 ),
