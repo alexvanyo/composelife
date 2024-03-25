@@ -22,8 +22,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
-import com.alexvanyo.composelife.data.model.SaveableCellState
-import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackValueSaverFactory
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
@@ -38,20 +36,16 @@ sealed interface ComposeLifeNavigation {
      */
     val type: ComposeLifeNavigationType
 
-    class CellUniverse : ComposeLifeNavigation {
-
-        var initialSaveableCellState: SaveableCellState? by mutableStateOf(null)
-
-        var temporalGameOfLifeState: TemporalGameOfLifeState? by mutableStateOf(null)
+    data object CellUniverse : ComposeLifeNavigation {
 
         override val type = Companion
 
-        companion object : ComposeLifeNavigationType {
+        object Companion : ComposeLifeNavigationType {
             override fun saverFactory(
                 previous: BackstackEntry<ComposeLifeNavigation>?,
             ): Saver<CellUniverse, Any> = Saver(
                 save = { 0 },
-                restore = { CellUniverse() },
+                restore = { CellUniverse },
             )
         }
     }
