@@ -41,6 +41,7 @@ import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicator
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorLocalEntryPoint
+import com.slack.circuit.retained.rememberRetained
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
@@ -65,11 +66,10 @@ context(CellUniverseScreenInjectEntryPoint, CellUniverseScreenLocalEntryPoint)
 @Composable
 fun CellUniverseScreen(
     windowSizeClass: WindowSizeClass,
-    navEntryValue: ComposeLifeNavigation.CellUniverse,
     onSeeMoreSettingsClicked: () -> Unit,
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
     modifier: Modifier = Modifier,
-    cellUniverseScreenState: CellUniverseScreenState = rememberCellUniverseScreenState(navEntryValue),
+    cellUniverseScreenState: CellUniverseScreenState = rememberCellUniverseScreenState(),
 ) {
     Box(modifier = modifier) {
         when (cellUniverseScreenState) {
@@ -97,13 +97,14 @@ fun CellUniverseScreen(
 context(CellStateRepositoryProvider, GameOfLifeAlgorithmProvider, ComposeLifeDispatchersProvider, ClockProvider)
 @Suppress("LongMethod")
 @Composable
-fun rememberCellUniverseScreenState(
-    navEntryValue: ComposeLifeNavigation.CellUniverse,
-): CellUniverseScreenState {
-    val currentInitialSaveableCellState = navEntryValue.initialSaveableCellState
-    val currentTemporalGameOfLifeState = navEntryValue.temporalGameOfLifeState
+fun rememberCellUniverseScreenState(): CellUniverseScreenState {
+    var retainedInitialSaveableCellState: SaveableCellState? by rememberRetained { mutableStateOf(null) }
+    var retainedTemporalGameOfLifeState: TemporalGameOfLifeState? by rememberRetained { mutableStateOf(null) }
 
-    if (currentInitialSaveableCellState == null) {
+    val initialSaveableCellState = retainedInitialSaveableCellState
+    val temporalGameOfLifeState = retainedTemporalGameOfLifeState
+
+    if (initialSaveableCellState == null) {
         LaunchedEffect(cellStateRepository) {
             val newInitialSaveableCellState = cellStateRepository.getAutosavedCellState()
                 ?: SaveableCellState(
@@ -111,19 +112,17 @@ fun rememberCellUniverseScreenState(
                     CellStateMetadata(null, null, null, 0, false),
                 )
 
-            navEntryValue.initialSaveableCellState = newInitialSaveableCellState
-            navEntryValue.temporalGameOfLifeState = TemporalGameOfLifeState(
+            retainedInitialSaveableCellState = newInitialSaveableCellState
+            retainedTemporalGameOfLifeState = TemporalGameOfLifeState(
                 seedCellState = newInitialSaveableCellState.cellState,
                 isRunning = false,
             )
         }
     }
 
-    return if (currentInitialSaveableCellState == null || currentTemporalGameOfLifeState == null) {
+    return if (initialSaveableCellState == null || temporalGameOfLifeState == null) {
         CellUniverseScreenState.LoadingCellState
     } else {
-        val temporalGameOfLifeState: TemporalGameOfLifeState = currentTemporalGameOfLifeState
-
         val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
             temporalGameOfLifeState = temporalGameOfLifeState,
             gameOfLifeAlgorithm = gameOfLifeAlgorithm,
@@ -136,7 +135,7 @@ fun rememberCellUniverseScreenState(
         }
 
         var cellStateMetadataId by remember {
-            mutableStateOf(currentInitialSaveableCellState.cellStateMetadata.id)
+            mutableStateOf(initialSaveableCellState.cellStateMetadata.id)
         }
 
         LaunchedEffect(temporalGameOfLifeState) {
@@ -152,14 +151,14 @@ fun rememberCellUniverseScreenState(
                             cellState = cellState,
                             cellStateMetadata = CellStateMetadata(
                                 id = cellStateMetadataId,
-                                name = currentInitialSaveableCellState.cellStateMetadata.name,
-                                description = currentInitialSaveableCellState
+                                name = initialSaveableCellState.cellStateMetadata.name,
+                                description = initialSaveableCellState
                                     .cellStateMetadata
                                     .description,
-                                generation = currentInitialSaveableCellState
+                                generation = initialSaveableCellState
                                     .cellStateMetadata
                                     .generation,
-                                wasAutosaved = currentInitialSaveableCellState
+                                wasAutosaved = initialSaveableCellState
                                     .cellStateMetadata
                                     .wasAutosaved,
                             ),
@@ -171,7 +170,7 @@ fun rememberCellUniverseScreenState(
 
         remember(temporalGameOfLifeState) {
             object : CellUniverseScreenState.LoadedCellState {
-                override val temporalGameOfLifeState = temporalGameOfLifeState
+                override val temporalGameOfLifeState: TemporalGameOfLifeState = temporalGameOfLifeState
             }
         }
     }

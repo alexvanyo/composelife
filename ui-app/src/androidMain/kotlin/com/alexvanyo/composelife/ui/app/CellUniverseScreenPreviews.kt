@@ -39,7 +39,6 @@ fun LoadingCellStateCellUniverseScreenPreview() {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 CellUniverseScreen(
                     windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
-                    navEntryValue = ComposeLifeNavigation.CellUniverse(),
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
                     cellUniverseScreenState = CellUniverseScreenState.LoadingCellState,
@@ -65,7 +64,6 @@ fun LoadedCellUniverseScreenPreview() {
                 )
                 CellUniverseScreen(
                     windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
-                    navEntryValue = ComposeLifeNavigation.CellUniverse(),
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
                     cellUniverseScreenState = object : CellUniverseScreenState.LoadedCellState {
