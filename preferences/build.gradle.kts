@@ -48,7 +48,7 @@ kotlin {
                 api(libs.sealedEnum.runtime)
                 api(projects.dispatchers)
                 api(projects.resourceState)
-                api(projects.sessionValueKey)
+                api(projects.sessionValue)
                 api(projects.updatable)
 
                 implementation(libs.androidx.dataStore.core.okio)

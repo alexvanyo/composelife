@@ -51,7 +51,7 @@ import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.isRunning
-import com.alexvanyo.composelife.sessionvaluekey.SessionValue
+import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardState
 import com.alexvanyo.composelife.ui.app.action.rememberCellUniverseActionCardState
 import com.alexvanyo.composelife.ui.app.action.settings.Setting

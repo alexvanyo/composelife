@@ -67,7 +67,7 @@ kotlin {
                 implementation(projects.parameterizedString)
                 implementation(projects.patterns)
                 implementation(projects.resourceState)
-                implementation(projects.sessionValueKey)
+                implementation(projects.sessionValue)
                 implementation(projects.snapshotStateSet)
                 implementation(projects.uiCommon)
                 implementation(projects.uiToolingPreview)
