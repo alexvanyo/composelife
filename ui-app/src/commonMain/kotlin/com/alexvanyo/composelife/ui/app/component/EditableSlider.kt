@@ -37,8 +37,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import com.alexvanyo.composelife.sessionvaluekey.SessionValue
-import com.alexvanyo.composelife.sessionvaluekey.UpgradableSessionKey
+import com.alexvanyo.composelife.sessionvalue.SessionValue
+import com.alexvanyo.composelife.sessionvalue.localSessionId
+import com.alexvanyo.composelife.sessionvalue.rememberSessionValueHolder
 import java.util.UUID
 
 @Suppress("LongParameterList", "LongMethod")
@@ -67,18 +68,17 @@ fun <T : Comparable<T>> EditableSlider(
      */
     val nonTransientValueText = valueText(value)
 
-    val oldSessionId = sessionValue.sessionId
-    val nextSessionId = remember(oldSessionId) { UUID.randomUUID() }
-    val upgradableSessionKey = UpgradableSessionKey(
-        a = oldSessionId,
-        b = nextSessionId,
+    val textFieldSessionValueHolder = rememberSessionValueHolder(
+        upstreamSessionValue = sessionValue,
+        setUpstreamSessionValue = { _, newSessionValue -> onSessionValueChange(newSessionValue) },
     )
-    val currentSessionId = remember(upgradableSessionKey) { nextSessionId }
+
+    val textFieldLocalSessionId = textFieldSessionValueHolder.info.localSessionId
 
     /**
      * The transient [TextField] value that the user is editing.
      */
-    var transientTextFieldValue by key(currentSessionId) {
+    var transientTextFieldValue by key(textFieldLocalSessionId) {
         rememberSaveable { mutableStateOf(nonTransientValueText) }
     }
 
@@ -135,7 +135,7 @@ fun <T : Comparable<T>> EditableSlider(
                     parseValue(value)?.let { newTransientValue ->
                         // If successful, call onValueChange with the new transient value, and update the known
                         // transient value text we will receive by converting back to text.
-                        onSessionValueChange(SessionValue(currentSessionId, UUID.randomUUID(), newTransientValue))
+                        textFieldSessionValueHolder.setValue(newTransientValue)
                     }
                 },
                 modifier = Modifier

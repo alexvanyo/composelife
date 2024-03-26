@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
-import com.alexvanyo.composelife.sessionvaluekey.SessionValue
+import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.ImmutableCellWindow

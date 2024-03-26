@@ -16,7 +16,7 @@
 
 package com.alexvanyo.composelife.preferences
 
-import com.alexvanyo.composelife.sessionvaluekey.SessionValue
+import com.alexvanyo.composelife.sessionvalue.SessionValue
 import java.util.UUID
 
 data class LoadedComposeLifePreferences(

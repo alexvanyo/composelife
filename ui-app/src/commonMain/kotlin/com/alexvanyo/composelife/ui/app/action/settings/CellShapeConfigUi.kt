@@ -27,6 +27,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -35,13 +36,15 @@ import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.setCurrentShapeType
 import com.alexvanyo.composelife.preferences.setRoundRectangleConfig
-import com.alexvanyo.composelife.sessionvaluekey.SessionValue
-import com.alexvanyo.composelife.sessionvaluekey.UpgradableSessionKey
+import com.alexvanyo.composelife.sessionvalue.SessionValue
+import com.alexvanyo.composelife.sessionvalue.localSessionId
+import com.alexvanyo.composelife.sessionvalue.rememberSessionValueHolder
 import com.alexvanyo.composelife.ui.app.component.DropdownOption
 import com.alexvanyo.composelife.ui.app.component.EditableSlider
 import com.alexvanyo.composelife.ui.app.component.IdentitySliderBijection
@@ -167,37 +170,66 @@ fun rememberCellShapeConfigUiState(): CellShapeConfigUiState {
 
     val currentShapeConfigUiState = when (currentShapeType) {
         is CurrentShapeType.RoundRectangle -> {
-            val roundRectangleSessionValue = preferences.roundRectangleSessionValue
-
-            val oldSessionId = roundRectangleSessionValue.sessionId
-            val nextSessionId = remember(oldSessionId) { UUID.randomUUID() }
-            val upgradableSessionKey = UpgradableSessionKey(
-                a = oldSessionId,
-                b = nextSessionId,
+            val roundRectangleSessionValueHolder = rememberSessionValueHolder<CurrentShape.RoundRectangle>(
+                upstreamSessionValue = preferences.roundRectangleSessionValue,
+                setUpstreamSessionValue = { upstreamSessionId, sessionValue ->
+                    coroutineScope.launch {
+                        composeLifePreferences.setRoundRectangleConfig(
+                            oldSessionId = upstreamSessionId,
+                            newSessionId = sessionValue.sessionId,
+                            valueId = sessionValue.valueId,
+                        ) { roundRectangle ->
+                            roundRectangle.copy(
+                                sizeFraction = sessionValue.value.sizeFraction,
+                                cornerFraction = sessionValue.value.cornerFraction,
+                            )
+                        }
+                    }
+                },
+                valueSaver = listSaver(
+                    save = {
+                        listOf(it.sizeFraction, it.cornerFraction)
+                    },
+                    restore = {
+                        CurrentShape.RoundRectangle(
+                            it[0],
+                            it[1],
+                        )
+                    },
+                ),
             )
-            val currentSessionId = remember(upgradableSessionKey) { nextSessionId }
 
-            val initialSizeFraction = remember(currentSessionId) { roundRectangleSessionValue.value.sizeFraction }
-            val initialCornerFraction = remember(currentSessionId) { roundRectangleSessionValue.value.cornerFraction }
-            var sizeFraction by remember(currentSessionId) { mutableFloatStateOf(initialSizeFraction) }
-            var cornerFraction by remember(currentSessionId) { mutableFloatStateOf(initialCornerFraction) }
+            val localSessionId = roundRectangleSessionValueHolder.info.localSessionId
 
-            var sizeFractionSessionId by key(currentSessionId) {
+            val initialSizeFraction = remember(localSessionId) {
+                roundRectangleSessionValueHolder.sessionValue.value.sizeFraction
+            }
+            val initialCornerFraction = remember(localSessionId) {
+                roundRectangleSessionValueHolder.sessionValue.value.cornerFraction
+            }
+            var sizeFraction by remember(localSessionId) {
+                mutableFloatStateOf(initialSizeFraction)
+            }
+            var cornerFraction by remember(localSessionId) {
+                mutableFloatStateOf(initialCornerFraction)
+            }
+
+            var sizeFractionSessionId by key(localSessionId) {
                 rememberSaveable(stateSaver = uuidSaver) {
                     mutableStateOf(UUID.randomUUID())
                 }
             }
-            var sizeFractionValueId by key(currentSessionId) {
+            var sizeFractionValueId by key(localSessionId) {
                 rememberSaveable(stateSaver = uuidSaver) {
                     mutableStateOf(UUID.randomUUID())
                 }
             }
-            var cornerFractionSessionId by key(currentSessionId) {
+            var cornerFractionSessionId by key(localSessionId) {
                 rememberSaveable(stateSaver = uuidSaver) {
                     mutableStateOf(UUID.randomUUID())
                 }
             }
-            var cornerFractionValueId by key(currentSessionId) {
+            var cornerFractionValueId by key(localSessionId) {
                 rememberSaveable(stateSaver = uuidSaver) {
                     mutableStateOf(UUID.randomUUID())
                 }
@@ -233,18 +265,12 @@ fun rememberCellShapeConfigUiState(): CellShapeConfigUiState {
                 }
 
                 private fun launchRoundRectangleConfigUpdate() {
-                    coroutineScope.launch {
-                        composeLifePreferences.setRoundRectangleConfig(
-                            oldSessionId = oldSessionId,
-                            newSessionId = currentSessionId,
-                            valueId = UUID.randomUUID(),
-                        ) { roundRectangle ->
-                            roundRectangle.copy(
-                                sizeFraction = sizeFraction,
-                                cornerFraction = cornerFraction,
-                            )
-                        }
-                    }
+                    roundRectangleSessionValueHolder.setValue(
+                        CurrentShape.RoundRectangle(
+                            sizeFraction,
+                            cornerFraction,
+                        ),
+                    )
                 }
             }
         }

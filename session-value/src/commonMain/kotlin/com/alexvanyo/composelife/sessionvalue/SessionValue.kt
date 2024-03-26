@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.sessionvaluekey
+package com.alexvanyo.composelife.sessionvalue
 
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
@@ -51,7 +51,7 @@ data class SessionValue<out T>(
 /**
  * A [Saver] for a [UUID].
  */
-private val uuidSaver: Saver<UUID, String> = Saver(
+internal val uuidSaver: Saver<UUID, String> = Saver(
     save = { it.toString() },
     restore = UUID::fromString,
 )

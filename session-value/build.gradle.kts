@@ -29,7 +29,7 @@ plugins {
 }
 
 android {
-    namespace = "com.alexvanyo.composelife.sessionvaluekey"
+    namespace = "com.alexvanyo.composelife.sessionvalue"
     defaultConfig {
         minSdk = 21
     }
@@ -58,6 +58,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
                 implementation(projects.kmpAndroidRunner)
+                implementation(projects.kmpStateRestorationTester)
             }
         }
         val androidSharedTest by getting {
