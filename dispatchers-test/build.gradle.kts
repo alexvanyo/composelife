@@ -41,7 +41,6 @@ kotlin {
                 api(libs.kotlinx.datetime)
                 api(projects.dispatchers)
 
-                implementation(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.kotlinInject.runtime)
                 implementation(projects.injectScopes)
             }

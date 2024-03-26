@@ -63,9 +63,6 @@ kotlin {
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
                 api(libs.kotlinx.coroutines.android)
-
-                implementation(libs.androidx.lifecycle.viewmodel)
-                implementation(libs.androidx.lifecycle.viewmodel.savedstate)
             }
         }
         val jvmMain by getting {
