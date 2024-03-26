@@ -2,18 +2,18 @@
 androidDesugarJdkLibs = "2.0.4"
 androidGradlePlugin = "8.4.0-beta01"
 androidTools = "31.4.0-beta01"
-androidR8 = "8.3.37"
+androidR8 = "8.4.21"
 androidxActivity = "1.9.0-beta01"
 androidxAnnotation = "1.8.0-alpha02"
 androidxAppcompat = "1.7.0-alpha03"
 androidxBenchmark = "1.3.0-alpha02"
-androidxCompose = "1.7.0-alpha04"
+androidxCompose = "1.7.0-alpha05"
 androidxComposeCompiler = "1.5.8"
 androidxComposeMaterial3 = "1.3.0-alpha03"
 androidxCore = "1.13.0-beta01"
 androidxCoreSplashscreen = "1.1.0-alpha02"
 androidxDataStore = "1.1.0-beta02"
-androidxLifecycle = "2.8.0-alpha01"
+androidxLifecycle = "2.8.0-alpha03"
 androidxLintGradle = "1.0.0-alpha01"
 androidxPoolingContainer = "1.0.0"
 androidxProfileInstaller = "1.4.0-alpha01"
@@ -85,9 +85,6 @@ androidx-dataStore-core-okio = { group = "androidx.datastore", name = "datastore
 androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "androidxLifecycle" }
 androidx-lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
-androidx-lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "androidxLifecycle" }
-androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "androidxLifecycle" }
-androidx-lifecycle-viewmodel-savedstate = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-savedstate", version.ref = "androidxLifecycle" }
 androidx-lint-gradle = { group = "androidx.lint", name = "lint-gradle", version.ref = "androidxLintGradle" }
 androidx-poolingContainer = { group = "androidx.customview", name = "customview-poolingcontainer", version.ref = "androidxPoolingContainer" }
 androidx-profileInstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "androidxProfileInstaller" }
