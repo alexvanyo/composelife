@@ -60,7 +60,6 @@ kotlin {
 
                 implementation(libs.androidx.compose.ui)
                 implementation(libs.androidx.core)
-                implementation(libs.androidx.lifecycle.viewmodel.savedstate)
                 implementation(libs.androidx.tracing)
             }
         }
