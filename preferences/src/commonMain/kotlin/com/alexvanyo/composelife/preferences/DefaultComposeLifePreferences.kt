@@ -30,7 +30,7 @@ import com.alexvanyo.composelife.preferences.proto.ToolConfigProto
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.asResourceState
 import com.alexvanyo.composelife.scopes.Singleton
-import com.alexvanyo.composelife.sessionvaluekey.SessionValue
+import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
