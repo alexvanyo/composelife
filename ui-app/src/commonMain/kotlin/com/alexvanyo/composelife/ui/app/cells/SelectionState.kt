@@ -26,7 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.model.CellState
-import com.alexvanyo.composelife.sessionvaluekey.SessionValue
+import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.util.IntOffsetSerializer
 import com.alexvanyo.composelife.ui.util.RectSerializer
 import com.alexvanyo.composelife.ui.util.saver

@@ -35,7 +35,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
-import com.alexvanyo.composelife.sessionvaluekey.SessionValue
+import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.component.EditableSlider
 import com.alexvanyo.composelife.ui.app.component.SliderBijection
 import com.alexvanyo.composelife.ui.app.component.toValue
@@ -100,7 +100,6 @@ fun TargetStepsPerSecondControl(
 
     var sessionId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(UUID.randomUUID()) }
     var valueId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(UUID.randomUUID()) }
-
     val resolver = parameterizedStringResolver()
     EditableSlider(
         labelAndValueText = {
