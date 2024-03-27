@@ -69,6 +69,16 @@ fun Project.configureAndroid(
         }
     }
 
+    configurations.configureEach {
+        resolutionStrategy.eachDependency {
+            val version = requested.version.orEmpty()
+            // Force guava to always use the android version instead of the jre version
+            if (requested.group == "com.google.guava" && requested.name == "guava" && version.endsWith("jre")) {
+                useVersion(version.removeSuffix("jre") + "android")
+            }
+        }
+    }
+
     dependencies {
         add("coreLibraryDesugaring", libs.findLibrary("android.desugarJdkLibs").get())
     }
