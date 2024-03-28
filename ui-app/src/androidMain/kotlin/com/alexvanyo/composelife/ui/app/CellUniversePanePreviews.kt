@@ -32,16 +32,16 @@ import kotlin.random.Random
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @MobileDevicePreviews
 @Composable
-fun LoadingCellStateCellUniverseScreenPreview() {
+fun LoadingCellStateCellUniversePanePreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             BoxWithConstraints {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
-                CellUniverseScreen(
+                CellUniversePane(
                     windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
-                    cellUniverseScreenState = CellUniverseScreenState.LoadingCellState,
+                    cellUniversePaneState = CellUniversePaneState.LoadingCellState,
                 )
             }
         }
@@ -51,7 +51,7 @@ fun LoadingCellStateCellUniverseScreenPreview() {
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @MobileDevicePreviews
 @Composable
-fun LoadedCellUniverseScreenPreview() {
+fun LoadedCellUniversePanePreview() {
     WithPreviewDependencies(
         random = Random(1), // Fix to Beacon loading pattern
     ) {
@@ -62,11 +62,11 @@ fun LoadedCellUniverseScreenPreview() {
                     seedCellState = gosperGliderGun,
                     isRunning = false,
                 )
-                CellUniverseScreen(
+                CellUniversePane(
                     windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
-                    cellUniverseScreenState = object : CellUniverseScreenState.LoadedCellState {
+                    cellUniversePaneState = object : CellUniversePaneState.LoadedCellState {
                         override val temporalGameOfLifeState = temporalGameOfLifeState
                     },
                 )

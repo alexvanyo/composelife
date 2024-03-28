@@ -53,18 +53,18 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 
-interface InlineSettingsScreenInjectEntryPoint :
+interface InlineSettingsPaneInjectEntryPoint :
     ComposeLifePreferencesProvider,
     SettingUiInjectEntryPoint
 
-interface InlineSettingsScreenLocalEntryPoint :
+interface InlineSettingsPaneLocalEntryPoint :
     LoadedComposeLifePreferencesProvider,
     SettingUiLocalEntryPoint
 
-context(InlineSettingsScreenInjectEntryPoint, InlineSettingsScreenLocalEntryPoint)
+context(InlineSettingsPaneInjectEntryPoint, InlineSettingsPaneLocalEntryPoint)
 @Suppress("LongMethod")
 @Composable
-fun InlineSettingsScreen(
+fun InlineSettingsPane(
     onSeeMoreClicked: () -> Unit,
     onOpenInSettingsClicked: (Setting) -> Unit,
     modifier: Modifier = Modifier,

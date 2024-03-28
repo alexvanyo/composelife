@@ -28,7 +28,7 @@ import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.watchface.editor.EditorRequest
 import androidx.wear.watchface.editor.EditorSession
 import androidx.wear.watchface.editor.WatchFaceEditorContract
-import com.alexvanyo.composelife.ui.wear.WatchFaceConfigScreen
+import com.alexvanyo.composelife.ui.wear.WatchFaceConfigPane
 import com.alexvanyo.composelife.ui.wear.rememberWatchFaceConfigState
 import com.alexvanyo.composelife.ui.wear.theme.ComposeLifeTheme
 import kotlinx.coroutines.launch
@@ -66,7 +66,7 @@ class WatchFaceConfigActivity : AppCompatActivity() {
                 watchFaceConfigState.update()
             }
             ComposeLifeTheme {
-                WatchFaceConfigScreen(
+                WatchFaceConfigPane(
                     state = watchFaceConfigState,
                     modifier = Modifier.background(MaterialTheme.colors.background),
                 )

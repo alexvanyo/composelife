@@ -42,9 +42,9 @@ import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.NavigationHost
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.ActionControlRow
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.NavContainer
-import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreen
-import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenLocalEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPane
+import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.util.AnimatedContent
@@ -59,12 +59,12 @@ import kotlinx.coroutines.launch
 import kotlin.math.max
 
 interface CellUniverseActionCardInjectEntryPoint :
-    InlineEditScreenInjectEntryPoint,
-    InlineSettingsScreenInjectEntryPoint
+    InlineEditPaneInjectEntryPoint,
+    InlineSettingsPaneInjectEntryPoint
 
 interface CellUniverseActionCardLocalEntryPoint :
-    InlineEditScreenLocalEntryPoint,
-    InlineSettingsScreenLocalEntryPoint
+    InlineEditPaneLocalEntryPoint,
+    InlineSettingsPaneLocalEntryPoint
 
 context(CellUniverseActionCardInjectEntryPoint, CellUniverseActionCardLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod")
@@ -220,7 +220,7 @@ fun CellUniverseActionCard(
                                 ) {
                                     when (entry.value) {
                                         is InlineActionCardNavigation.Speed -> {
-                                            InlineSpeedScreen(
+                                            InlineSpeedPane(
                                                 targetStepsPerSecond = targetStepsPerSecond,
                                                 setTargetStepsPerSecond = setTargetStepsPerSecond,
                                                 generationsPerStep = generationsPerStep,
@@ -231,7 +231,7 @@ fun CellUniverseActionCard(
                                         }
 
                                         is InlineActionCardNavigation.Edit -> {
-                                            InlineEditScreen(
+                                            InlineEditPane(
                                                 setSelectionToCellState = setSelectionToCellState,
                                                 modifier = Modifier.fillMaxWidth(),
                                                 scrollState = scrollState,
@@ -239,7 +239,7 @@ fun CellUniverseActionCard(
                                         }
 
                                         is InlineActionCardNavigation.Settings -> {
-                                            InlineSettingsScreen(
+                                            InlineSettingsPane(
                                                 onSeeMoreClicked = onSeeMoreSettingsClicked,
                                                 onOpenInSettingsClicked = onOpenInSettingsClicked,
                                                 modifier = Modifier.fillMaxWidth(),

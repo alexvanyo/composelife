@@ -157,26 +157,26 @@ fun <T : NavigationEntry, S : NavigationState<T>> NavigationHost(
 }
 
 /**
- * The decoration for screens in the context of navigation.
+ * The decoration for panes in the context of navigation.
  *
- * Given the [screen] lambda for rendering a screen for a navigation entry [T], the [NavigationDecoration] should
- * display one (or more) screens based on the current navigation state.
+ * Given the [pane] lambda for rendering a pane for a navigation entry [T], the [NavigationDecoration] should
+ * display one (or more) panes based on the current navigation state.
  *
- * This very simplest [NavigationDecoration] just renders the current screen, and the current screen only
+ * This very simplest [NavigationDecoration] just renders the current pane, and the current pane only
  * (see [noopNavigationDecoration]). Most likely, this is not enough: this specifies no navigation transition between
- * screens.
+ * panes.
  *
- * The [defaultNavigationDecoration] internally performs an [AnimatedContent] on the current screen, which animates
- * out old screens.
+ * The [defaultNavigationDecoration] internally performs an [AnimatedContent] on the current pane, which animates
+ * out old panes.
  *
- * It is the responsibility of the [NavigationDecoration] to preserve intrinsic state of the [screen], so that it
+ * It is the responsibility of the [NavigationDecoration] to preserve intrinsic state of the [pane], so that it
  * can be re-parented. In other words, [NavigationDecoration] should use [movableContentOf] if necessary to move
- * screens around to different call sites in order to preserve state.
+ * panes around to different call sites in order to preserve state.
  */
-typealias NavigationDecoration<T, S> = @Composable S.(screen: @Composable (T) -> Unit) -> Unit
+typealias NavigationDecoration<T, S> = @Composable S.(pane: @Composable (T) -> Unit) -> Unit
 
 /**
- * The default [NavigationDecoration], which uses an [AnimatedContent] to animate between screens, using the given
+ * The default [NavigationDecoration], which uses an [AnimatedContent] to animate between panes, using the given
  * [transitionSpec] and [contentAlignment].
  */
 fun <T : NavigationEntry> defaultNavigationDecoration(
@@ -188,14 +188,14 @@ fun <T : NavigationEntry> defaultNavigationDecoration(
             .togetherWith(fadeOut(animationSpec = tween(90)))
     },
     contentAlignment: Alignment = Alignment.TopStart,
-): NavigationDecoration<T, NavigationState<T>> = { screen ->
-    val currentScreen by rememberUpdatedState(screen)
-    val movableScreens = entryMap.mapValues { (id, entry) ->
+): NavigationDecoration<T, NavigationState<T>> = { pane ->
+    val currentPane by rememberUpdatedState(pane)
+    val movablePanes = entryMap.mapValues { (id, entry) ->
         key(id) {
             val currentEntry by rememberUpdatedState(entry)
             remember {
                 movableContentOf {
-                    currentScreen(currentEntry)
+                    currentPane(currentEntry)
                 }
             }
         }
@@ -207,16 +207,16 @@ fun <T : NavigationEntry> defaultNavigationDecoration(
         contentAlignment = contentAlignment,
     ) { entry ->
         key(entry.id) {
-            // Fetch and store the movable screen to hold onto while animating out
-            val movableScreen = remember { movableScreens.getValue(entry.id) }
-            movableScreen()
+            // Fetch and store the movable pane to hold onto while animating out
+            val movablePane = remember { movablePanes.getValue(entry.id) }
+            movablePane()
         }
     }
 }
 
 /**
- * The simplest [NavigationDecoration] implementation, which just displays the current screen with a jumpcut.
+ * The simplest [NavigationDecoration] implementation, which just displays the current pane with a jumpcut.
  */
-fun <T : NavigationEntry> noopNavigationDecoration(): NavigationDecoration<T, NavigationState<T>> = { screen ->
-    screen(entryMap.getValue(currentEntryId))
+fun <T : NavigationEntry> noopNavigationDecoration(): NavigationDecoration<T, NavigationState<T>> = { pane ->
+    pane(entryMap.getValue(currentEntryId))
 }
