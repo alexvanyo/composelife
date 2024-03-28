@@ -32,6 +32,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
+@Suppress("LargeClass")
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class SessionValueHolderComposableTests {
@@ -582,6 +583,87 @@ class SessionValueHolderComposableTests {
                 sessionId2,
                 valueId3,
                 1f,
+            ),
+        )
+        val info3 = sessionValueHolder.info
+        assertFalse(info3.isLocalSessionActive())
+        val nextSessionId2 = info3.nextSessionId
+        assertEquals(nextSessionId2, info3.localSessionId)
+
+        // Updating the upstream session value should cycle the next session id
+        assertNotEquals(nextSessionId1, nextSessionId2)
+    }
+
+    @Test
+    fun localSessionActive_whenUpstreamSessionChangesBeforeLocalSession_stateIsCorrect() = runComposeUiTest {
+        val sessionId1 = UUID.randomUUID()
+        val valueId1 = UUID.randomUUID()
+        val valueId2 = UUID.randomUUID()
+        val valueId3 = UUID.randomUUID()
+
+        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
+
+        lateinit var sessionValueHolder: SessionValueHolder<Float>
+        var upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))
+
+        setContent {
+            sessionValueHolder = rememberSessionValueHolder(
+                upstreamSessionValue = upstreamSessionValue,
+                setUpstreamSessionValue = { upstreamSessionId, sessionValue ->
+                    pendingUpstreamSessionValues.add(upstreamSessionId to sessionValue)
+                },
+            )
+        }
+
+        assertEquals(
+            sessionValueHolder.sessionValue,
+            SessionValue(
+                sessionId1,
+                valueId1,
+                0f,
+            ),
+        )
+        val info1 = sessionValueHolder.info
+        assertFalse(info1.isLocalSessionActive())
+        val nextSessionId1 = info1.nextSessionId
+        assertEquals(nextSessionId1, info1.localSessionId)
+
+        sessionValueHolder.setValue(1f, valueId2)
+        waitForIdle()
+
+        assertEquals(
+            sessionValueHolder.sessionValue,
+            SessionValue(
+                nextSessionId1,
+                valueId2,
+                1f,
+            ),
+        )
+        val info2 = sessionValueHolder.info
+        assertTrue(info2.isLocalSessionActive())
+        assertEquals(nextSessionId1, info2.currentSessionId)
+        assertEquals(nextSessionId1, info2.localSessionId)
+        assertFalse(info2.isUpstreamSessionValueUpToDate)
+        assertEquals(
+            listOf(
+                SessionValue(sessionId1, valueId1, 0f) to SessionValue(nextSessionId1, valueId2, 1f),
+            ),
+            pendingUpstreamSessionValues,
+        )
+
+        upstreamSessionValue = SessionValue(
+            sessionId1,
+            valueId3,
+            2f,
+        )
+        waitForIdle()
+
+        assertEquals(
+            sessionValueHolder.sessionValue,
+            SessionValue(
+                sessionId1,
+                valueId3,
+                2f,
             ),
         )
         val info3 = sessionValueHolder.info
