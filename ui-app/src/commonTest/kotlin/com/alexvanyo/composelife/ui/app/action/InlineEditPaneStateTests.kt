@@ -41,7 +41,7 @@ import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class InlineEditScreenStateTests {
+class InlineEditPaneStateTests {
 
     @Test
     fun initial_state_is_correct_when_onboarding() = runComposeUiTest {
@@ -57,7 +57,7 @@ class InlineEditScreenStateTests {
                 enableClipboardWatching = true,
             )
 
-            lateinit var inlineEditScreenState: InlineEditScreenState
+            lateinit var inlineEditPaneState: InlineEditPaneState
 
             setContent {
                 with(
@@ -76,7 +76,7 @@ class InlineEditScreenStateTests {
                         override val clipboardCellStateParser = clipboardCellStateParser
                     },
                 ) {
-                    inlineEditScreenState = rememberInlineEditScreenState(
+                    inlineEditPaneState = rememberInlineEditPaneState(
                         setSelectionToCellState = {},
                     )
                 }
@@ -84,18 +84,18 @@ class InlineEditScreenStateTests {
 
             assertEquals(
                 ToolDropdownOption.Pan,
-                inlineEditScreenState.touchToolDropdownOption,
+                inlineEditPaneState.touchToolDropdownOption,
             )
             assertEquals(
                 ToolDropdownOption.Draw,
-                inlineEditScreenState.stylusToolDropdownOption,
+                inlineEditPaneState.stylusToolDropdownOption,
             )
             assertEquals(
                 ToolDropdownOption.Select,
-                inlineEditScreenState.mouseToolDropdownOption,
+                inlineEditPaneState.mouseToolDropdownOption,
             )
 
-            val clipboardWatchingState = inlineEditScreenState.clipboardWatchingState
+            val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
 
             assertIs<ClipboardWatchingState.Onboarding>(clipboardWatchingState)
         }
@@ -115,7 +115,7 @@ class InlineEditScreenStateTests {
                 enableClipboardWatching = true,
             )
 
-            lateinit var inlineEditScreenState: InlineEditScreenState
+            lateinit var inlineEditPaneState: InlineEditPaneState
 
             setContent {
                 with(
@@ -134,13 +134,13 @@ class InlineEditScreenStateTests {
                         override val clipboardCellStateParser = clipboardCellStateParser
                     },
                 ) {
-                    inlineEditScreenState = rememberInlineEditScreenState(
+                    inlineEditPaneState = rememberInlineEditPaneState(
                         setSelectionToCellState = {},
                     )
                 }
             }
 
-            val initialClipboardWatchingState = inlineEditScreenState.clipboardWatchingState
+            val initialClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
             assertIs<ClipboardWatchingState.Onboarding>(initialClipboardWatchingState)
 
             initialClipboardWatchingState.onAllowClipboardWatching()
@@ -154,7 +154,7 @@ class InlineEditScreenStateTests {
             assertTrue(newPreferences.completedClipboardWatchingOnboarding)
             assertTrue(newPreferences.enableClipboardWatching)
 
-            val newClipboardWatchingState = inlineEditScreenState.clipboardWatchingState
+            val newClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
 
             assertIs<ClipboardWatchingState.ClipboardWatchingEnabled>(newClipboardWatchingState)
         }
@@ -174,7 +174,7 @@ class InlineEditScreenStateTests {
                 enableClipboardWatching = true,
             )
 
-            lateinit var inlineEditScreenState: InlineEditScreenState
+            lateinit var inlineEditPaneState: InlineEditPaneState
 
             setContent {
                 with(
@@ -193,13 +193,13 @@ class InlineEditScreenStateTests {
                         override val clipboardCellStateParser = clipboardCellStateParser
                     },
                 ) {
-                    inlineEditScreenState = rememberInlineEditScreenState(
+                    inlineEditPaneState = rememberInlineEditPaneState(
                         setSelectionToCellState = {},
                     )
                 }
             }
 
-            val initialClipboardWatchingState = inlineEditScreenState.clipboardWatchingState
+            val initialClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
             assertIs<ClipboardWatchingState.Onboarding>(initialClipboardWatchingState)
 
             initialClipboardWatchingState.onDisallowClipboardWatching()
@@ -213,7 +213,7 @@ class InlineEditScreenStateTests {
             assertTrue(newPreferences.completedClipboardWatchingOnboarding)
             assertFalse(newPreferences.enableClipboardWatching)
 
-            val newClipboardWatchingState = inlineEditScreenState.clipboardWatchingState
+            val newClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
 
             assertIs<ClipboardWatchingState.ClipboardWatchingDisabled>(newClipboardWatchingState)
         }
@@ -233,7 +233,7 @@ class InlineEditScreenStateTests {
                 enableClipboardWatching = true,
             )
 
-            lateinit var inlineEditScreenState: InlineEditScreenState
+            lateinit var inlineEditPaneState: InlineEditPaneState
 
             setContent {
                 with(
@@ -252,7 +252,7 @@ class InlineEditScreenStateTests {
                         override val clipboardCellStateParser = clipboardCellStateParser
                     },
                 ) {
-                    inlineEditScreenState = rememberInlineEditScreenState(
+                    inlineEditPaneState = rememberInlineEditPaneState(
                         setSelectionToCellState = {},
                     )
                 }
@@ -260,18 +260,18 @@ class InlineEditScreenStateTests {
 
             assertEquals(
                 ToolDropdownOption.Pan,
-                inlineEditScreenState.touchToolDropdownOption,
+                inlineEditPaneState.touchToolDropdownOption,
             )
             assertEquals(
                 ToolDropdownOption.Draw,
-                inlineEditScreenState.stylusToolDropdownOption,
+                inlineEditPaneState.stylusToolDropdownOption,
             )
             assertEquals(
                 ToolDropdownOption.Select,
-                inlineEditScreenState.mouseToolDropdownOption,
+                inlineEditPaneState.mouseToolDropdownOption,
             )
 
-            val clipboardWatchingState = inlineEditScreenState.clipboardWatchingState
+            val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
 
             assertIs<ClipboardWatchingState.ClipboardWatchingEnabled>(clipboardWatchingState)
         }
@@ -291,7 +291,7 @@ class InlineEditScreenStateTests {
                 enableClipboardWatching = false,
             )
 
-            lateinit var inlineEditScreenState: InlineEditScreenState
+            lateinit var inlineEditPaneState: InlineEditPaneState
 
             setContent {
                 with(
@@ -310,7 +310,7 @@ class InlineEditScreenStateTests {
                         override val clipboardCellStateParser = clipboardCellStateParser
                     },
                 ) {
-                    inlineEditScreenState = rememberInlineEditScreenState(
+                    inlineEditPaneState = rememberInlineEditPaneState(
                         setSelectionToCellState = {},
                     )
                 }
@@ -318,18 +318,18 @@ class InlineEditScreenStateTests {
 
             assertEquals(
                 ToolDropdownOption.Pan,
-                inlineEditScreenState.touchToolDropdownOption,
+                inlineEditPaneState.touchToolDropdownOption,
             )
             assertEquals(
                 ToolDropdownOption.Draw,
-                inlineEditScreenState.stylusToolDropdownOption,
+                inlineEditPaneState.stylusToolDropdownOption,
             )
             assertEquals(
                 ToolDropdownOption.Select,
-                inlineEditScreenState.mouseToolDropdownOption,
+                inlineEditPaneState.mouseToolDropdownOption,
             )
 
-            val clipboardWatchingState = inlineEditScreenState.clipboardWatchingState
+            val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
 
             assertIs<ClipboardWatchingState.ClipboardWatchingDisabled>(clipboardWatchingState)
         }

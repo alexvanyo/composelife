@@ -14,27 +14,20 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.app.action.settings
+package com.alexvanyo.composelife.ui.app.action
 
 import com.alexvanyo.composelife.ui.app.util.BaseRoborazziTest
 import com.alexvanyo.composelife.ui.app.util.RoborazziParameterization
 import kotlin.test.Test
 
-class InlineSettingsScreenSnapshotTests(
+class InlineSpeedPaneSnapshotTests(
     roborazziParameterization: RoborazziParameterization,
 ) : BaseRoborazziTest(roborazziParameterization) {
 
     @Test
-    fun inline_settings_screen_no_quick_access_preview() {
+    fun inline_speed_pane_preview() {
         snapshot {
-            InlineSettingsScreenNoQuickAccessPreview()
-        }
-    }
-
-    @Test
-    fun inline_settings_screen_with_quick_access_preview() {
-        snapshot {
-            InlineSettingsScreenWithQuickAccessPreview()
+            InlineSpeedPanePreview()
         }
     }
 }

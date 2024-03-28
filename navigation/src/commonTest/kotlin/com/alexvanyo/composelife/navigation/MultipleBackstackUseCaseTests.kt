@@ -121,7 +121,7 @@ class MultipleMutableBackstackNavigationController(
 class MultipleBackstackUseCaseTests {
 
     @Test
-    fun can_increment_count_on_previous_screen() = runComposeUiTest {
+    fun can_increment_count_on_previous_pane() = runComposeUiTest {
         setContent {
             val firstNavController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(

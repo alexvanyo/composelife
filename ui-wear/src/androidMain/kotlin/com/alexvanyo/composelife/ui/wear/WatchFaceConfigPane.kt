@@ -35,7 +35,7 @@ import kotlinx.coroutines.awaitCancellation
 import com.alexvanyo.composelife.resources.wear.R as resourcesWearR
 
 @Composable
-fun WatchFaceConfigScreen(
+fun WatchFaceConfigPane(
     state: WatchFaceConfigState,
     modifier: Modifier = Modifier,
 ) {
@@ -89,11 +89,11 @@ fun WatchFaceConfigScreen(
 
 @WearPreviewDevices
 @Composable
-fun WatchFaceConfigScreenPreview() {
+fun WatchFaceConfigPanePreview() {
     ComposeLifeTheme {
         val preview = ImageBitmap.imageResource(id = resourcesWearR.drawable.watchface_square)
 
-        WatchFaceConfigScreen(
+        WatchFaceConfigPane(
             state = object : WatchFaceConfigState {
                 override suspend fun update(): Nothing = awaitCancellation()
 

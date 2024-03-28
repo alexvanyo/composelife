@@ -25,11 +25,11 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 @ThemePreviews
 @Composable
-fun InlineSpeedScreenPreview(modifier: Modifier = Modifier) {
+fun InlineSpeedPanePreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             Surface(modifier) {
-                InlineSpeedScreen(
+                InlineSpeedPane(
                     targetStepsPerSecond = 60.0,
                     setTargetStepsPerSecond = {},
                     generationsPerStep = 1,

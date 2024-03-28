@@ -52,7 +52,7 @@ import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class InlineSpeedScreenTests {
+class InlineSpeedPaneTests {
 
     @Test
     fun target_steps_per_second_is_displayed_correctly() = runComposeUiTest {
@@ -63,7 +63,7 @@ class InlineSpeedScreenTests {
             var targetStepsPerSecond by remember { mutableStateOf(60.0) }
             var generationsPerStep by remember { mutableStateOf(1) }
 
-            InlineSpeedScreen(
+            InlineSpeedPane(
                 targetStepsPerSecond = targetStepsPerSecond,
                 setTargetStepsPerSecond = { targetStepsPerSecond = it },
                 generationsPerStep = generationsPerStep,
@@ -93,7 +93,7 @@ class InlineSpeedScreenTests {
             var targetStepsPerSecond by remember { mutableStateOf(60.0) }
             var generationsPerStep by remember { mutableStateOf(1) }
 
-            InlineSpeedScreen(
+            InlineSpeedPane(
                 targetStepsPerSecond = targetStepsPerSecond,
                 setTargetStepsPerSecond = { targetStepsPerSecond = it },
                 generationsPerStep = generationsPerStep,
@@ -130,7 +130,7 @@ class InlineSpeedScreenTests {
             var targetStepsPerSecond by remember { mutableStateOf(60.0) }
             var generationsPerStep by remember { mutableStateOf(1) }
 
-            InlineSpeedScreen(
+            InlineSpeedPane(
                 targetStepsPerSecond = targetStepsPerSecond,
                 setTargetStepsPerSecond = { targetStepsPerSecond = it },
                 generationsPerStep = generationsPerStep,
@@ -170,7 +170,7 @@ class InlineSpeedScreenTests {
             var targetStepsPerSecond by remember { mutableStateOf(60.0) }
             var generationsPerStep by remember { mutableStateOf(1) }
 
-            InlineSpeedScreen(
+            InlineSpeedPane(
                 targetStepsPerSecond = targetStepsPerSecond,
                 setTargetStepsPerSecond = { targetStepsPerSecond = it },
                 generationsPerStep = generationsPerStep,
@@ -199,7 +199,7 @@ class InlineSpeedScreenTests {
             var targetStepsPerSecond by remember { mutableStateOf(60.0) }
             var generationsPerStep by remember { mutableStateOf(1) }
 
-            InlineSpeedScreen(
+            InlineSpeedPane(
                 targetStepsPerSecond = targetStepsPerSecond,
                 setTargetStepsPerSecond = { targetStepsPerSecond = it },
                 generationsPerStep = generationsPerStep,
@@ -235,7 +235,7 @@ class InlineSpeedScreenTests {
             var targetStepsPerSecond by remember { mutableStateOf(60.0) }
             var generationsPerStep by remember { mutableStateOf(1) }
 
-            InlineSpeedScreen(
+            InlineSpeedPane(
                 targetStepsPerSecond = targetStepsPerSecond,
                 setTargetStepsPerSecond = { targetStepsPerSecond = it },
                 generationsPerStep = generationsPerStep,

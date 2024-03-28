@@ -34,13 +34,13 @@ import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @MobileDevicePreviews
 @Composable
-fun FullscreenSettingsScreenListPreview(modifier: Modifier = Modifier) {
+fun FullscreenSettingsPaneListPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             BoxWithConstraints(modifier) {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 Surface {
-                    FullscreenSettingsScreen(
+                    FullscreenSettingsPane(
                         windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
                         navEntryValue = ComposeLifeNavigation.FullscreenSettings(
                             initialSettingsCategory = SettingsCategory.Algorithm,
@@ -59,13 +59,13 @@ fun FullscreenSettingsScreenListPreview(modifier: Modifier = Modifier) {
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @MobileDevicePreviews
 @Composable
-fun FullscreenSettingsScreenAlgorithmPreview(modifier: Modifier = Modifier) {
+fun FullscreenSettingsPaneAlgorithmPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             BoxWithConstraints(modifier) {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 Surface {
-                    FullscreenSettingsScreen(
+                    FullscreenSettingsPane(
                         windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
                         navEntryValue = ComposeLifeNavigation.FullscreenSettings(
                             initialSettingsCategory = SettingsCategory.Algorithm,
@@ -84,13 +84,13 @@ fun FullscreenSettingsScreenAlgorithmPreview(modifier: Modifier = Modifier) {
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @MobileDevicePreviews
 @Composable
-fun FullscreenSettingsScreenVisualPreview(modifier: Modifier = Modifier) {
+fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             BoxWithConstraints(modifier) {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 Surface {
-                    FullscreenSettingsScreen(
+                    FullscreenSettingsPane(
                         windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
                         navEntryValue = ComposeLifeNavigation.FullscreenSettings(
                             initialSettingsCategory = SettingsCategory.Visual,
@@ -109,13 +109,13 @@ fun FullscreenSettingsScreenVisualPreview(modifier: Modifier = Modifier) {
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @MobileDevicePreviews
 @Composable
-fun FullscreenSettingsScreenFeatureFlagsPreview(modifier: Modifier = Modifier) {
+fun FullscreenSettingsPaneFeatureFlagsPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             BoxWithConstraints(modifier) {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 Surface {
-                    FullscreenSettingsScreen(
+                    FullscreenSettingsPane(
                         windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
                         navEntryValue = ComposeLifeNavigation.FullscreenSettings(
                             initialSettingsCategory = SettingsCategory.FeatureFlags,

@@ -63,17 +63,17 @@ import kotlin.test.assertNull
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
+class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
     { TestComposeLifeApplicationComponent.create() },
     InjectTestActivity::class.java,
 ) {
 
-    private val fullscreenSettingsScreenLocalEntryPoint = object : FullscreenSettingsScreenLocalEntryPoint {
+    private val fullscreenSettingsPaneLocalEntryPoint = object : FullscreenSettingsPaneLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults
     }
 
-    private val fullscreenSettingsScreenInjectEntryPoint get() =
-        composeTestRule.activity.uiComponent.entryPoint as FullscreenSettingsScreenInjectEntryPoint
+    private val fullscreenSettingsPaneInjectEntryPoint get() =
+        composeTestRule.activity.uiComponent.entryPoint as FullscreenSettingsPaneInjectEntryPoint
 
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
@@ -95,9 +95,9 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         LocalDensity.current,
                     )
 
-                    with(fullscreenSettingsScreenInjectEntryPoint) {
-                        with(fullscreenSettingsScreenLocalEntryPoint) {
-                            FullscreenSettingsScreen(
+                    with(fullscreenSettingsPaneInjectEntryPoint) {
+                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                            FullscreenSettingsPane(
                                 windowSizeClass = windowSizeClass,
                                 navEntryValue = navEntryValue,
                                 onBackButtonPressed = {
@@ -164,9 +164,9 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         LocalDensity.current,
                     )
 
-                    with(fullscreenSettingsScreenInjectEntryPoint) {
-                        with(fullscreenSettingsScreenLocalEntryPoint) {
-                            FullscreenSettingsScreen(
+                    with(fullscreenSettingsPaneInjectEntryPoint) {
+                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                            FullscreenSettingsPane(
                                 windowSizeClass = windowSizeClass,
                                 navEntryValue = navEntryValue,
                                 onBackButtonPressed = {
@@ -237,9 +237,9 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         LocalDensity.current,
                     )
 
-                    with(fullscreenSettingsScreenInjectEntryPoint) {
-                        with(fullscreenSettingsScreenLocalEntryPoint) {
-                            FullscreenSettingsScreen(
+                    with(fullscreenSettingsPaneInjectEntryPoint) {
+                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                            FullscreenSettingsPane(
                                 windowSizeClass = windowSizeClass,
                                 navEntryValue = navEntryValue,
                                 onBackButtonPressed = {
@@ -294,9 +294,9 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         LocalDensity.current,
                     )
 
-                    with(fullscreenSettingsScreenInjectEntryPoint) {
-                        with(fullscreenSettingsScreenLocalEntryPoint) {
-                            FullscreenSettingsScreen(
+                    with(fullscreenSettingsPaneInjectEntryPoint) {
+                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                            FullscreenSettingsPane(
                                 windowSizeClass = windowSizeClass,
                                 navEntryValue = navEntryValue,
                                 onBackButtonPressed = {
@@ -360,9 +360,9 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         LocalDensity.current,
                     )
 
-                    with(fullscreenSettingsScreenInjectEntryPoint) {
-                        with(fullscreenSettingsScreenLocalEntryPoint) {
-                            FullscreenSettingsScreen(
+                    with(fullscreenSettingsPaneInjectEntryPoint) {
+                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                            FullscreenSettingsPane(
                                 windowSizeClass = windowSizeClass,
                                 navEntryValue = navEntryValue,
                                 onBackButtonPressed = {},
@@ -411,9 +411,9 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         LocalDensity.current,
                     )
 
-                    with(fullscreenSettingsScreenInjectEntryPoint) {
-                        with(fullscreenSettingsScreenLocalEntryPoint) {
-                            FullscreenSettingsScreen(
+                    with(fullscreenSettingsPaneInjectEntryPoint) {
+                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                            FullscreenSettingsPane(
                                 windowSizeClass = windowSizeClass,
                                 navEntryValue = navEntryValue,
                                 onBackButtonPressed = {},
@@ -475,9 +475,9 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         LocalDensity.current,
                     )
 
-                    with(fullscreenSettingsScreenInjectEntryPoint) {
-                        with(fullscreenSettingsScreenLocalEntryPoint) {
-                            FullscreenSettingsScreen(
+                    with(fullscreenSettingsPaneInjectEntryPoint) {
+                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                            FullscreenSettingsPane(
                                 windowSizeClass = windowSizeClass,
                                 navEntryValue = navEntryValue,
                                 onBackButtonPressed = {},
@@ -525,9 +525,9 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         LocalDensity.current,
                     )
 
-                    with(fullscreenSettingsScreenInjectEntryPoint) {
-                        with(fullscreenSettingsScreenLocalEntryPoint) {
-                            FullscreenSettingsScreen(
+                    with(fullscreenSettingsPaneInjectEntryPoint) {
+                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                            FullscreenSettingsPane(
                                 windowSizeClass = windowSizeClass,
                                 navEntryValue = navEntryValue,
                                 onBackButtonPressed = {},
@@ -581,9 +581,9 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         LocalDensity.current,
                     )
 
-                    with(fullscreenSettingsScreenInjectEntryPoint) {
-                        with(fullscreenSettingsScreenLocalEntryPoint) {
-                            FullscreenSettingsScreen(
+                    with(fullscreenSettingsPaneInjectEntryPoint) {
+                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                            FullscreenSettingsPane(
                                 windowSizeClass = windowSizeClass,
                                 navEntryValue = navEntryValue,
                                 onBackButtonPressed = {},
@@ -629,9 +629,9 @@ class FullscreenSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicatio
                         LocalDensity.current,
                     )
 
-                    with(fullscreenSettingsScreenInjectEntryPoint) {
-                        with(fullscreenSettingsScreenLocalEntryPoint) {
-                            FullscreenSettingsScreen(
+                    with(fullscreenSettingsPaneInjectEntryPoint) {
+                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                            FullscreenSettingsPane(
                                 windowSizeClass = windowSizeClass,
                                 navEntryValue = navEntryValue,
                                 onBackButtonPressed = {},

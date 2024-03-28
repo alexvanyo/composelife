@@ -25,11 +25,11 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 @ThemePreviews
 @Composable
-fun InlineEditScreenPreview(modifier: Modifier = Modifier) {
+fun InlineEditPanePreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             Surface(modifier) {
-                InlineEditScreen(
+                InlineEditPane(
                     setSelectionToCellState = {},
                 )
             }

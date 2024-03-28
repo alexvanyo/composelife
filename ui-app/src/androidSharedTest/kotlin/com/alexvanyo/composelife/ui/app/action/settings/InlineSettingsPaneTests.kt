@@ -48,7 +48,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 @RunWith(KmpAndroidJUnit4::class)
-class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
+class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
     { TestComposeLifeApplicationComponent.create() },
     InjectTestActivity::class.java,
 ) {
@@ -56,8 +56,8 @@ class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCom
 
     private val testComposeLifePreferences: TestComposeLifePreferences get() = assertIs(composeLifePreferences)
 
-    private val inlineSettingsScreenInjectEntryPoint get() =
-        composeTestRule.activity.uiComponent.entryPoint as InlineSettingsScreenInjectEntryPoint
+    private val inlineSettingsPaneInjectEntryPoint get() =
+        composeTestRule.activity.uiComponent.entryPoint as InlineSettingsPaneInjectEntryPoint
 
     @Test
     @SkipLeakDetection("appliedChanges", "Outer", "Inner")
@@ -68,16 +68,16 @@ class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCom
         var onSeeMoreClickedCount = 0
 
         composeTestRule.setContent {
-            with(inlineSettingsScreenInjectEntryPoint) {
+            with(inlineSettingsPaneInjectEntryPoint) {
                 with(
-                    object : InlineSettingsScreenLocalEntryPoint {
+                    object : InlineSettingsPaneLocalEntryPoint {
                         override val preferences get() =
                             assertIs<ResourceState.Success<LoadedComposeLifePreferences>>(
                                 composeLifePreferences.loadedPreferencesState,
                             ).value
                     },
                 ) {
-                    InlineSettingsScreen(
+                    InlineSettingsPane(
                         onSeeMoreClicked = {
                             onSeeMoreClickedCount++
                         },
@@ -110,16 +110,16 @@ class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCom
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
         composeTestRule.setContent {
-            with(inlineSettingsScreenInjectEntryPoint) {
+            with(inlineSettingsPaneInjectEntryPoint) {
                 with(
-                    object : InlineSettingsScreenLocalEntryPoint {
+                    object : InlineSettingsPaneLocalEntryPoint {
                         override val preferences get() =
                             assertIs<ResourceState.Success<LoadedComposeLifePreferences>>(
                                 composeLifePreferences.loadedPreferencesState,
                             ).value
                     },
                 ) {
-                    InlineSettingsScreen(
+                    InlineSettingsPane(
                         onSeeMoreClicked = {},
                         onOpenInSettingsClicked = {},
                     )
@@ -165,16 +165,16 @@ class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCom
         var onOpenInSettingsClickedSetting: Setting? = null
 
         composeTestRule.setContent {
-            with(inlineSettingsScreenInjectEntryPoint) {
+            with(inlineSettingsPaneInjectEntryPoint) {
                 with(
-                    object : InlineSettingsScreenLocalEntryPoint {
+                    object : InlineSettingsPaneLocalEntryPoint {
                         override val preferences get() =
                             assertIs<ResourceState.Success<LoadedComposeLifePreferences>>(
                                 composeLifePreferences.loadedPreferencesState,
                             ).value
                     },
                 ) {
-                    InlineSettingsScreen(
+                    InlineSettingsPane(
                         onSeeMoreClicked = {},
                         onOpenInSettingsClicked = {
                             onOpenInSettingsClickedCount++
@@ -205,16 +205,16 @@ class InlineSettingsScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCom
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
         composeTestRule.setContent {
-            with(inlineSettingsScreenInjectEntryPoint) {
+            with(inlineSettingsPaneInjectEntryPoint) {
                 with(
-                    object : InlineSettingsScreenLocalEntryPoint {
+                    object : InlineSettingsPaneLocalEntryPoint {
                         override val preferences get() =
                             assertIs<ResourceState.Success<LoadedComposeLifePreferences>>(
                                 composeLifePreferences.loadedPreferencesState,
                             ).value
                     },
                 ) {
-                    InlineSettingsScreen(
+                    InlineSettingsPane(
                         onSeeMoreClicked = {},
                         onOpenInSettingsClicked = {},
                     )

@@ -74,14 +74,14 @@ fun <T> crossfadePredictiveNavigationDecoration(
     contentAlignment: Alignment = Alignment.TopStart,
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     animateInternalContentSizeChanges: Boolean = false,
-): NavigationDecoration<BackstackEntry<out T>, BackstackState<T>> = { screen ->
-    val currentScreen by rememberUpdatedState(screen)
-    val movableScreens = entryMap.mapValues { (id, entry) ->
+): NavigationDecoration<BackstackEntry<out T>, BackstackState<T>> = { pane ->
+    val currentPane by rememberUpdatedState(pane)
+    val movablePanes = entryMap.mapValues { (id, entry) ->
         key(id) {
             val currentEntry by rememberUpdatedState(entry)
             remember {
                 movableContentOf {
-                    currentScreen(currentEntry)
+                    currentPane(currentEntry)
                 }
             }
         }
@@ -111,17 +111,17 @@ fun <T> crossfadePredictiveNavigationDecoration(
     ) { entry ->
         key(entry.id) {
             // Fetch and store the movable content to hold onto while animating out
-            val movableScreen = remember { movableScreens.getValue(entry.id) }
-            movableScreen()
+            val movablePane = remember { movablePanes.getValue(entry.id) }
+            movablePane()
         }
     }
 }
 
 /**
- * A [NavigationDecoration] that implements the Material predictive back design for animating between screens upon
+ * A [NavigationDecoration] that implements the Material predictive back design for animating between panes upon
  * popping.
  *
- * https://developer.android.com/design/ui/mobile/guides/patterns/predictive-back#full-screen-surfaces
+ * https://developer.android.com/design/ui/mobile/guides/patterns/predictive-back#full-pane-surfaces
  */
 @Suppress("CyclomaticComplexMethod", "LongMethod")
 fun <T> materialPredictiveNavigationDecoration(
@@ -130,14 +130,14 @@ fun <T> materialPredictiveNavigationDecoration(
     contentAlignment: Alignment = Alignment.TopStart,
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     animateInternalContentSizeChanges: Boolean = false,
-): NavigationDecoration<BackstackEntry<out T>, BackstackState<T>> = { screen ->
-    val currentScreen by rememberUpdatedState(screen)
-    val movableScreens = entryMap.mapValues { (id, entry) ->
+): NavigationDecoration<BackstackEntry<out T>, BackstackState<T>> = { pane ->
+    val currentPane by rememberUpdatedState(pane)
+    val movablePanes = entryMap.mapValues { (id, entry) ->
         key(id) {
             val currentEntry by rememberUpdatedState(entry)
             remember {
                 movableContentOf {
-                    currentScreen(currentEntry)
+                    currentPane(currentEntry)
                 }
             }
         }
@@ -304,8 +304,8 @@ fun <T> materialPredictiveNavigationDecoration(
     ) { entry ->
         key(entry.id) {
             // Fetch and store the movable content to hold onto while animating out
-            val movableScreen = remember { movableScreens.getValue(entry.id) }
-            movableScreen()
+            val movablePane = remember { movablePanes.getValue(entry.id) }
+            movablePane()
         }
     }
 }

@@ -27,11 +27,11 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 @ThemePreviews
 @Composable
-fun InlineSettingsScreenNoQuickAccessPreview(modifier: Modifier = Modifier) {
+fun InlineSettingsPaneNoQuickAccessPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             Surface(modifier) {
-                InlineSettingsScreen(
+                InlineSettingsPane(
                     onSeeMoreClicked = {},
                     onOpenInSettingsClicked = {},
                 )
@@ -42,7 +42,7 @@ fun InlineSettingsScreenNoQuickAccessPreview(modifier: Modifier = Modifier) {
 
 @ThemePreviews
 @Composable
-fun InlineSettingsScreenWithQuickAccessPreview(modifier: Modifier = Modifier) {
+fun InlineSettingsPaneWithQuickAccessPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies(
         loadedComposeLifePreferences = LoadedComposeLifePreferences.Defaults.copy(
             quickAccessSettings = setOf(
@@ -53,7 +53,7 @@ fun InlineSettingsScreenWithQuickAccessPreview(modifier: Modifier = Modifier) {
     ) {
         ComposeLifeTheme {
             Surface(modifier) {
-                InlineSettingsScreen(
+                InlineSettingsPane(
                     onSeeMoreClicked = {},
                     onOpenInSettingsClicked = {},
                 )

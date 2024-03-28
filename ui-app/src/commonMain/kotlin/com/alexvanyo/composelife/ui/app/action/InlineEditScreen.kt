@@ -80,24 +80,24 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-interface InlineEditScreenInjectEntryPoint :
+interface InlineEditPaneInjectEntryPoint :
     ComposeLifePreferencesProvider,
     ComposeLifeDispatchersProvider,
     ClipboardCellStateParserProvider,
     ClipboardCellStatePreviewInjectEntryPoint
 
-interface InlineEditScreenLocalEntryPoint :
+interface InlineEditPaneLocalEntryPoint :
     LoadedComposeLifePreferencesProvider,
     ClipboardCellStatePreviewLocalEntryPoint
 
-context(InlineEditScreenInjectEntryPoint, InlineEditScreenLocalEntryPoint)
+context(InlineEditPaneInjectEntryPoint, InlineEditPaneLocalEntryPoint)
 @Composable
-fun InlineEditScreen(
+fun InlineEditPane(
     setSelectionToCellState: (CellState) -> Unit,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
-) = InlineEditScreen(
-    state = rememberInlineEditScreenState(setSelectionToCellState),
+) = InlineEditPane(
+    state = rememberInlineEditPaneState(setSelectionToCellState),
     modifier = modifier,
     scrollState = scrollState,
 )
@@ -105,8 +105,8 @@ fun InlineEditScreen(
 context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
-fun InlineEditScreen(
-    state: InlineEditScreenState,
+fun InlineEditPane(
+    state: InlineEditPaneState,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
 ) {
@@ -242,7 +242,7 @@ private fun ToolConfig.toToolDropdownOption(): ToolDropdownOption =
         ToolConfig.Select -> ToolDropdownOption.Select
     }
 
-interface InlineEditScreenState {
+interface InlineEditPaneState {
     val touchToolDropdownOption: ToolDropdownOption
     fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption)
     val stylusToolDropdownOption: ToolDropdownOption
@@ -287,9 +287,9 @@ context(
     ClipboardCellStateParserProvider
 )
 @Composable
-fun rememberInlineEditScreenState(
+fun rememberInlineEditPaneState(
     setSelectionToCellState: (CellState) -> Unit,
-): InlineEditScreenState {
+): InlineEditPaneState {
     val coroutineScope = rememberCoroutineScope()
 
     val clipboardWatchingState = rememberClipboardWatchingState(
@@ -298,7 +298,7 @@ fun rememberInlineEditScreenState(
     )
 
     return remember(coroutineScope, composeLifePreferences, preferences, clipboardWatchingState) {
-        object : InlineEditScreenState {
+        object : InlineEditPaneState {
             override val touchToolDropdownOption: ToolDropdownOption get() =
                 preferences.touchToolConfig.toToolDropdownOption()
 

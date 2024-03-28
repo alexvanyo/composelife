@@ -54,7 +54,7 @@ import kotlin.math.roundToInt
 
 @Suppress("LongParameterList")
 @Composable
-fun InlineSpeedScreen(
+fun InlineSpeedPane(
     targetStepsPerSecond: Double,
     setTargetStepsPerSecond: (Double) -> Unit,
     generationsPerStep: Int,

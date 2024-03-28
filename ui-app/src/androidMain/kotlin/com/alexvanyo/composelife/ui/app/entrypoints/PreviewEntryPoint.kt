@@ -40,8 +40,8 @@ import com.alexvanyo.composelife.preferences.currentShape
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.random.di.RandomProvider
-import com.alexvanyo.composelife.ui.app.CellUniverseScreenInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.CellUniverseScreenLocalEntryPoint
+import com.alexvanyo.composelife.ui.app.CellUniversePaneInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.CellUniversePaneLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.ClipboardCellStateParser
 import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
@@ -50,8 +50,8 @@ import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.InlineEditScreenInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.InlineEditScreenLocalEntryPoint
+import com.alexvanyo.composelife.ui.app.action.InlineEditPaneInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.InlineEditPaneLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.AlgorithmImplementationUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.AlgorithmImplementationUiLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.CellShapeConfigUiInjectEntryPoint
@@ -65,10 +65,10 @@ import com.alexvanyo.composelife.ui.app.action.settings.DisableOpenGLUiInjectEnt
 import com.alexvanyo.composelife.ui.app.action.settings.DisableOpenGLUiLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.EnableClipboardWatchingUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.EnableClipboardWatchingUiLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsScreenLocalEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsPaneInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsPaneLocalEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.SettingUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.SettingUiLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
@@ -91,8 +91,8 @@ internal interface PreviewEntryPoint :
     CellStatePreviewUiLocalEntryPoint,
     CellWindowLocalEntryPoint,
     CellUniverseActionCardInjectEntryPoint,
-    CellUniverseScreenInjectEntryPoint,
-    CellUniverseScreenLocalEntryPoint,
+    CellUniversePaneInjectEntryPoint,
+    CellUniversePaneLocalEntryPoint,
     ComposeLifeAppInjectEntryPoint,
     DarkThemeConfigUiInjectEntryPoint,
     DarkThemeConfigUiLocalEntryPoint,
@@ -102,14 +102,14 @@ internal interface PreviewEntryPoint :
     DisableOpenGLUiLocalEntryPoint,
     EnableClipboardWatchingUiInjectEntryPoint,
     EnableClipboardWatchingUiLocalEntryPoint,
-    FullscreenSettingsScreenInjectEntryPoint,
-    FullscreenSettingsScreenLocalEntryPoint,
+    FullscreenSettingsPaneInjectEntryPoint,
+    FullscreenSettingsPaneLocalEntryPoint,
     GameOfLifeProgressIndicatorInjectEntryPoint,
     GameOfLifeProgressIndicatorLocalEntryPoint,
-    InlineEditScreenInjectEntryPoint,
-    InlineEditScreenLocalEntryPoint,
-    InlineSettingsScreenInjectEntryPoint,
-    InlineSettingsScreenLocalEntryPoint,
+    InlineEditPaneInjectEntryPoint,
+    InlineEditPaneLocalEntryPoint,
+    InlineSettingsPaneInjectEntryPoint,
+    InlineSettingsPaneLocalEntryPoint,
     InteractableCellsLocalEntryPoint,
     InteractiveCellUniverseInjectEntryPoint,
     InteractiveCellUniverseLocalEntryPoint,
