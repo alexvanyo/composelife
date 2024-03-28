@@ -244,3 +244,9 @@ internal actual val Strings.DeserializationFailed: ParameterizedString get() =
 
 internal actual val Strings.Warnings: ParameterizedString get() =
     ParameterizedString(R.string.warnings)
+
+internal actual val Strings.DisableImmersiveMode: ParameterizedString get() =
+    ParameterizedString(R.string.disable_immersive_mode)
+
+internal actual val Strings.EnableImmersiveMode: ParameterizedString get() =
+    ParameterizedString(R.string.enable_immersive_mode)

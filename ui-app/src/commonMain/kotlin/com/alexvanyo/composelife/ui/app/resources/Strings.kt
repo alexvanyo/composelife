@@ -173,3 +173,7 @@ internal expect val Strings.EnableClipboardWatching: ParameterizedString
 internal expect val Strings.DeserializationFailed: ParameterizedString
 
 internal expect val Strings.Warnings: ParameterizedString
+
+internal expect val Strings.DisableImmersiveMode: ParameterizedString
+
+internal expect val Strings.EnableImmersiveMode: ParameterizedString

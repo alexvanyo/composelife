@@ -58,6 +58,7 @@ kotlin {
                 implementation(projects.navigation)
                 implementation(projects.snapshotStateSet)
                 implementation(projects.uiToolingPreview)
+                implementation(projects.updatable)
             }
         }
         val jvmMain by getting {

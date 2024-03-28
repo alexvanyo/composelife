@@ -246,3 +246,9 @@ internal actual val Strings.DeserializationFailed: ParameterizedString get() =
 
 internal actual val Strings.Warnings: ParameterizedString get() =
     ParameterizedString("Warnings")
+
+internal actual val Strings.DisableImmersiveMode: ParameterizedString get() =
+    ParameterizedString("Disable immersive mode")
+
+internal actual val Strings.EnableImmersiveMode: ParameterizedString get() =
+    ParameterizedString("Enable immersive mode")
