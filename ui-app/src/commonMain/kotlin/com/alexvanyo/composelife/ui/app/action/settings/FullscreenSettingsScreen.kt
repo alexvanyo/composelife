@@ -128,17 +128,17 @@ import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHo
 import com.livefront.sealedenum.GenSealedEnum
 import kotlin.math.roundToInt
 
-interface FullscreenSettingsScreenInjectEntryPoint :
+interface FullscreenSettingsPaneInjectEntryPoint :
     SettingUiInjectEntryPoint
 
-interface FullscreenSettingsScreenLocalEntryPoint :
+interface FullscreenSettingsPaneLocalEntryPoint :
     SettingUiLocalEntryPoint
 
-context(FullscreenSettingsScreenInjectEntryPoint, FullscreenSettingsScreenLocalEntryPoint)
+context(FullscreenSettingsPaneInjectEntryPoint, FullscreenSettingsPaneLocalEntryPoint)
 @OptIn(ExperimentalFoundationApi::class)
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
-fun FullscreenSettingsScreen(
+fun FullscreenSettingsPane(
     windowSizeClass: WindowSizeClass,
     navEntryValue: ComposeLifeNavigation.FullscreenSettings,
     onBackButtonPressed: () -> Unit,

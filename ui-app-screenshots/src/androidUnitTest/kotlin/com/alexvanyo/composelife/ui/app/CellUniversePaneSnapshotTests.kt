@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,27 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.app.action
+package com.alexvanyo.composelife.ui.app
 
 import com.alexvanyo.composelife.ui.app.util.BaseRoborazziTest
 import com.alexvanyo.composelife.ui.app.util.RoborazziParameterization
 import kotlin.test.Test
 
-class InlineEditScreenSnapshotTests(
+class CellUniversePaneSnapshotTests(
     roborazziParameterization: RoborazziParameterization,
 ) : BaseRoborazziTest(roborazziParameterization) {
 
     @Test
-    fun inline_edit_screen_preview() {
+    fun loading_cell_state_cell_universe_pane_preview() {
         snapshot {
-            InlineEditScreenPreview()
+            LoadingCellStateCellUniversePanePreview()
+        }
+    }
+
+    @Test
+    fun loaded_cell_universe_pane_preview() {
+        snapshot {
+            LoadedCellUniversePanePreview()
         }
     }
 }

@@ -46,9 +46,9 @@ import com.alexvanyo.composelife.navigation.withExpectedActor
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreen
-import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsScreenLocalEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsPane
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsPaneInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsPaneLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
@@ -63,8 +63,8 @@ interface ComposeLifeAppInjectEntryPoint :
     CellStateRepositoryProvider,
     ClockProvider,
     GameOfLifeProgressIndicatorInjectEntryPoint,
-    CellUniverseScreenInjectEntryPoint,
-    FullscreenSettingsScreenInjectEntryPoint
+    CellUniversePaneInjectEntryPoint,
+    FullscreenSettingsPaneInjectEntryPoint
 
 context(ComposeLifeAppInjectEntryPoint)
 @Suppress("LongMethod")
@@ -102,8 +102,8 @@ fun ComposeLifeApp(
 
                         val localEntryPoint = remember {
                             object :
-                                CellUniverseScreenLocalEntryPoint,
-                                FullscreenSettingsScreenLocalEntryPoint,
+                                CellUniversePaneLocalEntryPoint,
+                                FullscreenSettingsPaneLocalEntryPoint,
                                 LoadedComposeLifePreferencesProvider by targetComposeLifeAppState {}
                         }
 
@@ -124,7 +124,7 @@ fun ComposeLifeApp(
                                 Surface {
                                     when (val value = entry.value) {
                                         is ComposeLifeNavigation.CellUniverse -> {
-                                            CellUniverseScreen(
+                                            CellUniversePane(
                                                 windowSizeClass = windowSizeClass,
                                                 onSeeMoreSettingsClicked = {
                                                     targetComposeLifeAppState.onSeeMoreSettingsClicked(entry.id)
@@ -135,7 +135,7 @@ fun ComposeLifeApp(
                                             )
                                         }
                                         is ComposeLifeNavigation.FullscreenSettings -> {
-                                            FullscreenSettingsScreen(
+                                            FullscreenSettingsPane(
                                                 windowSizeClass = windowSizeClass,
                                                 navEntryValue = value,
                                                 onBackButtonPressed = {

@@ -58,7 +58,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @RunWith(KmpAndroidJUnit4::class)
-class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
+class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
     { TestComposeLifeApplicationComponent.create() },
     InjectTestActivity::class.java,
 ) {
@@ -79,8 +79,8 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
                     ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
                     ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
             ) {
-                InlineEditScreen(
-                    state = object : InlineEditScreenState {
+                InlineEditPane(
+                    state = object : InlineEditPaneState {
                         override val touchToolDropdownOption = ToolDropdownOption.Pan
 
                         override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
@@ -137,8 +137,8 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
                     )
                 }
 
-                InlineEditScreen(
-                    state = object : InlineEditScreenState {
+                InlineEditPane(
+                    state = object : InlineEditPaneState {
                         override val touchToolDropdownOption = ToolDropdownOption.Pan
 
                         override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
@@ -207,8 +207,8 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
                     )
                 }
 
-                InlineEditScreen(
-                    state = object : InlineEditScreenState {
+                InlineEditPane(
+                    state = object : InlineEditPaneState {
                         override val touchToolDropdownOption = ToolDropdownOption.Pan
 
                         override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
@@ -271,8 +271,8 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
                     )
                 }
 
-                InlineEditScreen(
-                    state = object : InlineEditScreenState {
+                InlineEditPane(
+                    state = object : InlineEditPaneState {
                         override val touchToolDropdownOption = ToolDropdownOption.Pan
 
                         override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
@@ -314,8 +314,8 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
                     ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
                     ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
             ) {
-                InlineEditScreen(
-                    state = object : InlineEditScreenState {
+                InlineEditPane(
+                    state = object : InlineEditPaneState {
                         override val touchToolDropdownOption = ToolDropdownOption.Pan
 
                         override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
@@ -356,8 +356,8 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
                     ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
                     ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
             ) {
-                InlineEditScreen(
-                    state = object : InlineEditScreenState {
+                InlineEditPane(
+                    state = object : InlineEditPaneState {
                         override val touchToolDropdownOption = ToolDropdownOption.Draw
 
                         override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
@@ -398,8 +398,8 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
                     ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
                     ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
             ) {
-                InlineEditScreen(
-                    state = object : InlineEditScreenState {
+                InlineEditPane(
+                    state = object : InlineEditPaneState {
                         override val touchToolDropdownOption = ToolDropdownOption.Erase
 
                         override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
@@ -440,8 +440,8 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
                     ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
                     ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
             ) {
-                InlineEditScreen(
-                    state = object : InlineEditScreenState {
+                InlineEditPane(
+                    state = object : InlineEditPaneState {
                         override val touchToolDropdownOption = ToolDropdownOption.Select
 
                         override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
@@ -482,8 +482,8 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
                     ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
                     ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
             ) {
-                InlineEditScreen(
-                    state = object : InlineEditScreenState {
+                InlineEditPane(
+                    state = object : InlineEditPaneState {
                         override val touchToolDropdownOption = ToolDropdownOption.None
 
                         override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
@@ -526,8 +526,8 @@ class InlineEditScreenTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
                     ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
                     ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
             ) {
-                InlineEditScreen(
-                    state = object : InlineEditScreenState {
+                InlineEditPane(
+                    state = object : InlineEditPaneState {
                         override val touchToolDropdownOption get() = touchToolDropdownOption
 
                         override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) {

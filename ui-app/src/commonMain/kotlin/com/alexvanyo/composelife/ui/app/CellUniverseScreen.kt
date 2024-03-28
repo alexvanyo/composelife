@@ -49,7 +49,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.transform
 import kotlin.time.Duration.Companion.seconds
 
-interface CellUniverseScreenInjectEntryPoint :
+interface CellUniversePaneInjectEntryPoint :
     CellStateRepositoryProvider,
     GameOfLifeAlgorithmProvider,
     ClockProvider,
@@ -57,23 +57,23 @@ interface CellUniverseScreenInjectEntryPoint :
     GameOfLifeProgressIndicatorInjectEntryPoint,
     InteractiveCellUniverseInjectEntryPoint
 
-interface CellUniverseScreenLocalEntryPoint :
+interface CellUniversePaneLocalEntryPoint :
     GameOfLifeProgressIndicatorLocalEntryPoint,
     InteractiveCellUniverseLocalEntryPoint
 
-context(CellUniverseScreenInjectEntryPoint, CellUniverseScreenLocalEntryPoint)
+context(CellUniversePaneInjectEntryPoint, CellUniversePaneLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
-fun CellUniverseScreen(
+fun CellUniversePane(
     windowSizeClass: WindowSizeClass,
     onSeeMoreSettingsClicked: () -> Unit,
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
     modifier: Modifier = Modifier,
-    cellUniverseScreenState: CellUniverseScreenState = rememberCellUniverseScreenState(),
+    cellUniversePaneState: CellUniversePaneState = rememberCellUniversePaneState(),
 ) {
     Box(modifier = modifier) {
-        when (cellUniverseScreenState) {
-            is CellUniverseScreenState.LoadingCellState -> {
+        when (cellUniversePaneState) {
+            is CellUniversePaneState.LoadingCellState -> {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier.fillMaxSize(),
@@ -82,9 +82,9 @@ fun CellUniverseScreen(
                 }
             }
 
-            is CellUniverseScreenState.LoadedCellState -> {
+            is CellUniversePaneState.LoadedCellState -> {
                 InteractiveCellUniverse(
-                    temporalGameOfLifeState = cellUniverseScreenState.temporalGameOfLifeState,
+                    temporalGameOfLifeState = cellUniversePaneState.temporalGameOfLifeState,
                     windowSizeClass = windowSizeClass,
                     onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
                     onOpenInSettingsClicked = onOpenInSettingsClicked,
@@ -97,7 +97,7 @@ fun CellUniverseScreen(
 context(CellStateRepositoryProvider, GameOfLifeAlgorithmProvider, ComposeLifeDispatchersProvider, ClockProvider)
 @Suppress("LongMethod")
 @Composable
-fun rememberCellUniverseScreenState(): CellUniverseScreenState {
+fun rememberCellUniversePaneState(): CellUniversePaneState {
     var retainedInitialSaveableCellState: SaveableCellState? by rememberRetained { mutableStateOf(null) }
     var retainedTemporalGameOfLifeState: TemporalGameOfLifeState? by rememberRetained { mutableStateOf(null) }
 
@@ -121,7 +121,7 @@ fun rememberCellUniverseScreenState(): CellUniverseScreenState {
     }
 
     return if (initialSaveableCellState == null || temporalGameOfLifeState == null) {
-        CellUniverseScreenState.LoadingCellState
+        CellUniversePaneState.LoadingCellState
     } else {
         val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
             temporalGameOfLifeState = temporalGameOfLifeState,
@@ -169,23 +169,23 @@ fun rememberCellUniverseScreenState(): CellUniverseScreenState {
         }
 
         remember(temporalGameOfLifeState) {
-            object : CellUniverseScreenState.LoadedCellState {
+            object : CellUniversePaneState.LoadedCellState {
                 override val temporalGameOfLifeState: TemporalGameOfLifeState = temporalGameOfLifeState
             }
         }
     }
 }
 
-sealed interface CellUniverseScreenState {
+sealed interface CellUniversePaneState {
     /**
      * The initial cell state is loading
      */
-    data object LoadingCellState : CellUniverseScreenState
+    data object LoadingCellState : CellUniversePaneState
 
     /**
      * The cell state is loaded
      */
-    interface LoadedCellState : CellUniverseScreenState {
+    interface LoadedCellState : CellUniversePaneState {
         val temporalGameOfLifeState: TemporalGameOfLifeState
     }
 }

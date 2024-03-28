@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.wear
+package com.alexvanyo.composelife.ui.app.action
 
-import com.alexvanyo.composelife.ui.wear.util.BaseRoborazziTest
-import com.alexvanyo.composelife.ui.wear.util.RoborazziParameterization
+import com.alexvanyo.composelife.ui.app.util.BaseRoborazziTest
+import com.alexvanyo.composelife.ui.app.util.RoborazziParameterization
 import kotlin.test.Test
 
-class WatchFaceConfigScreenSnapshotTests(
+class InlineEditPaneSnapshotTests(
     roborazziParameterization: RoborazziParameterization,
 ) : BaseRoborazziTest(roborazziParameterization) {
 
     @Test
-    fun watch_face_config_screen_preview() {
+    fun inline_edit_screen_preview() {
         snapshot {
-            WatchFaceConfigScreenPreview()
+            InlineEditPanePreview()
         }
     }
 }

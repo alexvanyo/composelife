@@ -34,8 +34,8 @@ import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTe
 import org.junit.runner.RunWith
 import kotlin.test.Test
 
-private class TestScreenState(
-    private val previous: TestScreenState?,
+private class TestPaneState(
+    private val previous: TestPaneState?,
     initialCount: Int = 0,
 ) {
     var count by mutableStateOf(initialCount)
@@ -53,12 +53,12 @@ private class TestScreenState(
         previous!!.increment()
     }
 
-    companion object : BackstackValueSaverFactory<TestScreenState> {
-        override fun create(previous: BackstackEntry<TestScreenState>?): Saver<TestScreenState, Any> =
+    companion object : BackstackValueSaverFactory<TestPaneState> {
+        override fun create(previous: BackstackEntry<TestPaneState>?): Saver<TestPaneState, Any> =
             Saver(
                 save = { it.count },
                 restore = {
-                    TestScreenState(
+                    TestPaneState(
                         previous = previous?.value,
                         initialCount = it as Int,
                     )
@@ -72,18 +72,18 @@ private class TestScreenState(
 class ModifyPreviousDestinationUseCaseTests {
 
     @Test
-    fun can_increment_count_on_previous_screen() = runComposeUiTest {
+    fun can_increment_count_on_previous_pane() = runComposeUiTest {
         setContent {
             val navController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
-                        TestScreenState(
+                        TestPaneState(
                             previous = null,
                         ),
                         previous = null,
                     ),
                 ),
-                backstackValueSaverFactory = TestScreenState,
+                backstackValueSaverFactory = TestPaneState,
             )
 
             NavigationHost(
@@ -121,7 +121,7 @@ class ModifyPreviousDestinationUseCaseTests {
                             navController.withExpectedActor(entry.id) {
                                 navigate(
                                     valueFactory = { previous ->
-                                        TestScreenState(
+                                        TestPaneState(
                                             previous = previous.value,
                                         )
                                     },
@@ -156,20 +156,20 @@ class ModifyPreviousDestinationUseCaseTests {
     }
 
     @Test
-    fun can_increment_count_on_previous_screen_after_recreation() = runComposeUiTest {
+    fun can_increment_count_on_previous_pane_after_recreation() = runComposeUiTest {
         val stateRestorationTester = KmpStateRestorationTester(this)
 
         stateRestorationTester.setContent {
             val navController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
-                        TestScreenState(
+                        TestPaneState(
                             previous = null,
                         ),
                         previous = null,
                     ),
                 ),
-                backstackValueSaverFactory = TestScreenState,
+                backstackValueSaverFactory = TestPaneState,
             )
 
             NavigationHost(
@@ -207,7 +207,7 @@ class ModifyPreviousDestinationUseCaseTests {
                             navController.withExpectedActor(entry.id) {
                                 navigate(
                                     valueFactory = { previous ->
-                                        TestScreenState(
+                                        TestPaneState(
                                             previous = previous.value,
                                         )
                                     },
