@@ -37,7 +37,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retry
 import me.tatarka.inject.annotations.Inject
-import java.util.UUID
 
 @Singleton
 @Inject
@@ -110,21 +109,15 @@ private class PreferencesProtoTransform(
     }
 
     override fun setRoundRectangleConfig(
-        oldSessionId: UUID?,
-        newSessionId: UUID,
-        valueId: UUID,
-        update: (RoundRectangle) -> RoundRectangle,
+        expected: SessionValue<RoundRectangle>?,
+        newValue: SessionValue<RoundRectangle>,
     ) {
-        val oldRoundRectangleSessionId = newPreferencesProto.round_rectangle_session_id.toResolved()
-        if (
-            oldSessionId == null ||
-            oldRoundRectangleSessionId == oldSessionId ||
-            oldRoundRectangleSessionId == newSessionId
-        ) {
+        val oldValue = newPreferencesProto.roundRectangleSessionValue
+        if (expected == null || expected == oldValue) {
             newPreferencesProto = newPreferencesProto.copy(
-                round_rectangle = update(newPreferencesProto.round_rectangle.toResolved()).toProto(),
-                round_rectangle_session_id = newSessionId.toProto(),
-                round_rectangle_value_id = valueId.toProto(),
+                round_rectangle = newValue.value.toProto(),
+                round_rectangle_session_id = newValue.sessionId.toProto(),
+                round_rectangle_value_id = newValue.valueId.toProto(),
             )
         }
     }
@@ -246,18 +239,6 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
             CurrentShapeTypeProto.ROUND_RECTANGLE,
             -> CurrentShapeType.RoundRectangle
         }
-    val roundRectangleConfig = round_rectangle.toResolved()
-    val roundRectangleSessionId = checkNotNull(round_rectangle_session_id.toResolved()) {
-        "Round rectangle session id was null!"
-    }
-    val roundRectangleValueId = checkNotNull(round_rectangle_value_id.toResolved()) {
-        "Round rectangle value id was null!"
-    }
-    val roundRectangleSessionValue = SessionValue(
-        sessionId = roundRectangleSessionId,
-        valueId = roundRectangleValueId,
-        value = roundRectangleConfig,
-    )
 
     val darkThemeConfig =
         when (dark_theme_config) {
@@ -317,5 +298,20 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
         mouseToolConfig = mouseToolConfig,
         completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
         enableClipboardWatching = enableClipboardWatching,
+    )
+}
+
+private val PreferencesProto.roundRectangleSessionValue: SessionValue<RoundRectangle> get() {
+    val roundRectangleConfig = round_rectangle.toResolved()
+    val roundRectangleSessionId = checkNotNull(round_rectangle_session_id.toResolved()) {
+        "Round rectangle session id was null!"
+    }
+    val roundRectangleValueId = checkNotNull(round_rectangle_value_id.toResolved()) {
+        "Round rectangle value id was null!"
+    }
+    return SessionValue(
+        sessionId = roundRectangleSessionId,
+        valueId = roundRectangleValueId,
+        value = roundRectangleConfig,
     )
 }

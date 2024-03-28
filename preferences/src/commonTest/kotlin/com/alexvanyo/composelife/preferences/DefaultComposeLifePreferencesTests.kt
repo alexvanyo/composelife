@@ -171,15 +171,16 @@ class DefaultComposeLifePreferencesTests {
             val newValueId = UUID.randomUUID()
 
             composelifePreferences.setRoundRectangleConfig(
-                oldSessionId = null,
-                newSessionId = newSessionId,
-                valueId = newValueId,
-            ) { roundRectangle ->
-                roundRectangle.copy(
-                    sizeFraction = 0.8f,
-                    cornerFraction = 0.25f,
-                )
-            }
+                expected = null,
+                newValue = SessionValue(
+                    newSessionId,
+                    newValueId,
+                    CurrentShape.RoundRectangle(
+                        sizeFraction = 0.8f,
+                        cornerFraction = 0.25f,
+                    ),
+                ),
+            )
             delay(1.milliseconds)
 
             assertEquals(

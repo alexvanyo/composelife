@@ -130,19 +130,18 @@ class TestComposeLifePreferences(
                 }
 
                 override fun setRoundRectangleConfig(
-                    oldSessionId: UUID?,
-                    newSessionId: UUID,
-                    valueId: UUID,
-                    update: (CurrentShape.RoundRectangle) -> CurrentShape.RoundRectangle,
+                    expected: SessionValue<CurrentShape.RoundRectangle>?,
+                    newValue: SessionValue<CurrentShape.RoundRectangle>,
                 ) {
-                    if (
-                        oldSessionId == null ||
-                        roundRectangleSessionId == oldSessionId ||
-                        roundRectangleSessionId == newSessionId
+                    if (expected == null || expected == SessionValue(
+                            sessionId = roundRectangleSessionId,
+                            valueId = roundRectangleValueId,
+                            value = roundRectangleConfig,
+                        )
                     ) {
-                        roundRectangleConfig = update(roundRectangleConfig)
-                        roundRectangleSessionId = newSessionId
-                        roundRectangleValueId = valueId
+                        roundRectangleConfig = newValue.value
+                        roundRectangleSessionId = newValue.sessionId
+                        roundRectangleValueId = newValue.valueId
                     }
                 }
 
