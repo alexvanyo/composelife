@@ -98,7 +98,7 @@ fun LocalSessionInfo.isLocalSessionActive(): Boolean {
 
 private class SessionValueHolderImpl<T>(
     initialUpstreamSessionValue: SessionValue<T>,
-    initialSetUpstreamSessionValue: (upstreamSessionId: UUID, SessionValue<T>) -> Unit,
+    initialSetUpstreamSessionValue: (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
     initialLocalSessionId: UUID,
     initialLocalSessionValue: SessionValue<T>?,
 ) : SessionValueHolder<T> {
@@ -134,13 +134,13 @@ private class SessionValueHolderImpl<T>(
         value: T,
         valueId: UUID,
     ) {
-        val oldSessionId = sessionValue.sessionId
+        val expected = sessionValue
         localSessionValue = SessionValue(
             sessionId = localSessionId,
             valueId = valueId,
             value = value,
         )
-        setUpstreamSessionValue(oldSessionId, sessionValue)
+        setUpstreamSessionValue(expected, sessionValue)
     }
 
     /**
@@ -176,7 +176,7 @@ private class SessionValueHolderImpl<T>(
     companion object {
         fun <T> Saver(
             initialUpstreamSessionValue: SessionValue<T>,
-            initialSetUpstreamSessionValue: (upstreamSessionId: UUID, SessionValue<T>) -> Unit,
+            initialSetUpstreamSessionValue: (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
             valueSaver: Saver<T, *>,
         ): Saver<SessionValueHolderImpl<T>, *> {
             val sessionValueSaver = SessionValue.Saver(valueSaver)
@@ -234,7 +234,7 @@ fun <T> rememberSessionValueHolder(
      * Sets the upstream [SessionValue] to the given [SessionValue].
      * The provided upstream session id is the known previous id, for a compare-and-set updating of the [SessionValue].
      */
-    setUpstreamSessionValue: (upstreamSessionId: UUID, SessionValue<T>) -> Unit,
+    setUpstreamSessionValue: (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
     valueSaver: Saver<T, *> = autoSaver(),
 ): SessionValueHolder<T> =
     rememberSaveable(

@@ -21,7 +21,6 @@ package com.alexvanyo.composelife.preferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.map
 import com.alexvanyo.composelife.sessionvalue.SessionValue
-import java.util.UUID
 
 interface ComposeLifePreferences {
     val loadedPreferencesState: ResourceState<LoadedComposeLifePreferences>
@@ -86,11 +85,9 @@ suspend fun ComposeLifePreferences.setDarkThemeConfig(darkThemeConfig: DarkTheme
     update { setDarkThemeConfig(darkThemeConfig) }
 
 suspend fun ComposeLifePreferences.setRoundRectangleConfig(
-    oldSessionId: UUID?,
-    newSessionId: UUID,
-    valueId: UUID,
-    update: (CurrentShape.RoundRectangle) -> CurrentShape.RoundRectangle,
-) = update { setRoundRectangleConfig(oldSessionId, newSessionId, valueId, update) }
+    expected: SessionValue<CurrentShape.RoundRectangle>?,
+    newValue: SessionValue<CurrentShape.RoundRectangle>,
+) = update { setRoundRectangleConfig(expected, newValue) }
 
 suspend fun ComposeLifePreferences.addQuickAccessSetting(quickAccessSetting: QuickAccessSetting) =
     update { addQuickAccessSetting(quickAccessSetting) }

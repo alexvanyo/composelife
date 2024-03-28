@@ -41,7 +41,7 @@ class SessionValueHolderComposableTests {
         val sessionId1 = UUID.randomUUID()
         val valueId1 = UUID.randomUUID()
 
-        val pendingUpstreamSessionValues = mutableStateListOf<Pair<UUID, SessionValue<Float>>>()
+        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
         lateinit var sessionValueHolder: SessionValueHolder<Float>
         val upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))
@@ -49,8 +49,8 @@ class SessionValueHolderComposableTests {
         setContent {
             sessionValueHolder = rememberSessionValueHolder(
                 upstreamSessionValue = upstreamSessionValue,
-                setUpstreamSessionValue = { upstreamSessionId, sessionValue ->
-                    pendingUpstreamSessionValues.add(upstreamSessionId to sessionValue)
+                setUpstreamSessionValue = { expected, newValue ->
+                    pendingUpstreamSessionValues.add(expected to newValue)
                 },
             )
         }
@@ -72,7 +72,7 @@ class SessionValueHolderComposableTests {
         val valueId1 = UUID.randomUUID()
         val valueId2 = UUID.randomUUID()
 
-        val pendingUpstreamSessionValues = mutableStateListOf<Pair<UUID, SessionValue<Float>>>()
+        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
         lateinit var sessionValueHolder: SessionValueHolder<Float>
         var upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))
@@ -127,7 +127,7 @@ class SessionValueHolderComposableTests {
         val valueId1 = UUID.randomUUID()
         val valueId2 = UUID.randomUUID()
 
-        val pendingUpstreamSessionValues = mutableStateListOf<Pair<UUID, SessionValue<Float>>>()
+        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
         lateinit var sessionValueHolder: SessionValueHolder<Float>
         var upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))
@@ -181,7 +181,7 @@ class SessionValueHolderComposableTests {
         val valueId1 = UUID.randomUUID()
         val valueId2 = UUID.randomUUID()
 
-        val pendingUpstreamSessionValues = mutableStateListOf<Pair<UUID, SessionValue<Float>>>()
+        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
         lateinit var sessionValueHolder: SessionValueHolder<Float>
         val upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))
@@ -226,7 +226,7 @@ class SessionValueHolderComposableTests {
         assertFalse(info2.isUpstreamSessionValueUpToDate)
         assertEquals(
             listOf(
-                sessionId1 to SessionValue(nextSessionId1, valueId2, 1f),
+                SessionValue(sessionId1, valueId1, 0f) to SessionValue(nextSessionId1, valueId2, 1f),
             ),
             pendingUpstreamSessionValues,
         )
@@ -239,7 +239,7 @@ class SessionValueHolderComposableTests {
         val valueId2 = UUID.randomUUID()
         val valueId3 = UUID.randomUUID()
 
-        val pendingUpstreamSessionValues = mutableStateListOf<Pair<UUID, SessionValue<Float>>>()
+        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
         lateinit var sessionValueHolder: SessionValueHolder<Float>
         val upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))
@@ -300,8 +300,8 @@ class SessionValueHolderComposableTests {
         assertFalse(info2.isUpstreamSessionValueUpToDate)
         assertEquals(
             listOf(
-                sessionId1 to SessionValue(nextSessionId1, valueId2, 1f),
-                nextSessionId1 to SessionValue(nextSessionId1, valueId3, 2f),
+                SessionValue(sessionId1, valueId1, 0f) to SessionValue(nextSessionId1, valueId2, 1f),
+                SessionValue(nextSessionId1, valueId2, 1f) to SessionValue(nextSessionId1, valueId3, 2f),
             ),
             pendingUpstreamSessionValues,
         )
@@ -313,7 +313,7 @@ class SessionValueHolderComposableTests {
         val valueId1 = UUID.randomUUID()
         val valueId2 = UUID.randomUUID()
 
-        val pendingUpstreamSessionValues = mutableStateListOf<Pair<UUID, SessionValue<Float>>>()
+        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
         lateinit var sessionValueHolder: SessionValueHolder<Float>
         var upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))
@@ -358,7 +358,7 @@ class SessionValueHolderComposableTests {
         assertFalse(info2.isUpstreamSessionValueUpToDate)
         assertEquals(
             listOf(
-                sessionId1 to SessionValue(nextSessionId1, valueId2, 1f),
+                SessionValue(sessionId1, valueId1, 0f) to SessionValue(nextSessionId1, valueId2, 1f),
             ),
             pendingUpstreamSessionValues,
         )
@@ -392,7 +392,7 @@ class SessionValueHolderComposableTests {
         val valueId2 = UUID.randomUUID()
         val valueId3 = UUID.randomUUID()
 
-        val pendingUpstreamSessionValues = mutableStateListOf<Pair<UUID, SessionValue<Float>>>()
+        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
         lateinit var sessionValueHolder: SessionValueHolder<Float>
         var upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))
@@ -437,7 +437,7 @@ class SessionValueHolderComposableTests {
         assertFalse(info2.isUpstreamSessionValueUpToDate)
         assertEquals(
             listOf(
-                sessionId1 to SessionValue(nextSessionId1, valueId2, 1f),
+                SessionValue(sessionId1, valueId1, 0f) to SessionValue(nextSessionId1, valueId2, 1f),
             ),
             pendingUpstreamSessionValues,
         )
@@ -460,8 +460,8 @@ class SessionValueHolderComposableTests {
         assertFalse(info2.isUpstreamSessionValueUpToDate)
         assertEquals(
             listOf(
-                sessionId1 to SessionValue(nextSessionId1, valueId2, 1f),
-                nextSessionId1 to SessionValue(nextSessionId1, valueId3, 2f),
+                SessionValue(sessionId1, valueId1, 0f) to SessionValue(nextSessionId1, valueId2, 1f),
+                SessionValue(nextSessionId1, valueId2, 1f) to SessionValue(nextSessionId1, valueId3, 2f),
             ),
             pendingUpstreamSessionValues,
         )
@@ -484,7 +484,7 @@ class SessionValueHolderComposableTests {
         assertFalse(info4.isUpstreamSessionValueUpToDate)
         assertEquals(
             listOf(
-                nextSessionId1 to SessionValue(nextSessionId1, valueId3, 2f),
+                SessionValue(nextSessionId1, valueId2, 1f) to SessionValue(nextSessionId1, valueId3, 2f),
             ),
             pendingUpstreamSessionValues,
         )
@@ -519,7 +519,7 @@ class SessionValueHolderComposableTests {
         val valueId2 = UUID.randomUUID()
         val valueId3 = UUID.randomUUID()
 
-        val pendingUpstreamSessionValues = mutableStateListOf<Pair<UUID, SessionValue<Float>>>()
+        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
         lateinit var sessionValueHolder: SessionValueHolder<Float>
         var upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))
@@ -564,7 +564,7 @@ class SessionValueHolderComposableTests {
         assertFalse(info2.isUpstreamSessionValueUpToDate)
         assertEquals(
             listOf(
-                sessionId1 to SessionValue(nextSessionId1, valueId2, 1f),
+                SessionValue(sessionId1, valueId1, 0f) to SessionValue(nextSessionId1, valueId2, 1f),
             ),
             pendingUpstreamSessionValues,
         )
@@ -600,7 +600,7 @@ class SessionValueHolderComposableTests {
         val sessionId1 = UUID.randomUUID()
         val valueId1 = UUID.randomUUID()
 
-        val pendingUpstreamSessionValues = mutableStateListOf<Pair<UUID, SessionValue<Float>>>()
+        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
         lateinit var sessionValueHolder: SessionValueHolder<Float>
         val upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))
@@ -653,7 +653,7 @@ class SessionValueHolderComposableTests {
         val valueId1 = UUID.randomUUID()
         val valueId2 = UUID.randomUUID()
 
-        val pendingUpstreamSessionValues = mutableStateListOf<Pair<UUID, SessionValue<Float>>>()
+        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
         lateinit var sessionValueHolder: SessionValueHolder<Float>
         val upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))

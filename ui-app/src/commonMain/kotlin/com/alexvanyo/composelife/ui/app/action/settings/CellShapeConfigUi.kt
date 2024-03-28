@@ -172,18 +172,9 @@ fun rememberCellShapeConfigUiState(): CellShapeConfigUiState {
         is CurrentShapeType.RoundRectangle -> {
             val roundRectangleSessionValueHolder = rememberSessionValueHolder<CurrentShape.RoundRectangle>(
                 upstreamSessionValue = preferences.roundRectangleSessionValue,
-                setUpstreamSessionValue = { upstreamSessionId, sessionValue ->
+                setUpstreamSessionValue = { expected, newValue ->
                     coroutineScope.launch {
-                        composeLifePreferences.setRoundRectangleConfig(
-                            oldSessionId = upstreamSessionId,
-                            newSessionId = sessionValue.sessionId,
-                            valueId = sessionValue.valueId,
-                        ) { roundRectangle ->
-                            roundRectangle.copy(
-                                sizeFraction = sessionValue.value.sizeFraction,
-                                cornerFraction = sessionValue.value.cornerFraction,
-                            )
-                        }
+                        composeLifePreferences.setRoundRectangleConfig(expected, newValue)
                     }
                 },
                 valueSaver = listSaver(
