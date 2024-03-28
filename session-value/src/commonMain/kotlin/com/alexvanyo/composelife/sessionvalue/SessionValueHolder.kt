@@ -149,23 +149,24 @@ private class SessionValueHolderImpl<T>(
     fun setValueFromUpstream(
         sessionValue: SessionValue<T>,
     ) {
-        val currentLocalSessionValue = localSessionValue
-        if (currentLocalSessionValue == null) {
-            if (
-                sessionValue.sessionId != upstreamSessionValue.sessionId ||
+        val hasSessionValueChanged =
+            sessionValue.sessionId != upstreamSessionValue.sessionId ||
                 sessionValue.valueId != upstreamSessionValue.valueId
-            ) {
-                // The upstream session has changed. Cycle the local session, to indicate that any derived local state
-                // should update.
-                localSessionId = UUID.randomUUID()
-            }
+
+        if (!hasSessionValueChanged) {
+            return
+        }
+
+        val currentLocalSessionValue = localSessionValue
+
+        if (currentLocalSessionValue == null) {
+            // The upstream session has changed. Cycle the local session, to indicate that any derived local state
+            // should update.
+            localSessionId = UUID.randomUUID()
         } else {
-            if (
-                sessionValue.sessionId != currentLocalSessionValue.sessionId &&
-                sessionValue.sessionId != upstreamSessionValue.sessionId
-            ) {
-                // The upstream session has become something different than the local session and the one before our
-                // local session. Clear the local session, to revert back to the new upstream session.
+            if (sessionValue.sessionId != currentLocalSessionValue.sessionId) {
+                // The upstream session has become something different than the local session and the session value
+                // before our local session. Clear the local session, to revert back to the new upstream session.
                 localSessionId = UUID.randomUUID()
                 localSessionValue = null
             }
