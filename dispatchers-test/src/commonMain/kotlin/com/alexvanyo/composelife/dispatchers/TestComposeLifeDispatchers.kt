@@ -34,9 +34,9 @@ class TestComposeLifeDispatchers(
     generalTestDispatcher: GeneralTestDispatcher,
     cellTickerTestDispatcher: CellTickerTestDispatcher,
 ) : ComposeLifeDispatchers {
-    override val Default: CoroutineDispatcher = generalTestDispatcher
-    override val Main: CoroutineDispatcher = generalTestDispatcher
+    override val Default: CoroutineDispatcher = generalTestDispatcher.value
+    override val Main: CoroutineDispatcher = generalTestDispatcher.value
     override val Unconfined: CoroutineDispatcher = Dispatchers.Unconfined
-    override val IO: CoroutineDispatcher = generalTestDispatcher
-    override val CellTicker: CoroutineContext = cellTickerTestDispatcher
+    override val IO: CoroutineDispatcher = generalTestDispatcher.value
+    override val CellTicker: CoroutineContext = cellTickerTestDispatcher.value
 }

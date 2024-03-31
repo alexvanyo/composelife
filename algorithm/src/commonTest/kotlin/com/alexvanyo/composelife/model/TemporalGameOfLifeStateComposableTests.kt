@@ -29,6 +29,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
+import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.clock
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
@@ -51,8 +53,8 @@ class TemporalGameOfLifeStateComposableTests {
     private val testDispatcher = StandardTestDispatcher()
 
     private val dispatchers = TestComposeLifeDispatchers(
-        generalTestDispatcher = testDispatcher,
-        cellTickerTestDispatcher = testDispatcher,
+        generalTestDispatcher = GeneralTestDispatcher(testDispatcher),
+        cellTickerTestDispatcher = CellTickerTestDispatcher(testDispatcher),
     )
 
     @Test

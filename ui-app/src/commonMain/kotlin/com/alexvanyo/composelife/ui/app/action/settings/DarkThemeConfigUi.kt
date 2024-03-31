@@ -72,7 +72,7 @@ fun DarkThemeConfigUi(
                 DarkThemeConfig.Dark -> DarkThemeConfigDropdownOption.Dark
                 DarkThemeConfig.Light -> DarkThemeConfigDropdownOption.Light
             },
-            allValues = DarkThemeConfigDropdownOption.values.toImmutableList(),
+            allValues = DarkThemeConfigDropdownOption._values.toImmutableList(),
             setValue = { option ->
                 coroutineScope.launch {
                     setDarkThemeConfig(
@@ -102,3 +102,5 @@ sealed interface DarkThemeConfigDropdownOption : DropdownOption {
     @GenSealedEnum
     companion object
 }
+
+expect val DarkThemeConfigDropdownOption.Companion._values: List<DarkThemeConfigDropdownOption>

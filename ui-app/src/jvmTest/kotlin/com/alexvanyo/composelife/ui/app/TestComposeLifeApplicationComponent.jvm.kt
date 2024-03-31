@@ -69,5 +69,5 @@ actual interface TestComposeLifeApplicationEntryPoint :
     PreferencesModule,
     UpdatableModule
 
-actual fun TestComposeLifeApplicationComponent.Companion.create(): TestComposeLifeApplicationComponent =
-    TestComposeLifeApplicationComponent::class.create()
+actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent =
+    TestComposeLifeApplicationComponent.create()

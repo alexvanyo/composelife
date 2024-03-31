@@ -23,7 +23,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runAndroidComposeUiTest
 import androidx.core.content.getSystemService
+import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
@@ -45,8 +47,8 @@ class ClipboardStateTests {
             clipData = with(
                 object : ComposeLifeDispatchersProvider {
                     override val dispatchers: ComposeLifeDispatchers = TestComposeLifeDispatchers(
-                        generalTestDispatcher = StandardTestDispatcher(),
-                        cellTickerTestDispatcher = StandardTestDispatcher(),
+                        generalTestDispatcher = GeneralTestDispatcher(StandardTestDispatcher()),
+                        cellTickerTestDispatcher = CellTickerTestDispatcher(StandardTestDispatcher()),
                     )
                 },
             ) {

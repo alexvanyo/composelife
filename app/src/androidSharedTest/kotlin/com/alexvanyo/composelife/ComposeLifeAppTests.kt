@@ -48,19 +48,16 @@ import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.ui.app.R
 import leakcanary.SkipLeakDetection
 import org.junit.runner.RunWith
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class ComposeLifeAppTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, MainActivity>(
-    { TestComposeLifeApplicationComponent.create() },
+    { TestComposeLifeApplicationComponent.createComponent() },
     MainActivity::class.java,
 ) {
-    private val testDispatcher get() = applicationComponent.generalTestDispatcher
+    private val testDispatcher get() = applicationComponent.generalTestDispatcher.value
 
     private val preferences get() = applicationComponent.composeLifePreferences
 
@@ -383,13 +380,9 @@ class ComposeLifeAppTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
     }
 }
 
-@OptIn(ExperimentalContracts::class)
 private inline fun <reified A : Activity, T : Any> ActivityScenario<A>.withActivity(
     crossinline block: A.() -> T,
 ): T {
-    contract {
-        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
-    }
     var result: Result<T>? = null
     onActivity { activity ->
         result = kotlin.runCatching {

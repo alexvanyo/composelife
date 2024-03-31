@@ -22,6 +22,7 @@ import org.gradle.kotlin.dsl.getByType
 class AndroidApplicationComposeConventionPlugin : ConventionPlugin({
     with(pluginManager) {
         apply("com.android.application")
+        apply("org.jetbrains.kotlin.plugin.compose")
     }
 
     configureAndroidCompose(extensions.getByType<ApplicationExtension>())

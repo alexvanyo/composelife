@@ -64,7 +64,7 @@ fun SettingUi(
     onOpenInSettingsClicked: ((Setting) -> Unit)? = null,
 ) {
     Column(
-        modifier = modifier.testTag("SettingUi:${setting.name}"),
+        modifier = modifier.testTag("SettingUi:${setting._name}"),
     ) {
         val quickAccessSetting = setting.quickAccessSetting
         if (quickAccessSetting != null) {

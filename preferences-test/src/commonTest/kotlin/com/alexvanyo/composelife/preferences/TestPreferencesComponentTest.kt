@@ -27,7 +27,7 @@ import kotlin.test.assertIs
 @RunWith(KmpAndroidJUnit4::class)
 class TestPreferencesComponentTest {
 
-    private val composeLifeApplicationComponent = TestComposeLifeApplicationComponent.create()
+    private val composeLifeApplicationComponent = TestComposeLifeApplicationComponent.createComponent()
 
     @Test
     fun checkType() {

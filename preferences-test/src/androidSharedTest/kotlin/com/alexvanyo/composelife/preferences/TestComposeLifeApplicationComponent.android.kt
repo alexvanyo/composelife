@@ -18,13 +18,11 @@
 package com.alexvanyo.composelife.preferences
 
 import android.app.Application
-import androidx.test.core.app.ApplicationProvider
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.test.TestInjectApplication
 import me.tatarka.inject.annotations.Component
 
 @Component
@@ -41,11 +39,4 @@ actual abstract class TestComposeLifeApplicationComponent(
             PreferencesModule by this {}
 
     actual companion object
-}
-
-actual fun TestComposeLifeApplicationComponent.Companion.create(): TestComposeLifeApplicationComponent {
-    val application = ApplicationProvider.getApplicationContext<TestInjectApplication>()
-    val applicationComponent = TestComposeLifeApplicationComponent::class.create(application)
-    application.applicationComponent = applicationComponent
-    return applicationComponent
 }

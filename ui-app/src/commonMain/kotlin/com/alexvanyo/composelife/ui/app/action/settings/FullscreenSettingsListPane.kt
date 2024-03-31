@@ -180,7 +180,7 @@ private fun SettingsCategoryList(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            SettingsCategory.values.forEach { settingsCategory ->
+            SettingsCategory._values.forEach { settingsCategory ->
                 SettingsCategoryButton(
                     settingsCategory = settingsCategory,
                     showSelectedSettingsCategory = showSelectedSettingsCategory,

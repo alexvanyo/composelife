@@ -8,7 +8,6 @@ androidxAnnotation = "1.8.0-beta02"
 androidxAppcompat = "1.7.0-alpha03"
 androidxBenchmark = "1.3.0-alpha03"
 androidxCompose = "1.7.0-alpha07"
-androidxComposeCompiler = "1.5.11"
 androidxComposeMaterial3 = "1.3.0-alpha05"
 androidxCore = "1.13.0"
 androidxCoreSplashscreen = "1.2.0-alpha01"
@@ -33,13 +32,13 @@ gradleDependenciesSorter = "0.6"
 guavaAndroid = "32.0.0-android"
 horologist = "0.6.9"
 keeper = "0.15.0"
-kotlin = "1.9.23"
+kotlin = "2.0.0-RC1"
 kotlinInject = "0.6.3"
 kotlinxCollectionsImmutable = "0.3.7"
 kotlinxCoroutines = "1.8.1-Beta"
 kotlinxDatetime = "0.6.0-RC.2"
 kotlinxSerialization = "1.6.3"
-ksp = "1.9.23-1.0.20"
+ksp = "2.0.0-RC1-1.0.20"
 jacoco = "0.8.11"
 jetbrainsCompose = "1.6.10-beta02"
 junit4 = "4.13.2"
@@ -128,6 +127,7 @@ jetbrains-compose-uiUnit = { group = "org.jetbrains.compose.ui", name = "ui-unit
 jetbrains-compose-uiUtil = { group = "org.jetbrains.compose.ui", name = "ui-util", version.ref = "jetbrainsCompose" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 keeper-gradlePlugin = { group = "com.slack.keeper", name = "keeper", version.ref = "keeper" }
+kotlin-composeCompilerGradlePlugin = { group = "org.jetbrains.kotlin", name = "compose-compiler-gradle-plugin", version.ref = "kotlin" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit", version.ref = "kotlin" }
 kotlinInject-ksp = { group = "me.tatarka.inject", name = "kotlin-inject-compiler-ksp", version.ref = "kotlinInject" }
@@ -176,6 +176,7 @@ convention-kotlinMultiplatform = { id = "com.alexvanyo.composelife.kotlinMultipl
 convention-kotlinMultiplatformCompose = { id = "com.alexvanyo.composelife.kotlinMultiplatformCompose", version = "unspecified" }
 convention-mergeJacoco = { id = "com.alexvanyo.composelife.mergeJacoco", version = "unspecified" }
 android-lint = { id = "com.android.lint", version.ref = "androidGradlePlugin" }
+compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 gradleDependenciesSorter = { id = "com.squareup.sort-dependencies", version.ref = "gradleDependenciesSorter" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
