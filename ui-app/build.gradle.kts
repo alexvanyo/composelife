@@ -52,6 +52,7 @@ kotlin {
                 api(projects.dispatchers)
                 api(projects.random)
 
+                implementation(libs.androidx.graphics.shapes)
                 implementation(libs.jetbrains.compose.material3)
                 implementation(libs.jetbrains.compose.materialIconsExtended)
                 implementation(libs.jetbrains.compose.ui)

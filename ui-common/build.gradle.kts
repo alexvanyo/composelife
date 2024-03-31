@@ -45,6 +45,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(libs.androidx.annotation)
+                implementation(libs.androidx.graphics.shapes)
                 implementation(libs.jetbrains.compose.animation)
                 implementation(libs.jetbrains.compose.foundation)
                 implementation(libs.jetbrains.compose.materialIconsExtended)
