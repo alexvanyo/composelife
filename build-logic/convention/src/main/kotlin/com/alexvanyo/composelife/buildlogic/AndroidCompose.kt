@@ -19,9 +19,11 @@ package com.alexvanyo.composelife.buildlogic
 import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 fun Project.configureAndroidCompose(
@@ -29,23 +31,23 @@ fun Project.configureAndroidCompose(
 ) {
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
+    extensions.configure<ComposeCompilerGradlePluginExtension> {
+        suppressKotlinVersionCompatibilityCheck.set("2.0.0-RC1")
+    }
+
     commonExtension.apply {
         buildFeatures {
             compose = true
-        }
-
-        composeOptions {
-            kotlinCompilerExtensionVersion = libs.findVersion("androidxComposeCompiler").get().toString()
         }
 
         // TODO: Add metrics and report to non-test KotlinCompile tasks
         afterEvaluate {
             tasks.withType<KotlinCompile>().configureEach {
                 if (!name.contains("test", true)) {
-                    kotlinOptions {
+                    compilerOptions {
                         val metricsFolder = layout.buildDirectory.dir("build/compose-metrics")
                         val reportsFolder = layout.buildDirectory.dir("build/compose-reports")
-                        freeCompilerArgs = freeCompilerArgs + listOf(
+                        freeCompilerArgs.addAll(
                             "-P",
                             "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=${
                                 metricsFolder.get().asFile.absolutePath

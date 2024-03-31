@@ -18,4 +18,5 @@ package com.alexvanyo.composelife.dispatchers
 
 import kotlinx.coroutines.test.TestDispatcher
 
-typealias CellTickerTestDispatcher = TestDispatcher
+@JvmInline
+value class CellTickerTestDispatcher(val value: TestDispatcher)

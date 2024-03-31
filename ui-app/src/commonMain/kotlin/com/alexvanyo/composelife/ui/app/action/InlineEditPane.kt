@@ -132,7 +132,7 @@ fun InlineEditPane(
             TextFieldDropdown(
                 label = parameterizedStringResource(Strings.TouchTool),
                 currentValue = state.touchToolDropdownOption,
-                allValues = ToolDropdownOption.values.toImmutableList(),
+                allValues = ToolDropdownOption._values.toImmutableList(),
                 setValue = state::setTouchToolDropdownOption,
             )
         }
@@ -149,7 +149,7 @@ fun InlineEditPane(
             TextFieldDropdown(
                 label = parameterizedStringResource(Strings.StylusTool),
                 currentValue = state.stylusToolDropdownOption,
-                allValues = ToolDropdownOption.values.toImmutableList(),
+                allValues = ToolDropdownOption._values.toImmutableList(),
                 setValue = state::setStylusToolDropdownOption,
             )
         }
@@ -166,7 +166,7 @@ fun InlineEditPane(
             TextFieldDropdown(
                 label = parameterizedStringResource(Strings.MouseTool),
                 currentValue = state.mouseToolDropdownOption,
-                allValues = ToolDropdownOption.values.toImmutableList(),
+                allValues = ToolDropdownOption._values.toImmutableList(),
                 setValue = state::setMouseToolDropdownOption,
             )
         }
@@ -223,6 +223,8 @@ sealed interface ToolDropdownOption : DropdownOption {
     @GenSealedEnum
     companion object
 }
+
+expect val ToolDropdownOption.Companion._values: List<ToolDropdownOption>
 
 private fun ToolDropdownOption.toToolConfig(): ToolConfig =
     when (this) {

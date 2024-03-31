@@ -123,6 +123,7 @@ naming:
   ObjectPropertyNaming:
     excludes: [ '**/generated/**' ]
   TopLevelPropertyNaming:
+    active: false
     excludes: [ '**/generated/**' ]
   VariableNaming:
     excludes: [ '**/generated/**' ]

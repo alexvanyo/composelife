@@ -24,6 +24,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
@@ -70,7 +71,7 @@ private val Project.useSharedTest: SharedTestConfig get() =
         else -> throw GradleException("Unexpected value $useSharedTest for useSharedTest!")
     }
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 fun Project.configureAndroidTesting(
     testedExtension: TestedExtension,
 ) {
@@ -98,6 +99,26 @@ fun Project.configureAndroidTesting(
         testOptions {
             unitTests.all { test ->
                 test.systemProperty("robolectric.graphicsMode", "NATIVE")
+            }
+        }
+
+        // TODO: Without these dependsOn, Gradle complains about inputs for lint
+        @Suppress("NoNameShadowing", "EagerGradleConfiguration")
+        testVariants.all {
+            val testedVariantName = testedVariant.name.capitalizeForTaskName()
+            tasks.findByName("lintAnalyze${testedVariantName}UnitTest")?.apply {
+                tasks.findByName("generateResourceAccessorsForAndroidUnitTest")?.let { dependsOn(it) }
+                tasks.findByName("generateResourceAccessorsForAndroidUnitTest$testedVariantName")?.let { dependsOn(it) }
+            }
+            tasks.findByName("lintAnalyze${testedVariantName}AndroidTest")?.apply {
+                tasks.findByName("generateResourceAccessorsForAndroidInstrumentedTest")?.let { dependsOn(it) }
+            }
+            tasks.findByName("generate${testedVariantName}UnitTestLintModel")?.apply {
+                tasks.findByName("generateResourceAccessorsForAndroidUnitTest")?.let { dependsOn(it) }
+                tasks.findByName("generateResourceAccessorsForAndroidUnitTest$testedVariantName")?.let { dependsOn(it) }
+            }
+            tasks.findByName("generate${testedVariantName}AndroidTestLintModel")?.apply {
+                tasks.findByName("generateResourceAccessorsForAndroidInstrumentedTest")?.let { dependsOn(it) }
             }
         }
 

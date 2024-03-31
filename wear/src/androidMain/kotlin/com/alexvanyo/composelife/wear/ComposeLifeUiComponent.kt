@@ -30,6 +30,8 @@ abstract class ComposeLifeUiComponent(
         object :
             ComposeLifeUiEntryPoint,
             ComposeLifeApplicationEntryPoint by applicationComponent.entryPoint {}
+
+    companion object
 }
 
 interface ComposeLifeUiEntryPoint :

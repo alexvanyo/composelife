@@ -146,7 +146,7 @@ class FixedFormatKSerializer(
 
     @OptIn(ExperimentalSerializationApi::class)
     override val descriptor: SerialDescriptor = SerialDescriptor(
-        "com.alexvanyo.composelife.model.CellState.${fixedFormatCellStateSerializer.format.name}",
+        "com.alexvanyo.composelife.model.CellState.${fixedFormatCellStateSerializer.format._name}",
         delegateSerializer.descriptor,
     )
 

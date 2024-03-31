@@ -33,6 +33,7 @@ import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.resources.Visual
 import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
+import com.livefront.sealedenum.SealedEnum
 
 /**
  * The category for a particular setting.
@@ -56,14 +57,18 @@ sealed interface SettingsCategory {
 
     @GenSealedEnum
     companion object {
-        val Saver = sealedEnumSaver(sealedEnum)
+        val Saver = sealedEnumSaver(_sealedEnum)
     }
 }
+
+expect val SettingsCategory.Companion._sealedEnum: SealedEnum<SettingsCategory>
+
+expect val SettingsCategory.Companion._values: List<SettingsCategory>
 
 /**
  * A [Map] from the [SettingsCategory] to a list of [Setting]s in that category.
  */
-private val settingsByCategory by lazy { Setting.values.groupBy(Setting::category) }
+private val settingsByCategory by lazy { Setting._values.groupBy(Setting::category) }
 
 /**
  * Returns the list of [Setting]s for the given [SettingsCategory].

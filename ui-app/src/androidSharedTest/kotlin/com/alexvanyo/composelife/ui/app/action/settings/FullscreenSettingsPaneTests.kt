@@ -53,7 +53,7 @@ import com.alexvanyo.composelife.ui.app.ComposeLifeNavigation
 import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
 import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
-import com.alexvanyo.composelife.ui.app.create
+import com.alexvanyo.composelife.ui.app.createComponent
 import leakcanary.SkipLeakDetection
 import org.junit.Ignore
 import org.junit.runner.RunWith
@@ -65,7 +65,7 @@ import kotlin.test.assertNull
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
-    { TestComposeLifeApplicationComponent.create() },
+    { TestComposeLifeApplicationComponent.createComponent() },
     InjectTestActivity::class.java,
 ) {
 

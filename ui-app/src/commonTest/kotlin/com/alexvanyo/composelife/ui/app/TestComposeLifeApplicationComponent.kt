@@ -57,4 +57,4 @@ expect interface TestComposeLifeApplicationEntryPoint :
     PreferencesModule,
     UpdatableModule
 
-expect fun TestComposeLifeApplicationComponent.Companion.create(): TestComposeLifeApplicationComponent
+expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent

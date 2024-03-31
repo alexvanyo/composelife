@@ -74,6 +74,7 @@ import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.asFoundationDraggableAnchors
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import com.livefront.sealedenum.GenSealedEnum
+import com.livefront.sealedenum.SealedEnum
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -122,7 +123,7 @@ fun ListDetailPaneScaffold(
     ) {
         if (showListAndDetail) {
             Layout(
-                layoutIdTypes = ListAndDetailLayoutTypes.sealedEnum,
+                layoutIdTypes = ListAndDetailLayoutTypes._sealedEnum,
                 content = {
                     Spacer(
                         modifier = Modifier
@@ -388,3 +389,5 @@ sealed interface ListAndDetailLayoutTypes {
     @GenSealedEnum
     companion object
 }
+
+expect val ListAndDetailLayoutTypes.Companion._sealedEnum: SealedEnum<ListAndDetailLayoutTypes>

@@ -18,4 +18,5 @@ package com.alexvanyo.composelife.dispatchers
 
 import kotlinx.coroutines.test.TestDispatcher
 
-typealias GeneralTestDispatcher = TestDispatcher
+@JvmInline
+value class GeneralTestDispatcher(val value: TestDispatcher)

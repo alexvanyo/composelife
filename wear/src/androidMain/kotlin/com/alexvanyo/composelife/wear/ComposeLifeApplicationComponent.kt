@@ -45,6 +45,8 @@ abstract class ComposeLifeApplicationComponent(
             DispatchersModule by this,
             PreferencesModule by this,
             UpdatableModule by this {}
+
+    companion object
 }
 
 interface ComposeLifeApplicationEntryPoint :

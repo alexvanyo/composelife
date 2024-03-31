@@ -24,6 +24,7 @@ import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
 import com.alexvanyo.composelife.ui.util.ColorComponent.RgbIntComponent
+import com.livefront.sealedenum.SealedEnum
 
 /**
  * Modifies the given [color] with updating the given [component] with the given [value].
@@ -54,3 +55,5 @@ fun Color.get(component: RgbIntComponent): Int =
             RgbIntComponent.Red -> it.red
         }
     }
+
+actual val RgbIntComponent.Companion._sealedEnum: SealedEnum<RgbIntComponent> get() = sealedEnum

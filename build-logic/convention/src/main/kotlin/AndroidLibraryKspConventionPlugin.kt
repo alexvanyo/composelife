@@ -16,9 +16,6 @@
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureKsp
-import com.android.build.api.variant.LibraryAndroidComponentsExtension
-import com.android.build.gradle.LibraryExtension
-import org.gradle.kotlin.dsl.getByType
 
 class AndroidLibraryKspConventionPlugin : ConventionPlugin({
     with(pluginManager) {
@@ -26,8 +23,5 @@ class AndroidLibraryKspConventionPlugin : ConventionPlugin({
         apply("com.google.devtools.ksp")
     }
 
-    configureKsp(
-        extensions.getByType<LibraryExtension>(),
-        extensions.getByType<LibraryAndroidComponentsExtension>(),
-    )
+    configureKsp()
 })
