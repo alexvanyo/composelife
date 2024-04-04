@@ -113,7 +113,7 @@ fun <T : NavigationEntry, S : NavigationState<T>> NavigationHost(
         modifier = modifier,
         propagateMinConstraints = true,
     ) {
-        decoration(navigationState) { entry ->
+        decoration.invoke(navigationState) { entry ->
             saveableStateHolder.SaveableStateProvider(key = entry.id) {
                 CompositionLocalProvider(
                     LocalRetainedStateRegistry provides retainedStateRegistry,

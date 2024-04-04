@@ -27,8 +27,8 @@ import java.util.UUID
 /**
  * A [NavigationState] representing a backstack of [BackstackEntry]s.
  */
-interface BackstackState<T> : NavigationState<BackstackEntry<out T>> {
-    override val entryMap: BackstackMap<out T>
+interface BackstackState<T> : NavigationState<BackstackEntry<T>> {
+    override val entryMap: BackstackMap<T>
 
     /**
      * The id of the previous entry. This acts a pointer into [entryMap].
@@ -42,7 +42,7 @@ interface BackstackState<T> : NavigationState<BackstackEntry<out T>> {
 /**
  * The previous entry of this [BackstackState], based on the [BackstackState.previousEntryId].
  */
-val <T> BackstackState<T>.previousEntry: BackstackEntry<out T>?
+val <T> BackstackState<T>.previousEntry: BackstackEntry<T>?
     get() = entryMap[previousEntryId]
 
 /**

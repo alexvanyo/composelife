@@ -39,6 +39,7 @@ import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.canNavigateBack
+import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.navigate
 import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
@@ -46,15 +47,19 @@ import com.alexvanyo.composelife.navigation.withExpectedActor
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsPane
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsDetailPane
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsListPane
 import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsPaneInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsPaneLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
+import com.alexvanyo.composelife.ui.util.ListDetailInfo
 import com.alexvanyo.composelife.ui.util.PredictiveNavigationHost
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.ReportDrawn
+import com.alexvanyo.composelife.ui.util.listDetailNavigationDecoration
+import com.alexvanyo.composelife.ui.util.materialPredictiveNavigationDecoration
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import java.util.UUID
 
@@ -73,7 +78,7 @@ context(ComposeLifeAppInjectEntryPoint)
 fun ComposeLifeApp(
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
-    composeLifeAppState: ComposeLifeAppState = rememberComposeLifeAppState(),
+    composeLifeAppState: ComposeLifeAppState = rememberComposeLifeAppState(windowSizeClass),
 ) {
     Surface(modifier = modifier.fillMaxSize()) {
         LookaheadScope {
@@ -112,37 +117,44 @@ fun ComposeLifeApp(
                         RepeatablePredictiveBackHandler(
                             repeatablePredictiveBackStateHolder = predictiveBackStateHolder,
                             enabled = targetComposeLifeAppState.canNavigateBack,
-                        ) {
-                            targetComposeLifeAppState.onBackPressed(null)
-                        }
+                            onBack = targetComposeLifeAppState::onBackPressed
+                        )
 
                         with(localEntryPoint) {
                             PredictiveNavigationHost(
-                                repeatablePredictiveBackState = predictiveBackStateHolder.value,
                                 backstackState = targetComposeLifeAppState.navigationState,
+                                decoration = listDetailNavigationDecoration(
+                                    navigationDecoration = materialPredictiveNavigationDecoration(
+                                        predictiveBackStateHolder.value
+                                    ),
+                                    onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
+                                )
                             ) { entry ->
-                                Surface {
-                                    when (val value = entry.value) {
-                                        is ComposeLifeNavigation.CellUniverse -> {
+                                when (val value = entry.value) {
+                                    is ComposeLifeUiNavigation.CellUniverse -> {
+                                        Surface {
                                             CellUniversePane(
                                                 windowSizeClass = windowSizeClass,
-                                                onSeeMoreSettingsClicked = {
-                                                    targetComposeLifeAppState.onSeeMoreSettingsClicked(entry.id)
-                                                },
-                                                onOpenInSettingsClicked = { setting ->
-                                                    targetComposeLifeAppState.onOpenInSettingsClicked(setting, entry.id)
-                                                },
+                                                onSeeMoreSettingsClicked =
+                                                    targetComposeLifeAppState::onSeeMoreSettingsClicked,
+                                                onOpenInSettingsClicked =
+                                                    targetComposeLifeAppState::onOpenInSettingsClicked,
                                             )
                                         }
-                                        is ComposeLifeNavigation.FullscreenSettings -> {
-                                            FullscreenSettingsPane(
-                                                windowSizeClass = windowSizeClass,
-                                                navEntryValue = value,
-                                                onBackButtonPressed = {
-                                                    targetComposeLifeAppState.onBackPressed(entry.id)
-                                                },
-                                            )
-                                        }
+                                    }
+                                    is ComposeLifeUiNavigation.FullscreenSettingsList -> {
+                                        FullscreenSettingsListPane(
+                                            navEntryValue = value,
+                                            setSettingsCategory =
+                                                targetComposeLifeAppState::onSettingsCategoryClicked,
+                                            onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
+                                        )
+                                    }
+                                    is ComposeLifeUiNavigation.FullscreenSettingsDetail -> {
+                                        FullscreenSettingsDetailPane(
+                                            navEntryValue = value,
+                                            onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
+                                        )
                                     }
                                 }
                             }
@@ -160,7 +172,9 @@ context(
 )
 @Suppress("LongMethod")
 @Composable
-fun rememberComposeLifeAppState(): ComposeLifeAppState {
+fun rememberComposeLifeAppState(
+    windowSizeClass: WindowSizeClass,
+): ComposeLifeAppState {
     return when (val loadedPreferencesState = composeLifePreferences.loadedPreferencesState) {
         is ResourceState.Failure -> ComposeLifeAppState.ErrorLoadingPreferences
         ResourceState.Loading -> ComposeLifeAppState.LoadingPreferences
@@ -177,44 +191,77 @@ fun rememberComposeLifeAppState(): ComposeLifeAppState {
                 backstackValueSaverFactory = ComposeLifeNavigation.SaverFactory,
             )
 
-            remember(navController) {
+            val currentEntryId = navController.currentEntryId
+
+            val navigationUiState = navController.toComposeLifeUiNavigation(windowSizeClass)
+
+            remember(navController, navigationUiState) {
                 object : ComposeLifeAppState.LoadedPreferences {
                     override val preferences get() = currentLoadedPreferences
 
-                    override val navigationState: BackstackState<out ComposeLifeNavigation>
-                        get() = navController
+                    override val navigationState: BackstackState<ComposeLifeUiNavigation>
+                        get() = navigationUiState
 
                     override val canNavigateBack
                         get() = navController.canNavigateBack
 
-                    override fun onBackPressed(actorBackstackEntryId: UUID?) {
-                        navController.withExpectedActor(actorBackstackEntryId) {
+                    override fun onBackPressed() {
+                        navController.withExpectedActor(currentEntryId) {
+                            val currentEntryValue = navController.currentEntry.value
                             if (navController.canNavigateBack) {
-                                navController.popBackstack()
+                                when (val value = navigationUiState.currentEntry.value) {
+                                    is ListDetailInfo -> {
+                                        navController.popBackstack()
+                                        if (value.isListVisible && value.isDetailVisible &&
+                                            currentEntryValue is ComposeLifeNavigation.FullscreenSettingsDetail) {
+                                            navController.popBackstack()
+                                        }
+                                    }
+                                    else -> {
+                                        navController.popBackstack()
+                                    }
+                                }
                             }
                         }
                     }
 
-                    override fun onSeeMoreSettingsClicked(actorBackstackEntryId: UUID?) {
-                        navController.withExpectedActor(actorBackstackEntryId) {
+                    override fun onSeeMoreSettingsClicked() {
+                        navController.withExpectedActor(currentEntryId) {
                             navController.navigate(
-                                ComposeLifeNavigation.FullscreenSettings(
+                                ComposeLifeNavigation.FullscreenSettingsList(
                                     initialSettingsCategory = SettingsCategory.Algorithm,
-                                    initialShowDetails = false,
-                                    initialSettingToScrollTo = null,
                                 ),
                             )
                         }
                     }
 
-                    override fun onOpenInSettingsClicked(setting: Setting, actorBackstackEntryId: UUID?) {
-                        navController.withExpectedActor(actorBackstackEntryId) {
+                    override fun onOpenInSettingsClicked(setting: Setting) {
+                        navController.withExpectedActor(currentEntryId) {
                             navController.navigate(
-                                ComposeLifeNavigation.FullscreenSettings(
+                                ComposeLifeNavigation.FullscreenSettingsList(
                                     initialSettingsCategory = setting.category,
-                                    initialShowDetails = true,
+                                ),
+                            )
+                            navController.navigate(
+                                ComposeLifeNavigation.FullscreenSettingsDetail(
+                                    settingsCategory = setting.category,
                                     initialSettingToScrollTo = setting,
                                 ),
+                            )
+                        }
+                    }
+
+                    override fun onSettingsCategoryClicked(settingsCategory: SettingsCategory) {
+                        navController.withExpectedActor(currentEntryId) {
+                            while (navController.currentEntry.value !is ComposeLifeNavigation.FullscreenSettingsList) {
+                                navController.popBackstack()
+                            }
+                            val currentEntryValue =
+                                navController.currentEntry.value as ComposeLifeNavigation.FullscreenSettingsList
+                            currentEntryValue.settingsCategory = settingsCategory
+                            navController.navigate(
+                                currentEntryValue.transientFullscreenSettingsDetail,
+                                id = currentEntryValue.transientDetailId
                             )
                         }
                     }
@@ -240,14 +287,16 @@ sealed interface ComposeLifeAppState {
      */
     interface LoadedPreferences : ComposeLifeAppState, LoadedComposeLifePreferencesProvider {
 
-        val navigationState: BackstackState<out ComposeLifeNavigation>
+        val navigationState: BackstackState<ComposeLifeUiNavigation>
 
         val canNavigateBack: Boolean
 
-        fun onBackPressed(actorBackstackEntryId: UUID?)
+        fun onBackPressed()
 
-        fun onSeeMoreSettingsClicked(actorBackstackEntryId: UUID?)
+        fun onSeeMoreSettingsClicked()
 
-        fun onOpenInSettingsClicked(setting: Setting, actorBackstackEntryId: UUID?)
+        fun onOpenInSettingsClicked(setting: Setting)
+
+        fun onSettingsCategoryClicked(settingsCategory: SettingsCategory)
     }
 }

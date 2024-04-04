@@ -154,37 +154,40 @@ fun <T, M> AnimatedContent(
      * size changes will be immediate when the [targetState] doesn't change.
      */
     animateInternalContentSizeChanges: Boolean = true,
+    contentKey: (T) -> Any? = { it },
     content: @Composable (T) -> Unit,
 ) {
-    val previousTargetsInTransition = remember { mutableStateSetOf<T>() }
+    val previousTargetsInTransition = remember { mutableStateMapOf<Any?, T>() }
 
     val newTargetsInTransition = when (targetState) {
         is TargetState.InProgress -> setOf(targetState.current, targetState.provisional)
         is TargetState.Single -> setOf(targetState.current)
-    }
+    }.associateBy(contentKey)
 
     val currentTargetsInTransition = previousTargetsInTransition + newTargetsInTransition
 
     DisposableEffect(currentTargetsInTransition) {
-        previousTargetsInTransition.addAll(currentTargetsInTransition)
+        previousTargetsInTransition.putAll(currentTargetsInTransition)
         onDispose {}
     }
 
-    val targetsWithTransitions = currentTargetsInTransition.associateWith { target ->
-        key(target) {
-            val targetContentStatus = when (targetState) {
-                is TargetState.InProgress -> when (target) {
-                    targetState.provisional -> ContentStatus.Appearing(
-                        progressToVisible = targetState.progress,
-                        metadata = targetState.metadata,
+    val targetKeyState = targetState.map(contentKey)
+
+    val targetKeysWithTransitions = currentTargetsInTransition.keys.associateWith { targetKey ->
+        key(targetKey) {
+            val targetContentStatus = when (targetKeyState) {
+                is TargetState.InProgress -> when (targetKey) {
+                    targetKeyState.provisional -> ContentStatus.Appearing(
+                        progressToVisible = targetKeyState.progress,
+                        metadata = targetKeyState.metadata,
                     )
-                    targetState.current -> ContentStatus.Disappearing(
-                        progressToNotVisible = targetState.progress,
-                        metadata = targetState.metadata,
+                    targetKeyState.current -> ContentStatus.Disappearing(
+                        progressToNotVisible = targetKeyState.progress,
+                        metadata = targetKeyState.metadata,
                     )
                     else -> ContentStatus.NotVisible
                 }
-                is TargetState.Single -> if (targetState.current == target) {
+                is TargetState.Single -> if (targetKeyState.current == targetKey) {
                     ContentStatus.Visible
                 } else {
                     ContentStatus.NotVisible
@@ -209,19 +212,21 @@ fun <T, M> AnimatedContent(
         }
     }
 
-    targetsWithTransitions.forEach { (target, transition) ->
+    targetKeysWithTransitions.forEach { (targetKey, transition) ->
         if (
-            when (targetState) {
-                is TargetState.InProgress -> target != targetState.provisional && target != targetState.current
-                is TargetState.Single -> target != targetState.current
+            when (targetKeyState) {
+                is TargetState.InProgress ->
+                    targetKey != targetKeyState.provisional && targetKey != targetKeyState.current
+                is TargetState.Single ->
+                    targetKey != targetKeyState.current
             }
         ) {
-            key(target) {
+            key(targetKey) {
                 LaunchedEffect(Unit) {
                     snapshotFlow { transition.currentState == transition.targetState }
                         .filter { it }
                         .onEach {
-                            previousTargetsInTransition.remove(target)
+                            previousTargetsInTransition.remove(targetKey)
                         }
                         .collect()
                 }
@@ -238,27 +243,29 @@ fun <T, M> AnimatedContent(
         val cache = mutableStateMapOf<ConstraintsType, Constraints>()
     }
 
-    val targetsWithConstraints: Map<T, ConstraintsCache> =
-        currentTargetsInTransition.associateWith { target ->
-            key(target) {
+    val targetsWithConstraints: Map<Any?, ConstraintsCache> =
+        currentTargetsInTransition.keys.associateWith { targetKey ->
+            key(targetKey) {
                 remember { ConstraintsCache() }
             }
         }
 
     data class TargetStateLayoutId(val value: T)
 
-    var completedTargetSizeAnimation by remember(targetState) {
+    var completedTargetSizeAnimation by remember(targetKeyState) {
         mutableStateOf(true)
     }
 
     Layout(
         content = {
-            targetsWithTransitions.forEach { (target, transition) ->
-                key(target) {
+            targetKeysWithTransitions.forEach { (targetKey, transition) ->
+                val target = currentTargetsInTransition.getValue(targetKey)
+                key(targetKey) {
                     /**
                      * Preserve the existing ghost element value, or if this is not the current value
                      */
-                    val isGhostElement = LocalGhostElement.current || target != targetState.current
+                    val isGhostElement = LocalGhostElement.current ||
+                            contentKey(target) != contentKey(targetState.current)
                     CompositionLocalProvider(LocalGhostElement provides isGhostElement) {
                         Box(
                             modifier = Modifier.layoutId(TargetStateLayoutId(target)),
@@ -299,15 +306,16 @@ fun <T, M> AnimatedContent(
                         // To accomplish that, don't observe reads here
                         Snapshot.withoutReadObservation {
                             // Get the cache for the given target
-                            val cache = targetsWithConstraints.getValue(target).cache
+                            val cache = targetsWithConstraints.getValue(contentKey(target)).cache
 
                             // If we don't have a saved constraints, the target is the current target, or the
                             // target is the provisional target, update the constraints. Otherwise, we measure using
                             // the cached constraints as we animate out.
                             @Suppress("ComplexCondition")
                             if (constraintsType !in cache ||
-                                target == targetState.current ||
-                                (targetState.isInProgress() && target == targetState.provisional)
+                                contentKey(target) == targetKeyState.current ||
+                                (targetKeyState.isInProgress() &&
+                                        contentKey(target) == targetKeyState.provisional)
                             ) {
                                 cache[constraintsType] = constraints
                             }
