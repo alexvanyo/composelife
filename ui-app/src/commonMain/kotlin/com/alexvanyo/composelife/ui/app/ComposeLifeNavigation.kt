@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.ui.app
 
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
@@ -28,6 +29,7 @@ import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
+import java.util.UUID
 
 @Stable
 sealed interface ComposeLifeNavigation {
@@ -50,20 +52,48 @@ sealed interface ComposeLifeNavigation {
         }
     }
 
-    class FullscreenSettings(
+    class FullscreenSettingsList(
         initialSettingsCategory: SettingsCategory,
-        initialShowDetails: Boolean,
-        initialSettingToScrollTo: Setting?,
     ) : ComposeLifeNavigation {
         /**
          * The currently selected settings category.
          */
         var settingsCategory: SettingsCategory by mutableStateOf(initialSettingsCategory)
 
-        /**
-         * `true` if the details should be shown.
-         */
-        var showDetails: Boolean by mutableStateOf(initialShowDetails)
+        val transientDetailId by derivedStateOf {
+            settingsCategory
+            UUID.randomUUID()
+        }
+
+        val transientFullscreenSettingsDetail by derivedStateOf {
+            transientDetailId
+            FullscreenSettingsDetail(settingsCategory, null)
+        }
+
+        override val type = Companion
+
+        companion object : ComposeLifeNavigationType {
+            @Suppress("UnsafeCallOnNullableType")
+            override fun saverFactory(
+                previous: BackstackEntry<ComposeLifeNavigation>?,
+            ): Saver<FullscreenSettingsList, Any> =
+                Saver(
+                    save = { nav ->
+                        with(SettingsCategory.Saver) { save(nav.settingsCategory) }
+                    },
+                    restore = {
+                        FullscreenSettingsList(
+                            initialSettingsCategory = SettingsCategory.Saver.restore(it)!!,
+                        )
+                    },
+                )
+        }
+    }
+
+    class FullscreenSettingsDetail(
+        val settingsCategory: SettingsCategory,
+        initialSettingToScrollTo: Setting?,
+    ) : ComposeLifeNavigation {
 
         /**
          * If non-null, a [Setting] to scroll to immediately.
@@ -84,20 +114,18 @@ sealed interface ComposeLifeNavigation {
             @Suppress("UnsafeCallOnNullableType")
             override fun saverFactory(
                 previous: BackstackEntry<ComposeLifeNavigation>?,
-            ): Saver<FullscreenSettings, Any> =
+            ): Saver<FullscreenSettingsDetail, Any> =
                 listSaver(
-                    save = { fullscreen ->
+                    save = { nav ->
                         listOf(
-                            with(SettingsCategory.Saver) { save(fullscreen.settingsCategory) },
-                            fullscreen.showDetails,
-                            fullscreen.settingToScrollTo?.let { with(Setting.Saver) { save(it) } },
+                            with(SettingsCategory.Saver) { save(nav.settingsCategory) },
+                            nav.settingToScrollTo?.let { with(Setting.Saver) { save(it) } },
                         )
                     },
                     restore = {
-                        FullscreenSettings(
-                            initialSettingsCategory = SettingsCategory.Saver.restore(it[0] as Int)!!,
-                            initialShowDetails = it[1] as Boolean,
-                            initialSettingToScrollTo = (it[2] as Int?)?.let(Setting.Saver::restore),
+                        FullscreenSettingsDetail(
+                            settingsCategory = SettingsCategory.Saver.restore(it[0] as Int)!!,
+                            initialSettingToScrollTo = (it[1] as Int?)?.let(Setting.Saver::restore),
                         )
                     },
                 )
@@ -117,7 +145,12 @@ sealed interface ComposeLifeNavigation {
                                     save(composeLifeNavigation)
                                 }
 
-                            is FullscreenSettings ->
+                            is FullscreenSettingsList ->
+                                with(composeLifeNavigation.type.saverFactory(previous)) {
+                                    save(composeLifeNavigation)
+                                }
+
+                            is FullscreenSettingsDetail ->
                                 with(composeLifeNavigation.type.saverFactory(previous)) {
                                     save(composeLifeNavigation)
                                 }

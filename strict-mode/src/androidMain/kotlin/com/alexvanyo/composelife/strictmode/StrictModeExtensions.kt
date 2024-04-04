@@ -24,7 +24,7 @@ import android.util.Log
 
 fun Application.initStrictModeIfNeeded() {
     if (isDebuggable) {
-        initStrictMode()
+        //initStrictMode()
     }
 }
 
