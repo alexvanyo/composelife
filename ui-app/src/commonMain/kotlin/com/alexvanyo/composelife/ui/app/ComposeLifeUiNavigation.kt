@@ -20,25 +20,17 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackState
-import com.alexvanyo.composelife.navigation.BackstackValueSaverFactory
 import com.alexvanyo.composelife.navigation.currentEntry
-import com.alexvanyo.composelife.ui.app.action.settings.Setting
-import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
-import com.alexvanyo.composelife.ui.util.DetailMarker
-import com.alexvanyo.composelife.ui.util.ListDetailInfo
-import com.alexvanyo.composelife.ui.util.ListMarker
-import com.alexvanyo.composelife.ui.util.sealedEnumSaver
-import com.livefront.sealedenum.GenSealedEnum
+import com.alexvanyo.composelife.ui.app.component.DetailMarker
+import com.alexvanyo.composelife.ui.app.component.ListDetailInfo
+import com.alexvanyo.composelife.ui.app.component.ListMarker
 import java.util.UUID
 
 @Stable

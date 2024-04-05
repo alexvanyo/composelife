@@ -59,36 +59,23 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInParent
-import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onPlaced
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
-import com.alexvanyo.composelife.ui.app.ComposeLifeNavigation
 import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
 import com.alexvanyo.composelife.ui.app.resources.Algorithm
 import com.alexvanyo.composelife.ui.app.resources.Back
@@ -96,18 +83,6 @@ import com.alexvanyo.composelife.ui.app.resources.FeatureFlags
 import com.alexvanyo.composelife.ui.app.resources.Settings
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.resources.Visual
-import com.alexvanyo.composelife.ui.util.AnchoredDraggableState
-import com.alexvanyo.composelife.ui.util.AnchoredDraggableStateSaver
-import com.alexvanyo.composelife.ui.util.AnimatedContent
-import com.alexvanyo.composelife.ui.util.Crossfade
-import com.alexvanyo.composelife.ui.util.DraggableAnchors
-import com.alexvanyo.composelife.ui.util.Layout
-import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
-import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackState
-import com.alexvanyo.composelife.ui.util.TargetState
-import com.alexvanyo.composelife.ui.util.asFoundationDraggableAnchors
-import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
-import com.livefront.sealedenum.GenSealedEnum
 import kotlin.math.roundToInt
 
 interface FullscreenSettingsPaneInjectEntryPoint :
@@ -115,234 +90,6 @@ interface FullscreenSettingsPaneInjectEntryPoint :
 
 interface FullscreenSettingsPaneLocalEntryPoint :
     SettingUiLocalEntryPoint
-
-//@OptIn(ExperimentalFoundationApi::class)
-//@Suppress("LongMethod", "CyclomaticComplexMethod")
-//@Composable
-//fun ListDetailPane(
-//    showList: Boolean,
-//    showDetail: Boolean,
-//    listContent: @Composable () -> Unit,
-//    detailContent: @Composable () -> Unit,
-//    onBackButtonPressed: () -> Unit,
-//    modifier: Modifier = Modifier,
-//) {
-//    val showListAndDetail = showList && showDetail
-//
-//    val predictiveBackStateHolder = rememberRepeatablePredictiveBackStateHolder()
-//    RepeatablePredictiveBackHandler(
-//        repeatablePredictiveBackStateHolder = predictiveBackStateHolder,
-//        enabled = showDetail && !showList,
-//    ) {
-//        onBackButtonPressed()
-//    }
-//
-//    val density = LocalDensity.current
-//    val anchoredDraggableState = rememberSaveable(
-//        saver = AnchoredDraggableStateSaver(
-//            positionalThreshold = { totalDistance -> totalDistance * 0.5f },
-//            velocityThreshold = { with(density) { 200.dp.toPx() } },
-//            snapAnimationSpec = spring(),
-//            decayAnimationSpec = exponentialDecay(),
-//        ),
-//    ) {
-//        AnchoredDraggableState(
-//            initialValue = 0.5f,
-//            positionalThreshold = { totalDistance -> totalDistance * 0.5f },
-//            velocityThreshold = { with(density) { 200.dp.toPx() } },
-//            snapAnimationSpec = spring(),
-//            decayAnimationSpec = exponentialDecay(),
-//        )
-//    }
-//
-//    val minPaneWidth = 200.dp
-//
-//    if (showListAndDetail) {
-//        Layout(
-//            layoutIdTypes = ListAndDetailLayoutTypes.sealedEnum,
-//            modifier = modifier,
-//            content = {
-//                Spacer(
-//                    modifier = Modifier
-//                        .layoutId(ListAndDetailLayoutTypes.StartInsets)
-//                        .windowInsetsStartWidth(WindowInsets.safeDrawing),
-//                )
-//                Spacer(
-//                    modifier = Modifier
-//                        .layoutId(ListAndDetailLayoutTypes.EndInsets)
-//                        .windowInsetsEndWidth(WindowInsets.safeDrawing),
-//                )
-//
-//                Box(
-//                    modifier = Modifier
-//                        .layoutId(ListAndDetailLayoutTypes.List)
-//                        .consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.End)),
-//                ) {
-//                    listContent()
-//                }
-//
-//                Column(
-//                    Modifier
-//                        .layoutId(ListAndDetailLayoutTypes.Detail)
-//                        .consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Start))
-//                        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
-//                        .padding(
-//                            top = 4.dp,
-//                            start = 8.dp,
-//                            end = 8.dp,
-//                            bottom = 16.dp,
-//                        ),
-//                ) {
-//                    Spacer(Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
-//                    Surface(
-//                        color = MaterialTheme.colorScheme.secondaryContainer,
-//                        shape = RoundedCornerShape(16.dp),
-//                        modifier = Modifier
-//                            .weight(1f)
-//                            .consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical)),
-//                    ) {
-//                        detailContent()
-//                    }
-//                    Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
-//                }
-//
-//                Box(
-//                    modifier = Modifier
-//                        .layoutId(ListAndDetailLayoutTypes.Divider)
-//                        .fillMaxHeight()
-//                        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical)),
-//                    contentAlignment = Alignment.Center,
-//                ) {
-//                    val handleInteractionSource = remember { MutableInteractionSource() }
-//
-//                    Box(
-//                        modifier = Modifier
-//                            .size(64.dp)
-//                            .hoverable(
-//                                interactionSource = handleInteractionSource,
-//                            )
-//                            .anchoredDraggable(
-//                                state = anchoredDraggableState,
-//                                orientation = Orientation.Horizontal,
-//                                interactionSource = handleInteractionSource,
-//                            )
-//                            .pointerHoverIcon(PointerIcon.Hand),
-//                        contentAlignment = Alignment.Center,
-//                    ) {
-//                        val isHandleDragged by handleInteractionSource.collectIsDraggedAsState()
-//                        val isHandleHovered by handleInteractionSource.collectIsHoveredAsState()
-//                        val isHandlePressed by handleInteractionSource.collectIsPressedAsState()
-//                        val isHandleActive = isHandleDragged || isHandleHovered || isHandlePressed
-//                        val handleWidth by animateDpAsState(
-//                            targetValue = if (isHandleActive) 12.dp else 4.dp,
-//                            label = "handleWidth",
-//                        )
-//                        val handleColor by animateColorAsState(
-//                            targetValue = if (isHandleActive) {
-//                                MaterialTheme.colorScheme.onSurface
-//                            } else {
-//                                MaterialTheme.colorScheme.outline
-//                            },
-//                            label = "handleColor",
-//                        )
-//                        Canvas(
-//                            modifier = Modifier.fillMaxSize(),
-//                        ) {
-//                            val handleSize = DpSize(handleWidth, 48.dp).toSize()
-//                            val handleOffset = Offset(
-//                                (size.width - handleSize.width) / 2f,
-//                                (size.height - handleSize.height) / 2f,
-//                            )
-//                            drawRoundRect(
-//                                color = handleColor,
-//                                topLeft = handleOffset,
-//                                size = handleSize,
-//                                cornerRadius = CornerRadius(handleSize.width / 2),
-//                            )
-//                        }
-//                    }
-//                }
-//            },
-//            measurePolicy = { measurables, constraints ->
-//                val startInsetsPlaceable = measurables
-//                    .getValue(ListAndDetailLayoutTypes.StartInsets)
-//                    .measure(constraints.copy(minWidth = 0))
-//
-//                val endInsetsPlaceable = measurables
-//                    .getValue(ListAndDetailLayoutTypes.EndInsets)
-//                    .measure(constraints.copy(minWidth = 0))
-//
-//                val minPaneWidthPx = minPaneWidth.toPx()
-//
-//                val freeSpace = constraints.maxWidth -
-//                    startInsetsPlaceable.width -
-//                    endInsetsPlaceable.width -
-//                    minPaneWidthPx * 2
-//
-//                layout(constraints.maxWidth, constraints.maxHeight) {
-//                    val minAnchoredDraggablePosition = 0f
-//                    val maxAnchoredDraggablePosition = freeSpace.coerceAtLeast(0f)
-//
-//                    anchoredDraggableState.updateAnchors(
-//                        newAnchors = ContinuousDraggableAnchors(
-//                            minAnchoredDraggablePosition = minAnchoredDraggablePosition,
-//                            maxAnchoredDraggablePosition = maxAnchoredDraggablePosition,
-//                        ).asFoundationDraggableAnchors(
-//                            equalsKey = minAnchoredDraggablePosition to maxAnchoredDraggablePosition,
-//                        ),
-//                        newTarget = anchoredDraggableState.targetValue,
-//                    )
-//
-//                    val currentFraction = checkNotNull(
-//                        anchoredDraggableState.anchors.closestAnchor(
-//                            anchoredDraggableState.requireOffset(),
-//                        ),
-//                    )
-//
-//                    val listPaneExtraSpace = freeSpace * currentFraction
-//                    val listPaneWidth = (startInsetsPlaceable.width + minPaneWidthPx + listPaneExtraSpace).roundToInt()
-//                    val detailPaneWidth = constraints.maxWidth - listPaneWidth
-//
-//                    val listPanePlaceable = measurables
-//                        .getValue(ListAndDetailLayoutTypes.List)
-//                        .measure(constraints.copy(minWidth = listPaneWidth, maxWidth = listPaneWidth))
-//
-//                    val detailPanePlaceable = measurables
-//                        .getValue(ListAndDetailLayoutTypes.Detail)
-//                        .measure(constraints.copy(minWidth = detailPaneWidth, maxWidth = detailPaneWidth))
-//
-//                    listPanePlaceable.placeRelative(0, 0)
-//                    detailPanePlaceable.placeRelative(listPaneWidth, 0)
-//
-//                    val dividerPlaceable = measurables
-//                        .getValue(ListAndDetailLayoutTypes.Divider)
-//                        .measure(constraints)
-//
-//                    dividerPlaceable.placeRelative(listPaneWidth - dividerPlaceable.width / 2, 0)
-//                }
-//            },
-//        )
-//    } else {
-//        AnimatedContent(
-//            targetState = when (val predictiveBackState = predictiveBackStateHolder.value) {
-//                RepeatablePredictiveBackState.NotRunning -> TargetState.Single(showList)
-//                is RepeatablePredictiveBackState.Running ->
-//                    TargetState.InProgress(
-//                        current = false,
-//                        provisional = true,
-//                        progress = predictiveBackState.progress,
-//                    )
-//            },
-//            modifier = modifier,
-//        ) { targetShowList ->
-//            if (targetShowList) {
-//                listContent()
-//            } else {
-//                detailContent()
-//            }
-//        }
-//    }
-//}
 
 @Composable
 fun FullscreenSettingsListPane(

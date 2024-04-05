@@ -54,14 +54,13 @@ import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsPaneLo
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
-import com.alexvanyo.composelife.ui.util.ListDetailInfo
+import com.alexvanyo.composelife.ui.app.component.ListDetailInfo
+import com.alexvanyo.composelife.ui.app.component.listDetailNavigationDecoration
 import com.alexvanyo.composelife.ui.util.PredictiveNavigationHost
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.ReportDrawn
-import com.alexvanyo.composelife.ui.util.listDetailNavigationDecoration
 import com.alexvanyo.composelife.ui.util.materialPredictiveNavigationDecoration
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
-import java.util.UUID
 
 interface ComposeLifeAppInjectEntryPoint :
     ComposeLifePreferencesProvider,
