@@ -116,18 +116,21 @@ fun ComposeLifeApp(
                         RepeatablePredictiveBackHandler(
                             repeatablePredictiveBackStateHolder = predictiveBackStateHolder,
                             enabled = targetComposeLifeAppState.canNavigateBack,
-                            onBack = targetComposeLifeAppState::onBackPressed
+                            onBack = targetComposeLifeAppState::onBackPressed,
                         )
 
                         with(localEntryPoint) {
                             PredictiveNavigationHost(
                                 backstackState = targetComposeLifeAppState.navigationState,
-                                decoration = listDetailNavigationDecoration(
-                                    navigationDecoration = materialPredictiveNavigationDecoration(
+                                decoration = { renderableNavigationState ->
+                                    val listDetailRenderableNavigationState =
+                                        listDetailNavigationDecoration<ComposeLifeUiNavigation>(
+                                            onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
+                                        ).invoke(renderableNavigationState)
+                                    materialPredictiveNavigationDecoration<ComposeLifeUiNavigation>(
                                         predictiveBackStateHolder.value
-                                    ),
-                                    onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
-                                )
+                                    ).invoke(listDetailRenderableNavigationState)
+                                },
                             ) { entry ->
                                 when (val value = entry.value) {
                                     is ComposeLifeUiNavigation.CellUniverse -> {
@@ -135,9 +138,9 @@ fun ComposeLifeApp(
                                             CellUniversePane(
                                                 windowSizeClass = windowSizeClass,
                                                 onSeeMoreSettingsClicked =
-                                                    targetComposeLifeAppState::onSeeMoreSettingsClicked,
+                                                targetComposeLifeAppState::onSeeMoreSettingsClicked,
                                                 onOpenInSettingsClicked =
-                                                    targetComposeLifeAppState::onOpenInSettingsClicked,
+                                                targetComposeLifeAppState::onOpenInSettingsClicked,
                                             )
                                         }
                                     }
@@ -145,7 +148,7 @@ fun ComposeLifeApp(
                                         FullscreenSettingsListPane(
                                             navEntryValue = value,
                                             setSettingsCategory =
-                                                targetComposeLifeAppState::onSettingsCategoryClicked,
+                                            targetComposeLifeAppState::onSettingsCategoryClicked,
                                             onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
                                         )
                                     }
@@ -212,7 +215,8 @@ fun rememberComposeLifeAppState(
                                     is ListDetailInfo -> {
                                         navController.popBackstack()
                                         if (value.isListVisible && value.isDetailVisible &&
-                                            currentEntryValue is ComposeLifeNavigation.FullscreenSettingsDetail) {
+                                            currentEntryValue is ComposeLifeNavigation.FullscreenSettingsDetail
+                                        ) {
                                             navController.popBackstack()
                                         }
                                     }
@@ -260,7 +264,7 @@ fun rememberComposeLifeAppState(
                             currentEntryValue.settingsCategory = settingsCategory
                             navController.navigate(
                                 currentEntryValue.transientFullscreenSettingsDetail,
-                                id = currentEntryValue.transientDetailId
+                                id = currentEntryValue.transientDetailId,
                             )
                         }
                     }

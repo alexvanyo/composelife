@@ -41,6 +41,7 @@ import com.slack.circuit.retained.LocalCanRetainChecker
 import com.slack.circuit.retained.LocalRetainedStateRegistry
 import com.slack.circuit.retained.RetainedStateRegistry
 import com.slack.circuit.retained.rememberRetained
+import java.util.UUID
 
 /**
  * The primary composable for displaying a [NavigationState].
@@ -78,9 +79,31 @@ fun <T : NavigationEntry> NavigationHost(
 fun <T : NavigationEntry, S : NavigationState<T>> NavigationHost(
     navigationState: S,
     modifier: Modifier = Modifier,
-    decoration: NavigationDecoration<T, S>,
+    decoration: FinalizingNavigationDecoration<T, S>,
     content: @Composable (T) -> Unit,
 ) {
+    val renderableNavigationState = associateWithRenderablePanes(navigationState, content)
+
+    Box(
+        modifier = modifier,
+        propagateMinConstraints = true,
+    ) {
+        decoration.invoke(renderableNavigationState)
+    }
+}
+
+/**
+ * Returns a [RenderableNavigationState] associating the entries for the [navigationState] with a lambda to
+ * display that content.
+ *
+ * This transforms [pane], a general lambda to render a [NavigationEntry] of type [T], into instance specific
+ * lambdas for each navigation entry.
+ */
+@Composable
+fun <T : NavigationEntry, S : NavigationState<T>> associateWithRenderablePanes(
+    navigationState: S,
+    pane: @Composable (T) -> Unit,
+): RenderableNavigationState<T, S> {
     val saveableStateHolder = rememberSaveableStateHolder()
 
     /**
@@ -98,82 +121,92 @@ fun <T : NavigationEntry, S : NavigationState<T>> NavigationHost(
     currentEntryKeySet.forEach { entryKey ->
         key(entryKey) {
             DisposableEffect(Unit) {
-                // Ordering note: This will happen _after_ the entryRetainedStateRegistry's onDispose in
+                // Ordering notes
+                // This will happen _after_ the entryRetainedStateRegistry's onDispose in
                 // due to LIFO ordering of DisposableEffect, so any retained entry state saved there will be cleared.
-                onDispose {
-                    if (entryKey !in currentEntryKeySet) {
-                        retainedStateRegistry.consumeValue(entryKey.toString())
-                    }
-                }
-            }
-        }
-    }
-
-    Box(
-        modifier = modifier,
-        propagateMinConstraints = true,
-    ) {
-        decoration.invoke(navigationState) { entry ->
-            saveableStateHolder.SaveableStateProvider(key = entry.id) {
-                CompositionLocalProvider(
-                    LocalRetainedStateRegistry provides retainedStateRegistry,
-                    /**
-                     * Only retain the entry [RetainedStateRegistry] when it is in the backstack.
-                     */
-                    LocalCanRetainChecker provides { entry.id in currentEntryKeySet },
-                ) {
-                    val entryRetainedStateRegistry = rememberRetained(key = entry.id.toString()) {
-                        RetainedStateRegistry()
-                    }
-
-                    CompositionLocalProvider(
-                        LocalRetainedStateRegistry provides entryRetainedStateRegistry,
-                        LocalCanRetainChecker provides CanRetainChecker.Always,
-                    ) {
-                        content(entry)
-                    }
-                }
-            }
-        }
-    }
-
-    // Set up a DisposableEffect for each entry key in the backstack to clear a particular entry's state from the
-    // saveableStateHolder when the entry is no longer in the backstack.
-    // Without this, entry state would leak and be kept around indefinitely in the case where an entry is removed
-    // from the backstack while not currently being rendered.
-    currentEntryKeySet.forEach { entryKey ->
-        key(entryKey) {
-            DisposableEffect(Unit) {
-                // Ordering note: This will happen _before_ the content's onDispose in SaveableStateProvider due to
+                // This will happen _after_ the content's onDispose in SaveableStateProvider due to
                 // LIFO ordering of DisposableEffect, so the removed entry state saving will be skipped.
                 onDispose {
                     if (entryKey !in currentEntryKeySet) {
+                        retainedStateRegistry.consumeValue(entryKey.toString())
                         saveableStateHolder.removeState(entryKey)
                     }
                 }
             }
         }
     }
+
+    val wrappedPane: @Composable (T) -> Unit = { entry ->
+        saveableStateHolder.SaveableStateProvider(key = entry.id) {
+            CompositionLocalProvider(
+                LocalRetainedStateRegistry provides retainedStateRegistry,
+                /**
+                 * Only retain the entry [RetainedStateRegistry] when it is in the backstack.
+                 */
+                LocalCanRetainChecker provides { entry.id in currentEntryKeySet },
+            ) {
+                val entryRetainedStateRegistry = rememberRetained(key = entry.id.toString()) {
+                    RetainedStateRegistry()
+                }
+
+                CompositionLocalProvider(
+                    LocalRetainedStateRegistry provides entryRetainedStateRegistry,
+                    LocalCanRetainChecker provides CanRetainChecker.Always,
+                ) {
+                    pane(entry)
+                }
+            }
+        }
+    }
+
+    val currentWrappedPane by rememberUpdatedState(wrappedPane)
+
+    return RenderableNavigationState(
+        navigationState,
+        navigationState.entryMap.mapValues { (id, entry) ->
+            key(id) {
+                val currentEntry by rememberUpdatedState(entry)
+                remember {
+                    @Composable { currentWrappedPane.invoke(currentEntry) }
+                }
+            }
+        },
+    )
 }
 
+class RenderableNavigationState<T : NavigationEntry, S : NavigationState<T>>(
+    val navigationState: S,
+    val renderablePanes: Map<UUID, @Composable () -> Unit>,
+)
+
 /**
- * The decoration for panes in the context of navigation.
+ * A segmenting navigation decoration. This type of decoration does not directly output UI.
  *
- * Given the [pane] lambda for rendering a pane for a navigation entry [T], the [NavigationDecoration] should
- * display one (or more) panes based on the current navigation state.
+ * Instead, it acts as a transform between a [RenderableNavigationState] of [T1] and [S1] into a
+ * [RenderableNavigationState] of [T2] and [S2].
+ */
+typealias SegmentingNavigationDecoration<T1, S1, T2, S2> =
+    @Composable (RenderableNavigationState<T1, S1>) -> RenderableNavigationState<T2, S2>
+
+/**
+ * The finalizing decoration for panes in the context of navigation.
  *
- * This very simplest [NavigationDecoration] just renders the current pane, and the current pane only
+ * Given the [RenderableNavigationState], which contains the [NavigationState] and the content instance for each pane
+ * entry, the decoration should display one or more panes.
+ *
+ * This very simplest [FinalizingNavigationDecoration] just renders the current pane, and the current pane only
  * (see [noopNavigationDecoration]). Most likely, this is not enough: this specifies no navigation transition between
  * panes.
  *
  * The [defaultNavigationDecoration] internally performs an [AnimatedContent] on the current pane, which animates
  * out old panes.
  *
- * It is the responsibility of the [NavigationDecoration] to preserve intrinsic state of the [pane], so that it
- * can be re-parented. In other words, [NavigationDecoration] should use [movableContentOf] if necessary to move
+ * It is the responsibility of the [FinalizingNavigationDecoration] to preserve intrinsic state of the [pane], so that
+ * it can be re-parented.
+ * In other words, [FinalizingNavigationDecoration] should use [movableContentOf] if necessary to move
  * panes around to different call sites in order to preserve state.
  */
-typealias NavigationDecoration<T, S> = @Composable S.(pane: @Composable (T) -> Unit) -> Unit
+typealias FinalizingNavigationDecoration<T, S> = @Composable (RenderableNavigationState<T, S>) -> Unit
 
 /**
  * The default [NavigationDecoration], which uses an [AnimatedContent] to animate between panes, using the given
@@ -188,28 +221,27 @@ fun <T : NavigationEntry> defaultNavigationDecoration(
             .togetherWith(fadeOut(animationSpec = tween(90)))
     },
     contentAlignment: Alignment = Alignment.TopStart,
-): NavigationDecoration<T, NavigationState<T>> = { pane ->
-    val currentPane by rememberUpdatedState(pane)
-    val movablePanes = entryMap.mapValues { (id, entry) ->
+): FinalizingNavigationDecoration<T, NavigationState<T>> = { renderableNavigationState ->
+    val movablePanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
         key(id) {
-            val currentEntry by rememberUpdatedState(entry)
+            val currentPaneContent by rememberUpdatedState(paneContent)
             remember {
                 movableContentOf {
-                    currentPane(currentEntry)
+                    currentPaneContent()
                 }
             }
         }
     }
 
     AnimatedContent(
-        targetState = entryMap.getValue(currentEntryId),
+        targetState = renderableNavigationState.navigationState.currentEntry,
         transitionSpec = transitionSpec,
         contentAlignment = contentAlignment,
+        contentKey = NavigationEntry::id,
     ) { entry ->
         key(entry.id) {
             // Fetch and store the movable pane to hold onto while animating out
-            val movablePane = remember { movablePanes.getValue(entry.id) }
-            movablePane()
+            remember { movablePanes.getValue(entry.id) }.invoke()
         }
     }
 }
@@ -217,6 +249,9 @@ fun <T : NavigationEntry> defaultNavigationDecoration(
 /**
  * The simplest [NavigationDecoration] implementation, which just displays the current pane with a jumpcut.
  */
-fun <T : NavigationEntry> noopNavigationDecoration(): NavigationDecoration<T, NavigationState<T>> = { pane ->
-    pane(entryMap.getValue(currentEntryId))
+fun <T : NavigationEntry> noopNavigationDecoration():
+    FinalizingNavigationDecoration<T, NavigationState<T>> = { renderableNavigationState ->
+    renderableNavigationState.renderablePanes.getValue(
+        renderableNavigationState.navigationState.currentEntryId,
+    ).invoke()
 }

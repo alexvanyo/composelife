@@ -63,7 +63,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastMap
 import com.alexvanyo.composelife.geometry.lerp
-import com.alexvanyo.composelife.snapshotstateset.mutableStateSetOf
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.onEach
@@ -265,7 +264,7 @@ fun <T, M> AnimatedContent(
                      * Preserve the existing ghost element value, or if this is not the current value
                      */
                     val isGhostElement = LocalGhostElement.current ||
-                            contentKey(target) != contentKey(targetState.current)
+                        contentKey(target) != contentKey(targetState.current)
                     CompositionLocalProvider(LocalGhostElement provides isGhostElement) {
                         Box(
                             modifier = Modifier.layoutId(TargetStateLayoutId(target)),
@@ -314,8 +313,10 @@ fun <T, M> AnimatedContent(
                             @Suppress("ComplexCondition")
                             if (constraintsType !in cache ||
                                 contentKey(target) == targetKeyState.current ||
-                                (targetKeyState.isInProgress() &&
-                                        contentKey(target) == targetKeyState.provisional)
+                                (
+                                    targetKeyState.isInProgress() &&
+                                        contentKey(target) == targetKeyState.provisional
+                                    )
                             ) {
                                 cache[constraintsType] = constraints
                             }

@@ -42,6 +42,6 @@ class BackstackEntry<T>(
     }
 
     override fun toString(): String {
-        return "BackstackEntry(id=${id}, value=${value}, previous=${previous})"
+        return "BackstackEntry(id=$id, value=$value, previous=$previous)"
     }
 }

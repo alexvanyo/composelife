@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
-import com.alexvanyo.composelife.navigation.NavigationDecoration
+import com.alexvanyo.composelife.navigation.FinalizingNavigationDecoration
 import com.alexvanyo.composelife.navigation.NavigationHost
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.previousEntry
@@ -73,7 +73,7 @@ fun <T> PredictiveNavigationHost(
 fun <T> PredictiveNavigationHost(
     backstackState: BackstackState<T>,
     modifier: Modifier = Modifier,
-    decoration: NavigationDecoration<BackstackEntry<T>, BackstackState<T>>,
+    decoration: FinalizingNavigationDecoration<BackstackEntry<T>, BackstackState<T>>,
     content: @Composable (BackstackEntry<T>) -> Unit,
 ) = NavigationHost(
     navigationState = backstackState,
@@ -87,31 +87,31 @@ fun <T> crossfadePredictiveNavigationDecoration(
     contentAlignment: Alignment = Alignment.TopStart,
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     animateInternalContentSizeChanges: Boolean = false,
-): NavigationDecoration<BackstackEntry<T>, BackstackState<T>> = { pane ->
-    val currentPane by rememberUpdatedState(pane)
-    val movablePanes = entryMap.mapValues { (id, entry) ->
+): FinalizingNavigationDecoration<BackstackEntry<T>, BackstackState<T>> = { renderableNavigationState ->
+    val movablePanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
         key(id) {
-            val currentEntry by rememberUpdatedState(entry)
+            val currentPaneContent by rememberUpdatedState(paneContent)
             remember {
                 movableContentOf {
-                    currentPane(currentEntry)
+                    currentPaneContent()
                 }
             }
         }
     }
 
+    val backstackState = renderableNavigationState.navigationState
     val targetState = when (repeatablePredictiveBackState) {
-        RepeatablePredictiveBackState.NotRunning -> TargetState.Single(currentEntry)
+        RepeatablePredictiveBackState.NotRunning -> TargetState.Single(backstackState.currentEntry)
         is RepeatablePredictiveBackState.Running -> {
-            val previous = previousEntry
+            val previous = backstackState.previousEntry
             if (previous != null) {
                 TargetState.InProgress(
-                    current = currentEntry,
+                    current = backstackState.currentEntry,
                     provisional = previous,
                     progress = repeatablePredictiveBackState.progress,
                 )
             } else {
-                TargetState.Single(currentEntry)
+                TargetState.Single(backstackState.currentEntry)
             }
         }
     }
@@ -123,9 +123,7 @@ fun <T> crossfadePredictiveNavigationDecoration(
         animateInternalContentSizeChanges = animateInternalContentSizeChanges,
     ) { entry ->
         key(entry.id) {
-            // Fetch and store the movable content to hold onto while animating out
-            val movablePane = remember { movablePanes.getValue(entry.id) }
-            movablePane()
+            remember { movablePanes.getValue(entry.id) }.invoke()
         }
     }
 }
@@ -142,32 +140,33 @@ fun <T> materialPredictiveNavigationDecoration(
     contentAlignment: Alignment = Alignment.TopStart,
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     animateInternalContentSizeChanges: Boolean = false,
-): NavigationDecoration<BackstackEntry<T>, BackstackState<T>> = { pane ->
-    val currentPane by rememberUpdatedState(pane)
-    val movablePanes = entryMap.mapValues { (id, entry) ->
+): FinalizingNavigationDecoration<BackstackEntry<T>, BackstackState<T>> = { renderableNavigationState ->
+    val movablePanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
         key(id) {
-            val currentEntry by rememberUpdatedState(entry)
+            val currentPaneContent by rememberUpdatedState(paneContent)
             remember {
                 movableContentOf {
-                    currentPane(currentEntry)
+                    currentPaneContent()
                 }
             }
         }
     }
 
+    val backstackState = renderableNavigationState.navigationState
+
     val targetState = when (repeatablePredictiveBackState) {
-        RepeatablePredictiveBackState.NotRunning -> TargetState.Single(currentEntry)
+        RepeatablePredictiveBackState.NotRunning -> TargetState.Single(backstackState.currentEntry)
         is RepeatablePredictiveBackState.Running -> {
-            val previous = previousEntry
+            val previous = backstackState.previousEntry
             if (previous != null) {
                 TargetState.InProgress(
-                    current = currentEntry,
+                    current = backstackState.currentEntry,
                     provisional = previous,
                     progress = repeatablePredictiveBackState.progress,
                     metadata = repeatablePredictiveBackState,
                 )
             } else {
-                TargetState.Single(currentEntry)
+                TargetState.Single(backstackState.currentEntry)
             }
         }
     }
@@ -307,7 +306,7 @@ fun <T> materialPredictiveNavigationDecoration(
             // If the entry is not in the backstack at all, assume that it is disappearing aftering being popped, and
             // render it on top of everything still in the backstack
             generateSequence(
-                currentEntry,
+                backstackState.currentEntry,
                 BackstackEntry<T>::previous,
             ).indexOfFirst { it.id == entry.id }
         },
@@ -316,9 +315,7 @@ fun <T> materialPredictiveNavigationDecoration(
         contentKey = BackstackEntry<T>::id,
     ) { entry ->
         key(entry.id) {
-            // Fetch and store the movable content to hold onto while animating out
-            val movablePane = remember { movablePanes.getValue(entry.id) }
-            movablePane()
+            remember { movablePanes.getValue(entry.id) }.invoke()
         }
     }
 }
