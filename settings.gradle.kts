@@ -51,15 +51,13 @@ dependencyResolutionManagement {
 }
 
 plugins {
-    id("com.gradle.enterprise") version "3.17"
+    id("com.gradle.develocity") version "3.17"
 }
 
-gradleEnterprise {
+develocity {
     buildScan {
-        publishAlways()
-
-        termsOfServiceUrl = "https://gradle.com/terms-of-service"
-        termsOfServiceAgree = "yes"
+        termsOfUseUrl = "https://gradle.com/terms-of-service"
+        termsOfUseAgree = "yes"
 
         obfuscation {
             username { "REDACTED" }
