@@ -28,9 +28,9 @@ import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.currentEntry
-import com.alexvanyo.composelife.ui.app.component.DetailMarker
+import com.alexvanyo.composelife.ui.app.component.DetailEntry
 import com.alexvanyo.composelife.ui.app.component.ListDetailInfo
-import com.alexvanyo.composelife.ui.app.component.ListMarker
+import com.alexvanyo.composelife.ui.app.component.ListEntry
 import java.util.UUID
 
 @Stable
@@ -42,7 +42,7 @@ sealed interface ComposeLifeUiNavigation {
         val nav: ComposeLifeNavigation.FullscreenSettingsList,
         val windowSizeClass: WindowSizeClass,
         private val isDetailPresent: Boolean,
-    ) : ComposeLifeUiNavigation, ListMarker {
+    ) : ComposeLifeUiNavigation, ListEntry {
         override val isDetailVisible: Boolean
             get() = isDetailPresent || windowSizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
 
@@ -53,7 +53,7 @@ sealed interface ComposeLifeUiNavigation {
     class FullscreenSettingsDetail(
         val nav: ComposeLifeNavigation.FullscreenSettingsDetail,
         listDetailInfo: ListDetailInfo,
-    ) : ComposeLifeUiNavigation, DetailMarker, ListDetailInfo by listDetailInfo
+    ) : ComposeLifeUiNavigation, DetailEntry, ListDetailInfo by listDetailInfo
 }
 
 @Composable
@@ -93,7 +93,7 @@ fun BackstackState<ComposeLifeNavigation>.toComposeLifeUiNavigation(
                         val newEntryValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                             value,
                             windowSizeClass,
-                            isDetailPresent
+                            isDetailPresent,
                         ).also { println("vanyo: isDetailPresent $isDetailPresent") }
                         val newEntry = BackstackEntry(
                             newEntryValue,
@@ -110,7 +110,7 @@ fun BackstackState<ComposeLifeNavigation>.toComposeLifeUiNavigation(
                                     ),
                                     previous = newEntry,
                                     id = value.transientDetailId,
-                                )
+                                ),
                             )
                             transformedCurrentEntryId = value.transientDetailId
                         }
@@ -130,6 +130,5 @@ fun BackstackState<ComposeLifeNavigation>.toComposeLifeUiNavigation(
                 get() = map
             override val currentEntryId: UUID
                 get() = transformedCurrentEntryId
-
         }
     }

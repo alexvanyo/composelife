@@ -123,8 +123,8 @@ fun ListDetailPaneScaffold(
                             .layoutId(ListAndDetailLayoutTypes.List)
                             .consumeWindowInsets(
                                 WindowInsets.safeDrawing.only(
-                                    WindowInsetsSides.End
-                                )
+                                    WindowInsetsSides.End,
+                                ),
                             ),
                     ) {
                         listContent()
@@ -135,13 +135,13 @@ fun ListDetailPaneScaffold(
                             .layoutId(ListAndDetailLayoutTypes.Detail)
                             .consumeWindowInsets(
                                 WindowInsets.safeDrawing.only(
-                                    WindowInsetsSides.Start
-                                )
+                                    WindowInsetsSides.Start,
+                                ),
                             )
                             .windowInsetsPadding(
                                 WindowInsets.safeDrawing.only(
-                                    WindowInsetsSides.Horizontal
-                                )
+                                    WindowInsetsSides.Horizontal,
+                                ),
                             )
                             .padding(
                                 top = 4.dp,
@@ -158,8 +158,8 @@ fun ListDetailPaneScaffold(
                                 .weight(1f)
                                 .consumeWindowInsets(
                                     WindowInsets.safeDrawing.only(
-                                        WindowInsetsSides.Vertical
-                                    )
+                                        WindowInsetsSides.Vertical,
+                                    ),
                                 ),
                         ) {
                             detailContent()
@@ -173,8 +173,8 @@ fun ListDetailPaneScaffold(
                             .fillMaxHeight()
                             .windowInsetsPadding(
                                 WindowInsets.safeDrawing.only(
-                                    WindowInsetsSides.Vertical
-                                )
+                                    WindowInsetsSides.Vertical,
+                                ),
                             ),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -240,9 +240,9 @@ fun ListDetailPaneScaffold(
                     val minPaneWidthPx = minPaneWidth.toPx()
 
                     val freeSpace = constraints.maxWidth -
-                            startInsetsPlaceable.width -
-                            endInsetsPlaceable.width -
-                            minPaneWidthPx * 2
+                        startInsetsPlaceable.width -
+                        endInsetsPlaceable.width -
+                        minPaneWidthPx * 2
 
                     layout(constraints.maxWidth, constraints.maxHeight) {
                         val minAnchoredDraggablePosition = 0f
@@ -320,29 +320,29 @@ data class ContinuousDraggableAnchors(
 
     override fun closestAnchor(position: Float): Float =
         (
-                position.coerceIn(minAnchoredDraggablePosition, maxAnchoredDraggablePosition) -
-                        minAnchoredDraggablePosition
-                ) /
-                (maxAnchoredDraggablePosition - minAnchoredDraggablePosition)
+            position.coerceIn(minAnchoredDraggablePosition, maxAnchoredDraggablePosition) -
+                minAnchoredDraggablePosition
+            ) /
+            (maxAnchoredDraggablePosition - minAnchoredDraggablePosition)
 
     override fun closestAnchor(position: Float, searchUpwards: Boolean): Float? =
         if (searchUpwards) {
             if (position <= maxAnchoredDraggablePosition) {
                 (
-                        position.coerceIn(minAnchoredDraggablePosition, maxAnchoredDraggablePosition) -
-                                minAnchoredDraggablePosition
-                        ) /
-                        (maxAnchoredDraggablePosition - minAnchoredDraggablePosition)
+                    position.coerceIn(minAnchoredDraggablePosition, maxAnchoredDraggablePosition) -
+                        minAnchoredDraggablePosition
+                    ) /
+                    (maxAnchoredDraggablePosition - minAnchoredDraggablePosition)
             } else {
                 null
             }
         } else {
             if (position >= minAnchoredDraggablePosition) {
                 (
-                        position.coerceIn(minAnchoredDraggablePosition, maxAnchoredDraggablePosition) -
-                                minAnchoredDraggablePosition
-                        ) /
-                        (maxAnchoredDraggablePosition - minAnchoredDraggablePosition)
+                    position.coerceIn(minAnchoredDraggablePosition, maxAnchoredDraggablePosition) -
+                        minAnchoredDraggablePosition
+                    ) /
+                    (maxAnchoredDraggablePosition - minAnchoredDraggablePosition)
             } else {
                 null
             }
@@ -354,7 +354,7 @@ data class ContinuousDraggableAnchors(
 
     override fun positionOf(value: Float): Float =
         value * (maxAnchoredDraggablePosition - minAnchoredDraggablePosition) +
-                minAnchoredDraggablePosition
+            minAnchoredDraggablePosition
 
     override fun hasAnchorFor(value: Float): Boolean =
         value in minAnchoredDraggablePosition..maxAnchoredDraggablePosition

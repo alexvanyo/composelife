@@ -1,4 +1,4 @@
-///*
+// /*
 // * Copyright 2024 The Android Open Source Project
 // *
 // * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,27 +14,27 @@
 // * limitations under the License.
 // */
 //
-//package com.alexvanyo.composelife.ui.app.action.settings
+// package com.alexvanyo.composelife.ui.app.action.settings
 //
-//import androidx.compose.foundation.layout.BoxWithConstraints
-//import androidx.compose.foundation.layout.fillMaxSize
-//import androidx.compose.material3.Surface
-//import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-//import androidx.compose.material3.windowsizeclass.WindowSizeClass
-//import androidx.compose.runtime.Composable
-//import androidx.compose.ui.Modifier
-//import androidx.compose.ui.platform.LocalDensity
-//import androidx.compose.ui.unit.IntSize
-//import androidx.compose.ui.unit.toSize
-//import com.alexvanyo.composelife.ui.app.ComposeLifeNavigation
-//import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-//import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-//import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
+// import androidx.compose.foundation.layout.BoxWithConstraints
+// import androidx.compose.foundation.layout.fillMaxSize
+// import androidx.compose.material3.Surface
+// import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+// import androidx.compose.material3.windowsizeclass.WindowSizeClass
+// import androidx.compose.runtime.Composable
+// import androidx.compose.ui.Modifier
+// import androidx.compose.ui.platform.LocalDensity
+// import androidx.compose.ui.unit.IntSize
+// import androidx.compose.ui.unit.toSize
+// import com.alexvanyo.composelife.ui.app.ComposeLifeNavigation
+// import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
+// import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
+// import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
 //
-//@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-//@MobileDevicePreviews
-//@Composable
-//fun FullscreenSettingsPaneListPreview(modifier: Modifier = Modifier) {
+// @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+// @MobileDevicePreviews
+// @Composable
+// fun FullscreenSettingsPaneListPreview(modifier: Modifier = Modifier) {
 //    WithPreviewDependencies {
 //        ComposeLifeTheme {
 //            BoxWithConstraints(modifier) {
@@ -54,12 +54,12 @@
 //            }
 //        }
 //    }
-//}
+// }
 //
-//@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-//@MobileDevicePreviews
-//@Composable
-//fun FullscreenSettingsPaneAlgorithmPreview(modifier: Modifier = Modifier) {
+// @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+// @MobileDevicePreviews
+// @Composable
+// fun FullscreenSettingsPaneAlgorithmPreview(modifier: Modifier = Modifier) {
 //    WithPreviewDependencies {
 //        ComposeLifeTheme {
 //            BoxWithConstraints(modifier) {
@@ -79,12 +79,12 @@
 //            }
 //        }
 //    }
-//}
+// }
 //
-//@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-//@MobileDevicePreviews
-//@Composable
-//fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) {
+// @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+// @MobileDevicePreviews
+// @Composable
+// fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) {
 //    WithPreviewDependencies {
 //        ComposeLifeTheme {
 //            BoxWithConstraints(modifier) {
@@ -104,12 +104,12 @@
 //            }
 //        }
 //    }
-//}
+// }
 //
-//@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-//@MobileDevicePreviews
-//@Composable
-//fun FullscreenSettingsPaneFeatureFlagsPreview(modifier: Modifier = Modifier) {
+// @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+// @MobileDevicePreviews
+// @Composable
+// fun FullscreenSettingsPaneFeatureFlagsPreview(modifier: Modifier = Modifier) {
 //    WithPreviewDependencies {
 //        ComposeLifeTheme {
 //            BoxWithConstraints(modifier) {
@@ -129,4 +129,4 @@
 //            }
 //        }
 //    }
-//}
+// }
