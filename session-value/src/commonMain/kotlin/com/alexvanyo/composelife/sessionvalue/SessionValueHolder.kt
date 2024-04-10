@@ -176,14 +176,13 @@ private class SessionValueHolderImpl<T>(
 
     companion object {
         fun <T> Saver(
-            initialUpstreamSessionValue: SessionValue<T>,
             initialSetUpstreamSessionValue: (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
             valueSaver: Saver<T, *>,
         ): Saver<SessionValueHolderImpl<T>, *> {
             val sessionValueSaver = SessionValue.Saver(valueSaver)
 
             return Saver(
-                {
+                save = {
                     listOf(
                         with(uuidSaver) {
                             save(it.localSessionId)
@@ -191,11 +190,14 @@ private class SessionValueHolderImpl<T>(
                         with(sessionValueSaver) {
                             it.localSessionValue?.let { localSessionValue -> save(localSessionValue) }
                         },
+                        with(sessionValueSaver) {
+                            save(it.upstreamSessionValue)
+                        },
                     )
                 },
-                {
+                restore = {
                     SessionValueHolderImpl(
-                        initialUpstreamSessionValue = initialUpstreamSessionValue,
+                        initialUpstreamSessionValue = sessionValueSaver.restore(it[2]!!)!!,
                         initialSetUpstreamSessionValue = initialSetUpstreamSessionValue,
                         initialLocalSessionId = uuidSaver.restore(it[0] as String)!!,
                         initialLocalSessionValue = it[1]?.let(sessionValueSaver::restore),
@@ -239,7 +241,10 @@ fun <T> rememberSessionValueHolder(
     valueSaver: Saver<T, *> = autoSaver(),
 ): SessionValueHolder<T> =
     rememberSaveable(
-        saver = SessionValueHolderImpl.Saver(upstreamSessionValue, setUpstreamSessionValue, valueSaver),
+        saver = SessionValueHolderImpl.Saver(
+            initialSetUpstreamSessionValue = setUpstreamSessionValue,
+            valueSaver = valueSaver,
+        ),
     ) {
         SessionValueHolderImpl(
             initialUpstreamSessionValue = upstreamSessionValue,
