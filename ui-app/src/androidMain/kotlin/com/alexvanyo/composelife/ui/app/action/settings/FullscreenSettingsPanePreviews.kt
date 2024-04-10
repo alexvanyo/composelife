@@ -28,38 +28,9 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
 import com.alexvanyo.composelife.ui.app.ComposeLifeNavigation
 import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
-import com.alexvanyo.composelife.ui.app.component.ListDetailPaneScaffold
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
-
-context(FullscreenSettingsDetailPaneInjectEntryPoint, FullscreenSettingsDetailPaneLocalEntryPoint)
-@Composable
-private fun FullscreenSettingsPanePreview(
-    listNavValue: ComposeLifeUiNavigation.FullscreenSettingsList,
-    detailsNavValue: ComposeLifeUiNavigation.FullscreenSettingsDetail,
-    modifier: Modifier = Modifier,
-) {
-    ListDetailPaneScaffold(
-        showList = listNavValue.isListVisible,
-        showDetail = listNavValue.isDetailVisible,
-        listContent = {
-            FullscreenSettingsListPane(
-                navEntryValue = listNavValue,
-                setSettingsCategory = {},
-                onBackButtonPressed = {},
-            )
-        },
-        detailContent = {
-            FullscreenSettingsDetailPane(
-                navEntryValue = detailsNavValue,
-                onBackButtonPressed = {},
-            )
-        },
-        onBackButtonPressed = {},
-        modifier = modifier,
-    )
-}
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @MobileDevicePreviews
@@ -71,25 +42,27 @@ fun FullscreenSettingsPaneListPreview(modifier: Modifier = Modifier) {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 val windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current)
 
-                val listNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
+                val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                     nav = ComposeLifeNavigation.FullscreenSettingsList(
                         initialSettingsCategory = SettingsCategory.Algorithm,
                     ),
                     windowSizeClass = windowSizeClass,
                     isDetailPresent = false,
                 )
-                val detailsNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
+                val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
                     nav = ComposeLifeNavigation.FullscreenSettingsDetail(
                         settingsCategory = SettingsCategory.Algorithm,
                         initialSettingToScrollTo = null,
                     ),
-                    listDetailInfo = listNavValue,
+                    listDetailInfo = listUiNavValue,
                 )
 
                 Surface {
-                    FullscreenSettingsPanePreview(
-                        listNavValue = listNavValue,
-                        detailsNavValue = detailsNavValue,
+                    FullscreenSettingsPane(
+                        listUiNavValue = listUiNavValue,
+                        detailsUiNavValue = detailsUiNavValue,
+                        onBackButtonPressed = {},
+                        setSettingsCategory = {},
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
@@ -108,25 +81,27 @@ fun FullscreenSettingsPaneAlgorithmPreview(modifier: Modifier = Modifier) {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 val windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current)
 
-                val listNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
+                val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                     nav = ComposeLifeNavigation.FullscreenSettingsList(
                         initialSettingsCategory = SettingsCategory.Algorithm,
                     ),
                     windowSizeClass = windowSizeClass,
                     isDetailPresent = true,
                 )
-                val detailsNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
+                val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
                     nav = ComposeLifeNavigation.FullscreenSettingsDetail(
                         settingsCategory = SettingsCategory.Algorithm,
                         initialSettingToScrollTo = null,
                     ),
-                    listDetailInfo = listNavValue,
+                    listDetailInfo = listUiNavValue,
                 )
 
                 Surface {
-                    FullscreenSettingsPanePreview(
-                        listNavValue = listNavValue,
-                        detailsNavValue = detailsNavValue,
+                    FullscreenSettingsPane(
+                        listUiNavValue = listUiNavValue,
+                        detailsUiNavValue = detailsUiNavValue,
+                        onBackButtonPressed = {},
+                        setSettingsCategory = {},
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
@@ -145,25 +120,27 @@ fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 val windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current)
 
-                val listNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
+                val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                     nav = ComposeLifeNavigation.FullscreenSettingsList(
                         initialSettingsCategory = SettingsCategory.Visual,
                     ),
                     windowSizeClass = windowSizeClass,
                     isDetailPresent = true,
                 )
-                val detailsNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
+                val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
                     nav = ComposeLifeNavigation.FullscreenSettingsDetail(
                         settingsCategory = SettingsCategory.Visual,
                         initialSettingToScrollTo = null,
                     ),
-                    listDetailInfo = listNavValue,
+                    listDetailInfo = listUiNavValue,
                 )
 
                 Surface {
-                    FullscreenSettingsPanePreview(
-                        listNavValue = listNavValue,
-                        detailsNavValue = detailsNavValue,
+                    FullscreenSettingsPane(
+                        listUiNavValue = listUiNavValue,
+                        detailsUiNavValue = detailsUiNavValue,
+                        onBackButtonPressed = {},
+                        setSettingsCategory = {},
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
@@ -182,25 +159,27 @@ fun FullscreenSettingsPaneFeatureFlagsPreview(modifier: Modifier = Modifier) {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 val windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current)
 
-                val listNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
+                val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                     nav = ComposeLifeNavigation.FullscreenSettingsList(
                         initialSettingsCategory = SettingsCategory.FeatureFlags,
                     ),
                     windowSizeClass = windowSizeClass,
                     isDetailPresent = true,
                 )
-                val detailsNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
+                val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
                     nav = ComposeLifeNavigation.FullscreenSettingsDetail(
                         settingsCategory = SettingsCategory.FeatureFlags,
                         initialSettingToScrollTo = null,
                     ),
-                    listDetailInfo = listNavValue,
+                    listDetailInfo = listUiNavValue,
                 )
 
                 Surface {
-                    FullscreenSettingsPanePreview(
-                        listNavValue = listNavValue,
-                        detailsNavValue = detailsNavValue,
+                    FullscreenSettingsPane(
+                        listUiNavValue = listUiNavValue,
+                        detailsUiNavValue = detailsUiNavValue,
+                        onBackButtonPressed = {},
+                        setSettingsCategory = {},
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
