@@ -167,7 +167,7 @@ private fun SettingsCategoryList(
                 }
             }
         },
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
     ) { innerPadding ->
         Column(
             modifier = Modifier

@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
@@ -103,7 +104,7 @@ private fun SettingsCategoryDetail(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
     ) {
         if (showAppBar) {
             val isElevated = detailScrollState.canScrollBackward
@@ -168,8 +169,8 @@ private fun SettingsCategoryDetail(
                         Modifier
                     },
                 )
-                .safeDrawingPadding()
                 .verticalScroll(detailScrollState)
+                .safeDrawingPadding()
                 .padding(vertical = 16.dp),
         ) {
             settingsCategory.settings.forEach { setting ->
