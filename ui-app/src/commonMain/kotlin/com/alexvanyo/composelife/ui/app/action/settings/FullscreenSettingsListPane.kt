@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,12 +40,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Analytics
-import androidx.compose.material.icons.filled.Flag
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.outlined.Analytics
-import androidx.compose.material.icons.outlined.Flag
-import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -60,36 +54,18 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.boundsInParent
-import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
-import com.alexvanyo.composelife.ui.app.resources.Algorithm
 import com.alexvanyo.composelife.ui.app.resources.Back
-import com.alexvanyo.composelife.ui.app.resources.FeatureFlags
 import com.alexvanyo.composelife.ui.app.resources.Settings
 import com.alexvanyo.composelife.ui.app.resources.Strings
-import com.alexvanyo.composelife.ui.app.resources.Visual
-import kotlin.math.roundToInt
-
-interface FullscreenSettingsPaneInjectEntryPoint :
-    SettingUiInjectEntryPoint
-
-interface FullscreenSettingsPaneLocalEntryPoint :
-    SettingUiLocalEntryPoint
 
 @Composable
 fun FullscreenSettingsListPane(
@@ -261,154 +237,3 @@ private fun SettingsCategoryButton(
         }
     }
 }
-
-context(SettingUiInjectEntryPoint, SettingUiLocalEntryPoint)
-@Composable
-fun FullscreenSettingsDetailPane(
-    navEntryValue: ComposeLifeUiNavigation.FullscreenSettingsDetail,
-    onBackButtonPressed: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    SettingsCategoryDetail(
-        settingsCategory = navEntryValue.nav.settingsCategory,
-        detailScrollState = rememberScrollState(),
-        showAppBar = !(navEntryValue.isDetailVisible && navEntryValue.isListVisible),
-        onBackButtonPressed = onBackButtonPressed,
-        settingToScrollTo = navEntryValue.nav.settingToScrollTo,
-        onFinishedScrollingToSetting = navEntryValue.nav::onFinishedScrollingToSetting,
-        modifier = modifier,
-    )
-}
-
-context(SettingUiInjectEntryPoint, SettingUiLocalEntryPoint)
-@OptIn(ExperimentalMaterial3Api::class)
-@Suppress("LongMethod", "LongParameterList")
-@Composable
-private fun SettingsCategoryDetail(
-    settingsCategory: SettingsCategory,
-    detailScrollState: ScrollState,
-    showAppBar: Boolean,
-    onBackButtonPressed: () -> Unit,
-    settingToScrollTo: Setting?,
-    onFinishedScrollingToSetting: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier,
-    ) {
-        if (showAppBar) {
-            val isElevated = detailScrollState.canScrollBackward
-            val elevation by animateDpAsState(targetValue = if (isElevated) 3.dp else 0.dp)
-
-            Surface(
-                tonalElevation = elevation,
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .windowInsetsPadding(
-                            WindowInsets.safeDrawing.only(
-                                WindowInsetsSides.Horizontal + WindowInsetsSides.Top,
-                            ),
-                        )
-                        .height(64.dp),
-                ) {
-                    Box(
-                        modifier = Modifier.align(Alignment.CenterStart),
-                    ) {
-                        TooltipBox(
-                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                            tooltip = {
-                                PlainTooltip {
-                                    Text(parameterizedStringResource(Strings.Back))
-                                }
-                            },
-                            state = rememberTooltipState(),
-                        ) {
-                            IconButton(
-                                onClick = onBackButtonPressed,
-                            ) {
-                                Icon(
-                                    Icons.AutoMirrored.Default.ArrowBack,
-                                    contentDescription = parameterizedStringResource(Strings.Back),
-                                )
-                            }
-                        }
-                    }
-
-                    Text(
-                        text = settingsCategory.title,
-                        modifier = Modifier.align(Alignment.Center),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                }
-            }
-        }
-
-        Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier
-                .then(
-                    if (showAppBar) {
-                        Modifier.consumeWindowInsets(
-                            WindowInsets.safeDrawing.only(
-                                WindowInsetsSides.Horizontal + WindowInsetsSides.Top,
-                            ),
-                        )
-                    } else {
-                        Modifier
-                    },
-                )
-                .safeDrawingPadding()
-                .verticalScroll(detailScrollState)
-                .padding(vertical = 16.dp),
-        ) {
-            settingsCategory.settings.forEach { setting ->
-                var layoutCoordinates: LayoutCoordinates? by remember { mutableStateOf(null) }
-
-                SettingUi(
-                    setting = setting,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .onPlaced {
-                            layoutCoordinates = it
-                        },
-                )
-
-                val currentOnFinishedScrollingToSetting by rememberUpdatedState(onFinishedScrollingToSetting)
-
-                LaunchedEffect(settingToScrollTo, layoutCoordinates) {
-                    val currentLayoutCoordinates = layoutCoordinates
-                    if (currentLayoutCoordinates != null && settingToScrollTo == setting) {
-                        detailScrollState.animateScrollTo(currentLayoutCoordinates.boundsInParent().top.roundToInt())
-                        currentOnFinishedScrollingToSetting()
-                    }
-                }
-            }
-        }
-    }
-}
-
-private val SettingsCategory.title: String
-    @Composable
-    get() = when (this) {
-        SettingsCategory.Algorithm -> parameterizedStringResource(Strings.Algorithm)
-        SettingsCategory.FeatureFlags -> parameterizedStringResource(Strings.FeatureFlags)
-        SettingsCategory.Visual -> parameterizedStringResource(Strings.Visual)
-    }
-
-private val SettingsCategory.filledIcon: ImageVector
-    @Composable
-    get() = when (this) {
-        SettingsCategory.Algorithm -> Icons.Filled.Analytics
-        SettingsCategory.FeatureFlags -> Icons.Filled.Flag
-        SettingsCategory.Visual -> Icons.Filled.Palette
-    }
-
-private val SettingsCategory.outlinedIcon: ImageVector
-    @Composable
-    get() = when (this) {
-        SettingsCategory.Algorithm -> Icons.Outlined.Analytics
-        SettingsCategory.FeatureFlags -> Icons.Outlined.Flag
-        SettingsCategory.Visual -> Icons.Outlined.Palette
-    }

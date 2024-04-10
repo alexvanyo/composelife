@@ -48,9 +48,9 @@ import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsDetailPane
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsDetailPaneInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsDetailPaneLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsListPane
-import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsPaneInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsPaneLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
@@ -68,7 +68,7 @@ interface ComposeLifeAppInjectEntryPoint :
     ClockProvider,
     GameOfLifeProgressIndicatorInjectEntryPoint,
     CellUniversePaneInjectEntryPoint,
-    FullscreenSettingsPaneInjectEntryPoint
+    FullscreenSettingsDetailPaneInjectEntryPoint
 
 context(ComposeLifeAppInjectEntryPoint)
 @Suppress("LongMethod")
@@ -107,7 +107,7 @@ fun ComposeLifeApp(
                         val localEntryPoint = remember {
                             object :
                                 CellUniversePaneLocalEntryPoint,
-                                FullscreenSettingsPaneLocalEntryPoint,
+                                FullscreenSettingsDetailPaneLocalEntryPoint,
                                 LoadedComposeLifePreferencesProvider by targetComposeLifeAppState {}
                         }
 
@@ -128,7 +128,7 @@ fun ComposeLifeApp(
                                             onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
                                         ).invoke(renderableNavigationState)
                                     materialPredictiveNavigationDecoration<ComposeLifeUiNavigation>(
-                                        predictiveBackStateHolder.value
+                                        predictiveBackStateHolder.value,
                                     ).invoke(listDetailRenderableNavigationState)
                                 },
                             ) { entry ->
