@@ -117,11 +117,12 @@ fun ListDetailPaneScaffold(
 
     val minPaneWidth = 200.dp
 
-    Surface {
+    Surface(
+        modifier = modifier,
+    ) {
         if (showListAndDetail) {
             Layout(
                 layoutIdTypes = ListAndDetailLayoutTypes.sealedEnum,
-                modifier = modifier,
                 content = {
                     Spacer(
                         modifier = Modifier
@@ -315,7 +316,6 @@ fun ListDetailPaneScaffold(
                             progress = predictiveBackState.progress,
                         )
                 },
-                modifier = modifier,
             ) { targetShowList ->
                 if (targetShowList) {
                     listContent()
