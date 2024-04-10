@@ -42,6 +42,7 @@ import com.alexvanyo.composelife.navigation.canNavigateBack
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.navigate
 import com.alexvanyo.composelife.navigation.popBackstack
+import com.alexvanyo.composelife.navigation.popUpTo
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
@@ -256,9 +257,9 @@ fun rememberComposeLifeAppState(
 
                     override fun onSettingsCategoryClicked(settingsCategory: SettingsCategory) {
                         navController.withExpectedActor(currentEntryId) {
-                            while (navController.currentEntry.value !is ComposeLifeNavigation.FullscreenSettingsList) {
-                                navController.popBackstack()
-                            }
+                            navController.popUpTo(
+                                predicate = { it is ComposeLifeNavigation.FullscreenSettingsList }
+                            )
                             val currentEntryValue =
                                 navController.currentEntry.value as ComposeLifeNavigation.FullscreenSettingsList
                             currentEntryValue.settingsCategory = settingsCategory
