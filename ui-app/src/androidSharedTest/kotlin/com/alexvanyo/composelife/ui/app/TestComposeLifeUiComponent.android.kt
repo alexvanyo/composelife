@@ -25,7 +25,7 @@ import com.alexvanyo.composelife.ui.app.action.settings.CellShapeConfigUiInjectE
 import com.alexvanyo.composelife.ui.app.action.settings.DarkThemeConfigUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.DisableAGSLUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.DisableOpenGLUiInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsPaneInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsDetailPaneInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.SettingUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
@@ -55,7 +55,7 @@ actual interface TestComposeLifeUiEntryPoint :
     DarkThemeConfigUiInjectEntryPoint,
     DisableAGSLUiInjectEntryPoint,
     DisableOpenGLUiInjectEntryPoint,
-    FullscreenSettingsPaneInjectEntryPoint,
+    FullscreenSettingsDetailPaneInjectEntryPoint,
     GameOfLifeProgressIndicatorInjectEntryPoint,
     InlineSettingsPaneInjectEntryPoint,
     InteractiveCellUniverseInjectEntryPoint,

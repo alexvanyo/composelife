@@ -68,12 +68,12 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
     InjectTestActivity::class.java,
 ) {
 
-    private val fullscreenSettingsPaneLocalEntryPoint = object : FullscreenSettingsPaneLocalEntryPoint {
+    private val fullscreenSettingsPaneLocalEntryPoint = object : FullscreenSettingsDetailPaneLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults
     }
 
     private val fullscreenSettingsPaneInjectEntryPoint get() =
-        composeTestRule.activity.uiComponent.entryPoint as FullscreenSettingsPaneInjectEntryPoint
+        composeTestRule.activity.uiComponent.entryPoint as FullscreenSettingsDetailPaneInjectEntryPoint
 
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
