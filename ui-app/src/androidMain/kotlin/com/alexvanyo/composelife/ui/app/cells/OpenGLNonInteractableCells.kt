@@ -29,12 +29,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.getSystemService
 import androidx.core.view.isInvisible
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
