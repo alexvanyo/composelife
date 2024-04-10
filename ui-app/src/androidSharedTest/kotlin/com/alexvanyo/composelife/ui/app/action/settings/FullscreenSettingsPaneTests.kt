@@ -50,6 +50,7 @@ import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.InjectTestActivity
 import com.alexvanyo.composelife.ui.app.ComposeLifeNavigation
+import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
 import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.create
@@ -58,9 +59,9 @@ import org.junit.Ignore
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNull
 
+@Suppress("LargeClass")
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
@@ -68,21 +69,16 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
     InjectTestActivity::class.java,
 ) {
 
-    private val fullscreenSettingsPaneLocalEntryPoint = object : FullscreenSettingsDetailPaneLocalEntryPoint {
+    private val fullscreenSettingsDetailPaneLocalEntryPoint = object : FullscreenSettingsDetailPaneLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults
     }
 
-    private val fullscreenSettingsPaneInjectEntryPoint get() =
+    private val fullscreenSettingsDetailPaneInjectEntryPoint get() =
         composeTestRule.activity.uiComponent.entryPoint as FullscreenSettingsDetailPaneInjectEntryPoint
 
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun show_list_screen_is_displayed_correctly_with_compact_width() = runAppTest {
-        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
-            initialSettingsCategory = SettingsCategory.Algorithm,
-            initialShowDetails = false,
-            initialSettingToScrollTo = null,
-        )
         var onBackButtonPressedCount = 0
 
         composeTestRule.setContent {
@@ -94,15 +90,30 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                         IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
                         LocalDensity.current,
                     )
+                    val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
+                        nav = ComposeLifeNavigation.FullscreenSettingsList(
+                            initialSettingsCategory = SettingsCategory.Algorithm,
+                        ),
+                        windowSizeClass = windowSizeClass,
+                        isDetailPresent = false,
+                    )
+                    val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
+                        nav = ComposeLifeNavigation.FullscreenSettingsDetail(
+                            settingsCategory = SettingsCategory.Algorithm,
+                            initialSettingToScrollTo = null,
+                        ),
+                        listDetailInfo = listUiNavValue,
+                    )
 
-                    with(fullscreenSettingsPaneInjectEntryPoint) {
-                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                    with(fullscreenSettingsDetailPaneInjectEntryPoint) {
+                        with(fullscreenSettingsDetailPaneLocalEntryPoint) {
                             FullscreenSettingsPane(
-                                windowSizeClass = windowSizeClass,
-                                navEntryValue = navEntryValue,
+                                listUiNavValue = listUiNavValue,
+                                detailsUiNavValue = detailsUiNavValue,
                                 onBackButtonPressed = {
                                     onBackButtonPressedCount++
                                 },
+                                setSettingsCategory = {},
                             )
                         }
                     }
@@ -147,11 +158,6 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun show_list_screen_is_displayed_correctly_with_medium_width() = runAppTest {
-        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
-            initialSettingsCategory = SettingsCategory.Algorithm,
-            initialShowDetails = false,
-            initialSettingToScrollTo = null,
-        )
         var onBackButtonPressedCount = 0
 
         composeTestRule.setContent {
@@ -163,15 +169,30 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                         IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
                         LocalDensity.current,
                     )
+                    val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
+                        nav = ComposeLifeNavigation.FullscreenSettingsList(
+                            initialSettingsCategory = SettingsCategory.Algorithm,
+                        ),
+                        windowSizeClass = windowSizeClass,
+                        isDetailPresent = false,
+                    )
+                    val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
+                        nav = ComposeLifeNavigation.FullscreenSettingsDetail(
+                            settingsCategory = SettingsCategory.Algorithm,
+                            initialSettingToScrollTo = null,
+                        ),
+                        listDetailInfo = listUiNavValue,
+                    )
 
-                    with(fullscreenSettingsPaneInjectEntryPoint) {
-                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                    with(fullscreenSettingsDetailPaneInjectEntryPoint) {
+                        with(fullscreenSettingsDetailPaneLocalEntryPoint) {
                             FullscreenSettingsPane(
-                                windowSizeClass = windowSizeClass,
-                                navEntryValue = navEntryValue,
+                                listUiNavValue = listUiNavValue,
+                                detailsUiNavValue = detailsUiNavValue,
                                 onBackButtonPressed = {
                                     onBackButtonPressedCount++
                                 },
+                                setSettingsCategory = {},
                             )
                         }
                     }
@@ -220,11 +241,6 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
     @Test
     @SkipLeakDetection("appliedChanges", "Outer", "Inner")
     fun show_detail_screen_is_displayed_correctly_with_compact_width() = runAppTest {
-        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
-            initialSettingsCategory = SettingsCategory.Algorithm,
-            initialShowDetails = true,
-            initialSettingToScrollTo = null,
-        )
         var onBackButtonPressedCount = 0
 
         composeTestRule.setContent {
@@ -236,15 +252,30 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                         IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
                         LocalDensity.current,
                     )
+                    val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
+                        nav = ComposeLifeNavigation.FullscreenSettingsList(
+                            initialSettingsCategory = SettingsCategory.Algorithm,
+                        ),
+                        windowSizeClass = windowSizeClass,
+                        isDetailPresent = true,
+                    )
+                    val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
+                        nav = ComposeLifeNavigation.FullscreenSettingsDetail(
+                            settingsCategory = SettingsCategory.Algorithm,
+                            initialSettingToScrollTo = null,
+                        ),
+                        listDetailInfo = listUiNavValue,
+                    )
 
-                    with(fullscreenSettingsPaneInjectEntryPoint) {
-                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                    with(fullscreenSettingsDetailPaneInjectEntryPoint) {
+                        with(fullscreenSettingsDetailPaneLocalEntryPoint) {
                             FullscreenSettingsPane(
-                                windowSizeClass = windowSizeClass,
-                                navEntryValue = navEntryValue,
+                                listUiNavValue = listUiNavValue,
+                                detailsUiNavValue = detailsUiNavValue,
                                 onBackButtonPressed = {
                                     onBackButtonPressedCount++
                                 },
+                                setSettingsCategory = {},
                             )
                         }
                     }
@@ -270,18 +301,12 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
             .assertHasClickAction()
             .performClick()
 
-        assertFalse(navEntryValue.showDetails)
-        assertEquals(0, onBackButtonPressedCount)
+        assertEquals(1, onBackButtonPressedCount)
     }
 
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun show_detail_screen_is_displayed_correctly_with_medium_width() = runAppTest {
-        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
-            initialSettingsCategory = SettingsCategory.Algorithm,
-            initialShowDetails = true,
-            initialSettingToScrollTo = null,
-        )
         var onBackButtonPressedCount = 0
 
         composeTestRule.setContent {
@@ -293,15 +318,30 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                         IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
                         LocalDensity.current,
                     )
+                    val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
+                        nav = ComposeLifeNavigation.FullscreenSettingsList(
+                            initialSettingsCategory = SettingsCategory.Algorithm,
+                        ),
+                        windowSizeClass = windowSizeClass,
+                        isDetailPresent = true,
+                    )
+                    val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
+                        nav = ComposeLifeNavigation.FullscreenSettingsDetail(
+                            settingsCategory = SettingsCategory.Algorithm,
+                            initialSettingToScrollTo = null,
+                        ),
+                        listDetailInfo = listUiNavValue,
+                    )
 
-                    with(fullscreenSettingsPaneInjectEntryPoint) {
-                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                    with(fullscreenSettingsDetailPaneInjectEntryPoint) {
+                        with(fullscreenSettingsDetailPaneLocalEntryPoint) {
                             FullscreenSettingsPane(
-                                windowSizeClass = windowSizeClass,
-                                navEntryValue = navEntryValue,
+                                listUiNavValue = listUiNavValue,
+                                detailsUiNavValue = detailsUiNavValue,
                                 onBackButtonPressed = {
                                     onBackButtonPressedCount++
                                 },
+                                setSettingsCategory = {},
                             )
                         }
                     }
@@ -344,11 +384,10 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun click_on_detail_is_displayed_correctly_with_compact_width() = runAppTest {
-        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
+        val listNavValue = ComposeLifeNavigation.FullscreenSettingsList(
             initialSettingsCategory = SettingsCategory.Algorithm,
-            initialShowDetails = false,
-            initialSettingToScrollTo = null,
         )
+        var isDetailPresent by mutableStateOf(false)
 
         composeTestRule.setContent {
             DeviceConfigurationOverride(
@@ -359,13 +398,29 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                         IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
                         LocalDensity.current,
                     )
+                    val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
+                        nav = listNavValue,
+                        windowSizeClass = windowSizeClass,
+                        isDetailPresent = isDetailPresent,
+                    )
+                    val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
+                        nav = ComposeLifeNavigation.FullscreenSettingsDetail(
+                            settingsCategory = listNavValue.settingsCategory,
+                            initialSettingToScrollTo = null,
+                        ),
+                        listDetailInfo = listUiNavValue,
+                    )
 
-                    with(fullscreenSettingsPaneInjectEntryPoint) {
-                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                    with(fullscreenSettingsDetailPaneInjectEntryPoint) {
+                        with(fullscreenSettingsDetailPaneLocalEntryPoint) {
                             FullscreenSettingsPane(
-                                windowSizeClass = windowSizeClass,
-                                navEntryValue = navEntryValue,
+                                listUiNavValue = listUiNavValue,
+                                detailsUiNavValue = detailsUiNavValue,
                                 onBackButtonPressed = {},
+                                setSettingsCategory = {
+                                    listNavValue.settingsCategory = it
+                                    isDetailPresent = true
+                                },
                             )
                         }
                     }
@@ -395,11 +450,10 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun click_on_detail_is_displayed_correctly_with_medium_width() = runAppTest {
-        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
+        val listNavValue = ComposeLifeNavigation.FullscreenSettingsList(
             initialSettingsCategory = SettingsCategory.Algorithm,
-            initialShowDetails = false,
-            initialSettingToScrollTo = null,
         )
+        var isDetailPresent by mutableStateOf(false)
 
         composeTestRule.setContent {
             DeviceConfigurationOverride(
@@ -410,13 +464,29 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                         IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
                         LocalDensity.current,
                     )
+                    val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
+                        nav = listNavValue,
+                        windowSizeClass = windowSizeClass,
+                        isDetailPresent = isDetailPresent,
+                    )
+                    val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
+                        nav = ComposeLifeNavigation.FullscreenSettingsDetail(
+                            settingsCategory = listNavValue.settingsCategory,
+                            initialSettingToScrollTo = null,
+                        ),
+                        listDetailInfo = listUiNavValue,
+                    )
 
-                    with(fullscreenSettingsPaneInjectEntryPoint) {
-                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                    with(fullscreenSettingsDetailPaneInjectEntryPoint) {
+                        with(fullscreenSettingsDetailPaneLocalEntryPoint) {
                             FullscreenSettingsPane(
-                                windowSizeClass = windowSizeClass,
-                                navEntryValue = navEntryValue,
+                                listUiNavValue = listUiNavValue,
+                                detailsUiNavValue = detailsUiNavValue,
                                 onBackButtonPressed = {},
+                                setSettingsCategory = {
+                                    listNavValue.settingsCategory = it
+                                    isDetailPresent = true
+                                },
                             )
                         }
                     }
@@ -459,12 +529,6 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun no_detail_to_scroll_to_is_displayed_correctly() = runAppTest {
-        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
-            initialSettingsCategory = SettingsCategory.Visual,
-            initialShowDetails = true,
-            initialSettingToScrollTo = null,
-        )
-
         composeTestRule.setContent {
             DeviceConfigurationOverride(
                 DeviceConfigurationOverride.ForcedSize(DpSize(300.dp, 300.dp)),
@@ -474,13 +538,28 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                         IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
                         LocalDensity.current,
                     )
+                    val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
+                        nav = ComposeLifeNavigation.FullscreenSettingsList(
+                            initialSettingsCategory = SettingsCategory.Visual,
+                        ),
+                        windowSizeClass = windowSizeClass,
+                        isDetailPresent = true,
+                    )
+                    val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
+                        nav = ComposeLifeNavigation.FullscreenSettingsDetail(
+                            settingsCategory = SettingsCategory.Visual,
+                            initialSettingToScrollTo = null,
+                        ),
+                        listDetailInfo = listUiNavValue,
+                    )
 
-                    with(fullscreenSettingsPaneInjectEntryPoint) {
-                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                    with(fullscreenSettingsDetailPaneInjectEntryPoint) {
+                        with(fullscreenSettingsDetailPaneLocalEntryPoint) {
                             FullscreenSettingsPane(
-                                windowSizeClass = windowSizeClass,
-                                navEntryValue = navEntryValue,
+                                listUiNavValue = listUiNavValue,
+                                detailsUiNavValue = detailsUiNavValue,
                                 onBackButtonPressed = {},
+                                setSettingsCategory = {},
                             )
                         }
                     }
@@ -509,9 +588,8 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun detail_to_scroll_to_is_displayed_correctly() = runAppTest {
-        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
-            initialSettingsCategory = SettingsCategory.Visual,
-            initialShowDetails = true,
+        val detailNavValue = ComposeLifeNavigation.FullscreenSettingsDetail(
+            settingsCategory = SettingsCategory.Visual,
             initialSettingToScrollTo = Setting.CellShapeConfig,
         )
 
@@ -524,13 +602,25 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                         IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
                         LocalDensity.current,
                     )
+                    val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
+                        nav = ComposeLifeNavigation.FullscreenSettingsList(
+                            initialSettingsCategory = SettingsCategory.Visual,
+                        ),
+                        windowSizeClass = windowSizeClass,
+                        isDetailPresent = true,
+                    )
+                    val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
+                        nav = detailNavValue,
+                        listDetailInfo = listUiNavValue,
+                    )
 
-                    with(fullscreenSettingsPaneInjectEntryPoint) {
-                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                    with(fullscreenSettingsDetailPaneInjectEntryPoint) {
+                        with(fullscreenSettingsDetailPaneLocalEntryPoint) {
                             FullscreenSettingsPane(
-                                windowSizeClass = windowSizeClass,
-                                navEntryValue = navEntryValue,
+                                listUiNavValue = listUiNavValue,
+                                detailsUiNavValue = detailsUiNavValue,
                                 onBackButtonPressed = {},
+                                setSettingsCategory = {},
                             )
                         }
                     }
@@ -540,7 +630,7 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
 
         composeTestRule.waitForIdle()
 
-        assertNull(navEntryValue.settingToScrollTo)
+        assertNull(detailNavValue.settingToScrollTo)
 
         composeTestRule
             .onNode(
@@ -564,11 +654,11 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun reducing_size_keeps_selected_detail() = runAppTest {
-        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
+        val listNavValue = ComposeLifeNavigation.FullscreenSettingsList(
             initialSettingsCategory = SettingsCategory.Algorithm,
-            initialShowDetails = false,
-            initialSettingToScrollTo = null,
         )
+        var isDetailPresent by mutableStateOf(false)
+
         var size by mutableStateOf(DpSize(700.dp, 500.dp))
 
         composeTestRule.setContent {
@@ -580,13 +670,29 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                         IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
                         LocalDensity.current,
                     )
+                    val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
+                        nav = listNavValue,
+                        windowSizeClass = windowSizeClass,
+                        isDetailPresent = isDetailPresent,
+                    )
+                    val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
+                        nav = ComposeLifeNavigation.FullscreenSettingsDetail(
+                            settingsCategory = listNavValue.settingsCategory,
+                            initialSettingToScrollTo = null,
+                        ),
+                        listDetailInfo = listUiNavValue,
+                    )
 
-                    with(fullscreenSettingsPaneInjectEntryPoint) {
-                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                    with(fullscreenSettingsDetailPaneInjectEntryPoint) {
+                        with(fullscreenSettingsDetailPaneLocalEntryPoint) {
                             FullscreenSettingsPane(
-                                windowSizeClass = windowSizeClass,
-                                navEntryValue = navEntryValue,
+                                listUiNavValue = listUiNavValue,
+                                detailsUiNavValue = detailsUiNavValue,
                                 onBackButtonPressed = {},
+                                setSettingsCategory = {
+                                    listNavValue.settingsCategory = it
+                                    isDetailPresent = true
+                                },
                             )
                         }
                     }
@@ -612,11 +718,10 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
     @Test
     @SkipLeakDetection("appliedChanges", "Outer")
     fun expanding_size_keeps_selected_detail() = runAppTest {
-        val navEntryValue = ComposeLifeNavigation.FullscreenSettings(
+        val listNavValue = ComposeLifeNavigation.FullscreenSettingsList(
             initialSettingsCategory = SettingsCategory.Algorithm,
-            initialShowDetails = false,
-            initialSettingToScrollTo = null,
         )
+        var isDetailPresent by mutableStateOf(false)
         var size by mutableStateOf(DpSize(500.dp, 500.dp))
 
         composeTestRule.setContent {
@@ -628,13 +733,29 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                         IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
                         LocalDensity.current,
                     )
+                    val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
+                        nav = listNavValue,
+                        windowSizeClass = windowSizeClass,
+                        isDetailPresent = isDetailPresent,
+                    )
+                    val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
+                        nav = ComposeLifeNavigation.FullscreenSettingsDetail(
+                            settingsCategory = listNavValue.settingsCategory,
+                            initialSettingToScrollTo = null,
+                        ),
+                        listDetailInfo = listUiNavValue,
+                    )
 
-                    with(fullscreenSettingsPaneInjectEntryPoint) {
-                        with(fullscreenSettingsPaneLocalEntryPoint) {
+                    with(fullscreenSettingsDetailPaneInjectEntryPoint) {
+                        with(fullscreenSettingsDetailPaneLocalEntryPoint) {
                             FullscreenSettingsPane(
-                                windowSizeClass = windowSizeClass,
-                                navEntryValue = navEntryValue,
+                                listUiNavValue = listUiNavValue,
+                                detailsUiNavValue = detailsUiNavValue,
                                 onBackButtonPressed = {},
+                                setSettingsCategory = {
+                                    listNavValue.settingsCategory = it
+                                    isDetailPresent = true
+                                },
                             )
                         }
                     }

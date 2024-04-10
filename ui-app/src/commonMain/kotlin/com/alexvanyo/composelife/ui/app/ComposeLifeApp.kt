@@ -258,7 +258,7 @@ fun rememberComposeLifeAppState(
                     override fun onSettingsCategoryClicked(settingsCategory: SettingsCategory) {
                         navController.withExpectedActor(currentEntryId) {
                             navController.popUpTo(
-                                predicate = { it is ComposeLifeNavigation.FullscreenSettingsList }
+                                predicate = { it is ComposeLifeNavigation.FullscreenSettingsList },
                             )
                             val currentEntryValue =
                                 navController.currentEntry.value as ComposeLifeNavigation.FullscreenSettingsList
