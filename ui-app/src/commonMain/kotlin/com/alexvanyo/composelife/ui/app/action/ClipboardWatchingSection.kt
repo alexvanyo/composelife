@@ -18,8 +18,6 @@ package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -38,15 +36,12 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.intermediateLayout
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
@@ -57,8 +52,10 @@ import com.alexvanyo.composelife.ui.app.resources.Allow
 import com.alexvanyo.composelife.ui.app.resources.ClipboardWatchingOnboarding
 import com.alexvanyo.composelife.ui.app.resources.Disallow
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.util.DeferredTargetAnimation
 import com.alexvanyo.composelife.ui.util.animatePlacement
-import kotlinx.coroutines.launch
+import com.alexvanyo.composelife.ui.util.approachLayout
+import com.alexvanyo.composelife.ui.util.lookaheadSize
 import kotlin.math.floor
 
 context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
@@ -107,9 +104,8 @@ fun ClipboardWatchingEnabled(
         ) {
             clipboardWatchingState.clipboardPreviewStates.forEachIndexed { index, clipboardPreviewState ->
                 key(clipboardPreviewState.id) {
-                    var sizeAnimation: Animatable<IntSize, AnimationVector2D>? by remember {
-                        mutableStateOf(null)
-                    }
+                    val sizeAnimation = remember { DeferredTargetAnimation(IntSize.VectorConverter) }
+                    val coroutineScope = rememberCoroutineScope()
 
                     @Suppress("DEPRECATION")
                     ClipboardCellStatePreview(
@@ -131,19 +127,13 @@ fun ClipboardWatchingEnabled(
                                     placeable.placeRelative(0, 0)
                                 }
                             }
-                            .intermediateLayout { measurable, _ ->
-                                // When layout changes, the lookahead pass will calculate a new final size for
-                                // the child layout. This lookahead size can be used to animate the size
-                                // change, such that the animation starts from the current size and gradually
-                                // change towards `lookaheadSize`.
-                                if (lookaheadSize != sizeAnimation?.targetValue) {
-                                    sizeAnimation?.run {
-                                        launch { animateTo(lookaheadSize) }
-                                    } ?: Animatable(lookaheadSize, IntSize.VectorConverter).let {
-                                        sizeAnimation = it
-                                    }
-                                }
-                                val (width, height) = sizeAnimation!!.value
+                            .approachLayout(
+                                isMeasurementApproachInProgress = { lookaheadSize ->
+                                    sizeAnimation.updateTarget(lookaheadSize, coroutineScope)
+                                    !sizeAnimation.isIdle
+                                },
+                            ) { measurable, _ ->
+                                val (width, height) = sizeAnimation.updateTarget(lookaheadSize, coroutineScope)
                                 // Creates a fixed set of constraints using the animated size
                                 val animatedConstraints = Constraints.fixed(width, height)
                                 // Measure child with animated constraints.
