@@ -16,7 +16,21 @@
 
 package com.alexvanyo.composelife.ui.app.action.settings
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Analytics
+import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.outlined.Analytics
+import androidx.compose.material.icons.outlined.Flag
+import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.ui.app.resources.Algorithm
+import com.alexvanyo.composelife.ui.app.resources.FeatureFlags
+import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.app.resources.Visual
 import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
 
@@ -55,3 +69,27 @@ private val settingsByCategory by lazy { Setting.values.groupBy(Setting::categor
  * Returns the list of [Setting]s for the given [SettingsCategory].
  */
 val SettingsCategory.settings get() = settingsByCategory.getOrDefault(this, emptyList())
+
+val SettingsCategory.title: String
+    @Composable
+    get() = when (this) {
+        SettingsCategory.Algorithm -> parameterizedStringResource(Strings.Algorithm)
+        SettingsCategory.FeatureFlags -> parameterizedStringResource(Strings.FeatureFlags)
+        SettingsCategory.Visual -> parameterizedStringResource(Strings.Visual)
+    }
+
+val SettingsCategory.filledIcon: ImageVector
+    @Composable
+    get() = when (this) {
+        SettingsCategory.Algorithm -> Icons.Filled.Analytics
+        SettingsCategory.FeatureFlags -> Icons.Filled.Flag
+        SettingsCategory.Visual -> Icons.Filled.Palette
+    }
+
+val SettingsCategory.outlinedIcon: ImageVector
+    @Composable
+    get() = when (this) {
+        SettingsCategory.Algorithm -> Icons.Outlined.Analytics
+        SettingsCategory.FeatureFlags -> Icons.Outlined.Flag
+        SettingsCategory.Visual -> Icons.Outlined.Palette
+    }

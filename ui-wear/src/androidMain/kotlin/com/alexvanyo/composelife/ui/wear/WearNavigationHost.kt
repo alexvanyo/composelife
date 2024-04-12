@@ -28,8 +28,8 @@ import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
 import androidx.wear.compose.material.SwipeToDismissBox
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
+import com.alexvanyo.composelife.navigation.FinalizingNavigationDecoration
 import com.alexvanyo.composelife.navigation.MutableBackstackNavigationController
-import com.alexvanyo.composelife.navigation.NavigationDecoration
 import com.alexvanyo.composelife.navigation.NavigationHost
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.popBackstack
@@ -65,18 +65,18 @@ fun <T> WearNavigationHost(
 @OptIn(ExperimentalWearFoundationApi::class)
 fun <T> wearNavigationDecoration(
     onNavigateBack: () -> Unit,
-): NavigationDecoration<BackstackEntry<out T>, BackstackState<T>> = { pane ->
-    val currentPane by rememberUpdatedState(pane)
-    val movablePanes = entryMap.mapValues { (id, entry) ->
+): FinalizingNavigationDecoration<BackstackEntry<T>, BackstackState<T>> = { renderableNavigationState ->
+    val movablePanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
         key(id) {
-            val currentEntry by rememberUpdatedState(entry)
+            val currentPaneContent by rememberUpdatedState(paneContent)
             remember {
                 movableContentOf {
-                    currentPane(currentEntry)
+                    currentPaneContent()
                 }
             }
         }
     }
+    val currentEntry = renderableNavigationState.navigationState.currentEntry
 
     SwipeToDismissBox(
         onDismissed = onNavigateBack,
@@ -93,7 +93,7 @@ fun <T> wearNavigationDecoration(
         }
 
         HierarchicalFocusCoordinator(
-            requiresFocus = { currentEntryId == entry.id },
+            requiresFocus = { currentEntry.id == entry.id },
         ) {
             key(entry.id) {
                 // Fetch and store the movable content to hold onto while animating out

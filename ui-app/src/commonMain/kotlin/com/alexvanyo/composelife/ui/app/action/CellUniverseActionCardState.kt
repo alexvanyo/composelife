@@ -54,7 +54,7 @@ interface CellUniverseActionCardState {
     /**
      * The inline navigation state of the card.
      */
-    val inlineNavigationState: BackstackState<out InlineActionCardNavigation>
+    val inlineNavigationState: BackstackState<InlineActionCardNavigation>
 
     /**
      * The [RepeatablePredictiveBackState] for the inline navigation of the [CellUniverseActionCard].
@@ -144,7 +144,7 @@ fun rememberCellUniverseActionCardState(
 
     val inlineNavigationState = remember {
         object : BackstackState<InlineActionCardNavigation> {
-            override val entryMap: BackstackMap<out InlineActionCardNavigation>
+            override val entryMap: BackstackMap<InlineActionCardNavigation>
                 get() = speedNavController.entryMap +
                     editNavController.entryMap +
                     settingsNavController.entryMap
