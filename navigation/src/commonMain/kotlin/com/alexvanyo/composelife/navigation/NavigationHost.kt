@@ -188,6 +188,55 @@ class RenderableNavigationState<T : NavigationEntry, S : NavigationState<T>>(
 typealias SegmentingNavigationDecoration<T1, S1, T2, S2> =
     @Composable (RenderableNavigationState<T1, S1>) -> RenderableNavigationState<T2, S2>
 
+sealed interface NavigationSegment<T> {
+    val combinedValues: List<T>
+
+    data class SingleSegment<T>(
+        val value: T,
+    ) : NavigationSegment<T> {
+        override val combinedValues: List<T> = listOf(value)
+    }
+
+    interface CombinedSegment<T> : NavigationSegment<T>
+}
+
+fun <T> segmentingNavigationDecoration(): SegmentingNavigationDecoration<
+    BackstackEntry<T>,
+    BackstackState<T>,
+    BackstackEntry<NavigationSegment<T>>,
+    BackstackState<NavigationSegment<T>>,
+    > = { renderableNavigationState ->
+    val entries = renderableNavigationState.navigationState.entryMap.values.toList()
+
+    val transformedEntryMap = remember(entries) {
+        val map = mutableMapOf<UUID, BackstackEntry<NavigationSegment<T>>>()
+        fun createNavigationSegment(entry: BackstackEntry<T>): BackstackEntry<NavigationSegment<T>> =
+            map.getOrPut(entry.id) {
+                BackstackEntry(
+                    value = NavigationSegment.SingleSegment(entry.value),
+                    previous = entry.previous?.let(::createNavigationSegment),
+                    id = entry.id,
+                )
+            }
+
+        entries.forEach(::createNavigationSegment)
+        map
+    }
+
+    val transformedBackstackState: BackstackState<NavigationSegment<T>> =
+        object : BackstackState<NavigationSegment<T>> {
+            override val entryMap: BackstackMap<NavigationSegment<T>>
+                get() = transformedEntryMap
+            override val currentEntryId: UUID
+                get() = renderableNavigationState.navigationState.currentEntryId
+        }
+
+    RenderableNavigationState(
+        transformedBackstackState,
+        renderableNavigationState.renderablePanes,
+    )
+}
+
 /**
  * The finalizing decoration for panes in the context of navigation.
  *

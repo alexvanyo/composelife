@@ -38,12 +38,14 @@ import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
+import com.alexvanyo.composelife.navigation.NavigationSegment
 import com.alexvanyo.composelife.navigation.canNavigateBack
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.navigate
 import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.popUpTo
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
+import com.alexvanyo.composelife.navigation.segmentingNavigationDecoration
 import com.alexvanyo.composelife.navigation.withExpectedActor
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
@@ -127,11 +129,14 @@ fun ComposeLifeApp(
                             PredictiveNavigationHost(
                                 backstackState = targetComposeLifeAppState.navigationState,
                                 decoration = { renderableNavigationState ->
+                                    val segmentedRenderableNavigationState =
+                                        segmentingNavigationDecoration<ComposeLifeUiNavigation>()
+                                            .invoke(renderableNavigationState)
                                     val listDetailRenderableNavigationState =
                                         listDetailNavigationDecoration<ComposeLifeUiNavigation>(
                                             onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
-                                        ).invoke(renderableNavigationState)
-                                    materialPredictiveNavigationDecoration<ComposeLifeUiNavigation>(
+                                        ).invoke(segmentedRenderableNavigationState)
+                                    materialPredictiveNavigationDecoration<NavigationSegment<ComposeLifeUiNavigation>>(
                                         predictiveBackStateHolder.value,
                                     ).invoke(listDetailRenderableNavigationState)
                                 },
