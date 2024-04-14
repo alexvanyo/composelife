@@ -94,7 +94,7 @@ fun BackstackState<ComposeLifeNavigation>.toComposeLifeUiNavigation(
                             value,
                             windowSizeClass,
                             isDetailPresent,
-                        ).also { println("vanyo: isDetailPresent $isDetailPresent") }
+                        )
                         val newEntry = BackstackEntry(
                             newEntryValue,
                             nav.previous?.let(::createEntry),
