@@ -61,6 +61,7 @@ import com.alexvanyo.composelife.ui.util.PredictiveNavigationHost
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.ReportDrawn
 import com.alexvanyo.composelife.ui.util.materialPredictiveNavigationDecoration
+import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 
 interface ComposeLifeAppInjectEntryPoint :
@@ -80,6 +81,8 @@ fun ComposeLifeApp(
     modifier: Modifier = Modifier,
     composeLifeAppState: ComposeLifeAppState = rememberComposeLifeAppState(windowSizeClass),
 ) {
+    val immersiveModeManager = rememberImmersiveModeManager()
+
     Surface(modifier = modifier.fillMaxSize()) {
         LookaheadScope {
             val transition = updateTransition(composeLifeAppState, "ComposeLifeAppState Crossfade")
@@ -138,6 +141,7 @@ fun ComposeLifeApp(
                                         Surface {
                                             CellUniversePane(
                                                 windowSizeClass = windowSizeClass,
+                                                immersiveModeManager = immersiveModeManager,
                                                 onSeeMoreSettingsClicked =
                                                 targetComposeLifeAppState::onSeeMoreSettingsClicked,
                                                 onOpenInSettingsClicked =

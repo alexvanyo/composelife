@@ -30,6 +30,8 @@ import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Fullscreen
+import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
@@ -59,7 +61,9 @@ import com.alexvanyo.composelife.ui.app.resources.Collapse
 import com.alexvanyo.composelife.ui.app.resources.Copy
 import com.alexvanyo.composelife.ui.app.resources.Cut
 import com.alexvanyo.composelife.ui.app.resources.DisableAutofit
+import com.alexvanyo.composelife.ui.app.resources.DisableImmersiveMode
 import com.alexvanyo.composelife.ui.app.resources.EnableAutofit
+import com.alexvanyo.composelife.ui.app.resources.EnableImmersiveMode
 import com.alexvanyo.composelife.ui.app.resources.Expand
 import com.alexvanyo.composelife.ui.app.resources.Paste
 import com.alexvanyo.composelife.ui.app.resources.Pause
@@ -68,7 +72,7 @@ import com.alexvanyo.composelife.ui.app.resources.Step
 import com.alexvanyo.composelife.ui.app.resources.Strings
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
-@Suppress("LongParameterList", "LongMethod")
+@Suppress("LongParameterList", "LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun ActionControlRow(
     isElevated: Boolean,
@@ -79,6 +83,8 @@ fun ActionControlRow(
     setIsExpanded: (Boolean) -> Unit,
     isViewportTracking: Boolean,
     setIsViewportTracking: (Boolean) -> Unit,
+    isImmersiveMode: Boolean,
+    setIsImmersiveMode: (Boolean) -> Unit,
     selectionState: SelectionState,
     onClearSelection: () -> Unit,
     onCopy: () -> Unit,
@@ -343,6 +349,44 @@ fun ActionControlRow(
                                     Strings.DisableAutofit
                                 } else {
                                     Strings.EnableAutofit
+                                },
+                            ),
+                        )
+                    }
+                }
+
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    tooltip = {
+                        PlainTooltip {
+                            Text(
+                                parameterizedStringResource(
+                                    if (isImmersiveMode) {
+                                        Strings.DisableImmersiveMode
+                                    } else {
+                                        Strings.EnableImmersiveMode
+                                    },
+                                ),
+                            )
+                        }
+                    },
+                    state = rememberTooltipState(),
+                ) {
+                    IconToggleButton(
+                        checked = isImmersiveMode,
+                        onCheckedChange = setIsImmersiveMode,
+                    ) {
+                        Icon(
+                            imageVector = if (isImmersiveMode) {
+                                Icons.Default.FullscreenExit
+                            } else {
+                                Icons.Default.Fullscreen
+                            },
+                            contentDescription = parameterizedStringResource(
+                                if (isImmersiveMode) {
+                                    Strings.DisableImmersiveMode
+                                } else {
+                                    Strings.EnableImmersiveMode
                                 },
                             ),
                         )

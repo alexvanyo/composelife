@@ -69,6 +69,8 @@ import com.alexvanyo.composelife.ui.app.cells.rememberMutableSelectionStateHolde
 import com.alexvanyo.composelife.ui.app.cells.rememberTrackingCellWindowViewportState
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
+import com.alexvanyo.composelife.ui.util.ImmersiveModeManager
+import com.alexvanyo.composelife.ui.util.LocalGhostElement
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
@@ -96,12 +98,13 @@ context(InteractiveCellUniverseInjectEntryPoint, InteractiveCellUniverseLocalEnt
 @Composable
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
+    immersiveModeManager: ImmersiveModeManager,
     windowSizeClass: WindowSizeClass,
     onSeeMoreSettingsClicked: () -> Unit,
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
     modifier: Modifier = Modifier,
     interactiveCellUniverseState: InteractiveCellUniverseState =
-        rememberInteractiveCellUniverseState(temporalGameOfLifeState),
+        rememberInteractiveCellUniverseState(temporalGameOfLifeState, immersiveModeManager),
 ) {
     // Force focus to allow listening to key events
     var hasFocus by remember { mutableStateOf(false) }
@@ -194,6 +197,11 @@ interface InteractiveCellUniverseState {
     var isViewportTracking: Boolean
 
     /**
+     * `true` if immersive mode is enabled.
+     */
+    var isImmersiveMode: Boolean
+
+    /**
      * The [MutableCellWindowViewportState] for use when [isViewportTracking] is `false`.
      */
     val mutableCellWindowViewportState: MutableCellWindowViewportState
@@ -273,6 +281,7 @@ context(ClipboardCellStateParserProvider, ComposeLifeDispatchersProvider)
 @Composable
 fun rememberInteractiveCellUniverseState(
     temporalGameOfLifeState: TemporalGameOfLifeState,
+    immersiveModeManager: ImmersiveModeManager,
     mutableCellWindowViewportState: MutableCellWindowViewportState = rememberMutableCellWindowViewportState(),
 ): InteractiveCellUniverseState {
     val trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(temporalGameOfLifeState)
@@ -284,6 +293,14 @@ fun rememberInteractiveCellUniverseState(
     val coroutineScope = rememberCoroutineScope()
 
     var isViewportTracking by rememberSaveable { mutableStateOf(false) }
+
+    var isImmersiveMode by rememberSaveable { mutableStateOf(false) }
+
+    if (isImmersiveMode && !LocalGhostElement.current) {
+        LaunchedEffect(Unit) {
+            immersiveModeManager.hideSystemUi()
+        }
+    }
 
     var isActionCardTopCard by rememberSaveable { mutableStateOf(true) }
 
@@ -388,6 +405,13 @@ fun rememberInteractiveCellUniverseState(
                 set(value) {
                     isViewportTracking = value
                 }
+
+            override var isImmersiveMode: Boolean
+                get() = isImmersiveMode
+                set(value) {
+                    isImmersiveMode = value
+                }
+
             override val mutableCellWindowViewportState: MutableCellWindowViewportState =
                 mutableCellWindowViewportState
             override val trackingCellWindowViewportState: TrackingCellWindowViewportState =
