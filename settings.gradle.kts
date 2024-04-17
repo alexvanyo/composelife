@@ -44,7 +44,6 @@ dependencyResolutionManagement {
                 includeGroup("com.github.livefront.sealed-enum")
             }
         }
-        maven(url = "https://androidx.dev/snapshots/builds/11698940/artifacts/repository")
         google()
         mavenCentral()
         maven(url = "https://maven.pkg.jetbrains.space/public/p/compose/dev")
