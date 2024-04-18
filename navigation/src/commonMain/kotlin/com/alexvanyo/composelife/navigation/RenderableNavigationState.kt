@@ -120,3 +120,10 @@ fun <T : NavigationEntry, S : NavigationState<T>> associateWithRenderablePanes(
         },
     )
 }
+
+/**
+ * A navigation transform from a [RenderableNavigationState] of [T1] and [S1] into a
+ * [RenderableNavigationState] of [T2] and [S2].
+ */
+typealias RenderableNavigationTransform<T1, S1, T2, S2> =
+    @Composable (RenderableNavigationState<T1, S1>) -> RenderableNavigationState<T2, S2>

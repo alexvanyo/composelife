@@ -56,7 +56,7 @@ fun <T> MaterialPredictiveNavigationHost(
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     animateInternalContentSizeChanges: Boolean = false,
     content: @Composable (BackstackEntry<T>) -> Unit,
-) = MaterialPredictiveNavigationDecoration(
+) = MaterialPredictiveNavigationFrame(
     renderableNavigationState = associateWithRenderablePanes(backstackState, content),
     modifier = modifier,
     repeatablePredictiveBackState = repeatablePredictiveBackState,
@@ -67,7 +67,7 @@ fun <T> MaterialPredictiveNavigationHost(
 
 @Suppress("LongParameterList")
 @Composable
-fun <T> CrossfadePredictiveNavigationDecoration(
+fun <T> CrossfadePredictiveNavigationFrame(
     renderableNavigationState: RenderableNavigationState<BackstackEntry<T>, BackstackState<T>>,
     repeatablePredictiveBackState: RepeatablePredictiveBackState,
     modifier: Modifier = Modifier,
@@ -117,14 +117,14 @@ fun <T> CrossfadePredictiveNavigationDecoration(
 }
 
 /**
- * A [NavigationDecoration] that implements the Material predictive back design for animating between panes upon
+ * A navigation frame that implements the Material predictive back design for animating between panes upon
  * popping.
  *
  * https://developer.android.com/design/ui/mobile/guides/patterns/predictive-back#full-pane-surfaces
  */
 @Suppress("CyclomaticComplexMethod", "LongMethod", "LongParameterList")
 @Composable
-fun <T> MaterialPredictiveNavigationDecoration(
+fun <T> MaterialPredictiveNavigationFrame(
     renderableNavigationState: RenderableNavigationState<BackstackEntry<T>, BackstackState<T>>,
     repeatablePredictiveBackState: RepeatablePredictiveBackState,
     modifier: Modifier = Modifier,

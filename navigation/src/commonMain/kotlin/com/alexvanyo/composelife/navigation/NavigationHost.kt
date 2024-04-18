@@ -50,7 +50,7 @@ fun <T : NavigationEntry> NavigationHost(
     },
     contentAlignment: Alignment = Alignment.TopStart,
     content: @Composable (T) -> Unit,
-) = AnimatedContentNavigationDecoration(
+) = AnimatedContentNavigationFrame(
     renderableNavigationState = associateWithRenderablePanes(navigationState, content),
     modifier = modifier,
     transitionSpec = transitionSpec,

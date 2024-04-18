@@ -27,26 +27,26 @@ import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.NavigationSegment
 import com.alexvanyo.composelife.navigation.RenderableNavigationState
-import com.alexvanyo.composelife.navigation.SegmentingNavigationDecoration
+import com.alexvanyo.composelife.navigation.RenderableNavigationTransform
 import java.util.UUID
 
 /**
- * A [SegmentingNavigationDecoration] to display multiple panes in a list-detail layout, if there is enough room
+ * A [RenderableNavigationTransform] to display multiple panes in a list-detail layout, if there is enough room
  * to display both. If there isn't room to display both the list and the detail, then just one will be shown based
  * on the [ListEntry] and [DetailEntry]'s [ListDetailInfo].
  *
- * This decoration will only operate on entries of type [T] that implement [ListEntry] and [DetailEntry].
+ * This transform will only operate on single segments with a value that implements [ListEntry] and [DetailEntry].
  *
- * This decoration works with the invariant that these entries are always paired, with a [ListEntry] _always_ being the
+ * This transform works with the invariant that these entries are always paired, with a [ListEntry] _always_ being the
  * previous entry to the paired [DetailEntry].
  *
  * It is invalid for a [ListEntry] to be alone, or a [DetailEntry] to be alone - it is the responsibility of the
  * code maintaining the [BackstackState] to enforce this invariant.
  */
 @Suppress("LongMethod", "CyclomaticComplexMethod")
-fun <T> listDetailNavigationDecoration(
+fun <T> listDetailNavigationTransform(
     onBackButtonPressed: () -> Unit,
-): SegmentingNavigationDecoration<
+): RenderableNavigationTransform<
     BackstackEntry<NavigationSegment<T>>,
     BackstackState<NavigationSegment<T>>,
     BackstackEntry<NavigationSegment<T>>,

@@ -48,7 +48,7 @@ import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneLocalE
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.util.AnimatedContent
-import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavigationDecoration
+import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavigationFrame
 import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.WindowInsets
 import com.alexvanyo.composelife.ui.util.isImeAnimating
@@ -252,7 +252,7 @@ fun CellUniverseActionCard(
                                 }
                             }
 
-                            CrossfadePredictiveNavigationDecoration(
+                            CrossfadePredictiveNavigationFrame(
                                 renderableNavigationState = renderableNavigationState,
                                 repeatablePredictiveBackState = actionCardState.inlineRepeatablePredictiveBackState,
                                 contentAlignment = Alignment.BottomCenter,
