@@ -34,11 +34,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 /**
- * The default [NavigationDecoration], which uses an [AnimatedContent] to animate between panes, using the given
+ * The default navigation frame, which uses an [AnimatedContent] to animate between panes, using the given
  * [transitionSpec] and [contentAlignment].
  */
 @Composable
-fun <T : NavigationEntry> AnimatedContentNavigationDecoration(
+fun <T : NavigationEntry> AnimatedContentNavigationFrame(
     renderableNavigationState: RenderableNavigationState<T, NavigationState<T>>,
     modifier: Modifier = Modifier,
     transitionSpec: AnimatedContentTransitionScope<T>.() -> ContentTransform = {

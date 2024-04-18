@@ -16,20 +16,10 @@
 
 package com.alexvanyo.composelife.navigation
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import java.util.UUID
 
-/**
- * A segmenting navigation decoration. This type of decoration does not directly output UI.
- *
- * Instead, it acts as a transform between a [RenderableNavigationState] of [T1] and [S1] into a
- * [RenderableNavigationState] of [T2] and [S2].
- */
-typealias SegmentingNavigationDecoration<T1, S1, T2, S2> =
-    @Composable (RenderableNavigationState<T1, S1>) -> RenderableNavigationState<T2, S2>
-
-fun <T> segmentingNavigationDecoration(): SegmentingNavigationDecoration<
+fun <T> segmentingNavigationTransform(): RenderableNavigationTransform<
     BackstackEntry<T>,
     BackstackState<T>,
     BackstackEntry<NavigationSegment<T>>,

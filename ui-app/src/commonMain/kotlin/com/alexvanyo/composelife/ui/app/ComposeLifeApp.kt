@@ -45,7 +45,7 @@ import com.alexvanyo.composelife.navigation.navigate
 import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.popUpTo
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
-import com.alexvanyo.composelife.navigation.segmentingNavigationDecoration
+import com.alexvanyo.composelife.navigation.segmentingNavigationTransform
 import com.alexvanyo.composelife.navigation.withExpectedActor
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
@@ -58,8 +58,8 @@ import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.ListDetailInfo
-import com.alexvanyo.composelife.ui.app.component.listDetailNavigationDecoration
-import com.alexvanyo.composelife.ui.util.MaterialPredictiveNavigationDecoration
+import com.alexvanyo.composelife.ui.app.component.listDetailNavigationTransform
+import com.alexvanyo.composelife.ui.util.MaterialPredictiveNavigationFrame
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.ReportDrawn
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
@@ -158,11 +158,11 @@ fun ComposeLifeApp(
                                 }
                             }
 
-                            MaterialPredictiveNavigationDecoration(
-                                renderableNavigationState = listDetailNavigationDecoration<ComposeLifeUiNavigation>(
+                            MaterialPredictiveNavigationFrame(
+                                renderableNavigationState = listDetailNavigationTransform<ComposeLifeUiNavigation>(
                                     onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
                                 ).invoke(
-                                    segmentingNavigationDecoration<ComposeLifeUiNavigation>()
+                                    segmentingNavigationTransform<ComposeLifeUiNavigation>()
                                         .invoke(renderableNavigationState),
                                 ),
                                 predictiveBackStateHolder.value,

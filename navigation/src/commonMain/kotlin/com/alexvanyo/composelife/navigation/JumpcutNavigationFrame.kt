@@ -21,10 +21,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 /**
- * The simplest [NavigationDecoration] implementation, which just displays the current pane with a jumpcut.
+ * The simplest navigation frame implementation, which just displays the current pane with a jumpcut.
  */
 @Composable
-fun <T : NavigationEntry> JumpcutNavigationDecoration(
+fun <T : NavigationEntry> JumpcutNavigationFrame(
     renderableNavigationState: RenderableNavigationState<T, NavigationState<T>>,
     modifier: Modifier = Modifier,
 ) {

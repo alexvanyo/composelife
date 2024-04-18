@@ -53,7 +53,7 @@ fun <T> WearNavigationHost(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable (BackstackEntry<out T>) -> Unit,
-) = WearNavigationDecoration(
+) = WearNavigationFrame(
     renderableNavigationState = associateWithRenderablePanes(backstackState, content),
     onNavigateBack = onNavigateBack,
     modifier = modifier,
@@ -61,7 +61,7 @@ fun <T> WearNavigationHost(
 
 @OptIn(ExperimentalWearFoundationApi::class)
 @Composable
-fun <T> WearNavigationDecoration(
+fun <T> WearNavigationFrame(
     renderableNavigationState: RenderableNavigationState<BackstackEntry<T>, BackstackState<T>>,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
