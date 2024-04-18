@@ -38,7 +38,7 @@ import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
-import com.alexvanyo.composelife.navigation.NavigationSegment
+import com.alexvanyo.composelife.navigation.associateWithRenderablePanes
 import com.alexvanyo.composelife.navigation.canNavigateBack
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.navigate
@@ -59,10 +59,9 @@ import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.ListDetailInfo
 import com.alexvanyo.composelife.ui.app.component.listDetailNavigationDecoration
-import com.alexvanyo.composelife.ui.util.PredictiveNavigationHost
+import com.alexvanyo.composelife.ui.util.MaterialPredictiveNavigationDecoration
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.ReportDrawn
-import com.alexvanyo.composelife.ui.util.materialPredictiveNavigationDecoration
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 
@@ -126,20 +125,8 @@ fun ComposeLifeApp(
                         )
 
                         with(localEntryPoint) {
-                            PredictiveNavigationHost(
-                                backstackState = targetComposeLifeAppState.navigationState,
-                                decoration = { renderableNavigationState ->
-                                    val segmentedRenderableNavigationState =
-                                        segmentingNavigationDecoration<ComposeLifeUiNavigation>()
-                                            .invoke(renderableNavigationState)
-                                    val listDetailRenderableNavigationState =
-                                        listDetailNavigationDecoration<ComposeLifeUiNavigation>(
-                                            onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
-                                        ).invoke(segmentedRenderableNavigationState)
-                                    materialPredictiveNavigationDecoration<NavigationSegment<ComposeLifeUiNavigation>>(
-                                        predictiveBackStateHolder.value,
-                                    ).invoke(listDetailRenderableNavigationState)
-                                },
+                            val renderableNavigationState = associateWithRenderablePanes(
+                                targetComposeLifeAppState.navigationState,
                             ) { entry ->
                                 when (val value = entry.value) {
                                     is ComposeLifeUiNavigation.CellUniverse -> {
@@ -170,6 +157,16 @@ fun ComposeLifeApp(
                                     }
                                 }
                             }
+
+                            MaterialPredictiveNavigationDecoration(
+                                renderableNavigationState = listDetailNavigationDecoration<ComposeLifeUiNavigation>(
+                                    onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
+                                ).invoke(
+                                    segmentingNavigationDecoration<ComposeLifeUiNavigation>()
+                                        .invoke(renderableNavigationState),
+                                ),
+                                predictiveBackStateHolder.value,
+                            )
                         }
                     }
                 }

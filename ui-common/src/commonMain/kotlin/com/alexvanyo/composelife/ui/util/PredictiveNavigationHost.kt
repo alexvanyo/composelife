@@ -41,14 +41,14 @@ import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
-import com.alexvanyo.composelife.navigation.FinalizingNavigationDecoration
-import com.alexvanyo.composelife.navigation.NavigationHost
+import com.alexvanyo.composelife.navigation.RenderableNavigationState
+import com.alexvanyo.composelife.navigation.associateWithRenderablePanes
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.previousEntry
 
 @Composable
 @Suppress("LongParameterList")
-fun <T> PredictiveNavigationHost(
+fun <T> MaterialPredictiveNavigationHost(
     repeatablePredictiveBackState: RepeatablePredictiveBackState,
     backstackState: BackstackState<T>,
     modifier: Modifier = Modifier,
@@ -56,38 +56,25 @@ fun <T> PredictiveNavigationHost(
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     animateInternalContentSizeChanges: Boolean = false,
     content: @Composable (BackstackEntry<T>) -> Unit,
-) = PredictiveNavigationHost(
-    backstackState = backstackState,
+) = MaterialPredictiveNavigationDecoration(
+    renderableNavigationState = associateWithRenderablePanes(backstackState, content),
     modifier = modifier,
-    decoration = materialPredictiveNavigationDecoration(
-        repeatablePredictiveBackState = repeatablePredictiveBackState,
-        contentAlignment = contentAlignment,
-        contentSizeAnimationSpec = contentSizeAnimationSpec,
-        animateInternalContentSizeChanges = animateInternalContentSizeChanges,
-    ),
-    content = content,
+    repeatablePredictiveBackState = repeatablePredictiveBackState,
+    contentAlignment = contentAlignment,
+    contentSizeAnimationSpec = contentSizeAnimationSpec,
+    animateInternalContentSizeChanges = animateInternalContentSizeChanges,
 )
 
-@Composable
 @Suppress("LongParameterList")
-fun <T> PredictiveNavigationHost(
-    backstackState: BackstackState<T>,
-    modifier: Modifier = Modifier,
-    decoration: FinalizingNavigationDecoration<BackstackEntry<T>, BackstackState<T>>,
-    content: @Composable (BackstackEntry<T>) -> Unit,
-) = NavigationHost(
-    navigationState = backstackState,
-    modifier = modifier,
-    decoration = decoration,
-    content = content,
-)
-
-fun <T> crossfadePredictiveNavigationDecoration(
+@Composable
+fun <T> CrossfadePredictiveNavigationDecoration(
+    renderableNavigationState: RenderableNavigationState<BackstackEntry<T>, BackstackState<T>>,
     repeatablePredictiveBackState: RepeatablePredictiveBackState,
+    modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     animateInternalContentSizeChanges: Boolean = false,
-): FinalizingNavigationDecoration<BackstackEntry<T>, BackstackState<T>> = { renderableNavigationState ->
+) {
     val movablePanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
         key(id) {
             val currentPaneContent by rememberUpdatedState(paneContent)
@@ -121,6 +108,7 @@ fun <T> crossfadePredictiveNavigationDecoration(
         contentAlignment = contentAlignment,
         contentSizeAnimationSpec = contentSizeAnimationSpec,
         animateInternalContentSizeChanges = animateInternalContentSizeChanges,
+        modifier = modifier,
     ) { entry ->
         key(entry.id) {
             remember { movablePanes.getValue(entry.id) }.invoke()
@@ -134,13 +122,16 @@ fun <T> crossfadePredictiveNavigationDecoration(
  *
  * https://developer.android.com/design/ui/mobile/guides/patterns/predictive-back#full-pane-surfaces
  */
-@Suppress("CyclomaticComplexMethod", "LongMethod")
-fun <T> materialPredictiveNavigationDecoration(
+@Suppress("CyclomaticComplexMethod", "LongMethod", "LongParameterList")
+@Composable
+fun <T> MaterialPredictiveNavigationDecoration(
+    renderableNavigationState: RenderableNavigationState<BackstackEntry<T>, BackstackState<T>>,
     repeatablePredictiveBackState: RepeatablePredictiveBackState,
+    modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     animateInternalContentSizeChanges: Boolean = false,
-): FinalizingNavigationDecoration<BackstackEntry<T>, BackstackState<T>> = { renderableNavigationState ->
+) {
     val movablePanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
         key(id) {
             val currentPaneContent by rememberUpdatedState(paneContent)
@@ -313,6 +304,7 @@ fun <T> materialPredictiveNavigationDecoration(
         contentSizeAnimationSpec = contentSizeAnimationSpec,
         animateInternalContentSizeChanges = animateInternalContentSizeChanges,
         contentKey = BackstackEntry<T>::id,
+        modifier = modifier,
     ) { entry ->
         key(entry.id) {
             remember { movablePanes.getValue(entry.id) }.invoke()

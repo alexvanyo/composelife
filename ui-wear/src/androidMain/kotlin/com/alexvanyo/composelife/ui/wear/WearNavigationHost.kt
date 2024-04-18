@@ -28,9 +28,9 @@ import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
 import androidx.wear.compose.material.SwipeToDismissBox
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
-import com.alexvanyo.composelife.navigation.FinalizingNavigationDecoration
 import com.alexvanyo.composelife.navigation.MutableBackstackNavigationController
-import com.alexvanyo.composelife.navigation.NavigationHost
+import com.alexvanyo.composelife.navigation.RenderableNavigationState
+import com.alexvanyo.composelife.navigation.associateWithRenderablePanes
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.popBackstack
 import java.util.UUID
@@ -53,19 +53,19 @@ fun <T> WearNavigationHost(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable (BackstackEntry<out T>) -> Unit,
-) = NavigationHost(
-    navigationState = backstackState,
+) = WearNavigationDecoration(
+    renderableNavigationState = associateWithRenderablePanes(backstackState, content),
+    onNavigateBack = onNavigateBack,
     modifier = modifier,
-    decoration = wearNavigationDecoration(
-        onNavigateBack = onNavigateBack,
-    ),
-    content = content,
 )
 
 @OptIn(ExperimentalWearFoundationApi::class)
-fun <T> wearNavigationDecoration(
+@Composable
+fun <T> WearNavigationDecoration(
+    renderableNavigationState: RenderableNavigationState<BackstackEntry<T>, BackstackState<T>>,
     onNavigateBack: () -> Unit,
-): FinalizingNavigationDecoration<BackstackEntry<T>, BackstackState<T>> = { renderableNavigationState ->
+    modifier: Modifier = Modifier,
+) {
     val movablePanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
         key(id) {
             val currentPaneContent by rememberUpdatedState(paneContent)
@@ -83,6 +83,7 @@ fun <T> wearNavigationDecoration(
         backgroundKey = currentEntry.previous?.id ?: remember { UUID.randomUUID() },
         contentKey = currentEntry.id,
         hasBackground = currentEntry.previous != null,
+        modifier = modifier,
     ) { isBackground ->
         val entry = if (isBackground) {
             checkNotNull(currentEntry.previous) {
