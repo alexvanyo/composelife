@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
-import com.alexvanyo.composelife.navigation.NavigationHost
+import com.alexvanyo.composelife.navigation.associateWithRenderablePanes
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.ActionControlRow
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.NavContainer
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPane
@@ -48,9 +48,9 @@ import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneLocalE
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.util.AnimatedContent
+import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavigationDecoration
 import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.WindowInsets
-import com.alexvanyo.composelife.ui.util.crossfadePredictiveNavigationDecoration
 import com.alexvanyo.composelife.ui.util.isImeAnimating
 import com.alexvanyo.composelife.ui.util.isInProgress
 import com.livefront.sealedenum.GenSealedEnum
@@ -208,14 +208,8 @@ fun CellUniverseActionCard(
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            NavigationHost(
-                                navigationState = actionCardState.inlineNavigationState,
-                                modifier = Modifier.weight(1f, fill = false),
-                                decoration = crossfadePredictiveNavigationDecoration(
-                                    repeatablePredictiveBackState = actionCardState.inlineRepeatablePredictiveBackState,
-                                    contentAlignment = Alignment.BottomCenter,
-                                    animateInternalContentSizeChanges = false,
-                                ),
+                            val renderableNavigationState = associateWithRenderablePanes(
+                                actionCardState.inlineNavigationState,
                             ) { entry ->
                                 // Cache the scroll state based for the target entry id.
                                 // This value won't change normally, but it will ensure we keep using
@@ -257,6 +251,14 @@ fun CellUniverseActionCard(
                                     }
                                 }
                             }
+
+                            CrossfadePredictiveNavigationDecoration(
+                                renderableNavigationState = renderableNavigationState,
+                                repeatablePredictiveBackState = actionCardState.inlineRepeatablePredictiveBackState,
+                                contentAlignment = Alignment.BottomCenter,
+                                animateInternalContentSizeChanges = false,
+                                modifier = Modifier.weight(1f, fill = false),
+                            )
 
                             Box(
                                 modifier = Modifier.widthIn(max = 480.dp),

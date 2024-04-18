@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.navigation
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.tween
@@ -24,22 +25,21 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 /**
- * The primary composable for displaying a [NavigationState].
- *
- * This automatically animated transitions between content, which is rendered for the current top-most entry with the
- * id of [NavigationState.currentEntryId] as specified in [content].
- *
- * The state for each entry is independently saved via [rememberSaveableStateHolder], and the corresponding state is
- * cleared when the keys are observed to no longer be in the backstack map.
+ * The default [NavigationDecoration], which uses an [AnimatedContent] to animate between panes, using the given
+ * [transitionSpec] and [contentAlignment].
  */
 @Composable
-fun <T : NavigationEntry> NavigationHost(
-    navigationState: NavigationState<T>,
+fun <T : NavigationEntry> AnimatedContentNavigationDecoration(
+    renderableNavigationState: RenderableNavigationState<T, NavigationState<T>>,
     modifier: Modifier = Modifier,
     transitionSpec: AnimatedContentTransitionScope<T>.() -> ContentTransform = {
         (
@@ -49,10 +49,28 @@ fun <T : NavigationEntry> NavigationHost(
             .togetherWith(fadeOut(animationSpec = tween(90)))
     },
     contentAlignment: Alignment = Alignment.TopStart,
-    content: @Composable (T) -> Unit,
-) = AnimatedContentNavigationDecoration(
-    renderableNavigationState = associateWithRenderablePanes(navigationState, content),
-    modifier = modifier,
-    transitionSpec = transitionSpec,
-    contentAlignment = contentAlignment,
-)
+) {
+    val movablePanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
+        key(id) {
+            val currentPaneContent by rememberUpdatedState(paneContent)
+            remember {
+                movableContentOf {
+                    currentPaneContent()
+                }
+            }
+        }
+    }
+
+    AnimatedContent(
+        targetState = renderableNavigationState.navigationState.currentEntry,
+        transitionSpec = transitionSpec,
+        contentAlignment = contentAlignment,
+        contentKey = NavigationEntry::id,
+        modifier = modifier,
+    ) { entry ->
+        key(entry.id) {
+            // Fetch and store the movable pane to hold onto while animating out
+            remember { movablePanes.getValue(entry.id) }.invoke()
+        }
+    }
+}
