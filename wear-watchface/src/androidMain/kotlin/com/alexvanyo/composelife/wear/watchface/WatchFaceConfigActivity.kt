@@ -22,6 +22,9 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import androidx.wear.compose.material.MaterialTheme
@@ -35,7 +38,7 @@ import kotlinx.coroutines.launch
 
 class WatchFaceConfigActivity : AppCompatActivity() {
 
-    private lateinit var editorSession: EditorSession
+    private var editorSession: EditorSession? by mutableStateOf(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,15 +64,17 @@ class WatchFaceConfigActivity : AppCompatActivity() {
         }
 
         setContent {
-            val watchFaceConfigState = rememberWatchFaceConfigState(editorSession)
-            LaunchedEffect(watchFaceConfigState) {
-                watchFaceConfigState.update()
-            }
-            ComposeLifeTheme {
-                WatchFaceConfigPane(
-                    state = watchFaceConfigState,
-                    modifier = Modifier.background(MaterialTheme.colors.background),
-                )
+            editorSession?.let {
+                val watchFaceConfigState = rememberWatchFaceConfigState(it)
+                LaunchedEffect(watchFaceConfigState) {
+                    watchFaceConfigState.update()
+                }
+                ComposeLifeTheme {
+                    WatchFaceConfigPane(
+                        state = watchFaceConfigState,
+                        modifier = Modifier.background(MaterialTheme.colors.background),
+                    )
+                }
             }
         }
     }
