@@ -112,6 +112,7 @@ fun <T : DropdownOption> TextFieldDropdown(
             Box(
                 propagateMinConstraints = true,
             ) {
+                @Suppress("DEPRECATION")
                 OutlinedTextFieldDefaults.ContainerBox(
                     enabled = true,
                     isError = false,
