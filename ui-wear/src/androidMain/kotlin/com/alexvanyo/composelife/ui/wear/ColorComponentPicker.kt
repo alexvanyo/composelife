@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.wear
 
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
@@ -31,20 +30,19 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
 import androidx.wear.compose.foundation.rememberActiveFocusRequester
+import androidx.wear.compose.foundation.rotary.rotary
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Picker
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.rememberPickerState
-import com.google.android.horologist.annotations.ExperimentalHorologistApi
-import com.google.android.horologist.compose.rotaryinput.onRotaryInputAccumulated
+import com.google.android.horologist.compose.rotaryinput.accumulatedBehavior
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalWearFoundationApi::class, ExperimentalHorologistApi::class)
+@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 @Suppress("LongParameterList")
 fun ColorComponentPicker(
@@ -73,19 +71,19 @@ fun ColorComponentPicker(
     HierarchicalFocusCoordinator(
         requiresFocus = { isSelected },
     ) {
-        val focusRequester = rememberActiveFocusRequester()
         Picker(
             state = pickerState,
             contentDescription = contentDescription,
             onSelected = onSelected,
             modifier = modifier
-                .onRotaryInputAccumulated {
-                    coroutineScope.launch {
-                        pickerState.scrollToOption(pickerState.selectedOption + if (it > 0) 1 else -1)
-                    }
-                }
-                .focusRequester(focusRequester)
-                .focusable(),
+                .rotary(
+                    rotaryBehavior = accumulatedBehavior {
+                        coroutineScope.launch {
+                            pickerState.scrollToOption(pickerState.selectedOption + if (it > 0) 1 else -1)
+                        }
+                    },
+                    focusRequester = rememberActiveFocusRequester(),
+                ),
         ) { optionIndex ->
             Box(
                 contentAlignment = Alignment.Center,
