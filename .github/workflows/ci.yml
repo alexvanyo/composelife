@@ -78,6 +78,19 @@ jobs:
       matrix: ${{ fromJson(needs.build-cfg.outputs.matrix) }}
 
     steps:
+      - name: Set ANDROID_USER_HOME
+        run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
+
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls /dev/kvm
+
+      - name: Download emulator package
+        run: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager emulator
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -116,7 +129,7 @@ jobs:
 
       - name: Assemble
         # Assemble with running benchmarks and generating baseline profile to ensure those compile
-        run: ./gradlew assemble -Pcom.alexvanyo.composelife.runBenchmarks=true -Pcom.alexvanyo.composelife.generateBaselineProfile=true
+        run: ./gradlew assemble -Pcom.alexvanyo.composelife.runBenchmarks=true -Pandroidx.baselineprofile.skipgeneration
 
       - name: Upload APKs
         if: matrix.sdk == '34'

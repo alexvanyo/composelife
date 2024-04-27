@@ -5,8 +5,7 @@ on:
     branches:
       - main
     paths-ignore: # don't recursively update baseline profiles
-      - 'app/src/androidMain/baseline-prof.txt'
-      - 'wear/src/androidMain/baseline-prof.txt'
+      - '**/baseline-prof.txt'
   workflow_dispatch:
 
 jobs:
@@ -78,22 +77,14 @@ jobs:
       - name: Generate baseline profile for app
         run: |
           # generate the baseline profile, with one retry attempt
-          generate_profile () { ./gradlew :app-baseline-profile-generator:aosppixel2api30Check --stacktrace -Pcom.alexvanyo.composelife.generateBaselineProfile=true; }
+          generate_profile () { ./gradlew :app:generateBaselineProfile --stacktrace; }
           (echo "==== Attempt 1 ====" && generate_profile) || (echo "==== Attempt 2 ====" && generate_profile) || (echo "==== Both attempts failed ====" && exit 1)
-
-      - name: Copy baseline profile to app
-        run: cp app-baseline-profile-generator/build/intermediates/managed_device_android_test_additional_output/benchmark/aosppixel2api30BenchmarkAndroidTest/BaselineProfileGenerator_startup-baseline-prof.txt app/src/androidMain/baseline-prof.txt
 
       - name: Generate baseline profile for wear
-        if: false # TODO: https://github.com/alexvanyo/composelife/issues/1159
         run: |
           # generate the baseline profile, with one retry attempt
-          generate_profile () { ./gradlew :wear-baseline-profile-generator:wearwearoslargeroundapi28Check --stacktrace -Pcom.alexvanyo.composelife.generateBaselineProfile=true; }
+          generate_profile () { ./gradlew :wear:generateBaselineProfile --stacktrace; }
           (echo "==== Attempt 1 ====" && generate_profile) || (echo "==== Attempt 2 ====" && generate_profile) || (echo "==== Both attempts failed ====" && exit 1)
-
-      - name: Copy baseline profile to wear
-        if: false # TODO: https://github.com/alexvanyo/composelife/issues/1159
-        run: cp wear-baseline-profile-generator/build/intermediates/managed_device_android_test_additional_output/benchmark/wearwearoslargeroundapi28/BaselineProfileGenerator_startup-baseline-prof.txt wear/src/androidMain/baseline-prof.txt
 
       - name: Auto-commit changes
         uses: stefanzweifel/git-auto-commit-action@v5

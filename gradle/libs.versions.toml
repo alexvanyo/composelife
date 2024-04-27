@@ -185,6 +185,7 @@ convention-kotlinMultiplatform = { id = "com.alexvanyo.composelife.kotlinMultipl
 convention-kotlinMultiplatformCompose = { id = "com.alexvanyo.composelife.kotlinMultiplatformCompose", version = "unspecified" }
 convention-mergeJacoco = { id = "com.alexvanyo.composelife.mergeJacoco", version = "unspecified" }
 android-lint = { id = "com.android.lint", version.ref = "androidGradlePlugin" }
+androidx-baselineProfile = { id = "androidx.baselineprofile", version.ref = "androidxBenchmark" }
 compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 gradleDependenciesSorter = { id = "com.squareup.sort-dependencies", version.ref = "gradleDependenciesSorter" }

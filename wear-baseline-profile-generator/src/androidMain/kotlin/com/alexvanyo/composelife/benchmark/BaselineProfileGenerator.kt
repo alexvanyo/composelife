@@ -34,6 +34,7 @@ class BaselineProfileGenerator {
         baselineProfileRule.collect(
             packageName = "com.alexvanyo.composelife.wear",
             maxIterations = 10,
+            includeInStartupProfile = true,
         ) {
             InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand(
                 "am broadcast -a com.google.android.wearable.app.DEBUG_SURFACE " +
