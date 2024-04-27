@@ -21,6 +21,7 @@ import com.alexvanyo.composelife.patterns.GameOfLifeTestPatternEnum
 import com.alexvanyo.composelife.patterns.sealedObject
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
+import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -38,8 +39,8 @@ class SerializerTests {
     ) {
         override fun toString(): String = name
 
-        class Provider : TestParameter.TestParameterValuesProvider {
-            override fun provideValues() =
+        class Provider : TestParameterValuesProvider() {
+            override fun provideValues(context: Context?) =
                 listOf(
                     CellStateSerializerFactory(
                         name = "Plaintext",

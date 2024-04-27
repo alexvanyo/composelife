@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.wear.watchface
 
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
+import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider
 import org.junit.runner.RunWith
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -28,8 +29,8 @@ import kotlin.test.assertEquals
 @RunWith(TestParameterInjector::class)
 class TimeDigitsTests {
 
-    class LocalTimeProvider : TestParameter.TestParameterValuesProvider {
-        override fun provideValues() =
+    class LocalTimeProvider : TestParameterValuesProvider() {
+        override fun provideValues(context: Context?) =
             (0..23).flatMap { hour ->
                 (0..59).map { minute ->
                     LocalTime.of(hour, minute)
