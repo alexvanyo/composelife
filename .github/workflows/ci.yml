@@ -114,22 +114,49 @@ jobs:
         # Assemble with running benchmarks and generating baseline profile to ensure those compile
         run: ./gradlew assemble -Pcom.alexvanyo.composelife.runBenchmarks=true -Pcom.alexvanyo.composelife.generateBaselineProfile=true
 
+      - name: Upload APKs
+        if: matrix.sdk == '34'
+        uses: actions/upload-artifact@v4
+        with:
+          name: apks
+          path: "**/build/outputs/apk/**/*.apk"
+
       - name: Run checks
         run: ./gradlew check --stacktrace
+
+      - name: Upload unit test results
+        if: matrix.sdk == '34' && !cancelled()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results
+          path: '**/build/test-results/test*UnitTest/**.xml'
 
       - name: Generate code coverage
         if: matrix.sdk == '34'
         run: ./gradlew jacocoTestReport --stacktrace
 
-      - name: Upload coverage to Codecov
+      - name: Upload code coverage to GitHub
         if: matrix.sdk == '34'
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage
+          path: build/reports/jacoco/**/*.xml
+
+  codecov-upload:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download code coverage from GitHub
+        uses: actions/download-artifact@v4
+        with:
+          name: code-coverage
+
+      - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          # TODO: Remove once https://github.com/codecov/codecov-action/issues/837 is resolved
           token: ${{ secrets.CODECOV_TOKEN }}
-          directory: build/reports/jacoco
           fail_ci_if_error: true
-          files: jacocoTestDebugUnitTestReport/jacocoTestDebugUnitTestReport.xml,jacocoTestReleaseUnitTestReport/jacocoTestReleaseUnitTestReport.xml
 
   android-test-gmd-cfg:
     needs: validate-wrapper
