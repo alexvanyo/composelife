@@ -22,3 +22,4 @@
 
 -dontwarn android.**
 -dontwarn org.slf4j.**
+-keep class org.sqlite.** { *; }
