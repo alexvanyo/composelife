@@ -30,9 +30,11 @@ interface TestDispatcherComponent {
 
     @Provides
     @Singleton
-    fun providesGeneralTestDispatcher(): GeneralTestDispatcher = StandardTestDispatcher()
+    fun providesGeneralTestDispatcher(): GeneralTestDispatcher =
+        GeneralTestDispatcher(StandardTestDispatcher())
 
     @Provides
     @Singleton
-    fun providesCellTickerTestDispatcher(): CellTickerTestDispatcher = StandardTestDispatcher()
+    fun providesCellTickerTestDispatcher(): CellTickerTestDispatcher =
+        CellTickerTestDispatcher(StandardTestDispatcher())
 }

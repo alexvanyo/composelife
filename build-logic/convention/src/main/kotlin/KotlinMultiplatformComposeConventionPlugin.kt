@@ -15,18 +15,10 @@
  */
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
-import org.gradle.api.artifacts.VersionCatalogsExtension
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.getByType
 
 class KotlinMultiplatformComposeConventionPlugin : ConventionPlugin({
-    pluginManager.apply("org.jetbrains.compose")
-
-    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-
-    extensions.configure<org.jetbrains.compose.ComposeExtension> {
-        kotlinCompilerPlugin.set(
-            "androidx.compose.compiler:compiler:${libs.findVersion("androidxComposeCompiler").get()}",
-        )
+    with(pluginManager) {
+        apply("org.jetbrains.compose")
+        apply("org.jetbrains.kotlin.plugin.compose")
     }
 })

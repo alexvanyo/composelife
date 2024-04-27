@@ -16,31 +16,12 @@
 
 package com.alexvanyo.composelife.buildlogic
 
-import com.android.build.api.dsl.CommonExtension
-import com.android.build.api.variant.AndroidComponentsExtension
+import com.google.devtools.ksp.gradle.KspExtension
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.configure
 
-fun Project.configureKsp(
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
-    androidComponentsExtension: AndroidComponentsExtension<*, *, *>,
-) {
-    androidComponentsExtension.onVariants { applicationVariant ->
-        val variantNameCapitalized = applicationVariant.name.capitalizeForTaskName()
-        commonExtension.sourceSets {
-            getByName(applicationVariant.name) {
-                java.srcDir(
-                    file(
-                        "build/generated/ksp/android/android$variantNameCapitalized/kotlin",
-                    ),
-                )
-            }
-            getByName("test$variantNameCapitalized") {
-                java.srcDir(
-                    file(
-                        "build/generated/ksp/android/android${variantNameCapitalized}UnitTest/kotlin",
-                    ),
-                )
-            }
-        }
+fun Project.configureKsp() {
+    extensions.configure<KspExtension> {
+        arg("me.tatarka.inject.generateCompanionExtensions", "true")
     }
 }

@@ -16,17 +16,17 @@
 
 package com.alexvanyo.composelife.buildlogic
 
-import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 fun Project.configureKotlin() {
     tasks.withType<KotlinCompile>().configureEach {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_1_8.toString()
-            allWarningsAsErrors = true
-            freeCompilerArgs = freeCompilerArgs + listOf(
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
+            allWarningsAsErrors.set(true)
+            freeCompilerArgs.addAll(
                 "-Xcontext-receivers",
                 // TODO: Remove when out of beta: https://youtrack.jetbrains.com/issue/KT-61573
                 "-Xexpect-actual-classes",

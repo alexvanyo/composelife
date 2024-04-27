@@ -29,6 +29,7 @@ import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
+import com.livefront.sealedenum.SealedEnum
 import java.util.UUID
 
 @Stable
@@ -177,6 +178,8 @@ sealed interface ComposeLifeNavigationType {
 
     @GenSealedEnum
     companion object {
-        val Saver = sealedEnumSaver(sealedEnum)
+        val Saver = sealedEnumSaver(_sealedEnum)
     }
 }
+
+expect val ComposeLifeNavigationType.Companion._sealedEnum: SealedEnum<ComposeLifeNavigationType>

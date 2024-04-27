@@ -33,6 +33,8 @@ abstract class ComposeLifeUiComponent(
             ComposeLifeUiEntryPoint,
             ComposeLifeApplicationEntryPoint by applicationComponent.entryPoint,
             ClipboardCellStateParserProvider by this {}
+
+    companion object
 }
 
 interface ComposeLifeUiEntryPoint :

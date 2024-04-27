@@ -68,7 +68,7 @@ fun AlgorithmImplementationUi(
             AlgorithmType.HashLifeAlgorithm -> AlgorithmImplementationDropdownOption.HashLifeAlgorithm
             AlgorithmType.NaiveAlgorithm -> AlgorithmImplementationDropdownOption.NaiveAlgorithm
         },
-        allValues = AlgorithmImplementationDropdownOption.values.toImmutableList(),
+        allValues = AlgorithmImplementationDropdownOption._values.toImmutableList(),
         setValue = { option ->
             coroutineScope.launch {
                 setAlgorithmChoice(
@@ -96,3 +96,5 @@ sealed interface AlgorithmImplementationDropdownOption : DropdownOption {
     @GenSealedEnum
     companion object
 }
+
+expect val AlgorithmImplementationDropdownOption.Companion._values: List<AlgorithmImplementationDropdownOption>

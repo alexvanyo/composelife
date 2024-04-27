@@ -61,6 +61,7 @@ import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.util.Layout
 import com.livefront.sealedenum.GenSealedEnum
+import com.livefront.sealedenum.SealedEnum
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -91,7 +92,7 @@ fun InteractiveCellUniverseOverlay(
     }
 
     Layout(
-        layoutIdTypes = InteractiveCellUniverseOverlayLayoutTypes.sealedEnum,
+        layoutIdTypes = InteractiveCellUniverseOverlayLayoutTypes._sealedEnum,
         content = {
             Spacer(
                 modifier = Modifier
@@ -234,3 +235,6 @@ internal sealed interface InteractiveCellUniverseOverlayLayoutTypes {
     @GenSealedEnum
     companion object
 }
+
+internal expect val InteractiveCellUniverseOverlayLayoutTypes.Companion._sealedEnum:
+    SealedEnum<InteractiveCellUniverseOverlayLayoutTypes>

@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.ui.util
 
 import androidx.compose.ui.graphics.Color
 import com.livefront.sealedenum.GenSealedEnum
+import com.livefront.sealedenum.SealedEnum
 
 /**
  * A specific component of a [Color].
@@ -34,7 +35,9 @@ sealed interface ColorComponent {
 
         @GenSealedEnum
         companion object {
-            val Saver = sealedEnumSaver(sealedEnum)
+            val Saver = sealedEnumSaver(_sealedEnum)
         }
     }
 }
+
+internal expect val ColorComponent.RgbIntComponent.Companion._sealedEnum: SealedEnum<ColorComponent.RgbIntComponent>

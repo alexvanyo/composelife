@@ -42,7 +42,7 @@ import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.InjectTestActivity
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
-import com.alexvanyo.composelife.ui.app.create
+import com.alexvanyo.composelife.ui.app.createComponent
 import com.alexvanyo.composelife.ui.app.resources.Draw
 import com.alexvanyo.composelife.ui.app.resources.Erase
 import com.alexvanyo.composelife.ui.app.resources.None
@@ -59,7 +59,7 @@ import kotlin.test.assertEquals
 
 @RunWith(KmpAndroidJUnit4::class)
 class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
-    { TestComposeLifeApplicationComponent.create() },
+    { TestComposeLifeApplicationComponent.createComponent() },
     InjectTestActivity::class.java,
 ) {
 

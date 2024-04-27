@@ -18,7 +18,6 @@
 package com.alexvanyo.composelife.ui.app
 
 import android.app.Application
-import androidx.test.core.app.ApplicationProvider
 import com.alexvanyo.composelife.algorithm.di.AlgorithmComponent
 import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
 import com.alexvanyo.composelife.clock.di.ClockComponent
@@ -33,7 +32,6 @@ import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.random.di.RandomComponent
 import com.alexvanyo.composelife.random.di.RandomModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.test.TestInjectApplication
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import me.tatarka.inject.annotations.Component
 
@@ -72,13 +70,3 @@ actual interface TestComposeLifeApplicationEntryPoint :
     DispatchersModule,
     PreferencesModule,
     UpdatableModule
-
-actual fun TestComposeLifeApplicationComponent.Companion.create(): TestComposeLifeApplicationComponent {
-    val application = ApplicationProvider.getApplicationContext<TestInjectApplication>()
-    val applicationComponent = TestComposeLifeApplicationComponent::class.create(application)
-    application.applicationComponent = applicationComponent
-    application.uiComponentFactory = {
-        TestComposeLifeUiComponent::class.create(applicationComponent, it.activity)
-    }
-    return applicationComponent
-}

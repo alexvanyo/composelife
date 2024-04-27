@@ -94,7 +94,7 @@ fun CellShapeConfigUi(
         TextFieldDropdown(
             label = parameterizedStringResource(Strings.Shape),
             currentValue = cellShapeConfigUiState.currentShapeDropdownOption,
-            allValues = ShapeDropdownOption.values.toImmutableList(),
+            allValues = ShapeDropdownOption._values.toImmutableList(),
             setValue = cellShapeConfigUiState::setCurrentShapeType,
         )
 
@@ -140,6 +140,8 @@ sealed interface ShapeDropdownOption : DropdownOption {
     companion object
 }
 
+expect val ShapeDropdownOption.Companion._values: List<ShapeDropdownOption>
+
 interface CellShapeConfigUiState {
     val currentShapeDropdownOption: ShapeDropdownOption
 
@@ -165,7 +167,7 @@ context(ComposeLifePreferencesProvider, LoadedComposeLifePreferencesProvider)
 @Suppress("LongMethod")
 @Composable
 fun rememberCellShapeConfigUiState(): CellShapeConfigUiState {
-    val currentShapeType = preferences.currentShapeType
+    val currentShapeType: CurrentShapeType = preferences.currentShapeType
     val coroutineScope = rememberCoroutineScope()
 
     val currentShapeConfigUiState = when (currentShapeType) {
@@ -269,8 +271,8 @@ fun rememberCellShapeConfigUiState(): CellShapeConfigUiState {
 
     return object : CellShapeConfigUiState {
         override val currentShapeDropdownOption: ShapeDropdownOption
-            get() = when (currentShapeType) {
-                CurrentShapeType.RoundRectangle -> ShapeDropdownOption.RoundRectangle
+            get() = when (currentShapeType as CurrentShapeType) {
+                is CurrentShapeType.RoundRectangle -> ShapeDropdownOption.RoundRectangle
             }
 
         override val currentShapeConfigUiState: CurrentShapeConfigUiState

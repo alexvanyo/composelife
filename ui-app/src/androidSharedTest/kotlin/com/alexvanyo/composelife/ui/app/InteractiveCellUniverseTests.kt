@@ -77,12 +77,12 @@ import kotlin.test.assertNotNull
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
-    { TestComposeLifeApplicationComponent.create() },
+    { TestComposeLifeApplicationComponent.createComponent() },
     InjectTestActivity::class.java,
 ) {
-    private val generalTestDispatcher get() = applicationComponent.generalTestDispatcher
+    private val generalTestDispatcher get() = applicationComponent.generalTestDispatcher.value
 
-    private val cellTickerTestDispatcher get() = applicationComponent.cellTickerTestDispatcher
+    private val cellTickerTestDispatcher get() = applicationComponent.cellTickerTestDispatcher.value
 
     private val gameOfLifeAlgorithm get() = applicationComponent.gameOfLifeAlgorithm
 

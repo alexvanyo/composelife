@@ -30,13 +30,13 @@ import kotlin.test.assertNull
 
 @RunWith(KmpAndroidJUnit4::class)
 class CellStateRepositoryTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
-    { TestComposeLifeApplicationComponent.create() },
+    { TestComposeLifeApplicationComponent.createComponent() },
 ) {
     private val cellStateRepository get() = applicationComponent.cellStateRepository
 
     private val cellStateQueries get() = applicationComponent.cellStateQueries
 
-    private val testDispatcher get() = applicationComponent.generalTestDispatcher
+    private val testDispatcher get() = applicationComponent.generalTestDispatcher.value
 
     @Test
     fun get_autosaved_cell_state_returns_null_initially() = runAppTest(testDispatcher) {
