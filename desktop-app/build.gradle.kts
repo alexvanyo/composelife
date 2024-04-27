@@ -1,3 +1,5 @@
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+
 /*
  * Copyright 2024 The Android Open Source Project
  *
@@ -59,6 +61,21 @@ compose.desktop {
         mainClass = "com.alexvanyo.composelife.MainKt"
         buildTypes.release.proguard {
             configurationFiles.from("proguard-rules.pro")
+        }
+        nativeDistributions {
+            targetFormats(TargetFormat.Deb, TargetFormat.Msi, TargetFormat.Dmg)
+            packageName = "ComposeLife"
+            modules("java.sql")
+
+            linux {
+                iconFile.set(file("icon.png"))
+            }
+            windows {
+                iconFile.set(file("icon.ico"))
+            }
+            macOS {
+                iconFile.set(file("icon.icns"))
+            }
         }
     }
 }
