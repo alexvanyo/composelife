@@ -30,6 +30,7 @@ class BaselineProfileGenerator {
         baselineProfileRule.collect(
             packageName = "com.alexvanyo.composelife",
             maxIterations = 10,
+            includeInStartupProfile = true,
         ) {
             pressHome()
             startActivityAndWait()

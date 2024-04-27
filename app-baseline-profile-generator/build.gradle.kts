@@ -16,33 +16,23 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import com.android.build.gradle.internal.tasks.ManagedDeviceSetupTask
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidTest)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
+    alias(libs.plugins.androidx.baselineProfile)
 }
 
 android {
     namespace = "com.alexvanyo.composelife.app.baselineprofilegenerator"
     targetProjectPath = ":app"
     configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
-}
 
-androidComponents {
-    val generateBaselineProfile =
-        findProperty("com.alexvanyo.composelife.generateBaselineProfile") == "true"
-
-    beforeVariants(selector().all()) { variant ->
-        // Enable the benchmark variant (with the baseline profile generation test) only if the build is specifically
-        // generating it as specified by the above property.
-        // Otherwise, enable the debug variant, which will be empty to ensure one variant always exists.
-        variant.enable = when (variant.buildType) {
-            "debug" -> !generateBaselineProfile
-            "benchmark" -> generateBaselineProfile
-            else -> false
-        }
+    defaultConfig {
+        minSdk = 28
     }
 }
 
@@ -56,6 +46,21 @@ kotlin {
                 implementation(libs.androidx.test.junit)
                 implementation(libs.androidx.test.runner)
                 implementation(libs.kotlin.test.junit)
+            }
+        }
+    }
+}
+
+baselineProfile {
+    managedDevices += "aosppixel2api30"
+    useConnectedDevices = false
+}
+
+afterEvaluate {
+    tasks {
+        if (project.properties.containsKey("androidx.baselineprofile.skipgeneration")) {
+            named("aosppixel2api30Setup") {
+                enabled = false
             }
         }
     }
