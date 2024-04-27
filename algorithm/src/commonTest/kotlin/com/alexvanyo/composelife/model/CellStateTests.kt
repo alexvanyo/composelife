@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
+import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -35,8 +36,8 @@ class CellStateTests {
     ) {
         override fun toString(): String = cellStateName
 
-        class Provider : TestParameter.TestParameterValuesProvider {
-            override fun provideValues() =
+        class Provider : TestParameterValuesProvider() {
+            override fun provideValues(context: Context?) =
                 listOf(
                     CellStateFactory("Default cell state") { CellState(it.aliveCells.toSet()) },
                     CellStateFactory("Hash life cell state") { it.toHashLifeCellState() },
