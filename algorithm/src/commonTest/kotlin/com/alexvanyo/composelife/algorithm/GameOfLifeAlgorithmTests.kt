@@ -30,6 +30,7 @@ import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.setAlgorithmChoice
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
+import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.onEach
@@ -53,8 +54,8 @@ class GameOfLifeAlgorithmTests {
     ) {
         override fun toString(): String = algorithmName
 
-        class Provider : TestParameter.TestParameterValuesProvider {
-            override fun provideValues() =
+        class Provider : TestParameterValuesProvider() {
+            override fun provideValues(context: Context?) =
                 listOf(
                     GameOfLifeAlgorithmFactory("Naive Algorithm") {
                         NaiveGameOfLifeAlgorithm(it) to Job().apply { complete() }
@@ -90,8 +91,8 @@ class GameOfLifeAlgorithmTests {
     ) {
         override fun toString(): String = name
 
-        class Provider : TestParameter.TestParameterValuesProvider {
-            override fun provideValues() =
+        class Provider : TestParameterValuesProvider() {
+            override fun provideValues(context: Context?) =
                 listOf(
                     CellStateMapper("Identity") { cellState ->
                         cellState
