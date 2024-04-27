@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.android.gradlePlugin)
     implementation(libs.android.tools.common)
     implementation(kotlin("gradle-plugin", libs.versions.kotlin.get()))
+    implementation(libs.kotlin.composeCompilerGradlePlugin)
     implementation(libs.detekt.gradlePlugin)
     implementation(libs.keeper.gradlePlugin)
     implementation(libs.ksp.gradlePlugin)

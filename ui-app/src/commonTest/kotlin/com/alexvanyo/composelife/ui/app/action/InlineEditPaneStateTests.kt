@@ -18,6 +18,8 @@ package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
+import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
@@ -47,7 +49,10 @@ class InlineEditPaneStateTests {
     fun initial_state_is_correct_when_onboarding() = runComposeUiTest {
         runTest {
             val testDispatcher = StandardTestDispatcher(testScheduler)
-            val dispatchers = TestComposeLifeDispatchers(testDispatcher, testDispatcher)
+            val dispatchers = TestComposeLifeDispatchers(
+                generalTestDispatcher = GeneralTestDispatcher(testDispatcher),
+                cellTickerTestDispatcher = CellTickerTestDispatcher(testDispatcher),
+            )
             val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
             val composeLifePreferences = TestComposeLifePreferences(
                 touchToolConfig = ToolConfig.Pan,
@@ -105,7 +110,10 @@ class InlineEditPaneStateTests {
     fun allowing_clipboard_watching_updates_state_correctly() = runComposeUiTest {
         runTest {
             val testDispatcher = StandardTestDispatcher(testScheduler)
-            val dispatchers = TestComposeLifeDispatchers(testDispatcher, testDispatcher)
+            val dispatchers = TestComposeLifeDispatchers(
+                generalTestDispatcher = GeneralTestDispatcher(testDispatcher),
+                cellTickerTestDispatcher = CellTickerTestDispatcher(testDispatcher),
+            )
             val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
             val composeLifePreferences = TestComposeLifePreferences(
                 touchToolConfig = ToolConfig.Pan,
@@ -164,7 +172,10 @@ class InlineEditPaneStateTests {
     fun disallowing_clipboard_watching_updates_state_correctly() = runComposeUiTest {
         runTest {
             val testDispatcher = StandardTestDispatcher(testScheduler)
-            val dispatchers = TestComposeLifeDispatchers(testDispatcher, testDispatcher)
+            val dispatchers = TestComposeLifeDispatchers(
+                generalTestDispatcher = GeneralTestDispatcher(testDispatcher),
+                cellTickerTestDispatcher = CellTickerTestDispatcher(testDispatcher),
+            )
             val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
             val composeLifePreferences = TestComposeLifePreferences(
                 touchToolConfig = ToolConfig.Pan,
@@ -223,7 +234,10 @@ class InlineEditPaneStateTests {
     fun initial_state_is_correct_when_clipboard_watching_enabled() = runComposeUiTest {
         runTest {
             val testDispatcher = StandardTestDispatcher(testScheduler)
-            val dispatchers = TestComposeLifeDispatchers(testDispatcher, testDispatcher)
+            val dispatchers = TestComposeLifeDispatchers(
+                generalTestDispatcher = GeneralTestDispatcher(testDispatcher),
+                cellTickerTestDispatcher = CellTickerTestDispatcher(testDispatcher),
+            )
             val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
             val composeLifePreferences = TestComposeLifePreferences(
                 touchToolConfig = ToolConfig.Pan,
@@ -281,7 +295,10 @@ class InlineEditPaneStateTests {
     fun initial_state_is_correct_when_clipboard_watching_disabled() = runComposeUiTest {
         runTest {
             val testDispatcher = StandardTestDispatcher(testScheduler)
-            val dispatchers = TestComposeLifeDispatchers(testDispatcher, testDispatcher)
+            val dispatchers = TestComposeLifeDispatchers(
+                generalTestDispatcher = GeneralTestDispatcher(testDispatcher),
+                cellTickerTestDispatcher = CellTickerTestDispatcher(testDispatcher),
+            )
             val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
             val composeLifePreferences = TestComposeLifePreferences(
                 touchToolConfig = ToolConfig.Pan,

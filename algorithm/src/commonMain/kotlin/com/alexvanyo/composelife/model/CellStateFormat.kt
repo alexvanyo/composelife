@@ -50,6 +50,8 @@ sealed interface CellStateFormat {
     companion object
 }
 
+expect val CellStateFormat.FixedFormat._name: String
+
 fun CellStateFormat.Companion.fromFileExtension(fileExtension: String?): CellStateFormat =
     when (fileExtension) {
         "cells" -> CellStateFormat.FixedFormat.Plaintext

@@ -18,7 +18,6 @@ package com.alexvanyo.composelife.ui.util
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.remember
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 
 /**
@@ -74,14 +73,4 @@ expect fun rememberClipboardWriter(): ClipboardWriter
  */
 context(ComposeLifeDispatchersProvider)
 @Composable
-fun rememberClipboardReaderWriter(): ClipboardReaderWriter {
-    val clipboardReader = rememberClipboardReader()
-    val clipboardWriter = rememberClipboardWriter()
-
-    return remember(clipboardReader, clipboardWriter) {
-        object :
-            ClipboardReaderWriter,
-            ClipboardReader by clipboardReader,
-            ClipboardWriter by clipboardWriter {}
-    }
-}
+expect fun rememberClipboardReaderWriter(): ClipboardReaderWriter

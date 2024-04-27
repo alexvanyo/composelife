@@ -38,4 +38,4 @@ interface TestComposeLifeApplicationEntryPoint :
     DatabaseModule,
     DispatchersModule
 
-expect fun TestComposeLifeApplicationComponent.Companion.create(): TestComposeLifeApplicationComponent
+expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent

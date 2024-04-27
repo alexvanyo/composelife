@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.ui.app.action.settings
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
+import com.livefront.sealedenum.SealedEnum
 
 /**
  * The list of settings supported by the app.
@@ -85,6 +86,12 @@ sealed interface Setting {
 
     @GenSealedEnum
     companion object {
-        val Saver = sealedEnumSaver(sealedEnum)
+        val Saver = sealedEnumSaver(_sealedEnum)
     }
 }
+
+expect val Setting.Companion._sealedEnum: SealedEnum<Setting>
+
+expect val Setting.Companion._values: List<Setting>
+
+expect val Setting._name: String

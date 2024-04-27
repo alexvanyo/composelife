@@ -54,6 +54,7 @@ import com.alexvanyo.composelife.ui.util.WindowInsets
 import com.alexvanyo.composelife.ui.util.isImeAnimating
 import com.alexvanyo.composelife.ui.util.isInProgress
 import com.livefront.sealedenum.GenSealedEnum
+import com.livefront.sealedenum.SealedEnum
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.max
@@ -165,7 +166,7 @@ fun CellUniverseActionCard(
         ),
     ) {
         Layout(
-            layoutIdTypes = CellUniverseActionCardLayoutTypes.sealedEnum,
+            layoutIdTypes = CellUniverseActionCardLayoutTypes._sealedEnum,
             content = {
                 Box(
                     modifier = Modifier
@@ -312,3 +313,6 @@ internal sealed interface CellUniverseActionCardLayoutTypes {
     @GenSealedEnum
     companion object
 }
+
+internal expect val CellUniverseActionCardLayoutTypes.Companion._sealedEnum:
+    SealedEnum<CellUniverseActionCardLayoutTypes>

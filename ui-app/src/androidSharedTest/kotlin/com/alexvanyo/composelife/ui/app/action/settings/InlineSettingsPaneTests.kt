@@ -40,7 +40,7 @@ import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.InjectTestActivity
 import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
-import com.alexvanyo.composelife.ui.app.create
+import com.alexvanyo.composelife.ui.app.createComponent
 import leakcanary.SkipLeakDetection
 import org.junit.runner.RunWith
 import kotlin.test.Test
@@ -49,7 +49,7 @@ import kotlin.test.assertIs
 
 @RunWith(KmpAndroidJUnit4::class)
 class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
-    { TestComposeLifeApplicationComponent.create() },
+    { TestComposeLifeApplicationComponent.createComponent() },
     InjectTestActivity::class.java,
 ) {
     private val composeLifePreferences get() = applicationComponent.composeLifePreferences

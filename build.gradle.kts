@@ -39,6 +39,7 @@ plugins {
     // See https://github.com/square/wire/issues/2818#issuecomment-1924641275 for more details
     alias(libs.plugins.wire) apply false
     alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.compose) apply false
 }
 
 buildscript {

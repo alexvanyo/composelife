@@ -23,6 +23,7 @@ import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackValueSaverFactory
 import com.alexvanyo.composelife.ui.util.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
+import com.livefront.sealedenum.SealedEnum
 
 /**
  * A sealed enum of the three different inline backstack types for the inline action card navigation.
@@ -34,9 +35,11 @@ sealed interface InlineActionCardBackstack {
 
     @GenSealedEnum
     companion object {
-        val Saver = sealedEnumSaver(sealedEnum)
+        val Saver = sealedEnumSaver(_sealedEnum)
     }
 }
+
+expect val InlineActionCardBackstack.Companion._sealedEnum: SealedEnum<InlineActionCardBackstack>
 
 /**
  * The entry value for the action card navigation.
@@ -139,6 +142,8 @@ sealed interface InlineActionCardNavigationType {
 
     @GenSealedEnum
     companion object {
-        val Saver = sealedEnumSaver(sealedEnum)
+        val Saver = sealedEnumSaver(_sealedEnum)
     }
 }
+
+expect val InlineActionCardNavigationType.Companion._sealedEnum: SealedEnum<InlineActionCardNavigationType>

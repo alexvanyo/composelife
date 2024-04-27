@@ -32,11 +32,11 @@ import kotlin.time.Duration.Companion.seconds
 
 @RunWith(KmpAndroidJUnit4::class)
 class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
-    { TestComposeLifeApplicationComponent.create() },
+    { TestComposeLifeApplicationComponent.createComponent() },
 ) {
     private val cellStateQueries get() = applicationComponent.cellStateQueries
 
-    private val testDispatcher get() = applicationComponent.generalTestDispatcher
+    private val testDispatcher get() = applicationComponent.generalTestDispatcher.value
 
     @Test
     fun get_cell_states_returns_empty_initially() = runAppTest(testDispatcher) {
