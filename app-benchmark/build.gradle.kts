@@ -30,12 +30,12 @@ androidComponents {
     val runBenchmarks = findProperty("com.alexvanyo.composelife.runBenchmarks") == "true"
 
     beforeVariants(selector().all()) { variant ->
-        // Enable the benchmark variant (with the baseline profile generation test) only if the build is specifically
+        // Enable the release variant (with the baseline profile benchmark) only if the build is specifically
         // generating it as specified by the above property.
         // Otherwise, enable the debug variant, which will be empty to ensure one variant always exists.
         variant.enable = when (variant.buildType) {
             "debug" -> !runBenchmarks
-            "benchmark" -> runBenchmarks
+            "staging" -> runBenchmarks
             else -> false
         }
     }

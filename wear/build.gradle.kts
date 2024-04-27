@@ -24,6 +24,7 @@ plugins {
     alias(libs.plugins.convention.androidApplicationKsp)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
+    alias(libs.plugins.androidx.baselineProfile)
 }
 
 android {
@@ -36,6 +37,13 @@ android {
         versionName = "1.0"
     }
     configureGradleManagedDevices(setOf(FormFactor.Wear), this)
+}
+
+baselineProfile {
+    automaticGenerationDuringBuild = false
+    saveInSrc = true
+    dexLayoutOptimization = true
+    mergeIntoMain = true
 }
 
 kotlin {
@@ -54,6 +62,7 @@ kotlin {
         }
         val androidMain by getting {
             configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
+            configurations["baselineProfile"].dependencies.add(projects.wearBaselineProfileGenerator)
             dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.appcompat)
