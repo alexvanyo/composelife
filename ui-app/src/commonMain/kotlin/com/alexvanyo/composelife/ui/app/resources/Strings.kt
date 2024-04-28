@@ -156,7 +156,13 @@ internal expect fun Strings.SelectingBoxHandle(x: Int, y: Int): ParameterizedStr
 
 internal expect val Strings.EmptyClipboard: ParameterizedString
 
+internal expect val Strings.Clipboard: ParameterizedString
+
+internal expect val Strings.Pinned: ParameterizedString
+
 internal expect val Strings.Pin: ParameterizedString
+
+internal expect val Strings.Unpin: ParameterizedString
 
 internal expect val Strings.Back: ParameterizedString
 
