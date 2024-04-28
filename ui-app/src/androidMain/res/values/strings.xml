@@ -85,7 +85,10 @@
     <string name="do_not_keep_process">Do not keep process</string>
     <string name="selecting_box_handle">Selection handle: %1$d, %2$d</string>
     <string name="empty_clipboard">Clipboard was empty</string>
+    <string name="clipboard">Clipboard</string>
+    <string name="pinned">Pinned</string>
     <string name="pin">Pin</string>
+    <string name="unpin">Unpin</string>
     <string name="clipboard_watching_onboarding">Allow watching the contents of the system clipboard to provide a preview of the cell state? This can be changed later in settings.</string>
     <string name="allow">Allow</string>
     <string name="disallow">Don\'t allow</string>

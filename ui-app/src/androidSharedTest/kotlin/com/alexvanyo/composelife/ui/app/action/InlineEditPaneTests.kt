@@ -98,6 +98,9 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                                 override val isLoading = true
 
                                 override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
+
+                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                    emptyList()
                             }
                     },
                 )
@@ -130,9 +133,11 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                                 format = CellStateFormat.FixedFormat.Plaintext,
                             )
 
+                            override val isPinned = false
+
                             override fun onPaste() = Unit
 
-                            override fun onPin() = Unit
+                            override fun onPinChanged() = Unit
                         },
                     )
                 }
@@ -156,6 +161,9 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                                 override val isLoading = false
 
                                 override val clipboardPreviewStates = clipboardPreviewStates
+
+                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                    emptyList()
                             }
                     },
                 )
@@ -198,11 +206,13 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                                 format = CellStateFormat.FixedFormat.Plaintext,
                             )
 
+                            override val isPinned = false
+
                             override fun onPaste() {
                                 onPasteClipboardClickedCount++
                             }
 
-                            override fun onPin() = Unit
+                            override fun onPinChanged() = Unit
                         },
                     )
                 }
@@ -226,6 +236,9 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                                 override val isLoading = false
 
                                 override val clipboardPreviewStates = clipboardPreviewStates
+
+                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                    emptyList()
                             }
                     },
                 )
@@ -261,10 +274,11 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                                 cellState = GliderPattern.seedCellState,
                                 format = CellStateFormat.FixedFormat.Plaintext,
                             )
+                            override val isPinned = false
 
                             override fun onPaste() = Unit
 
-                            override fun onPin() {
+                            override fun onPinChanged() {
                                 onPinClipboardClickedCount++
                             }
                         },
@@ -290,6 +304,9 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                                 override val isLoading = false
 
                                 override val clipboardPreviewStates = clipboardPreviewStates
+
+                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                    emptyList()
                             }
                     },
                 )
@@ -333,6 +350,9 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                                 override val isLoading = true
 
                                 override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
+
+                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                    emptyList()
                             }
                     },
                 )
@@ -375,6 +395,9 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                                 override val isLoading = true
 
                                 override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
+
+                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                    emptyList()
                             }
                     },
                 )
@@ -417,6 +440,9 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                                 override val isLoading = true
 
                                 override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
+
+                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                    emptyList()
                             }
                     },
                 )
@@ -459,6 +485,9 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                                 override val isLoading = true
 
                                 override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
+
+                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                    emptyList()
                             }
                     },
                 )
@@ -501,6 +530,9 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                                 override val isLoading = true
 
                                 override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
+
+                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                    emptyList()
                             }
                     },
                 )
@@ -547,6 +579,9 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                                 override val isLoading = true
 
                                 override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
+
+                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                    emptyList()
                             }
                     },
                 )
