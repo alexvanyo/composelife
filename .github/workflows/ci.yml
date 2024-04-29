@@ -147,16 +147,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Download code coverage from GitHub
         uses: actions/download-artifact@v4
         with:
           name: code-coverage
+          path: codecoverage
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
+          directory: codecoverage
 
   android-test-gmd-cfg:
     needs: validate-wrapper
