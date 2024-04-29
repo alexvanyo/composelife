@@ -68,6 +68,7 @@ fun ClipboardWatchingSectionEnabledLoadingPreview(modifier: Modifier = Modifier)
                     clipboardWatchingState = object : ClipboardWatchingState.ClipboardWatchingEnabled {
                         override val isLoading = true
                         override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
+                        override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> = emptyList()
                     },
                 )
             }
@@ -92,11 +93,13 @@ fun ClipboardWatchingSectionEnabledUnsuccessfulPreview(modifier: Modifier = Modi
                                         warnings = emptyList(),
                                         errors = emptyList(),
                                     )
+                                override val isPinned: Boolean = false
 
                                 override fun onPaste() = Unit
-                                override fun onPin() = Unit
+                                override fun onPinChanged() = Unit
                             },
                         )
+                        override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> = emptyList()
                     },
                 )
             }
@@ -122,11 +125,13 @@ fun ClipboardWatchingSectionEnabledSuccessfulPreview(modifier: Modifier = Modifi
                                         warnings = emptyList(),
                                         format = CellStateFormat.FixedFormat.RunLengthEncoding,
                                     )
+                                override val isPinned: Boolean = false
 
                                 override fun onPaste() = Unit
-                                override fun onPin() = Unit
+                                override fun onPinChanged() = Unit
                             },
                         )
+                        override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> = emptyList()
                     },
                 )
             }

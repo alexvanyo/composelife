@@ -38,6 +38,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
@@ -63,6 +64,7 @@ import com.alexvanyo.composelife.ui.app.resources.DeserializationFailed
 import com.alexvanyo.composelife.ui.app.resources.Paste
 import com.alexvanyo.composelife.ui.app.resources.Pin
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.app.resources.Unpin
 import com.alexvanyo.composelife.ui.app.resources.Warnings
 import java.util.UUID
 
@@ -80,8 +82,9 @@ context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLoca
 @Composable
 fun ClipboardCellStatePreview(
     deserializationResult: DeserializationResult,
+    isPinned: Boolean,
     onPaste: () -> Unit,
-    onPin: () -> Unit,
+    onPinChanged: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
@@ -106,8 +109,9 @@ fun ClipboardCellStatePreview(
                     is DeserializationResult.Successful -> {
                         LoadedCellStatePreview(
                             deserializationResult = targetState,
+                            isPinned = isPinned,
                             onPaste = onPaste,
-                            onPin = onPin,
+                            onPinChanged = onPinChanged,
                         )
                     }
                     is DeserializationResult.Unsuccessful -> {
@@ -134,8 +138,9 @@ context(CellWindowLocalEntryPoint)
 @Composable
 fun LoadedCellStatePreview(
     deserializationResult: DeserializationResult.Successful,
+    isPinned: Boolean,
     onPaste: () -> Unit,
-    onPin: () -> Unit,
+    onPinChanged: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val gameOfLifeState = GameOfLifeState(deserializationResult.cellState)
@@ -178,17 +183,18 @@ fun LoadedCellStatePreview(
                 positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                 tooltip = {
                     PlainTooltip {
-                        Text(parameterizedStringResource(Strings.Pin))
+                        Text(parameterizedStringResource(if (isPinned) Strings.Unpin else Strings.Pin))
                     }
                 },
                 state = rememberTooltipState(),
             ) {
-                IconButton(
-                    onClick = onPin,
+                IconToggleButton(
+                    checked = isPinned,
+                    onCheckedChange = { onPinChanged() },
                 ) {
                     Icon(
-                        imageVector = Icons.Default.PushPin,
-                        contentDescription = parameterizedStringResource(Strings.Pin),
+                        imageVector = if (isPinned) Icons.Filled.PushPin else Icons.Default.PushPin,
+                        contentDescription = parameterizedStringResource(if (isPinned) Strings.Unpin else Strings.Pin),
                     )
                 }
             }
