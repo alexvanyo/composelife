@@ -18,17 +18,15 @@ package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -41,15 +39,10 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.app.resources.Allow
@@ -58,11 +51,7 @@ import com.alexvanyo.composelife.ui.app.resources.ClipboardWatchingOnboarding
 import com.alexvanyo.composelife.ui.app.resources.Disallow
 import com.alexvanyo.composelife.ui.app.resources.Pinned
 import com.alexvanyo.composelife.ui.app.resources.Strings
-import com.alexvanyo.composelife.ui.util.DeferredTargetAnimation
-import com.alexvanyo.composelife.ui.util.animatePlacement
-import com.alexvanyo.composelife.ui.util.approachLayout
-import com.alexvanyo.composelife.ui.util.lookaheadSize
-import kotlin.math.floor
+import com.alexvanyo.composelife.ui.util.SharedTransitionLayout
 
 context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
 @Composable
@@ -102,118 +91,142 @@ fun ClipboardWatchingEnabled(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
-        AnimatedVisibility(clipboardWatchingState.isLoading) {
-            LinearProgressIndicator(Modifier.fillMaxWidth())
-        }
-
         Text(
             text = parameterizedStringResource(Strings.Clipboard),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.fillMaxWidth().padding(16.dp),
         )
 
-        FlowRow(
-            modifier = Modifier.padding(horizontal = 16.dp),
-        ) {
-            clipboardWatchingState.clipboardPreviewStates.forEachIndexed { index, clipboardPreviewState ->
-                key(clipboardPreviewState.id) {
-                    val sizeAnimation = remember { DeferredTargetAnimation(IntSize.VectorConverter) }
-                    val coroutineScope = rememberCoroutineScope()
-
-                    ClipboardCellStatePreview(
-                        deserializationResult = clipboardPreviewState.deserializationResult,
-                        isPinned = clipboardPreviewState.isPinned,
-                        onPaste = clipboardPreviewState::onPaste,
-                        onPinChanged = clipboardPreviewState::onPinChanged,
-                        modifier = Modifier
-                            .animatePlacement()
-                            .layout { measurable, constraints ->
-                                val maxWidth = floor(constraints.maxWidth * if (index == 0) 1f else 0.5f).toInt()
-
-                                val placeable = measurable.measure(
-                                    constraints.copy(
-                                        maxWidth = maxWidth,
-                                    ),
-                                )
-
-                                layout(placeable.width, placeable.height) {
-                                    placeable.placeRelative(0, 0)
-                                }
-                            }
-                            .approachLayout(
-                                isMeasurementApproachInProgress = { lookaheadSize ->
-                                    sizeAnimation.updateTarget(lookaheadSize, coroutineScope)
-                                    !sizeAnimation.isIdle
-                                },
-                            ) { measurable, _ ->
-                                val (width, height) = sizeAnimation.updateTarget(lookaheadSize, coroutineScope)
-                                // Creates a fixed set of constraints using the animated size
-                                val animatedConstraints = Constraints.fixed(width, height)
-                                // Measure child with animated constraints.
-                                val placeable = measurable.measure(animatedConstraints)
-                                layout(lookaheadSize.width, lookaheadSize.height) {
-                                    placeable.placeRelative(0, 0)
-                                }
-                            }
-                            .padding(8.dp),
-                    )
-                }
-            }
+        AnimatedVisibility(clipboardWatchingState.isLoading) {
+            LinearProgressIndicator(Modifier.fillMaxWidth())
         }
+
+        ClipboardPreviewHistory(clipboardWatchingState.clipboardPreviewStates)
 
         HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(16.dp))
 
+        AnimatedVisibility(clipboardWatchingState.pinnedClipboardPreviewStates.isNotEmpty()) {
+            Text(
+                text = parameterizedStringResource(Strings.Pinned),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+            )
+        }
+
+        PinnedClipboardPreviews(clipboardWatchingState.pinnedClipboardPreviewStates)
+
+        AnimatedVisibility(clipboardWatchingState.pinnedClipboardPreviewStates.isNotEmpty()) {
+            HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(16.dp))
+        }
+    }
+}
+
+context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
+@Composable
+private fun PinnedClipboardPreviews(
+    pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState>,
+    modifier: Modifier = Modifier,
+) {
+    SharedTransitionLayout(modifier = modifier) {
         AnimatedContent(
-            targetState = clipboardWatchingState.pinnedClipboardPreviewStates,
+            pinnedClipboardPreviewStates,
             transitionSpec = {
-                (fadeIn() + expandVertically()).togetherWith(fadeOut() + shrinkVertically())
+                fadeIn().togetherWith(fadeOut())
             },
-            contentAlignment = Alignment.BottomCenter,
-            contentKey = { it.isEmpty() },
+            contentKey = { it.map(PinnedClipboardPreviewState::id) },
         ) { targetState ->
-            if (targetState.isEmpty()) {
-                Spacer(Modifier.fillMaxWidth())
-            } else {
-                Column {
-                    Text(
-                        text = parameterizedStringResource(Strings.Pinned),
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    )
+            val chunks: List<List<PinnedClipboardPreviewState?>> =
+                targetState
+                    .chunked(2) { partialChunk ->
+                        List(2) { partialChunk.getOrNull(it) }
+                    }
 
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                        maxItemsInEachRow = 2,
-                    ) {
-                        targetState.forEach { pinnedClipboardPreviewState ->
-                            key(pinnedClipboardPreviewState.id) {
-                                ClipboardCellStatePreview(
-                                    deserializationResult = pinnedClipboardPreviewState.deserializationResult,
-                                    isPinned = true,
-                                    onPaste = pinnedClipboardPreviewState::onPaste,
-                                    onPinChanged = pinnedClipboardPreviewState::onUnpin,
-                                    modifier = Modifier
-                                        .animatePlacement()
-                                        .layout { measurable, constraints ->
-                                            val maxWidth = floor(constraints.maxWidth * 0.5f).toInt()
-
-                                            val placeable = measurable.measure(
-                                                constraints.copy(
-                                                    maxWidth = maxWidth,
+            Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                chunks.forEach { chunk ->
+                    Row {
+                        chunk.forEach { pinnedClipboardPreviewState ->
+                            if (pinnedClipboardPreviewState == null) {
+                                Spacer(Modifier.weight(1f))
+                            } else {
+                                key(pinnedClipboardPreviewState.id) {
+                                    ClipboardCellStatePreview(
+                                        deserializationResult = pinnedClipboardPreviewState.deserializationResult,
+                                        isPinned = true,
+                                        onPaste = pinnedClipboardPreviewState::onPaste,
+                                        onPinChanged = pinnedClipboardPreviewState::onUnpin,
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(8.dp)
+                                            .sharedElement(
+                                                rememberSharedContentState(
+                                                    pinnedClipboardPreviewState.id,
                                                 ),
-                                            )
-
-                                            layout(placeable.width, placeable.height) {
-                                                placeable.placeRelative(0, 0)
-                                            }
-                                        }
-                                        .padding(8.dp),
-                                )
+                                                this@AnimatedContent,
+                                            ),
+                                    )
+                                }
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+}
 
-                    HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(16.dp))
+context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
+@Composable
+private fun ClipboardPreviewHistory(
+    clipboardPreviewStates: List<ClipboardPreviewState>,
+    modifier: Modifier = Modifier,
+) {
+    SharedTransitionLayout(modifier = modifier) {
+        AnimatedContent(
+            clipboardPreviewStates,
+            transitionSpec = {
+                fadeIn().togetherWith(fadeOut())
+            },
+            contentKey = { it.map(ClipboardPreviewState::id) },
+        ) { targetState ->
+            key(targetState.map(ClipboardPreviewState::id)) {
+                val chunks: List<List<ClipboardPreviewState?>> =
+                    listOf(listOf(targetState.firstOrNull())) + targetState
+                        .drop(1)
+                        .chunked(2) { partialChunk ->
+                            List(2) { partialChunk.getOrNull(it) }
+                        }
+
+                Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                    chunks.forEach { chunk ->
+                        Row {
+                            chunk.forEach { clipboardPreviewState ->
+                                if (clipboardPreviewState == null) {
+                                    Spacer(
+                                        Modifier
+                                            .weight(1f)
+                                            .padding(8.dp)
+                                            .height(160.dp),
+                                    )
+                                } else {
+                                    key(clipboardPreviewState.id) {
+                                        ClipboardCellStatePreview(
+                                            deserializationResult = clipboardPreviewState.deserializationResult,
+                                            isPinned = clipboardPreviewState.isPinned,
+                                            onPaste = clipboardPreviewState::onPaste,
+                                            onPinChanged = clipboardPreviewState::onPinChanged,
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .padding(8.dp)
+                                                .sharedElement(
+                                                    rememberSharedContentState(clipboardPreviewState.id),
+                                                    this@AnimatedContent,
+                                                ),
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
