@@ -41,6 +41,7 @@ import androidx.compose.ui.test.then
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.test.platform.graphics.HardwareRendererCompat
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.github.takahirom.roborazzi.captureRoboImage
 import org.junit.Rule
@@ -50,6 +51,9 @@ import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
+import kotlin.properties.Delegates
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(ParameterizedRobolectricTestRunner::class)
@@ -60,12 +64,26 @@ abstract class BaseRoborazziTest(
 ) {
     lateinit var description: Description
 
+    private var wasDrawingEnabled by Delegates.notNull<Boolean>()
+
     @get:Rule
     val watcher = object : TestWatcher() {
         override fun starting(description: Description) {
             super.starting(description)
             this@BaseRoborazziTest.description = description
         }
+    }
+
+    @BeforeTest
+    fun setup() {
+        System.setProperty("robolectric.screenshot.hwrdr.native", "true")
+        wasDrawingEnabled = HardwareRendererCompat.isDrawingEnabled()
+        HardwareRendererCompat.setDrawingEnabled(true)
+    }
+
+    @AfterTest
+    fun teardown() {
+        HardwareRendererCompat.setDrawingEnabled(wasDrawingEnabled)
     }
 
     fun snapshot(composable: @Composable () -> Unit) = runComposeUiTest {
