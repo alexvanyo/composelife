@@ -62,7 +62,7 @@ import com.alexvanyo.composelife.ui.app.component.listDetailNavigationTransform
 import com.alexvanyo.composelife.ui.util.MaterialPredictiveNavigationFrame
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.ReportDrawn
-import com.alexvanyo.composelife.ui.util.SharedTransitionScope
+import com.alexvanyo.composelife.ui.util.SharedTransitionLayout
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 
@@ -126,7 +126,7 @@ fun ComposeLifeApp(
                         )
 
                         with(localEntryPoint) {
-                            SharedTransitionScope {
+                            SharedTransitionLayout {
                                 val renderableNavigationState = associateWithRenderablePanes(
                                     targetComposeLifeAppState.navigationState,
                                 ) { entry ->
