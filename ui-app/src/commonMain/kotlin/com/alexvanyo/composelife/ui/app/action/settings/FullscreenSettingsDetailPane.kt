@@ -64,7 +64,7 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
 import com.alexvanyo.composelife.ui.app.resources.Back
 import com.alexvanyo.composelife.ui.app.resources.Strings
-import com.alexvanyo.composelife.ui.util.LocalGhostElement
+import com.alexvanyo.composelife.ui.util.LocalNavigationAnimatedContentScope
 import com.alexvanyo.composelife.ui.util.SharedTransitionScope
 import kotlin.math.roundToInt
 
@@ -189,11 +189,19 @@ private fun SettingsCategoryDetail(
                         .onPlaced {
                             layoutCoordinates = it
                         }
-                        .sharedElementWithCallerManagedVisibility(
-                            sharedContentState = rememberSharedContentState(
-                                "SettingUi-$setting",
-                            ),
-                            visible = !LocalGhostElement.current,
+                        .then(
+                            LocalNavigationAnimatedContentScope.current.let {
+                                if (it == null) {
+                                    Modifier
+                                } else {
+                                    Modifier.sharedElement(
+                                        sharedContentState = rememberSharedContentState(
+                                            "SettingUi-$setting",
+                                        ),
+                                        animatedVisibilityScope = it,
+                                    )
+                                }
+                            },
                         ),
                 )
 

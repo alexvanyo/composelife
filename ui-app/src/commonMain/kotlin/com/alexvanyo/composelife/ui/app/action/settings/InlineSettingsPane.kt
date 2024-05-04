@@ -49,7 +49,7 @@ import com.alexvanyo.composelife.preferences.ordinal
 import com.alexvanyo.composelife.ui.app.resources.QuickSettingsInfo
 import com.alexvanyo.composelife.ui.app.resources.SeeAll
 import com.alexvanyo.composelife.ui.app.resources.Strings
-import com.alexvanyo.composelife.ui.util.LocalGhostElement
+import com.alexvanyo.composelife.ui.util.LocalNavigationAnimatedContentScope
 import com.alexvanyo.composelife.ui.util.SharedTransitionScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
@@ -136,11 +136,19 @@ fun InlineSettingsPane(
                                     onOpenInSettingsClicked = onOpenInSettingsClicked,
                                     modifier = Modifier
                                         .padding(horizontal = 16.dp)
-                                        .sharedElementWithCallerManagedVisibility(
-                                            sharedContentState = rememberSharedContentState(
-                                                "SettingUi-${quickAccessSetting.setting}",
-                                            ),
-                                            visible = !LocalGhostElement.current,
+                                        .then(
+                                            LocalNavigationAnimatedContentScope.current.let {
+                                                if (it == null) {
+                                                    Modifier
+                                                } else {
+                                                    Modifier.sharedElement(
+                                                        sharedContentState = rememberSharedContentState(
+                                                            "SettingUi-${quickAccessSetting.setting}",
+                                                        ),
+                                                        animatedVisibilityScope = it,
+                                                    )
+                                                }
+                                            },
                                         ),
                                 )
                             }

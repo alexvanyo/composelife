@@ -41,6 +41,7 @@ import com.alexvanyo.composelife.test.InjectTestActivity
 import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.createComponent
+import com.alexvanyo.composelife.ui.util.SharedTransitionLayout
 import leakcanary.SkipLeakDetection
 import org.junit.runner.RunWith
 import kotlin.test.Test
@@ -77,12 +78,14 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
                             ).value
                     },
                 ) {
-                    InlineSettingsPane(
-                        onSeeMoreClicked = {
-                            onSeeMoreClickedCount++
-                        },
-                        onOpenInSettingsClicked = {},
-                    )
+                    SharedTransitionLayout {
+                        InlineSettingsPane(
+                            onSeeMoreClicked = {
+                                onSeeMoreClickedCount++
+                            },
+                            onOpenInSettingsClicked = {},
+                        )
+                    }
                 }
             }
         }
@@ -119,10 +122,12 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
                             ).value
                     },
                 ) {
-                    InlineSettingsPane(
-                        onSeeMoreClicked = {},
-                        onOpenInSettingsClicked = {},
-                    )
+                    SharedTransitionLayout {
+                        InlineSettingsPane(
+                            onSeeMoreClicked = {},
+                            onOpenInSettingsClicked = {},
+                        )
+                    }
                 }
             }
         }
@@ -174,13 +179,15 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
                             ).value
                     },
                 ) {
-                    InlineSettingsPane(
-                        onSeeMoreClicked = {},
-                        onOpenInSettingsClicked = {
-                            onOpenInSettingsClickedCount++
-                            onOpenInSettingsClickedSetting = it
-                        },
-                    )
+                    SharedTransitionLayout {
+                        InlineSettingsPane(
+                            onSeeMoreClicked = {},
+                            onOpenInSettingsClicked = {
+                                onOpenInSettingsClickedCount++
+                                onOpenInSettingsClickedSetting = it
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -214,10 +221,12 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
                             ).value
                     },
                 ) {
-                    InlineSettingsPane(
-                        onSeeMoreClicked = {},
-                        onOpenInSettingsClicked = {},
-                    )
+                    SharedTransitionLayout {
+                        InlineSettingsPane(
+                            onSeeMoreClicked = {},
+                            onOpenInSettingsClicked = {},
+                        )
+                    }
                 }
             }
         }

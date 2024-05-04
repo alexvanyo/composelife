@@ -54,6 +54,7 @@ import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
 import com.alexvanyo.composelife.ui.app.R
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.createComponent
+import com.alexvanyo.composelife.ui.util.SharedTransitionLayout
 import leakcanary.SkipLeakDetection
 import org.junit.Ignore
 import org.junit.runner.RunWith
@@ -107,14 +108,16 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
 
                     with(fullscreenSettingsDetailPaneInjectEntryPoint) {
                         with(fullscreenSettingsDetailPaneLocalEntryPoint) {
-                            FullscreenSettingsPane(
-                                listUiNavValue = listUiNavValue,
-                                detailsUiNavValue = detailsUiNavValue,
-                                onBackButtonPressed = {
-                                    onBackButtonPressedCount++
-                                },
-                                setSettingsCategory = {},
-                            )
+                            SharedTransitionLayout {
+                                FullscreenSettingsPane(
+                                    listUiNavValue = listUiNavValue,
+                                    detailsUiNavValue = detailsUiNavValue,
+                                    onBackButtonPressed = {
+                                        onBackButtonPressedCount++
+                                    },
+                                    setSettingsCategory = {},
+                                )
+                            }
                         }
                     }
                 }
@@ -186,14 +189,16 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
 
                     with(fullscreenSettingsDetailPaneInjectEntryPoint) {
                         with(fullscreenSettingsDetailPaneLocalEntryPoint) {
-                            FullscreenSettingsPane(
-                                listUiNavValue = listUiNavValue,
-                                detailsUiNavValue = detailsUiNavValue,
-                                onBackButtonPressed = {
-                                    onBackButtonPressedCount++
-                                },
-                                setSettingsCategory = {},
-                            )
+                            SharedTransitionLayout {
+                                FullscreenSettingsPane(
+                                    listUiNavValue = listUiNavValue,
+                                    detailsUiNavValue = detailsUiNavValue,
+                                    onBackButtonPressed = {
+                                        onBackButtonPressedCount++
+                                    },
+                                    setSettingsCategory = {},
+                                )
+                            }
                         }
                     }
                 }
@@ -269,14 +274,16 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
 
                     with(fullscreenSettingsDetailPaneInjectEntryPoint) {
                         with(fullscreenSettingsDetailPaneLocalEntryPoint) {
-                            FullscreenSettingsPane(
-                                listUiNavValue = listUiNavValue,
-                                detailsUiNavValue = detailsUiNavValue,
-                                onBackButtonPressed = {
-                                    onBackButtonPressedCount++
-                                },
-                                setSettingsCategory = {},
-                            )
+                            SharedTransitionLayout {
+                                FullscreenSettingsPane(
+                                    listUiNavValue = listUiNavValue,
+                                    detailsUiNavValue = detailsUiNavValue,
+                                    onBackButtonPressed = {
+                                        onBackButtonPressedCount++
+                                    },
+                                    setSettingsCategory = {},
+                                )
+                            }
                         }
                     }
                 }
@@ -335,14 +342,16 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
 
                     with(fullscreenSettingsDetailPaneInjectEntryPoint) {
                         with(fullscreenSettingsDetailPaneLocalEntryPoint) {
-                            FullscreenSettingsPane(
-                                listUiNavValue = listUiNavValue,
-                                detailsUiNavValue = detailsUiNavValue,
-                                onBackButtonPressed = {
-                                    onBackButtonPressedCount++
-                                },
-                                setSettingsCategory = {},
-                            )
+                            SharedTransitionLayout {
+                                FullscreenSettingsPane(
+                                    listUiNavValue = listUiNavValue,
+                                    detailsUiNavValue = detailsUiNavValue,
+                                    onBackButtonPressed = {
+                                        onBackButtonPressedCount++
+                                    },
+                                    setSettingsCategory = {},
+                                )
+                            }
                         }
                     }
                 }
@@ -413,15 +422,17 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
 
                     with(fullscreenSettingsDetailPaneInjectEntryPoint) {
                         with(fullscreenSettingsDetailPaneLocalEntryPoint) {
-                            FullscreenSettingsPane(
-                                listUiNavValue = listUiNavValue,
-                                detailsUiNavValue = detailsUiNavValue,
-                                onBackButtonPressed = {},
-                                setSettingsCategory = {
-                                    listNavValue.settingsCategory = it
-                                    isDetailPresent = true
-                                },
-                            )
+                            SharedTransitionLayout {
+                                FullscreenSettingsPane(
+                                    listUiNavValue = listUiNavValue,
+                                    detailsUiNavValue = detailsUiNavValue,
+                                    onBackButtonPressed = {},
+                                    setSettingsCategory = {
+                                        listNavValue.settingsCategory = it
+                                        isDetailPresent = true
+                                    },
+                                )
+                            }
                         }
                     }
                 }
@@ -479,15 +490,17 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
 
                     with(fullscreenSettingsDetailPaneInjectEntryPoint) {
                         with(fullscreenSettingsDetailPaneLocalEntryPoint) {
-                            FullscreenSettingsPane(
-                                listUiNavValue = listUiNavValue,
-                                detailsUiNavValue = detailsUiNavValue,
-                                onBackButtonPressed = {},
-                                setSettingsCategory = {
-                                    listNavValue.settingsCategory = it
-                                    isDetailPresent = true
-                                },
-                            )
+                            SharedTransitionLayout {
+                                FullscreenSettingsPane(
+                                    listUiNavValue = listUiNavValue,
+                                    detailsUiNavValue = detailsUiNavValue,
+                                    onBackButtonPressed = {},
+                                    setSettingsCategory = {
+                                        listNavValue.settingsCategory = it
+                                        isDetailPresent = true
+                                    },
+                                )
+                            }
                         }
                     }
                 }
@@ -555,12 +568,14 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
 
                     with(fullscreenSettingsDetailPaneInjectEntryPoint) {
                         with(fullscreenSettingsDetailPaneLocalEntryPoint) {
-                            FullscreenSettingsPane(
-                                listUiNavValue = listUiNavValue,
-                                detailsUiNavValue = detailsUiNavValue,
-                                onBackButtonPressed = {},
-                                setSettingsCategory = {},
-                            )
+                            SharedTransitionLayout {
+                                FullscreenSettingsPane(
+                                    listUiNavValue = listUiNavValue,
+                                    detailsUiNavValue = detailsUiNavValue,
+                                    onBackButtonPressed = {},
+                                    setSettingsCategory = {},
+                                )
+                            }
                         }
                     }
                 }
@@ -616,12 +631,14 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
 
                     with(fullscreenSettingsDetailPaneInjectEntryPoint) {
                         with(fullscreenSettingsDetailPaneLocalEntryPoint) {
-                            FullscreenSettingsPane(
-                                listUiNavValue = listUiNavValue,
-                                detailsUiNavValue = detailsUiNavValue,
-                                onBackButtonPressed = {},
-                                setSettingsCategory = {},
-                            )
+                            SharedTransitionLayout {
+                                FullscreenSettingsPane(
+                                    listUiNavValue = listUiNavValue,
+                                    detailsUiNavValue = detailsUiNavValue,
+                                    onBackButtonPressed = {},
+                                    setSettingsCategory = {},
+                                )
+                            }
                         }
                     }
                 }
@@ -685,15 +702,17 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
 
                     with(fullscreenSettingsDetailPaneInjectEntryPoint) {
                         with(fullscreenSettingsDetailPaneLocalEntryPoint) {
-                            FullscreenSettingsPane(
-                                listUiNavValue = listUiNavValue,
-                                detailsUiNavValue = detailsUiNavValue,
-                                onBackButtonPressed = {},
-                                setSettingsCategory = {
-                                    listNavValue.settingsCategory = it
-                                    isDetailPresent = true
-                                },
-                            )
+                            SharedTransitionLayout {
+                                FullscreenSettingsPane(
+                                    listUiNavValue = listUiNavValue,
+                                    detailsUiNavValue = detailsUiNavValue,
+                                    onBackButtonPressed = {},
+                                    setSettingsCategory = {
+                                        listNavValue.settingsCategory = it
+                                        isDetailPresent = true
+                                    },
+                                )
+                            }
                         }
                     }
                 }
@@ -748,15 +767,17 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
 
                     with(fullscreenSettingsDetailPaneInjectEntryPoint) {
                         with(fullscreenSettingsDetailPaneLocalEntryPoint) {
-                            FullscreenSettingsPane(
-                                listUiNavValue = listUiNavValue,
-                                detailsUiNavValue = detailsUiNavValue,
-                                onBackButtonPressed = {},
-                                setSettingsCategory = {
-                                    listNavValue.settingsCategory = it
-                                    isDetailPresent = true
-                                },
-                            )
+                            SharedTransitionLayout {
+                                FullscreenSettingsPane(
+                                    listUiNavValue = listUiNavValue,
+                                    detailsUiNavValue = detailsUiNavValue,
+                                    onBackButtonPressed = {},
+                                    setSettingsCategory = {
+                                        listNavValue.settingsCategory = it
+                                        isDetailPresent = true
+                                    },
+                                )
+                            }
                         }
                     }
                 }
