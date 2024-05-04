@@ -62,6 +62,7 @@ import com.alexvanyo.composelife.ui.app.component.listDetailNavigationTransform
 import com.alexvanyo.composelife.ui.util.MaterialPredictiveNavigationFrame
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.ReportDrawn
+import com.alexvanyo.composelife.ui.util.SharedTransitionScope
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 
@@ -125,48 +126,52 @@ fun ComposeLifeApp(
                         )
 
                         with(localEntryPoint) {
-                            val renderableNavigationState = associateWithRenderablePanes(
-                                targetComposeLifeAppState.navigationState,
-                            ) { entry ->
-                                when (val value = entry.value) {
-                                    is ComposeLifeUiNavigation.CellUniverse -> {
-                                        Surface {
-                                            CellUniversePane(
-                                                windowSizeClass = windowSizeClass,
-                                                immersiveModeManager = immersiveModeManager,
-                                                onSeeMoreSettingsClicked =
-                                                targetComposeLifeAppState::onSeeMoreSettingsClicked,
-                                                onOpenInSettingsClicked =
-                                                targetComposeLifeAppState::onOpenInSettingsClicked,
+                            SharedTransitionScope {
+                                val renderableNavigationState = associateWithRenderablePanes(
+                                    targetComposeLifeAppState.navigationState,
+                                ) { entry ->
+                                    when (val value = entry.value) {
+                                        is ComposeLifeUiNavigation.CellUniverse -> {
+                                            Surface {
+                                                CellUniversePane(
+                                                    windowSizeClass = windowSizeClass,
+                                                    immersiveModeManager = immersiveModeManager,
+                                                    onSeeMoreSettingsClicked =
+                                                    targetComposeLifeAppState::onSeeMoreSettingsClicked,
+                                                    onOpenInSettingsClicked =
+                                                    targetComposeLifeAppState::onOpenInSettingsClicked,
+                                                )
+                                            }
+                                        }
+
+                                        is ComposeLifeUiNavigation.FullscreenSettingsList -> {
+                                            FullscreenSettingsListPane(
+                                                navEntryValue = value,
+                                                setSettingsCategory =
+                                                targetComposeLifeAppState::onSettingsCategoryClicked,
+                                                onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
+                                            )
+                                        }
+
+                                        is ComposeLifeUiNavigation.FullscreenSettingsDetail -> {
+                                            FullscreenSettingsDetailPane(
+                                                navEntryValue = value,
+                                                onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
                                             )
                                         }
                                     }
-                                    is ComposeLifeUiNavigation.FullscreenSettingsList -> {
-                                        FullscreenSettingsListPane(
-                                            navEntryValue = value,
-                                            setSettingsCategory =
-                                            targetComposeLifeAppState::onSettingsCategoryClicked,
-                                            onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
-                                        )
-                                    }
-                                    is ComposeLifeUiNavigation.FullscreenSettingsDetail -> {
-                                        FullscreenSettingsDetailPane(
-                                            navEntryValue = value,
-                                            onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
-                                        )
-                                    }
                                 }
-                            }
 
-                            MaterialPredictiveNavigationFrame(
-                                renderableNavigationState = listDetailNavigationTransform<ComposeLifeUiNavigation>(
-                                    onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
-                                ).invoke(
-                                    segmentingNavigationTransform<ComposeLifeUiNavigation>()
-                                        .invoke(renderableNavigationState),
-                                ),
-                                predictiveBackStateHolder.value,
-                            )
+                                MaterialPredictiveNavigationFrame(
+                                    renderableNavigationState = listDetailNavigationTransform<ComposeLifeUiNavigation>(
+                                        onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
+                                    ).invoke(
+                                        segmentingNavigationTransform<ComposeLifeUiNavigation>()
+                                            .invoke(renderableNavigationState),
+                                    ),
+                                    predictiveBackStateHolder.value,
+                                )
+                            }
                         }
                     }
                 }

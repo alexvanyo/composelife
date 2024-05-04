@@ -73,6 +73,7 @@ import com.alexvanyo.composelife.ui.util.ImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.LocalGhostElement
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackState
+import com.alexvanyo.composelife.ui.util.SharedTransitionScope
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.rememberClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
@@ -93,7 +94,7 @@ interface InteractiveCellUniverseLocalEntryPoint :
  * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
  * evolves.
  */
-context(InteractiveCellUniverseInjectEntryPoint, InteractiveCellUniverseLocalEntryPoint)
+context(SharedTransitionScope, InteractiveCellUniverseInjectEntryPoint, InteractiveCellUniverseLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun InteractiveCellUniverse(
