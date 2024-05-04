@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -41,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.action.settings.SettingUi
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
+import com.alexvanyo.composelife.ui.util.SharedTransitionLayout
 import com.alexvanyo.composelife.ui.util.TargetState
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalLayoutApi::class)
@@ -262,4 +264,177 @@ internal fun CustomAnimatedContentSettingUiSharedElementWithCallerManagedVisibil
             }
         }
     }
+}
+
+@Suppress("LongMethod")
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Preview
+@Composable
+internal fun CMYSharedElement() {
+    var count by remember { mutableStateOf(0) }
+    val state = Colors.entries[count.mod(Colors.entries.size)]
+
+    androidx.compose.animation.SharedTransitionLayout(
+        modifier = Modifier.clickable {
+            count++
+        },
+    ) {
+        com.alexvanyo.composelife.ui.util.AnimatedContent(TargetState.Single(state)) { targetState ->
+            when (targetState) {
+                Colors.Cyan -> {
+                    Column {
+                        Box(
+                            modifier = Modifier
+                                .sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(key = "green"),
+                                    targetState == state,
+                                )
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .background(Color.Green),
+                        )
+                        Box(
+                            modifier = Modifier
+                                .sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(key = "blue"),
+                                    targetState == state,
+                                )
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .background(Color.Blue),
+                        )
+                    }
+                }
+                Colors.Magenta -> {
+                    Column {
+                        Box(
+                            modifier = Modifier
+                                .sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(key = "blue"),
+                                    targetState == state,
+                                )
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .background(Color.Blue),
+                        )
+                        Box(
+                            modifier = Modifier
+                                .sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(key = "red"),
+                                    targetState == state,
+                                )
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .background(Color.Red),
+                        )
+                    }
+                }
+                Colors.Yellow -> {
+                    Column {
+                        Box(
+                            modifier = Modifier
+                                .sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(key = "red"),
+                                    targetState == state,
+                                )
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .background(Color.Red),
+                        )
+                        Box(
+                            modifier = Modifier
+                                .sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(key = "green"),
+                                    targetState == state,
+                                )
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .background(Color.Green),
+                        )
+                    }
+                }
+
+                Colors.Red -> {
+                    Column {
+                        Box(
+                            modifier = Modifier
+                                .sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(key = "red"),
+                                    targetState == state,
+                                )
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .background(Color.Red),
+                        )
+                    }
+                }
+                Colors.Green -> {
+                    Column {
+                        Box(
+                            modifier = Modifier
+                                .sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(key = "green"),
+                                    targetState == state,
+                                )
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .background(Color.Green),
+                        )
+                    }
+                }
+                Colors.Blue -> {
+                    Column {
+                        Box(
+                            modifier = Modifier
+                                .sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(key = "blue"),
+                                    targetState == state,
+                                )
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .background(Color.Blue),
+                        )
+                    }
+                }
+                Colors.White -> {
+                    Column {
+                        Box(
+                            modifier = Modifier
+                                .sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(key = "red"),
+                                    targetState == state,
+                                )
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .background(Color.Red),
+                        )
+                        Box(
+                            modifier = Modifier
+                                .sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(key = "green"),
+                                    targetState == state,
+                                )
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .background(Color.Green),
+                        )
+                        Box(
+                            modifier = Modifier
+                                .sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(key = "blue"),
+                                    targetState == state,
+                                )
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .background(Color.Blue),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+enum class Colors {
+    Cyan, Magenta, Yellow, Red, Green, Blue, White
 }
