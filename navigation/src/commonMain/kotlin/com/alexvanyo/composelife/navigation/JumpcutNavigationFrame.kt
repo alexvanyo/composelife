@@ -25,7 +25,7 @@ import androidx.compose.ui.Modifier
  */
 @Composable
 fun <T : NavigationEntry> JumpcutNavigationFrame(
-    renderableNavigationState: RenderableNavigationState<T, NavigationState<T>>,
+    renderableNavigationState: RenderableNavigationState<T, out NavigationState<T>>,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier) {

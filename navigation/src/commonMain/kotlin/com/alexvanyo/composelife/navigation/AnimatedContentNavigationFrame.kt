@@ -39,7 +39,7 @@ import androidx.compose.ui.Modifier
  */
 @Composable
 fun <T : NavigationEntry> AnimatedContentNavigationFrame(
-    renderableNavigationState: RenderableNavigationState<T, NavigationState<T>>,
+    renderableNavigationState: RenderableNavigationState<T, out NavigationState<T>>,
     modifier: Modifier = Modifier,
     transitionSpec: AnimatedContentTransitionScope<T>.() -> ContentTransform = {
         (
