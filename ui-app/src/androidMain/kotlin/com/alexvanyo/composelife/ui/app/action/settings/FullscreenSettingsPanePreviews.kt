@@ -31,6 +31,7 @@ import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
+import com.alexvanyo.composelife.ui.util.SharedTransitionScope
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @MobileDevicePreviews
@@ -58,13 +59,15 @@ fun FullscreenSettingsPaneListPreview(modifier: Modifier = Modifier) {
                 )
 
                 Surface {
-                    FullscreenSettingsPane(
-                        listUiNavValue = listUiNavValue,
-                        detailsUiNavValue = detailsUiNavValue,
-                        onBackButtonPressed = {},
-                        setSettingsCategory = {},
-                        modifier = Modifier.fillMaxSize(),
-                    )
+                    SharedTransitionScope {
+                        FullscreenSettingsPane(
+                            listUiNavValue = listUiNavValue,
+                            detailsUiNavValue = detailsUiNavValue,
+                            onBackButtonPressed = {},
+                            setSettingsCategory = {},
+                            modifier = it.fillMaxSize(),
+                        )
+                    }
                 }
             }
         }
@@ -97,13 +100,15 @@ fun FullscreenSettingsPaneAlgorithmPreview(modifier: Modifier = Modifier) {
                 )
 
                 Surface {
-                    FullscreenSettingsPane(
-                        listUiNavValue = listUiNavValue,
-                        detailsUiNavValue = detailsUiNavValue,
-                        onBackButtonPressed = {},
-                        setSettingsCategory = {},
-                        modifier = Modifier.fillMaxSize(),
-                    )
+                    SharedTransitionScope {
+                        FullscreenSettingsPane(
+                            listUiNavValue = listUiNavValue,
+                            detailsUiNavValue = detailsUiNavValue,
+                            onBackButtonPressed = {},
+                            setSettingsCategory = {},
+                            modifier = it.fillMaxSize(),
+                        )
+                    }
                 }
             }
         }
@@ -136,13 +141,15 @@ fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) {
                 )
 
                 Surface {
-                    FullscreenSettingsPane(
-                        listUiNavValue = listUiNavValue,
-                        detailsUiNavValue = detailsUiNavValue,
-                        onBackButtonPressed = {},
-                        setSettingsCategory = {},
-                        modifier = Modifier.fillMaxSize(),
-                    )
+                    SharedTransitionScope {
+                        FullscreenSettingsPane(
+                            listUiNavValue = listUiNavValue,
+                            detailsUiNavValue = detailsUiNavValue,
+                            onBackButtonPressed = {},
+                            setSettingsCategory = {},
+                            modifier = it.fillMaxSize(),
+                        )
+                    }
                 }
             }
         }
@@ -175,13 +182,15 @@ fun FullscreenSettingsPaneFeatureFlagsPreview(modifier: Modifier = Modifier) {
                 )
 
                 Surface {
-                    FullscreenSettingsPane(
-                        listUiNavValue = listUiNavValue,
-                        detailsUiNavValue = detailsUiNavValue,
-                        onBackButtonPressed = {},
-                        setSettingsCategory = {},
-                        modifier = Modifier.fillMaxSize(),
-                    )
+                    SharedTransitionScope {
+                        FullscreenSettingsPane(
+                            listUiNavValue = listUiNavValue,
+                            detailsUiNavValue = detailsUiNavValue,
+                            onBackButtonPressed = {},
+                            setSettingsCategory = {},
+                            modifier = it.fillMaxSize(),
+                        )
+                    }
                 }
             }
         }

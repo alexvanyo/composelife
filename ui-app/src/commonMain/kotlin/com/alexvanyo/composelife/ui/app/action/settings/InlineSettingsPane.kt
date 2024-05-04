@@ -49,6 +49,8 @@ import com.alexvanyo.composelife.preferences.ordinal
 import com.alexvanyo.composelife.ui.app.resources.QuickSettingsInfo
 import com.alexvanyo.composelife.ui.app.resources.SeeAll
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.util.LocalGhostElement
+import com.alexvanyo.composelife.ui.util.SharedTransitionScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -61,7 +63,7 @@ interface InlineSettingsPaneLocalEntryPoint :
     LoadedComposeLifePreferencesProvider,
     SettingUiLocalEntryPoint
 
-context(InlineSettingsPaneInjectEntryPoint, InlineSettingsPaneLocalEntryPoint)
+context(SharedTransitionScope, InlineSettingsPaneInjectEntryPoint, InlineSettingsPaneLocalEntryPoint)
 @Suppress("LongMethod")
 @Composable
 fun InlineSettingsPane(
@@ -130,9 +132,16 @@ fun InlineSettingsPane(
                                 visibleState = animatableQuickAccessSettings.getValue(quickAccessSetting),
                             ) {
                                 SettingUi(
-                                    quickAccessSetting = quickAccessSetting,
+                                    setting = quickAccessSetting.setting,
                                     onOpenInSettingsClicked = onOpenInSettingsClicked,
-                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    modifier = Modifier
+                                        .padding(horizontal = 16.dp)
+                                        .sharedElementWithCallerManagedVisibility(
+                                            sharedContentState = rememberSharedContentState(
+                                                "SettingUi-${quickAccessSetting.setting}",
+                                            ),
+                                            visible = !LocalGhostElement.current,
+                                        ),
                                 )
                             }
                         }

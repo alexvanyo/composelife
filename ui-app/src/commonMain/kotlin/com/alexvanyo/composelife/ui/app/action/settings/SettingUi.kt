@@ -97,27 +97,13 @@ fun SettingUi(
     }
 }
 
-/**
- * Displays the setting UI for the given [quickAccessSetting].
- */
-context(SettingUiInjectEntryPoint, SettingUiLocalEntryPoint)
-@Composable
-fun SettingUi(
-    quickAccessSetting: QuickAccessSetting,
-    onOpenInSettingsClicked: (Setting) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    SettingUi(
-        setting = when (quickAccessSetting) {
-            QuickAccessSetting.AlgorithmImplementation -> Setting.AlgorithmImplementation
-            QuickAccessSetting.CellShapeConfig -> Setting.CellShapeConfig
-            QuickAccessSetting.DarkThemeConfig -> Setting.DarkThemeConfig
-            QuickAccessSetting.DisableAGSL -> Setting.DisableAGSL
-            QuickAccessSetting.DisableOpenGL -> Setting.DisableOpenGL
-            QuickAccessSetting.DoNotKeepProcess -> Setting.DoNotKeepProcess
-            QuickAccessSetting.EnableClipboardWatching -> Setting.EnableClipboardWatching
-        },
-        modifier = modifier,
-        onOpenInSettingsClicked = onOpenInSettingsClicked,
-    )
-}
+val QuickAccessSetting.setting: Setting get() =
+    when (this) {
+        QuickAccessSetting.AlgorithmImplementation -> Setting.AlgorithmImplementation
+        QuickAccessSetting.CellShapeConfig -> Setting.CellShapeConfig
+        QuickAccessSetting.DarkThemeConfig -> Setting.DarkThemeConfig
+        QuickAccessSetting.DisableAGSL -> Setting.DisableAGSL
+        QuickAccessSetting.DisableOpenGL -> Setting.DisableOpenGL
+        QuickAccessSetting.DoNotKeepProcess -> Setting.DoNotKeepProcess
+        QuickAccessSetting.EnableClipboardWatching -> Setting.EnableClipboardWatching
+    }

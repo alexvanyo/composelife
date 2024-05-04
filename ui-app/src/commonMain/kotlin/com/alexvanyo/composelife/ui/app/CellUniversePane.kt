@@ -42,6 +42,7 @@ import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicator
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorLocalEntryPoint
 import com.alexvanyo.composelife.ui.util.ImmersiveModeManager
+import com.alexvanyo.composelife.ui.util.SharedTransitionScope
 import com.slack.circuit.retained.rememberRetained
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -62,7 +63,7 @@ interface CellUniversePaneLocalEntryPoint :
     GameOfLifeProgressIndicatorLocalEntryPoint,
     InteractiveCellUniverseLocalEntryPoint
 
-context(CellUniversePaneInjectEntryPoint, CellUniversePaneLocalEntryPoint)
+context(SharedTransitionScope, CellUniversePaneInjectEntryPoint, CellUniversePaneLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun CellUniversePane(

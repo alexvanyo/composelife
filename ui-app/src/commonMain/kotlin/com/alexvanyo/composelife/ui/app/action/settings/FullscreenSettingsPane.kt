@@ -19,8 +19,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
 import com.alexvanyo.composelife.ui.app.component.ListDetailPaneScaffold
+import com.alexvanyo.composelife.ui.util.SharedTransitionScope
 
-context(FullscreenSettingsDetailPaneInjectEntryPoint, FullscreenSettingsDetailPaneLocalEntryPoint)
+context(
+    SharedTransitionScope,
+    FullscreenSettingsDetailPaneInjectEntryPoint,
+    FullscreenSettingsDetailPaneLocalEntryPoint
+)
 @Composable
 fun FullscreenSettingsPane(
     listUiNavValue: ComposeLifeUiNavigation.FullscreenSettingsList,

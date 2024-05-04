@@ -64,6 +64,8 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
 import com.alexvanyo.composelife.ui.app.resources.Back
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.util.LocalGhostElement
+import com.alexvanyo.composelife.ui.util.SharedTransitionScope
 import kotlin.math.roundToInt
 
 interface FullscreenSettingsDetailPaneInjectEntryPoint :
@@ -72,7 +74,11 @@ interface FullscreenSettingsDetailPaneInjectEntryPoint :
 interface FullscreenSettingsDetailPaneLocalEntryPoint :
     SettingUiLocalEntryPoint
 
-context(FullscreenSettingsDetailPaneInjectEntryPoint, FullscreenSettingsDetailPaneLocalEntryPoint)
+context(
+    SharedTransitionScope,
+    FullscreenSettingsDetailPaneInjectEntryPoint,
+    FullscreenSettingsDetailPaneLocalEntryPoint
+)
 @Composable
 fun FullscreenSettingsDetailPane(
     navEntryValue: ComposeLifeUiNavigation.FullscreenSettingsDetail,
@@ -90,7 +96,7 @@ fun FullscreenSettingsDetailPane(
     )
 }
 
-context(SettingUiInjectEntryPoint, SettingUiLocalEntryPoint)
+context(SharedTransitionScope, SettingUiInjectEntryPoint, SettingUiLocalEntryPoint)
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
@@ -182,7 +188,13 @@ private fun SettingsCategoryDetail(
                         .padding(horizontal = 16.dp)
                         .onPlaced {
                             layoutCoordinates = it
-                        },
+                        }
+                        .sharedElementWithCallerManagedVisibility(
+                            sharedContentState = rememberSharedContentState(
+                                "SettingUi-$setting",
+                            ),
+                            visible = !LocalGhostElement.current,
+                        ),
                 )
 
                 val currentOnFinishedScrollingToSetting by rememberUpdatedState(onFinishedScrollingToSetting)

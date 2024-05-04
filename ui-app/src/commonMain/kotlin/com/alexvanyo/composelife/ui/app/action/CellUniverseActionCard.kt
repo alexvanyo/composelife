@@ -50,6 +50,7 @@ import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavigationFrame
 import com.alexvanyo.composelife.ui.util.Layout
+import com.alexvanyo.composelife.ui.util.SharedTransitionScope
 import com.alexvanyo.composelife.ui.util.WindowInsets
 import com.alexvanyo.composelife.ui.util.isImeAnimating
 import com.alexvanyo.composelife.ui.util.isInProgress
@@ -67,7 +68,7 @@ interface CellUniverseActionCardLocalEntryPoint :
     InlineEditPaneLocalEntryPoint,
     InlineSettingsPaneLocalEntryPoint
 
-context(CellUniverseActionCardInjectEntryPoint, CellUniverseActionCardLocalEntryPoint)
+context(SharedTransitionScope, CellUniverseActionCardInjectEntryPoint, CellUniverseActionCardLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 fun CellUniverseActionCard(
@@ -122,7 +123,7 @@ fun CellUniverseActionCard(
     )
 }
 
-context(CellUniverseActionCardInjectEntryPoint, CellUniverseActionCardLocalEntryPoint)
+context(SharedTransitionScope, CellUniverseActionCardInjectEntryPoint, CellUniverseActionCardLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod", "ComplexMethod")
 @Composable
 fun CellUniverseActionCard(

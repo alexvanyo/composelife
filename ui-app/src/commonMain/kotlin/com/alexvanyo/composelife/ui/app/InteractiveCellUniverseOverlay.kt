@@ -60,6 +60,7 @@ import com.alexvanyo.composelife.ui.app.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.util.Layout
+import com.alexvanyo.composelife.ui.util.SharedTransitionScope
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
 import kotlinx.coroutines.launch
@@ -71,7 +72,11 @@ interface InteractiveCellUniverseOverlayInjectEntryPoint :
 interface InteractiveCellUniverseOverlayLocalEntryPoint :
     CellUniverseActionCardLocalEntryPoint
 
-context(InteractiveCellUniverseOverlayInjectEntryPoint, InteractiveCellUniverseOverlayLocalEntryPoint)
+context(
+    SharedTransitionScope,
+    InteractiveCellUniverseOverlayInjectEntryPoint,
+    InteractiveCellUniverseOverlayLocalEntryPoint
+)
 @Suppress("LongMethod", "ComplexMethod", "LongParameterList")
 @Composable
 fun InteractiveCellUniverseOverlay(
