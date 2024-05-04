@@ -149,6 +149,8 @@ style:
       - 'org.junit.Assert.*'
       # Disallow JUnit5 parameterized tests in favor of TestParameterInjector
       - 'org.junit.jupiter.params.*'
+      # Disallow android.util.Log in favor of Kermit
+      - 'android.util.Log'
   MaxLineLength:
     excludes: [ '**/generated/**' ]
   MagicNumber:
