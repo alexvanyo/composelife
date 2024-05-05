@@ -16,9 +16,16 @@
 
 package com.alexvanyo.composelife.buildlogic
 
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
+import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.kotlin.dsl.closureOf
+import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 fun Project.configureKotlin() {
@@ -32,5 +39,19 @@ fun Project.configureKotlin() {
                 "-Xexpect-actual-classes",
             )
         }
+    }
+
+    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+
+    extensions.configure<KotlinMultiplatformExtension> {
+        sourceSets.configure(
+            closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
+                getByName("commonMain") {
+                    dependencies {
+                        implementation(libs.findLibrary("kermit").get())
+                    }
+                }
+            },
+        )
     }
 }
