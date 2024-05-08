@@ -23,6 +23,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -40,7 +41,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -61,8 +61,8 @@ fun ClipboardWatchingSection(
 ) {
     AnimatedContent(
         targetState = clipboardWatchingState,
-        contentKey = {
-            when (clipboardWatchingState) {
+        contentKey = { targetState ->
+            when (targetState) {
                 ClipboardWatchingState.ClipboardWatchingDisabled -> 0
                 is ClipboardWatchingState.ClipboardWatchingEnabled -> 1
                 is ClipboardWatchingState.Onboarding -> 2
@@ -83,22 +83,26 @@ fun ClipboardWatchingSection(
 }
 
 context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
-@Suppress("LongMethod")
-@OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun ClipboardWatchingEnabled(
     clipboardWatchingState: ClipboardWatchingState.ClipboardWatchingEnabled,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
-        Text(
-            text = parameterizedStringResource(Strings.Clipboard),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-        )
+        Box(contentAlignment = Alignment.BottomCenter) {
+            Text(
+                text = parameterizedStringResource(Strings.Clipboard),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+            )
 
-        AnimatedVisibility(clipboardWatchingState.isLoading) {
-            LinearProgressIndicator(Modifier.fillMaxWidth())
+            androidx.compose.animation.AnimatedVisibility(
+                clipboardWatchingState.isLoading,
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
+                LinearProgressIndicator(Modifier.fillMaxWidth())
+            }
         }
 
         ClipboardPreviewHistory(clipboardWatchingState.clipboardPreviewStates)
@@ -131,7 +135,8 @@ private fun PinnedClipboardPreviews(
         AnimatedContent(
             pinnedClipboardPreviewStates,
             transitionSpec = {
-                fadeIn().togetherWith(fadeOut())
+                fadeIn(animationSpec = tween(220, delayMillis = 90))
+                    .togetherWith(fadeOut(animationSpec = tween(90)))
             },
             contentKey = { it.map(PinnedClipboardPreviewState::id) },
         ) { targetState ->
@@ -184,7 +189,8 @@ private fun ClipboardPreviewHistory(
         AnimatedContent(
             clipboardPreviewStates,
             transitionSpec = {
-                fadeIn().togetherWith(fadeOut())
+                fadeIn(animationSpec = tween(220, delayMillis = 90))
+                    .togetherWith(fadeOut(animationSpec = tween(90)))
             },
             contentKey = { it.map(ClipboardPreviewState::id) },
         ) { targetState ->
