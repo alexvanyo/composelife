@@ -32,13 +32,12 @@ class FlexibleCellStateSerializer(
         format: CellStateFormat,
         lines: Sequence<String>,
     ): DeserializationResult =
-        @Suppress("InjectDispatcher")
-        (withContext(dispatchers.Default) {
+        withContext(dispatchers.Default) {
             val targetedSerializer = when (format) {
                 CellStateFormat.FixedFormat.Plaintext -> PlaintextCellStateSerializer
                 CellStateFormat.FixedFormat.Life105 -> Life105CellStateSerializer
                 CellStateFormat.FixedFormat.RunLengthEncoding -> RunLengthEncodedCellStateSerializer
-                CellStateFormat.FixedFormat.Life106,
+                CellStateFormat.FixedFormat.Life106 -> Life106CellStateSerializer
                 CellStateFormat.Life,
                 CellStateFormat.Unknown,
                 -> null
@@ -55,6 +54,7 @@ class FlexibleCellStateSerializer(
             val allSerializers = listOf(
                 PlaintextCellStateSerializer,
                 Life105CellStateSerializer,
+                Life106CellStateSerializer,
                 RunLengthEncodedCellStateSerializer,
             )
 
@@ -87,7 +87,7 @@ class FlexibleCellStateSerializer(
                         }
                     }
             }
-        })
+        }
 
     override suspend fun serializeToString(
         format: CellStateFormat.FixedFormat,
@@ -97,6 +97,6 @@ class FlexibleCellStateSerializer(
             CellStateFormat.FixedFormat.Plaintext -> PlaintextCellStateSerializer
             CellStateFormat.FixedFormat.Life105 -> Life105CellStateSerializer
             CellStateFormat.FixedFormat.RunLengthEncoding -> RunLengthEncodedCellStateSerializer
-            CellStateFormat.FixedFormat.Life106 -> TODO("Format not implemented yet!")
+            CellStateFormat.FixedFormat.Life106 -> Life106CellStateSerializer
         }.serializeToString(cellState)
 }
