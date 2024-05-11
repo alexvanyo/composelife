@@ -23,7 +23,6 @@ import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.SharedTransitionScope
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 @ThemePreviews
@@ -32,13 +31,10 @@ fun InlineSettingsPaneNoQuickAccessPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             Surface(modifier) {
-                SharedTransitionScope {
-                    InlineSettingsPane(
-                        onSeeMoreClicked = {},
-                        onOpenInSettingsClicked = {},
-                        modifier = it,
-                    )
-                }
+                InlineSettingsPane(
+                    onSeeMoreClicked = {},
+                    onOpenInSettingsClicked = {},
+                )
             }
         }
     }
@@ -57,13 +53,10 @@ fun InlineSettingsPaneWithQuickAccessPreview(modifier: Modifier = Modifier) {
     ) {
         ComposeLifeTheme {
             Surface(modifier) {
-                SharedTransitionScope {
-                    InlineSettingsPane(
-                        onSeeMoreClicked = {},
-                        onOpenInSettingsClicked = {},
-                        modifier = it,
-                    )
-                }
+                InlineSettingsPane(
+                    onSeeMoreClicked = {},
+                    onOpenInSettingsClicked = {},
+                )
             }
         }
     }

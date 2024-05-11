@@ -64,8 +64,7 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
 import com.alexvanyo.composelife.ui.app.resources.Back
 import com.alexvanyo.composelife.ui.app.resources.Strings
-import com.alexvanyo.composelife.ui.util.LocalNavigationAnimatedContentScope
-import com.alexvanyo.composelife.ui.util.SharedTransitionScope
+import com.alexvanyo.composelife.ui.util.trySharedElement
 import kotlin.math.roundToInt
 
 interface FullscreenSettingsDetailPaneInjectEntryPoint :
@@ -74,11 +73,7 @@ interface FullscreenSettingsDetailPaneInjectEntryPoint :
 interface FullscreenSettingsDetailPaneLocalEntryPoint :
     SettingUiLocalEntryPoint
 
-context(
-    SharedTransitionScope,
-    FullscreenSettingsDetailPaneInjectEntryPoint,
-    FullscreenSettingsDetailPaneLocalEntryPoint
-)
+context(FullscreenSettingsDetailPaneInjectEntryPoint, FullscreenSettingsDetailPaneLocalEntryPoint)
 @Composable
 fun FullscreenSettingsDetailPane(
     navEntryValue: ComposeLifeUiNavigation.FullscreenSettingsDetail,
@@ -96,7 +91,7 @@ fun FullscreenSettingsDetailPane(
     )
 }
 
-context(SharedTransitionScope, SettingUiInjectEntryPoint, SettingUiLocalEntryPoint)
+context(SettingUiInjectEntryPoint, SettingUiLocalEntryPoint)
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
@@ -189,19 +184,8 @@ private fun SettingsCategoryDetail(
                         .onPlaced {
                             layoutCoordinates = it
                         }
-                        .then(
-                            LocalNavigationAnimatedContentScope.current.let {
-                                if (it == null) {
-                                    Modifier
-                                } else {
-                                    Modifier.sharedElement(
-                                        sharedContentState = rememberSharedContentState(
-                                            "SettingUi-$setting",
-                                        ),
-                                        animatedVisibilityScope = it,
-                                    )
-                                }
-                            },
+                        .trySharedElement(
+                            key = "SettingUi-$setting",
                         ),
                 )
 

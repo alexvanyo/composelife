@@ -49,8 +49,7 @@ import com.alexvanyo.composelife.preferences.ordinal
 import com.alexvanyo.composelife.ui.app.resources.QuickSettingsInfo
 import com.alexvanyo.composelife.ui.app.resources.SeeAll
 import com.alexvanyo.composelife.ui.app.resources.Strings
-import com.alexvanyo.composelife.ui.util.LocalNavigationAnimatedContentScope
-import com.alexvanyo.composelife.ui.util.SharedTransitionScope
+import com.alexvanyo.composelife.ui.util.trySharedElement
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -63,7 +62,7 @@ interface InlineSettingsPaneLocalEntryPoint :
     LoadedComposeLifePreferencesProvider,
     SettingUiLocalEntryPoint
 
-context(SharedTransitionScope, InlineSettingsPaneInjectEntryPoint, InlineSettingsPaneLocalEntryPoint)
+context(InlineSettingsPaneInjectEntryPoint, InlineSettingsPaneLocalEntryPoint)
 @Suppress("LongMethod")
 @Composable
 fun InlineSettingsPane(
@@ -136,19 +135,8 @@ fun InlineSettingsPane(
                                     onOpenInSettingsClicked = onOpenInSettingsClicked,
                                     modifier = Modifier
                                         .padding(horizontal = 16.dp)
-                                        .then(
-                                            LocalNavigationAnimatedContentScope.current.let {
-                                                if (it == null) {
-                                                    Modifier
-                                                } else {
-                                                    Modifier.sharedElement(
-                                                        sharedContentState = rememberSharedContentState(
-                                                            "SettingUi-${quickAccessSetting.setting}",
-                                                        ),
-                                                        animatedVisibilityScope = it,
-                                                    )
-                                                }
-                                            },
+                                        .trySharedElement(
+                                            key = "SettingUi-${quickAccessSetting.setting}",
                                         ),
                                 )
                             }

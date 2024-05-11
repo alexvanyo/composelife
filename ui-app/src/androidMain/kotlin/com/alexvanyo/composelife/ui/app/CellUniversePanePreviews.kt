@@ -28,7 +28,6 @@ import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
-import com.alexvanyo.composelife.ui.util.SharedTransitionLayout
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import kotlin.random.Random
 
@@ -40,15 +39,13 @@ fun LoadingCellStateCellUniversePanePreview(modifier: Modifier = Modifier) {
         ComposeLifeTheme {
             BoxWithConstraints(modifier = modifier) {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
-                SharedTransitionLayout {
-                    CellUniversePane(
-                        windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
-                        immersiveModeManager = rememberImmersiveModeManager(),
-                        onSeeMoreSettingsClicked = {},
-                        onOpenInSettingsClicked = {},
-                        cellUniversePaneState = CellUniversePaneState.LoadingCellState,
-                    )
-                }
+                CellUniversePane(
+                    windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
+                    immersiveModeManager = rememberImmersiveModeManager(),
+                    onSeeMoreSettingsClicked = {},
+                    onOpenInSettingsClicked = {},
+                    cellUniversePaneState = CellUniversePaneState.LoadingCellState,
+                )
             }
         }
     }
@@ -68,17 +65,15 @@ fun LoadedCellUniversePanePreview(modifier: Modifier = Modifier) {
                     seedCellState = gosperGliderGun,
                     isRunning = false,
                 )
-                SharedTransitionLayout {
-                    CellUniversePane(
-                        windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
-                        immersiveModeManager = rememberImmersiveModeManager(),
-                        onSeeMoreSettingsClicked = {},
-                        onOpenInSettingsClicked = {},
-                        cellUniversePaneState = object : CellUniversePaneState.LoadedCellState {
-                            override val temporalGameOfLifeState = temporalGameOfLifeState
-                        },
-                    )
-                }
+                CellUniversePane(
+                    windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
+                    immersiveModeManager = rememberImmersiveModeManager(),
+                    onSeeMoreSettingsClicked = {},
+                    onOpenInSettingsClicked = {},
+                    cellUniversePaneState = object : CellUniversePaneState.LoadedCellState {
+                        override val temporalGameOfLifeState = temporalGameOfLifeState
+                    },
+                )
             }
         }
     }
