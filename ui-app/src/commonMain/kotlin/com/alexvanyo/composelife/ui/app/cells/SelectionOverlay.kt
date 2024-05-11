@@ -16,17 +16,12 @@
 
 package com.alexvanyo.composelife.ui.app.cells
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
@@ -80,12 +75,14 @@ import androidx.compose.ui.util.unpackInt2
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.sessionvalue.SessionValue
-import com.alexvanyo.composelife.sessionvalue.localSessionId
+import com.alexvanyo.composelife.sessionvalue.preLocalSessionId
 import com.alexvanyo.composelife.sessionvalue.rememberSessionValueHolder
 import com.alexvanyo.composelife.ui.app.resources.SelectingBoxHandle
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.util.AnchoredDraggable2DState
+import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.DraggableAnchors2D
+import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.anchoredDraggable2D
 import com.alexvanyo.composelife.ui.util.snapTo
 import kotlinx.coroutines.flow.collect
@@ -117,27 +114,23 @@ fun SelectionOverlay(
     val sessionValue = selectionSessionStateValueHolder.sessionValue
 
     AnimatedContent(
-        targetState = sessionValue.copy(
-            sessionId = selectionSessionStateValueHolder.info.localSessionId,
+        targetState = TargetState.Single(
+            sessionValue to selectionSessionStateValueHolder.info.preLocalSessionId,
         ),
-        transitionSpec = {
-            fadeIn(animationSpec = tween(220, delayMillis = 90))
-                .togetherWith(fadeOut(animationSpec = tween(90)))
-        },
         contentAlignment = Alignment.Center,
-        contentKey = { targetSelectionSessionState ->
+        contentKey = { (targetSelectionSessionState, preLocalSessionId) ->
             when (targetSelectionSessionState.value) {
                 SelectionState.NoSelection -> 0
                 is SelectionState.SelectingBox -> 1
                 is SelectionState.Selection -> 2
-            } to targetSelectionSessionState.sessionId
+            } to preLocalSessionId
         },
         modifier = modifier
             .requiredSize(
                 scaledCellDpSize * cellWindow.width,
                 scaledCellDpSize * cellWindow.height,
             ),
-    ) { targetSelectionSessionState ->
+    ) { (targetSelectionSessionState, _) ->
         when (val targetSelectionState = targetSelectionSessionState.value) {
             SelectionState.NoSelection -> {
                 Spacer(Modifier.fillMaxSize())

@@ -281,7 +281,7 @@ private fun Modifier.selectingCellInput(
     val currentCellWindow by rememberUpdatedState(cellWindow)
     val currentSetSelectionSessionState by rememberUpdatedState(setSelectionSessionState)
 
-    val editingSessionId = remember { UUID.randomUUID() }
+    var editingSessionId by remember { mutableStateOf(UUID.randomUUID()) }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -303,6 +303,7 @@ private fun Modifier.selectingCellInput(
                 selectingPointerTypes,
             onDragStart = {
                 isSelecting = true
+                editingSessionId = UUID.randomUUID()
                 start = ((it / currentScaledCellPixelSize).round() + currentCellWindow.topLeft).toOffset()
                 end = it / currentScaledCellPixelSize + currentCellWindow.topLeft.toOffset()
                 currentSetSelectionSessionState(
