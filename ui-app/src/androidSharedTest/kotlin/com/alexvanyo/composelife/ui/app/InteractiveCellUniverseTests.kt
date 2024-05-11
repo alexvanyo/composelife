@@ -61,7 +61,6 @@ import com.alexvanyo.composelife.test.InjectTestActivity
 import com.alexvanyo.composelife.ui.app.cells.rememberMutableCellWindowViewportState
 import com.alexvanyo.composelife.ui.util.ClipboardReader
 import com.alexvanyo.composelife.ui.util.ClipboardWriter
-import com.alexvanyo.composelife.ui.util.SharedTransitionLayout
 import com.alexvanyo.composelife.ui.util.rememberClipboardReader
 import com.alexvanyo.composelife.ui.util.rememberClipboardWriter
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
@@ -118,16 +117,14 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
             with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
-                    SharedTransitionLayout {
-                        InteractiveCellUniverse(
-                            temporalGameOfLifeState = temporalGameOfLifeState,
-                            immersiveModeManager = rememberImmersiveModeManager(),
-                            windowSizeClass = calculateWindowSizeClass(),
-                            onSeeMoreSettingsClicked = {},
-                            onOpenInSettingsClicked = {},
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        immersiveModeManager = rememberImmersiveModeManager(),
+                        windowSizeClass = calculateWindowSizeClass(),
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
                 }
             }
         }
@@ -171,16 +168,14 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
             with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
-                    SharedTransitionLayout {
-                        InteractiveCellUniverse(
-                            temporalGameOfLifeState = temporalGameOfLifeState,
-                            immersiveModeManager = rememberImmersiveModeManager(),
-                            windowSizeClass = calculateWindowSizeClass(),
-                            onSeeMoreSettingsClicked = {},
-                            onOpenInSettingsClicked = {},
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        immersiveModeManager = rememberImmersiveModeManager(),
+                        windowSizeClass = calculateWindowSizeClass(),
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
                 }
             }
         }
@@ -223,16 +218,14 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
             with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
-                    SharedTransitionLayout {
-                        InteractiveCellUniverse(
-                            temporalGameOfLifeState = temporalGameOfLifeState,
-                            immersiveModeManager = rememberImmersiveModeManager(),
-                            windowSizeClass = calculateWindowSizeClass(),
-                            onSeeMoreSettingsClicked = {},
-                            onOpenInSettingsClicked = {},
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        immersiveModeManager = rememberImmersiveModeManager(),
+                        windowSizeClass = calculateWindowSizeClass(),
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
                 }
             }
         }
@@ -289,16 +282,14 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
             with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
-                    SharedTransitionLayout {
-                        InteractiveCellUniverse(
-                            temporalGameOfLifeState = temporalGameOfLifeState,
-                            immersiveModeManager = rememberImmersiveModeManager(),
-                            windowSizeClass = calculateWindowSizeClass(),
-                            onSeeMoreSettingsClicked = {},
-                            onOpenInSettingsClicked = {},
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        immersiveModeManager = rememberImmersiveModeManager(),
+                        windowSizeClass = calculateWindowSizeClass(),
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
                 }
             }
         }
@@ -358,16 +349,14 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
             with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
-                    SharedTransitionLayout {
-                        InteractiveCellUniverse(
-                            temporalGameOfLifeState = temporalGameOfLifeState,
-                            immersiveModeManager = rememberImmersiveModeManager(),
-                            windowSizeClass = calculateWindowSizeClass(),
-                            onSeeMoreSettingsClicked = {},
-                            onOpenInSettingsClicked = {},
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        immersiveModeManager = rememberImmersiveModeManager(),
+                        windowSizeClass = calculateWindowSizeClass(),
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
                 }
             }
         }
@@ -441,16 +430,14 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
             with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
-                    SharedTransitionLayout {
-                        InteractiveCellUniverse(
-                            temporalGameOfLifeState = temporalGameOfLifeState,
-                            immersiveModeManager = rememberImmersiveModeManager(),
-                            windowSizeClass = calculateWindowSizeClass(),
-                            onSeeMoreSettingsClicked = {},
-                            onOpenInSettingsClicked = {},
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        immersiveModeManager = rememberImmersiveModeManager(),
+                        windowSizeClass = calculateWindowSizeClass(),
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
                 }
             }
         }
@@ -502,16 +489,14 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
             with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
-                    SharedTransitionLayout {
-                        InteractiveCellUniverse(
-                            temporalGameOfLifeState = temporalGameOfLifeState,
-                            immersiveModeManager = rememberImmersiveModeManager(),
-                            windowSizeClass = calculateWindowSizeClass(),
-                            onSeeMoreSettingsClicked = {},
-                            onOpenInSettingsClicked = {},
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        immersiveModeManager = rememberImmersiveModeManager(),
+                        windowSizeClass = calculateWindowSizeClass(),
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
                 }
             }
         }
@@ -581,16 +566,14 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
             with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
-                    SharedTransitionLayout {
-                        InteractiveCellUniverse(
-                            temporalGameOfLifeState = temporalGameOfLifeState,
-                            immersiveModeManager = rememberImmersiveModeManager(),
-                            windowSizeClass = calculateWindowSizeClass(),
-                            onSeeMoreSettingsClicked = {},
-                            onOpenInSettingsClicked = {},
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        immersiveModeManager = rememberImmersiveModeManager(),
+                        windowSizeClass = calculateWindowSizeClass(),
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
                 }
             }
         }
@@ -674,16 +657,14 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 with(interactiveCellUniverseLocalEntryPoint) {
                     clipboardReader = rememberClipboardReader()
 
-                    SharedTransitionLayout {
-                        InteractiveCellUniverse(
-                            temporalGameOfLifeState = temporalGameOfLifeState,
-                            immersiveModeManager = rememberImmersiveModeManager(),
-                            windowSizeClass = calculateWindowSizeClass(),
-                            onSeeMoreSettingsClicked = {},
-                            onOpenInSettingsClicked = {},
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        immersiveModeManager = rememberImmersiveModeManager(),
+                        windowSizeClass = calculateWindowSizeClass(),
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
                 }
             }
         }
@@ -766,16 +747,14 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
             with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
-                    SharedTransitionLayout {
-                        InteractiveCellUniverse(
-                            temporalGameOfLifeState = temporalGameOfLifeState,
-                            immersiveModeManager = rememberImmersiveModeManager(),
-                            windowSizeClass = calculateWindowSizeClass(),
-                            onSeeMoreSettingsClicked = {},
-                            onOpenInSettingsClicked = {},
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        immersiveModeManager = rememberImmersiveModeManager(),
+                        windowSizeClass = calculateWindowSizeClass(),
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
                 }
             }
         }
@@ -852,23 +831,21 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                     clipboardWriter = rememberClipboardWriter()
                     val immersiveModeManager = rememberImmersiveModeManager()
 
-                    SharedTransitionLayout {
-                        InteractiveCellUniverse(
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        immersiveModeManager = immersiveModeManager,
+                        windowSizeClass = calculateWindowSizeClass(),
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        modifier = Modifier.fillMaxSize(),
+                        interactiveCellUniverseState = rememberInteractiveCellUniverseState(
                             temporalGameOfLifeState = temporalGameOfLifeState,
                             immersiveModeManager = immersiveModeManager,
-                            windowSizeClass = calculateWindowSizeClass(),
-                            onSeeMoreSettingsClicked = {},
-                            onOpenInSettingsClicked = {},
-                            modifier = Modifier.fillMaxSize(),
-                            interactiveCellUniverseState = rememberInteractiveCellUniverseState(
-                                temporalGameOfLifeState = temporalGameOfLifeState,
-                                immersiveModeManager = immersiveModeManager,
-                                mutableCellWindowViewportState = rememberMutableCellWindowViewportState(
-                                    offset = Offset(30.5f, -18.5f),
-                                ),
+                            mutableCellWindowViewportState = rememberMutableCellWindowViewportState(
+                                offset = Offset(30.5f, -18.5f),
                             ),
-                        )
-                    }
+                        ),
+                    )
                 }
             }
         }
