@@ -20,20 +20,9 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class kotlin.collections.CollectionsKt*
--keep class kotlin.text.StringsKt*
--keep class androidx.compose.runtime.MonotonicFrameClock {
+-keep,allowobfuscation class androidx.compose.runtime.MonotonicFrameClock {
     *;
 }
--keep class androidx.compose.ui.platform.InfiniteAnimationPolicy {
-    *;
-}
--keep,allowobfuscation class kotlinx.serialization.internal.PrimitiveArrayDescriptor {
-    *;
-}
--keep,allowobfuscation class androidx.compose.foundation.text.selection.TextFieldPreparedSelection {
-    *;
-}
--keep,allowobfuscation class androidx.compose.foundation.layout.IntrinsicWidthNode {
+-keep,allowobfuscation class androidx.compose.ui.platform.InfiniteAnimationPolicy {
     *;
 }
