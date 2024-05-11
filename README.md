@@ -33,7 +33,7 @@ These include:
 ## Setup
 
 Requirements:
-- Android Studio Jellyfish
+- Android Studio Koala 2024.1.1
 - JDK 17+
 
 Clone the project, and build! (no API keys or other setup necessary)
