@@ -64,6 +64,7 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
 import com.alexvanyo.composelife.ui.app.resources.Back
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.util.trySharedElement
 import kotlin.math.roundToInt
 
 interface FullscreenSettingsDetailPaneInjectEntryPoint :
@@ -182,7 +183,10 @@ private fun SettingsCategoryDetail(
                         .padding(horizontal = 16.dp)
                         .onPlaced {
                             layoutCoordinates = it
-                        },
+                        }
+                        .trySharedElement(
+                            key = "SettingUi-$setting",
+                        ),
                 )
 
                 val currentOnFinishedScrollingToSetting by rememberUpdatedState(onFinishedScrollingToSetting)

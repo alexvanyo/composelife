@@ -49,6 +49,7 @@ import com.alexvanyo.composelife.preferences.ordinal
 import com.alexvanyo.composelife.ui.app.resources.QuickSettingsInfo
 import com.alexvanyo.composelife.ui.app.resources.SeeAll
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.util.trySharedElement
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -130,9 +131,13 @@ fun InlineSettingsPane(
                                 visibleState = animatableQuickAccessSettings.getValue(quickAccessSetting),
                             ) {
                                 SettingUi(
-                                    quickAccessSetting = quickAccessSetting,
+                                    setting = quickAccessSetting.setting,
                                     onOpenInSettingsClicked = onOpenInSettingsClicked,
-                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    modifier = Modifier
+                                        .padding(horizontal = 16.dp)
+                                        .trySharedElement(
+                                            key = "SettingUi-${quickAccessSetting.setting}",
+                                        ),
                                 )
                             }
                         }

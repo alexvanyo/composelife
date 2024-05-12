@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
@@ -33,10 +34,10 @@ import kotlin.random.Random
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @MobileDevicePreviews
 @Composable
-fun LoadingCellStateCellUniversePanePreview() {
+fun LoadingCellStateCellUniversePanePreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            BoxWithConstraints {
+            BoxWithConstraints(modifier = modifier) {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 CellUniversePane(
                     windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
@@ -53,12 +54,12 @@ fun LoadingCellStateCellUniversePanePreview() {
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @MobileDevicePreviews
 @Composable
-fun LoadedCellUniversePanePreview() {
+fun LoadedCellUniversePanePreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies(
         random = Random(1), // Fix to Beacon loading pattern
     ) {
         ComposeLifeTheme {
-            BoxWithConstraints {
+            BoxWithConstraints(modifier = modifier) {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                     seedCellState = gosperGliderGun,
