@@ -18,99 +18,91 @@ package com.alexvanyo.composelife.model
 
 import com.alexvanyo.composelife.patterns.GameOfLifeTestPattern
 import com.alexvanyo.composelife.patterns.GameOfLifeTestPatternEnum
-import com.alexvanyo.composelife.patterns.sealedObject
-import com.google.testing.junit.testparameterinjector.TestParameter
-import com.google.testing.junit.testparameterinjector.TestParameterInjector
-import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider
-import org.junit.runner.RunWith
-import kotlin.test.Test
+import com.alexvanyo.composelife.patterns.values
+import de.infix.testBalloon.framework.core.testSuite
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
-@RunWith(TestParameterInjector::class)
-class SerializerTests {
+private class CellStateSerializerFactory(
+    private val name: String,
+    val trueEquals: Boolean,
+    val format: CellStateFormat.FixedFormat,
+    val factory: () -> FixedFormatCellStateSerializer,
+) {
+    override fun toString(): String = name
+}
 
-    class CellStateSerializerFactory(
-        private val name: String,
-        val trueEquals: Boolean,
-        val format: CellStateFormat.FixedFormat,
-        val factory: () -> FixedFormatCellStateSerializer,
-    ) {
-        override fun toString(): String = name
+val SerializerTests by testSuite {
+    val cellStateSerializerFactories = listOf(
+        CellStateSerializerFactory(
+            name = "Plaintext",
+            trueEquals = false,
+            format = CellStateFormat.FixedFormat.Plaintext,
+        ) {
+            PlaintextCellStateSerializer
+        },
+        CellStateSerializerFactory(
+            name = "Life 1.05",
+            trueEquals = true,
+            format = CellStateFormat.FixedFormat.Life105,
+        ) {
+            Life105CellStateSerializer
+        },
+        CellStateSerializerFactory(
+            name = "Life 1.06",
+            trueEquals = true,
+            format = CellStateFormat.FixedFormat.Life106,
+        ) {
+            Life106CellStateSerializer
+        },
+        CellStateSerializerFactory(
+            name = "Run length encoding",
+            trueEquals = true,
+            format = CellStateFormat.FixedFormat.RunLengthEncoding,
+        ) {
+            RunLengthEncodedCellStateSerializer
+        },
+        CellStateSerializerFactory(
+            name = "Macrocell",
+            trueEquals = false,
+            format = CellStateFormat.FixedFormat.Macrocell,
+        ) {
+            MacrocellCellStateSerializer
+        },
+    )
 
-        class Provider : TestParameterValuesProvider() {
-            override fun provideValues(context: Context?) =
-                listOf(
-                    CellStateSerializerFactory(
-                        name = "Plaintext",
-                        trueEquals = false,
-                        format = CellStateFormat.FixedFormat.Plaintext,
-                    ) {
-                        PlaintextCellStateSerializer
-                    },
-                    CellStateSerializerFactory(
-                        name = "Life 1.05",
-                        trueEquals = true,
-                        format = CellStateFormat.FixedFormat.Life105,
-                    ) {
-                        Life105CellStateSerializer
-                    },
-                    CellStateSerializerFactory(
-                        name = "Life 1.06",
-                        trueEquals = true,
-                        format = CellStateFormat.FixedFormat.Life106,
-                    ) {
-                        Life106CellStateSerializer
-                    },
-                    CellStateSerializerFactory(
-                        name = "Run length encoding",
-                        trueEquals = true,
-                        format = CellStateFormat.FixedFormat.RunLengthEncoding,
-                    ) {
-                        RunLengthEncodedCellStateSerializer
-                    },
-                    CellStateSerializerFactory(
-                        name = "Macrocell",
-                        trueEquals = false,
-                        format = CellStateFormat.FixedFormat.Macrocell,
-                    ) {
-                        MacrocellCellStateSerializer
-                    },
-                )
+    val testPatterns = GameOfLifeTestPattern.values
+
+    cellStateSerializerFactories.forEach { cellStateSerializerFactory ->
+        testSuite(cellStateSerializerFactory.toString()) {
+            testPatterns.forEach { testPattern ->
+                testSuite(testPattern.toString()) {
+                    /**
+                     * Checks the serialization invariant for all test patterns: serializing the pattern and then
+                     * deserializing it results in the original pattern, with no warnings.
+                     *
+                     * Some serializers won't be able to preserve the original offset: For those serializers,
+                     * CellStateSerializerFactory.trueEquals is false, and equality is checked modulo the offset.
+                     */
+                    test("serializing_and_deserializing_is_successful") {
+                        val serializer = cellStateSerializerFactory.factory()
+
+                        val serialized = serializer.serializeToString(testPattern.seedCellState)
+                        val deserializationResult = serializer.deserializeToCellState(serialized)
+
+                        val _ = assertIs<DeserializationResult.Successful>(deserializationResult)
+
+                        assertEquals(emptyList(), deserializationResult.warnings)
+                        if (cellStateSerializerFactory.trueEquals) {
+                            assertEquals(testPattern.seedCellState, deserializationResult.cellState)
+                        } else {
+                            assertTrue(testPattern.seedCellState.equalsModuloOffset(deserializationResult.cellState))
+                        }
+                        assertEquals(cellStateSerializerFactory.format, deserializationResult.format)
+                    }
+                }
+            }
         }
-    }
-
-    @TestParameter(valuesProvider = CellStateSerializerFactory.Provider::class)
-    lateinit var serializerFactory: CellStateSerializerFactory
-
-    @TestParameter
-    lateinit var testPatternEnum: GameOfLifeTestPatternEnum
-
-    private val testPattern: GameOfLifeTestPattern get() = testPatternEnum.sealedObject
-
-    /**
-     * Checks the serialization invariant for all test patterns: serializing the pattern and then deserializing it
-     * results in the original pattern, with no warnings.
-     *
-     * Some serializers won't be able to preserve the original offset: For those serializers,
-     * CellStateSerializerFactory.trueEquals is false, and equality is checked modulo the offset.
-     */
-    @Test
-    fun serializing_and_deserializing_is_successful() {
-        val serializer = serializerFactory.factory()
-
-        val serialized = serializer.serializeToString(testPattern.seedCellState)
-        val deserializationResult = serializer.deserializeToCellState(serialized)
-
-        val _ = assertIs<DeserializationResult.Successful>(deserializationResult)
-
-        assertEquals(emptyList(), deserializationResult.warnings)
-        if (serializerFactory.trueEquals) {
-            assertEquals(testPattern.seedCellState, deserializationResult.cellState)
-        } else {
-            assertTrue(testPattern.seedCellState.equalsModuloOffset(deserializationResult.cellState))
-        }
-        assertEquals(serializerFactory.format, deserializationResult.format)
     }
 }
