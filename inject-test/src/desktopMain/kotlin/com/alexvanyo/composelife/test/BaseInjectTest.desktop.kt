@@ -17,13 +17,10 @@
 
 package com.alexvanyo.composelife.test
 
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
-import org.junit.runner.RunWith
 
 @Suppress("UnnecessaryAbstractClass")
-@RunWith(KmpAndroidJUnit4::class)
 actual abstract class BaseInjectTest actual constructor(
     applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
 ) : BaseInjectTestImpl(applicationGraphCreator)

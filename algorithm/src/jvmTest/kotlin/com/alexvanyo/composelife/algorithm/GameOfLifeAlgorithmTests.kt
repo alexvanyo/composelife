@@ -20,217 +20,229 @@ import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.model.assertCellStateEquals
+import com.alexvanyo.composelife.patterns.BlomPattern
 import com.alexvanyo.composelife.patterns.GameOfLifeTestPattern
-import com.alexvanyo.composelife.patterns.GameOfLifeTestPatternEnum
-import com.alexvanyo.composelife.patterns.sealedObject
+import com.alexvanyo.composelife.patterns.Pattern52448M
+import com.alexvanyo.composelife.patterns.RPentominoPattern
+import com.alexvanyo.composelife.patterns.values
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.setAlgorithmChoice
-import com.google.testing.junit.testparameterinjector.TestParameter
-import com.google.testing.junit.testparameterinjector.TestParameterInjector
-import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider
+import de.infix.testBalloon.framework.core.Test.ExecutionScope
+import de.infix.testBalloon.framework.core.TestBalloonExperimentalApi
+import de.infix.testBalloon.framework.core.TestConfig
+import de.infix.testBalloon.framework.core.testScope
+import de.infix.testBalloon.framework.core.testSuite
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.runTest
-import org.junit.runner.RunWith
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
-@RunWith(TestParameterInjector::class)
-class GameOfLifeAlgorithmTests {
+private class GameOfLifeAlgorithmFactory(
+    val algorithmName: String,
+    val factory: ExecutionScope.(ComposeLifeDispatchers) -> Pair<GameOfLifeAlgorithm, Job>,
+) {
+    override fun toString(): String = algorithmName
+}
 
-    class GameOfLifeAlgorithmFactory(
-        private val algorithmName: String,
-        val factory: TestScope.(dispatchers: ComposeLifeDispatchers) -> Pair<GameOfLifeAlgorithm, Job>,
-    ) {
-        override fun toString(): String = algorithmName
+private class CellStateMapper(
+    val name: String,
+    val mapper: (CellState) -> CellState,
+) {
+    override fun toString(): String = name
+}
 
-        class Provider : TestParameterValuesProvider() {
-            override fun provideValues(context: Context?) =
-                listOf(
-                    GameOfLifeAlgorithmFactory("Naive Algorithm") {
-                        NaiveGameOfLifeAlgorithm(it) to Job().apply { complete() }
-                    },
-                    GameOfLifeAlgorithmFactory("HashLife Algorithm") {
-                        HashLifeAlgorithm(it) to Job().apply { complete() }
-                    },
-                    GameOfLifeAlgorithmFactory("Configurable Algorithm") {
-                        val preferences = TestComposeLifePreferences()
+@OptIn(TestBalloonExperimentalApi::class)
+val GameOfLifeAlgorithmTests by testSuite(
+    testConfig = TestConfig.testScope(true, Duration.INFINITE),
+) {
 
-                        val job = launch {
-                            while (true) {
-                                preferences.setAlgorithmChoice(AlgorithmType.HashLifeAlgorithm)
-                                delay(10)
-                                preferences.setAlgorithmChoice(AlgorithmType.NaiveAlgorithm)
-                                delay(10)
-                            }
+    val algorithmFactories = listOf(
+        GameOfLifeAlgorithmFactory("Naive Algorithm") {
+            NaiveGameOfLifeAlgorithm(it) to Job().apply { complete() }
+        },
+        GameOfLifeAlgorithmFactory("HashLife Algorithm") {
+            HashLifeAlgorithm(it) to Job().apply { complete() }
+        },
+        GameOfLifeAlgorithmFactory("Configurable Algorithm") {
+            val preferences = TestComposeLifePreferences()
+
+            val job = launch {
+                while (true) {
+                    preferences.setAlgorithmChoice(AlgorithmType.HashLifeAlgorithm)
+                    delay(10)
+                    preferences.setAlgorithmChoice(AlgorithmType.NaiveAlgorithm)
+                    delay(10)
+                }
+            }
+
+            ConfigurableGameOfLifeAlgorithm(
+                preferences = preferences,
+                naiveGameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(it),
+                hashLifeAlgorithm = HashLifeAlgorithm(it),
+            ) to job
+        },
+    )
+    val cellStateMappers = listOf(
+        CellStateMapper("Identity") { cellState ->
+            cellState
+        },
+        CellStateMapper("Flip across x-axis") { cellState ->
+            CellState(cellState.aliveCells.map { cell -> IntOffset(cell.x, -cell.y) }.toSet())
+        },
+        CellStateMapper("Flip across y-axis") { cellState ->
+            CellState(cellState.aliveCells.map { cell -> IntOffset(-cell.x, cell.y) }.toSet())
+        },
+        CellStateMapper("Flip across x = y") { cellState ->
+            CellState(cellState.aliveCells.map { cell -> IntOffset(cell.y, cell.x) }.toSet())
+        },
+        CellStateMapper("Translate by an arbitrary amount") { cellState ->
+            CellState(cellState.aliveCells.map { cell -> cell + IntOffset(157, 72) }.toSet())
+        },
+    )
+
+    val testPatterns: List<GameOfLifeTestPattern> = GameOfLifeTestPattern.values
+    algorithmFactories.forEach { algorithmFactory ->
+        testSuite(name = algorithmFactory.toString()) {
+            cellStateMappers.forEach { cellStateMapper ->
+                testSuite(name = cellStateMapper.toString()) {
+                    testPatterns.forEach { testPattern ->
+                        // Skip patterns that take too long to verify
+                        if (testPattern is Pattern52448M || testPattern is BlomPattern) {
+                            return@forEach
+                        }
+                        if (algorithmFactory.algorithmName != "HashLife Algorithm" &&
+                            testPattern is RPentominoPattern) {
+                            return@forEach
                         }
 
-                        ConfigurableGameOfLifeAlgorithm(
-                            preferences = preferences,
-                            naiveGameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(it),
-                            hashLifeAlgorithm = HashLifeAlgorithm(it),
-                        ) to job
-                    },
-                )
-        }
-    }
+                        testSuite(testPattern.toString()) {
+                            test("one_generation_step_flow") {
+                                @OptIn(ExperimentalStdlibApi::class)
+                                val dispatcher = currentCoroutineContext()[CoroutineDispatcher]!!
+                                val (algorithm, job) = algorithmFactory.factory(
+                                    this,
+                                    TestComposeLifeDispatchers(
+                                        generalTestDispatcher = dispatcher,
+                                        cellTickerTestDispatcher = dispatcher,
+                                    ),
+                                )
 
-    class CellStateMapper(
-        private val name: String,
-        val mapper: (CellState) -> CellState,
-    ) {
-        override fun toString(): String = name
+                                algorithm.computeGenerationsWithStep(
+                                    originalCellState = cellStateMapper.mapper(testPattern.seedCellState),
+                                    step = 1,
+                                )
+                                    .onEach {
+                                        delay(10.milliseconds)
+                                    }
+                                    .take(testPattern.maxGenerationCellState)
+                                    .collectIndexed { index, value ->
+                                        testPattern.cellStates[index + 1]?.let { expectedCellState ->
+                                            assertCellStateEquals(
+                                                cellStateMapper.mapper(expectedCellState),
+                                                value,
+                                            )
+                                        }
+                                    }
 
-        class Provider : TestParameterValuesProvider() {
-            override fun provideValues(context: Context?) =
-                listOf(
-                    CellStateMapper("Identity") { cellState ->
-                        cellState
-                    },
-                    CellStateMapper("Flip across x-axis") { cellState ->
-                        CellState(cellState.aliveCells.map { cell -> IntOffset(cell.x, -cell.y) }.toSet())
-                    },
-                    CellStateMapper("Flip across y-axis") { cellState ->
-                        CellState(cellState.aliveCells.map { cell -> IntOffset(-cell.x, cell.y) }.toSet())
-                    },
-                    CellStateMapper("Flip across x = y") { cellState ->
-                        CellState(cellState.aliveCells.map { cell -> IntOffset(cell.y, cell.x) }.toSet())
-                    },
-                    CellStateMapper("Translate by an arbitrary amount") { cellState ->
-                        CellState(cellState.aliveCells.map { cell -> cell + IntOffset(157, 72) }.toSet())
-                    },
-                )
-        }
-    }
+                                job.cancel()
+                            }
 
-    @TestParameter
-    lateinit var testPatternEnum: GameOfLifeTestPatternEnum
+                            test("two_generation_step_flow") {
+                                @OptIn(ExperimentalStdlibApi::class)
+                                val dispatcher = currentCoroutineContext()[CoroutineDispatcher]!!
+                                val (algorithm, job) = algorithmFactory.factory(
+                                    this,
+                                    TestComposeLifeDispatchers(
+                                        generalTestDispatcher = dispatcher,
+                                        cellTickerTestDispatcher = dispatcher,
+                                    ),
+                                )
 
-    private val testPattern: GameOfLifeTestPattern get() = testPatternEnum.sealedObject
+                                algorithm.computeGenerationsWithStep(
+                                    originalCellState = cellStateMapper.mapper(testPattern.seedCellState),
+                                    step = 2,
+                                )
+                                    .onEach {
+                                        delay(10.milliseconds)
+                                    }
+                                    .take(testPattern.maxGenerationCellState / 2)
+                                    .collectIndexed { index, value ->
+                                        testPattern.cellStates[(index + 1) * 2]?.let { expectedCellState ->
+                                            assertCellStateEquals(
+                                                cellStateMapper.mapper(expectedCellState),
+                                                value,
+                                            )
+                                        }
+                                    }
 
-    @TestParameter(valuesProvider = GameOfLifeAlgorithmFactory.Provider::class)
-    lateinit var algorithmFactory: GameOfLifeAlgorithmFactory
+                                job.cancel()
+                            }
 
-    @TestParameter(valuesProvider = CellStateMapper.Provider::class)
-    lateinit var cellStateMapper: CellStateMapper
+                            test("subsequent_one_generation_step") {
+                                @OptIn(ExperimentalStdlibApi::class)
+                                val dispatcher = currentCoroutineContext()[CoroutineDispatcher]!!
+                                val (algorithm, job) = algorithmFactory.factory(
+                                    this,
+                                    TestComposeLifeDispatchers(
+                                        generalTestDispatcher = dispatcher,
+                                        cellTickerTestDispatcher = dispatcher,
+                                    ),
+                                )
 
-    @Test
-    fun one_generation_step_flow() = runTest {
-        val testDispatcher = StandardTestDispatcher(testScheduler)
+                                var previous = cellStateMapper.mapper(testPattern.seedCellState)
 
-        val (algorithm, job) = algorithmFactory.factory(
-            this,
-            TestComposeLifeDispatchers(
-                generalTestDispatcher = testDispatcher,
-                cellTickerTestDispatcher = testDispatcher,
-            ),
-        )
+                                repeat(testPattern.maxGenerationCellState) { index ->
+                                    val current = algorithm.computeNextGeneration(previous)
+                                    testPattern.cellStates[index + 1]?.let { expectedCellState ->
+                                        assertCellStateEquals(
+                                            cellStateMapper.mapper(expectedCellState),
+                                            current,
+                                        )
+                                    }
+                                    previous = current
+                                }
 
-        assertEquals(
-            testPattern.cellStates.map { cellStateMapper.mapper(it) },
-            algorithm.computeGenerationsWithStep(
-                originalCellState = cellStateMapper.mapper(testPattern.seedCellState),
-                step = 1,
-            )
-                .onEach {
-                    delay(10.milliseconds)
+                                job.cancel()
+                            }
+
+                            test("subsequent_two_generation_step") {
+                                @OptIn(ExperimentalStdlibApi::class)
+                                val dispatcher = currentCoroutineContext()[CoroutineDispatcher]!!
+                                val (algorithm, job) = algorithmFactory.factory(
+                                    this,
+                                    TestComposeLifeDispatchers(
+                                        generalTestDispatcher = dispatcher,
+                                        cellTickerTestDispatcher = dispatcher,
+                                    ),
+                                )
+
+                                var previous = cellStateMapper.mapper(testPattern.seedCellState)
+
+                                repeat(testPattern.maxGenerationCellState / 2) { index ->
+                                    val current = algorithm.computeGenerationWithStep(previous, 2)
+                                    testPattern.cellStates[(index + 1) * 2]?.let { expectedCellState ->
+                                        assertCellStateEquals(
+                                            cellStateMapper.mapper(expectedCellState),
+                                            current,
+                                        )
+                                    }
+                                    previous = current
+                                }
+
+                                job.cancel()
+                            }
+                        }
+                    }
                 }
-                .take(testPattern.cellStates.size)
-                .toList(),
-        )
-
-        job.cancel()
-    }
-
-    @Test
-    fun two_generation_step_flow() = runTest {
-        val testDispatcher = StandardTestDispatcher(testScheduler)
-
-        val (algorithm, job) = algorithmFactory.factory(
-            this,
-            TestComposeLifeDispatchers(
-                generalTestDispatcher = testDispatcher,
-                cellTickerTestDispatcher = testDispatcher,
-            ),
-        )
-
-        assertEquals(
-            testPattern.cellStates
-                .filterIndexed { index, _ -> index.rem(2) == 1 }
-                .map { cellStateMapper.mapper(it) },
-            algorithm.computeGenerationsWithStep(
-                originalCellState = cellStateMapper.mapper(testPattern.seedCellState),
-                step = 2,
-            )
-                .onEach {
-                    delay(10.milliseconds)
-                }
-                .take(testPattern.cellStates.size / 2)
-                .toList(),
-        )
-
-        job.cancel()
-    }
-
-    @Test
-    fun subsequent_one_generation_step() = runTest {
-        val testDispatcher = StandardTestDispatcher(testScheduler)
-
-        val (algorithm, job) = algorithmFactory.factory(
-            this,
-            TestComposeLifeDispatchers(
-                generalTestDispatcher = testDispatcher,
-                cellTickerTestDispatcher = testDispatcher,
-            ),
-        )
-
-        val actualCellStates = (1..testPattern.cellStates.size)
-            .scan(cellStateMapper.mapper(testPattern.seedCellState)) { previousCellState, _ ->
-                algorithm.computeNextGeneration(previousCellState)
             }
-            .drop(1)
-
-        assertEquals(
-            testPattern.cellStates.map { cellStateMapper.mapper(it) },
-            actualCellStates,
-        )
-
-        job.cancel()
-    }
-
-    @Test
-    fun subsequent_two_generation_step() = runTest {
-        val testDispatcher = StandardTestDispatcher(testScheduler)
-
-        val (algorithm, job) = algorithmFactory.factory(
-            this,
-            TestComposeLifeDispatchers(
-                generalTestDispatcher = testDispatcher,
-                cellTickerTestDispatcher = testDispatcher,
-            ),
-        )
-
-        val actualCellStates = (1..testPattern.cellStates.size / 2)
-            .scan(cellStateMapper.mapper(testPattern.seedCellState)) { previousCellState, _ ->
-                algorithm.computeGenerationWithStep(previousCellState, 2)
-            }
-            .drop(1)
-
-        assertEquals(
-            testPattern.cellStates
-                .filterIndexed { index, _ -> index.rem(2) == 1 }
-                .map { cellStateMapper.mapper(it) },
-            actualCellStates,
-        )
-
-        job.cancel()
+        }
     }
 }
