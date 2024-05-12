@@ -34,7 +34,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
 import androidx.wear.compose.foundation.rememberActiveFocusRequester
-import androidx.wear.compose.foundation.rotary.rotary
+import androidx.wear.compose.foundation.rotary.rotaryScrollable
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Picker
 import androidx.wear.compose.material.Text
@@ -76,8 +76,8 @@ fun ColorComponentPicker(
             contentDescription = contentDescription,
             onSelected = onSelected,
             modifier = modifier
-                .rotary(
-                    rotaryBehavior = accumulatedBehavior {
+                .rotaryScrollable(
+                    behavior = accumulatedBehavior {
                         coroutineScope.launch {
                             pickerState.scrollToOption(pickerState.selectedOption + if (it > 0) 1 else -1)
                         }
