@@ -20,13 +20,14 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import com.alexvanyo.composelife.model.MacroCell.CellNode
+import com.alexvanyo.composelife.model.MacroCell.Level4Node
 import kotlin.math.ceil
 import kotlin.math.log2
 
 /**
  * Converts the given [CellState] into the equivalent [HashLifeCellState].
  */
-fun CellState.toHashLifeCellState(): HashLifeCellState {
+internal fun CellState.toHashLifeCellState(): HashLifeCellState {
     // Short-circuit if we already are
     if (this is HashLifeCellState) return this
 
@@ -39,10 +40,10 @@ fun CellState.toHashLifeCellState(): HashLifeCellState {
 
     val minimumLevel = ceil(
         maxOf(
-            log2((maxX - minX).toDouble()),
-            log2((maxY - minY).toDouble()),
+            log2((maxX + 1 - minX).toDouble()),
+            log2((maxY + 1 - minY).toDouble()),
         ),
-    ).toInt().coerceAtLeast(3)
+    ).toInt().coerceAtLeast(4)
 
     val offset = IntOffset(minX, minY)
     val macroCell = createMacroCell(
@@ -57,53 +58,95 @@ fun CellState.toHashLifeCellState(): HashLifeCellState {
     )
 }
 
-fun HashLifeCellState.expandCentered(): HashLifeCellState {
-    val node = macroCell as CellNode
+@Suppress("LongMethod")
+internal fun HashLifeCellState.expandCentered(): HashLifeCellState {
+    val node = macroCell
 
     val sameLevelEmptyCell = createEmptyMacroCell(node.level)
-    val smallerLevelEmptyCell = createEmptyMacroCell(node.level - 1)
+
+    val nwSe: MacroCell
+    val neSw: MacroCell
+    val swNe: MacroCell
+    val seNw: MacroCell
+
+    when (node) {
+        is Level4Node -> {
+            nwSe = Level4Node(
+                nw = 0L,
+                ne = 0L,
+                sw = 0L,
+                se = node.nw,
+            )
+            neSw = Level4Node(
+                nw = 0L,
+                ne = 0L,
+                sw = node.ne,
+                se = 0L,
+            )
+            swNe = Level4Node(
+                nw = 0L,
+                ne = node.sw,
+                sw = 0L,
+                se = 0L,
+            )
+            seNw = Level4Node(
+                nw = node.se,
+                ne = 0L,
+                sw = 0L,
+                se = 0L,
+            )
+        }
+        is CellNode -> {
+            val smallerLevelEmptyCell = createEmptyMacroCell(node.level - 1)
+
+            nwSe = CellNode(
+                nw = smallerLevelEmptyCell,
+                ne = smallerLevelEmptyCell,
+                sw = smallerLevelEmptyCell,
+                se = node.nw,
+            )
+            neSw = CellNode(
+                nw = smallerLevelEmptyCell,
+                ne = smallerLevelEmptyCell,
+                sw = node.ne,
+                se = smallerLevelEmptyCell,
+            )
+            swNe = CellNode(
+                nw = smallerLevelEmptyCell,
+                ne = node.sw,
+                sw = smallerLevelEmptyCell,
+                se = smallerLevelEmptyCell,
+            )
+            seNw = CellNode(
+                nw = node.se,
+                ne = smallerLevelEmptyCell,
+                sw = smallerLevelEmptyCell,
+                se = smallerLevelEmptyCell,
+            )
+        }
+    }
 
     val cell = CellNode(
         nw = CellNode(
             nw = sameLevelEmptyCell,
             ne = sameLevelEmptyCell,
             sw = sameLevelEmptyCell,
-            se = CellNode(
-                nw = smallerLevelEmptyCell,
-                ne = smallerLevelEmptyCell,
-                sw = smallerLevelEmptyCell,
-                se = node.nw,
-            ),
+            se = nwSe,
         ),
         ne = CellNode(
             nw = sameLevelEmptyCell,
             ne = sameLevelEmptyCell,
-            sw = CellNode(
-                nw = smallerLevelEmptyCell,
-                ne = smallerLevelEmptyCell,
-                sw = node.ne,
-                se = smallerLevelEmptyCell,
-            ),
+            sw = neSw,
             se = sameLevelEmptyCell,
         ),
         sw = CellNode(
             nw = sameLevelEmptyCell,
-            ne = CellNode(
-                nw = smallerLevelEmptyCell,
-                ne = node.sw,
-                sw = smallerLevelEmptyCell,
-                se = smallerLevelEmptyCell,
-            ),
+            ne = swNe,
             sw = sameLevelEmptyCell,
             se = sameLevelEmptyCell,
         ),
         se = CellNode(
-            nw = CellNode(
-                nw = node.se,
-                ne = smallerLevelEmptyCell,
-                sw = smallerLevelEmptyCell,
-                se = smallerLevelEmptyCell,
-            ),
+            nw = seNw,
             ne = sameLevelEmptyCell,
             sw = sameLevelEmptyCell,
             se = sameLevelEmptyCell,
@@ -118,14 +161,10 @@ fun HashLifeCellState.expandCentered(): HashLifeCellState {
     )
 }
 
-class HashLifeCellState(
+internal class HashLifeCellState(
     val offset: IntOffset,
     val macroCell: MacroCell,
 ) : CellState() {
-    init {
-        // Check the invariant for the macroCell
-        check(macroCell.level >= 3)
-    }
 
     override val aliveCells: Set<IntOffset> = object : Set<IntOffset> {
         override val size: Int = macroCell.size

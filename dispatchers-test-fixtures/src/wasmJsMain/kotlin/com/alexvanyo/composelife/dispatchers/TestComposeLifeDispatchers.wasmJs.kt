@@ -39,14 +39,12 @@ actual class TestComposeLifeDispatchers actual constructor(
     @param:GeneralTestDispatcher private val generalTestDispatcher: CoroutineDispatcher,
     @CellTickerTestDispatcher cellTickerTestDispatcher: CoroutineDispatcher,
 ) : ComposeLifeDispatchers {
-    override val Default: CoroutineContext = generalTestDispatcher
-    override val Main: CoroutineContext = generalTestDispatcher
-    override val MainImmediate: CoroutineContext = generalTestDispatcher
-    override val Unconfined: CoroutineContext = Dispatchers.Unconfined
-    override val IO: CoroutineContext = generalTestDispatcher
-    override fun IOWithLimitedParallelism(parallelism: Int): CoroutineDispatcher =
+    actual override val Default: CoroutineContext = generalTestDispatcher
+    actual override val Main: CoroutineContext = generalTestDispatcher
+    actual override val MainImmediate: CoroutineContext = generalTestDispatcher
+    actual override val Unconfined: CoroutineContext = Dispatchers.Unconfined
+    actual override val IO: CoroutineContext = generalTestDispatcher
+    actual override fun IOWithLimitedParallelism(parallelism: Int): CoroutineDispatcher =
         generalTestDispatcher.limitedParallelism(parallelism)
-    override val CellTicker: CoroutineContext = cellTickerTestDispatcher
-
-    companion object
+    actual override val CellTicker: CoroutineContext = cellTickerTestDispatcher
 }
