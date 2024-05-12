@@ -57,6 +57,13 @@ class SerializerTests {
                         Life105CellStateSerializer
                     },
                     CellStateSerializerFactory(
+                        name = "Life 1.06",
+                        trueEquals = true,
+                        format = CellStateFormat.FixedFormat.Life106,
+                    ) {
+                        Life106CellStateSerializer
+                    },
+                    CellStateSerializerFactory(
                         name = "Run length encoding",
                         trueEquals = true,
                         format = CellStateFormat.FixedFormat.RunLengthEncoding,
