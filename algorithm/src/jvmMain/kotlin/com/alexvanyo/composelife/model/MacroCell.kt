@@ -18,10 +18,8 @@ package com.alexvanyo.composelife.model
 
 import androidx.annotation.IntRange
 import androidx.compose.ui.unit.IntOffset
-import com.alexvanyo.composelife.model.MacroCell.Cell
-import com.alexvanyo.composelife.model.MacroCell.Cell.AliveCell
-import com.alexvanyo.composelife.model.MacroCell.Cell.DeadCell
 import com.alexvanyo.composelife.model.MacroCell.CellNode
+import com.alexvanyo.composelife.model.MacroCell.LeafNode
 
 /**
  * A quad tree representation of the state of cells.
@@ -42,26 +40,13 @@ sealed interface MacroCell {
      */
     val size: Int
 
-    /**
-     * A leaf [MacroCell], which is either an [AliveCell] or a [DeadCell].
-     */
-    sealed interface Cell : MacroCell {
+    @JvmInline
+    value class LeafNode(
+        val cells: ULong
+    ) : MacroCell {
+        override val level: Int get() = 3
 
-        override val level get() = 0
-
-        val isAlive: Boolean
-
-        data object AliveCell : Cell {
-            override val isAlive = true
-
-            override val size: Int = 1
-        }
-
-        data object DeadCell : Cell {
-            override val isAlive = false
-
-            override val size: Int = 0
-        }
+        override val size: Int get() = cells.countOneBits()
     }
 
     /**
@@ -115,13 +100,15 @@ sealed interface MacroCell {
 fun MacroCell.withCell(target: IntOffset, isAlive: Boolean): MacroCell {
     require(target.x in 0 until (1 shl level) && target.y in 0 until (1 shl level))
     return when (this) {
-        AliveCell, DeadCell -> {
-            require(target == IntOffset.Zero)
-            if (isAlive) {
-                AliveCell
-            } else {
-                DeadCell
-            }
+        is LeafNode -> {
+            val mask = target.toMask()
+            LeafNode(
+                cells = if (isAlive) {
+                    cells.or(mask)
+                } else {
+                    cells.and(mask.inv())
+                }
+            )
         }
         is CellNode -> {
             val offsetDiff = 1 shl (level - 1)
@@ -152,12 +139,20 @@ fun MacroCell.withCell(target: IntOffset, isAlive: Boolean): MacroCell {
 /**
  * Creates a [MacroCell] with the given [level] as a window looking into [CellState] at [offset].
  */
-fun createMacroCell(cellState: CellState, offset: IntOffset, level: Int): MacroCell = if (level == 0) {
-    if (offset in cellState.aliveCells) {
-        AliveCell
-    } else {
-        DeadCell
-    }
+fun createMacroCell(
+    cellState: CellState,
+    offset: IntOffset,
+    @IntRange(from = 3) level: Int,
+): MacroCell = if (level == 0) {
+    LeafNode(
+        (0..63)
+            .mapNotNull { index ->
+                (1uL shl index).takeIf {
+                    offset + intOffsetFromBit(index) in cellState.aliveCells
+                }
+            }
+            .reduce(ULong::or)
+    )
 } else {
     val offsetDiff = 1 shl (level - 1)
     CellNode(
@@ -173,10 +168,10 @@ fun createMacroCell(cellState: CellState, offset: IntOffset, level: Int): MacroC
  *
  * The returned [MacroCell] has [MacroCell.size] `0` (in other words, it is entirely dead).
  */
-fun createEmptyMacroCell(@IntRange(from = 0) level: Int): MacroCell {
-    require(level >= 0)
-    return if (level == 0) {
-        DeadCell
+fun createEmptyMacroCell(@IntRange(from = 3) level: Int): MacroCell {
+    require(level >= 3)
+    return if (level == 3) {
+        LeafNode(0uL)
     } else {
         val smallerEmptyMacroCell = createEmptyMacroCell(level - 1)
         CellNode(smallerEmptyMacroCell, smallerEmptyMacroCell, smallerEmptyMacroCell, smallerEmptyMacroCell)
@@ -202,8 +197,15 @@ fun MacroCell.iterator(
             cellWindow.top < 1 shl level
         ) {
             when (macroCell) {
-                AliveCell -> yield(offset)
-                DeadCell -> throw AssertionError("Dead cell must have a size equal to 0!")
+                is LeafNode -> {
+                    yieldAll(
+                        (0..63).mapNotNull { index ->
+                            intOffsetFromBit(index).takeIf {
+                                (macroCell.cells and (1uL shl index)) != 0uL
+                            }
+                        }
+                    )
+                }
                 is CellNode -> {
                     val offsetDiff = 1 shl (level - 1)
                     yieldAll(macroCell.nw.iterator(offset, cellWindow))
@@ -243,7 +245,10 @@ tailrec fun MacroCell.contains(target: IntOffset): Boolean =
         false
     } else {
         when (this) {
-            is Cell -> isAlive
+            is LeafNode -> {
+                val mask = 1uL shl (target.y shl 4 + target.x)
+                (cells and mask) != 0uL
+            }
             is CellNode -> {
                 if (size == 0) {
                     false
@@ -291,13 +296,8 @@ fun MacroCell.containsAll(targets: Collection<IntOffset>): Boolean {
     }
 
     return when (this) {
-        AliveCell -> {
-            check(targets.size == 1)
-            check(targets.first() == IntOffset.Zero)
-            true
-        }
-        DeadCell -> {
-            throw AssertionError("Dead cell must have a size equal to 0!")
+        is LeafNode -> {
+            targets.map(IntOffset::toMask).reduce(ULong::or) and cells != 0uL
         }
         is CellNode -> {
             val offsetDiff = 1 shl (level - 1)
@@ -318,3 +318,7 @@ fun MacroCell.containsAll(targets: Collection<IntOffset>): Boolean {
         }
     }
 }
+
+private fun IntOffset.toMask(): ULong = 1uL shl (y shl 4 + x)
+
+private fun intOffsetFromBit(bit: Int) = IntOffset(bit.mod(4), bit / 4)

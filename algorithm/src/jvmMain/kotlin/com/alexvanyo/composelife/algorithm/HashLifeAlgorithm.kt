@@ -96,7 +96,7 @@ class HashLifeAlgorithm(
 
     private fun MacroCell.makeCanonical(useMap: Boolean = true): MacroCell =
         when (this) {
-            is MacroCell.Cell -> this
+            is MacroCell.LeafNode -> this
             is MacroCell.CellNode -> makeCanonical(useMap = useMap)
         }
 
