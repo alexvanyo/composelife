@@ -17,9 +17,12 @@
 package com.alexvanyo.composelife.ui.app.component
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
@@ -51,25 +54,32 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
+import androidx.compose.ui.util.lerp
 import com.alexvanyo.composelife.ui.util.AnchoredDraggableState
 import com.alexvanyo.composelife.ui.util.AnchoredDraggableStateSaver
 import com.alexvanyo.composelife.ui.util.AnimatedContent
+import com.alexvanyo.composelife.ui.util.ContentStatus
 import com.alexvanyo.composelife.ui.util.DraggableAnchors
 import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackState
+import com.alexvanyo.composelife.ui.util.SwipeEdge
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.asFoundationDraggableAnchors
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
@@ -315,13 +325,147 @@ fun ListDetailPaneScaffold(
                             current = false,
                             provisional = true,
                             progress = predictiveBackState.progress,
+                            metadata = predictiveBackState,
                         )
+                }.also { println("vanyo: target state for list: $it") },
+                transitionSpec = { contentWithStatus ->
+                    val contentStatusTargetState = this@AnimatedContent.targetState
+
+                    val alpha by animateFloat(
+                        transitionSpec = {
+                            when (initialState) {
+                                is ContentStatus.Appearing,
+                                is ContentStatus.Disappearing,
+                                -> spring()
+                                ContentStatus.NotVisible,
+                                ContentStatus.Visible,
+                                -> when (this@animateFloat.targetState) {
+                                    is ContentStatus.Appearing,
+                                    is ContentStatus.Disappearing,
+                                    -> spring()
+                                    ContentStatus.NotVisible -> tween(durationMillis = 90)
+                                    ContentStatus.Visible -> tween(durationMillis = 220, delayMillis = 90)
+                                }
+                            }
+                        },
+                        label = "alpha",
+                    ) {
+                        when (it) {
+                            is ContentStatus.Appearing -> 1f
+                            is ContentStatus.Disappearing -> 1f
+                            ContentStatus.NotVisible -> 0f
+                            ContentStatus.Visible -> 1f
+                        }
+                    }
+                    val lastDisappearingValue by remember {
+                        mutableStateOf<ContentStatus.Disappearing<out RepeatablePredictiveBackState.Running>?>(null)
+                    }.apply {
+                        when (contentStatusTargetState) {
+                            is ContentStatus.Appearing -> value = null
+                            is ContentStatus.Disappearing -> {
+                                if (contentStatusTargetState.progressToNotVisible >= 0.01f) {
+                                    // Only save that we were disappearing if the progress is at least 1% along
+                                    value = contentStatusTargetState
+                                }
+                            }
+                            ContentStatus.NotVisible -> Unit // Preserve the previous value of wasDisappearing
+                            ContentStatus.Visible -> value = null
+                        }
+                    }
+                    val scale by animateFloat(
+                        label = "scale",
+                    ) {
+                        when (it) {
+                            is ContentStatus.Appearing -> 1f
+                            is ContentStatus.Disappearing -> lerp(1f, 0.9f, it.progressToNotVisible)
+                            ContentStatus.NotVisible -> if (lastDisappearingValue != null) 0.9f else 1f
+                            ContentStatus.Visible -> 1f
+                        }
+                    }
+                    val translationX by animateDp(
+                        label = "translationX",
+                    ) {
+                        when (it) {
+                            is ContentStatus.Appearing -> 0.dp
+                            is ContentStatus.Disappearing -> {
+                                val metadata = it.metadata
+                                lerp(
+                                    0.dp,
+                                    8.dp,
+                                    it.progressToNotVisible,
+                                ) * when (metadata.swipeEdge) {
+                                    SwipeEdge.Left -> -1f
+                                    SwipeEdge.Right -> 1f
+                                }
+                            }
+                            ContentStatus.NotVisible -> {
+                                8.dp * when (lastDisappearingValue?.metadata?.swipeEdge) {
+                                    null -> 0f
+                                    SwipeEdge.Left -> -1f
+                                    SwipeEdge.Right -> 1f
+                                }
+                            }
+                            ContentStatus.Visible -> 0.dp
+                        }
+                    }
+                    val cornerRadius by animateDp(
+                        label = "cornerRadius",
+                    ) {
+                        when (it) {
+                            is ContentStatus.Appearing -> 0.dp
+                            is ContentStatus.Disappearing -> lerp(0.dp, 28.dp, it.progressToNotVisible)
+                            ContentStatus.NotVisible -> if (lastDisappearingValue != null) 28.dp else 0.dp
+                            ContentStatus.Visible -> 0.dp
+                        }
+                    }
+                    val pivotFractionX by animateFloat(
+                        label = "pivotFractionX",
+                    ) {
+                        when (it) {
+                            is ContentStatus.Appearing -> 0.5f
+                            is ContentStatus.Disappearing -> {
+                                when (it.metadata.swipeEdge) {
+                                    SwipeEdge.Left -> 1f
+                                    SwipeEdge.Right -> 0f
+                                }
+                            }
+                            ContentStatus.NotVisible -> {
+                                when (lastDisappearingValue?.metadata?.swipeEdge) {
+                                    null -> 0.5f
+                                    SwipeEdge.Left -> 1f
+                                    SwipeEdge.Right -> 0f
+                                }
+                            }
+                            ContentStatus.Visible -> 0.5f
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .graphicsLayer {
+                                shadowElevation = 6.dp.toPx()
+                                this.translationX = translationX.toPx()
+                                this.alpha = alpha
+                                this.scaleX = scale
+                                this.scaleY = scale
+                                this.transformOrigin = TransformOrigin(pivotFractionX, 0.5f)
+                                shape = RoundedCornerShape(cornerRadius)
+                                clip = true
+                            },
+                        propagateMinConstraints = true,
+                    ) {
+                        contentWithStatus()
+                    }
                 },
             ) { targetShowList ->
                 if (targetShowList) {
-                    listContent()
+                    Surface {
+                        listContent()
+                    }
                 } else {
-                    detailContent()
+                    Surface {
+                        detailContent()
+                    }
                 }
             }
         }

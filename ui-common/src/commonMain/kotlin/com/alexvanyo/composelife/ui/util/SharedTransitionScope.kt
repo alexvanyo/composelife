@@ -24,6 +24,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.LookaheadScope
+import com.alexvanyo.composelife.ui.util.SharedTransitionScope.SharedContentState
 
 @Composable
 fun SharedTransitionLayout(
@@ -70,6 +71,35 @@ interface SharedTransitionScope : LookaheadScope {
     }
 }
 
+@Composable
+fun Modifier.trySharedElement(
+    key: Any,
+    renderInOverlayDuringTransition: Boolean = true,
+    zIndexInOverlay: Float = 0f,
+): Modifier {
+    val animatedVisibilityScope = LocalNavigationAnimatedVisibilityScope.current
+    val sharedTransitionScope = LocalNavigationSharedTransitionScope.current
+
+    return this.then(
+        if (animatedVisibilityScope == null || sharedTransitionScope == null) {
+            Modifier
+        } else {
+            with(sharedTransitionScope) {
+                Modifier.sharedElement(
+                    sharedContentState = rememberSharedContentState(key),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                    renderInOverlayDuringTransition = renderInOverlayDuringTransition,
+                    zIndexInOverlay = zIndexInOverlay,
+                )
+            }
+        },
+    )
+}
+
 @Suppress("ComposeCompositionLocalUsage")
-val LocalNavigationAnimatedContentScope: ProvidableCompositionLocal<AnimatedVisibilityScope?> =
+val LocalNavigationAnimatedVisibilityScope: ProvidableCompositionLocal<AnimatedVisibilityScope?> =
+    compositionLocalOf { null }
+
+@Suppress("ComposeCompositionLocalUsage")
+val LocalNavigationSharedTransitionScope: ProvidableCompositionLocal<SharedTransitionScope?> =
     compositionLocalOf { null }
