@@ -168,7 +168,7 @@ class SelectionOverlayTests {
             .performMouseInput {
                 val start = center
                 val end = center + with(density) { DpOffset(200.dp, 200.dp).toPx() }
-                dragAndDrop(start, end, 1_000)
+                dragAndDrop(start, end, durationMillis = 1_000)
             }
 
         assertEquals(

@@ -27,17 +27,18 @@ import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.gestures.Drag2DScope
 import androidx.compose.foundation.gestures.Draggable2DState
 import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.draggable2D
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.geometry.isUnspecified
@@ -144,14 +145,17 @@ fun <T> Modifier.anchoredDraggable2D(
     enabled: Boolean = true,
     reverseDirection: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
-) = draggable2D(
-    state = state.draggableState,
-    enabled = enabled,
-    interactionSource = interactionSource,
-    reverseDirection = reverseDirection,
-    startDragImmediately = state.isAnimationRunning,
-    onDragStopped = { velocity -> launch { state.settle(velocity) } },
-)
+) = composed {
+    val coroutineScope = rememberCoroutineScope()
+    draggable2D(
+        state = state.draggableState,
+        enabled = enabled,
+        interactionSource = interactionSource,
+        reverseDirection = reverseDirection,
+        startDragImmediately = state.isAnimationRunning,
+        onDragStopped = { velocity -> coroutineScope.launch { state.settle(velocity) } },
+    )
+}
 
 /**
  * Scope used for suspending anchored drag blocks. Allows to set [AnchoredDraggable2DState.offset] to
