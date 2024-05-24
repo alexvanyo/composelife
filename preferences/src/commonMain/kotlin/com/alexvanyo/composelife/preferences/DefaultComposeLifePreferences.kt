@@ -137,6 +137,8 @@ private class PreferencesProtoTransform(
             QuickAccessSetting.DisableOpenGL -> QuickAccessSettingProto.DISABLE_OPENGL
             QuickAccessSetting.DoNotKeepProcess -> QuickAccessSettingProto.DO_NOT_KEEP_PROCESS
             QuickAccessSetting.EnableClipboardWatching -> QuickAccessSettingProto.ENABLE_CLIPBOARD_WATCHING
+            QuickAccessSetting.ClipboardWatchingOnboardingCompleted ->
+                QuickAccessSettingProto.CLIPBOARD_WATCHING_ONBOARDING_COMPLETED
         }
 
         val oldQuickAccessSettings = newPreferencesProto.quick_access_settings.toSet()
@@ -219,6 +221,8 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
                     QuickAccessSetting.DoNotKeepProcess
                 QuickAccessSettingProto.ENABLE_CLIPBOARD_WATCHING ->
                     QuickAccessSetting.EnableClipboardWatching
+                QuickAccessSettingProto.CLIPBOARD_WATCHING_ONBOARDING_COMPLETED ->
+                    QuickAccessSetting.ClipboardWatchingOnboardingCompleted
                 QuickAccessSettingProto.SETTINGS_UNKNOWN,
                 -> null
             }
