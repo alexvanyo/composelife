@@ -247,6 +247,9 @@ internal actual val Strings.ClipboardWatchingOnboarding: ParameterizedString get
             "This can be changed later in settings.",
     )
 
+internal actual val Strings.ClipboardWatchingOnboardingCompleted: ParameterizedString get() =
+    ParameterizedString("Watch clipboard onboarding completed")
+
 internal actual val Strings.Allow: ParameterizedString get() =
     ParameterizedString("Allow")
 

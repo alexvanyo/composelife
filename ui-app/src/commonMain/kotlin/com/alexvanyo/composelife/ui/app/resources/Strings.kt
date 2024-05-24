@@ -174,6 +174,8 @@ internal expect val Strings.Visual: ParameterizedString
 
 internal expect val Strings.ClipboardWatchingOnboarding: ParameterizedString
 
+internal expect val Strings.ClipboardWatchingOnboardingCompleted: ParameterizedString
+
 internal expect val Strings.Allow: ParameterizedString
 
 internal expect val Strings.Disallow: ParameterizedString

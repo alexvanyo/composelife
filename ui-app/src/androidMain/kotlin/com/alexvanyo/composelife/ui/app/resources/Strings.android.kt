@@ -245,6 +245,9 @@ internal actual val Strings.Visual: ParameterizedString get() =
 internal actual val Strings.ClipboardWatchingOnboarding: ParameterizedString get() =
     ParameterizedString(R.string.clipboard_watching_onboarding)
 
+internal actual val Strings.ClipboardWatchingOnboardingCompleted: ParameterizedString get() =
+    ParameterizedString(R.string.clipboard_watching_onboarding_completed)
+
 internal actual val Strings.Allow: ParameterizedString get() =
     ParameterizedString(R.string.allow)
 
