@@ -49,6 +49,7 @@ class SettingsCategoryTests {
                 Setting.DisableOpenGL,
                 Setting.DoNotKeepProcess,
                 Setting.EnableClipboardWatching,
+                Setting.ClipboardWatchingOnboardingCompleted,
             ),
             SettingsCategory.FeatureFlags.settings,
         )

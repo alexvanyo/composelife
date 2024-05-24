@@ -90,6 +90,7 @@
     <string name="pin">Pin</string>
     <string name="unpin">Unpin</string>
     <string name="clipboard_watching_onboarding">Allow watching the contents of the system clipboard to provide a preview of the cell state? This can be changed later in settings.</string>
+    <string name="clipboard_watching_onboarding_completed">Watch clipboard onboarding completed</string>
     <string name="allow">Allow</string>
     <string name="disallow">Don\'t allow</string>
     <string name="enable_clipboard_watching">Enable clipboard watching</string>
