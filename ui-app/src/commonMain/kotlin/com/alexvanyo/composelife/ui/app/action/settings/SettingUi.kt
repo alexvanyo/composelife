@@ -37,7 +37,8 @@ interface SettingUiInjectEntryPoint :
     DisableAGSLUiInjectEntryPoint,
     DisableOpenGLUiInjectEntryPoint,
     DoNotKeepProcessUiInjectEntryPoint,
-    EnableClipboardWatchingUiInjectEntryPoint
+    EnableClipboardWatchingUiInjectEntryPoint,
+    ClipboardWatchingOnboardingCompletedUiInjectEntryPoint
 
 interface SettingUiLocalEntryPoint :
     AlgorithmImplementationUiLocalEntryPoint,
@@ -48,6 +49,7 @@ interface SettingUiLocalEntryPoint :
     DisableOpenGLUiLocalEntryPoint,
     DoNotKeepProcessUiLocalEntryPoint,
     EnableClipboardWatchingUiLocalEntryPoint,
+    ClipboardWatchingOnboardingCompletedUiLocalEntryPoint,
     LoadedComposeLifePreferencesProvider
 
 /**
@@ -93,6 +95,7 @@ fun SettingUi(
             Setting.DisableOpenGL -> DisableOpenGLUi()
             Setting.DoNotKeepProcess -> DoNotKeepProcessUi()
             Setting.EnableClipboardWatching -> EnableClipboardWatchingUi()
+            Setting.ClipboardWatchingOnboardingCompleted -> ClipboardWatchingOnboardingCompletedUi()
         }
     }
 }
@@ -106,4 +109,5 @@ val QuickAccessSetting.setting: Setting get() =
         QuickAccessSetting.DisableOpenGL -> Setting.DisableOpenGL
         QuickAccessSetting.DoNotKeepProcess -> Setting.DoNotKeepProcess
         QuickAccessSetting.EnableClipboardWatching -> Setting.EnableClipboardWatching
+        QuickAccessSetting.ClipboardWatchingOnboardingCompleted -> Setting.ClipboardWatchingOnboardingCompleted
     }
