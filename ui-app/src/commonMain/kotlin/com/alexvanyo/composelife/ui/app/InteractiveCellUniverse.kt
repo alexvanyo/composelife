@@ -69,6 +69,7 @@ import com.alexvanyo.composelife.ui.app.cells.rememberMutableSelectionStateHolde
 import com.alexvanyo.composelife.ui.app.cells.rememberTrackingCellWindowViewportState
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
+import com.alexvanyo.composelife.ui.util.ClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.ImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.LocalGhostElement
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
@@ -283,6 +284,7 @@ fun rememberInteractiveCellUniverseState(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     immersiveModeManager: ImmersiveModeManager,
     mutableCellWindowViewportState: MutableCellWindowViewportState = rememberMutableCellWindowViewportState(),
+    clipboardReaderWriter: ClipboardReaderWriter = rememberClipboardReaderWriter(),
 ): InteractiveCellUniverseState {
     val trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(temporalGameOfLifeState)
 
@@ -386,8 +388,6 @@ fun rememberInteractiveCellUniverseState(
                 }
             }
         }
-
-    val clipboardReaderWriter = rememberClipboardReaderWriter()
 
     return remember(
         temporalGameOfLifeState,
