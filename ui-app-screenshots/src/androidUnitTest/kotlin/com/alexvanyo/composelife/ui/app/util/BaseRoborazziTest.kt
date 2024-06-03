@@ -76,7 +76,7 @@ abstract class BaseRoborazziTest(
 
     @BeforeTest
     fun setup() {
-        System.setProperty("robolectric.screenshot.hwrdr.native", "true")
+        System.setProperty("robolectric.pixelCopyRenderMode", "hardware")
         wasDrawingEnabled = HardwareRendererCompat.isDrawingEnabled()
         HardwareRendererCompat.setDrawingEnabled(true)
     }
