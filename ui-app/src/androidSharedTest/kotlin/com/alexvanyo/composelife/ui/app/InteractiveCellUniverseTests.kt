@@ -59,10 +59,8 @@ import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.InjectTestActivity
 import com.alexvanyo.composelife.ui.app.cells.rememberMutableCellWindowViewportState
-import com.alexvanyo.composelife.ui.util.ClipboardReader
-import com.alexvanyo.composelife.ui.util.ClipboardWriter
-import com.alexvanyo.composelife.ui.util.rememberClipboardReader
-import com.alexvanyo.composelife.ui.util.rememberClipboardWriter
+import com.alexvanyo.composelife.ui.util.ClipboardReaderWriter
+import com.alexvanyo.composelife.ui.util.rememberFakeClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.setText
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -635,7 +633,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
     @SkipLeakDetection("appliedChanges", "Outer")
     @Test
     fun glider_is_copied_correctly_with_keyboard_shortcuts() = runAppTest(generalTestDispatcher) {
-        lateinit var clipboardReader: ClipboardReader
+        lateinit var clipboardReaderWriter: ClipboardReaderWriter
 
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
@@ -655,15 +653,21 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
             with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
-                    clipboardReader = rememberClipboardReader()
+                    clipboardReaderWriter = rememberFakeClipboardReaderWriter()
+                    val immersiveModeManager = rememberImmersiveModeManager()
 
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        immersiveModeManager = rememberImmersiveModeManager(),
+                        immersiveModeManager = immersiveModeManager,
                         windowSizeClass = calculateWindowSizeClass(),
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
+                        interactiveCellUniverseState = rememberInteractiveCellUniverseState(
+                            temporalGameOfLifeState = temporalGameOfLifeState,
+                            immersiveModeManager = immersiveModeManager,
+                            clipboardReaderWriter = clipboardReaderWriter,
+                        ),
                     )
                 }
             }
@@ -706,7 +710,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 keyDown(Key.C)
             }
 
-        val clipData = clipboardReader.getClipData()
+        val clipData = clipboardReaderWriter.getClipData()
         assertNotNull(clipData)
         assertEquals(
             """
@@ -808,7 +812,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
     @SkipLeakDetection("appliedChanges", "Outer")
     @Test
     fun glider_is_pasted_correctly_with_keyboard_shortcuts() = runAppTest(generalTestDispatcher) {
-        lateinit var clipboardWriter: ClipboardWriter
+        lateinit var clipboardReaderWriter: ClipboardReaderWriter
 
         composeTestRule.setContent {
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
@@ -828,7 +832,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
             with(interactiveCellUniverseInjectEntryPoint) {
                 with(interactiveCellUniverseLocalEntryPoint) {
-                    clipboardWriter = rememberClipboardWriter()
+                    clipboardReaderWriter = rememberFakeClipboardReaderWriter()
                     val immersiveModeManager = rememberImmersiveModeManager()
 
                     InteractiveCellUniverse(
@@ -844,6 +848,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                             mutableCellWindowViewportState = rememberMutableCellWindowViewportState(
                                 offset = Offset(30.5f, -18.5f),
                             ),
+                            clipboardReaderWriter = clipboardReaderWriter,
                         ),
                     )
                 }
@@ -856,15 +861,13 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                 pressKey(Key.Spacebar)
             }
 
-        composeTestRule.runOnUiThread {
-            clipboardWriter.setText(
-                """
-                #R 0 0
-                x = 3, y = 3, rule = B3/S23
-                bo$2bo$3o!
-                """.trimIndent(),
-            )
-        }
+        clipboardReaderWriter.setText(
+            """
+            #R 0 0
+            x = 3, y = 3, rule = B3/S23
+            bo$2bo$3o!
+            """.trimIndent(),
+        )
 
         composeTestRule
             .onRoot()
