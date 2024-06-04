@@ -66,6 +66,7 @@ fun ClipboardWatchingSectionEnabledLoadingPreview(modifier: Modifier = Modifier)
             Surface(modifier) {
                 ClipboardWatchingSection(
                     clipboardWatchingState = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                        override val useSharedElementForCellStatePreviews: Boolean = false
                         override val isLoading = true
                         override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
                         override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> = emptyList()
@@ -84,6 +85,7 @@ fun ClipboardWatchingSectionEnabledUnsuccessfulPreview(modifier: Modifier = Modi
             Surface(modifier) {
                 ClipboardWatchingSection(
                     clipboardWatchingState = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                        override val useSharedElementForCellStatePreviews: Boolean = false
                         override val isLoading: Boolean = true
                         override val clipboardPreviewStates: List<ClipboardPreviewState> = listOf(
                             object : ClipboardPreviewState {
@@ -115,6 +117,7 @@ fun ClipboardWatchingSectionEnabledSuccessfulPreview(modifier: Modifier = Modifi
             Surface(modifier) {
                 ClipboardWatchingSection(
                     clipboardWatchingState = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                        override val useSharedElementForCellStatePreviews: Boolean = false
                         override val isLoading: Boolean = true
                         override val clipboardPreviewStates: List<ClipboardPreviewState> = listOf(
                             object : ClipboardPreviewState {
