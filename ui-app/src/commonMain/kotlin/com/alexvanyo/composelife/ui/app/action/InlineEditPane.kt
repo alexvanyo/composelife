@@ -56,6 +56,7 @@ import com.alexvanyo.composelife.preferences.setStylusToolConfig
 import com.alexvanyo.composelife.preferences.setTouchToolConfig
 import com.alexvanyo.composelife.ui.app.ClipboardCellStateParser
 import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
+import com.alexvanyo.composelife.ui.app.cells.isSharedElementForCellsSupported
 import com.alexvanyo.composelife.ui.app.component.DropdownOption
 import com.alexvanyo.composelife.ui.app.component.TextFieldDropdown
 import com.alexvanyo.composelife.ui.app.resources.Draw
@@ -267,6 +268,8 @@ sealed interface ClipboardWatchingState {
     data object ClipboardWatchingDisabled : ClipboardWatchingState
 
     interface ClipboardWatchingEnabled : ClipboardWatchingState {
+        val useSharedElementForCellStatePreviews: Boolean
+
         val isLoading: Boolean
 
         val clipboardPreviewStates: List<ClipboardPreviewState>
@@ -394,20 +397,23 @@ fun rememberClipboardWatchingOnboardingState(
         }
     }
 
-context(ComposeLifeDispatchersProvider, ClipboardCellStateParserProvider)
+context(ComposeLifeDispatchersProvider, ClipboardCellStateParserProvider, LoadedComposeLifePreferencesProvider)
 @Composable
 fun rememberClipboardWatchingEnabledState(
     setSelectionToCellState: (CellState) -> Unit,
 ): ClipboardWatchingState.ClipboardWatchingEnabled =
     rememberClipboardWatchingEnabledState(
+        useSharedElementForCellStatePreviews = isSharedElementForCellsSupported(),
         clipboardReader = rememberClipboardReader(),
         parser = clipboardCellStateParser,
         setSelectionToCellState = setSelectionToCellState,
     )
 
+context(LoadedComposeLifePreferencesProvider)
 @Suppress("LongMethod")
 @Composable
 fun rememberClipboardWatchingEnabledState(
+    useSharedElementForCellStatePreviews: Boolean,
     clipboardReader: ClipboardReader,
     parser: ClipboardCellStateParser,
     setSelectionToCellState: (CellState) -> Unit,
@@ -466,10 +472,12 @@ fun rememberClipboardWatchingEnabledState(
         }
     }
 
-    return remember(setSelectionToCellState) {
+    return remember(setSelectionToCellState, useSharedElementForCellStatePreviews) {
         object : ClipboardWatchingState.ClipboardWatchingEnabled {
             override val isLoading: Boolean
                 get() = isLoading
+
+            override val useSharedElementForCellStatePreviews: Boolean = useSharedElementForCellStatePreviews
 
             override val clipboardPreviewStates: List<ClipboardPreviewState>
                 get() = listOfNotNull(
