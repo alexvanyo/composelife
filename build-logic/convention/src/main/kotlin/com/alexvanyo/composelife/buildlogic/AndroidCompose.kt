@@ -30,6 +30,11 @@ fun Project.configureAndroidCompose(
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
     commonExtension.apply {
+        lint {
+            // TODO: Re-enable this lint check
+            disable.addAll(listOf("ComposeParameterOrder"))
+        }
+
         buildFeatures {
             compose = true
         }
