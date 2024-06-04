@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.Dp
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.preferences.currentShape
+import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 
 context(NonInteractableCellsLocalEntryPoint)
 @Composable
@@ -35,23 +36,45 @@ actual fun NonInteractableCells(
     modifier: Modifier,
     inOverlay: Boolean,
 ) {
-    if (!preferences.disableAGSL) {
-        SKSLNonInteractableCells(
-            gameOfLifeState = gameOfLifeState,
-            scaledCellDpSize = scaledCellDpSize,
-            cellWindow = cellWindow,
-            shape = preferences.currentShape,
-            pixelOffsetFromCenter = pixelOffsetFromCenter,
-            modifier = modifier,
-        )
-    } else {
-        CanvasNonInteractableCells(
-            gameOfLifeState = gameOfLifeState,
-            scaledCellDpSize = scaledCellDpSize,
-            cellWindow = cellWindow,
-            shape = preferences.currentShape,
-            pixelOffsetFromCenter = pixelOffsetFromCenter,
-            modifier = modifier,
-        )
+    when (computeImplementationType()) {
+        NonInteractableCellsImplementationType.Canvas -> {
+            CanvasNonInteractableCells(
+                gameOfLifeState = gameOfLifeState,
+                scaledCellDpSize = scaledCellDpSize,
+                cellWindow = cellWindow,
+                shape = preferences.currentShape,
+                pixelOffsetFromCenter = pixelOffsetFromCenter,
+                modifier = modifier,
+            )
+        }
+        NonInteractableCellsImplementationType.SKSL -> {
+            SKSLNonInteractableCells(
+                gameOfLifeState = gameOfLifeState,
+                scaledCellDpSize = scaledCellDpSize,
+                cellWindow = cellWindow,
+                shape = preferences.currentShape,
+                pixelOffsetFromCenter = pixelOffsetFromCenter,
+                modifier = modifier,
+            )
+        }
     }
 }
+
+private sealed interface NonInteractableCellsImplementationType {
+    data object SKSL : NonInteractableCellsImplementationType
+    data object Canvas : NonInteractableCellsImplementationType
+}
+
+context(LoadedComposeLifePreferencesProvider)
+@Composable
+private fun computeImplementationType(): NonInteractableCellsImplementationType =
+    when {
+        !preferences.disableAGSL ->
+            NonInteractableCellsImplementationType.SKSL
+        else ->
+            NonInteractableCellsImplementationType.Canvas
+    }
+
+context(LoadedComposeLifePreferencesProvider)
+@Composable
+actual fun isSharedElementForCellsSupported(): Boolean = true
