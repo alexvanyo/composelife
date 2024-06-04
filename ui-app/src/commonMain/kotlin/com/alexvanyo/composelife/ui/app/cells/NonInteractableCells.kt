@@ -46,3 +46,7 @@ expect fun NonInteractableCells(
     modifier: Modifier = Modifier,
     inOverlay: Boolean = false,
 )
+
+context(LoadedComposeLifePreferencesProvider)
+@Composable
+expect fun isSharedElementForCellsSupported(): Boolean
