@@ -95,6 +95,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val useSharedElementForCellStatePreviews = false
                                 override val isLoading = true
 
                                 override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
@@ -158,6 +159,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val useSharedElementForCellStatePreviews = false
                                 override val isLoading = false
 
                                 override val clipboardPreviewStates = clipboardPreviewStates
@@ -233,6 +235,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val useSharedElementForCellStatePreviews = false
                                 override val isLoading = false
 
                                 override val clipboardPreviewStates = clipboardPreviewStates
@@ -301,6 +304,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val useSharedElementForCellStatePreviews = false
                                 override val isLoading = false
 
                                 override val clipboardPreviewStates = clipboardPreviewStates
@@ -347,6 +351,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val useSharedElementForCellStatePreviews = false
                                 override val isLoading = true
 
                                 override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
@@ -392,6 +397,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val useSharedElementForCellStatePreviews = false
                                 override val isLoading = true
 
                                 override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
@@ -437,6 +443,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val useSharedElementForCellStatePreviews = false
                                 override val isLoading = true
 
                                 override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
@@ -482,6 +489,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val useSharedElementForCellStatePreviews = false
                                 override val isLoading = true
 
                                 override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
@@ -527,6 +535,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val useSharedElementForCellStatePreviews = false
                                 override val isLoading = true
 
                                 override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
@@ -576,6 +585,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                override val useSharedElementForCellStatePreviews = false
                                 override val isLoading = true
 
                                 override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()

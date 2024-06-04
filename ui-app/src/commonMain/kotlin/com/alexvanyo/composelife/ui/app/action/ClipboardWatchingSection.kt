@@ -105,7 +105,10 @@ fun ClipboardWatchingEnabled(
             }
         }
 
-        ClipboardPreviewHistory(clipboardWatchingState.clipboardPreviewStates)
+        ClipboardPreviewHistory(
+            clipboardPreviewStates = clipboardWatchingState.clipboardPreviewStates,
+            useSharedElementForCellStatePreviews = clipboardWatchingState.useSharedElementForCellStatePreviews,
+        )
 
         HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(16.dp))
 
@@ -117,7 +120,10 @@ fun ClipboardWatchingEnabled(
             )
         }
 
-        PinnedClipboardPreviews(clipboardWatchingState.pinnedClipboardPreviewStates)
+        PinnedClipboardPreviews(
+            pinnedClipboardPreviewStates = clipboardWatchingState.pinnedClipboardPreviewStates,
+            useSharedElementForCellStatePreviews = clipboardWatchingState.useSharedElementForCellStatePreviews,
+        )
 
         AnimatedVisibility(clipboardWatchingState.pinnedClipboardPreviewStates.isNotEmpty()) {
             HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(16.dp))
@@ -129,6 +135,7 @@ context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLoca
 @Composable
 private fun PinnedClipboardPreviews(
     pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState>,
+    useSharedElementForCellStatePreviews: Boolean,
     modifier: Modifier = Modifier,
 ) {
     SharedTransitionLayout(modifier = modifier) {
@@ -162,11 +169,17 @@ private fun PinnedClipboardPreviews(
                                         modifier = Modifier
                                             .weight(1f)
                                             .padding(8.dp)
-                                            .sharedElement(
-                                                rememberSharedContentState(
-                                                    pinnedClipboardPreviewState.id,
-                                                ),
-                                                this@AnimatedContent,
+                                            .then(
+                                                if (useSharedElementForCellStatePreviews) {
+                                                    Modifier.sharedElement(
+                                                        rememberSharedContentState(
+                                                            pinnedClipboardPreviewState.id,
+                                                        ),
+                                                        this@AnimatedContent,
+                                                    )
+                                                } else {
+                                                    Modifier
+                                                },
                                             ),
                                     )
                                 }
@@ -183,6 +196,7 @@ context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLoca
 @Composable
 private fun ClipboardPreviewHistory(
     clipboardPreviewStates: List<ClipboardPreviewState>,
+    useSharedElementForCellStatePreviews: Boolean,
     modifier: Modifier = Modifier,
 ) {
     SharedTransitionLayout(modifier = modifier) {
@@ -223,9 +237,15 @@ private fun ClipboardPreviewHistory(
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .padding(8.dp)
-                                                .sharedElement(
-                                                    rememberSharedContentState(clipboardPreviewState.id),
-                                                    this@AnimatedContent,
+                                                .then(
+                                                    if (useSharedElementForCellStatePreviews) {
+                                                        Modifier.sharedElement(
+                                                            rememberSharedContentState(clipboardPreviewState.id),
+                                                            this@AnimatedContent,
+                                                        )
+                                                    } else {
+                                                        Modifier
+                                                    },
                                                 ),
                                         )
                                     }
