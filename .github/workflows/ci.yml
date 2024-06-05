@@ -204,7 +204,7 @@ jobs:
           else
             MATRIX='
               {"api-level": "23", "target": "aosp", "device": "nexus4"},
-              {"api-level": "30", "target": "aospatd", "device": "pixel2"},
+              {"api-level": "34", "target": "aosp", "device": "pixel2"},
               {"api-level": "30", "target": "wear", "device": "wearoslargeround"}
             '
           fi
