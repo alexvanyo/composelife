@@ -24,6 +24,7 @@ plugins {
     alias(libs.plugins.convention.androidApplicationJacoco)
     alias(libs.plugins.convention.androidApplicationKsp)
     alias(libs.plugins.convention.androidApplicationTesting)
+    alias(libs.plugins.androidx.baselineProfile)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
 }
@@ -38,6 +39,13 @@ android {
         versionName = "1.0"
     }
     configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
+}
+
+baselineProfile {
+    automaticGenerationDuringBuild = false
+    saveInSrc = true
+    dexLayoutOptimization = true
+    mergeIntoMain = true
 }
 
 kotlin {
@@ -59,6 +67,7 @@ kotlin {
         }
         val androidMain by getting {
             configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
+            configurations["baselineProfile"].dependencies.add(projects.appBaselineProfileGenerator)
             dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.appcompat)
