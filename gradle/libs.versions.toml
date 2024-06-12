@@ -23,6 +23,8 @@ androidxCore = "1.17.0"
 androidxCoreSplashscreen = "1.2.0"
 #androidxDataStore
 androidxDataStore = "1.3.0-alpha02"
+#androidxGraphics
+androidxGraphics = "1.0.1"
 #androidxLifecycle
 androidxLifecycle = "2.10.0"
 #androidxLintGradle
@@ -191,6 +193,7 @@ androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscree
 androidx-dataStore = { group = "androidx.datastore", name = "datastore", version.ref = "androidxDataStore" }
 androidx-dataStore-core = { group = "androidx.datastore", name = "datastore-core", version.ref = "androidxDataStore" }
 androidx-dataStore-core-okio = { group = "androidx.datastore", name = "datastore-core-okio", version.ref = "androidxDataStore" }
+androidx-graphics-core = { group = "androidx.graphics", name = "graphics-core", version.ref = "androidxGraphics" }
 androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "androidxLifecycle" }
 androidx-lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime", version.ref = "androidxLifecycle" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
