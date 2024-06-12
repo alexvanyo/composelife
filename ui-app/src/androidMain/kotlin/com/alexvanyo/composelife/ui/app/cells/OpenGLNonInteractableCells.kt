@@ -17,43 +17,37 @@
 package com.alexvanyo.composelife.ui.app.cells
 
 import android.app.ActivityManager
+import android.opengl.EGLConfig
+import android.opengl.EGLSurface
 import android.opengl.GLES20
-import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import android.view.Surface
+import androidx.compose.foundation.AndroidExternalSurface
+import androidx.compose.foundation.AndroidExternalSurfaceZOrder
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.getSystemService
-import androidx.core.view.isInvisible
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.graphics.opengl.GLRenderer
+import androidx.graphics.opengl.egl.EGLManager
+import androidx.graphics.opengl.egl.EGLSpec
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.openglrenderer.GameOfLifeShape
 import com.alexvanyo.composelife.openglrenderer.GameOfLifeShapeParameters
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.util.LocalGhostElement
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import java.nio.IntBuffer
-import java.util.concurrent.Executor
-import javax.microedition.khronos.egl.EGLConfig
-import javax.microedition.khronos.opengles.GL10
 
 @Composable
 fun openGLSupported(): Boolean {
@@ -92,32 +86,41 @@ fun OpenGLNonInteractableCells(
         buffer
     }
 
-    val parameters = when (shape) {
-        is CurrentShape.RoundRectangle -> {
-            GameOfLifeShapeParameters.RoundRectangle(
-                cells = cellsBuffer,
-                aliveColor = aliveColor,
-                deadColor = deadColor,
-                cellWindowSize = cellWindow.size,
-                scaledCellPixelSize = scaledCellPixelSize,
-                pixelOffsetFromCenter = pixelOffsetFromCenter,
-                sizeFraction = shape.sizeFraction,
-                cornerFraction = shape.cornerFraction,
-            )
-        }
-    }
+    val parameters by rememberUpdatedState(
+        when (shape) {
+            is CurrentShape.RoundRectangle -> {
+                GameOfLifeShapeParameters.RoundRectangle(
+                    cells = cellsBuffer,
+                    aliveColor = aliveColor,
+                    deadColor = deadColor,
+                    cellWindowSize = cellWindow.size,
+                    scaledCellPixelSize = scaledCellPixelSize,
+                    pixelOffsetFromCenter = pixelOffsetFromCenter,
+                    sizeFraction = shape.sizeFraction,
+                    cornerFraction = shape.cornerFraction,
+                )
+            }
+        },
+    )
 
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val coroutineScope = rememberCoroutineScope()
+    val glRenderer = rememberGLRenderer()
 
-    val isGhostElement by rememberUpdatedState(LocalGhostElement.current)
+    AndroidExternalSurface(
+        modifier = modifier,
+        zOrder = if (inOverlay) {
+            AndroidExternalSurfaceZOrder.MediaOverlay
+        } else {
+            AndroidExternalSurfaceZOrder.Behind
+        },
+    ) {
+        onSurface { surface, width, height ->
+            val renderTarget = glRenderer.attach(
+                surface,
+                width,
+                height,
+                object : GLRenderer.RenderCallback {
+                    private lateinit var gameOfLifeShape: GameOfLifeShape
 
-    AndroidView(
-        factory = { context ->
-            object : GLSurfaceView(context) {
-                val parametersState = MutableStateFlow(parameters)
-
-                val renderer = object : Renderer {
                     private val mvpMatrix = FloatArray(16)
 
                     init {
@@ -128,64 +131,57 @@ fun OpenGLNonInteractableCells(
                         Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
                     }
 
-                    lateinit var gameOfLifeShape: GameOfLifeShape
-
-                    override fun onSurfaceCreated(unused: GL10?, config: EGLConfig?) {
-                        GLES20.glClearColor(0f, 0f, 0f, 0f)
-                        gameOfLifeShape = GameOfLifeShape()
-                        gameOfLifeShape.setScreenShapeParameters(parametersState.value)
+                    override fun onSurfaceCreated(
+                        spec: EGLSpec,
+                        config: EGLConfig,
+                        surface: Surface,
+                        width: Int,
+                        height: Int,
+                    ): EGLSurface? {
+                        return super.onSurfaceCreated(spec, config, surface, width, height).also {
+                            GLES20.glClearColor(0f, 0f, 0f, 0f)
+                            GLES20.glViewport(0, 0, width, height)
+                            gameOfLifeShape = GameOfLifeShape().apply {
+                                setSize(width, height)
+                            }
+                        }
                     }
 
-                    override fun onSurfaceChanged(unused: GL10?, width: Int, height: Int) {
-                        GLES20.glViewport(0, 0, width, height)
-                        gameOfLifeShape.setSize(width, height)
-                    }
-
-                    override fun onDrawFrame(unused: GL10?) {
+                    override fun onDrawFrame(eglManager: EGLManager) {
+                        gameOfLifeShape.setScreenShapeParameters(parameters)
                         gameOfLifeShape.draw(mvpMatrix)
                     }
+                },
+            )
 
-                    fun setParameters(parameters: GameOfLifeShapeParameters) {
-                        if (::gameOfLifeShape.isInitialized) {
-                            gameOfLifeShape.setScreenShapeParameters(parameters)
-                        }
-                    }
-                }
-            }.apply {
-                setEGLContextClientVersion(2)
-                setRenderer(renderer)
-                renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
-
-                val openGLExecutor = Executor(::queueEvent)
-                val openGLDispatcher = openGLExecutor.asCoroutineDispatcher()
-
-                coroutineScope.launch {
-                    parametersState
-                        .onEach(renderer::setParameters)
-                        .onEach { requestRender() }
-                        .flowOn(openGLDispatcher)
-                        .collect()
-                }
-
-                coroutineScope.launch {
-                    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                        onResume()
-                        try {
-                            awaitCancellation()
-                        } finally {
-                            onPause()
-                        }
-                    }
-                }
+            surface.onChanged { w, h ->
+                renderTarget.resize(w, h)
             }
-        },
-        update = {
-            it.parametersState.value = parameters
-            it.setZOrderMediaOverlay(inOverlay)
-            // The GLSurfaceView may not handling animating in and out well with externally applied alphas.
-            // If we are in a ghost element, skip showing it.
-            it.isInvisible = isGhostElement
-        },
-        modifier = modifier,
-    )
+
+            surface.onDestroyed {
+                glRenderer.detach(renderTarget, true)
+            }
+
+            snapshotFlow { parameters }
+                .onEach {
+                    renderTarget.requestRender()
+                }
+                .collect()
+        }
+    }
 }
+
+@Composable
+fun rememberGLRenderer(): GLRenderer =
+    remember {
+        object : RememberObserver {
+            val glRenderer = GLRenderer()
+            override fun onAbandoned() = onForgotten()
+            override fun onForgotten() {
+                glRenderer.stop(true)
+            }
+            override fun onRemembered() {
+                glRenderer.start()
+            }
+        }
+    }.glRenderer
