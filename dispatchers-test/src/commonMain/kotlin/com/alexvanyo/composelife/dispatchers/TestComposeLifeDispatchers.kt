@@ -31,12 +31,12 @@ import kotlin.coroutines.CoroutineContext
 @Suppress("InjectDispatcher")
 @Inject
 class TestComposeLifeDispatchers(
-    generalTestDispatcher: GeneralTestDispatcher,
-    cellTickerTestDispatcher: CellTickerTestDispatcher,
+    generalTestDispatcher: @GeneralTestDispatcher TestDispatcher,
+    cellTickerTestDispatcher: @CellTickerTestDispatcher TestDispatcher,
 ) : ComposeLifeDispatchers {
-    override val Default: CoroutineDispatcher = generalTestDispatcher.value
-    override val Main: CoroutineDispatcher = generalTestDispatcher.value
+    override val Default: CoroutineDispatcher = generalTestDispatcher
+    override val Main: CoroutineDispatcher = generalTestDispatcher
     override val Unconfined: CoroutineDispatcher = Dispatchers.Unconfined
-    override val IO: CoroutineDispatcher = generalTestDispatcher.value
-    override val CellTicker: CoroutineContext = cellTickerTestDispatcher.value
+    override val IO: CoroutineDispatcher = generalTestDispatcher
+    override val CellTicker: CoroutineContext = cellTickerTestDispatcher
 }
