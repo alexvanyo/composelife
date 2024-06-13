@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.processlifecycle.di
 
+import androidx.lifecycle.LifecycleOwner
 import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
 import com.alexvanyo.composelife.scopes.Singleton
 import me.tatarka.inject.annotations.Provides
@@ -24,6 +25,7 @@ interface ProcessLifecycleComponent : ProcessLifecycleModule {
 
     @Singleton
     @Provides
-    fun providesProcessLifecycleOwner(): ProcessLifecycleOwner =
+    @ProcessLifecycleOwner
+    fun providesProcessLifecycleOwner(): LifecycleOwner =
         androidx.lifecycle.ProcessLifecycleOwner.get()
 }
