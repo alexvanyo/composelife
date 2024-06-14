@@ -26,22 +26,27 @@ import com.alexvanyo.composelife.preferences.proto.PreferencesProto
 import com.alexvanyo.composelife.scopes.Singleton
 import kotlinx.coroutines.CoroutineScope
 import me.tatarka.inject.annotations.Inject
+import me.tatarka.inject.annotations.Qualifier
 import okio.BufferedSink
 import okio.BufferedSource
 import okio.FileSystem
 import okio.Path
 import java.io.IOException
 
-typealias PreferencesProtoPath = Path
+@Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
+@Qualifier
+annotation class PreferencesProtoPath
 
-typealias PreferencesCoroutineScope = CoroutineScope
+@Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
+@Qualifier
+annotation class PreferencesCoroutineScope
 
 @Singleton
 @Inject
 class DiskPreferencesDataStore(
     fileSystem: FileSystem,
-    path: Lazy<PreferencesProtoPath>,
-    scope: PreferencesCoroutineScope,
+    path: @PreferencesProtoPath Lazy<Path>,
+    scope: @PreferencesCoroutineScope CoroutineScope,
 ) : PreferencesDataStore,
     DataStore<PreferencesProto> by DataStoreFactory.create(
         storage = OkioStorage(

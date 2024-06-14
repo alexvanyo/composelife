@@ -31,7 +31,7 @@ import kotlin.system.exitProcess
 
 @Inject
 class DoNotKeepProcess(
-    private val lifecycleOwner: ProcessLifecycleOwner,
+    private val lifecycleOwner: @ProcessLifecycleOwner LifecycleOwner,
     private val composeLifePreferences: ComposeLifePreferences,
 ) : Updatable {
     override suspend fun update(): Nothing {

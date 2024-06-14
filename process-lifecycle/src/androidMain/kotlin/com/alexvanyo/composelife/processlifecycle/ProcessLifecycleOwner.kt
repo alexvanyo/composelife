@@ -16,6 +16,8 @@
 
 package com.alexvanyo.composelife.processlifecycle
 
-import androidx.lifecycle.LifecycleOwner
+import me.tatarka.inject.annotations.Qualifier
 
-typealias ProcessLifecycleOwner = LifecycleOwner
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPE)
+@Qualifier
+annotation class ProcessLifecycleOwner

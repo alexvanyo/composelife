@@ -16,6 +16,8 @@
 
 package com.alexvanyo.composelife.scopes
 
-import android.content.Context
+import me.tatarka.inject.annotations.Qualifier
 
-typealias ApplicationContext = Context
+@Target(AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
+@Qualifier
+annotation class ApplicationContext

@@ -78,9 +78,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
     { TestComposeLifeApplicationComponent.createComponent() },
     InjectTestActivity::class.java,
 ) {
-    private val generalTestDispatcher get() = applicationComponent.generalTestDispatcher.value
+    private val generalTestDispatcher get() = applicationComponent.generalTestDispatcher
 
-    private val cellTickerTestDispatcher get() = applicationComponent.cellTickerTestDispatcher.value
+    private val cellTickerTestDispatcher get() = applicationComponent.cellTickerTestDispatcher
 
     private val gameOfLifeAlgorithm get() = applicationComponent.gameOfLifeAlgorithm
 

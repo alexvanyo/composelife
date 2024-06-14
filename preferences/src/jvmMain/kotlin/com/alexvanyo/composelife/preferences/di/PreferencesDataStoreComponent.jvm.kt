@@ -27,6 +27,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import me.tatarka.inject.annotations.Provides
 import okio.FileSystem
+import okio.Path
 
 actual interface PreferencesDataStoreComponent :
     PreferencesDataStoreModule, PreferencesFileSystemComponent {
@@ -35,15 +36,17 @@ actual interface PreferencesDataStoreComponent :
         @Provides get() = this
 
     @Provides
-    fun providesDataStorePath(): PreferencesProtoPath =
+    @PreferencesProtoPath
+    fun providesDataStorePath(): Path =
         FileSystem.SYSTEM_TEMPORARY_DIRECTORY.resolve("preferences.pb")
 
     @Provides
     @Singleton
+    @PreferencesCoroutineScope
     @Suppress("InjectDispatcher") // Dispatchers are injected via dispatchers
     fun providesPreferencesCoroutineScope(
         dispatchers: ComposeLifeDispatchers,
-    ): PreferencesCoroutineScope = CoroutineScope(
+    ): CoroutineScope = CoroutineScope(
         dispatchers.IO + SupervisorJob(),
     )
 }

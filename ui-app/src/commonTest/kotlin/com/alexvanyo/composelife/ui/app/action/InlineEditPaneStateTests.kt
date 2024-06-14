@@ -18,8 +18,6 @@ package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
-import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
-import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
@@ -50,8 +48,8 @@ class InlineEditPaneStateTests {
         runTest {
             val testDispatcher = StandardTestDispatcher(testScheduler)
             val dispatchers = TestComposeLifeDispatchers(
-                generalTestDispatcher = GeneralTestDispatcher(testDispatcher),
-                cellTickerTestDispatcher = CellTickerTestDispatcher(testDispatcher),
+                generalTestDispatcher = testDispatcher,
+                cellTickerTestDispatcher = testDispatcher,
             )
             val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
             val composeLifePreferences = TestComposeLifePreferences(
@@ -111,8 +109,8 @@ class InlineEditPaneStateTests {
         runTest {
             val testDispatcher = StandardTestDispatcher(testScheduler)
             val dispatchers = TestComposeLifeDispatchers(
-                generalTestDispatcher = GeneralTestDispatcher(testDispatcher),
-                cellTickerTestDispatcher = CellTickerTestDispatcher(testDispatcher),
+                generalTestDispatcher = testDispatcher,
+                cellTickerTestDispatcher = testDispatcher,
             )
             val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
             val composeLifePreferences = TestComposeLifePreferences(
@@ -173,8 +171,8 @@ class InlineEditPaneStateTests {
         runTest {
             val testDispatcher = StandardTestDispatcher(testScheduler)
             val dispatchers = TestComposeLifeDispatchers(
-                generalTestDispatcher = GeneralTestDispatcher(testDispatcher),
-                cellTickerTestDispatcher = CellTickerTestDispatcher(testDispatcher),
+                generalTestDispatcher = testDispatcher,
+                cellTickerTestDispatcher = testDispatcher,
             )
             val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
             val composeLifePreferences = TestComposeLifePreferences(
@@ -235,8 +233,8 @@ class InlineEditPaneStateTests {
         runTest {
             val testDispatcher = StandardTestDispatcher(testScheduler)
             val dispatchers = TestComposeLifeDispatchers(
-                generalTestDispatcher = GeneralTestDispatcher(testDispatcher),
-                cellTickerTestDispatcher = CellTickerTestDispatcher(testDispatcher),
+                generalTestDispatcher = testDispatcher,
+                cellTickerTestDispatcher = testDispatcher,
             )
             val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
             val composeLifePreferences = TestComposeLifePreferences(
@@ -296,8 +294,8 @@ class InlineEditPaneStateTests {
         runTest {
             val testDispatcher = StandardTestDispatcher(testScheduler)
             val dispatchers = TestComposeLifeDispatchers(
-                generalTestDispatcher = GeneralTestDispatcher(testDispatcher),
-                cellTickerTestDispatcher = CellTickerTestDispatcher(testDispatcher),
+                generalTestDispatcher = testDispatcher,
+                cellTickerTestDispatcher = testDispatcher,
             )
             val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
             val composeLifePreferences = TestComposeLifePreferences(

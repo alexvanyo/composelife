@@ -57,7 +57,7 @@ class ComposeLifeAppTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
     { TestComposeLifeApplicationComponent.createComponent() },
     MainActivity::class.java,
 ) {
-    private val testDispatcher get() = applicationComponent.generalTestDispatcher.value
+    private val testDispatcher get() = applicationComponent.generalTestDispatcher
 
     private val preferences get() = applicationComponent.composeLifePreferences
 

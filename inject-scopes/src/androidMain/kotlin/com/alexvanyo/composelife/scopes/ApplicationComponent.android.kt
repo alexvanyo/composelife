@@ -18,6 +18,7 @@
 package com.alexvanyo.composelife.scopes
 
 import android.app.Application
+import android.content.Context
 import me.tatarka.inject.annotations.Provides
 
 @Suppress("UnnecessaryAbstractClass")
@@ -25,8 +26,9 @@ import me.tatarka.inject.annotations.Provides
 actual abstract class ApplicationComponent<E>(
     @get:Provides val application: Application,
 ) {
-    val Application.bind: ApplicationContext
-        @Provides get() = this
+    @Provides
+    @ApplicationContext
+    fun bindApplication(application: Application): Context = application
 
     actual abstract val entryPoint: E
 }

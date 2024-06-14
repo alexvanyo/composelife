@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.appcompatsync
 
 import android.app.UiModeManager
+import android.content.Context
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.snapshotFlow
@@ -34,7 +35,7 @@ import me.tatarka.inject.annotations.Inject
 @Inject
 class AppCompatSync(
     private val composeLifePreferences: ComposeLifePreferences,
-    context: ApplicationContext,
+    context: @ApplicationContext Context,
 ) : Updatable {
     private val uiModeManager = context.getSystemService<UiModeManager>()
 
