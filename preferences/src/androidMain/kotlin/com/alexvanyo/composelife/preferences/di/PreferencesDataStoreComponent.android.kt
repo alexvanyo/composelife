@@ -17,6 +17,7 @@
 
 package com.alexvanyo.composelife.preferences.di
 
+import android.content.Context
 import androidx.datastore.dataStoreFile
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.preferences.DiskPreferencesDataStore
@@ -28,6 +29,7 @@ import com.alexvanyo.composelife.scopes.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import me.tatarka.inject.annotations.Provides
+import okio.Path
 import okio.Path.Companion.toOkioPath
 
 actual interface PreferencesDataStoreComponent :
@@ -38,16 +40,18 @@ actual interface PreferencesDataStoreComponent :
         @Provides get() = this
 
     @Provides
+    @PreferencesProtoPath
     fun providesDataStorePath(
-        context: ApplicationContext,
-    ): PreferencesProtoPath = context.dataStoreFile("preferences.pb").absoluteFile.toOkioPath()
+        context: @ApplicationContext Context,
+    ): Path = context.dataStoreFile("preferences.pb").absoluteFile.toOkioPath()
 
     @Provides
     @Singleton
+    @PreferencesCoroutineScope
     @Suppress("InjectDispatcher") // Dispatchers are injected via dispatchers
     fun providesPreferencesCoroutineScope(
         dispatchers: ComposeLifeDispatchers,
-    ): PreferencesCoroutineScope = CoroutineScope(
+    ): CoroutineScope = CoroutineScope(
         dispatchers.IO + SupervisorJob(),
     )
 }
