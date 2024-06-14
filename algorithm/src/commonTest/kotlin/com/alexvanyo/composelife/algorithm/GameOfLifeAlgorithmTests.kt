@@ -17,9 +17,7 @@
 package com.alexvanyo.composelife.algorithm
 
 import androidx.compose.ui.unit.IntOffset
-import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.patterns.GameOfLifeTestPattern
@@ -131,8 +129,8 @@ class GameOfLifeAlgorithmTests {
         val (algorithm, job) = algorithmFactory.factory(
             this,
             TestComposeLifeDispatchers(
-                generalTestDispatcher = GeneralTestDispatcher(testDispatcher),
-                cellTickerTestDispatcher = CellTickerTestDispatcher(testDispatcher),
+                generalTestDispatcher = testDispatcher,
+                cellTickerTestDispatcher = testDispatcher,
             ),
         )
 
@@ -159,8 +157,8 @@ class GameOfLifeAlgorithmTests {
         val (algorithm, job) = algorithmFactory.factory(
             this,
             TestComposeLifeDispatchers(
-                generalTestDispatcher = GeneralTestDispatcher(testDispatcher),
-                cellTickerTestDispatcher = CellTickerTestDispatcher(testDispatcher),
+                generalTestDispatcher = testDispatcher,
+                cellTickerTestDispatcher = testDispatcher,
             ),
         )
 
@@ -189,8 +187,8 @@ class GameOfLifeAlgorithmTests {
         val (algorithm, job) = algorithmFactory.factory(
             this,
             TestComposeLifeDispatchers(
-                generalTestDispatcher = GeneralTestDispatcher(testDispatcher),
-                cellTickerTestDispatcher = CellTickerTestDispatcher(testDispatcher),
+                generalTestDispatcher = testDispatcher,
+                cellTickerTestDispatcher = testDispatcher,
             ),
         )
 
@@ -215,8 +213,8 @@ class GameOfLifeAlgorithmTests {
         val (algorithm, job) = algorithmFactory.factory(
             this,
             TestComposeLifeDispatchers(
-                generalTestDispatcher = GeneralTestDispatcher(testDispatcher),
-                cellTickerTestDispatcher = CellTickerTestDispatcher(testDispatcher),
+                generalTestDispatcher = testDispatcher,
+                cellTickerTestDispatcher = testDispatcher,
             ),
         )
 

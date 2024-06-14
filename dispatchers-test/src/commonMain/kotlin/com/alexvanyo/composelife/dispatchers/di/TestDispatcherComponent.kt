@@ -20,21 +20,26 @@ import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
 import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.scopes.Singleton
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
 import me.tatarka.inject.annotations.Provides
 
 interface TestDispatcherComponent {
 
-    val generalTestDispatcher: GeneralTestDispatcher
+    @GeneralTestDispatcher
+    val generalTestDispatcher: TestDispatcher
 
-    val cellTickerTestDispatcher: CellTickerTestDispatcher
-
-    @Provides
-    @Singleton
-    fun providesGeneralTestDispatcher(): GeneralTestDispatcher =
-        GeneralTestDispatcher(StandardTestDispatcher())
+    @CellTickerTestDispatcher
+    val cellTickerTestDispatcher: TestDispatcher
 
     @Provides
     @Singleton
-    fun providesCellTickerTestDispatcher(): CellTickerTestDispatcher =
-        CellTickerTestDispatcher(StandardTestDispatcher())
+    @GeneralTestDispatcher
+    fun providesGeneralTestDispatcher(): TestDispatcher =
+        StandardTestDispatcher()
+
+    @Provides
+    @Singleton
+    @CellTickerTestDispatcher
+    fun providesCellTickerTestDispatcher(): TestDispatcher =
+        StandardTestDispatcher()
 }
