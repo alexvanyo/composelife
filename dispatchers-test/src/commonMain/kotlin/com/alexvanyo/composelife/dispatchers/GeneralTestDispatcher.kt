@@ -16,7 +16,8 @@
 
 package com.alexvanyo.composelife.dispatchers
 
-import kotlinx.coroutines.test.TestDispatcher
+import me.tatarka.inject.annotations.Qualifier
 
-@JvmInline
-value class GeneralTestDispatcher(val value: TestDispatcher)
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPE)
+@Qualifier
+annotation class GeneralTestDispatcher

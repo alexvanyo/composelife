@@ -36,7 +36,7 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
 ) {
     private val cellStateQueries get() = applicationComponent.cellStateQueries
 
-    private val testDispatcher get() = applicationComponent.generalTestDispatcher.value
+    private val testDispatcher get() = applicationComponent.generalTestDispatcher
 
     @Test
     fun get_cell_states_returns_empty_initially() = runAppTest(testDispatcher) {
