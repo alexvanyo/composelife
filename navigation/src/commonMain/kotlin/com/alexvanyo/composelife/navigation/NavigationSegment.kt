@@ -16,14 +16,30 @@
 
 package com.alexvanyo.composelife.navigation
 
+/**
+ * A segment of navigation for an underlying navigation type of [T].
+ *
+ * By segmenting navigation entries with [segmentingNavigationTransform], subsequent [RenderableNavigationTransform]s
+ * can arbitrarily combine segments and their associated panes in place into a new combined segment.
+ */
 sealed interface NavigationSegment<T> {
+    /**
+     * The list of all values that were combined into this segment.
+     */
     val combinedValues: List<T>
 
+    /**
+     * A single segment representing a single [value].
+     */
     data class SingleSegment<T>(
         val value: T,
     ) : NavigationSegment<T> {
         override val combinedValues: List<T> = listOf(value)
     }
 
+    /**
+     * A combined segment. The resulting [combinedValues] should include all navigation values from other segments that
+     * were combined into this one.
+     */
     interface CombinedSegment<T> : NavigationSegment<T>
 }
