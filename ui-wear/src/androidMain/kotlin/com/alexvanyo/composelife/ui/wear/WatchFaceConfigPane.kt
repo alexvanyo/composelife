@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.ui.wear
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,9 +25,12 @@ import androidx.compose.ui.res.imageResource
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
+import co.touchlab.kermit.Logger
 import com.alexvanyo.composelife.navigation.BackstackEntry
+import com.alexvanyo.composelife.navigation.canNavigateBack
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.navigate
+import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
 import com.alexvanyo.composelife.resourcestate.ResourceState
@@ -49,6 +53,11 @@ fun WatchFaceConfigPane(
             ),
             backstackValueSaverFactory = WatchFaceConfigNavigation.SaverFactory,
         )
+
+    BackHandler(navigationController.canNavigateBack) {
+        Logger.d { "back pressed" }
+        navigationController.popBackstack()
+    }
 
     Scaffold(
         positionIndicator = when (val value = navigationController.currentEntry.value) {
