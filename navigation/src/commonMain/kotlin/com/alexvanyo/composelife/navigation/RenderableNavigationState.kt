@@ -87,9 +87,6 @@ fun <T : NavigationEntry, S : NavigationState<T>> associateWithRenderablePanes(
                 /**
                  * Only retain the entry [RetainedStateRegistry] when it is in the backstack.
                  */
-                /**
-                 * Only retain the entry [RetainedStateRegistry] when it is in the backstack.
-                 */
                 LocalCanRetainChecker provides { entry.id in currentEntryKeySet },
             ) {
                 val entryRetainedStateRegistry = rememberRetained(key = entry.id.toString()) {
