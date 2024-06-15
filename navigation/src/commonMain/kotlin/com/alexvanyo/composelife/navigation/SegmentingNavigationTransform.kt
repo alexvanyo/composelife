@@ -19,6 +19,11 @@ package com.alexvanyo.composelife.navigation
 import androidx.compose.runtime.remember
 import java.util.UUID
 
+/**
+ * A [RenderableNavigationTransform] that segments an underlying navigation type into a [NavigationSegment].
+ * Each value inside a [BackstackEntry] is wrapped into a [NavigationSegment.SingleSegment], with the same ids and
+ * structure.
+ */
 fun <T> segmentingNavigationTransform(): RenderableNavigationTransform<
     BackstackEntry<T>,
     BackstackState<T>,
@@ -27,6 +32,7 @@ fun <T> segmentingNavigationTransform(): RenderableNavigationTransform<
     > = { renderableNavigationState ->
     val entries = renderableNavigationState.navigationState.entryMap.values.toList()
 
+    // Recursively create the transformed entries.
     val transformedEntryMap = remember(entries) {
         val map = mutableMapOf<UUID, BackstackEntry<NavigationSegment<T>>>()
         fun createNavigationSegment(entry: BackstackEntry<T>): BackstackEntry<NavigationSegment<T>> =
@@ -48,6 +54,8 @@ fun <T> segmentingNavigationTransform(): RenderableNavigationTransform<
                 get() = transformedEntryMap
             override val currentEntryId: UUID
                 get() = renderableNavigationState.navigationState.currentEntryId
+            override val previousEntryId: UUID?
+                get() = renderableNavigationState.navigationState.previousEntryId
         }
 
     RenderableNavigationState(
