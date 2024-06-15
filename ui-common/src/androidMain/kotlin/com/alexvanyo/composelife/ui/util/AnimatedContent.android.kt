@@ -222,7 +222,10 @@ actual fun <T, M> AnimatedContent(
         mutableStateOf(true)
     }
 
-    Box(modifier = modifier) {
+    Box(
+        modifier = modifier,
+        propagateMinConstraints = true,
+    ) {
         seekableTransition.AnimatedContent(
             modifier = Modifier.matchParentSize(),
         ) {
