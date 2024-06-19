@@ -16,6 +16,8 @@
 
 package com.alexvanyo.composelife.ui.app.action.settings
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
@@ -31,9 +33,8 @@ import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
-import com.alexvanyo.composelife.ui.util.SharedTransitionScope
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalSharedTransitionApi::class)
 @MobileDevicePreviews
 @Composable
 fun FullscreenSettingsPaneListPreview(modifier: Modifier = Modifier) {
@@ -59,13 +60,13 @@ fun FullscreenSettingsPaneListPreview(modifier: Modifier = Modifier) {
                 )
 
                 Surface {
-                    SharedTransitionScope {
+                    SharedTransitionLayout {
                         FullscreenSettingsPane(
                             listUiNavValue = listUiNavValue,
                             detailsUiNavValue = detailsUiNavValue,
                             onBackButtonPressed = {},
                             setSettingsCategory = {},
-                            modifier = it.fillMaxSize(),
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
                 }
@@ -74,7 +75,7 @@ fun FullscreenSettingsPaneListPreview(modifier: Modifier = Modifier) {
     }
 }
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalSharedTransitionApi::class)
 @MobileDevicePreviews
 @Composable
 fun FullscreenSettingsPaneAlgorithmPreview(modifier: Modifier = Modifier) {
@@ -100,13 +101,13 @@ fun FullscreenSettingsPaneAlgorithmPreview(modifier: Modifier = Modifier) {
                 )
 
                 Surface {
-                    SharedTransitionScope {
+                    SharedTransitionLayout {
                         FullscreenSettingsPane(
                             listUiNavValue = listUiNavValue,
                             detailsUiNavValue = detailsUiNavValue,
                             onBackButtonPressed = {},
                             setSettingsCategory = {},
-                            modifier = it.fillMaxSize(),
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
                 }
@@ -115,7 +116,7 @@ fun FullscreenSettingsPaneAlgorithmPreview(modifier: Modifier = Modifier) {
     }
 }
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalSharedTransitionApi::class)
 @MobileDevicePreviews
 @Composable
 fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) {
@@ -141,13 +142,13 @@ fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) {
                 )
 
                 Surface {
-                    SharedTransitionScope {
+                    SharedTransitionLayout {
                         FullscreenSettingsPane(
                             listUiNavValue = listUiNavValue,
                             detailsUiNavValue = detailsUiNavValue,
                             onBackButtonPressed = {},
                             setSettingsCategory = {},
-                            modifier = it.fillMaxSize(),
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
                 }
@@ -156,7 +157,7 @@ fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) {
     }
 }
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalSharedTransitionApi::class)
 @MobileDevicePreviews
 @Composable
 fun FullscreenSettingsPaneFeatureFlagsPreview(modifier: Modifier = Modifier) {
@@ -182,13 +183,13 @@ fun FullscreenSettingsPaneFeatureFlagsPreview(modifier: Modifier = Modifier) {
                 )
 
                 Surface {
-                    SharedTransitionScope {
+                    SharedTransitionLayout {
                         FullscreenSettingsPane(
                             listUiNavValue = listUiNavValue,
                             detailsUiNavValue = detailsUiNavValue,
                             onBackButtonPressed = {},
                             setSettingsCategory = {},
-                            modifier = it.fillMaxSize(),
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
                 }
