@@ -59,6 +59,7 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.compose.foundation)
                 implementation(libs.androidx.compose.runtime)
+                implementation(libs.androidx.compose.ui.snapshot)
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.wear.compose.foundation)
                 implementation(libs.androidx.wear.compose.material)
