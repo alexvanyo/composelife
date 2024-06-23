@@ -38,7 +38,7 @@ android {
 
 kotlin {
     androidTarget()
-    jvm()
+    jvm("desktop")
 
     sourceSets {
         val commonMain by getting {
@@ -52,7 +52,7 @@ kotlin {
                 implementation(projects.snapshotStateSet)
             }
         }
-        val jvmMain by getting {
+        val desktopMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
             }

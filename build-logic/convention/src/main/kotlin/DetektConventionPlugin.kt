@@ -37,8 +37,8 @@ class DetektConventionPlugin : ConventionPlugin({
         source.setFrom(
             "src/commonMain/kotlin",
             "src/commonTest/kotlin",
-            "src/jvmMain/kotlin",
-            "src/jvmTest/kotlin",
+            "src/desktopMain/kotlin",
+            "src/desktopTest/kotlin",
             "src/androidMain/kotlin",
             "src/androidDebug/kotlin",
             "src/androidRelease/kotlin",

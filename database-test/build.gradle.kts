@@ -30,7 +30,7 @@ android {
 
 kotlin {
     androidTarget()
-    jvm()
+    jvm("desktop")
 
     sourceSets {
         val commonMain by getting {
@@ -50,7 +50,7 @@ kotlin {
                 api(libs.sqldelight.androidDriver)
             }
         }
-        val jvmMain by getting {
+        val desktopMain by getting {
             dependencies {
                 api(libs.sqldelight.sqliteDriver)
             }

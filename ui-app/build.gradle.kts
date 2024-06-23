@@ -40,7 +40,7 @@ android {
 
 kotlin {
     androidTarget()
-    jvm()
+    jvm("desktop")
 
     sourceSets {
         val commonMain by getting {
@@ -73,9 +73,9 @@ kotlin {
                 implementation(projects.uiToolingPreview)
             }
         }
-        val jvmMain by getting {
-            configurations["kspJvm"].dependencies.add(libs.kotlinInject.ksp.get())
-            configurations["kspJvm"].dependencies.add(libs.sealedEnum.ksp.get())
+        val desktopMain by getting {
+            configurations["kspDesktop"].dependencies.add(libs.kotlinInject.ksp.get())
+            configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
@@ -128,8 +128,8 @@ kotlin {
         val androidInstrumentedTest by getting {
             configurations["kspAndroidAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
         }
-        val jvmTest by getting {
-            configurations["kspJvmTest"].dependencies.add(libs.kotlinInject.ksp.get())
+        val desktopTest by getting {
+            configurations["kspDesktopTest"].dependencies.add(libs.kotlinInject.ksp.get())
         }
     }
 }
