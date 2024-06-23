@@ -30,5 +30,5 @@ android {
 
 kotlin {
     androidTarget()
-    jvm()
+    jvm("desktop")
 }

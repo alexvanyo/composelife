@@ -36,7 +36,7 @@ android {
 }
 
 kotlin {
-    jvm()
+    jvm("desktop")
     androidTarget()
 
     sourceSets {
@@ -65,9 +65,9 @@ kotlin {
                 api(libs.kotlinx.coroutines.android)
             }
         }
-        val jvmMain by getting {
-            configurations["kspJvm"].dependencies.add(libs.kotlinInject.ksp.get())
-            configurations["kspJvm"].dependencies.add(libs.sealedEnum.ksp.get())
+        val desktopMain by getting {
+            configurations["kspDesktop"].dependencies.add(libs.kotlinInject.ksp.get())
+            configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
         }
         val commonTest by getting {
             dependencies {
@@ -92,8 +92,8 @@ kotlin {
         val androidInstrumentedTest by getting {
             configurations["kspAndroidAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
         }
-        val jvmTest by getting {
-            configurations["kspJvmTest"].dependencies.add(libs.kotlinInject.ksp.get())
+        val desktopTest by getting {
+            configurations["kspDesktopTest"].dependencies.add(libs.kotlinInject.ksp.get())
         }
     }
 }

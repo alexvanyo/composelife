@@ -77,7 +77,7 @@ fun Project.configureJacocoMerge() {
                             listOf(
                                 it.layout.projectDirectory.dir("src/commonMain/kotlin"),
                                 it.layout.projectDirectory.dir("src/androidMain/kotlin"),
-                                it.layout.projectDirectory.dir("src/jvmMain/kotlin"),
+                                it.layout.projectDirectory.dir("src/desktopMain/kotlin"),
                             )
                         },
                 ),
