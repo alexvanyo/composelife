@@ -37,7 +37,7 @@ android {
 
 kotlin {
     androidTarget()
-    jvm()
+    jvm("desktop")
 
     sourceSets {
         val commonMain by getting {
@@ -50,8 +50,8 @@ kotlin {
         val androidMain by getting {
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
         }
-        val jvmMain by getting {
-            configurations["kspJvm"].dependencies.add(libs.sealedEnum.ksp.get())
+        val desktopMain by getting {
+            configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
         }
         val commonTest by getting {
             dependencies {

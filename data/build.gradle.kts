@@ -37,7 +37,7 @@ android {
 
 kotlin {
     androidTarget()
-    jvm()
+    jvm("desktop")
 
     sourceSets {
         val commonMain by getting {
@@ -78,8 +78,8 @@ kotlin {
         val androidInstrumentedTest by getting {
             configurations["kspAndroidAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
         }
-        val jvmTest by getting {
-            configurations["kspJvmTest"].dependencies.add(libs.kotlinInject.ksp.get())
+        val desktopTest by getting {
+            configurations["kspDesktopTest"].dependencies.add(libs.kotlinInject.ksp.get())
         }
     }
 }

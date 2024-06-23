@@ -38,7 +38,7 @@ android {
 
 kotlin {
     androidTarget()
-    jvm()
+    jvm("desktop")
 
     sourceSets {
         val commonMain by getting {
@@ -47,7 +47,7 @@ kotlin {
                 api(libs.jetbrains.compose.runtime.saveable)
             }
         }
-        val jvmMain by getting {
+        val desktopMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
             }

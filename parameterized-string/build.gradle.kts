@@ -37,7 +37,7 @@ android {
 }
 
 kotlin {
-    jvm()
+    jvm("desktop")
     androidTarget()
 
     sourceSets {

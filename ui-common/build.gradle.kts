@@ -39,7 +39,7 @@ android {
 
 kotlin {
     androidTarget()
-    jvm()
+    jvm("desktop")
 
     sourceSets {
         val commonMain by getting {
@@ -61,8 +61,8 @@ kotlin {
                 implementation(projects.updatable)
             }
         }
-        val jvmMain by getting {
-            configurations["kspJvm"].dependencies.add(libs.sealedEnum.ksp.get())
+        val desktopMain by getting {
+            configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
