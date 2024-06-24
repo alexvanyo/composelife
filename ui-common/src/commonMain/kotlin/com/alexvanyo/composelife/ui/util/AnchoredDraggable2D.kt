@@ -27,6 +27,7 @@ import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.gestures.Drag2DScope
 import androidx.compose.foundation.gestures.Draggable2DState
 import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.draggable2D
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Stable
