@@ -18,6 +18,8 @@ package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -51,7 +53,6 @@ import com.alexvanyo.composelife.ui.app.resources.ClipboardWatchingOnboarding
 import com.alexvanyo.composelife.ui.app.resources.Disallow
 import com.alexvanyo.composelife.ui.app.resources.Pinned
 import com.alexvanyo.composelife.ui.app.resources.Strings
-import com.alexvanyo.composelife.ui.util.SharedTransitionLayout
 
 context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
 @Composable
@@ -132,6 +133,7 @@ fun ClipboardWatchingEnabled(
 }
 
 context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun PinnedClipboardPreviews(
     pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState>,
@@ -193,6 +195,7 @@ private fun PinnedClipboardPreviews(
 }
 
 context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun ClipboardPreviewHistory(
     clipboardPreviewStates: List<ClipboardPreviewState>,
