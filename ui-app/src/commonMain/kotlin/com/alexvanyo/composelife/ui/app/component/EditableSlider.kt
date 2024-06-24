@@ -18,19 +18,22 @@ package com.alexvanyo.composelife.ui.app.component
 
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -40,6 +43,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.sessionvalue.localSessionId
 import com.alexvanyo.composelife.sessionvalue.rememberSessionValueHolder
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.onEach
 import java.util.UUID
 
 @Suppress("LongParameterList", "LongMethod")
@@ -78,8 +84,10 @@ fun <T : Comparable<T>> EditableSlider(
     /**
      * The transient [TextField] value that the user is editing.
      */
-    var transientTextFieldValue by key(textFieldLocalSessionId) {
-        rememberSaveable { mutableStateOf(nonTransientValueText) }
+    val transientTextFieldState = key(textFieldLocalSessionId) {
+        rememberTextFieldState(
+            initialText = nonTransientValueText,
+        )
     }
 
     /**
@@ -90,11 +98,20 @@ fun <T : Comparable<T>> EditableSlider(
 
     /**
      * If non-null, this is the value [T] created from the currently entered string in the current edit session, as
-     * stored in [transientTextFieldValue].
+     * stored in [transientTextFieldState].
      *
      * If null, the currently entered string cannot be turned into a value of type [T].
      */
-    val transientValue = parseValue(transientTextFieldValue)
+    val transientValue by rememberUpdatedState(
+        parseValue(transientTextFieldState.text.toString()),
+    )
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { transientValue }
+            .filterNotNull()
+            .onEach(textFieldSessionValueHolder::setValue)
+            .collect()
+    }
 
     /**
      * The current value to display. This is either the current transient value, or the persisted [value] if the
@@ -127,17 +144,7 @@ fun <T : Comparable<T>> EditableSlider(
             var isFirstFocusedChanged: Boolean by remember { mutableStateOf(true) }
 
             TextField(
-                value = transientTextFieldValue,
-                onValueChange = { value ->
-                    // Update the text field value
-                    transientTextFieldValue = value
-                    // Try parsing the text field value into a real value
-                    parseValue(value)?.let { newTransientValue ->
-                        // If successful, call onValueChange with the new transient value, and update the known
-                        // transient value text we will receive by converting back to text.
-                        textFieldSessionValueHolder.setValue(newTransientValue)
-                    }
-                },
+                state = transientTextFieldState,
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(textFieldFocusRequester)
@@ -161,13 +168,11 @@ fun <T : Comparable<T>> EditableSlider(
                     keyboardType = keyboardType,
                     imeAction = ImeAction.Done,
                 ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        // Move focus to the overall slider to remove it from the TextField
-                        sliderFocusRequester.requestFocus()
-                    },
-                ),
-                singleLine = true,
+                onKeyboardAction = { performDefaultAction ->
+                    performDefaultAction()
+                    sliderFocusRequester.requestFocus()
+                },
+                lineLimits = TextFieldLineLimits.SingleLine,
             )
         },
         sliderOverlay = sliderOverlay,
