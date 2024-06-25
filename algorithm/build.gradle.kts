@@ -54,7 +54,7 @@ kotlin {
                 implementation(libs.androidx.annotation)
                 implementation(libs.guava.android)
                 implementation(libs.jetbrains.compose.runtime)
-                implementation(libs.jetbrains.compose.ui)
+                implementation(libs.jetbrains.compose.uiUnit)
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
@@ -86,7 +86,17 @@ kotlin {
                 implementation(projects.patterns)
             }
         }
+        val jbTest by creating {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.jetbrains.compose.foundation)
+            }
+        }
+        val desktopTest by getting {
+            dependsOn(jbTest)
+        }
         val androidSharedTest by getting {
+            dependsOn(jbTest)
             dependencies {
                 implementation(libs.androidx.compose.uiTestJunit4)
                 implementation(libs.androidx.test.core)

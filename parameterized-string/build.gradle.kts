@@ -44,12 +44,21 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(libs.jetbrains.compose.runtime)
-                api(libs.jetbrains.compose.uiText)
 
                 implementation(libs.kotlinx.coroutines.core)
             }
         }
+        val jbMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                api(libs.jetbrains.compose.uiText)
+            }
+        }
+        val desktopMain by getting {
+            dependsOn(jbMain)
+        }
         val androidMain by getting {
+            dependsOn(jbMain)
             dependencies {
                 api(libs.androidx.compose.foundation)
 

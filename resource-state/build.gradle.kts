@@ -43,9 +43,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.jetbrains.compose.foundation)
                 api(libs.jetbrains.compose.runtime)
-                api(libs.jetbrains.compose.ui)
                 api(libs.kotlinx.coroutines.core)
             }
         }

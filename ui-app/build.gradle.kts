@@ -45,17 +45,13 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.material3.windowSizeClass.multiplatform)
                 api(projects.algorithm)
                 api(projects.clock)
                 api(projects.data)
                 api(projects.dispatchers)
                 api(projects.random)
 
-                implementation(libs.jetbrains.compose.material3)
-                implementation(libs.jetbrains.compose.materialIconsExtended)
-                implementation(libs.jetbrains.compose.ui)
-                implementation(libs.jetbrains.compose.uiUtil)
+                implementation(libs.jetbrains.compose.uiGeometry)
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.collections.immutable)
                 implementation(libs.kotlinx.coroutines.core)
@@ -69,11 +65,23 @@ kotlin {
                 implementation(projects.resourceState)
                 implementation(projects.sessionValue)
                 implementation(projects.snapshotStateSet)
+            }
+        }
+        val jbMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                api(libs.material3.windowSizeClass.multiplatform)
+
+                implementation(libs.jetbrains.compose.material3)
+                implementation(libs.jetbrains.compose.materialIconsExtended)
+                implementation(libs.jetbrains.compose.ui)
+                implementation(libs.jetbrains.compose.uiUtil)
                 implementation(projects.uiCommon)
                 implementation(projects.uiToolingPreview)
             }
         }
         val desktopMain by getting {
+            dependsOn(jbMain)
             configurations["kspDesktop"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
@@ -81,6 +89,7 @@ kotlin {
             }
         }
         val androidMain by getting {
+            dependsOn(jbMain)
             configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {

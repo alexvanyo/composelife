@@ -45,10 +45,6 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(libs.androidx.annotation)
-                implementation(libs.jetbrains.compose.animation)
-                implementation(libs.jetbrains.compose.foundation)
-                implementation(libs.jetbrains.compose.materialIconsExtended)
-                implementation(libs.jetbrains.compose.ui)
                 implementation(libs.jetbrains.compose.uiUtil)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)
@@ -61,13 +57,24 @@ kotlin {
                 implementation(projects.updatable)
             }
         }
+        val jbMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.jetbrains.compose.animation)
+                implementation(libs.jetbrains.compose.foundation)
+                implementation(libs.jetbrains.compose.materialIconsExtended)
+                implementation(libs.jetbrains.compose.ui)
+            }
+        }
         val desktopMain by getting {
+            dependsOn(jbMain)
             configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
         }
         val androidMain by getting {
+            dependsOn(jbMain)
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
                 implementation(libs.androidx.activityCompose)

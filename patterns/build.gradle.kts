@@ -42,7 +42,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.jetbrains.compose.ui)
+                api(libs.jetbrains.compose.uiUnit)
                 api(libs.sealedEnum.runtime)
                 api(projects.algorithm)
             }
