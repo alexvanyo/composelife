@@ -45,7 +45,6 @@ kotlin {
                 api(libs.androidx.dataStore)
                 api(libs.jetbrains.compose.runtime)
                 api(libs.kotlinx.coroutines.core)
-                api(libs.sealedEnum.runtime)
                 api(projects.dispatchers)
                 api(projects.resourceState)
                 api(projects.sessionValue)
@@ -58,7 +57,15 @@ kotlin {
                 implementation(projects.preferencesProto)
             }
         }
+        val jbMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                api(libs.sealedEnum.runtime)
+
+            }
+        }
         val androidMain by getting {
+            dependsOn(jbMain)
             configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
@@ -66,20 +73,31 @@ kotlin {
             }
         }
         val desktopMain by getting {
+            dependsOn(jbMain)
             configurations["kspDesktop"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.okio.fakefilesystem)
-                implementation(libs.turbine)
                 implementation(projects.dispatchersTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.preferencesTest)
             }
         }
+        val jbTest by creating {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.okio.fakefilesystem)
+                implementation(libs.turbine)
+            }
+        }
+        val desktopTest by getting {
+            dependsOn(jbTest)
+            configurations["kspDesktopTest"].dependencies.add(libs.kotlinInject.ksp.get())
+        }
         val androidSharedTest by getting {
+            dependsOn(jbTest)
             dependencies {
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.junit)
@@ -91,9 +109,6 @@ kotlin {
         }
         val androidInstrumentedTest by getting {
             configurations["kspAndroidAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
-        }
-        val desktopTest by getting {
-            configurations["kspDesktopTest"].dependencies.add(libs.kotlinInject.ksp.get())
         }
     }
 }

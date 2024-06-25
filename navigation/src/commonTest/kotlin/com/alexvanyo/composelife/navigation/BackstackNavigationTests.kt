@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.navigation
 
 import androidx.compose.runtime.mutableStateMapOf
-import java.util.UUID
+import com.benasher44.uuid.uuid4
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -25,10 +25,10 @@ import kotlin.test.assertNotNull
 
 class BackstackNavigationTests {
 
-    private val id1 = UUID.randomUUID()
-    private val id2 = UUID.randomUUID()
-    private val id3 = UUID.randomUUID()
-    private val id4 = UUID.randomUUID()
+    private val id1 = uuid4()
+    private val id2 = uuid4()
+    private val id3 = uuid4()
+    private val id4 = uuid4()
     private val entry1 = BackstackEntry("a", null, id1)
     private val entry2 = BackstackEntry("b", entry1, id2)
     private val entry3 = BackstackEntry("c", entry2, id3)
@@ -106,7 +106,7 @@ class BackstackNavigationTests {
         assertFailsWith<IllegalStateException> {
             mutableBackstackMap.popUpTo(
                 currentEntryId = id4,
-                id = UUID.randomUUID(),
+                id = uuid4(),
             )
         }
     }
@@ -192,7 +192,7 @@ class BackstackNavigationTests {
 
     @Test
     fun navigate_with_raw_value_is_correct() {
-        val id5 = UUID.randomUUID()
+        val id5 = uuid4()
         val newId = mutableBackstackMap.navigate(
             currentEntryId = id4,
             value = "e",
@@ -220,7 +220,7 @@ class BackstackNavigationTests {
 
     @Test
     fun navigate_with_value_factory_is_correct() {
-        val id5 = UUID.randomUUID()
+        val id5 = uuid4()
         val newId = mutableBackstackMap.navigate(
             currentEntryId = id4,
             valueFactory = { it.value + "2" },

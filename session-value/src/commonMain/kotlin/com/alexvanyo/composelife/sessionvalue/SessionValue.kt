@@ -18,11 +18,12 @@ package com.alexvanyo.composelife.sessionvalue
 
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
-import java.util.UUID
+import com.benasher44.uuid.Uuid
+import com.benasher44.uuid.uuidFrom
 
 data class SessionValue<out T>(
-    val sessionId: UUID,
-    val valueId: UUID,
+    val sessionId: Uuid,
+    val valueId: Uuid,
     val value: T,
 ) {
     companion object {
@@ -49,9 +50,9 @@ data class SessionValue<out T>(
 }
 
 /**
- * A [Saver] for a [UUID].
+ * A [Saver] for a [Uuid].
  */
-internal val uuidSaver: Saver<UUID, String> = Saver(
+internal val uuidSaver: Saver<Uuid, String> = Saver(
     save = { it.toString() },
-    restore = UUID::fromString,
+    restore = ::uuidFrom,
 )

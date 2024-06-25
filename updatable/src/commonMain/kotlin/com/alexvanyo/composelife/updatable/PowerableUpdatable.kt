@@ -72,7 +72,7 @@ class PowerableUpdatable(
                         // Remove any pushes that have been cancelled
                         // We do this on both sides to avoid leaking if pressing and unpressing the button
                         // repeatedly without being powered
-                        activePushes.removeIf { it.isCompleted }
+                        activePushes.removeAll { it.isCompleted }
                         currentlyActivePushes = activePushes
 
                         if (currentlyActivePushes.isEmpty()) {
@@ -118,7 +118,7 @@ class PowerableUpdatable(
                 // Remove any pushes that have been cancelled
                 // We do this on both sides to avoid leaking if pressing and unpressing the button
                 // repeatedly without being powered
-                activePushes.removeIf { it.isCompleted }
+                activePushes.removeAll { it.isCompleted }
                 activePushes.add(push)
             }
             awaitCancellation()
