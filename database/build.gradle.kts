@@ -39,6 +39,7 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    linuxX64()
 
     sourceSets {
         val commonMain by getting {
@@ -65,6 +66,11 @@ kotlin {
                 implementation(libs.sqldelight.sqliteDriver)
             }
         }
+        val linuxX64Main by getting {
+            dependencies {
+                implementation(libs.sqldelight.nativeDriver)
+            }
+        }
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
@@ -74,7 +80,15 @@ kotlin {
                 implementation(projects.kmpAndroidRunner)
             }
         }
+        val jbTest by creating {
+            dependsOn(commonTest)
+        }
+        val desktopTest by getting {
+            dependsOn(jbTest)
+            configurations["kspDesktopTest"].dependencies.add(libs.kotlinInject.ksp.get())
+        }
         val androidSharedTest by getting {
+            dependsOn(jbTest)
             dependencies {
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.junit)
@@ -86,9 +100,6 @@ kotlin {
         }
         val androidInstrumentedTest by getting {
             configurations["kspAndroidAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
-        }
-        val desktopTest by getting {
-            configurations["kspDesktopTest"].dependencies.add(libs.kotlinInject.ksp.get())
         }
     }
 }

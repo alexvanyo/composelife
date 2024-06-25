@@ -31,6 +31,7 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    linuxX64()
 
     sourceSets {
         val commonMain by getting {
@@ -40,11 +41,20 @@ kotlin {
                 api(projects.kmpAndroidRunner)
                 api(projects.preferencesTest)
 
-                implementation(libs.kotlin.test.junit)
                 implementation(projects.injectScopes)
             }
         }
+        val jbMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.kotlin.test.junit)
+            }
+        }
+        val desktopMain by getting {
+            dependsOn(jbMain)
+        }
         val androidMain by getting {
+            dependsOn(jbMain)
             dependencies {
                 api(libs.androidx.compose.uiTestJunit4)
                 api(libs.androidx.test.runner)

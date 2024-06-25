@@ -90,6 +90,7 @@ kotlin {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.jetbrains.compose.foundation)
+                implementation(libs.jetbrains.compose.uiTestJunit4)
             }
         }
         val desktopTest by getting {

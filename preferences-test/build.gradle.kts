@@ -38,6 +38,7 @@ android {
 kotlin {
     jvm("desktop")
     androidTarget()
+    linuxX64()
 
     sourceSets {
         val commonMain by getting {
@@ -49,10 +50,15 @@ kotlin {
                 implementation(projects.injectScopes)
             }
         }
+        val jbMain by creating {
+            dependsOn(commonMain)
+        }
         val desktopMain by getting {
+            dependsOn(jbMain)
             configurations["kspDesktop"].dependencies.add(libs.kotlinInject.ksp.get())
         }
         val androidMain by getting {
+            dependsOn(jbMain)
             configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
             dependencies {
                 api(libs.androidx.test.junit)
@@ -65,7 +71,15 @@ kotlin {
                 implementation(projects.kmpAndroidRunner)
             }
         }
+        val jbTest by creating {
+            dependsOn(commonTest)
+        }
+        val desktopTest by getting {
+            dependsOn(jbTest)
+            configurations["kspDesktopTest"].dependencies.add(libs.kotlinInject.ksp.get())
+        }
         val androidSharedTest by getting {
+            dependsOn(jbTest)
             dependencies {
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.junit)
@@ -77,9 +91,6 @@ kotlin {
         }
         val androidInstrumentedTest by getting {
             configurations["kspAndroidAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
-        }
-        val desktopTest by getting {
-            configurations["kspDesktopTest"].dependencies.add(libs.kotlinInject.ksp.get())
         }
     }
 }

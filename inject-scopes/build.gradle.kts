@@ -31,12 +31,25 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    linuxX64()
 
     sourceSets {
         val commonMain by getting {
             dependencies {
                 implementation(libs.kotlinInject.runtime)
             }
+        }
+        val jbMain by creating {
+            dependsOn(commonMain)
+        }
+        val desktopMain by getting {
+            dependsOn(jbMain)
+        }
+        val androidMain by getting {
+            dependsOn(jbMain)
+        }
+        val linuxX64Main by getting {
+            dependsOn(commonMain)
         }
     }
 }

@@ -32,6 +32,7 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    linuxX64()
 
     sourceSets {
         val commonMain by getting {
