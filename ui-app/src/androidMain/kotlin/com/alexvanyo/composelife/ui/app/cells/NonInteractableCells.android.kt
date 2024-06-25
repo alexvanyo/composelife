@@ -28,7 +28,6 @@ import com.alexvanyo.composelife.preferences.currentShape
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 
 context(NonInteractableCellsLocalEntryPoint)
-
 @Composable
 @Suppress("LongParameterList")
 actual fun NonInteractableCells(

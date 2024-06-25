@@ -43,21 +43,30 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.circuit.retained)
-                api(libs.jetbrains.compose.animation)
-                api(libs.jetbrains.compose.runtime)
-                api(libs.jetbrains.compose.ui)
+                api(libs.uuid)
 
+                implementation(libs.jetbrains.compose.runtime)
+                implementation(libs.jetbrains.compose.runtime.saveable)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(projects.snapshotStateSet)
             }
         }
+        val jbMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                api(libs.circuit.retained)
+                api(libs.jetbrains.compose.animation)
+                api(libs.jetbrains.compose.ui)
+            }
+        }
         val desktopMain by getting {
+            dependsOn(jbMain)
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
         }
         val androidMain by getting {
+            dependsOn(jbMain)
             dependencies {
                 implementation(libs.androidx.compose.animation)
                 implementation(libs.androidx.compose.ui)
@@ -68,15 +77,24 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(libs.kotlinx.coroutines.test)
+            }
+        }
+        val jbTest by creating {
+            dependsOn(commonTest)
+            dependencies {
                 api(libs.jetbrains.compose.foundation)
 
                 implementation(libs.jetbrains.compose.uiTestJunit4)
-                implementation(libs.kotlinx.coroutines.test)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
             }
         }
+        val desktopTest by getting {
+            dependsOn(jbTest)
+        }
         val androidSharedTest by getting {
+            dependsOn(jbTest)
             dependencies {
                 implementation(libs.androidx.compose.uiTestJunit4)
                 implementation(libs.androidx.test.core)

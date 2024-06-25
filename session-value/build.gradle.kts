@@ -45,6 +45,7 @@ kotlin {
             dependencies {
                 api(libs.jetbrains.compose.runtime)
                 api(libs.jetbrains.compose.runtime.saveable)
+                api(libs.uuid)
             }
         }
         val desktopMain by getting {
@@ -54,14 +55,23 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.jetbrains.compose.uiTestJunit4)
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
             }
         }
+        val jbTest by creating {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.jetbrains.compose.uiTestJunit4)
+            }
+        }
+        val desktopTest by getting {
+            dependsOn(jbTest)
+        }
         val androidSharedTest by getting {
+            dependsOn(jbTest)
             dependencies {
                 implementation(libs.androidx.compose.uiTestJunit4)
                 implementation(libs.androidx.test.core)

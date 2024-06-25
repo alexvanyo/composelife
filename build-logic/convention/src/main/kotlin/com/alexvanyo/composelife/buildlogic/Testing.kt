@@ -49,7 +49,7 @@ fun Project.configureTesting(
                     dependencies {
                         // TODO: Replace with kotlin("test") once this is fixed:
                         //       https://youtrack.jetbrains.com/issue/KT-62368/Kotlin-1.9.X-fails-to-detect-kotlin.test.Test-annotation-reference-on-commonTest-source-set-when-targeting-JVMAndroid
-                        implementation(kotlin("test-junit"))
+                        implementation(kotlin("test"))
                     }
                 }
             },
