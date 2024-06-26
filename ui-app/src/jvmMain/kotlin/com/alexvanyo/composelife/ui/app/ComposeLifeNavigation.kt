@@ -28,9 +28,9 @@ import com.alexvanyo.composelife.navigation.BackstackValueSaverFactory
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.util.sealedEnumSaver
+import com.benasher44.uuid.uuid4
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
-import java.util.UUID
 
 @Stable
 sealed interface ComposeLifeNavigation {
@@ -63,7 +63,7 @@ sealed interface ComposeLifeNavigation {
 
         val transientDetailId by derivedStateOf {
             settingsCategory
-            UUID.randomUUID()
+            uuid4()
         }
 
         val transientFullscreenSettingsDetail by derivedStateOf {

@@ -41,6 +41,7 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    linuxX64()
 
     sourceSets {
         val commonMain by getting {
@@ -52,28 +53,36 @@ kotlin {
                 api(projects.updatable)
 
                 implementation(libs.androidx.annotation)
-                implementation(libs.guava.android)
                 implementation(libs.jetbrains.compose.runtime)
-                implementation(libs.jetbrains.compose.uiUnit)
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
+                implementation(projects.injectScopes)
+            }
+        }
+        val jbMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.guava.android)
+                implementation(libs.jetbrains.compose.uiUnit)
                 implementation(libs.sealedEnum.runtime)
                 implementation(projects.injectScopes)
             }
         }
+        val desktopMain by getting {
+            dependsOn(jbMain)
+            configurations["kspDesktop"].dependencies.add(libs.kotlinInject.ksp.get())
+            configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
+        }
         val androidMain by getting {
+            dependsOn(jbMain)
             configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
                 implementation(libs.androidx.tracing)
                 implementation(libs.kotlinx.coroutines.android)
             }
-        }
-        val desktopMain by getting {
-            configurations["kspDesktop"].dependencies.add(libs.kotlinInject.ksp.get())
-            configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
         }
         val commonTest by getting {
             dependencies {

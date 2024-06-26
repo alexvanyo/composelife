@@ -16,7 +16,8 @@
 
 package com.alexvanyo.composelife.navigation
 
-import java.util.UUID
+import com.benasher44.uuid.Uuid
+import com.benasher44.uuid.uuid4
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -24,13 +25,13 @@ class NavigationStateTests {
 
     @Test
     fun current_entry_is_correct() {
-        val id1 = UUID.randomUUID()
-        val id2 = UUID.randomUUID()
+        val id1 = uuid4()
+        val id2 = uuid4()
         val entry1 = object : NavigationEntry {
-            override val id: UUID = id1
+            override val id: Uuid = id1
         }
         val entry2 = object : NavigationEntry {
-            override val id: UUID = id2
+            override val id: Uuid = id2
         }
 
         val navigationState = object : NavigationState<NavigationEntry> {

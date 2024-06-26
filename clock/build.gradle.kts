@@ -32,6 +32,7 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    linuxX64()
 
     sourceSets {
         val commonMain by getting {
@@ -41,12 +42,6 @@ kotlin {
                 implementation(libs.kotlinInject.runtime)
                 implementation(projects.injectScopes)
             }
-        }
-        val desktopMain by getting {
-            configurations["kspDesktop"].dependencies.add(libs.kotlinInject.ksp.get())
-        }
-        val androidMain by getting {
-            configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
         }
     }
 }

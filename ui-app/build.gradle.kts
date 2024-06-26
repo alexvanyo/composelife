@@ -41,6 +41,7 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    linuxX64()
 
     sourceSets {
         val commonMain by getting {
@@ -51,7 +52,6 @@ kotlin {
                 api(projects.dispatchers)
                 api(projects.random)
 
-                implementation(libs.jetbrains.compose.uiGeometry)
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.collections.immutable)
                 implementation(libs.kotlinx.coroutines.core)
@@ -67,14 +67,18 @@ kotlin {
                 implementation(projects.snapshotStateSet)
             }
         }
-        val jbMain by creating {
+        val jvmMain by creating {
             dependsOn(commonMain)
+        }
+        val jbMain by creating {
+            dependsOn(jvmMain)
             dependencies {
                 api(libs.material3.windowSizeClass.multiplatform)
 
                 implementation(libs.jetbrains.compose.material3)
                 implementation(libs.jetbrains.compose.materialIconsExtended)
                 implementation(libs.jetbrains.compose.ui)
+                implementation(libs.jetbrains.compose.uiGeometry)
                 implementation(libs.jetbrains.compose.uiUtil)
                 implementation(projects.uiCommon)
                 implementation(projects.uiToolingPreview)

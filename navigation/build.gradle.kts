@@ -39,12 +39,15 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    linuxX64()
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.circuit.retained)
+                api(libs.uuid)
 
+                implementation(libs.jetbrains.compose.runtime)
+                implementation(libs.jetbrains.compose.runtime.saveable)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(projects.snapshotStateSet)
             }
@@ -52,6 +55,7 @@ kotlin {
         val jbMain by creating {
             dependsOn(commonMain)
             dependencies {
+                api(libs.circuit.retained)
                 api(libs.jetbrains.compose.animation)
                 api(libs.jetbrains.compose.ui)
             }

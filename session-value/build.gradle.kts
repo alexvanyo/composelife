@@ -46,19 +46,13 @@ kotlin {
             dependencies {
                 api(libs.jetbrains.compose.runtime)
                 api(libs.jetbrains.compose.runtime.saveable)
+                api(libs.uuid)
             }
         }
-        val jbMain by creating {
-            dependsOn(commonMain)
-        }
         val desktopMain by getting {
-            dependsOn(jbMain)
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
-        }
-        val androidMain by getting {
-            dependsOn(jbMain)
         }
         val commonTest by getting {
             dependencies {

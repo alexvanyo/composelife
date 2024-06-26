@@ -40,16 +40,38 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    linuxX64()
 
     sourceSets {
         val commonMain by getting {
             dependencies {
                 implementation(libs.androidx.annotation)
                 implementation(libs.jetbrains.compose.runtime)
+            }
+        }
+        val jbMain by creating {
+            dependsOn(commonMain)
+            dependencies {
                 implementation(libs.jetbrains.compose.uiGeometry)
                 implementation(libs.jetbrains.compose.uiUnit)
                 implementation(libs.jetbrains.compose.uiUtil)
             }
+        }
+        val desktopMain by getting {
+            dependsOn(jbMain)
+        }
+        val androidMain by getting {
+            dependsOn(jbMain)
+        }
+        val commonTest by getting {}
+        val jbTest by creating {
+            dependsOn(commonTest)
+        }
+        val desktopTest by getting {
+            dependsOn(jbTest)
+        }
+        val androidSharedTest by getting {
+            dependsOn(jbTest)
         }
     }
 }
