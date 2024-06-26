@@ -41,7 +41,6 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
-    linuxX64()
 
     sourceSets {
         val commonMain by getting {
@@ -58,25 +57,25 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
+                implementation(libs.uuid)
                 implementation(projects.injectScopes)
             }
         }
-        val jbMain by creating {
+        val jvmMain by creating {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.guava.android)
                 implementation(libs.jetbrains.compose.uiUnit)
                 implementation(libs.sealedEnum.runtime)
-                implementation(projects.injectScopes)
             }
         }
         val desktopMain by getting {
-            dependsOn(jbMain)
+            dependsOn(jvmMain)
             configurations["kspDesktop"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
         }
         val androidMain by getting {
-            dependsOn(jbMain)
+            dependsOn(jvmMain)
             configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
@@ -87,7 +86,6 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.testParameterInjector.junit4)
                 implementation(libs.turbine)
                 implementation(projects.dispatchersTest)
                 implementation(projects.kmpAndroidRunner)
@@ -95,8 +93,14 @@ kotlin {
                 implementation(projects.patterns)
             }
         }
-        val jbTest by creating {
+        val jvmTest by creating {
             dependsOn(commonTest)
+            dependencies {
+                implementation(libs.testParameterInjector.junit4)
+            }
+        }
+        val jbTest by creating {
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.jetbrains.compose.foundation)
                 implementation(libs.jetbrains.compose.uiTestJunit4)

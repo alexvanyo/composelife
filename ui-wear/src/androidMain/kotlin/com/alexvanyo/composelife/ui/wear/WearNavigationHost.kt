@@ -46,7 +46,7 @@ import com.alexvanyo.composelife.navigation.associateWithRenderablePanes
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.previousEntry
-import java.util.UUID
+import com.benasher44.uuid.uuid4
 
 @Composable
 fun <T> WearNavigationHost(
@@ -108,7 +108,7 @@ fun <T> WearNavigationFrame(
 
     SwipeToDismissBox(
         onDismissed = onNavigateBack,
-        backgroundKey = previousEntry?.id ?: remember { UUID.randomUUID() },
+        backgroundKey = previousEntry?.id ?: remember { uuid4() },
         contentKey = currentEntry.id,
         hasBackground = previousEntry != null,
         modifier = modifier,

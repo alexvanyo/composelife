@@ -50,7 +50,7 @@ data class SessionValue<out T>(
 }
 
 /**
- * A [Saver] for a [UUID].
+ * A [Saver] for a [Uuid].
  */
 internal val uuidSaver: Saver<Uuid, String> = Saver(
     save = { it.toString() },

@@ -32,6 +32,7 @@ import androidx.compose.runtime.snapshotFlow
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.updatable.Updatable
+import com.benasher44.uuid.uuid4
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
@@ -55,7 +56,6 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import java.util.UUID
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -257,7 +257,7 @@ private class TemporalGameOfLifeStateImpl(
             TemporalGameOfLifeState.EvolutionStatus.Paused
         }
 
-    private var seedId by mutableStateOf(UUID.randomUUID())
+    private var seedId by mutableStateOf(uuid4())
 
     private var _seedCellState by mutableStateOf(seedCellState)
 
@@ -265,7 +265,7 @@ private class TemporalGameOfLifeStateImpl(
         get() = _seedCellState
         set(value) {
             _seedCellState = value
-            seedId = UUID.randomUUID()
+            seedId = uuid4()
         }
 
     private val cellStateGenealogy by derivedStateOf {

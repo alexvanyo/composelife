@@ -34,7 +34,7 @@ import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
-import java.util.UUID
+import com.benasher44.uuid.Uuid
 
 /**
  * The persistable state describing the [CellUniverseActionCard].
@@ -66,13 +66,13 @@ interface CellUniverseActionCardState {
      */
     val canNavigateBack: Boolean
 
-    fun onSpeedClicked(actorBackstackEntryId: UUID? = null)
+    fun onSpeedClicked(actorBackstackEntryId: Uuid? = null)
 
-    fun onEditClicked(actorBackstackEntryId: UUID? = null)
+    fun onEditClicked(actorBackstackEntryId: Uuid? = null)
 
-    fun onSettingsClicked(actorBackstackEntryId: UUID? = null)
+    fun onSettingsClicked(actorBackstackEntryId: Uuid? = null)
 
-    fun inlineOnBackPressed(inlineActorBackstackEntryId: UUID? = null)
+    fun inlineOnBackPressed(inlineActorBackstackEntryId: Uuid? = null)
 }
 
 /**
@@ -149,10 +149,10 @@ fun rememberCellUniverseActionCardState(
                     editNavController.entryMap +
                     settingsNavController.entryMap
 
-            override val currentEntryId: UUID
+            override val currentEntryId: Uuid
                 get() = currentInlineNavController.currentEntryId
 
-            override val previousEntryId: UUID?
+            override val previousEntryId: Uuid?
                 get() = if (currentInlineNavController.canNavigateBack) {
                     currentInlineNavController.previousEntryId
                 } else {
@@ -166,7 +166,7 @@ fun rememberCellUniverseActionCardState(
         }
     }
 
-    val onBackPressed = { inlineActorBackstackEntryId: UUID? ->
+    val onBackPressed = { inlineActorBackstackEntryId: Uuid? ->
         currentInlineNavController.withExpectedActor(inlineActorBackstackEntryId) {
             if (currentInlineNavController.canNavigateBack) {
                 currentInlineNavController.popBackstack()
@@ -199,25 +199,25 @@ fun rememberCellUniverseActionCardState(
 
         override val canNavigateBack: Boolean get() = canNavigateBack
 
-        override fun onSpeedClicked(actorBackstackEntryId: UUID?) {
+        override fun onSpeedClicked(actorBackstackEntryId: Uuid?) {
             currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
                 currentInlineBackstack = InlineActionCardBackstack.Speed
             }
         }
 
-        override fun onEditClicked(actorBackstackEntryId: UUID?) {
+        override fun onEditClicked(actorBackstackEntryId: Uuid?) {
             currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
                 currentInlineBackstack = InlineActionCardBackstack.Edit
             }
         }
 
-        override fun onSettingsClicked(actorBackstackEntryId: UUID?) {
+        override fun onSettingsClicked(actorBackstackEntryId: Uuid?) {
             currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
                 currentInlineBackstack = InlineActionCardBackstack.Settings
             }
         }
 
-        override fun inlineOnBackPressed(inlineActorBackstackEntryId: UUID?) {
+        override fun inlineOnBackPressed(inlineActorBackstackEntryId: Uuid?) {
             inlineOnBackPressed(inlineActorBackstackEntryId)
         }
     }

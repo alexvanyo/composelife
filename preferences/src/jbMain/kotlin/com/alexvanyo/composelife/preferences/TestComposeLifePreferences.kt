@@ -24,7 +24,8 @@ import androidx.compose.runtime.snapshots.Snapshot
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.firstSuccess
 import com.alexvanyo.composelife.sessionvalue.SessionValue
-import java.util.UUID
+import com.benasher44.uuid.Uuid
+import com.benasher44.uuid.uuid4
 
 @Suppress("TooManyFunctions", "LongParameterList")
 class TestComposeLifePreferences(
@@ -35,8 +36,8 @@ class TestComposeLifePreferences(
         sizeFraction = 1.0f,
         cornerFraction = 0.0f,
     ),
-    roundRectangleSessionId: UUID = UUID.randomUUID(),
-    roundRectangleValueId: UUID = UUID.randomUUID(),
+    roundRectangleSessionId: Uuid = uuid4(),
+    roundRectangleValueId: Uuid = uuid4(),
     darkThemeConfig: DarkThemeConfig = DarkThemeConfig.FollowSystem,
     quickAccessSettings: Set<QuickAccessSetting> = emptySet(),
     disableAGSL: Boolean = false,
@@ -56,9 +57,9 @@ class TestComposeLifePreferences(
 
     var roundRectangleConfig: CurrentShape.RoundRectangle by mutableStateOf(roundRectangleConfig)
 
-    var roundRectangleSessionId: UUID by mutableStateOf(roundRectangleSessionId)
+    var roundRectangleSessionId: Uuid by mutableStateOf(roundRectangleSessionId)
 
-    var roundRectangleValueId: UUID by mutableStateOf(roundRectangleValueId)
+    var roundRectangleValueId: Uuid by mutableStateOf(roundRectangleValueId)
 
     var darkThemeConfig: DarkThemeConfig by mutableStateOf(darkThemeConfig)
 

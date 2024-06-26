@@ -60,10 +60,10 @@ import com.alexvanyo.composelife.ui.app.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.util.Layout
+import com.benasher44.uuid.uuid4
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 interface InteractiveCellUniverseOverlayInjectEntryPoint :
     CellUniverseActionCardInjectEntryPoint
@@ -134,7 +134,7 @@ fun InteractiveCellUniverseOverlay(
                 setSelectionToCellState = interactiveCellUniverseState::setSelectionToCellState,
                 onClearSelection = {
                     interactiveCellUniverseState.cellWindowInteractionState.selectionSessionState =
-                        SessionValue(UUID.randomUUID(), UUID.randomUUID(), SelectionState.NoSelection)
+                        SessionValue(uuid4(), uuid4(), SelectionState.NoSelection)
                 },
                 onCopy = interactiveCellUniverseState::onCopy,
                 onCut = interactiveCellUniverseState::onCut,

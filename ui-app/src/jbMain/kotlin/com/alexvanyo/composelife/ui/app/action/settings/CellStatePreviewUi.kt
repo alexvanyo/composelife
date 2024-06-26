@@ -39,7 +39,7 @@ import com.alexvanyo.composelife.ui.app.cells.CellWindowState
 import com.alexvanyo.composelife.ui.app.cells.ImmutableCellWindow
 import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.cells.ViewportInteractionConfig
-import java.util.UUID
+import com.benasher44.uuid.uuid4
 
 interface CellStatePreviewUiLocalEntryPoint :
     CellWindowLocalEntryPoint
@@ -57,8 +57,8 @@ fun CellStatePreviewUi(
         var selectionSessionState by remember {
             mutableStateOf<SessionValue<SelectionState>>(
                 SessionValue(
-                    sessionId = UUID.randomUUID(),
-                    valueId = UUID.randomUUID(),
+                    sessionId = uuid4(),
+                    valueId = uuid4(),
                     value = SelectionState.NoSelection,
                 ),
             )

@@ -66,7 +66,7 @@ import com.alexvanyo.composelife.ui.app.resources.Pin
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.resources.Unpin
 import com.alexvanyo.composelife.ui.app.resources.Warnings
-import java.util.UUID
+import com.benasher44.uuid.uuid4
 
 interface ClipboardCellStatePreviewInjectEntryPoint :
     GameOfLifeProgressIndicatorInjectEntryPoint
@@ -155,7 +155,7 @@ fun LoadedCellStatePreview(
                 viewportInteractionConfig = ViewportInteractionConfig.Tracking(
                     rememberTrackingCellWindowViewportState(gameOfLifeState),
                 ),
-                selectionSessionState = SessionValue(UUID.randomUUID(), UUID.randomUUID(), SelectionState.NoSelection),
+                selectionSessionState = SessionValue(uuid4(), uuid4(), SelectionState.NoSelection),
             ),
             modifier = Modifier.weight(1f),
             inOverlay = true,

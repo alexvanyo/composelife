@@ -31,7 +31,6 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
-    linuxX64()
 
     sourceSets {
         val commonMain by getting {
@@ -47,9 +46,6 @@ kotlin {
         }
         val androidMain by getting {
             dependsOn(jbMain)
-        }
-        val linuxX64Main by getting {
-            dependsOn(commonMain)
         }
     }
 }

@@ -74,12 +74,13 @@ import com.alexvanyo.composelife.ui.app.resources.TouchTool
 import com.alexvanyo.composelife.ui.util.ClipboardReader
 import com.alexvanyo.composelife.ui.util.clipboardStateKey
 import com.alexvanyo.composelife.ui.util.rememberClipboardReader
+import com.benasher44.uuid.Uuid
+import com.benasher44.uuid.uuid4
 import com.livefront.sealedenum.GenSealedEnum
 import com.slack.circuit.retained.rememberRetained
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 interface InlineEditPaneInjectEntryPoint :
     ComposeLifePreferencesProvider,
@@ -279,7 +280,7 @@ sealed interface ClipboardWatchingState {
 }
 
 interface ClipboardPreviewState {
-    val id: UUID
+    val id: Uuid
     val deserializationResult: DeserializationResult
 
     val isPinned: Boolean
@@ -290,7 +291,7 @@ interface ClipboardPreviewState {
 }
 
 interface PinnedClipboardPreviewState {
-    val id: UUID
+    val id: Uuid
     val deserializationResult: DeserializationResult.Successful
 
     fun onPaste()
@@ -419,16 +420,16 @@ fun rememberClipboardWatchingEnabledState(
     setSelectionToCellState: (CellState) -> Unit,
 ): ClipboardWatchingState.ClipboardWatchingEnabled {
     var isLoading by remember { mutableStateOf(false) }
-    var currentClipboardCellStateId: UUID by rememberRetained {
-        mutableStateOf(UUID.randomUUID())
+    var currentClipboardCellStateId: Uuid by rememberRetained {
+        mutableStateOf(uuid4())
     }
     var currentDeserializationResult: DeserializationResult? by rememberRetained {
         mutableStateOf(null)
     }
-    val previousClipboardCellStates: MutableList<Pair<UUID, DeserializationResult.Successful>> = rememberRetained {
+    val previousClipboardCellStates: MutableList<Pair<Uuid, DeserializationResult.Successful>> = rememberRetained {
         mutableStateListOf()
     }
-    val pinnedClipboardCellStates: MutableList<Pair<UUID, DeserializationResult.Successful>> = rememberRetained {
+    val pinnedClipboardCellStates: MutableList<Pair<Uuid, DeserializationResult.Successful>> = rememberRetained {
         mutableStateListOf()
     }
 
@@ -464,7 +465,7 @@ fun rememberClipboardWatchingEnabledState(
 
                 // We have "locked" in a successful clipboard parsing result into history, so start creating
                 // a new one
-                currentClipboardCellStateId = UUID.randomUUID()
+                currentClipboardCellStateId = uuid4()
             }
 
             // Bring the deserialization result up-to-date

@@ -31,7 +31,7 @@ import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.ui.app.component.DetailEntry
 import com.alexvanyo.composelife.ui.app.component.ListDetailInfo
 import com.alexvanyo.composelife.ui.app.component.ListEntry
-import java.util.UUID
+import com.benasher44.uuid.Uuid
 
 @Stable
 sealed interface ComposeLifeUiNavigation {
@@ -61,9 +61,9 @@ fun BackstackState<ComposeLifeNavigation>.toComposeLifeUiNavigation(
     windowSizeClass: WindowSizeClass,
 ): BackstackState<ComposeLifeUiNavigation> =
     remember(entryMap.keys.toSet(), currentEntryId, windowSizeClass) {
-        val map = mutableMapOf<UUID, BackstackEntry<ComposeLifeUiNavigation>>()
+        val map = mutableMapOf<Uuid, BackstackEntry<ComposeLifeUiNavigation>>()
 
-        val listsPairedWithDetails = mutableSetOf<UUID>()
+        val listsPairedWithDetails = mutableSetOf<Uuid>()
 
         var transformedCurrentEntryId by mutableStateOf(currentEntryId)
 
@@ -128,7 +128,7 @@ fun BackstackState<ComposeLifeNavigation>.toComposeLifeUiNavigation(
         object : BackstackState<ComposeLifeUiNavigation> {
             override val entryMap: BackstackMap<ComposeLifeUiNavigation>
                 get() = map
-            override val currentEntryId: UUID
+            override val currentEntryId: Uuid
                 get() = transformedCurrentEntryId
         }
     }

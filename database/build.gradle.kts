@@ -39,7 +39,6 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
-    linuxX64()
 
     sourceSets {
         val commonMain by getting {
@@ -64,11 +63,6 @@ kotlin {
         val desktopMain by getting {
             dependencies {
                 implementation(libs.sqldelight.sqliteDriver)
-            }
-        }
-        val linuxX64Main by getting {
-            dependencies {
-                implementation(libs.sqldelight.nativeDriver)
             }
         }
         val commonTest by getting {

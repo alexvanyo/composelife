@@ -28,7 +28,7 @@ import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.NavigationSegment
 import com.alexvanyo.composelife.navigation.RenderableNavigationState
 import com.alexvanyo.composelife.navigation.RenderableNavigationTransform
-import java.util.UUID
+import com.benasher44.uuid.Uuid
 
 /**
  * A [RenderableNavigationTransform] to display multiple panes in a list-detail layout, if there is enough room
@@ -81,7 +81,7 @@ fun <T> listDetailNavigationTransform(
             }
         }
 
-    val transformedPaneMap: Map<UUID, @Composable () -> Unit> = entryMap
+    val transformedPaneMap: Map<Uuid, @Composable () -> Unit> = entryMap
         .filterValues {
             val navigationSegment = it.value
             navigationSegment !is NavigationSegment.SingleSegment || navigationSegment.value !is ListEntry
@@ -182,7 +182,7 @@ fun <T> listDetailNavigationTransform(
         object : BackstackState<NavigationSegment<T>> {
             override val entryMap: BackstackMap<NavigationSegment<T>>
                 get() = transformedEntryMap
-            override val currentEntryId: UUID
+            override val currentEntryId: Uuid
                 get() = transformedCurrentEntryId
         }
 

@@ -59,10 +59,10 @@ import com.alexvanyo.composelife.ui.app.resources.SizeFractionLabelAndValue
 import com.alexvanyo.composelife.ui.app.resources.SizeFractionValue
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.util.uuidSaver
+import com.benasher44.uuid.uuid4
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 interface CellShapeConfigUiInjectEntryPoint :
     ComposeLifePreferencesProvider
@@ -209,22 +209,22 @@ fun rememberCellShapeConfigUiState(): CellShapeConfigUiState {
 
             var sizeFractionSessionId by key(localSessionId) {
                 rememberSaveable(stateSaver = uuidSaver) {
-                    mutableStateOf(UUID.randomUUID())
+                    mutableStateOf(uuid4())
                 }
             }
             var sizeFractionValueId by key(localSessionId) {
                 rememberSaveable(stateSaver = uuidSaver) {
-                    mutableStateOf(UUID.randomUUID())
+                    mutableStateOf(uuid4())
                 }
             }
             var cornerFractionSessionId by key(localSessionId) {
                 rememberSaveable(stateSaver = uuidSaver) {
-                    mutableStateOf(UUID.randomUUID())
+                    mutableStateOf(uuid4())
                 }
             }
             var cornerFractionValueId by key(localSessionId) {
                 rememberSaveable(stateSaver = uuidSaver) {
-                    mutableStateOf(UUID.randomUUID())
+                    mutableStateOf(uuid4())
                 }
             }
 

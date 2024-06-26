@@ -36,9 +36,9 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.resources.SelectingBoxHandle
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.util.isAndroid
+import com.benasher44.uuid.uuid4
 import org.junit.Assume.assumeTrue
 import org.junit.runner.RunWith
-import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -55,8 +55,8 @@ class SelectionOverlayTests {
 
             SelectionOverlay(
                 selectionSessionState = SessionValue(
-                    sessionId = UUID.randomUUID(),
-                    valueId = UUID.randomUUID(),
+                    sessionId = uuid4(),
+                    valueId = uuid4(),
                     value = SelectionState.NoSelection,
                 ),
                 setSelectionSessionState = {},
@@ -85,8 +85,8 @@ class SelectionOverlayTests {
 
             SelectionOverlay(
                 selectionSessionState = SessionValue(
-                    sessionId = UUID.randomUUID(),
-                    valueId = UUID.randomUUID(),
+                    sessionId = uuid4(),
+                    valueId = uuid4(),
                     value = SelectionState.SelectingBox.FixedSelectingBox(
                         topLeft = IntOffset(1, 1),
                         width = 2,
@@ -135,8 +135,8 @@ class SelectionOverlayTests {
 
         val mutableSelectionStateHolder = MutableSelectionStateHolder(
             SessionValue(
-                sessionId = UUID.randomUUID(),
-                valueId = UUID.randomUUID(),
+                sessionId = uuid4(),
+                valueId = uuid4(),
                 value = SelectionState.SelectingBox.FixedSelectingBox(
                     topLeft = IntOffset(2, 2),
                     width = 2,

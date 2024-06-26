@@ -22,8 +22,8 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
+import com.benasher44.uuid.uuid4
 import org.junit.runner.RunWith
-import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -32,10 +32,10 @@ import kotlin.test.assertNotNull
 @RunWith(KmpAndroidJUnit4::class)
 class BackstackStateTests {
 
-    private val id1 = UUID.randomUUID()
-    private val id2 = UUID.randomUUID()
-    private val id3 = UUID.randomUUID()
-    private val id4 = UUID.randomUUID()
+    private val id1 = uuid4()
+    private val id2 = uuid4()
+    private val id3 = uuid4()
+    private val id4 = uuid4()
 
     @Test
     fun backstack_state_with_basic_value_is_saved_correctly() = runComposeUiTest {

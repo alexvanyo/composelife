@@ -32,11 +32,13 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
+import com.benasher44.uuid.Uuid
+import com.benasher44.uuid.uuid4
+import com.benasher44.uuid.uuidFrom
 import com.slack.circuit.retained.LocalRetainedStateRegistry
 import com.slack.circuit.retained.RetainedStateRegistry
 import com.slack.circuit.retained.rememberRetained
 import org.junit.runner.RunWith
-import java.util.UUID
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
@@ -45,7 +47,7 @@ class NavigationHostTests {
 
     @Test
     fun navigation_host_displays_current_entry() = runComposeUiTest {
-        val id = UUID.fromString("00000000-0000-0000-0000-000000000000")
+        val id = uuidFrom("00000000-0000-0000-0000-000000000000")
         val entry = BackstackEntry(
             value = "a",
             previous = null,
@@ -70,8 +72,8 @@ class NavigationHostTests {
 
     @Test
     fun navigation_host_displays_current_entry_with_multiple_entries() = runComposeUiTest {
-        val id1 = UUID.fromString("00000000-0000-0000-0000-000000000000")
-        val id2 = UUID.fromString("11111111-1111-1111-1111-111111111111")
+        val id1 = uuidFrom("00000000-0000-0000-0000-000000000000")
+        val id2 = uuidFrom("11111111-1111-1111-1111-111111111111")
         val entry1 = BackstackEntry(
             value = "a",
             previous = null,
@@ -84,11 +86,11 @@ class NavigationHostTests {
         )
 
         val navigationState = object : BackstackState<String> {
-            override val entryMap: Map<UUID, BackstackEntry<String>> = mapOf(
+            override val entryMap: Map<Uuid, BackstackEntry<String>> = mapOf(
                 id1 to entry1,
                 id2 to entry2,
             )
-            override val currentEntryId: UUID = id2
+            override val currentEntryId: Uuid = id2
         }
 
         setContent {
@@ -104,8 +106,8 @@ class NavigationHostTests {
 
     @Test
     fun navigation_host_keeps_state_for_entries_in_map() = runComposeUiTest {
-        val id1 = UUID.fromString("00000000-0000-0000-0000-000000000000")
-        val id2 = UUID.fromString("11111111-1111-1111-1111-111111111111")
+        val id1 = uuidFrom("00000000-0000-0000-0000-000000000000")
+        val id2 = uuidFrom("11111111-1111-1111-1111-111111111111")
         val entry1 = BackstackEntry(
             value = "a",
             previous = null,
@@ -117,7 +119,7 @@ class NavigationHostTests {
             id = id2,
         )
 
-        val backstackMap = mutableStateMapOf<UUID, BackstackEntry<String>>(
+        val backstackMap = mutableStateMapOf<Uuid, BackstackEntry<String>>(
             id1 to entry1,
             id2 to entry2,
         )
@@ -174,8 +176,8 @@ class NavigationHostTests {
 
     @Test
     fun navigation_host_does_not_keep_state_for_entries_not_in_map() = runComposeUiTest {
-        val id1 = UUID.fromString("00000000-0000-0000-0000-000000000000")
-        val id2 = UUID.fromString("11111111-1111-1111-1111-111111111111")
+        val id1 = uuidFrom("00000000-0000-0000-0000-000000000000")
+        val id2 = uuidFrom("11111111-1111-1111-1111-111111111111")
         val entry1 = BackstackEntry(
             value = "a",
             previous = null,
@@ -187,7 +189,7 @@ class NavigationHostTests {
             id = id2,
         )
 
-        val backstackMap = mutableStateMapOf<UUID, BackstackEntry<String>>(
+        val backstackMap = mutableStateMapOf<Uuid, BackstackEntry<String>>(
             id1 to entry1,
             id2 to entry2,
         )
@@ -248,9 +250,9 @@ class NavigationHostTests {
 
     @Test
     fun navigation_host_does_not_keep_state_for_entries_not_in_map_and_not_rendered() = runComposeUiTest {
-        val id1 = UUID.fromString("00000000-0000-0000-0000-000000000000")
-        val id2 = UUID.fromString("11111111-1111-1111-1111-111111111111")
-        val id3 = UUID.fromString("22222222-2222-2222-2222-222222222222")
+        val id1 = uuidFrom("00000000-0000-0000-0000-000000000000")
+        val id2 = uuidFrom("11111111-1111-1111-1111-111111111111")
+        val id3 = uuidFrom("22222222-2222-2222-2222-222222222222")
         val entry1 = BackstackEntry(
             value = "a",
             previous = null,
@@ -267,7 +269,7 @@ class NavigationHostTests {
             id = id3,
         )
 
-        val backstackMap = mutableStateMapOf<UUID, BackstackEntry<String>>(
+        val backstackMap = mutableStateMapOf<Uuid, BackstackEntry<String>>(
             id1 to entry1,
             id2 to entry2,
             id3 to entry3,
@@ -338,8 +340,8 @@ class NavigationHostTests {
     fun navigation_host_state_is_preserved_through_recreation() = runComposeUiTest {
         val stateRestorationTester = KmpStateRestorationTester(this)
 
-        val id1 = UUID.randomUUID()
-        val id2 = UUID.randomUUID()
+        val id1 = uuid4()
+        val id2 = uuid4()
         val entry1 = BackstackEntry(
             value = "a",
             previous = null,
@@ -351,7 +353,7 @@ class NavigationHostTests {
             id = id2,
         )
 
-        val backstackMap = mutableStateMapOf<UUID, BackstackEntry<String>>(
+        val backstackMap = mutableStateMapOf<Uuid, BackstackEntry<String>>(
             id1 to entry1,
             id2 to entry2,
         )

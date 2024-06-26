@@ -62,7 +62,7 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.util.detectDragGestures
-import java.util.UUID
+import com.benasher44.uuid.uuid4
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
@@ -168,8 +168,8 @@ fun InteractableCells(
                                 onLongClick = {
                                     setSelectionSessionState(
                                         SessionValue(
-                                            sessionId = UUID.randomUUID(),
-                                            valueId = UUID.randomUUID(),
+                                            sessionId = uuid4(),
+                                            valueId = uuid4(),
                                             value = SelectionState.SelectingBox.FixedSelectingBox(
                                                 topLeft = cell,
                                                 width = 1,
@@ -281,7 +281,7 @@ private fun Modifier.selectingCellInput(
     val currentCellWindow by rememberUpdatedState(cellWindow)
     val currentSetSelectionSessionState by rememberUpdatedState(setSelectionSessionState)
 
-    var editingSessionId by remember { mutableStateOf(UUID.randomUUID()) }
+    var editingSessionId by remember { mutableStateOf(uuid4()) }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -289,7 +289,7 @@ private fun Modifier.selectingCellInput(
                 currentSetSelectionSessionState(
                     SessionValue(
                         sessionId = editingSessionId,
-                        valueId = UUID.randomUUID(),
+                        valueId = uuid4(),
                         value = SelectionState.NoSelection,
                     ),
                 )
@@ -303,13 +303,13 @@ private fun Modifier.selectingCellInput(
                 selectingPointerTypes,
             onDragStart = {
                 isSelecting = true
-                editingSessionId = UUID.randomUUID()
+                editingSessionId = uuid4()
                 start = ((it / currentScaledCellPixelSize).round() + currentCellWindow.topLeft).toOffset()
                 end = it / currentScaledCellPixelSize + currentCellWindow.topLeft.toOffset()
                 currentSetSelectionSessionState(
                     SessionValue(
                         sessionId = editingSessionId,
-                        valueId = UUID.randomUUID(),
+                        valueId = uuid4(),
                         value = SelectionState.SelectingBox.TransientSelectingBox(
                             rect = Rect(topLeft = start, bottomRight = end),
                         ),
@@ -321,7 +321,7 @@ private fun Modifier.selectingCellInput(
                 currentSetSelectionSessionState(
                     SessionValue(
                         sessionId = editingSessionId,
-                        valueId = UUID.randomUUID(),
+                        valueId = uuid4(),
                         value = SelectionState.SelectingBox.FixedSelectingBox(
                             topLeft = start.round(),
                             width = (end.x - start.x).roundToInt(),
@@ -338,7 +338,7 @@ private fun Modifier.selectingCellInput(
                 currentSetSelectionSessionState(
                     SessionValue(
                         sessionId = editingSessionId,
-                        valueId = UUID.randomUUID(),
+                        valueId = uuid4(),
                         value = SelectionState.NoSelection,
                     ),
                 )
@@ -349,7 +349,7 @@ private fun Modifier.selectingCellInput(
                 currentSetSelectionSessionState(
                     SessionValue(
                         sessionId = editingSessionId,
-                        valueId = UUID.randomUUID(),
+                        valueId = uuid4(),
                         value = SelectionState.SelectingBox.TransientSelectingBox(
                             rect = Rect(topLeft = start, bottomRight = end),
                         ),

@@ -31,5 +31,4 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
-    linuxX64()
 }

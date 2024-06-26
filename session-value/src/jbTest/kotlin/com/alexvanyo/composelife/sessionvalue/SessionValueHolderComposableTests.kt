@@ -25,8 +25,8 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
+import com.benasher44.uuid.uuid4
 import org.junit.runner.RunWith
-import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -41,8 +41,8 @@ class SessionValueHolderComposableTests {
 
     @Test
     fun whenCreated_stateIsCorrect() = runComposeUiTest {
-        val sessionId1 = UUID.randomUUID()
-        val valueId1 = UUID.randomUUID()
+        val sessionId1 = uuid4()
+        val valueId1 = uuid4()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -74,9 +74,9 @@ class SessionValueHolderComposableTests {
 
     @Test
     fun whenUpstreamSessionValueUpdated_stateMatches() = runComposeUiTest {
-        val sessionId1 = UUID.randomUUID()
-        val valueId1 = UUID.randomUUID()
-        val valueId2 = UUID.randomUUID()
+        val sessionId1 = uuid4()
+        val valueId1 = uuid4()
+        val valueId2 = uuid4()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -132,10 +132,10 @@ class SessionValueHolderComposableTests {
 
     @Test
     fun whenUpstreamSessionIdUpdated_stateMatches() = runComposeUiTest {
-        val sessionId1 = UUID.randomUUID()
-        val sessionId2 = UUID.randomUUID()
-        val valueId1 = UUID.randomUUID()
-        val valueId2 = UUID.randomUUID()
+        val sessionId1 = uuid4()
+        val sessionId2 = uuid4()
+        val valueId1 = uuid4()
+        val valueId2 = uuid4()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -191,9 +191,9 @@ class SessionValueHolderComposableTests {
 
     @Test
     fun whenCreatingLocalSession_stateIsCorrect() = runComposeUiTest {
-        val sessionId1 = UUID.randomUUID()
-        val valueId1 = UUID.randomUUID()
-        val valueId2 = UUID.randomUUID()
+        val sessionId1 = uuid4()
+        val valueId1 = uuid4()
+        val valueId2 = uuid4()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -252,10 +252,10 @@ class SessionValueHolderComposableTests {
 
     @Test
     fun localSessionActive_whenUpdatingValue_stateIsCorrect() = runComposeUiTest {
-        val sessionId1 = UUID.randomUUID()
-        val valueId1 = UUID.randomUUID()
-        val valueId2 = UUID.randomUUID()
-        val valueId3 = UUID.randomUUID()
+        val sessionId1 = uuid4()
+        val valueId1 = uuid4()
+        val valueId2 = uuid4()
+        val valueId3 = uuid4()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -333,9 +333,9 @@ class SessionValueHolderComposableTests {
 
     @Test
     fun localSessionActive_whenUpstreamSessionCatchesUp_stateIsCorrect() = runComposeUiTest {
-        val sessionId1 = UUID.randomUUID()
-        val valueId1 = UUID.randomUUID()
-        val valueId2 = UUID.randomUUID()
+        val sessionId1 = uuid4()
+        val valueId1 = uuid4()
+        val valueId2 = uuid4()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -417,10 +417,10 @@ class SessionValueHolderComposableTests {
 
     @Test
     fun localSessionActive_whenUpstreamSessionCatchesUpWithTwoChanges_stateIsCorrect() = runComposeUiTest {
-        val sessionId1 = UUID.randomUUID()
-        val valueId1 = UUID.randomUUID()
-        val valueId2 = UUID.randomUUID()
-        val valueId3 = UUID.randomUUID()
+        val sessionId1 = uuid4()
+        val valueId1 = uuid4()
+        val valueId2 = uuid4()
+        val valueId3 = uuid4()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -553,11 +553,11 @@ class SessionValueHolderComposableTests {
 
     @Test
     fun localSessionActive_whenUpstreamSessionChanges_stateIsCorrect() = runComposeUiTest {
-        val sessionId1 = UUID.randomUUID()
-        val sessionId2 = UUID.randomUUID()
-        val valueId1 = UUID.randomUUID()
-        val valueId2 = UUID.randomUUID()
-        val valueId3 = UUID.randomUUID()
+        val sessionId1 = uuid4()
+        val sessionId2 = uuid4()
+        val valueId1 = uuid4()
+        val valueId2 = uuid4()
+        val valueId3 = uuid4()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -641,10 +641,10 @@ class SessionValueHolderComposableTests {
 
     @Test
     fun localSessionActive_whenUpstreamSessionChangesBeforeLocalSession_stateIsCorrect() = runComposeUiTest {
-        val sessionId1 = UUID.randomUUID()
-        val valueId1 = UUID.randomUUID()
-        val valueId2 = UUID.randomUUID()
-        val valueId3 = UUID.randomUUID()
+        val sessionId1 = uuid4()
+        val valueId1 = uuid4()
+        val valueId2 = uuid4()
+        val valueId3 = uuid4()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -730,8 +730,8 @@ class SessionValueHolderComposableTests {
     fun whenSavedInstanceStateIsRestoredWithNoLocalSession_stateIsCorrect() = runComposeUiTest {
         val stateRestorationTester = KmpStateRestorationTester(this)
 
-        val sessionId1 = UUID.randomUUID()
-        val valueId1 = UUID.randomUUID()
+        val sessionId1 = uuid4()
+        val valueId1 = uuid4()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -786,9 +786,9 @@ class SessionValueHolderComposableTests {
     fun whenSavedInstanceStateIsRestoredWithLocalSession_stateIsCorrect() = runComposeUiTest {
         val stateRestorationTester = KmpStateRestorationTester(this)
 
-        val sessionId1 = UUID.randomUUID()
-        val valueId1 = UUID.randomUUID()
-        val valueId2 = UUID.randomUUID()
+        val sessionId1 = uuid4()
+        val valueId1 = uuid4()
+        val valueId2 = uuid4()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -860,11 +860,11 @@ class SessionValueHolderComposableTests {
     fun upstreamSessionChanges_whenSavedInstanceStateIsRestoredWithLocalSession_resetsSession() = runComposeUiTest {
         val stateRestorationTester = KmpStateRestorationTester(this)
 
-        val sessionId1 = UUID.randomUUID()
-        val sessionId2 = UUID.randomUUID()
-        val valueId1 = UUID.randomUUID()
-        val valueId2 = UUID.randomUUID()
-        val valueId3 = UUID.randomUUID()
+        val sessionId1 = uuid4()
+        val sessionId2 = uuid4()
+        val valueId1 = uuid4()
+        val valueId2 = uuid4()
+        val valueId3 = uuid4()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 

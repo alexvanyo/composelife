@@ -18,9 +18,9 @@ package com.alexvanyo.composelife.navigation
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.benasher44.uuid.uuid4
 import org.junit.Rule
 import org.junit.runner.RunWith
-import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -31,10 +31,10 @@ import kotlin.test.assertTrue
 @RunWith(KmpAndroidJUnit4::class)
 class MutableBackstackNavigationControllerTests {
 
-    private val id1 = UUID.randomUUID()
-    private val id2 = UUID.randomUUID()
-    private val id3 = UUID.randomUUID()
-    private val id4 = UUID.randomUUID()
+    private val id1 = uuid4()
+    private val id2 = uuid4()
+    private val id3 = uuid4()
+    private val id4 = uuid4()
 
     @get:Rule
     val composeTestRule = createComposeRule()

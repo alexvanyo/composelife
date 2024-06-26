@@ -59,7 +59,6 @@ kotlin {
             )
         }
     }
-    linuxX64()
 
     sourceSets {
         val commonMain by getting {
@@ -149,8 +148,11 @@ kotlin {
                 implementation(projects.testActivity)
             }
         }
-        val jbTest by creating {
+        val jvmTest by creating {
             dependsOn(commonTest)
+        }
+        val jbTest by creating {
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.jetbrains.compose.uiTestJunit4)
             }

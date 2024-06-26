@@ -42,8 +42,8 @@ import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.benasher44.uuid.uuid4
 import org.junit.runner.RunWith
-import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -74,8 +74,8 @@ class CellWindowTests {
 
         val selectionStateHolder = MutableSelectionStateHolder(
             SessionValue(
-                sessionId = UUID.randomUUID(),
-                valueId = UUID.randomUUID(),
+                sessionId = uuid4(),
+                valueId = uuid4(),
                 value = SelectionState.NoSelection,
             ),
         )
@@ -160,8 +160,8 @@ class CellWindowTests {
         val mutableCellWindowViewportState = MutableCellWindowViewportState()
         val selectionStateHolder = MutableSelectionStateHolder(
             SessionValue(
-                sessionId = UUID.randomUUID(),
-                valueId = UUID.randomUUID(),
+                sessionId = uuid4(),
+                valueId = uuid4(),
                 value = SelectionState.NoSelection,
             ),
         )
@@ -224,8 +224,8 @@ class CellWindowTests {
         val mutableCellWindowViewportState = MutableCellWindowViewportState()
         val selectionStateHolder = MutableSelectionStateHolder(
             SessionValue(
-                sessionId = UUID.randomUUID(),
-                valueId = UUID.randomUUID(),
+                sessionId = uuid4(),
+                valueId = uuid4(),
                 value = SelectionState.NoSelection,
             ),
         )
@@ -290,8 +290,8 @@ class CellWindowTests {
         val mutableCellWindowViewportState = MutableCellWindowViewportState()
         val selectionStateHolder = MutableSelectionStateHolder(
             SessionValue(
-                sessionId = UUID.randomUUID(),
-                valueId = UUID.randomUUID(),
+                sessionId = uuid4(),
+                valueId = uuid4(),
                 value = SelectionState.NoSelection,
             ),
         )
@@ -338,8 +338,8 @@ class CellWindowTests {
         val mutableCellWindowViewportState = MutableCellWindowViewportState()
         val selectionStateHolder = MutableSelectionStateHolder(
             SessionValue(
-                sessionId = UUID.randomUUID(),
-                valueId = UUID.randomUUID(),
+                sessionId = uuid4(),
+                valueId = uuid4(),
                 value = SelectionState.NoSelection,
             ),
         )

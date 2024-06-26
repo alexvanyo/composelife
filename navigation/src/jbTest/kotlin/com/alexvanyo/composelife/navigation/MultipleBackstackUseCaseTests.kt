@@ -31,8 +31,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.benasher44.uuid.Uuid
 import org.junit.runner.RunWith
-import java.util.UUID
 import kotlin.test.Test
 
 enum class BackstackType {
@@ -61,7 +61,7 @@ class MultipleMutableBackstackNavigationController(
     override val entryMap: BackstackMap<String>
         get() = firstNavController.entryMap + secondNavController.entryMap + thirdNavController.entryMap
 
-    override var currentEntryId: UUID
+    override var currentEntryId: Uuid
         get() = currentNavController.currentEntryId
         set(value) {
             currentNavController.currentEntryId = value

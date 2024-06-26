@@ -17,10 +17,11 @@
 package com.alexvanyo.composelife.preferences
 
 import com.alexvanyo.composelife.preferences.proto.UUIDProto
-import java.util.UUID
+import com.benasher44.uuid.Uuid
+import com.benasher44.uuid.uuidFrom
 
-internal fun UUIDProto?.toResolved(): UUID? =
-    this?.value_?.let(UUID::fromString)
+internal fun UUIDProto?.toResolved(): Uuid? =
+    this?.value_?.let(::uuidFrom)
 
-internal fun UUID.toProto(): UUIDProto =
+internal fun Uuid.toProto(): UUIDProto =
     UUIDProto(toString())
