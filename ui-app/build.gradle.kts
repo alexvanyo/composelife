@@ -16,6 +16,9 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
+import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
+import java.io.Serializable
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -41,6 +44,21 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    jvm("molecule") {
+        attributes {
+            attribute(
+                TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
+                objects.named(TargetJvmEnvironment::class.java, "molecule")
+            )
+        }
+        @OptIn(InternalKotlinGradlePluginApi::class)
+        configurations[resourcesElementsConfigurationName].attributes {
+            attribute(
+                TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
+                objects.named(TargetJvmEnvironment::class.java, "molecule")
+            )
+        }
+    }
     linuxX64()
 
     sourceSets {
@@ -65,10 +83,16 @@ kotlin {
                 implementation(projects.resourceState)
                 implementation(projects.sessionValue)
                 implementation(projects.snapshotStateSet)
+                implementation(projects.uiCommon)
+                implementation(projects.uiToolingPreview)
             }
         }
         val jvmMain by creating {
             dependsOn(commonMain)
+        }
+        val moleculeMain by getting {
+            dependsOn(jvmMain)
+            configurations["kspMolecule"].dependencies.add(libs.sealedEnum.ksp.get())
         }
         val jbMain by creating {
             dependsOn(jvmMain)
@@ -80,8 +104,6 @@ kotlin {
                 implementation(libs.jetbrains.compose.ui)
                 implementation(libs.jetbrains.compose.uiGeometry)
                 implementation(libs.jetbrains.compose.uiUtil)
-                implementation(projects.uiCommon)
-                implementation(projects.uiToolingPreview)
             }
         }
         val desktopMain by getting {

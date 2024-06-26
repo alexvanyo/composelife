@@ -16,6 +16,8 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
+import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -40,15 +42,30 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    jvm("molecule") {
+        attributes {
+            attribute(
+                TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
+                objects.named(TargetJvmEnvironment::class.java, "molecule")
+            )
+        }
+        @OptIn(InternalKotlinGradlePluginApi::class)
+        configurations[resourcesElementsConfigurationName].attributes {
+            attribute(
+                TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
+                objects.named(TargetJvmEnvironment::class.java, "molecule")
+            )
+        }
+    }
+    linuxX64()
 
     sourceSets {
         val commonMain by getting {
             dependencies {
                 implementation(libs.androidx.annotation)
-                implementation(libs.jetbrains.compose.uiUtil)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)
-                implementation(libs.sealedEnum.runtime)
+                implementation(libs.uuid)
                 implementation(projects.dispatchers)
                 implementation(projects.geometry)
                 implementation(projects.navigation)
@@ -57,8 +74,20 @@ kotlin {
                 implementation(projects.updatable)
             }
         }
-        val jbMain by creating {
+        val jvmMain by creating {
             dependsOn(commonMain)
+            dependencies {
+                implementation(libs.jetbrains.compose.uiGeometry)
+                implementation(libs.jetbrains.compose.uiUnit)
+                implementation(libs.jetbrains.compose.uiUtil)
+                implementation(libs.sealedEnum.runtime)
+            }
+        }
+        val moleculeMain by getting {
+            dependsOn(jvmMain)
+        }
+        val jbMain by creating {
+            dependsOn(jvmMain)
             dependencies {
                 implementation(libs.jetbrains.compose.animation)
                 implementation(libs.jetbrains.compose.foundation)
@@ -89,17 +118,27 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.jetbrains.compose.uiTestJunit4)
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(projects.dispatchersTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
-            }
-        }
-        val androidSharedTest by getting {
-            dependencies {
                 implementation(projects.testActivity)
             }
+        }
+        val jvmTest by creating {
+            dependsOn(commonTest)
+        }
+        val jbTest by creating {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.jetbrains.compose.uiTestJunit4)
+            }
+        }
+        val desktopTest by getting {
+            dependsOn(jbTest)
+        }
+        val androidSharedTest by getting {
+            dependsOn(jbTest)
         }
     }
 }

@@ -1,3 +1,4 @@
+import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 /*

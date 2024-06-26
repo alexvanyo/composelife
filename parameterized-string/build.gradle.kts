@@ -16,6 +16,8 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
+import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -37,8 +39,23 @@ android {
 }
 
 kotlin {
-    jvm("desktop")
     androidTarget()
+    jvm("desktop")
+    jvm("molecule") {
+        attributes {
+            attribute(
+                TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
+                objects.named(TargetJvmEnvironment::class.java, "molecule")
+            )
+        }
+        @OptIn(InternalKotlinGradlePluginApi::class)
+        configurations[resourcesElementsConfigurationName].attributes {
+            attribute(
+                TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
+                objects.named(TargetJvmEnvironment::class.java, "molecule")
+            )
+        }
+    }
     linuxX64()
 
     sourceSets {
@@ -49,13 +66,23 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.core)
             }
         }
-        val jbMain by creating {
+        val jvmMain by creating {
             dependsOn(commonMain)
+        }
+        val jvmNonAndroidMain by creating {
+            dependsOn(jvmMain)
+        }
+        val moleculeMain by getting {
+            dependsOn(jvmNonAndroidMain)
+        }
+        val jbMain by creating {
+            dependsOn(jvmMain)
             dependencies {
                 api(libs.jetbrains.compose.uiText)
             }
         }
         val desktopMain by getting {
+            dependsOn(jvmNonAndroidMain)
             dependsOn(jbMain)
         }
         val androidMain by getting {

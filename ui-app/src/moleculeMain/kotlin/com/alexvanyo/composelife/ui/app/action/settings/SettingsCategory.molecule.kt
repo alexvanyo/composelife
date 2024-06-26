@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,10 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.util
+package com.alexvanyo.composelife.ui.app.action.settings
 
-import androidx.compose.runtime.saveable.Saver
-import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.uuidFrom
+import com.livefront.sealedenum.SealedEnum
 
-/**
- * A [Saver] for a [Uuid].
- */
-val uuidSaver: Saver<Uuid, String> = Saver(
-    save = { it.toString() },
-    restore = ::uuidFrom,
-)
+actual val SettingsCategory.Companion._sealedEnum: SealedEnum<SettingsCategory> get() = sealedEnum
+
+actual val SettingsCategory.Companion._values: List<SettingsCategory> get() = values
