@@ -96,6 +96,7 @@ kotlin {
         val jvmTest by creating {
             dependsOn(commonTest)
             dependencies {
+                implementation(libs.molecule)
                 implementation(libs.testParameterInjector.junit4)
             }
         }
