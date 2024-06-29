@@ -16,35 +16,32 @@
 
 package com.alexvanyo.composelife.snapshotstateset
 
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.runComposeUiTest
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
-import org.junit.runner.RunWith
+import androidx.compose.runtime.BroadcastFrameClock
+import app.cash.molecule.RecompositionMode
+import app.cash.molecule.moleculeFlow
+import app.cash.turbine.test
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@Suppress("UnnecessaryAbstractClass")
-@OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
 class SnapshotStateSetTests {
 
+    val broadcastFrameClock = BroadcastFrameClock()
+
     @Test
-    fun collect_as_state_is_correct() {
-        runComposeUiTest {
-            val set = mutableStateSetOf<Int>()
-            var values: List<Int>? = null
-
-            setContent {
-                values = set.toList()
-            }
-
-            waitForIdle()
-            assertEquals(emptyList(), values)
-
-            set.add(1)
-
-            waitForIdle()
-            assertEquals(listOf(1), values)
+    fun collect_as_state_is_correct() = runTest(broadcastFrameClock) {
+        val set = mutableStateSetOf<Int>()
+        moleculeFlow(RecompositionMode.ContextClock) {
+            set.toList()
         }
+            .test {
+                assertEquals(emptyList(), awaitItem())
+
+                set.add(1)
+
+                broadcastFrameClock.sendFrame(1)
+
+                assertEquals(listOf(1), awaitItem())
+            }
     }
 }
