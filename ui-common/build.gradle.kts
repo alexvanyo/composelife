@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import com.alexvanyo.composelife.buildlogic.jvmMolecule
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
 
@@ -42,21 +43,7 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
-    jvm("molecule") {
-        attributes {
-            attribute(
-                TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
-                objects.named(TargetJvmEnvironment::class.java, "molecule")
-            )
-        }
-        @OptIn(InternalKotlinGradlePluginApi::class)
-        configurations[resourcesElementsConfigurationName].attributes {
-            attribute(
-                TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
-                objects.named(TargetJvmEnvironment::class.java, "molecule")
-            )
-        }
-    }
+    jvmMolecule(this)
 
     sourceSets {
         val commonMain by getting {
@@ -126,6 +113,9 @@ kotlin {
         }
         val jvmTest by creating {
             dependsOn(commonTest)
+        }
+        val moleculeTest by getting {
+            dependsOn(jvmTest)
         }
         val jbTest by creating {
             dependsOn(jvmTest)
