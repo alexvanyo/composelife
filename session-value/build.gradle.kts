@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import com.alexvanyo.composelife.buildlogic.jvmMolecule
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -39,6 +40,7 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    jvmMolecule(this)
 
     sourceSets {
         val commonMain by getting {
@@ -56,10 +58,18 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.molecule)
                 implementation(libs.turbine)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
+                implementation(projects.testActivity)
             }
+        }
+        val jvmTest by creating {
+            dependsOn(commonTest)
+        }
+        val moleculeTest by getting {
+            dependsOn(jvmTest)
         }
         val jbTest by creating {
             dependsOn(commonTest)
@@ -72,12 +82,6 @@ kotlin {
         }
         val androidSharedTest by getting {
             dependsOn(jbTest)
-            dependencies {
-                implementation(libs.androidx.compose.uiTestJunit4)
-                implementation(libs.androidx.test.core)
-                implementation(libs.androidx.test.espresso)
-                implementation(projects.testActivity)
-            }
         }
     }
 }
