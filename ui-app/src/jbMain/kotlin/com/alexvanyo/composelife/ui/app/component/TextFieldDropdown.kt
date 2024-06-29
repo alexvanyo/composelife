@@ -39,24 +39,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import kotlinx.collections.immutable.ImmutableList
-
-/**
- * An option in a [TextFieldDropdown].
- */
-interface DropdownOption {
-    /**
-     * The text to display for the [DropdownOption].
-     */
-    val displayText: ParameterizedString
-
-    /**
-     * The leading icon (if any) to display for the [DropdownOption].
-     */
-    val leadingIcon: (@Composable () -> Unit)? get() = null
-}
 
 /**
  * A styled drop-down menu to select between [allValues], with the given [currentValue].
