@@ -36,7 +36,6 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.jetbrains.compose.uiTestJunit4)
                 api(libs.kotlinx.coroutines.test)
                 api(libs.kotlinx.datetime)
                 api(projects.dispatchers)
@@ -45,10 +44,15 @@ kotlin {
                 implementation(projects.injectScopes)
             }
         }
+        val jbMain by creating {
+            dependsOn(commonMain)
+        }
         val desktopMain by getting {
+            dependsOn(jbMain)
             configurations["kspDesktop"].dependencies.add(libs.kotlinInject.ksp.get())
         }
         val androidMain by getting {
+            dependsOn(jbMain)
             configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
             dependencies {
                 api(libs.androidx.test.junit)

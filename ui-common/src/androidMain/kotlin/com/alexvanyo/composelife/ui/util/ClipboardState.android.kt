@@ -34,8 +34,9 @@ import androidx.core.content.getSystemService
 import androidx.lifecycle.compose.LifecycleStartEffect
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.ui.common.R
+import com.benasher44.uuid.Uuid
+import com.benasher44.uuid.uuid4
 import kotlinx.coroutines.withContext
-import java.util.UUID
 
 @Stable
 actual interface ClipboardReader {
@@ -63,18 +64,18 @@ sealed interface ClipboardStateKey {
         val value: String,
     ) : ClipboardStateKey
     data class Unknown(
-        val id: UUID = UUID.randomUUID(),
+        val id: Uuid = uuid4(),
     ) : ClipboardStateKey
 }
 
 context(ComposeLifeDispatchersProvider)
 @Composable
 actual fun rememberClipboardReader(): ClipboardReader {
-    var windowFocusKey by remember { mutableStateOf(UUID.randomUUID()) }
+    var windowFocusKey by remember { mutableStateOf(uuid4()) }
     val isWindowFocused = LocalWindowInfo.current.isWindowFocused
     DisposableEffect(isWindowFocused) {
         if (isWindowFocused) {
-            windowFocusKey = UUID.randomUUID()
+            windowFocusKey = uuid4()
         }
         onDispose {}
     }
@@ -82,15 +83,15 @@ actual fun rememberClipboardReader(): ClipboardReader {
     val context = LocalContext.current
     val clipboardManager = remember(context) { requireNotNull(context.getSystemService<ClipboardManager>()) }
 
-    var keyToReadClipData by remember(clipboardManager) { mutableStateOf(UUID.randomUUID()) }
+    var keyToReadClipData by remember(clipboardManager) { mutableStateOf(uuid4()) }
 
     LifecycleStartEffect(
         clipboardManager,
         windowFocusKey,
     ) {
-        keyToReadClipData = UUID.randomUUID()
+        keyToReadClipData = uuid4()
         val listener = ClipboardManager.OnPrimaryClipChangedListener {
-            keyToReadClipData = UUID.randomUUID()
+            keyToReadClipData = uuid4()
         }
         clipboardManager.addPrimaryClipChangedListener(listener)
         onStopOrDispose {

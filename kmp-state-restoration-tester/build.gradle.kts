@@ -35,10 +35,18 @@ kotlin {
     jvm("desktop")
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain by getting {}
+        val jbMain by creating {
+            dependsOn(commonMain)
             dependencies {
                 implementation(libs.jetbrains.compose.uiTestJunit4)
             }
+        }
+        val desktopMain by getting {
+            dependsOn(jbMain)
+        }
+        val androidMain by getting {
+            dependsOn(jbMain)
         }
     }
 }

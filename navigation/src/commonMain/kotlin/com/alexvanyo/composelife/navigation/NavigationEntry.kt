@@ -17,12 +17,12 @@
 package com.alexvanyo.composelife.navigation
 
 import androidx.compose.runtime.Stable
-import java.util.UUID
+import com.benasher44.uuid.Uuid
 
 /**
  * An entry in navigation. An entry just needs to have an identifying [id], which is unique among all entries.
  */
 @Stable
 interface NavigationEntry {
-    val id: UUID
+    val id: Uuid
 }
