@@ -323,7 +323,7 @@ fun ListDetailPaneScaffold(
                             progress = predictiveBackState.progress,
                             metadata = predictiveBackState,
                         )
-                }.also { println("vanyo: target state for list: $it") },
+                },
                 transitionSpec = { contentWithStatus ->
                     val contentStatusTargetState = this@AnimatedContent.targetState
 
