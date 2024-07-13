@@ -30,6 +30,7 @@ import org.gradle.api.services.BuildServiceParameters
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.os.OperatingSystem
+import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.register
@@ -193,7 +194,7 @@ fun Project.configureGradleManagedDevices(
                     LimitingBuildServiceGMDSetup.createKey(config),
                     LimitingBuildServiceGMDSetup::class.java,
                 ) {
-                    maxParallelUsages.set(1)
+                    maxParallelUsages = 1
                 }
             }
     }
@@ -204,7 +205,7 @@ fun Project.configureGradleManagedDevices(
             // Manually kill the qemu process associated with this test task to reclaim resources
             finalizedBy(
                 tasks.register<KillEmulatorProcessesTask>("${name}KillEmulatorProcesses") {
-                    this.id.set(id)
+                    this.id = id
                 },
             )
         }
@@ -215,10 +216,9 @@ fun Project.configureGradleManagedDevices(
         LimitingBuildServiceGMDRunning.KEY,
         LimitingBuildServiceGMDRunning::class.java,
     ) {
-        maxParallelUsages.set(
+        maxParallelUsages =
             providers.gradleProperty("android.experimental.testOptions.managedDevices.maxConcurrentDevices")
-                .map { value -> value.toIntOrNull() ?: 1 },
-        )
+                .map { value -> value.toIntOrNull() ?: 1 }
     }
     tasks.withType<ManagedDeviceInstrumentationTestTask> {
         usesService(runningLimitingService)
