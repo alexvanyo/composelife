@@ -15,6 +15,7 @@
  */
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
+import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.configure
 import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
 
@@ -25,6 +26,6 @@ class KotlinMultiplatformComposeConventionPlugin : ConventionPlugin({
     }
 
     extensions.configure<ComposeCompilerGradlePluginExtension> {
-        enableStrongSkippingMode.set(true)
+        enableStrongSkippingMode = true
     }
 })
