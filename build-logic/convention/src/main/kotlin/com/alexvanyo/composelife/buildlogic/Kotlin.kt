@@ -32,7 +32,9 @@ fun Project.configureKotlin() {
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
-            allWarningsAsErrors.set(true)
+            // TODO: Currently disabled due to warning for usage of context receivers
+            //       https://github.com/Kotlin/KEEP/issues/367#issuecomment-2075034205
+            // allWarningsAsErrors.set(true)
             freeCompilerArgs.addAll(
                 "-Xcontext-receivers",
                 // TODO: Remove when out of beta: https://youtrack.jetbrains.com/issue/KT-61573
