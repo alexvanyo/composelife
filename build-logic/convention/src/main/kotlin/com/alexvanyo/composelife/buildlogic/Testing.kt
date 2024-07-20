@@ -102,26 +102,6 @@ fun Project.configureAndroidTesting(
             }
         }
 
-        // TODO: Without these dependsOn, Gradle complains about inputs for lint
-        @Suppress("NoNameShadowing", "EagerGradleConfiguration")
-        testVariants.all {
-            val testedVariantName = testedVariant.name.capitalizeForTaskName()
-            tasks.findByName("lintAnalyze${testedVariantName}UnitTest")?.apply {
-                tasks.findByName("generateResourceAccessorsForAndroidUnitTest")?.let { dependsOn(it) }
-                tasks.findByName("generateResourceAccessorsForAndroidUnitTest$testedVariantName")?.let { dependsOn(it) }
-            }
-            tasks.findByName("lintAnalyze${testedVariantName}AndroidTest")?.apply {
-                tasks.findByName("generateResourceAccessorsForAndroidInstrumentedTest")?.let { dependsOn(it) }
-            }
-            tasks.findByName("generate${testedVariantName}UnitTestLintModel")?.apply {
-                tasks.findByName("generateResourceAccessorsForAndroidUnitTest")?.let { dependsOn(it) }
-                tasks.findByName("generateResourceAccessorsForAndroidUnitTest$testedVariantName")?.let { dependsOn(it) }
-            }
-            tasks.findByName("generate${testedVariantName}AndroidTestLintModel")?.apply {
-                tasks.findByName("generateResourceAccessorsForAndroidInstrumentedTest")?.let { dependsOn(it) }
-            }
-        }
-
         if (useSharedTest == SharedTestConfig.Robolectric) {
             testVariants.configureEach {
                 connectedInstrumentTestProvider.configure {
