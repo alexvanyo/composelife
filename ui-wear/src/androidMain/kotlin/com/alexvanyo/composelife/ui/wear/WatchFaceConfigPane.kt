@@ -25,7 +25,6 @@ import androidx.compose.ui.res.imageResource
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
-import co.touchlab.kermit.Logger
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.canNavigateBack
 import com.alexvanyo.composelife.navigation.currentEntry
@@ -55,7 +54,6 @@ fun WatchFaceConfigPane(
         )
 
     BackHandler(navigationController.canNavigateBack) {
-        Logger.d { "back pressed" }
         navigationController.popBackstack()
     }
 
