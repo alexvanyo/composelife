@@ -45,12 +45,15 @@ kotlin {
                 api(projects.algorithm)
             }
         }
-        val jbMain by creating {
+        val jvmMain by creating {
             dependsOn(commonMain)
             dependencies {
                 api(libs.jetbrains.compose.uiUnit)
                 api(libs.sealedEnum.runtime)
             }
+        }
+        val jbMain by creating {
+            dependsOn(jvmMain)
         }
         val desktopMain by getting {
             dependsOn(jbMain)
@@ -64,6 +67,18 @@ kotlin {
             dependencies {
                 implementation(libs.testParameterInjector.junit4)
             }
+        }
+        val jvmTest by creating {
+            dependsOn(commonTest)
+        }
+        val jbTest by creating {
+            dependsOn(jvmTest)
+        }
+        val desktopTest by getting {
+            dependsOn(jbTest)
+        }
+        val androidSharedTest by getting {
+            dependsOn(jbTest)
         }
     }
 }
