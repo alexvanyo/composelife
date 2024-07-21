@@ -15,16 +15,10 @@
  */
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
-import org.gradle.kotlin.dsl.configure
-import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
 
 class KotlinMultiplatformComposeConventionPlugin : ConventionPlugin({
     with(pluginManager) {
         apply("org.jetbrains.compose")
         apply("org.jetbrains.kotlin.plugin.compose")
-    }
-
-    extensions.configure<ComposeCompilerGradlePluginExtension> {
-        enableStrongSkippingMode.set(true)
     }
 })
