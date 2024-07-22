@@ -18,6 +18,10 @@
 
 package com.alexvanyo.composelife.ui.app
 
+import androidx.compose.ui.DragData
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.draganddrop.dragData
 import com.alexvanyo.composelife.model.CellStateFormat
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.FlexibleCellStateSerializer
@@ -25,7 +29,7 @@ import com.alexvanyo.composelife.ui.util.ClipboardReader
 import me.tatarka.inject.annotations.Inject
 
 @Inject
-actual class ClipboardCellStateParser actual constructor(
+actual class ClipboardCellStateParser(
     private val flexibleCellStateSerializer: FlexibleCellStateSerializer,
 ) {
     actual suspend fun parseCellState(clipboardStateReader: ClipboardReader): DeserializationResult =
@@ -33,4 +37,21 @@ actual class ClipboardCellStateParser actual constructor(
             format = CellStateFormat.Unknown,
             lines = clipboardStateReader.getText()?.text.orEmpty().lineSequence(),
         )
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    actual suspend fun parseCellState(dragAndDropEvent: DragAndDropEvent): DeserializationResult =
+        parseCellState(dragAndDropEvent.dragData())
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    suspend fun parseCellState(dragData: DragData): DeserializationResult =
+        when (dragData) {
+            is DragData.Text -> flexibleCellStateSerializer.deserializeToCellState(
+                format = CellStateFormat.Unknown,
+                lines = dragData.readText().lineSequence(),
+            )
+            else -> DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = emptyList(),
+            )
+        }
 }

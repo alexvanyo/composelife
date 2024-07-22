@@ -30,6 +30,7 @@ import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.random.di.RandomComponent
 import com.alexvanyo.composelife.random.di.RandomModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.ui.app.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 
 expect abstract class TestComposeLifeApplicationComponent :
@@ -41,7 +42,8 @@ expect abstract class TestComposeLifeApplicationComponent :
     TestPreferencesComponent,
     RandomComponent,
     ClockComponent,
-    UpdatableModule {
+    UpdatableModule,
+    ClipboardCellStateParserProvider {
 
     override val entryPoint: TestComposeLifeApplicationEntryPoint
 
@@ -55,6 +57,7 @@ interface TestComposeLifeApplicationEntryPoint :
     AlgorithmModule,
     DispatchersModule,
     PreferencesModule,
-    UpdatableModule
+    UpdatableModule,
+    ClipboardCellStateParserProvider
 
 expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent

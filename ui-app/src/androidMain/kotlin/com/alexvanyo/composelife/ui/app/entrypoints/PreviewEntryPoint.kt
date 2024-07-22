@@ -56,6 +56,7 @@ import com.alexvanyo.composelife.ui.app.action.settings.AlgorithmImplementationU
 import com.alexvanyo.composelife.ui.app.action.settings.AlgorithmImplementationUiLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.CellShapeConfigUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.CellShapeConfigUiLocalEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.CellStatePreviewUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.CellStatePreviewUiLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.DarkThemeConfigUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.DarkThemeConfigUiLocalEntryPoint
@@ -71,6 +72,7 @@ import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneInject
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.SettingUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.SettingUiLocalEntryPoint
+import com.alexvanyo.composelife.ui.app.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.InteractableCellsLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.NonInteractableCellsLocalEntryPoint
@@ -88,7 +90,9 @@ internal interface PreviewEntryPoint :
     AlgorithmImplementationUiLocalEntryPoint,
     CellShapeConfigUiInjectEntryPoint,
     CellShapeConfigUiLocalEntryPoint,
+    CellStatePreviewUiInjectEntryPoint,
     CellStatePreviewUiLocalEntryPoint,
+    CellWindowInjectEntryPoint,
     CellWindowLocalEntryPoint,
     CellUniverseActionCardInjectEntryPoint,
     CellUniversePaneInjectEntryPoint,
@@ -146,6 +150,8 @@ internal fun WithPreviewDependencies(
         flexibleCellStateSerializer = FlexibleCellStateSerializer(
             dispatchers = dispatchers,
         ),
+        dispatchers = dispatchers,
+        context = LocalContext.current,
     ),
     content: @Composable context(PreviewEntryPoint) () -> Unit,
 ) {

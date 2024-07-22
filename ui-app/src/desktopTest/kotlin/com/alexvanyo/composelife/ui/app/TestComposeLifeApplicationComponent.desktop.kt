@@ -44,7 +44,8 @@ actual abstract class TestComposeLifeApplicationComponent :
     TestPreferencesComponent,
     RandomComponent,
     ClockComponent,
-    UpdatableModule {
+    UpdatableModule,
+    ClipboardCellStateParserProvider {
 
     actual override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
         object :
@@ -55,7 +56,8 @@ actual abstract class TestComposeLifeApplicationComponent :
             RandomModule by this,
             DispatchersModule by this,
             PreferencesModule by this,
-            UpdatableModule by this {}
+            UpdatableModule by this,
+            ClipboardCellStateParserProvider by this {}
 
     actual companion object
 }

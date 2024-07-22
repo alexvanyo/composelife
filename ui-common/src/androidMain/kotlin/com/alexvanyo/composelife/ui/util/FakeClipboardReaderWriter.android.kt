@@ -22,15 +22,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 
 @Composable
 actual fun rememberFakeClipboardReaderWriter(): ClipboardReaderWriter {
     var state: ClipData? by rememberSaveable {
         mutableStateOf(null)
     }
-
-    val context = LocalContext.current
 
     return object : ClipboardReaderWriter {
         override val androidClipboardStateKey: ClipboardStateKey
@@ -49,9 +46,6 @@ actual fun rememberFakeClipboardReaderWriter(): ClipboardReaderWriter {
             }
 
         override fun getClipData(): ClipData? = state
-
-        override suspend fun resolveToText(clipDataItem: ClipData.Item): CharSequence =
-            clipDataItem.coerceToText(context)
 
         override fun setClipData(clipData: ClipData?) {
             state = clipData

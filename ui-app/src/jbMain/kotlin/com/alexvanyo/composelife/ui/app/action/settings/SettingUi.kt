@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 interface SettingUiInjectEntryPoint :
     AlgorithmImplementationUiInjectEntryPoint,
     CellShapeConfigUiInjectEntryPoint,
+    CellStatePreviewUiInjectEntryPoint,
     ComposeLifePreferencesProvider,
     DarkThemeConfigUiInjectEntryPoint,
     DisableAGSLUiInjectEntryPoint,

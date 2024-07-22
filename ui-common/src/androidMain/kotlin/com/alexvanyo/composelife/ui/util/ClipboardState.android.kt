@@ -32,19 +32,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.core.content.getSystemService
 import androidx.lifecycle.compose.LifecycleStartEffect
-import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.ui.common.R
 import com.benasher44.uuid.Uuid
 import com.benasher44.uuid.uuid4
-import kotlinx.coroutines.withContext
 
 @Stable
 actual interface ClipboardReader {
     val androidClipboardStateKey: ClipboardStateKey
 
     fun getClipData(): ClipData?
-
-    suspend fun resolveToText(clipDataItem: ClipData.Item): CharSequence
 }
 
 actual val ClipboardReader.clipboardStateKey: Any? get() = androidClipboardStateKey
@@ -68,7 +64,6 @@ sealed interface ClipboardStateKey {
     ) : ClipboardStateKey
 }
 
-context(ComposeLifeDispatchersProvider)
 @Composable
 actual fun rememberClipboardReader(): ClipboardReader {
     var windowFocusKey by remember { mutableStateOf(uuid4()) }
@@ -89,8 +84,11 @@ actual fun rememberClipboardReader(): ClipboardReader {
         clipboardManager,
         windowFocusKey,
     ) {
+        // The clipboard could have changed while in the background or while the window wasn't focused, so we need
+        // to read it again
         keyToReadClipData = uuid4()
         val listener = ClipboardManager.OnPrimaryClipChangedListener {
+            // The clipboard changed, so we need to read it again
             keyToReadClipData = uuid4()
         }
         clipboardManager.addPrimaryClipChangedListener(listener)
@@ -99,13 +97,16 @@ actual fun rememberClipboardReader(): ClipboardReader {
         }
     }
 
-    val clipData by remember(keyToReadClipData) {
+    val clipData by remember {
         // Avoid reading clipboard immediately, and instead read it lazily via derivedStateOf
         // This avoids reading from clipboard until the clip data is used
-        derivedStateOf { clipboardManager.primaryClip }
+        derivedStateOf {
+            keyToReadClipData
+            clipboardManager.primaryClip
+        }
     }
 
-    return remember(dispatchers) {
+    return remember {
         object : ClipboardReader {
             override val androidClipboardStateKey: ClipboardStateKey
                 get() {
@@ -123,11 +124,6 @@ actual fun rememberClipboardReader(): ClipboardReader {
                 }
 
             override fun getClipData(): ClipData? = clipData
-
-            override suspend fun resolveToText(clipDataItem: ClipData.Item): CharSequence =
-                withContext(dispatchers.IO) {
-                    clipDataItem.coerceToText(context)
-                }
         }
     }
 }
@@ -159,7 +155,6 @@ actual fun rememberClipboardWriter(): ClipboardWriter {
     }
 }
 
-context(ComposeLifeDispatchersProvider)
 @Composable
 actual fun rememberClipboardReaderWriter(): ClipboardReaderWriter {
     val clipboardReader = rememberClipboardReader()

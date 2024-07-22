@@ -21,7 +21,6 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.dragAndDrop
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performMouseInput
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -30,9 +29,16 @@ import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.geometry.toPx
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.model.CellWindow
+import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.sessionvalue.SessionValue
+import com.alexvanyo.composelife.test.BaseUiInjectTest
+import com.alexvanyo.composelife.test.runUiTest
+import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
+import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
+import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
+import com.alexvanyo.composelife.ui.app.createComponent
 import com.alexvanyo.composelife.ui.app.resources.SelectingBoxHandle
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.util.isAndroid
@@ -44,30 +50,38 @@ import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class SelectionOverlayTests {
+class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
+    TestComposeLifeApplicationComponent::createComponent,
+    TestComposeLifeUiComponent::createComponent,
+) {
+
+    private val clipboardCellStateParserProvider: ClipboardCellStateParserProvider = applicationComponent
 
     @Test
-    fun no_selection_is_displayed_correctly() = runComposeUiTest {
+    fun no_selection_is_displayed_correctly() = runUiTest {
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
 
-            SelectionOverlay(
-                selectionSessionState = SessionValue(
-                    sessionId = uuid4(),
-                    valueId = uuid4(),
-                    value = SelectionState.NoSelection,
-                ),
-                setSelectionSessionState = {},
-                scaledCellDpSize = 50.dp,
-                cellWindow = CellWindow(
-                    IntRect(
-                        IntOffset(0, 0),
-                        IntSize(9, 9),
+            with(clipboardCellStateParserProvider) {
+                SelectionOverlay(
+                    selectionSessionState = SessionValue(
+                        sessionId = uuid4(),
+                        valueId = uuid4(),
+                        value = SelectionState.NoSelection,
                     ),
-                ),
-            )
+                    setSelectionSessionState = {},
+                    getSelectionCellState = { emptyCellState() },
+                    scaledCellDpSize = 50.dp,
+                    cellWindow = CellWindow(
+                        IntRect(
+                            IntOffset(0, 0),
+                            IntSize(9, 9),
+                        ),
+                    ),
+                )
+            }
         }
 
         onNodeWithContentDescription(
@@ -77,32 +91,35 @@ class SelectionOverlayTests {
     }
 
     @Test
-    fun selecting_box_is_displayed_correctly() = runComposeUiTest {
+    fun selecting_box_is_displayed_correctly() = runUiTest {
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
 
-            SelectionOverlay(
-                selectionSessionState = SessionValue(
-                    sessionId = uuid4(),
-                    valueId = uuid4(),
-                    value = SelectionState.SelectingBox.FixedSelectingBox(
-                        topLeft = IntOffset(1, 1),
-                        width = 2,
-                        height = 3,
-                        previousTransientSelectingBox = null,
+            with(clipboardCellStateParserProvider) {
+                SelectionOverlay(
+                    selectionSessionState = SessionValue(
+                        sessionId = uuid4(),
+                        valueId = uuid4(),
+                        value = SelectionState.SelectingBox.FixedSelectingBox(
+                            topLeft = IntOffset(1, 1),
+                            width = 2,
+                            height = 3,
+                            previousTransientSelectingBox = null,
+                        ),
                     ),
-                ),
-                setSelectionSessionState = {},
-                scaledCellDpSize = 50.dp,
-                cellWindow = CellWindow(
-                    IntRect(
-                        IntOffset(0, 0),
-                        IntSize(9, 9),
+                    setSelectionSessionState = {},
+                    getSelectionCellState = { emptyCellState() },
+                    scaledCellDpSize = 50.dp,
+                    cellWindow = CellWindow(
+                        IntRect(
+                            IntOffset(0, 0),
+                            IntSize(9, 9),
+                        ),
                     ),
-                ),
-            )
+                )
+            }
         }
 
         onNodeWithContentDescription(
@@ -127,7 +144,7 @@ class SelectionOverlayTests {
     }
 
     @Test
-    fun dragging_selecting_box_is_displayed_correctly() = runComposeUiTest {
+    fun dragging_selecting_box_is_displayed_correctly() = runUiTest {
         // TODO: This test tends to deadlock on desktop
         assumeTrue(isAndroid())
 
@@ -149,17 +166,20 @@ class SelectionOverlayTests {
         setContent {
             resolver = parameterizedStringResolver()
 
-            SelectionOverlay(
-                selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
-                setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
-                scaledCellDpSize = 50.dp,
-                cellWindow = CellWindow(
-                    IntRect(
-                        IntOffset(0, 0),
-                        IntSize(9, 9),
+            with(clipboardCellStateParserProvider) {
+                SelectionOverlay(
+                    selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
+                    setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
+                    getSelectionCellState = { emptyCellState() },
+                    scaledCellDpSize = 50.dp,
+                    cellWindow = CellWindow(
+                        IntRect(
+                            IntOffset(0, 0),
+                            IntSize(9, 9),
+                        ),
                     ),
-                ),
-            )
+                )
+            }
         }
 
         onNodeWithContentDescription(
