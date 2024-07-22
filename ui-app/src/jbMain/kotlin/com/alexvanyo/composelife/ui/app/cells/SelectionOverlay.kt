@@ -72,11 +72,13 @@ import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
 import androidx.compose.ui.util.unpackInt2
+import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.sessionvalue.preLocalSessionId
 import com.alexvanyo.composelife.sessionvalue.rememberSessionValueHolder
+import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
 import com.alexvanyo.composelife.ui.app.resources.SelectingBoxHandle
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.util.AnchoredDraggable2DState
@@ -95,11 +97,13 @@ import kotlin.math.roundToInt
 /**
  * The overlay based on the [selectionState].
  */
-@Suppress("LongMethod")
+context(ClipboardCellStateParserProvider)
+@Suppress("LongMethod", "LongParameterList")
 @Composable
 fun SelectionOverlay(
     selectionSessionState: SessionValue<SelectionState>,
     setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
+    getSelectionCellState: (SelectionState) -> CellState,
     scaledCellDpSize: Dp,
     cellWindow: CellWindow,
     modifier: Modifier = Modifier,
@@ -126,6 +130,18 @@ fun SelectionOverlay(
             } to preLocalSessionId
         },
         modifier = modifier
+            .cellStateDragAndDropTarget { cellState ->
+                val boundingBoxSize = cellState.boundingBox.size
+                selectionSessionStateValueHolder.setValue(
+                    SelectionState.Selection(
+                        cellState = cellState,
+                        offset = (
+                            cellWindow.center.toOffset() -
+                                Offset(boundingBoxSize.width - 1f, boundingBoxSize.height - 1f) / 2f
+                            ).round(),
+                    ),
+                )
+            }
             .requiredSize(
                 scaledCellDpSize * cellWindow.width,
                 scaledCellDpSize * cellWindow.height,
@@ -141,6 +157,9 @@ fun SelectionOverlay(
                     selectionSessionState = targetSelectionSessionState as
                         SessionValue<SelectionState.SelectingBox.FixedSelectingBox>,
                     setSelectionState = selectionSessionStateValueHolder::setValue,
+                    getSelectionCellState = {
+                        getSelectionCellState(targetSelectionState)
+                    },
                     scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() },
                     cellWindow = cellWindow,
                     modifier = Modifier.fillMaxSize(),
@@ -159,6 +178,9 @@ fun SelectionOverlay(
                 SelectionBoxOverlay(
                     selectionSessionState = targetSelectionSessionState as SessionValue<SelectionState.Selection>,
                     setSelectionState = selectionSessionStateValueHolder::setValue,
+                    getSelectionCellState = {
+                        getSelectionCellState(targetSelectionState)
+                    },
                     scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() },
                     cellWindow = cellWindow,
                     modifier = Modifier.fillMaxSize(),
@@ -205,6 +227,7 @@ val SelectionState.SelectingBox.FixedSelectingBox.initialHandles get(): List<Off
 private fun FixedSelectingBoxOverlay(
     selectionSessionState: SessionValue<SelectionState.SelectingBox.FixedSelectingBox>,
     setSelectionState: (SelectionState) -> Unit,
+    getSelectionCellState: () -> CellState,
     scaledCellPixelSize: Float,
     cellWindow: CellWindow,
     modifier: Modifier = Modifier,
@@ -415,7 +438,8 @@ private fun FixedSelectingBoxOverlay(
                     handleBOffsetCalculator = selectionHandleStates[1].offsetCalculator,
                     handleCOffsetCalculator = selectionHandleStates[2].offsetCalculator,
                     handleDOffsetCalculator = selectionHandleStates[3].offsetCalculator,
-                ),
+                )
+                .cellStateDragAndDropSource(getSelectionCellState),
         )
 
         val parameterizedStringResolver = parameterizedStringResolver()
@@ -706,6 +730,7 @@ data class GridDraggableAnchors2d(
 private fun SelectionBoxOverlay(
     selectionSessionState: SessionValue<SelectionState.Selection>,
     setSelectionState: (SelectionState) -> Unit,
+    getSelectionCellState: () -> CellState,
     scaledCellPixelSize: Float,
     cellWindow: CellWindow,
     modifier: Modifier = Modifier,
@@ -795,6 +820,7 @@ private fun SelectionBoxOverlay(
                     ) * scaledCellPixelSize
                 },
             )
+            .cellStateDragAndDropSource(getSelectionCellState)
             .anchoredDraggable2D(draggable2DState),
         selectionColor = MaterialTheme.colorScheme.tertiary,
     )

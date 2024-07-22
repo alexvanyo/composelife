@@ -16,14 +16,14 @@
 
 package com.alexvanyo.composelife.ui.app
 
+import androidx.compose.ui.draganddrop.DragAndDropEvent
 import com.alexvanyo.composelife.model.DeserializationResult
-import com.alexvanyo.composelife.model.FlexibleCellStateSerializer
 import com.alexvanyo.composelife.ui.util.ClipboardReader
 import me.tatarka.inject.annotations.Inject
 
 @Inject
-expect class ClipboardCellStateParser(
-    flexibleCellStateSerializer: FlexibleCellStateSerializer,
-) {
+expect class ClipboardCellStateParser {
     suspend fun parseCellState(clipboardStateReader: ClipboardReader): DeserializationResult
+
+    suspend fun parseCellState(dragAndDropEvent: DragAndDropEvent): DeserializationResult
 }

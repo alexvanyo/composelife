@@ -18,7 +18,6 @@ package com.alexvanyo.composelife.ui.util
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 
 /**
  * A reader for the system clipboard.
@@ -55,7 +54,6 @@ interface ClipboardReaderWriter : ClipboardReader, ClipboardWriter
  *
  * Note: This will read from and listen to clipboard changes, which the user may be notified of.
  */
-context(ComposeLifeDispatchersProvider)
 @Composable
 expect fun rememberClipboardReader(): ClipboardReader
 
@@ -71,6 +69,5 @@ expect fun rememberClipboardWriter(): ClipboardWriter
  * Note: This will read from and listen to clipboard changes, which the user may be notified of.
  * If you are just writing to the clipboard, use [rememberClipboardWriter] instead.
  */
-context(ComposeLifeDispatchersProvider)
 @Composable
 expect fun rememberClipboardReaderWriter(): ClipboardReaderWriter
