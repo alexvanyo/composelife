@@ -33,6 +33,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
+import kotlin.collections.removeFirst as ktRemoveFirst
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalTestApi::class)
@@ -391,7 +392,7 @@ class SessionValueHolderComposableTests {
             pendingUpstreamSessionValues,
         )
 
-        upstreamSessionValue = pendingUpstreamSessionValues.removeFirst().second
+        upstreamSessionValue = pendingUpstreamSessionValues.ktRemoveFirst().second
         waitForIdle()
 
         assertEquals(
@@ -502,7 +503,7 @@ class SessionValueHolderComposableTests {
             pendingUpstreamSessionValues,
         )
 
-        upstreamSessionValue = pendingUpstreamSessionValues.removeFirst().second
+        upstreamSessionValue = pendingUpstreamSessionValues.ktRemoveFirst().second
         waitForIdle()
 
         assertEquals(
@@ -527,7 +528,7 @@ class SessionValueHolderComposableTests {
             pendingUpstreamSessionValues,
         )
 
-        upstreamSessionValue = pendingUpstreamSessionValues.removeFirst().second
+        upstreamSessionValue = pendingUpstreamSessionValues.ktRemoveFirst().second
         waitForIdle()
 
         assertEquals(
