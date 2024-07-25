@@ -19,11 +19,18 @@ package com.alexvanyo.composelife.test
 import android.content.Context
 import android.os.Build
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.ComposeUiTest
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.runAndroidComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.UiComponent
+import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.scopes.UiComponentOwner
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import kotlinx.coroutines.test.TestResult
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Rule
@@ -54,6 +61,28 @@ abstract class BaseUiInjectTest<T, A>(
 
     val context: Context get() = composeTestRule.activity
 }
+
+@OptIn(ExperimentalTestApi::class)
+actual fun <T, U> BaseUiInjectTest2<T, U>.runUiTest(
+    testBody: suspend context(ComposeUiTest, TestScope) UiTestScope<T, U>.() -> Unit,
+): TestResult where T : ApplicationComponent<*>, T : UpdatableModule, U : UiComponent<T, *> =
+    runAndroidComposeUiTest<ComponentActivity> {
+        val uiComponent = uiComponentCreator(
+            applicationComponent,
+            object : UiComponentArguments {
+                override val activity = requireNotNull(this@runAndroidComposeUiTest.activity)
+            },
+        )
+
+        runAppTest {
+            testBody(
+                this,
+                object : UiTestScope<T, U> {
+                    override val uiComponent = uiComponent
+                },
+            )
+        }
+    }
 
 private fun createLeakRule(tag: String) =
     if (Build.FINGERPRINT.lowercase() == "robolectric") {
