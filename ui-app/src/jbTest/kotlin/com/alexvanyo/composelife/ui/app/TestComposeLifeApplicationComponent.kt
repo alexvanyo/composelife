@@ -48,7 +48,7 @@ expect abstract class TestComposeLifeApplicationComponent :
     companion object
 }
 
-expect interface TestComposeLifeApplicationEntryPoint :
+interface TestComposeLifeApplicationEntryPoint :
     ClockModule,
     RandomModule,
     RepositoryModule,
