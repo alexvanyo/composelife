@@ -31,7 +31,7 @@ android {
 
 wire {
     sourcePath {
-        srcDir("src/commonMain/proto")
+        srcDir(files("src/commonMain/proto"))
     }
     kotlin {}
 }
