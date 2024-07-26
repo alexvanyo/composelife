@@ -31,13 +31,13 @@ import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 
 /**
- * A base class for testing components that depend on injected classes.
+ * A base class for testing an [ComponentActivity] that depends on injected classes.
  *
  * Subclasses must call [runAppTest] instead of [runTest] to properly initialize dependencies.
  */
 @Suppress("UnnecessaryAbstractClass")
 @RunWith(KmpAndroidJUnit4::class)
-abstract class BaseUiInjectTest<T, A>(
+abstract class BaseActivityInjectTest<T, A>(
     applicationComponentCreator: () -> T,
     clazz: Class<A>,
 ) : BaseInjectTest<T>(applicationComponentCreator)

@@ -44,7 +44,7 @@ import com.alexvanyo.composelife.preferences.algorithmChoiceState
 import com.alexvanyo.composelife.preferences.darkThemeConfigState
 import com.alexvanyo.composelife.preferences.quickAccessSettingsState
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.test.BaseUiInjectTest
+import com.alexvanyo.composelife.test.BaseActivityInjectTest
 import com.alexvanyo.composelife.ui.app.R
 import leakcanary.SkipLeakDetection
 import org.junit.runner.RunWith
@@ -53,7 +53,7 @@ import kotlin.test.assertEquals
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class ComposeLifeAppTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, MainActivity>(
+class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationComponent, MainActivity>(
     { TestComposeLifeApplicationComponent.createComponent() },
     MainActivity::class.java,
 ) {
