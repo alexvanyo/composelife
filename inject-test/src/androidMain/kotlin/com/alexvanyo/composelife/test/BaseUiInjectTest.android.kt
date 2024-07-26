@@ -16,8 +16,10 @@
 
 package com.alexvanyo.composelife.test
 
+import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.runAndroidComposeUiTest
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
@@ -25,20 +27,26 @@ import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
-
-abstract class BaseUiInjectTest<T, U>(
-    applicationComponentCreator: () -> T,
-    internal val uiComponentCreator: (T, UiComponentArguments) -> U,
-) : BaseInjectTest<T>(applicationComponentCreator)
-    where T : ApplicationComponent<*>, T : UpdatableModule, U : UiComponent<T, *>
 
 @OptIn(ExperimentalTestApi::class)
-expect fun <T, U> BaseUiInjectTest<T, U>.runUiTest(
-    appTestContext: CoroutineContext = EmptyCoroutineContext,
+actual fun <T, U> BaseUiInjectTest<T, U>.runUiTest(
+    appTestContext: CoroutineContext,
     testBody: suspend context(ComposeUiTest, TestScope) UiTestScope<T, U>.() -> Unit,
-): TestResult where T : ApplicationComponent<*>, T : UpdatableModule, U : UiComponent<T, *>
+): TestResult where T : ApplicationComponent<*>, T : UpdatableModule, U : UiComponent<T, *> =
+    runAndroidComposeUiTest<ComponentActivity> {
+        val uiComponent = uiComponentCreator(
+            applicationComponent,
+            object : UiComponentArguments {
+                override val activity = requireNotNull(this@runAndroidComposeUiTest.activity)
+            },
+        )
 
-interface UiTestScope<T, U> where T : ApplicationComponent<*>, T : UpdatableModule, U : UiComponent<T, *> {
-    val uiComponent: U
-}
+        runAppTest(appTestContext) {
+            testBody(
+                this,
+                object : UiTestScope<T, U> {
+                    override val uiComponent = uiComponent
+                },
+            )
+        }
+    }
