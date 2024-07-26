@@ -24,7 +24,10 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.autoSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import java.util.UUID
+import com.benasher44.uuid.Uuid
+import com.benasher44.uuid.uuid4
+import com.benasher44.uuid.uuidFrom
+import kotlin.jvm.JvmName
 
 /**
  * A mutable [BackstackState] that can be modified by changing the [entryMap] and the [currentEntryId].
@@ -35,7 +38,7 @@ import java.util.UUID
 interface MutableBackstackNavigationController<T> : BackstackState<T> {
     override val entryMap: MutableBackstackMap<T>
 
-    override var currentEntryId: UUID
+    override var currentEntryId: Uuid
 }
 
 /**
@@ -69,7 +72,7 @@ fun <T> rememberMutableBackstackNavigationController(
     var currentBackstackEntryId by rememberSaveable(
         saver = Saver(
             save = { it.value.toString() },
-            restore = { mutableStateOf(UUID.fromString(it)) },
+            restore = { mutableStateOf(uuidFrom(it)) },
         ),
     ) {
         mutableStateOf(initialBackstackEntries.last().id)
@@ -79,7 +82,7 @@ fun <T> rememberMutableBackstackNavigationController(
         object : MutableBackstackNavigationController<T> {
             override val entryMap: MutableBackstackMap<T> get() = backstackMap
 
-            override var currentEntryId: UUID
+            override var currentEntryId: Uuid
                 get() = currentBackstackEntryId
                 set(value) {
                     currentBackstackEntryId = value
@@ -99,7 +102,7 @@ fun <T> rememberMutableBackstackNavigationController(
  * This function returns `true` if and only if the [block] was run.
  */
 fun <T> MutableBackstackNavigationController<T>.withExpectedActor(
-    actorEntryId: UUID?,
+    actorEntryId: Uuid?,
     block: MutableBackstackNavigationController<T>.(currentEntry: BackstackEntry<T>) -> Unit,
 ): Boolean =
     if (actorEntryId == null || actorEntryId == currentEntry.id) {
@@ -135,7 +138,7 @@ fun <T> MutableBackstackNavigationController<T>.popUpTo(
  * If [inclusive] is true, then the entry with the given [id] will also be popped.
  */
 fun <T> MutableBackstackNavigationController<T>.popUpTo(
-    id: UUID,
+    id: Uuid,
     inclusive: Boolean = false,
 ) {
     val predicate: (BackstackEntry<T>) -> Boolean = { it.id == id }
@@ -168,7 +171,7 @@ fun <T> MutableBackstackNavigationController<T>.popUpTo(
  */
 fun <T> MutableBackstackNavigationController<T>.navigate(
     valueFactory: (previous: BackstackEntry<T>) -> T,
-    id: UUID = UUID.randomUUID(),
+    id: Uuid = uuid4(),
 ) {
     currentEntryId = entryMap.navigate(
         currentEntryId = currentEntryId,
@@ -182,7 +185,7 @@ fun <T> MutableBackstackNavigationController<T>.navigate(
  */
 fun <T> MutableBackstackNavigationController<T>.navigate(
     value: T,
-    id: UUID = UUID.randomUUID(),
+    id: Uuid = uuid4(),
 ) = navigate(
     valueFactory = { value },
     id = id,

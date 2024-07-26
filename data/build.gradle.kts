@@ -52,7 +52,14 @@ kotlin {
                 implementation(projects.updatable)
             }
         }
+        val jbMain by creating {
+            dependsOn(commonMain)
+        }
+        val desktopMain by getting {
+            dependsOn(jbMain)
+        }
         val androidMain by getting {
+            dependsOn(jbMain)
             dependencies {
                 api(libs.kotlinx.coroutines.android)
             }
@@ -65,7 +72,15 @@ kotlin {
                 implementation(projects.dispatchersTest)
             }
         }
+        val jbTest by creating {
+            dependsOn(commonTest)
+        }
+        val desktopTest by getting {
+            dependsOn(jbTest)
+            configurations["kspDesktopTest"].dependencies.add(libs.kotlinInject.ksp.get())
+        }
         val androidSharedTest by getting {
+            dependsOn(jbTest)
             dependencies {
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.junit)
@@ -77,9 +92,6 @@ kotlin {
         }
         val androidInstrumentedTest by getting {
             configurations["kspAndroidAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
-        }
-        val desktopTest by getting {
-            configurations["kspDesktopTest"].dependencies.add(libs.kotlinInject.ksp.get())
         }
     }
 }

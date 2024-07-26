@@ -1,3 +1,5 @@
+import com.alexvanyo.composelife.buildlogic.jvmMolecule
+
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -34,6 +36,7 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    jvmMolecule(this)
 
     sourceSets {
         val commonMain by getting {
@@ -57,17 +60,25 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.jetbrains.compose.uiTestJunit4)
                 implementation(libs.kotlinx.coroutines.test)
-                implementation(projects.kmpAndroidRunner)
+                implementation(libs.molecule)
+                implementation(libs.turbine)
             }
         }
+        val jvmTest by creating {
+            dependsOn(commonTest)
+        }
+        val moleculeTest by getting {
+            dependsOn(jvmTest)
+        }
+        val jbTest by creating {
+            dependsOn(jvmTest)
+        }
+        val desktopTest by getting {
+            dependsOn(jbTest)
+        }
         val androidSharedTest by getting {
-            dependencies {
-                implementation(libs.androidx.test.core)
-                implementation(libs.androidx.test.espresso)
-                implementation(projects.testActivity)
-            }
+            dependsOn(jbTest)
         }
     }
 }
