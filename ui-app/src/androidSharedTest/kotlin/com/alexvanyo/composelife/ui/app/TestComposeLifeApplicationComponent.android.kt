@@ -61,12 +61,3 @@ actual abstract class TestComposeLifeApplicationComponent(
 
     actual companion object
 }
-
-actual interface TestComposeLifeApplicationEntryPoint :
-    ClockModule,
-    RandomModule,
-    RepositoryModule,
-    AlgorithmModule,
-    DispatchersModule,
-    PreferencesModule,
-    UpdatableModule

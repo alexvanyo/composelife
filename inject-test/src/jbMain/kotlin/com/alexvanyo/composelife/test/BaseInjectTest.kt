@@ -44,7 +44,7 @@ abstract class BaseInjectTest<T>(
     private val updatables: Set<Updatable>
         get() = applicationComponent.updatables
 
-    fun runAppTest(
+    open fun runAppTest(
         context: CoroutineContext = EmptyCoroutineContext,
         testBody: suspend TestScope.() -> Unit,
     ): TestResult = runTest(

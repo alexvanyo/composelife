@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.app.action.settings
+package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHasNoClickAction
@@ -31,43 +32,57 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.firstSuccess
 import com.alexvanyo.composelife.test.BaseUiInjectTest
-import com.alexvanyo.composelife.test.InjectTestActivity
-import com.alexvanyo.composelife.ui.app.R
+import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
+import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
+import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPane
+import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneLocalEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.Setting
+import com.alexvanyo.composelife.ui.app.action.settings._name
 import com.alexvanyo.composelife.ui.app.createComponent
-import leakcanary.SkipLeakDetection
+import com.alexvanyo.composelife.ui.app.resources.DisableOpenGL
+import com.alexvanyo.composelife.ui.app.resources.OpenInSettings
+import com.alexvanyo.composelife.ui.app.resources.QuickSettingsInfo
+import com.alexvanyo.composelife.ui.app.resources.RemoveSettingFromQuickAccess
+import com.alexvanyo.composelife.ui.app.resources.SeeAll
+import com.alexvanyo.composelife.ui.app.resources.Strings
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
+@OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
-    { TestComposeLifeApplicationComponent.createComponent() },
-    InjectTestActivity::class.java,
+class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
+    TestComposeLifeApplicationComponent::createComponent,
+    TestComposeLifeUiComponent::createComponent,
 ) {
     private val composeLifePreferences get() = applicationComponent.composeLifePreferences
 
     private val testComposeLifePreferences: TestComposeLifePreferences get() = assertIs(composeLifePreferences)
 
-    private val inlineSettingsPaneInjectEntryPoint get() =
-        composeTestRule.activity.uiComponent.entryPoint as InlineSettingsPaneInjectEntryPoint
-
     @Test
-    @SkipLeakDetection("appliedChanges", "Outer", "Inner")
-    fun saving_settings_onboarding_is_shown_with_no_quick_access_settings_saved() = runAppTest {
+    fun saving_settings_onboarding_is_shown_with_no_quick_access_settings_saved() = runUiTest {
+        val inlineSettingsPaneInjectEntryPoint: InlineSettingsPaneInjectEntryPoint = uiComponent.entryPoint
+
         testComposeLifePreferences.quickAccessSettings = emptySet()
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
         var onSeeMoreClickedCount = 0
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             with(inlineSettingsPaneInjectEntryPoint) {
                 with(
                     object : InlineSettingsPaneLocalEntryPoint {
@@ -87,14 +102,12 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
             }
         }
 
-        composeTestRule
-            .onNodeWithText(context.getString(R.string.quick_settings_info))
+        onNodeWithText(resolver.invoke(Strings.QuickSettingsInfo))
             .performScrollTo()
             .assertIsDisplayed()
             .assertHasNoClickAction()
 
-        composeTestRule
-            .onNodeWithText(context.getString(R.string.see_all))
+        onNodeWithText(resolver.invoke(Strings.SeeAll))
             .performScrollTo()
             .assertIsDisplayed()
             .assertHasClickAction()
@@ -104,12 +117,15 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
     }
 
     @Test
-    @SkipLeakDetection("appliedChanges", "Outer")
-    fun saved_opengl_setting_is_displayed_correctly() = runAppTest {
+    fun saved_opengl_setting_is_displayed_correctly() = runUiTest {
+        val inlineSettingsPaneInjectEntryPoint: InlineSettingsPaneInjectEntryPoint = uiComponent.entryPoint
         testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             with(inlineSettingsPaneInjectEntryPoint) {
                 with(
                     object : InlineSettingsPaneLocalEntryPoint {
@@ -127,44 +143,44 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
             }
         }
 
-        composeTestRule
-            .onNode(
-                hasContentDescription(context.getString(R.string.remove_setting_from_quick_access)) and
-                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}")),
-            )
+        onNode(
+            hasContentDescription(resolver.invoke(Strings.RemoveSettingFromQuickAccess)) and
+                hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")),
+        )
             .performScrollTo()
             .assertIsDisplayed()
             .assertIsOn()
             .assertHasClickAction()
 
-        composeTestRule
-            .onNode(
-                hasContentDescription(context.getString(R.string.open_in_settings)) and
-                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}")),
-            )
+        onNode(
+            hasContentDescription(resolver.invoke(Strings.OpenInSettings)) and
+                hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")),
+        )
             .performScrollTo()
             .assertIsDisplayed()
             .assertHasClickAction()
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.disable_opengl))
+        onNodeWithContentDescription(resolver.invoke(Strings.DisableOpenGL))
             .performScrollTo()
             .assertIsDisplayed()
-            .assert(hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}")))
+            .assert(hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")))
             .assertIsOff()
             .assertHasClickAction()
     }
 
     @Test
-    @SkipLeakDetection("appliedChanges", "Outer")
-    fun opening_saved_setting_functions_correctly() = runAppTest {
+    fun opening_saved_setting_functions_correctly() = runUiTest {
+        val inlineSettingsPaneInjectEntryPoint: InlineSettingsPaneInjectEntryPoint = uiComponent.entryPoint
         testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
         var onOpenInSettingsClickedCount = 0
         var onOpenInSettingsClickedSetting: Setting? = null
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             with(inlineSettingsPaneInjectEntryPoint) {
                 with(
                     object : InlineSettingsPaneLocalEntryPoint {
@@ -185,11 +201,10 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
             }
         }
 
-        composeTestRule
-            .onNode(
-                hasContentDescription(context.getString(R.string.open_in_settings)) and
-                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}")),
-            )
+        onNode(
+            hasContentDescription(resolver.invoke(Strings.OpenInSettings)) and
+                hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")),
+        )
             .performScrollTo()
             .assertIsDisplayed()
             .performClick()
@@ -199,12 +214,15 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
     }
 
     @Test
-    @SkipLeakDetection("appliedChanges", "Outer")
-    fun removing_saved_setting_functions_correctly() = runAppTest {
+    fun removing_saved_setting_functions_correctly() = runUiTest {
+        val inlineSettingsPaneInjectEntryPoint: InlineSettingsPaneInjectEntryPoint = uiComponent.entryPoint
         testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
-        composeTestRule.setContent {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             with(inlineSettingsPaneInjectEntryPoint) {
                 with(
                     object : InlineSettingsPaneLocalEntryPoint {
@@ -222,23 +240,20 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
             }
         }
 
-        composeTestRule
-            .onNode(
-                hasContentDescription(context.getString(R.string.remove_setting_from_quick_access)) and
-                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL.name}")),
-            )
+        onNode(
+            hasContentDescription(resolver.invoke(Strings.RemoveSettingFromQuickAccess)) and
+                hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")),
+        )
             .performScrollTo()
             .assertIsDisplayed()
             .performClick()
 
-        composeTestRule
-            .onNodeWithText(context.getString(R.string.quick_settings_info))
+        onNodeWithText(resolver.invoke(Strings.QuickSettingsInfo))
             .performScrollTo()
             .assertIsDisplayed()
             .assertHasNoClickAction()
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.disable_opengl))
+        onNodeWithContentDescription(resolver.invoke(Strings.DisableOpenGL))
             .assertDoesNotExist()
     }
 }
