@@ -19,24 +19,16 @@ package com.alexvanyo.composelife.test
 import android.content.Context
 import android.os.Build
 import androidx.activity.ComponentActivity
-import androidx.compose.ui.test.ComposeUiTest
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.runAndroidComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.UiComponent
-import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.scopes.UiComponentOwner
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
-import kotlinx.coroutines.test.TestResult
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Rule
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import kotlin.coroutines.CoroutineContext
 
 /**
  * A base class for testing an [ComponentActivity] that depends on injected classes.
@@ -62,29 +54,6 @@ abstract class BaseActivityInjectTest<T, A>(
 
     val context: Context get() = composeTestRule.activity
 }
-
-@OptIn(ExperimentalTestApi::class)
-actual fun <T, U> BaseUiInjectTest<T, U>.runUiTest(
-    appTestContext: CoroutineContext,
-    testBody: suspend context(ComposeUiTest, TestScope) UiTestScope<T, U>.() -> Unit,
-): TestResult where T : ApplicationComponent<*>, T : UpdatableModule, U : UiComponent<T, *> =
-    runAndroidComposeUiTest<ComponentActivity> {
-        val uiComponent = uiComponentCreator(
-            applicationComponent,
-            object : UiComponentArguments {
-                override val activity = requireNotNull(this@runAndroidComposeUiTest.activity)
-            },
-        )
-
-        runAppTest(appTestContext) {
-            testBody(
-                this,
-                object : UiTestScope<T, U> {
-                    override val uiComponent = uiComponent
-                },
-            )
-        }
-    }
 
 private fun createLeakRule(tag: String) =
     if (Build.FINGERPRINT.lowercase() == "robolectric") {
