@@ -18,32 +18,33 @@ package com.alexvanyo.composelife.ui.app.component
 
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
-import com.alexvanyo.composelife.test.InjectTestActivity
+import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
+import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
 import com.alexvanyo.composelife.ui.app.createComponent
-import leakcanary.SkipLeakDetection
 import kotlin.test.Test
 
-class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
-    { TestComposeLifeApplicationComponent.createComponent() },
-    InjectTestActivity::class.java,
+@OptIn(ExperimentalTestApi::class)
+class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
+    TestComposeLifeApplicationComponent::createComponent,
+    TestComposeLifeUiComponent::createComponent,
 ) {
-    private val gameOfLifeProgressIndicatorInjectEntryPoint get() =
-        composeTestRule.activity.uiComponent.entryPoint as GameOfLifeProgressIndicatorInjectEntryPoint
-
     private val gameOfLifeProgressIndicatorLocalEntryPoint = object : GameOfLifeProgressIndicatorLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults
     }
 
-    @SkipLeakDetection("recomposer", "Outer", "Inner")
     @Test
-    fun progress_indicator_is_displayed_correctly() = runAppTest {
-        composeTestRule.setContent {
+    fun progress_indicator_is_displayed_correctly() = runUiTest {
+        val gameOfLifeProgressIndicatorInjectEntryPoint: GameOfLifeProgressIndicatorInjectEntryPoint =
+            uiComponent.entryPoint
+
+        setContent {
             with(gameOfLifeProgressIndicatorInjectEntryPoint) {
                 with(gameOfLifeProgressIndicatorLocalEntryPoint) {
                     GameOfLifeProgressIndicator()
@@ -51,8 +52,7 @@ class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<TestComposeLifeApplica
             }
         }
 
-        composeTestRule
-            .onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+        onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
     }
 }
