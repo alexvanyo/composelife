@@ -16,59 +16,52 @@
 
 package com.alexvanyo.composelife.resourcestate
 
+import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.runComposeUiTest
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import app.cash.molecule.RecompositionMode
+import app.cash.molecule.moleculeFlow
+import app.cash.turbine.test
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.test.runTest
-import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
-@Suppress("UnnecessaryAbstractClass")
-@OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
 class ResourceStateComposableTests {
+
+    private val broadcastFrameClock = BroadcastFrameClock()
 
     @Suppress("ThrowingExceptionsWithoutMessageOrCause")
     @Test
-    fun collect_as_state_is_correct() = runComposeUiTest {
-        runTest {
-            var currentState: ResourceState<String>? = null
+    fun collect_as_state_is_correct() = runTest(broadcastFrameClock) {
+        val channel = Channel<String>()
 
-            val channel = Channel<String>()
+        moleculeFlow(RecompositionMode.ContextClock) {
+            val state by remember {
+                channel.receiveAsFlow().asResourceState()
+            }.collectAsState()
 
-            setContent {
-                val state by remember {
-                    channel.receiveAsFlow().asResourceState()
-                }.collectAsState()
-
-                currentState = state
-            }
-
-            waitForIdle()
-
-            assertEquals(ResourceState.Loading, currentState)
-
-            channel.send("a")
-            waitForIdle()
-
-            assertEquals(ResourceState.Success("a"), currentState)
-
-            val exception = TestException()
-            channel.close(exception)
-
-            waitForIdle()
-
-            currentState.let { state ->
-                assertIs<ResourceState.Failure<String>>(state)
-                assertIs<TestException>(state.throwable)
-            }
+            state
         }
+            .test {
+                assertEquals(ResourceState.Loading, awaitItem())
+
+                channel.send("a")
+                broadcastFrameClock.sendFrame(1)
+
+                assertEquals(ResourceState.Success("a"), awaitItem())
+
+                val exception = TestException()
+                channel.close(exception)
+                broadcastFrameClock.sendFrame(2)
+
+                awaitItem().let { state ->
+                    assertIs<ResourceState.Failure<String>>(state)
+                    assertIs<TestException>(state.throwable)
+                }
+            }
     }
 }
 

@@ -42,21 +42,43 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.jetbrains.compose.ui)
-                api(libs.sealedEnum.runtime)
                 api(projects.algorithm)
             }
         }
-        val androidMain by getting {
-            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
+        val jvmMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                api(libs.jetbrains.compose.uiUnit)
+                api(libs.sealedEnum.runtime)
+            }
+        }
+        val jbMain by creating {
+            dependsOn(jvmMain)
         }
         val desktopMain by getting {
+            dependsOn(jbMain)
             configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
+        }
+        val androidMain by getting {
+            dependsOn(jbMain)
+            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
         }
         val commonTest by getting {
             dependencies {
                 implementation(libs.testParameterInjector.junit4)
             }
+        }
+        val jvmTest by creating {
+            dependsOn(commonTest)
+        }
+        val jbTest by creating {
+            dependsOn(jvmTest)
+        }
+        val desktopTest by getting {
+            dependsOn(jbTest)
+        }
+        val androidSharedTest by getting {
+            dependsOn(jbTest)
         }
     }
 }

@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.dispatchers
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.MainCoroutineDispatcher
 import me.tatarka.inject.annotations.Inject
 import kotlin.coroutines.CoroutineContext

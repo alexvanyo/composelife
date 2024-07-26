@@ -22,7 +22,8 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.autoSaver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
-import java.util.UUID
+import com.benasher44.uuid.Uuid
+import com.benasher44.uuid.uuidFrom
 
 /**
  * A [NavigationState] representing a backstack of [BackstackEntry]s.
@@ -35,7 +36,7 @@ interface BackstackState<T> : NavigationState<BackstackEntry<T>> {
      *
      * By default, this is the [BackstackEntry.previous] of the [currentEntry].
      */
-    val previousEntryId: UUID?
+    val previousEntryId: Uuid?
         get() = currentEntry.previous?.id
 }
 
@@ -48,12 +49,12 @@ val <T> BackstackState<T>.previousEntry: BackstackEntry<T>?
 /**
  * A mutable entry map of [BackstackEntry] of type [T].
  */
-typealias MutableBackstackMap<T> = MutableMap<UUID, BackstackEntry<T>>
+typealias MutableBackstackMap<T> = MutableMap<Uuid, BackstackEntry<T>>
 
 /**
  * An entry map of [BackstackEntry] of type [T].
  */
-typealias BackstackMap<T> = Map<UUID, BackstackEntry<T>>
+typealias BackstackMap<T> = Map<Uuid, BackstackEntry<T>>
 
 /**
  * Remembers a [MutableBackstackMap] of type [T], with the given [initialBackstackEntries], and saving for each entry
@@ -92,9 +93,9 @@ fun <T> rememberBackstackMap(
             },
             restore = { list ->
                 // Create a map from the restored entry ids to their restored values
-                val savedEntries = list.associateBy { entryList -> UUID.fromString(entryList[1] as String) }
+                val savedEntries = list.associateBy { entryList -> uuidFrom(entryList[1] as String) }
 
-                val map = mutableStateMapOf<UUID, BackstackEntry<T>>()
+                val map = mutableStateMapOf<Uuid, BackstackEntry<T>>()
 
                 /**
                  * Recursively restore the entry with the given [id] and store it in [map].
@@ -102,10 +103,10 @@ fun <T> rememberBackstackMap(
                  * If the entry for the given [id] hasn't been restored yet, start restoring it, by first restoring
                  * its previous entry, if any.
                  */
-                fun restoreEntry(id: UUID): BackstackEntry<T> =
+                fun restoreEntry(id: Uuid): BackstackEntry<T> =
                     map.getOrPut(id) {
                         val entryList = savedEntries.getValue(id)
-                        val previousId = (entryList[2] as String?)?.let(UUID::fromString)
+                        val previousId = (entryList[2] as String?)?.let(::uuidFrom)
                         val previous = previousId?.let { restoreEntry(previousId) }
                         val saver = backstackValueSaverFactory.create(previous)
                         @Suppress("UnsafeCallOnNullableType")
@@ -122,7 +123,7 @@ fun <T> rememberBackstackMap(
             },
         ),
     ) {
-        mutableStateMapOf<UUID, BackstackEntry<T>>().apply {
+        mutableStateMapOf<Uuid, BackstackEntry<T>>().apply {
             putAll(initialBackstackEntries.associateBy { it.id })
         }
     }

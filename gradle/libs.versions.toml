@@ -45,6 +45,7 @@ jetbrainsCompose = "1.7.0-alpha01"
 junit4 = "4.13.2"
 leakCanary = "3.0-alpha-8"
 material3WindowSizeClassMultiplatform = "0.5.0"
+molecule = "2.0.0"
 okio = "3.9.0"
 robolectric = "4.13"
 roborazzi = "1.23.0"
@@ -53,6 +54,7 @@ slackComposeLintChecks = "1.3.1"
 sqldelight = "2.0.2"
 testParameterInjector = "1.16"
 turbine = "1.1.0"
+uuid = "0.8.4"
 wire = "5.0.0"
 
 [libraries]
@@ -144,6 +146,7 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 leakCanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakCanary" }
 leakCanary-instrumentation = { group = "com.squareup.leakcanary", name = "leakcanary-android-instrumentation", version.ref = "leakCanary" }
+molecule = { group = "app.cash.molecule", name = "molecule-runtime", version.ref = "molecule" }
 okio = { group = "com.squareup.okio", name = "okio", version.ref = "okio" }
 okio-fakefilesystem = { group = "com.squareup.okio", name = "okio-fakefilesystem", version.ref = "okio" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
@@ -158,6 +161,7 @@ sqldelight-primitiveAdapters = { group = "app.cash.sqldelight", name = "primitiv
 sqldelight-sqliteDriver = { group = "app.cash.sqldelight", name = "sqlite-driver", version.ref = "sqldelight" }
 testParameterInjector-junit4 = { group = "com.google.testparameterinjector", name = "test-parameter-injector", version.ref = "testParameterInjector" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+uuid = { group = "com.benasher44", name = "uuid", version.ref = "uuid" }
 wire-runtime = { group = "com.squareup.wire", name = "wire-runtime", version.ref = "wire" }
 
 [plugins]

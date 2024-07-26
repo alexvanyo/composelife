@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.navigation
 
 import androidx.compose.runtime.Stable
-import java.util.UUID
+import com.benasher44.uuid.Uuid
 
 /**
  * A navigation state for destinations of type [T].
@@ -33,12 +33,12 @@ interface NavigationState<T : NavigationEntry> {
      * A map of all entries, keyed by their [NavigationEntry.id]. This should contain all previous entries that may
      * be returned to at some point.
      */
-    val entryMap: Map<UUID, T>
+    val entryMap: Map<Uuid, T>
 
     /**
      * The id of the current entry. This acts a pointer into [entryMap].
      */
-    val currentEntryId: UUID
+    val currentEntryId: Uuid
 }
 
 /**

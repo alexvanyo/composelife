@@ -23,7 +23,8 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.autoSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import java.util.UUID
+import com.benasher44.uuid.Uuid
+import com.benasher44.uuid.uuid4
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -47,7 +48,7 @@ sealed interface SessionValueHolder<T> {
      */
     fun setValue(
         value: T,
-        valueId: UUID = UUID.randomUUID(),
+        valueId: Uuid = uuid4(),
     )
 }
 
@@ -63,7 +64,7 @@ sealed interface LocalSessionInfo {
         /**
          * The current local session id.
          */
-        val currentLocalSessionId: UUID,
+        val currentLocalSessionId: Uuid,
         /**
          * If true, then the upstream value has caught up to the local session value.
          */
@@ -72,7 +73,7 @@ sealed interface LocalSessionInfo {
          * The previous upstream session id. This was the session id that was replaced by this active
          * [currentLocalSessionId].
          */
-        val previousUpstreamSessionId: UUID,
+        val previousUpstreamSessionId: Uuid,
     ) : LocalSessionInfo
 
     /**
@@ -82,12 +83,12 @@ sealed interface LocalSessionInfo {
         /**
          * The current upstream session id.
          */
-        val currentUpstreamSessionId: UUID,
+        val currentUpstreamSessionId: Uuid,
         /**
          * [nextLocalSessionId] will be the local session id used when [SessionValueHolder.setValue] is next called
          * if the upstream does not change. This will be cycled whenever the upstream session changes id or value.
          */
-        val nextLocalSessionId: UUID,
+        val nextLocalSessionId: Uuid,
     ) : LocalSessionInfo
 }
 
@@ -97,7 +98,7 @@ sealed interface LocalSessionInfo {
  *
  * Use this as a key to fork an editing session off of a specific session and value.
  */
-val LocalSessionInfo.localSessionId: UUID get() =
+val LocalSessionInfo.localSessionId: Uuid get() =
     when (this) {
         is LocalSessionInfo.Active -> currentLocalSessionId
         is LocalSessionInfo.Inactive -> nextLocalSessionId
@@ -109,7 +110,7 @@ val LocalSessionInfo.localSessionId: UUID get() =
  *
  * Use this as a key for tracking a previous session.
  */
-val LocalSessionInfo.preLocalSessionId: UUID get() =
+val LocalSessionInfo.preLocalSessionId: Uuid get() =
     when (this) {
         is LocalSessionInfo.Active -> previousUpstreamSessionId
         is LocalSessionInfo.Inactive -> currentUpstreamSessionId
@@ -128,17 +129,17 @@ fun LocalSessionInfo.isLocalSessionActive(): Boolean {
 }
 
 private class SessionValueHolderImpl<T>(
-    initialPreviousUpstreamSessionId: UUID,
+    initialPreviousUpstreamSessionId: Uuid,
     initialUpstreamSessionValue: SessionValue<T>,
     initialSetUpstreamSessionValue: (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
-    initialLocalSessionId: UUID,
+    initialLocalSessionId: Uuid,
     initialLocalSessionValue: SessionValue<T>?,
 ) : SessionValueHolder<T> {
     var previousUpstreamSessionId by mutableStateOf(initialPreviousUpstreamSessionId)
 
     var upstreamSessionValue by mutableStateOf(initialUpstreamSessionValue)
 
-    var localSessionId: UUID by mutableStateOf(initialLocalSessionId)
+    var localSessionId: Uuid by mutableStateOf(initialLocalSessionId)
 
     var localSessionValue: SessionValue<T>? by mutableStateOf(initialLocalSessionValue)
 
@@ -168,7 +169,7 @@ private class SessionValueHolderImpl<T>(
 
     override fun setValue(
         value: T,
-        valueId: UUID,
+        valueId: Uuid,
     ) {
         val expected = sessionValue
         localSessionValue = SessionValue(
@@ -198,12 +199,12 @@ private class SessionValueHolderImpl<T>(
         if (currentLocalSessionValue == null) {
             // The upstream session has changed. Cycle the local session, to indicate that any derived local state
             // should update.
-            localSessionId = UUID.randomUUID()
+            localSessionId = uuid4()
         } else {
             if (sessionValue.sessionId != currentLocalSessionValue.sessionId) {
                 // The upstream session has become something different than the local session and the session value
                 // before our local session. Clear the local session, to revert back to the new upstream session.
-                localSessionId = UUID.randomUUID()
+                localSessionId = uuid4()
                 localSessionValue = null
             }
         }
@@ -294,7 +295,7 @@ fun <T> rememberSessionValueHolder(
         SessionValueHolderImpl(
             initialUpstreamSessionValue = upstreamSessionValue,
             initialSetUpstreamSessionValue = setUpstreamSessionValue,
-            initialLocalSessionId = UUID.randomUUID(),
+            initialLocalSessionId = uuid4(),
             initialLocalSessionValue = null,
             initialPreviousUpstreamSessionId = upstreamSessionValue.sessionId,
         )
