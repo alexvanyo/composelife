@@ -19,6 +19,7 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
+    alias(libs.plugins.convention.dependencyGuard)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
     alias(libs.plugins.gradleDependenciesSorter)
@@ -79,4 +80,8 @@ compose.desktop {
             }
         }
     }
+}
+
+dependencyGuard {
+    configuration("desktopRuntimeClasspath")
 }

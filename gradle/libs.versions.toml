@@ -26,6 +26,7 @@ androidxWearWatchface = "1.3.0-alpha03"
 androidxWindow = "1.3.0"
 apiGuardian = "1.1.2"
 circuit = "0.22.2"
+dependencyGuard = "0.5.0"
 detekt = "1.23.6"
 googleAutoValue = "1.11.0"
 gradleDependenciesSorter = "0.7"
@@ -109,6 +110,7 @@ androidx-wear-watchface-style = { group = "androidx.wear.watchface", name = "wat
 androidx-window = { group = "androidx.window", name = "window", version.ref = "androidxWindow" }
 apiGuardian-api = { group = "org.apiguardian", name = "apiguardian-api", version.ref = "apiGuardian" }
 circuit-retained = { group = "com.slack.circuit", name = "circuit-retained", version.ref = "circuit" }
+dependencyGuard-gradlePlugin = { group = "com.dropbox.dependency-guard", name = "dependency-guard", version.ref = "dependencyGuard" }
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
 detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
 google-autoValue-annotations = { group = "com.google.auto.value", name = "auto-value-annotations", version.ref = "googleAutoValue" }
@@ -177,6 +179,7 @@ convention-androidLibraryKsp = { id = "com.alexvanyo.composelife.androidLibraryK
 convention-androidLibraryRoborazzi = { id = "com.alexvanyo.composelife.androidLibraryRoborazzi", version = "unspecified" }
 convention-androidLibraryTesting = { id = "com.alexvanyo.composelife.androidLibraryTesting", version = "unspecified" }
 convention-androidTest = { id = "com.alexvanyo.composelife.androidTest", version = "unspecified" }
+convention-dependencyGuard = { id = "com.alexvanyo.composelife.dependencyGuard", version = "unspecified" }
 convention-detekt = { id = "com.alexvanyo.composelife.detekt", version = "unspecified" }
 convention-kotlinMultiplatform = { id = "com.alexvanyo.composelife.kotlinMultiplatform", version = "unspecified" }
 convention-kotlinMultiplatformCompose = { id = "com.alexvanyo.composelife.kotlinMultiplatformCompose", version = "unspecified" }
