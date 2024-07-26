@@ -23,7 +23,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.test.BaseUiInjectTest2
+import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
@@ -31,7 +31,7 @@ import com.alexvanyo.composelife.ui.app.createComponent
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-class GameOfLifeProgressIndicatorTests : BaseUiInjectTest2<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
+class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {

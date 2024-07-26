@@ -39,13 +39,13 @@ import org.junit.runner.RunWith
 import kotlin.coroutines.CoroutineContext
 
 /**
- * A base class for testing components that depend on injected classes.
+ * A base class for testing an [ComponentActivity] that depends on injected classes.
  *
  * Subclasses must call [runAppTest] instead of [runTest] to properly initialize dependencies.
  */
 @Suppress("UnnecessaryAbstractClass")
 @RunWith(KmpAndroidJUnit4::class)
-abstract class BaseUiInjectTest<T, A>(
+abstract class BaseActivityInjectTest<T, A>(
     applicationComponentCreator: () -> T,
     clazz: Class<A>,
 ) : BaseInjectTest<T>(applicationComponentCreator)
@@ -64,7 +64,7 @@ abstract class BaseUiInjectTest<T, A>(
 }
 
 @OptIn(ExperimentalTestApi::class)
-actual fun <T, U> BaseUiInjectTest2<T, U>.runUiTest(
+actual fun <T, U> BaseUiInjectTest<T, U>.runUiTest(
     appTestContext: CoroutineContext,
     testBody: suspend context(ComposeUiTest, TestScope) UiTestScope<T, U>.() -> Unit,
 ): TestResult where T : ApplicationComponent<*>, T : UpdatableModule, U : UiComponent<T, *> =

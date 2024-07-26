@@ -28,7 +28,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlin.coroutines.CoroutineContext
 
 @OptIn(ExperimentalTestApi::class)
-actual fun <T, U> BaseUiInjectTest2<T, U>.runUiTest(
+actual fun <T, U> BaseUiInjectTest<T, U>.runUiTest(
     appTestContext: CoroutineContext,
     testBody: suspend context(ComposeUiTest, TestScope) UiTestScope<T, U>.() -> Unit,
 ): TestResult where T : ApplicationComponent<*>, T : UpdatableModule, U : UiComponent<T, *> =
