@@ -59,7 +59,7 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.test.BaseUiInjectTest2
+import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.cells.rememberMutableCellWindowViewportState
 import com.alexvanyo.composelife.ui.app.resources.ApplyPaste
@@ -88,7 +88,7 @@ import kotlin.test.assertNotNull
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class InteractiveCellUniverseTests : BaseUiInjectTest2<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
+class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {
