@@ -24,6 +24,8 @@ import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 abstract class BaseUiInjectTest2<T, U>(
     applicationComponentCreator: () -> T,
@@ -33,6 +35,7 @@ abstract class BaseUiInjectTest2<T, U>(
 
 @OptIn(ExperimentalTestApi::class)
 expect fun <T, U> BaseUiInjectTest2<T, U>.runUiTest(
+    appTestContext: CoroutineContext = EmptyCoroutineContext,
     testBody: suspend context(ComposeUiTest, TestScope) UiTestScope<T, U>.() -> Unit,
 ): TestResult where T : ApplicationComponent<*>, T : UpdatableModule, U : UiComponent<T, *>
 

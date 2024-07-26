@@ -36,6 +36,7 @@ import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Rule
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
+import kotlin.coroutines.CoroutineContext
 
 /**
  * A base class for testing components that depend on injected classes.
@@ -64,6 +65,7 @@ abstract class BaseUiInjectTest<T, A>(
 
 @OptIn(ExperimentalTestApi::class)
 actual fun <T, U> BaseUiInjectTest2<T, U>.runUiTest(
+    appTestContext: CoroutineContext,
     testBody: suspend context(ComposeUiTest, TestScope) UiTestScope<T, U>.() -> Unit,
 ): TestResult where T : ApplicationComponent<*>, T : UpdatableModule, U : UiComponent<T, *> =
     runAndroidComposeUiTest<ComponentActivity> {
@@ -74,7 +76,7 @@ actual fun <T, U> BaseUiInjectTest2<T, U>.runUiTest(
             },
         )
 
-        runAppTest {
+        runAppTest(appTestContext) {
             testBody(
                 this,
                 object : UiTestScope<T, U> {
