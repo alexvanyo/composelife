@@ -25,6 +25,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsActions.ScrollToIndex
+import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.click
@@ -54,29 +55,42 @@ import com.alexvanyo.composelife.geometry.toRingIndex
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
-import com.alexvanyo.composelife.test.InjectTestActivity
+import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.cells.rememberMutableCellWindowViewportState
+import com.alexvanyo.composelife.ui.app.resources.ApplyPaste
+import com.alexvanyo.composelife.ui.app.resources.Collapse
+import com.alexvanyo.composelife.ui.app.resources.Copy
+import com.alexvanyo.composelife.ui.app.resources.Expand
+import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepLabel
+import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepLabelAndValue
+import com.alexvanyo.composelife.ui.app.resources.InteractableCellContentDescription
+import com.alexvanyo.composelife.ui.app.resources.Pause
+import com.alexvanyo.composelife.ui.app.resources.Play
+import com.alexvanyo.composelife.ui.app.resources.Step
+import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondLabelAndValue
 import com.alexvanyo.composelife.ui.util.ClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.rememberFakeClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.setText
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
-import leakcanary.SkipLeakDetection
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @Suppress("LargeClass")
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, InjectTestActivity>(
-    { TestComposeLifeApplicationComponent.createComponent() },
-    InjectTestActivity::class.java,
+class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
+    TestComposeLifeApplicationComponent::createComponent,
+    TestComposeLifeUiComponent::createComponent,
 ) {
     private val generalTestDispatcher get() = applicationComponent.generalTestDispatcher
 
@@ -86,17 +100,18 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
 
     private val dispatchers get() = applicationComponent.dispatchers
 
-    private val interactiveCellUniverseInjectEntryPoint get() =
-        composeTestRule.activity.uiComponent.entryPoint as InteractiveCellUniverseInjectEntryPoint
-
     private val interactiveCellUniverseLocalEntryPoint = object : InteractiveCellUniverseLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults
     }
 
-    @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun info_card_closes_upon_back_press() = runAppTest(generalTestDispatcher) {
-        composeTestRule.setContent {
+    fun info_card_closes_upon_back_press() = runUiTest(generalTestDispatcher) {
+        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
+
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 isRunning = false,
                 targetStepsPerSecond = 60.0,
@@ -127,27 +142,29 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             }
         }
 
-        composeTestRule
-            .onNode(
-                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(R.string.expand)),
-            )
+        onNode(
+            hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                hasContentDescription(resolver.invoke(Strings.Expand)),
+        )
             .performClick()
 
         advanceUntilIdle()
-        composeTestRule.waitForIdle()
+        waitForIdle()
 
         Espresso.pressBack()
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.collapse))
+        onNodeWithContentDescription(resolver.invoke(Strings.Collapse))
             .assertDoesNotExist()
     }
 
-    @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun action_card_closes_upon_back_press() = runAppTest(generalTestDispatcher) {
-        composeTestRule.setContent {
+    fun action_card_closes_upon_back_press() = runUiTest(generalTestDispatcher) {
+        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
+
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 isRunning = false,
                 targetStepsPerSecond = 60.0,
@@ -178,27 +195,29 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             }
         }
 
-        composeTestRule
-            .onNode(
-                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(R.string.expand)),
-            )
+        onNode(
+            hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                hasContentDescription(resolver.invoke(Strings.Expand)),
+        )
             .performClick()
 
         advanceUntilIdle()
-        composeTestRule.waitForIdle()
+        waitForIdle()
 
         Espresso.pressBack()
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.collapse))
+        onNodeWithContentDescription(resolver.invoke(Strings.Collapse))
             .assertDoesNotExist()
     }
 
-    @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun six_long_line_evolves_correctly() = runAppTest(generalTestDispatcher) {
-        composeTestRule.setContent {
+    fun six_long_line_evolves_correctly() = runUiTest(generalTestDispatcher) {
+        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
+
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 60.0,
             )
@@ -228,41 +247,41 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             }
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.pause))
+        onNodeWithContentDescription(resolver.invoke(Strings.Pause))
             .performClick()
 
         SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
             scrollToCell(cell)
 
-            composeTestRule
-                .onNodeWithContentDescription(
-                    context.getString(R.string.cell_content_description, cell.x, cell.y),
-                )
+            onNodeWithContentDescription(
+                resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+            )
                 .performTouchInput { click(topLeft) }
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.play))
+        onNodeWithContentDescription(resolver.invoke(Strings.Play))
             .performClick()
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
             advanceUntilIdle()
-            composeTestRule.waitForIdle()
+            waitForIdle()
             cellTickerTestDispatcher.scheduler.advanceTimeBy(17)
             cellTickerTestDispatcher.scheduler.runCurrent()
             advanceUntilIdle()
-            composeTestRule.waitForIdle()
+            waitForIdle()
 
-            assertNodesAreAlive(expectedCellState.aliveCells)
+            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
-    @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun six_long_line_evolves_correctly_with_spacebar() = runAppTest(generalTestDispatcher) {
-        composeTestRule.setContent {
+    fun six_long_line_evolves_correctly_with_spacebar() = runUiTest(generalTestDispatcher) {
+        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
+
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 60.0,
             )
@@ -292,8 +311,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             }
         }
 
-        composeTestRule
-            .onRoot()
+        onRoot()
             .performKeyInput {
                 pressKey(Key.Spacebar)
             }
@@ -301,35 +319,37 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
         SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
             scrollToCell(cell)
 
-            composeTestRule
-                .onNodeWithContentDescription(
-                    context.getString(R.string.cell_content_description, cell.x, cell.y),
-                )
+            onNodeWithContentDescription(
+                resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+            )
                 .performTouchInput { click(topLeft) }
         }
 
-        composeTestRule
-            .onRoot()
+        onRoot()
             .performKeyInput {
                 pressKey(Key.Spacebar)
             }
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
             advanceUntilIdle()
-            composeTestRule.waitForIdle()
+            waitForIdle()
             cellTickerTestDispatcher.scheduler.advanceTimeBy(17)
             cellTickerTestDispatcher.scheduler.runCurrent()
             advanceUntilIdle()
-            composeTestRule.waitForIdle()
+            waitForIdle()
 
-            assertNodesAreAlive(expectedCellState.aliveCells)
+            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
         }
     }
 
-    @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun six_long_line_evolves_correctly_after_slowing_down() = runAppTest(generalTestDispatcher) {
-        composeTestRule.setContent {
+    fun six_long_line_evolves_correctly_after_slowing_down() = runUiTest(generalTestDispatcher) {
+        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
+
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 60.0,
             )
@@ -359,58 +379,56 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             }
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.pause))
+        onNodeWithContentDescription(resolver.invoke(Strings.Pause))
             .performClick()
 
         SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
             scrollToCell(cell)
 
-            composeTestRule
-                .onNodeWithContentDescription(
-                    context.getString(R.string.cell_content_description, cell.x, cell.y),
-                )
+            onNodeWithContentDescription(
+                resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+            )
                 .performTouchInput { click(topLeft) }
         }
 
-        composeTestRule
-            .onNode(
-                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(R.string.expand)),
-            )
+        onNode(
+            hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                hasContentDescription(resolver.invoke(Strings.Expand)),
+        )
             .performClick()
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.target_steps_per_second_label_and_value, 60.0))
+        onNodeWithContentDescription(resolver.invoke(Strings.TargetStepsPerSecondLabelAndValue(60.0)))
             .performSemanticsAction(SemanticsActions.SetProgress) { it(0f) }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.play))
+        onNodeWithContentDescription(resolver.invoke(Strings.Play))
             .performClick()
 
-        composeTestRule
-            .onNode(
-                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(R.string.collapse)),
-            )
+        onNode(
+            hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                hasContentDescription(resolver.invoke(Strings.Collapse)),
+        )
             .performClick()
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
             advanceUntilIdle()
-            composeTestRule.waitForIdle()
+            waitForIdle()
             cellTickerTestDispatcher.scheduler.advanceTimeBy(1000)
             cellTickerTestDispatcher.scheduler.runCurrent()
             advanceUntilIdle()
-            composeTestRule.waitForIdle()
+            waitForIdle()
 
-            assertNodesAreAlive(expectedCellState.aliveCells)
+            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
         }
     }
 
-    @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun six_long_line_evolves_correctly_with_step() = runAppTest(generalTestDispatcher) {
-        composeTestRule.setContent {
+    fun six_long_line_evolves_correctly_with_step() = runUiTest(generalTestDispatcher) {
+        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
+
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 0.001,
             )
@@ -440,36 +458,37 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             }
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.pause))
+        onNodeWithContentDescription(resolver.invoke(Strings.Pause))
             .performClick()
 
         SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
             scrollToCell(cell)
 
-            composeTestRule
-                .onNodeWithContentDescription(
-                    context.getString(R.string.cell_content_description, cell.x, cell.y),
-                )
+            onNodeWithContentDescription(
+                resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+            )
                 .performTouchInput { click(topLeft) }
         }
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
-            composeTestRule
-                .onNodeWithContentDescription(context.getString(R.string.step))
+            onNodeWithContentDescription(resolver.invoke(Strings.Step))
                 .performClick()
 
             advanceUntilIdle()
-            composeTestRule.waitForIdle()
+            waitForIdle()
 
-            assertNodesAreAlive(expectedCellState.aliveCells)
+            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
         }
     }
 
-    @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun six_long_line_evolves_correctly_with_double_step_via_slider() = runAppTest(generalTestDispatcher) {
-        composeTestRule.setContent {
+    fun six_long_line_evolves_correctly_with_double_step_via_slider() = runUiTest(generalTestDispatcher) {
+        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
+
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 0.001,
             )
@@ -499,54 +518,52 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             }
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.pause))
+        onNodeWithContentDescription(resolver.invoke(Strings.Pause))
             .performClick()
 
         SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
             scrollToCell(cell)
 
-            composeTestRule
-                .onNodeWithContentDescription(
-                    context.getString(R.string.cell_content_description, cell.x, cell.y),
-                )
+            onNodeWithContentDescription(
+                resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+            )
                 .performTouchInput { click(topLeft) }
         }
 
-        composeTestRule
-            .onNode(
-                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(R.string.expand)),
-            )
+        onNode(
+            hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                hasContentDescription(resolver.invoke(Strings.Expand)),
+        )
             .performClick()
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.generations_per_step_label_and_value, 1))
+        onNodeWithContentDescription(resolver.invoke(Strings.GenerationsPerStepLabelAndValue(1)))
             .performSemanticsAction(SemanticsActions.SetProgress) { it(1f) }
 
-        composeTestRule
-            .onNode(
-                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(R.string.collapse)),
-            )
+        onNode(
+            hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                hasContentDescription(resolver.invoke(Strings.Collapse)),
+        )
             .performClick()
 
         SixLongLinePattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 }.forEach { expectedCellState ->
-            composeTestRule
-                .onNodeWithContentDescription(context.getString(R.string.step))
+            onNodeWithContentDescription(resolver.invoke(Strings.Step))
                 .performClick()
 
             advanceUntilIdle()
-            composeTestRule.waitForIdle()
+            waitForIdle()
 
-            assertNodesAreAlive(expectedCellState.aliveCells)
+            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
         }
     }
 
-    @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun six_long_line_evolves_correctly_with_double_step_via_text() = runAppTest(generalTestDispatcher) {
-        composeTestRule.setContent {
+    fun six_long_line_evolves_correctly_with_double_step_via_text() = runUiTest(generalTestDispatcher) {
+        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
+
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 0.001,
             )
@@ -576,66 +593,61 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             }
         }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.pause))
+        onNodeWithContentDescription(resolver.invoke(Strings.Pause))
             .performClick()
 
         SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
             scrollToCell(cell)
 
-            composeTestRule
-                .onNodeWithContentDescription(
-                    context.getString(R.string.cell_content_description, cell.x, cell.y),
-                )
+            onNodeWithContentDescription(
+                resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+            )
                 .performTouchInput { click(topLeft) }
         }
 
-        composeTestRule
-            .onNode(
-                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(R.string.expand)),
-            )
+        onNode(
+            hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                hasContentDescription(resolver.invoke(Strings.Expand)),
+        )
             .performClick()
 
-        composeTestRule
-            .onNode(
-                hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                    hasText(context.getString(R.string.generations_per_step_label)),
-            )
+        onNode(
+            hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                hasText(resolver.invoke(Strings.GenerationsPerStepLabel)),
+        )
             .performTextReplacement("2")
-        composeTestRule
-            .onNode(
-                hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                    hasText(context.getString(R.string.generations_per_step_label)),
-            )
+        onNode(
+            hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                hasText(resolver.invoke(Strings.GenerationsPerStepLabel)),
+        )
             .performImeAction()
 
-        composeTestRule
-            .onNode(
-                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(R.string.collapse)),
-            )
+        onNode(
+            hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                hasContentDescription(resolver.invoke(Strings.Collapse)),
+        )
             .performClick()
 
         SixLongLinePattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 }.forEach { expectedCellState ->
-            composeTestRule
-                .onNodeWithContentDescription(context.getString(R.string.step))
+            onNodeWithContentDescription(resolver.invoke(Strings.Step))
                 .performClick()
 
             advanceUntilIdle()
-            composeTestRule.waitForIdle()
+            waitForIdle()
 
-            assertNodesAreAlive(expectedCellState.aliveCells)
+            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
-    @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun glider_is_copied_correctly_with_keyboard_shortcuts() = runAppTest(generalTestDispatcher) {
-        lateinit var clipboardReaderWriter: ClipboardReaderWriter
+    fun glider_is_copied_correctly_with_keyboard_shortcuts() = runUiTest(generalTestDispatcher) {
+        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
-        composeTestRule.setContent {
+        lateinit var clipboardReaderWriter: ClipboardReaderWriter
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 60.0,
             )
@@ -673,8 +685,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             }
         }
 
-        composeTestRule
-            .onRoot()
+        onRoot()
             .performKeyInput {
                 pressKey(Key.Spacebar)
             }
@@ -688,23 +699,20 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
         ).forEach { cell ->
             scrollToCell(cell)
 
-            composeTestRule
-                .onNodeWithContentDescription(
-                    context.getString(R.string.cell_content_description, cell.x, cell.y),
-                )
+            onNodeWithContentDescription(
+                resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+            )
                 .performTouchInput { click(topLeft) }
         }
 
-        composeTestRule
-            .onRoot()
+        onRoot()
             .performKeyInput {
                 keyDown(Key.CtrlLeft)
                 pressKey(Key.A)
                 keyUp(Key.CtrlLeft)
             }
 
-        composeTestRule
-            .onRoot()
+        onRoot()
             .performKeyInput {
                 keyDown(Key.CtrlLeft)
                 keyDown(Key.C)
@@ -721,19 +729,21 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             clipData.getItemAt(0).text,
         )
 
-        composeTestRule
-            .onRoot()
+        onRoot()
             .performKeyInput {
                 keyUp(Key.CtrlLeft)
                 keyUp(Key.C)
             }
     }
 
-    @OptIn(ExperimentalTestApi::class)
-    @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun selection_is_cleared_correctly_with_keyboard_shortcuts() = runAppTest(generalTestDispatcher) {
-        composeTestRule.setContent {
+    fun selection_is_cleared_correctly_with_keyboard_shortcuts() = runUiTest(generalTestDispatcher) {
+        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
+
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 60.0,
             )
@@ -763,8 +773,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             }
         }
 
-        composeTestRule
-            .onRoot()
+        onRoot()
             .performKeyInput {
                 pressKey(Key.Spacebar)
             }
@@ -778,43 +787,40 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
         ).forEach { cell ->
             scrollToCell(cell)
 
-            composeTestRule
-                .onNodeWithContentDescription(
-                    context.getString(R.string.cell_content_description, cell.x, cell.y),
-                )
+            onNodeWithContentDescription(
+                resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+            )
                 .performTouchInput { click(topLeft) }
         }
 
-        composeTestRule
-            .onRoot()
+        onRoot()
             .performKeyInput {
                 keyDown(Key.CtrlLeft)
                 pressKey(Key.A)
                 keyUp(Key.CtrlLeft)
             }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.copy))
+        onNodeWithContentDescription(resolver.invoke(Strings.Copy))
             .assertExists()
 
-        composeTestRule
-            .onRoot()
+        onRoot()
             .performKeyInput {
                 pressKey(Key.Escape)
             }
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.copy))
+        onNodeWithContentDescription(resolver.invoke(Strings.Copy))
             .assertDoesNotExist()
     }
 
-    @OptIn(ExperimentalTestApi::class)
-    @SkipLeakDetection("appliedChanges", "Outer")
     @Test
-    fun glider_is_pasted_correctly_with_keyboard_shortcuts() = runAppTest(generalTestDispatcher) {
-        lateinit var clipboardReaderWriter: ClipboardReaderWriter
+    fun glider_is_pasted_correctly_with_keyboard_shortcuts() = runUiTest(generalTestDispatcher) {
+        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
-        composeTestRule.setContent {
+        lateinit var clipboardReaderWriter: ClipboardReaderWriter
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 60.0,
             )
@@ -855,8 +861,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             }
         }
 
-        composeTestRule
-            .onRoot()
+        onRoot()
             .performKeyInput {
                 pressKey(Key.Spacebar)
             }
@@ -869,8 +874,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             """.trimIndent(),
         )
 
-        composeTestRule
-            .onRoot()
+        onRoot()
             .performKeyInput {
                 keyDown(Key.CtrlLeft)
                 pressKey(Key.V)
@@ -878,14 +882,14 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             }
 
         advanceUntilIdle()
-        composeTestRule.waitForIdle()
+        waitForIdle()
 
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.apply_paste))
+        onNodeWithContentDescription(resolver.invoke(Strings.ApplyPaste))
             .performClick()
 
         assertNodesAreAlive(
-            setOf(
+            resolver = resolver,
+            cells = setOf(
                 IntOffset(31, -19),
                 IntOffset(32, -18),
                 IntOffset(30, -17),
@@ -894,31 +898,32 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             ),
         )
     }
+}
 
-    private fun assertNodesAreAlive(cells: Set<IntOffset>) {
-        cells.forEach { cell ->
-            if (composeTestRule.onAllNodesWithContentDescription(
-                    context.getString(R.string.cell_content_description, cell.x, cell.y),
-                ).fetchSemanticsNodes().isEmpty()
-            ) {
-                scrollToCell(cell)
-            }
-
-            composeTestRule
-                .onNodeWithContentDescription(
-                    context.getString(R.string.cell_content_description, cell.x, cell.y),
-                )
-                .assertIsOn()
+@OptIn(ExperimentalTestApi::class)
+private fun ComposeUiTest.assertNodesAreAlive(resolver: (ParameterizedString) -> String, cells: Set<IntOffset>) {
+    cells.forEach { cell ->
+        if (
+            onAllNodesWithContentDescription(
+                resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+            ).fetchSemanticsNodes().isEmpty()
+        ) {
+            scrollToCell(cell)
         }
-    }
 
-    private fun scrollToCell(cell: IntOffset) {
-        composeTestRule
-            .onNodeWithTag("MutableCellWindow")
-            .onChild()
-            .fetchSemanticsNode()
-            .config[ScrollToIndex]
-            .action
-            ?.invoke(cell.toRingIndex())
+        onNodeWithContentDescription(
+            resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+        )
+            .assertIsOn()
     }
+}
+
+@OptIn(ExperimentalTestApi::class)
+private fun ComposeUiTest.scrollToCell(cell: IntOffset) {
+    onNodeWithTag("MutableCellWindow")
+        .onChild()
+        .fetchSemanticsNode()
+        .config[ScrollToIndex]
+        .action
+        ?.invoke(cell.toRingIndex())
 }

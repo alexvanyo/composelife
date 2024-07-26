@@ -24,7 +24,7 @@ import kotlin.test.assertIs
 
 @RunWith(KmpAndroidJUnit4::class)
 class ComposeLifeDatabaseTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
-    { TestComposeLifeApplicationComponent.createComponent() },
+    TestComposeLifeApplicationComponent::createComponent,
 ) {
     private val composeLifeDatabase get() = applicationComponent.composeLifeDatabase
 

@@ -17,27 +17,10 @@
 
 package com.alexvanyo.composelife.ui.app
 
-import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
-import me.tatarka.inject.annotations.Component
-
-@Component
-@Suppress("UnnecessaryAbstractClass")
-actual abstract class TestComposeLifeUiComponent(
-    @Component override val applicationComponent: TestComposeLifeApplicationComponent,
-) : UiComponent<TestComposeLifeApplicationComponent, TestComposeLifeUiEntryPoint>(applicationComponent),
-    ClipboardCellStateParserProvider {
-    actual override val entryPoint: TestComposeLifeUiEntryPoint get() =
-        object :
-            TestComposeLifeUiEntryPoint,
-            TestComposeLifeApplicationEntryPoint by applicationComponent.entryPoint,
-            ClipboardCellStateParserProvider by this {}
-
-    actual companion object
-}
 
 actual fun TestComposeLifeUiComponent.Companion.createComponent(
     applicationComponent: TestComposeLifeApplicationComponent,
     uiComponentArguments: UiComponentArguments,
 ): TestComposeLifeUiComponent =
-    TestComposeLifeUiComponent.create(applicationComponent)
+    TestComposeLifeUiComponent.create(applicationComponent, uiComponentArguments.activity)

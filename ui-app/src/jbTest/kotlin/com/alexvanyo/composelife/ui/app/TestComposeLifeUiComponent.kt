@@ -17,6 +17,17 @@
 package com.alexvanyo.composelife.ui.app
 
 import com.alexvanyo.composelife.scopes.UiComponent
+import com.alexvanyo.composelife.scopes.UiComponentArguments
+import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.AlgorithmImplementationUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.CellShapeConfigUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.DarkThemeConfigUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.DisableAGSLUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.DisableOpenGLUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsDetailPaneInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.action.settings.SettingUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 
 expect abstract class TestComposeLifeUiComponent :
     UiComponent<TestComposeLifeApplicationComponent, TestComposeLifeUiEntryPoint> {
@@ -26,4 +37,23 @@ expect abstract class TestComposeLifeUiComponent :
     companion object
 }
 
-expect interface TestComposeLifeUiEntryPoint : TestComposeLifeApplicationEntryPoint
+interface TestComposeLifeUiEntryPoint :
+    TestComposeLifeApplicationEntryPoint,
+    AlgorithmImplementationUiInjectEntryPoint,
+    CellShapeConfigUiInjectEntryPoint,
+    CellUniverseActionCardInjectEntryPoint,
+    ComposeLifeAppInjectEntryPoint,
+    DarkThemeConfigUiInjectEntryPoint,
+    DisableAGSLUiInjectEntryPoint,
+    DisableOpenGLUiInjectEntryPoint,
+    FullscreenSettingsDetailPaneInjectEntryPoint,
+    GameOfLifeProgressIndicatorInjectEntryPoint,
+    InlineSettingsPaneInjectEntryPoint,
+    InteractiveCellUniverseInjectEntryPoint,
+    InteractiveCellUniverseOverlayInjectEntryPoint,
+    SettingUiInjectEntryPoint
+
+expect fun TestComposeLifeUiComponent.Companion.createComponent(
+    applicationComponent: TestComposeLifeApplicationComponent,
+    uiComponentArguments: UiComponentArguments,
+): TestComposeLifeUiComponent
