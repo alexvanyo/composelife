@@ -22,6 +22,7 @@ plugins {
     alias(libs.plugins.convention.androidApplication)
     alias(libs.plugins.convention.androidApplicationCompose)
     alias(libs.plugins.convention.androidApplicationKsp)
+    alias(libs.plugins.convention.dependencyGuard)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
 }
@@ -76,4 +77,8 @@ kotlin {
             }
         }
     }
+}
+
+dependencyGuard {
+    configuration("releaseRuntimeClasspath")
 }
