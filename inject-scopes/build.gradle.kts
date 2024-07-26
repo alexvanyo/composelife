@@ -38,5 +38,14 @@ kotlin {
                 implementation(libs.kotlinInject.runtime)
             }
         }
+        val jbMain by creating {
+            dependsOn(commonMain)
+        }
+        val desktopMain by getting {
+            dependsOn(jbMain)
+        }
+        val androidMain by getting {
+            dependsOn(jbMain)
+        }
     }
 }

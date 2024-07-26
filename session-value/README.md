@@ -442,14 +442,14 @@ both of which are bundled with the value into a `SessionValue`:
 
 ```kotlin
 data class SessionValue<out T>(
-    val sessionId: UUID,
-    val valueId: UUID,
+    val sessionId: Uuid,
+    val valueId: Uuid,
     val value: T,
 )
 ```
 
 The `sessionId` uniquely identifies the session that was used to update the value.
-A session can be an ongoing set of updates, or a one-shot update with a UUID that won't be used
+A session can be an ongoing set of updates, or a one-shot update with a Uuid that won't be used
 again.
 
 The `valueId` uniquely identifies a specific update of `value` within a session.
@@ -474,7 +474,7 @@ sealed interface SessionValueHolder<T> {
 
     fun setValue(
         value: T,
-        valueId: UUID = UUID.randomUUID(),
+        valueId: Uuid = uuid4(),
     )
 }
 
@@ -489,7 +489,7 @@ fun <T> rememberSessionValueHolder(
 The general flow for updating this value is:
 
 - The asynchronous value contains the current value, and the id for the previous session.
-  For the initial value, a random UUID can be used to represent a one-shot "session" that
+  For the initial value, a random Uuid can be used to represent a one-shot "session" that
   initialized the value.
 - UI that could update the session initializes itself to the asynchronous value, and prepares
   itself to update the value if the user starts changing the value.

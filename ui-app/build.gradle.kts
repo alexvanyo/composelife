@@ -16,6 +16,10 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import com.alexvanyo.composelife.buildlogic.jvmMolecule
+import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
+import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
+import java.io.Serializable
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -41,21 +45,17 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    jvmMolecule(this)
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.material3.windowSizeClass.multiplatform)
                 api(projects.algorithm)
                 api(projects.clock)
                 api(projects.data)
                 api(projects.dispatchers)
                 api(projects.random)
 
-                implementation(libs.jetbrains.compose.material3)
-                implementation(libs.jetbrains.compose.materialIconsExtended)
-                implementation(libs.jetbrains.compose.ui)
-                implementation(libs.jetbrains.compose.uiUtil)
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.collections.immutable)
                 implementation(libs.kotlinx.coroutines.core)
@@ -73,7 +73,27 @@ kotlin {
                 implementation(projects.uiToolingPreview)
             }
         }
+        val jvmMain by creating {
+            dependsOn(commonMain)
+        }
+        val moleculeMain by getting {
+            dependsOn(jvmMain)
+            configurations["kspMolecule"].dependencies.add(libs.sealedEnum.ksp.get())
+        }
+        val jbMain by creating {
+            dependsOn(jvmMain)
+            dependencies {
+                api(libs.material3.windowSizeClass.multiplatform)
+
+                implementation(libs.jetbrains.compose.material3)
+                implementation(libs.jetbrains.compose.materialIconsExtended)
+                implementation(libs.jetbrains.compose.ui)
+                implementation(libs.jetbrains.compose.uiGeometry)
+                implementation(libs.jetbrains.compose.uiUtil)
+            }
+        }
         val desktopMain by getting {
+            dependsOn(jbMain)
             configurations["kspDesktop"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
@@ -81,6 +101,7 @@ kotlin {
             }
         }
         val androidMain by getting {
+            dependsOn(jbMain)
             configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
@@ -114,7 +135,21 @@ kotlin {
                 implementation(projects.testActivity)
             }
         }
+        val jvmTest by creating {
+            dependsOn(commonTest)
+        }
+        val jbTest by creating {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.jetbrains.compose.uiTestJunit4)
+            }
+        }
+        val desktopTest by getting {
+            dependsOn(jbTest)
+            configurations["kspDesktopTest"].dependencies.add(libs.kotlinInject.ksp.get())
+        }
         val androidSharedTest by getting {
+            dependsOn(jbTest)
             dependencies {
                 implementation(libs.androidx.compose.uiTestJunit4)
                 implementation(libs.androidx.test.core)
@@ -127,9 +162,6 @@ kotlin {
         }
         val androidInstrumentedTest by getting {
             configurations["kspAndroidAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
-        }
-        val desktopTest by getting {
-            configurations["kspDesktopTest"].dependencies.add(libs.kotlinInject.ksp.get())
         }
     }
 }

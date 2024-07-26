@@ -16,6 +16,9 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import com.alexvanyo.composelife.buildlogic.jvmMolecule
+import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
+import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -41,6 +44,7 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    jvmMolecule(this)
 
     sourceSets {
         val commonMain by getting {
@@ -52,18 +56,38 @@ kotlin {
                 api(projects.updatable)
 
                 implementation(libs.androidx.annotation)
-                implementation(libs.guava.android)
                 implementation(libs.jetbrains.compose.runtime)
-                implementation(libs.jetbrains.compose.ui)
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
-                implementation(libs.sealedEnum.runtime)
+                implementation(libs.uuid)
                 implementation(projects.injectScopes)
             }
         }
+        val jvmMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.guava.android)
+                implementation(libs.jetbrains.compose.uiUnit)
+                implementation(libs.sealedEnum.runtime)
+            }
+        }
+        val jvmNonAndroidMain by creating {
+            dependsOn(jvmMain)
+        }
+        val moleculeMain by getting {
+            dependsOn(jvmNonAndroidMain)
+            configurations["kspMolecule"].dependencies.add(libs.kotlinInject.ksp.get())
+            configurations["kspMolecule"].dependencies.add(libs.sealedEnum.ksp.get())
+        }
+        val desktopMain by getting {
+            dependsOn(jvmNonAndroidMain)
+            configurations["kspDesktop"].dependencies.add(libs.kotlinInject.ksp.get())
+            configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
+        }
         val androidMain by getting {
+            dependsOn(jvmMain)
             configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
@@ -71,14 +95,9 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.android)
             }
         }
-        val desktopMain by getting {
-            configurations["kspDesktop"].dependencies.add(libs.kotlinInject.ksp.get())
-            configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
-        }
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.testParameterInjector.junit4)
                 implementation(libs.turbine)
                 implementation(projects.dispatchersTest)
                 implementation(projects.kmpAndroidRunner)
@@ -86,7 +105,28 @@ kotlin {
                 implementation(projects.patterns)
             }
         }
+        val jvmTest by creating {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.molecule)
+                implementation(libs.testParameterInjector.junit4)
+            }
+        }
+        val moleculeTest by getting {
+            dependsOn(jvmTest)
+        }
+        val jbTest by creating {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.jetbrains.compose.foundation)
+                implementation(libs.jetbrains.compose.uiTestJunit4)
+            }
+        }
+        val desktopTest by getting {
+            dependsOn(jbTest)
+        }
         val androidSharedTest by getting {
+            dependsOn(jbTest)
             dependencies {
                 implementation(libs.androidx.compose.uiTestJunit4)
                 implementation(libs.androidx.test.core)

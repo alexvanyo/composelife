@@ -51,9 +51,9 @@ import com.alexvanyo.composelife.ui.app.resources.Paste
 import com.alexvanyo.composelife.ui.app.resources.Pin
 import com.alexvanyo.composelife.ui.app.resources.Select
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.benasher44.uuid.uuid4
 import leakcanary.SkipLeakDetection
 import org.junit.runner.RunWith
-import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -127,7 +127,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                 val clipboardPreviewStates = remember {
                     listOf(
                         object : ClipboardPreviewState {
-                            override val id = UUID.randomUUID()
+                            override val id = uuid4()
                             override val deserializationResult = DeserializationResult.Successful(
                                 warnings = emptyList(),
                                 cellState = GliderPattern.seedCellState,
@@ -201,7 +201,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                 val clipboardPreviewStates = remember {
                     listOf(
                         object : ClipboardPreviewState {
-                            override val id = UUID.randomUUID()
+                            override val id = uuid4()
                             override val deserializationResult = DeserializationResult.Successful(
                                 warnings = emptyList(),
                                 cellState = GliderPattern.seedCellState,
@@ -271,7 +271,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                 val clipboardPreviewStates = remember {
                     listOf(
                         object : ClipboardPreviewState {
-                            override val id = UUID.randomUUID()
+                            override val id = uuid4()
                             override val deserializationResult = DeserializationResult.Successful(
                                 warnings = emptyList(),
                                 cellState = GliderPattern.seedCellState,

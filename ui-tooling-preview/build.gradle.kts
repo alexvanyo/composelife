@@ -35,11 +35,20 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.jetbrains.compose.uiToolingPreview)
                 implementation(projects.resourcesApp)
             }
         }
+        val jbMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.jetbrains.compose.uiToolingPreview)
+            }
+        }
+        val desktopMain by getting {
+            dependsOn(jbMain)
+        }
         val androidMain by getting {
+            dependsOn(jbMain)
             dependencies {
                 implementation(libs.androidx.compose.uiToolingPreview)
             }
