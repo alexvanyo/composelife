@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.android.r8)
     implementation(libs.android.gradlePlugin)
     implementation(libs.android.tools.common)
+    implementation(libs.dependencyGuard.gradlePlugin)
     implementation(kotlin("gradle-plugin", libs.versions.kotlin.get()))
     implementation(libs.kotlin.composeCompilerGradlePlugin)
     implementation(libs.detekt.gradlePlugin)
@@ -122,6 +123,10 @@ gradlePlugin {
         register("androidTest") {
             id = "com.alexvanyo.composelife.androidTest"
             implementationClass = "AndroidTestConventionPlugin"
+        }
+        register("dependencyGuard") {
+            id = "com.alexvanyo.composelife.dependencyGuard"
+            implementationClass = "DependencyGuardConventionPlugin"
         }
         register("detekt") {
             id = "com.alexvanyo.composelife.detekt"

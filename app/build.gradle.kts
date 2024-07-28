@@ -24,6 +24,7 @@ plugins {
     alias(libs.plugins.convention.androidApplicationJacoco)
     alias(libs.plugins.convention.androidApplicationKsp)
     alias(libs.plugins.convention.androidApplicationTesting)
+    alias(libs.plugins.convention.dependencyGuard)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
 }
@@ -108,4 +109,8 @@ kotlin {
             }
         }
     }
+}
+
+dependencyGuard {
+    configuration("releaseRuntimeClasspath")
 }
