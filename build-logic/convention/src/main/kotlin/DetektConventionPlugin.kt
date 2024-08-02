@@ -32,7 +32,7 @@ class DetektConventionPlugin : ConventionPlugin({
     extensions.configure<DetektExtension> {
         buildUponDefaultConfig = true
         allRules = true
-        autoCorrect = System.getenv("CI") != "true"
+        autoCorrect = true
         config.setFrom("$rootDir/config/detekt.yml")
         source.setFrom(
             "src/commonMain/kotlin",
