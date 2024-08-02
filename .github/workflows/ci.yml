@@ -130,68 +130,40 @@ jobs:
         run: ./gradlew check --stacktrace
 
       - name: Auto-commit formatting changes
-        if: |
-          matrix.sdk == '34' &&
-          steps.check.outcome == 'failure' &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          github.event_name == 'pull_request'
+        if: ${{ !cancelled() && matrix.sdk == '34' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Fix formatting issues
           push_options: --force-with-lease
 
       - name: Update dependency guard baseline
-        if: |
-          matrix.sdk == '34' &&
-          steps.check.outcome == 'failure' &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          github.event_name == 'pull_request'
+        if: ${{ !cancelled() && matrix.sdk == '34' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         run: ./gradlew dependencyGuardBaseline
 
       - name: Auto-commit dependency guard baseline changes
-        if: |
-          matrix.sdk == '34' &&
-          steps.check.outcome == 'failure' &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          github.event_name == 'pull_request'
+        if: ${{ !cancelled() && matrix.sdk == '34' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Auto update dependency guard baseline
           push_options: --force-with-lease
 
       - name: Update screenshots
-        if: |
-          matrix.sdk == '34' &&
-          steps.check.outcome == 'failure' &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          github.event_name == 'pull_request'
-        run: ./gradlew recordRoborazziDebug updateReleaseBadging
+        if: ${{ !cancelled() && matrix.sdk == '34' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
+        run: ./gradlew recordRoborazziDebug
 
       - name: Auto-commit screenshot changes
-        if: |
-          matrix.sdk == '34' &&
-          steps.check.outcome == 'failure' &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          github.event_name == 'pull_request'
+        if: ${{ !cancelled() && matrix.sdk == '34' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Auto update screenshots
           push_options: --force-with-lease
 
       - name: Update badging
-        if: |
-          matrix.sdk == '34' &&
-          steps.check.outcome == 'failure' &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          github.event_name == 'pull_request'
+        if: ${{ !cancelled() && matrix.sdk == '34' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         run: ./gradlew updateReleaseBadging
 
       - name: Auto-commit badging changes
-        if: |
-          matrix.sdk == '34' &&
-          steps.check.outcome == 'failure' &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          github.event_name == 'pull_request'
+        if: ${{ !cancelled() && matrix.sdk == '34' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Auto update badging
