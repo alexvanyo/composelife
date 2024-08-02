@@ -76,3 +76,6 @@ lint/tmp/
 
 #Kotlin
 .kotlin/
+
+#robolectric.properties
+robolectric.properties
