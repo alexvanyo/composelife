@@ -80,6 +80,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Use PAT if on a pull request from the main repo, in preparation for auto-committing fixes
+          # Otherwise use the default token
+          token: ${{ (matrix.sdk == '34' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' && secrets.PAT) || github.token}}
 
       - name: Copy ci-gradle.properties
         run: |
@@ -122,7 +126,76 @@ jobs:
           path: "**/build/outputs/apk/**/*.apk"
 
       - name: Run checks
+        id: check
         run: ./gradlew check --stacktrace
+
+      - name: Auto-commit formatting changes
+        if: |
+          matrix.sdk == '34' &&
+          steps.check.outcome == 'failure' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.event_name == 'pull_request'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Fix formatting issues
+          push_options: --force-with-lease
+
+      - name: Update dependency guard baseline
+        if: |
+          matrix.sdk == '34' &&
+          steps.check.outcome == 'failure' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.event_name == 'pull_request'
+        run: ./gradlew dependencyGuardBaseline
+
+      - name: Auto-commit dependency guard baseline changes
+        if: |
+          matrix.sdk == '34' &&
+          steps.check.outcome == 'failure' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.event_name == 'pull_request'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Auto update dependency guard baseline
+          push_options: --force-with-lease
+
+      - name: Update screenshots
+        if: |
+          matrix.sdk == '34' &&
+          steps.check.outcome == 'failure' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.event_name == 'pull_request'
+        run: ./gradlew recordRoborazziDebug updateReleaseBadging
+
+      - name: Auto-commit screenshot changes
+        if: |
+          matrix.sdk == '34' &&
+          steps.check.outcome == 'failure' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.event_name == 'pull_request'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Auto update screenshots
+          push_options: --force-with-lease
+
+      - name: Update badging
+        if: |
+          matrix.sdk == '34' &&
+          steps.check.outcome == 'failure' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.event_name == 'pull_request'
+        run: ./gradlew updateReleaseBadging
+
+      - name: Auto-commit badging changes
+        if: |
+          matrix.sdk == '34' &&
+          steps.check.outcome == 'failure' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.event_name == 'pull_request'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Auto update badging
+          push_options: --force-with-lease
 
       - name: Upload unit test results
         if: matrix.sdk == '34' && !cancelled()
