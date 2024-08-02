@@ -52,6 +52,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 
+@Suppress("Deprecated")
 @OptIn(WatchFaceExperimental::class)
 class GameOfLifeWatchFaceService : WatchFaceService() {
 
