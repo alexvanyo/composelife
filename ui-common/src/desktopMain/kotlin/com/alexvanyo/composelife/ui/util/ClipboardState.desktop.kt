@@ -21,7 +21,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
-import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 
 @Stable
 actual interface ClipboardReader {
@@ -42,7 +41,6 @@ actual interface ClipboardWriter {
 
 actual fun ClipboardWriter.setText(value: String): Unit = setText(AnnotatedString(value))
 
-context(ComposeLifeDispatchersProvider)
 @Composable
 actual fun rememberClipboardReader(): ClipboardReader {
     val clipboardManager = LocalClipboardManager.current
@@ -63,7 +61,6 @@ actual fun rememberClipboardWriter(): ClipboardWriter {
     }
 }
 
-context(ComposeLifeDispatchersProvider)
 @Composable
 actual fun rememberClipboardReaderWriter(): ClipboardReaderWriter {
     val clipboardReader = rememberClipboardReader()

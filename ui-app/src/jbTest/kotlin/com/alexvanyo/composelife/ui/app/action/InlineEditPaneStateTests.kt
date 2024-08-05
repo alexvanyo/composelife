@@ -17,21 +17,19 @@
 package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.runComposeUiTest
-import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
-import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
-import com.alexvanyo.composelife.model.FlexibleCellStateSerializer
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.isSuccess
-import com.alexvanyo.composelife.ui.app.ClipboardCellStateParser
+import com.alexvanyo.composelife.test.BaseUiInjectTest
+import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.runTest
+import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
+import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
+import com.alexvanyo.composelife.ui.app.createComponent
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -41,312 +39,261 @@ import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class InlineEditPaneStateTests {
+class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
+    TestComposeLifeApplicationComponent::createComponent,
+    TestComposeLifeUiComponent::createComponent,
+) {
+    private val clipboardCellStateParserProvider: ClipboardCellStateParserProvider = applicationComponent
 
     @Test
-    fun initial_state_is_correct_when_onboarding() = runComposeUiTest {
-        runTest {
-            val testDispatcher = StandardTestDispatcher(testScheduler)
-            val dispatchers = TestComposeLifeDispatchers(
-                generalTestDispatcher = testDispatcher,
-                cellTickerTestDispatcher = testDispatcher,
-            )
-            val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
-            val composeLifePreferences = TestComposeLifePreferences(
-                touchToolConfig = ToolConfig.Pan,
-                mouseToolConfig = ToolConfig.Select,
-                stylusToolConfig = ToolConfig.Draw,
-                completedClipboardWatchingOnboarding = false,
-                enableClipboardWatching = true,
-            )
+    fun initial_state_is_correct_when_onboarding() = runUiTest {
+        val composeLifePreferences = TestComposeLifePreferences(
+            touchToolConfig = ToolConfig.Pan,
+            mouseToolConfig = ToolConfig.Select,
+            stylusToolConfig = ToolConfig.Draw,
+            completedClipboardWatchingOnboarding = false,
+            enableClipboardWatching = true,
+        )
 
-            lateinit var inlineEditPaneState: InlineEditPaneState
+        lateinit var inlineEditPaneState: InlineEditPaneState
 
-            setContent {
-                with(
-                    object :
-                        ComposeLifeDispatchersProvider,
-                        ComposeLifePreferencesProvider,
-                        LoadedComposeLifePreferencesProvider,
-                        ClipboardCellStateParserProvider {
-                        override val dispatchers = dispatchers
-                        override val composeLifePreferences = composeLifePreferences
-                        override val preferences get(): LoadedComposeLifePreferences {
-                            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-                            assertTrue(loadedPreferencesState.isSuccess())
-                            return loadedPreferencesState.value
-                        }
-                        override val clipboardCellStateParser = clipboardCellStateParser
-                    },
-                ) {
-                    inlineEditPaneState = rememberInlineEditPaneState(
-                        setSelectionToCellState = {},
-                    )
-                }
+        setContent {
+            with(
+                object :
+                    ComposeLifePreferencesProvider,
+                    LoadedComposeLifePreferencesProvider,
+                    ClipboardCellStateParserProvider by clipboardCellStateParserProvider {
+                    override val composeLifePreferences = composeLifePreferences
+                    override val preferences get(): LoadedComposeLifePreferences {
+                        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+                        assertTrue(loadedPreferencesState.isSuccess())
+                        return loadedPreferencesState.value
+                    }
+                },
+            ) {
+                inlineEditPaneState = rememberInlineEditPaneState(
+                    setSelectionToCellState = {},
+                )
             }
-
-            assertEquals(
-                ToolDropdownOption.Pan,
-                inlineEditPaneState.touchToolDropdownOption,
-            )
-            assertEquals(
-                ToolDropdownOption.Draw,
-                inlineEditPaneState.stylusToolDropdownOption,
-            )
-            assertEquals(
-                ToolDropdownOption.Select,
-                inlineEditPaneState.mouseToolDropdownOption,
-            )
-
-            val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
-
-            assertIs<ClipboardWatchingState.Onboarding>(clipboardWatchingState)
         }
+
+        assertEquals(
+            ToolDropdownOption.Pan,
+            inlineEditPaneState.touchToolDropdownOption,
+        )
+        assertEquals(
+            ToolDropdownOption.Draw,
+            inlineEditPaneState.stylusToolDropdownOption,
+        )
+        assertEquals(
+            ToolDropdownOption.Select,
+            inlineEditPaneState.mouseToolDropdownOption,
+        )
+
+        val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
+
+        assertIs<ClipboardWatchingState.Onboarding>(clipboardWatchingState)
     }
 
     @Test
-    fun allowing_clipboard_watching_updates_state_correctly() = runComposeUiTest {
-        runTest {
-            val testDispatcher = StandardTestDispatcher(testScheduler)
-            val dispatchers = TestComposeLifeDispatchers(
-                generalTestDispatcher = testDispatcher,
-                cellTickerTestDispatcher = testDispatcher,
-            )
-            val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
-            val composeLifePreferences = TestComposeLifePreferences(
-                touchToolConfig = ToolConfig.Pan,
-                mouseToolConfig = ToolConfig.Select,
-                stylusToolConfig = ToolConfig.Draw,
-                completedClipboardWatchingOnboarding = false,
-                enableClipboardWatching = true,
-            )
+    fun allowing_clipboard_watching_updates_state_correctly() = runUiTest {
+        val composeLifePreferences = TestComposeLifePreferences(
+            touchToolConfig = ToolConfig.Pan,
+            mouseToolConfig = ToolConfig.Select,
+            stylusToolConfig = ToolConfig.Draw,
+            completedClipboardWatchingOnboarding = false,
+            enableClipboardWatching = true,
+        )
 
-            lateinit var inlineEditPaneState: InlineEditPaneState
+        lateinit var inlineEditPaneState: InlineEditPaneState
 
-            setContent {
-                with(
-                    object :
-                        ComposeLifeDispatchersProvider,
-                        ComposeLifePreferencesProvider,
-                        LoadedComposeLifePreferencesProvider,
-                        ClipboardCellStateParserProvider {
-                        override val dispatchers = dispatchers
-                        override val composeLifePreferences = composeLifePreferences
-                        override val preferences get(): LoadedComposeLifePreferences {
-                            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-                            assertTrue(loadedPreferencesState.isSuccess())
-                            return loadedPreferencesState.value
-                        }
-                        override val clipboardCellStateParser = clipboardCellStateParser
-                    },
-                ) {
-                    inlineEditPaneState = rememberInlineEditPaneState(
-                        setSelectionToCellState = {},
-                    )
-                }
+        setContent {
+            with(
+                object :
+                    ComposeLifePreferencesProvider,
+                    LoadedComposeLifePreferencesProvider,
+                    ClipboardCellStateParserProvider by clipboardCellStateParserProvider {
+                    override val composeLifePreferences = composeLifePreferences
+                    override val preferences get(): LoadedComposeLifePreferences {
+                        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+                        assertTrue(loadedPreferencesState.isSuccess())
+                        return loadedPreferencesState.value
+                    }
+                },
+            ) {
+                inlineEditPaneState = rememberInlineEditPaneState(
+                    setSelectionToCellState = {},
+                )
             }
-
-            val initialClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
-            assertIs<ClipboardWatchingState.Onboarding>(initialClipboardWatchingState)
-
-            initialClipboardWatchingState.onAllowClipboardWatching()
-
-            waitForIdle()
-
-            val newPreferencesState = composeLifePreferences.loadedPreferencesState
-            assertTrue(newPreferencesState.isSuccess())
-            val newPreferences = newPreferencesState.value
-
-            assertTrue(newPreferences.completedClipboardWatchingOnboarding)
-            assertTrue(newPreferences.enableClipboardWatching)
-
-            val newClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
-
-            assertIs<ClipboardWatchingState.ClipboardWatchingEnabled>(newClipboardWatchingState)
         }
+
+        val initialClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
+        assertIs<ClipboardWatchingState.Onboarding>(initialClipboardWatchingState)
+
+        initialClipboardWatchingState.onAllowClipboardWatching()
+
+        waitForIdle()
+
+        val newPreferencesState = composeLifePreferences.loadedPreferencesState
+        assertTrue(newPreferencesState.isSuccess())
+        val newPreferences = newPreferencesState.value
+
+        assertTrue(newPreferences.completedClipboardWatchingOnboarding)
+        assertTrue(newPreferences.enableClipboardWatching)
+
+        val newClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
+
+        assertIs<ClipboardWatchingState.ClipboardWatchingEnabled>(newClipboardWatchingState)
     }
 
     @Test
-    fun disallowing_clipboard_watching_updates_state_correctly() = runComposeUiTest {
-        runTest {
-            val testDispatcher = StandardTestDispatcher(testScheduler)
-            val dispatchers = TestComposeLifeDispatchers(
-                generalTestDispatcher = testDispatcher,
-                cellTickerTestDispatcher = testDispatcher,
-            )
-            val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
-            val composeLifePreferences = TestComposeLifePreferences(
-                touchToolConfig = ToolConfig.Pan,
-                mouseToolConfig = ToolConfig.Select,
-                stylusToolConfig = ToolConfig.Draw,
-                completedClipboardWatchingOnboarding = false,
-                enableClipboardWatching = true,
-            )
+    fun disallowing_clipboard_watching_updates_state_correctly() = runUiTest {
+        val composeLifePreferences = TestComposeLifePreferences(
+            touchToolConfig = ToolConfig.Pan,
+            mouseToolConfig = ToolConfig.Select,
+            stylusToolConfig = ToolConfig.Draw,
+            completedClipboardWatchingOnboarding = false,
+            enableClipboardWatching = true,
+        )
 
-            lateinit var inlineEditPaneState: InlineEditPaneState
+        lateinit var inlineEditPaneState: InlineEditPaneState
 
-            setContent {
-                with(
-                    object :
-                        ComposeLifeDispatchersProvider,
-                        ComposeLifePreferencesProvider,
-                        LoadedComposeLifePreferencesProvider,
-                        ClipboardCellStateParserProvider {
-                        override val dispatchers = dispatchers
-                        override val composeLifePreferences = composeLifePreferences
-                        override val preferences get(): LoadedComposeLifePreferences {
-                            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-                            assertTrue(loadedPreferencesState.isSuccess())
-                            return loadedPreferencesState.value
-                        }
-                        override val clipboardCellStateParser = clipboardCellStateParser
-                    },
-                ) {
-                    inlineEditPaneState = rememberInlineEditPaneState(
-                        setSelectionToCellState = {},
-                    )
-                }
+        setContent {
+            with(
+                object :
+                    ComposeLifePreferencesProvider,
+                    LoadedComposeLifePreferencesProvider,
+                    ClipboardCellStateParserProvider by clipboardCellStateParserProvider {
+                    override val composeLifePreferences = composeLifePreferences
+                    override val preferences get(): LoadedComposeLifePreferences {
+                        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+                        assertTrue(loadedPreferencesState.isSuccess())
+                        return loadedPreferencesState.value
+                    }
+                },
+            ) {
+                inlineEditPaneState = rememberInlineEditPaneState(
+                    setSelectionToCellState = {},
+                )
             }
-
-            val initialClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
-            assertIs<ClipboardWatchingState.Onboarding>(initialClipboardWatchingState)
-
-            initialClipboardWatchingState.onDisallowClipboardWatching()
-
-            waitForIdle()
-
-            val newPreferencesState = composeLifePreferences.loadedPreferencesState
-            assertTrue(newPreferencesState.isSuccess())
-            val newPreferences = newPreferencesState.value
-
-            assertTrue(newPreferences.completedClipboardWatchingOnboarding)
-            assertFalse(newPreferences.enableClipboardWatching)
-
-            val newClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
-
-            assertIs<ClipboardWatchingState.ClipboardWatchingDisabled>(newClipboardWatchingState)
         }
+
+        val initialClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
+        assertIs<ClipboardWatchingState.Onboarding>(initialClipboardWatchingState)
+
+        initialClipboardWatchingState.onDisallowClipboardWatching()
+
+        waitForIdle()
+
+        val newPreferencesState = composeLifePreferences.loadedPreferencesState
+        assertTrue(newPreferencesState.isSuccess())
+        val newPreferences = newPreferencesState.value
+
+        assertTrue(newPreferences.completedClipboardWatchingOnboarding)
+        assertFalse(newPreferences.enableClipboardWatching)
+
+        val newClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
+
+        assertIs<ClipboardWatchingState.ClipboardWatchingDisabled>(newClipboardWatchingState)
     }
 
     @Test
-    fun initial_state_is_correct_when_clipboard_watching_enabled() = runComposeUiTest {
-        runTest {
-            val testDispatcher = StandardTestDispatcher(testScheduler)
-            val dispatchers = TestComposeLifeDispatchers(
-                generalTestDispatcher = testDispatcher,
-                cellTickerTestDispatcher = testDispatcher,
-            )
-            val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
-            val composeLifePreferences = TestComposeLifePreferences(
-                touchToolConfig = ToolConfig.Pan,
-                mouseToolConfig = ToolConfig.Select,
-                stylusToolConfig = ToolConfig.Draw,
-                completedClipboardWatchingOnboarding = true,
-                enableClipboardWatching = true,
-            )
+    fun initial_state_is_correct_when_clipboard_watching_enabled() = runUiTest {
+        val composeLifePreferences = TestComposeLifePreferences(
+            touchToolConfig = ToolConfig.Pan,
+            mouseToolConfig = ToolConfig.Select,
+            stylusToolConfig = ToolConfig.Draw,
+            completedClipboardWatchingOnboarding = true,
+            enableClipboardWatching = true,
+        )
 
-            lateinit var inlineEditPaneState: InlineEditPaneState
+        lateinit var inlineEditPaneState: InlineEditPaneState
 
-            setContent {
-                with(
-                    object :
-                        ComposeLifeDispatchersProvider,
-                        ComposeLifePreferencesProvider,
-                        LoadedComposeLifePreferencesProvider,
-                        ClipboardCellStateParserProvider {
-                        override val dispatchers = dispatchers
-                        override val composeLifePreferences = composeLifePreferences
-                        override val preferences get(): LoadedComposeLifePreferences {
-                            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-                            assertTrue(loadedPreferencesState.isSuccess())
-                            return loadedPreferencesState.value
-                        }
-                        override val clipboardCellStateParser = clipboardCellStateParser
-                    },
-                ) {
-                    inlineEditPaneState = rememberInlineEditPaneState(
-                        setSelectionToCellState = {},
-                    )
-                }
+        setContent {
+            with(
+                object :
+                    ComposeLifePreferencesProvider,
+                    LoadedComposeLifePreferencesProvider,
+                    ClipboardCellStateParserProvider by clipboardCellStateParserProvider {
+                    override val composeLifePreferences = composeLifePreferences
+                    override val preferences get(): LoadedComposeLifePreferences {
+                        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+                        assertTrue(loadedPreferencesState.isSuccess())
+                        return loadedPreferencesState.value
+                    }
+                },
+            ) {
+                inlineEditPaneState = rememberInlineEditPaneState(
+                    setSelectionToCellState = {},
+                )
             }
-
-            assertEquals(
-                ToolDropdownOption.Pan,
-                inlineEditPaneState.touchToolDropdownOption,
-            )
-            assertEquals(
-                ToolDropdownOption.Draw,
-                inlineEditPaneState.stylusToolDropdownOption,
-            )
-            assertEquals(
-                ToolDropdownOption.Select,
-                inlineEditPaneState.mouseToolDropdownOption,
-            )
-
-            val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
-
-            assertIs<ClipboardWatchingState.ClipboardWatchingEnabled>(clipboardWatchingState)
         }
+
+        assertEquals(
+            ToolDropdownOption.Pan,
+            inlineEditPaneState.touchToolDropdownOption,
+        )
+        assertEquals(
+            ToolDropdownOption.Draw,
+            inlineEditPaneState.stylusToolDropdownOption,
+        )
+        assertEquals(
+            ToolDropdownOption.Select,
+            inlineEditPaneState.mouseToolDropdownOption,
+        )
+
+        val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
+
+        assertIs<ClipboardWatchingState.ClipboardWatchingEnabled>(clipboardWatchingState)
     }
 
     @Test
-    fun initial_state_is_correct_when_clipboard_watching_disabled() = runComposeUiTest {
-        runTest {
-            val testDispatcher = StandardTestDispatcher(testScheduler)
-            val dispatchers = TestComposeLifeDispatchers(
-                generalTestDispatcher = testDispatcher,
-                cellTickerTestDispatcher = testDispatcher,
-            )
-            val clipboardCellStateParser = ClipboardCellStateParser(FlexibleCellStateSerializer(dispatchers))
-            val composeLifePreferences = TestComposeLifePreferences(
-                touchToolConfig = ToolConfig.Pan,
-                mouseToolConfig = ToolConfig.Select,
-                stylusToolConfig = ToolConfig.Draw,
-                completedClipboardWatchingOnboarding = true,
-                enableClipboardWatching = false,
-            )
+    fun initial_state_is_correct_when_clipboard_watching_disabled() = runUiTest {
+        val composeLifePreferences = TestComposeLifePreferences(
+            touchToolConfig = ToolConfig.Pan,
+            mouseToolConfig = ToolConfig.Select,
+            stylusToolConfig = ToolConfig.Draw,
+            completedClipboardWatchingOnboarding = true,
+            enableClipboardWatching = false,
+        )
 
-            lateinit var inlineEditPaneState: InlineEditPaneState
+        lateinit var inlineEditPaneState: InlineEditPaneState
 
-            setContent {
-                with(
-                    object :
-                        ComposeLifeDispatchersProvider,
-                        ComposeLifePreferencesProvider,
-                        LoadedComposeLifePreferencesProvider,
-                        ClipboardCellStateParserProvider {
-                        override val dispatchers = dispatchers
-                        override val composeLifePreferences = composeLifePreferences
-                        override val preferences get(): LoadedComposeLifePreferences {
-                            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-                            assertTrue(loadedPreferencesState.isSuccess())
-                            return loadedPreferencesState.value
-                        }
-                        override val clipboardCellStateParser = clipboardCellStateParser
-                    },
-                ) {
-                    inlineEditPaneState = rememberInlineEditPaneState(
-                        setSelectionToCellState = {},
-                    )
-                }
+        setContent {
+            with(
+                object :
+                    ComposeLifePreferencesProvider,
+                    LoadedComposeLifePreferencesProvider,
+                    ClipboardCellStateParserProvider by clipboardCellStateParserProvider {
+                    override val composeLifePreferences = composeLifePreferences
+                    override val preferences get(): LoadedComposeLifePreferences {
+                        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+                        assertTrue(loadedPreferencesState.isSuccess())
+                        return loadedPreferencesState.value
+                    }
+                },
+            ) {
+                inlineEditPaneState = rememberInlineEditPaneState(
+                    setSelectionToCellState = {},
+                )
             }
-
-            assertEquals(
-                ToolDropdownOption.Pan,
-                inlineEditPaneState.touchToolDropdownOption,
-            )
-            assertEquals(
-                ToolDropdownOption.Draw,
-                inlineEditPaneState.stylusToolDropdownOption,
-            )
-            assertEquals(
-                ToolDropdownOption.Select,
-                inlineEditPaneState.mouseToolDropdownOption,
-            )
-
-            val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
-
-            assertIs<ClipboardWatchingState.ClipboardWatchingDisabled>(clipboardWatchingState)
         }
+
+        assertEquals(
+            ToolDropdownOption.Pan,
+            inlineEditPaneState.touchToolDropdownOption,
+        )
+        assertEquals(
+            ToolDropdownOption.Draw,
+            inlineEditPaneState.stylusToolDropdownOption,
+        )
+        assertEquals(
+            ToolDropdownOption.Select,
+            inlineEditPaneState.mouseToolDropdownOption,
+        )
+
+        val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
+
+        assertIs<ClipboardWatchingState.ClipboardWatchingDisabled>(clipboardWatchingState)
     }
 }

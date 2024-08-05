@@ -54,10 +54,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import com.alexvanyo.composelife.geometry.floor
 import com.alexvanyo.composelife.geometry.toRingOffset
+import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
+import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
+import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
 import com.alexvanyo.composelife.ui.util.detectTransformGestures
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
@@ -75,6 +78,9 @@ object CellWindow {
     const val defaultInOverlay = false
 }
 
+interface CellWindowInjectEntryPoint :
+    ClipboardCellStateParserProvider
+
 interface CellWindowLocalEntryPoint :
     LoadedComposeLifePreferencesProvider,
     InteractableCellsLocalEntryPoint,
@@ -83,7 +89,7 @@ interface CellWindowLocalEntryPoint :
 /**
  * A cell window that displays the given [gameOfLifeState] in an immutable fashion.
  */
-context(CellWindowLocalEntryPoint)
+context(CellWindowInjectEntryPoint, CellWindowLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun ImmutableCellWindow(
@@ -111,7 +117,7 @@ fun ImmutableCellWindow(
  *
  * The cells will be editable if and only if [isEditable] returns true.
  */
-context(CellWindowLocalEntryPoint)
+context(CellWindowInjectEntryPoint, CellWindowLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun MutableCellWindow(
@@ -136,7 +142,7 @@ fun MutableCellWindow(
     )
 }
 
-context(CellWindowLocalEntryPoint)
+context(CellWindowInjectEntryPoint, CellWindowLocalEntryPoint)
 @Suppress("LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 @Composable
 private fun CellWindowImpl(
@@ -413,6 +419,7 @@ private fun CellWindowImpl(
                         setSelectionSessionState = {
                             cellWindowUiState.cellWindowInteractionState.selectionSessionState = it
                         },
+                        getSelectionCellState = cellWindowUiState::getSelectionCellState,
                         scaledCellDpSize = scaledCellDpSize,
                         cellWindow = cellWindow,
                         modifier = cellWindowOffsetModifier,
@@ -478,4 +485,54 @@ private fun CellWindowUiState.isEditable(
         is CellWindowUiState.ImmutableState -> false
         is CellWindowUiState.MutableState -> isEditable(isGesturing, scale)
     }
+}
+
+private fun CellWindowUiState.getSelectionCellState(selectionState: SelectionState): CellState =
+    when (selectionState) {
+        SelectionState.NoSelection -> emptyCellState()
+        is SelectionState.SelectingBox.FixedSelectingBox -> {
+            gameOfLifeState.cellState.getSelectedCellState(selectionState)
+        }
+        is SelectionState.SelectingBox.TransientSelectingBox -> emptyCellState()
+        is SelectionState.Selection -> selectionState.cellState
+    }
+
+/**
+ * Returns the [CellState] that is selected by the given [selectionState] in this [CellState].
+ */
+internal fun CellState.getSelectedCellState(selectionState: SelectionState.SelectingBox.FixedSelectingBox): CellState {
+    val left: Int
+    val right: Int
+
+    if (selectionState.width < 0) {
+        left = selectionState.topLeft.x + selectionState.width + 1
+        right = selectionState.topLeft.x + 1
+    } else {
+        left = selectionState.topLeft.x
+        right = selectionState.topLeft.x + selectionState.width
+    }
+
+    val top: Int
+    val bottom: Int
+
+    if (selectionState.height < 0) {
+        top = selectionState.topLeft.y + selectionState.height + 1
+        bottom = selectionState.topLeft.y + 1
+    } else {
+        top = selectionState.topLeft.y
+        bottom = selectionState.topLeft.y + selectionState.height
+    }
+
+    val cellWindow = com.alexvanyo.composelife.model.CellWindow(
+        IntRect(
+            left = left,
+            top = top,
+            right = right,
+            bottom = bottom,
+        ),
+    )
+
+    val aliveCells = getAliveCellsInWindow(cellWindow).toSet()
+
+    return CellState(aliveCells)
 }

@@ -42,11 +42,8 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.round
-import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.model.CellState
-import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
@@ -55,6 +52,7 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardState
 import com.alexvanyo.composelife.ui.app.action.rememberCellUniverseActionCardState
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
+import com.alexvanyo.composelife.ui.app.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.MutableCellWindow
@@ -64,6 +62,7 @@ import com.alexvanyo.composelife.ui.app.cells.MutableSelectionStateHolder
 import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.cells.TrackingCellWindowViewportState
 import com.alexvanyo.composelife.ui.app.cells.ViewportInteractionConfig
+import com.alexvanyo.composelife.ui.app.cells.getSelectedCellState
 import com.alexvanyo.composelife.ui.app.cells.rememberMutableCellWindowViewportState
 import com.alexvanyo.composelife.ui.app.cells.rememberMutableSelectionStateHolder
 import com.alexvanyo.composelife.ui.app.cells.rememberTrackingCellWindowViewportState
@@ -83,7 +82,7 @@ import kotlinx.coroutines.launch
 
 interface InteractiveCellUniverseInjectEntryPoint :
     ClipboardCellStateParserProvider,
-    ComposeLifeDispatchersProvider,
+    CellWindowInjectEntryPoint,
     InteractiveCellUniverseOverlayInjectEntryPoint
 
 interface InteractiveCellUniverseLocalEntryPoint :
@@ -277,7 +276,7 @@ interface InteractiveCellUniverseState {
     fun onClearSelection()
 }
 
-context(ClipboardCellStateParserProvider, ComposeLifeDispatchersProvider)
+context(ClipboardCellStateParserProvider)
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun rememberInteractiveCellUniverseState(
@@ -442,48 +441,16 @@ fun rememberInteractiveCellUniverseState(
                     -> false
                     is SelectionState.SelectingBox.FixedSelectingBox -> {
                         if (currentSelectionState.width != 0 && currentSelectionState.height != 0) {
-                            val left: Int
-                            val right: Int
-
-                            if (currentSelectionState.width < 0) {
-                                left = currentSelectionState.topLeft.x + currentSelectionState.width + 1
-                                right = currentSelectionState.topLeft.x + 1
-                            } else {
-                                left = currentSelectionState.topLeft.x
-                                right = currentSelectionState.topLeft.x + currentSelectionState.width
-                            }
-
-                            val top: Int
-                            val bottom: Int
-
-                            if (currentSelectionState.height < 0) {
-                                top = currentSelectionState.topLeft.y + currentSelectionState.height + 1
-                                bottom = currentSelectionState.topLeft.y + 1
-                            } else {
-                                top = currentSelectionState.topLeft.y
-                                bottom = currentSelectionState.topLeft.y + currentSelectionState.height
-                            }
-
-                            val cellWindow = CellWindow(
-                                IntRect(
-                                    left = left,
-                                    top = top,
-                                    right = right,
-                                    bottom = bottom,
-                                ),
-                            )
-
-                            val aliveCells = temporalGameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).toSet()
+                            val selectedCellState =
+                                temporalGameOfLifeState.cellState.getSelectedCellState(currentSelectionState)
 
                             if (isCut) {
                                 temporalGameOfLifeState.cellState =
-                                    aliveCells.fold(temporalGameOfLifeState.cellState) { cellState, offset ->
-                                        cellState.withCell(offset, false)
-                                    }
+                                    temporalGameOfLifeState.cellState.subtract(selectedCellState)
                             }
 
                             val serializedCellState = RunLengthEncodedCellStateSerializer.serializeToString(
-                                CellState(aliveCells),
+                                selectedCellState,
                             )
 
                             clipboardReaderWriter.setText(serializedCellState.joinToString("\n"))

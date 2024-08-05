@@ -28,7 +28,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -40,6 +39,11 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.sessionvalue.SessionValue
+import com.alexvanyo.composelife.test.BaseUiInjectTest
+import com.alexvanyo.composelife.test.runUiTest
+import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
+import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
+import com.alexvanyo.composelife.ui.app.createComponent
 import com.alexvanyo.composelife.ui.app.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.benasher44.uuid.uuid4
@@ -50,14 +54,22 @@ import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class CellWindowTests {
-
-    private val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
-        override val preferences = LoadedComposeLifePreferences.Defaults
-    }
+class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
+    TestComposeLifeApplicationComponent::createComponent,
+    TestComposeLifeUiComponent::createComponent,
+) {
 
     @Test
-    fun cells_are_displayed_correctly() = runComposeUiTest {
+    fun cells_are_displayed_correctly() = runUiTest {
+        val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
+        val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
+            override val preferences = LoadedComposeLifePreferences.Defaults
+        }
+
+        val entryPoint = object :
+            CellWindowInjectEntryPoint by cellWindowInjectEntryPoint,
+            CellWindowLocalEntryPoint by cellWindowLocalEntryPoint {}
+
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
                 0 to 0,
@@ -83,7 +95,7 @@ class CellWindowTests {
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
-            with(cellWindowLocalEntryPoint) {
+            with(entryPoint) {
                 resolver = parameterizedStringResolver()
 
                 MutableCellWindow(
@@ -142,7 +154,16 @@ class CellWindowTests {
     }
 
     @Test
-    fun cells_are_displayed_correctly_after_scrolling() = runComposeUiTest {
+    fun cells_are_displayed_correctly_after_scrolling() = runUiTest {
+        val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
+        val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
+            override val preferences = LoadedComposeLifePreferences.Defaults
+        }
+
+        val entryPoint = object :
+            CellWindowInjectEntryPoint by cellWindowInjectEntryPoint,
+            CellWindowLocalEntryPoint by cellWindowLocalEntryPoint {}
+
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
                 0 to 0,
@@ -172,7 +193,7 @@ class CellWindowTests {
             density = LocalDensity.current
 
             with(
-                object : CellWindowLocalEntryPoint {
+                object : CellWindowInjectEntryPoint by entryPoint, CellWindowLocalEntryPoint {
                     override val preferences = LoadedComposeLifePreferences.Defaults.copy(
                         touchToolConfig = ToolConfig.Pan,
                     )
@@ -206,7 +227,16 @@ class CellWindowTests {
     }
 
     @Test
-    fun cells_are_not_scrolled_with_none_touch_tool_config() = runComposeUiTest {
+    fun cells_are_not_scrolled_with_none_touch_tool_config() = runUiTest {
+        val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
+        val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
+            override val preferences = LoadedComposeLifePreferences.Defaults
+        }
+
+        val entryPoint = object :
+            CellWindowInjectEntryPoint by cellWindowInjectEntryPoint,
+            CellWindowLocalEntryPoint by cellWindowLocalEntryPoint {}
+
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
                 0 to 0,
@@ -236,7 +266,7 @@ class CellWindowTests {
             density = LocalDensity.current
 
             with(
-                object : CellWindowLocalEntryPoint {
+                object : CellWindowInjectEntryPoint by entryPoint, CellWindowLocalEntryPoint {
                     override val preferences = LoadedComposeLifePreferences.Defaults.copy(
                         touchToolConfig = ToolConfig.None,
                     )
@@ -272,7 +302,16 @@ class CellWindowTests {
     }
 
     @Test
-    fun cells_are_displayed_correctly_after_zooming_in_with_mouse_wheel() = runComposeUiTest {
+    fun cells_are_displayed_correctly_after_zooming_in_with_mouse_wheel() = runUiTest {
+        val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
+        val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
+            override val preferences = LoadedComposeLifePreferences.Defaults
+        }
+
+        val entryPoint = object :
+            CellWindowInjectEntryPoint by cellWindowInjectEntryPoint,
+            CellWindowLocalEntryPoint by cellWindowLocalEntryPoint {}
+
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
                 0 to 0,
@@ -297,7 +336,7 @@ class CellWindowTests {
         )
 
         setContent {
-            with(cellWindowLocalEntryPoint) {
+            with(entryPoint) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),
@@ -320,7 +359,16 @@ class CellWindowTests {
     }
 
     @Test
-    fun cells_are_displayed_correctly_after_zooming_out_with_mouse_wheel() = runComposeUiTest {
+    fun cells_are_displayed_correctly_after_zooming_out_with_mouse_wheel() = runUiTest {
+        val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
+        val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
+            override val preferences = LoadedComposeLifePreferences.Defaults
+        }
+
+        val entryPoint = object :
+            CellWindowInjectEntryPoint by cellWindowInjectEntryPoint,
+            CellWindowLocalEntryPoint by cellWindowLocalEntryPoint {}
+
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
                 0 to 0,
@@ -345,7 +393,7 @@ class CellWindowTests {
         )
 
         setContent {
-            with(cellWindowLocalEntryPoint) {
+            with(entryPoint) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),

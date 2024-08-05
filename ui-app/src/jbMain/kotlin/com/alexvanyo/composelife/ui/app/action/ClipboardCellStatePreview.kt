@@ -52,11 +52,13 @@ import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.sessionvalue.SessionValue
+import com.alexvanyo.composelife.ui.app.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.ImmutableCellWindow
 import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.cells.ViewportInteractionConfig
+import com.alexvanyo.composelife.ui.app.cells.cellStateDragAndDropSource
 import com.alexvanyo.composelife.ui.app.cells.rememberTrackingCellWindowViewportState
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorLocalEntryPoint
@@ -69,6 +71,7 @@ import com.alexvanyo.composelife.ui.app.resources.Warnings
 import com.benasher44.uuid.uuid4
 
 interface ClipboardCellStatePreviewInjectEntryPoint :
+    CellWindowInjectEntryPoint,
     GameOfLifeProgressIndicatorInjectEntryPoint
 
 interface ClipboardCellStatePreviewLocalEntryPoint :
@@ -132,7 +135,7 @@ fun ClipboardCellStatePreview(
     }
 }
 
-context(CellWindowLocalEntryPoint)
+context(CellWindowInjectEntryPoint, CellWindowLocalEntryPoint)
 @Suppress("LongMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -157,7 +160,9 @@ fun LoadedCellStatePreview(
                 ),
                 selectionSessionState = SessionValue(uuid4(), uuid4(), SelectionState.NoSelection),
             ),
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .cellStateDragAndDropSource(getCellState = { deserializationResult.cellState }),
             inOverlay = true,
         )
         Column {

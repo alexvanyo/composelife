@@ -23,11 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runAndroidComposeUiTest
 import androidx.core.content.getSystemService
-import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
-import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -42,16 +38,7 @@ class ClipboardStateTests {
         var clipData: ClipData? = null
 
         setContent {
-            clipData = with(
-                object : ComposeLifeDispatchersProvider {
-                    override val dispatchers: ComposeLifeDispatchers = TestComposeLifeDispatchers(
-                        generalTestDispatcher = StandardTestDispatcher(),
-                        cellTickerTestDispatcher = StandardTestDispatcher(),
-                    )
-                },
-            ) {
-                rememberClipboardReader().getClipData()
-            }
+            clipData = rememberClipboardReader().getClipData()
         }
 
         val clipboardManager = requireNotNull(activity!!.getSystemService<ClipboardManager>())

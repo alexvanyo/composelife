@@ -44,7 +44,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
@@ -84,7 +83,6 @@ import kotlinx.coroutines.launch
 
 interface InlineEditPaneInjectEntryPoint :
     ComposeLifePreferencesProvider,
-    ComposeLifeDispatchersProvider,
     ClipboardCellStateParserProvider,
     ClipboardCellStatePreviewInjectEntryPoint
 
@@ -302,7 +300,6 @@ interface PinnedClipboardPreviewState {
 context(
     ComposeLifePreferencesProvider,
     LoadedComposeLifePreferencesProvider,
-    ComposeLifeDispatchersProvider,
     ClipboardCellStateParserProvider
 )
 @Composable
@@ -353,7 +350,6 @@ fun rememberInlineEditPaneState(
 context(
     ComposeLifePreferencesProvider,
     LoadedComposeLifePreferencesProvider,
-    ComposeLifeDispatchersProvider,
     ClipboardCellStateParserProvider
 )
 @Composable
@@ -398,7 +394,7 @@ fun rememberClipboardWatchingOnboardingState(
         }
     }
 
-context(ComposeLifeDispatchersProvider, ClipboardCellStateParserProvider, LoadedComposeLifePreferencesProvider)
+context(ClipboardCellStateParserProvider, LoadedComposeLifePreferencesProvider)
 @Composable
 fun rememberClipboardWatchingEnabledState(
     setSelectionToCellState: (CellState) -> Unit,

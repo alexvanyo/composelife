@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.sessionvalue.SessionValue
+import com.alexvanyo.composelife.ui.app.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.CellWindowState
@@ -41,10 +42,13 @@ import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.cells.ViewportInteractionConfig
 import com.benasher44.uuid.uuid4
 
+interface CellStatePreviewUiInjectEntryPoint :
+    CellWindowInjectEntryPoint
+
 interface CellStatePreviewUiLocalEntryPoint :
     CellWindowLocalEntryPoint
 
-context(CellStatePreviewUiLocalEntryPoint)
+context(CellStatePreviewUiInjectEntryPoint, CellStatePreviewUiLocalEntryPoint)
 @Suppress("LongMethod")
 @Composable
 fun CellStatePreviewUi(

@@ -39,6 +39,7 @@ import com.alexvanyo.composelife.patterns.OscillatorPattern
 import com.alexvanyo.composelife.patterns.values
 import com.alexvanyo.composelife.random.di.RandomProvider
 import com.alexvanyo.composelife.sessionvalue.SessionValue
+import com.alexvanyo.composelife.ui.app.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.CellWindowState
@@ -52,7 +53,8 @@ interface GameOfLifeProgressIndicatorInjectEntryPoint :
     GameOfLifeAlgorithmProvider,
     ComposeLifeDispatchersProvider,
     RandomProvider,
-    ClockProvider
+    ClockProvider,
+    CellWindowInjectEntryPoint
 
 interface GameOfLifeProgressIndicatorLocalEntryPoint :
     CellWindowLocalEntryPoint
@@ -103,7 +105,7 @@ expect fun GameOfLifeProgressIndicatorForegroundEffect(
     temporalGameOfLifeState: TemporalGameOfLifeState,
 )
 
-context(GameOfLifeProgressIndicatorLocalEntryPoint)
+context(GameOfLifeProgressIndicatorInjectEntryPoint, GameOfLifeProgressIndicatorLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun GameOfLifeProgressIndicator(

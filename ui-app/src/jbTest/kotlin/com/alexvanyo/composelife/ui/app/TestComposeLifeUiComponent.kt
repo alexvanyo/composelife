@@ -27,6 +27,7 @@ import com.alexvanyo.composelife.ui.app.action.settings.DisableOpenGLUiInjectEnt
 import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsDetailPaneInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.SettingUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 
 expect abstract class TestComposeLifeUiComponent :
@@ -42,6 +43,7 @@ interface TestComposeLifeUiEntryPoint :
     AlgorithmImplementationUiInjectEntryPoint,
     CellShapeConfigUiInjectEntryPoint,
     CellUniverseActionCardInjectEntryPoint,
+    CellWindowInjectEntryPoint,
     ComposeLifeAppInjectEntryPoint,
     DarkThemeConfigUiInjectEntryPoint,
     DisableAGSLUiInjectEntryPoint,

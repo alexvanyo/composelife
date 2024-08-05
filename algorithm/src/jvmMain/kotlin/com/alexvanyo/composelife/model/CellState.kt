@@ -51,6 +51,15 @@ abstract class CellState {
     open fun union(other: CellState) = CellState(aliveCells.union(other.aliveCells))
 
     /**
+     * Returns a new cell state, where a cell is alive in the new cell state if it is alive in
+     * this cell state, but not in the [other] cell state.
+     *
+     * This is overridable by subclasses in case the operation can be done more efficiently in a
+     * particular implementation.
+     */
+    open fun subtract(other: CellState) = CellState(aliveCells.subtract(other.aliveCells))
+
+    /**
      * Returns a new cell state with offset by the given [offset].
      *
      * This is overridable by subclasses in case the operation can be done more efficiently in a
