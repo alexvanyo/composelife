@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.FormFactor
+import com.alexvanyo.composelife.buildlogic.AndroidDevice
+import com.alexvanyo.composelife.buildlogic.GradleManagedDeviceConfig
+import com.alexvanyo.composelife.buildlogic.SystemImageSource
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import com.android.build.gradle.internal.tasks.ManagedDeviceSetupTask
+import com.alexvanyo.composelife.buildlogic.taskPrefix
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -26,10 +28,16 @@ plugins {
     alias(libs.plugins.androidx.baselineProfile)
 }
 
+val aosppixel2Api30 = GradleManagedDeviceConfig(
+    device = AndroidDevice.MobileDevice.Pixel2,
+    apiLevel = 30,
+    systemImageSource = SystemImageSource.Aosp,
+)
+
 android {
     namespace = "com.alexvanyo.composelife.app.baselineprofilegenerator"
     targetProjectPath = ":app"
-    configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
+    configureGradleManagedDevices(setOf(aosppixel2Api30), this)
 
     defaultConfig {
         minSdk = 28
@@ -52,14 +60,14 @@ kotlin {
 }
 
 baselineProfile {
-    managedDevices += "aosppixel2api30"
+    managedDevices += aosppixel2Api30.taskPrefix
     useConnectedDevices = false
 }
 
 afterEvaluate {
     tasks {
         if (project.properties.containsKey("androidx.baselineprofile.skipgeneration")) {
-            named("aosppixel2api30Setup") {
+            named("${aosppixel2Api30.taskPrefix}Setup") {
                 enabled = false
             }
         }
