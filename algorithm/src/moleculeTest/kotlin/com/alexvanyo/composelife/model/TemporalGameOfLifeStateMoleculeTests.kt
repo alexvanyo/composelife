@@ -182,7 +182,6 @@ class TemporalGameOfLifeStateMoleculeTests {
                 assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
                 assertIs<TemporalGameOfLifeState.EvolutionStatus.Paused>(temporalGameOfLifeState.status)
             }
-
     }
 
     @Test
@@ -283,7 +282,6 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(22.388, status.averageGenerationsPerSecond, 0.001)
                 }
             }
-
     }
 
     @Test
@@ -314,7 +312,6 @@ class TemporalGameOfLifeStateMoleculeTests {
         }
             .test {
                 val temporalGameOfLifeState = awaitItem()
-
 
                 assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
                 assertEquals(

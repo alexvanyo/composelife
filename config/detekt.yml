@@ -10,13 +10,13 @@ complexity:
   LongMethod:
     excludes: [
       '**/generated/**',
-      '**/test/**',
-      '**/androidTest/**',
-      '**/sharedTest/**',
       '**/commonTest/**',
+      '**/jvmTest/**',
+      '**/moleculeTest/**',
       '**/desktopTest/**',
-      '**/androidAndroidTest/**',
+      '**/androidInstrumentedTest/**',
       '**/androidSharedTest/**',
+      '**/androidUnitTest/**',
       '**/jsTest/**',
       '**/iosTest/**'
     ]
@@ -25,13 +25,13 @@ complexity:
   TooManyFunctions:
     excludes: [
       '**/generated/**',
-      '**/test/**',
-      '**/androidTest/**',
-      '**/sharedTest/**',
       '**/commonTest/**',
+      '**/jvmTest/**',
+      '**/moleculeTest/**',
       '**/desktopTest/**',
-      '**/androidAndroidTest/**',
+      '**/androidInstrumentedTest/**',
       '**/androidSharedTest/**',
+      '**/androidUnitTest/**',
       '**/jsTest/**',
       '**/iosTest/**'
     ]
