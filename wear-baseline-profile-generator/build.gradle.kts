@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.FormFactor
+import com.alexvanyo.composelife.buildlogic.AndroidDevice
+import com.alexvanyo.composelife.buildlogic.GradleManagedDeviceConfig
+import com.alexvanyo.composelife.buildlogic.SystemImageSource
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import com.alexvanyo.composelife.buildlogic.taskPrefix
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -25,13 +28,19 @@ plugins {
     alias(libs.plugins.androidx.baselineProfile)
 }
 
+val wearwearoslargeroundapi28 = GradleManagedDeviceConfig(
+    device = AndroidDevice.WearDevice.WearOSLargeRound,
+    apiLevel = 28,
+    systemImageSource = SystemImageSource.AndroidWear,
+)
+
 android {
     namespace = "com.alexvanyo.composelife.wear.baselineprofilegenerator"
     defaultConfig {
         minSdk = 28
     }
     targetProjectPath = ":wear"
-    configureGradleManagedDevices(setOf(FormFactor.Wear), this)
+    configureGradleManagedDevices(setOf(wearwearoslargeroundapi28), this)
 }
 
 kotlin {
@@ -51,14 +60,14 @@ kotlin {
 }
 
 baselineProfile {
-    managedDevices += "wearwearoslargeroundapi28"
+    managedDevices += wearwearoslargeroundapi28.taskPrefix
     useConnectedDevices = false
 }
 
 afterEvaluate {
     tasks {
         if (project.properties.containsKey("androidx.baselineprofile.skipgeneration")) {
-            named("wearwearoslargeroundapi28Setup") {
+            named("${wearwearoslargeroundapi28.taskPrefix}Setup") {
                 enabled = false
             }
         }

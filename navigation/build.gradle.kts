@@ -33,7 +33,7 @@ android {
     defaultConfig {
         minSdk = 21
     }
-    configureGradleManagedDevices(FormFactor.All, this)
+    configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
 }
 
 kotlin {
