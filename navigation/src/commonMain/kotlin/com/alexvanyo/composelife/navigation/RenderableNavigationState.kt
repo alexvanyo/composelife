@@ -17,6 +17,11 @@
 package com.alexvanyo.composelife.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import com.benasher44.uuid.Uuid
 
 class RenderableNavigationState<T : NavigationEntry, S : NavigationState<T>>(
@@ -30,3 +35,47 @@ class RenderableNavigationState<T : NavigationEntry, S : NavigationState<T>>(
  */
 typealias RenderableNavigationTransform<T1, S1, T2, S2> =
     @Composable (RenderableNavigationState<T1, S1>) -> RenderableNavigationState<T2, S2>
+
+fun <T1, T2> backstackRenderableNavigationTransform(
+    entryTransform: (
+        BackstackEntry<T1>,
+        movablePanes: Map<Uuid, @Composable () -> Unit>,
+    ) -> Pair<BackstackEntry<T2>, @Composable () -> Unit>?,
+): RenderableNavigationTransform<BackstackEntry<T1>, BackstackState<T1>, BackstackEntry<T2>, BackstackState<T2>> =
+    { renderableNavigationState ->
+        val movablePanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
+            key(id) {
+                val currentPaneContent by rememberUpdatedState(paneContent)
+                remember {
+                    movableContentOf {
+                        currentPaneContent()
+                    }
+                }
+            }
+        }
+        val transformed = renderableNavigationState.navigationState.entryMap.mapNotNull { (id, entry) ->
+            key(id) {
+                entryTransform(entry, movablePanes)?.let { id to it }
+            }
+        }.toMap()
+
+        val transformedIdsMap = transformed.values.associateBy { it.first.id }
+        val transformedEntryMap = transformedIdsMap.mapValues { it.value.first }
+        val transformedPaneMap = transformedIdsMap.mapValues { it.value.second }
+
+        val transformedCurrentEntryId =
+            transformed.getValue(renderableNavigationState.navigationState.currentEntryId).first.id
+
+        val transformedBackstackState: BackstackState<T2> =
+            object : BackstackState<T2> {
+                override val entryMap: BackstackMap<T2>
+                    get() = transformedEntryMap
+                override val currentEntryId: Uuid
+                    get() = transformedCurrentEntryId
+            }
+
+        RenderableNavigationState(
+            transformedBackstackState,
+            transformedPaneMap,
+        )
+    }
