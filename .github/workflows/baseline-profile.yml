@@ -87,6 +87,7 @@ jobs:
           (echo "==== Attempt 1 ====" && generate_profile) || (echo "==== Attempt 2 ====" && generate_profile) || (echo "==== Both attempts failed ====" && exit 1)
 
       - name: Auto-commit changes
+        if: ${{ !cancelled() }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Auto update app baseline profile
