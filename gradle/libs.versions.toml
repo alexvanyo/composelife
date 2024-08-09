@@ -1,7 +1,7 @@
 [versions]
 androidDesugarJdkLibs = "2.0.4"
-androidGradlePlugin = "8.5.1"
-androidTools = "31.5.1"
+androidGradlePlugin = "8.5.2"
+androidTools = "31.5.2"
 androidR8 = "8.6.15"
 androidxActivity = "1.9.0"
 androidxAnnotation = "1.9.0-alpha01"
