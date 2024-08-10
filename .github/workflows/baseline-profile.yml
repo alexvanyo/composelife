@@ -4,8 +4,9 @@ on:
   push:
     branches:
       - main
-    paths-ignore: # don't recursively update baseline profiles
+    paths-ignore: # don't recursively update baseline profiles or startup profiles
       - '**/baseline-prof.txt'
+      - '**/startup-prof.txt'
   workflow_dispatch:
 
 jobs:
