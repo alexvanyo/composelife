@@ -18,17 +18,12 @@ package com.alexvanyo.composelife.ui.app.component
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import com.alexvanyo.composelife.navigation.BackstackEntry
-import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.NavigationSegment
-import com.alexvanyo.composelife.navigation.RenderableNavigationState
 import com.alexvanyo.composelife.navigation.RenderableNavigationTransform
-import com.benasher44.uuid.Uuid
+import com.alexvanyo.composelife.navigation.backstackRenderableNavigationTransform
 
 /**
  * A [RenderableNavigationTransform] to display multiple panes in a list-detail layout, if there is enough room
@@ -51,146 +46,48 @@ fun <T> listDetailNavigationTransform(
     BackstackState<NavigationSegment<T>>,
     BackstackEntry<NavigationSegment<T>>,
     BackstackState<NavigationSegment<T>>,
-    > = { renderableNavigationState ->
-    val entryMap = renderableNavigationState.navigationState.entryMap
-    val movablePanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
-        key(id) {
-            val currentPaneContent by rememberUpdatedState(paneContent)
-            remember {
-                movableContentOf {
-                    currentPaneContent()
+    > =
+    backstackRenderableNavigationTransform { entry, movablePanes ->
+        when (val navigationSegment = entry.value) {
+            is NavigationSegment.CombinedSegment -> entry to movablePanes.getValue(entry.id)
+            is NavigationSegment.SingleSegment -> {
+                when (val value = navigationSegment.value) {
+                    is ListEntry -> null
+                    is DetailEntry -> {
+                        val previous = requireNotNull(entry.previous)
+                        val newEntry = BackstackEntry(
+                            value = object : NavigationSegment.CombinedSegment<T> {
+                                override val combinedValues =
+                                    previous.value.combinedValues + navigationSegment.combinedValues
+                            },
+                            previous = previous.previous,
+                            id = previous.id,
+                        )
+                        val newPane = @Composable {
+                            @Suppress("UNCHECKED_CAST")
+                            val listEntry: ListEntry =
+                                (previous.value as NavigationSegment.SingleSegment<ListEntry>).value
+                            val detailEntry: DetailEntry = value
+
+                            ListDetailPaneScaffold(
+                                showList = listEntry.isListVisible,
+                                showDetail = detailEntry.isDetailVisible,
+                                listContent = {
+                                    remember(previous.id) { movablePanes.getValue(previous.id) }.invoke()
+                                },
+                                detailContent = {
+                                    remember(entry.id) { movablePanes.getValue(entry.id) }.invoke()
+                                },
+                                onBackButtonPressed = onBackButtonPressed,
+                            )
+                        }
+                        newEntry to newPane
+                    }
+                    else -> entry to movablePanes.getValue(entry.id)
                 }
             }
         }
     }
-
-    val idsTransform = renderableNavigationState.navigationState.entryMap
-        .filterValues {
-            val navigationSegment = it.value
-            navigationSegment !is NavigationSegment.SingleSegment || navigationSegment.value !is ListEntry
-        }
-        .mapValues { (_, entry) ->
-            when (val navigationSegment = entry.value) {
-                is NavigationSegment.SingleSegment -> {
-                    when (navigationSegment.value) {
-                        is DetailEntry -> entry.previous!!.id
-                        else -> entry.id
-                    }
-                }
-                is NavigationSegment.CombinedSegment -> entry.id
-            }
-        }
-
-    val transformedPaneMap: Map<Uuid, @Composable () -> Unit> = entryMap
-        .filterValues {
-            val navigationSegment = it.value
-            navigationSegment !is NavigationSegment.SingleSegment || navigationSegment.value !is ListEntry
-        }
-        .mapKeys { (_, entry) ->
-            when (val navigationSegment = entry.value) {
-                is NavigationSegment.SingleSegment -> {
-                    when (navigationSegment.value) {
-                        is DetailEntry -> entry.previous!!.id
-                        else -> entry.id
-                    }
-                }
-                is NavigationSegment.CombinedSegment -> entry.id
-            }
-        }
-        .mapValues { (id, entry) ->
-            key(id) {
-                when (val navigationSegment = entry.value) {
-                    is NavigationSegment.SingleSegment -> {
-                        when (val value = navigationSegment.value) {
-                            is DetailEntry -> {
-                                {
-                                    val previous = entry.previous
-                                    requireNotNull(previous)
-                                    @Suppress("UNCHECKED_CAST")
-                                    val listEntry: ListEntry =
-                                        (previous.value as NavigationSegment.SingleSegment<ListEntry>).value
-                                    val detailEntry: DetailEntry = value
-
-                                    ListDetailPaneScaffold(
-                                        showList = listEntry.isListVisible,
-                                        showDetail = detailEntry.isDetailVisible,
-                                        listContent = {
-                                            remember(previous.id) { movablePanes.getValue(previous.id) }.invoke()
-                                        },
-                                        detailContent = {
-                                            remember(entry.id) { movablePanes.getValue(entry.id) }.invoke()
-                                        },
-                                        onBackButtonPressed = onBackButtonPressed,
-                                    )
-                                }
-                            }
-                            else -> {
-                                {
-                                    // No-op transform for other entries
-                                    remember { movablePanes.getValue(entry.id) }.invoke()
-                                }
-                            }
-                        }
-                    }
-                    is NavigationSegment.CombinedSegment<T> -> {
-                        {
-                            // No-op transform for other entries
-                            remember { movablePanes.getValue(entry.id) }.invoke()
-                        }
-                    }
-                }
-            }
-        }
-
-    val transformedEntryMap = entryMap
-        .filterValues {
-            val navigationSegment = it.value
-            navigationSegment !is NavigationSegment.SingleSegment || navigationSegment.value !is ListEntry
-        }
-        .mapKeys { (_, entry) ->
-            when (val navigationSegment = entry.value) {
-                is NavigationSegment.SingleSegment -> {
-                    when (navigationSegment.value) {
-                        is DetailEntry -> entry.previous!!.id
-                        else -> entry.id
-                    }
-                }
-                is NavigationSegment.CombinedSegment -> entry.id
-            }
-        }
-        .mapValues { (_, entry) ->
-            when (val navigationSegment = entry.value) {
-                is NavigationSegment.SingleSegment -> {
-                    when (navigationSegment.value) {
-                        is DetailEntry -> BackstackEntry(
-                            object : NavigationSegment.CombinedSegment<T> {
-                                override val combinedValues =
-                                    entry.previous!!.value.combinedValues + entry.value.combinedValues
-                            },
-                            previous = entry.previous!!.previous,
-                            id = entry.previous!!.id,
-                        )
-                        else -> entry
-                    }
-                }
-                is NavigationSegment.CombinedSegment -> entry
-            }
-        }
-    val transformedCurrentEntryId = idsTransform.getValue(renderableNavigationState.navigationState.currentEntryId)
-
-    val transformedBackstackState: BackstackState<NavigationSegment<T>> =
-        object : BackstackState<NavigationSegment<T>> {
-            override val entryMap: BackstackMap<NavigationSegment<T>>
-                get() = transformedEntryMap
-            override val currentEntryId: Uuid
-                get() = transformedCurrentEntryId
-        }
-
-    RenderableNavigationState(
-        transformedBackstackState,
-        transformedPaneMap,
-    )
-}
 
 /**
  * The marker interface for a list entry.
