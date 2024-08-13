@@ -164,10 +164,10 @@ org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
 org.jetbrains.kotlinx:atomicfu:0.23.2
 org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.7
 org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7
-org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0-RC
-org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0-RC
-org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0-RC
-org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC
+org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0-RC.2
+org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0-RC.2
+org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0-RC.2
+org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC.2
 org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.6.0
 org.jetbrains.kotlinx:kotlinx-datetime:0.6.0
 org.jetbrains.kotlinx:kotlinx-serialization-bom:1.7.1
