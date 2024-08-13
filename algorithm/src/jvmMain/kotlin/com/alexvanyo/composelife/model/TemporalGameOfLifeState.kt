@@ -29,6 +29,7 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.snapshots.Snapshot
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.updatable.Updatable
@@ -38,15 +39,14 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -157,8 +157,8 @@ val TemporalGameOfLifeState.isRunning get() =
  * advanced by [evolve].
  */
 private class GameOfLifeGenealogy(
-    private val seedCellState: CellState,
-    private val generationsPerStep: Int,
+    val seedCellState: CellState,
+    val generationsPerStep: Int,
 ) {
     /**
      * The current, computed [CellState] to render.
@@ -166,25 +166,6 @@ private class GameOfLifeGenealogy(
      * Use [referentialEqualityPolicy] here to avoid costly comparisons as the cell state changes.
      */
     var computedCellState by mutableStateOf(seedCellState, policy = referentialEqualityPolicy())
-        private set
-
-    context(GameOfLifeAlgorithm)
-    @Suppress("RedundantSuspendModifier") // TODO: detekt doesn't support context receivers properly
-    suspend fun evolve(
-        stepTicker: Flow<Unit>,
-        onNewCellState: (generationsPerStep: Int) -> Unit,
-    ) {
-        computeGenerationsWithStep(
-            originalCellState = seedCellState,
-            step = generationsPerStep,
-        )
-            .buffer()
-            .zip(stepTicker) { newCellState, _ -> newCellState }
-            .collect { cellState ->
-                computedCellState = cellState
-                onNewCellState(generationsPerStep)
-            }
-    }
 }
 
 @Composable
@@ -314,20 +295,21 @@ private class TemporalGameOfLifeStateImpl(
      * The implementation of [evolve] guarded by [evolveMutex].
      */
     context(GameOfLifeAlgorithm, Clock, ComposeLifeDispatchers)
+    @Suppress("LongMethod")
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun evolveImpl(): Nothing {
-        val lastTickFlow = MutableSharedFlow<Instant>(replay = 1)
-
         val stepTimeTicker = snapshotFlow {
             isRunning to targetStepsPerSecond
         }
             .flatMapLatest { (isRunning, targetStepsPerSecond) ->
                 if (isRunning) {
-                    lastTickFlow.tryEmit(now())
-                    lastTickFlow.map { lastTick ->
-                        val targetDelay = 1.seconds / targetStepsPerSecond
-                        val remainingDelay = (targetDelay - (now() - lastTick)).coerceAtLeast(Duration.ZERO)
-                        delay(remainingDelay)
+                    flow<Unit> {
+                        while (true) {
+                            val targetDelay = 1.seconds / targetStepsPerSecond
+                            val remainingDelay = targetDelay.coerceAtLeast(Duration.ZERO)
+                            delay(remainingDelay)
+                            emit(Unit)
+                        }
                     }
                 } else {
                     emptyFlow()
@@ -350,25 +332,35 @@ private class TemporalGameOfLifeStateImpl(
             withContext(Default) {
                 currentCellStateGenealogy
                     .consumeAsFlow()
-                    .collectLatest {
-                        completedGenerationTracker = completedGenerationTracker + ComputationRecord(
-                            computedGenerations = 0,
-                            computedTime = now(),
-                        )
-
-                        cellStateGenealogy.evolve(stepTicker) { generationsPerStep ->
-                            val lastTick = now()
-                            lastTickFlow.tryEmit(lastTick)
-                            val newRecord = ComputationRecord(
-                                computedGenerations = generationsPerStep,
-                                computedTime = lastTick,
+                    .collectLatest { cellStateGenealogy ->
+                        Snapshot.withMutableSnapshot {
+                            completedGenerationTracker = completedGenerationTracker + ComputationRecord(
+                                computedGenerations = 0,
+                                computedTime = now(),
                             )
-
-                            // Remove entries that are more than about a second old to get a running average from the
-                            // last second
-                            completedGenerationTracker = (completedGenerationTracker + newRecord)
-                                .dropWhile { lastTick - it.computedTime > 1010.milliseconds }
                         }
+
+                        computeGenerationsWithStep(
+                            originalCellState = cellStateGenealogy.seedCellState,
+                            step = cellStateGenealogy.generationsPerStep,
+                        )
+                            .buffer()
+                            .zip(stepTicker) { newCellState, _ -> newCellState }
+                            .collect { cellState ->
+                                val lastTick = now()
+                                Snapshot.withMutableSnapshot {
+                                    cellStateGenealogy.computedCellState = cellState
+                                    val newRecord = ComputationRecord(
+                                        computedGenerations = cellStateGenealogy.generationsPerStep,
+                                        computedTime = lastTick,
+                                    )
+
+                                    // Remove entries that are more than about a second old to get a running average
+                                    // from the last second
+                                    completedGenerationTracker = (completedGenerationTracker + newRecord)
+                                        .dropWhile { lastTick - it.computedTime > 1010.milliseconds }
+                                }
+                            }
                     }
             }
         }
