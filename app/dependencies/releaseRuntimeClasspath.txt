@@ -120,8 +120,8 @@ com.google.guava:failureaccess:1.0.1
 com.google.guava:guava:32.0.0-android
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
 com.google.j2objc:j2objc-annotations:2.8
-com.slack.circuit:circuit-retained-android:0.23.0
-com.slack.circuit:circuit-retained:0.23.0
+com.slack.circuit:circuit-retained-android:0.23.1
+com.slack.circuit:circuit-retained:0.23.1
 com.squareup.okio:okio-jvm:3.9.0
 com.squareup.okio:okio:3.9.0
 com.squareup.wire:wire-runtime-jvm:5.0.0
@@ -155,10 +155,10 @@ org.jetbrains.compose.ui:ui-unit:1.7.0-alpha02
 org.jetbrains.compose.ui:ui-util:1.7.0-alpha02
 org.jetbrains.compose.ui:ui:1.7.0-alpha02
 org.jetbrains.kotlin:kotlin-android-extensions-runtime:1.9.22
-org.jetbrains.kotlin:kotlin-bom:2.0.0
+org.jetbrains.kotlin:kotlin-bom:2.0.10
 org.jetbrains.kotlin:kotlin-parcelize-runtime:1.9.22
-org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.0
-org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.0
+org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.10
+org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.10
 org.jetbrains.kotlin:kotlin-stdlib:2.0.20-RC2
 org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
 org.jetbrains.kotlinx:atomicfu:0.23.2
