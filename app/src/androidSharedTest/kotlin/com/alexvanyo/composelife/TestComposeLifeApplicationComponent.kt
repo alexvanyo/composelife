@@ -28,6 +28,7 @@ import com.alexvanyo.composelife.database.di.TestDatabaseComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
 import com.alexvanyo.composelife.donotkeepprocess.di.DoNotKeepProcessComponent
+import com.alexvanyo.composelife.model.di.CellStateParserModule
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleComponent
@@ -50,7 +51,8 @@ abstract class TestComposeLifeApplicationComponent(
     ClockComponent,
     ProcessLifecycleComponent,
     DoNotKeepProcessComponent,
-    UpdatableModule {
+    UpdatableModule,
+    CellStateParserModule {
 
     override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
         object :
@@ -61,7 +63,8 @@ abstract class TestComposeLifeApplicationComponent(
             AlgorithmModule by this,
             DispatchersModule by this,
             PreferencesModule by this,
-            UpdatableModule by this {}
+            UpdatableModule by this,
+            CellStateParserModule by this {}
 
     companion object
 }
@@ -75,4 +78,5 @@ interface TestComposeLifeApplicationEntryPoint :
     AlgorithmModule,
     DispatchersModule,
     PreferencesModule,
-    UpdatableModule
+    UpdatableModule,
+    CellStateParserModule

@@ -70,22 +70,7 @@ class FlexibleCellStateSerializer(
                         }
                     }
                     .awaitAll()
-                    .reduce { a, b ->
-                        when (a) {
-                            is DeserializationResult.Unsuccessful -> b
-                            is DeserializationResult.Successful -> {
-                                when (b) {
-                                    is DeserializationResult.Successful -> if (a.warnings.isEmpty()) {
-                                        a
-                                    } else {
-                                        b
-                                    }
-
-                                    is DeserializationResult.Unsuccessful -> a
-                                }
-                            }
-                        }
-                    }
+                    .reduceToSuccessful()
             }
         }
 

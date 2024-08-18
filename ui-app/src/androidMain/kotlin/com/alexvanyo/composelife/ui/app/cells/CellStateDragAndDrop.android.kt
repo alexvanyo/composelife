@@ -36,7 +36,7 @@ import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
-import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
+import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -65,7 +65,7 @@ actual fun Modifier.cellStateDragAndDropSource(
         )
     }
 
-context(ClipboardCellStateParserProvider)
+context(CellStateParserProvider)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Suppress("ComposeComposableModifier")
@@ -73,13 +73,13 @@ actual fun Modifier.cellStateDragAndDropTarget(
     setSelectionToCellState: (CellState) -> Unit,
 ): Modifier {
     val coroutineScope = rememberCoroutineScope()
-    val target = remember(clipboardCellStateParser, coroutineScope) {
+    val target = remember(cellStateParser, coroutineScope) {
         object : DragAndDropTarget {
             override fun onDrop(event: DragAndDropEvent): Boolean {
                 val clipData = event.toAndroidDragEvent().clipData
                 coroutineScope.launch {
                     when (
-                        val deserializationResult = clipboardCellStateParser.parseCellState(clipData)
+                        val deserializationResult = cellStateParser.parseCellState(clipData)
                     ) {
                         is DeserializationResult.Successful -> {
                             setSelectionToCellState(deserializationResult.cellState)

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.geometry.toPx
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.model.CellWindow
@@ -35,7 +36,6 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
-import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
 import com.alexvanyo.composelife.ui.app.createComponent
@@ -55,7 +55,7 @@ class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
     TestComposeLifeUiComponent::createComponent,
 ) {
 
-    private val clipboardCellStateParserProvider: ClipboardCellStateParserProvider = applicationComponent
+    private val cellStateParserProvider: CellStateParserProvider = applicationComponent
 
     @Test
     fun no_selection_is_displayed_correctly() = runUiTest {
@@ -64,7 +64,7 @@ class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
         setContent {
             resolver = parameterizedStringResolver()
 
-            with(clipboardCellStateParserProvider) {
+            with(cellStateParserProvider) {
                 SelectionOverlay(
                     selectionSessionState = SessionValue(
                         sessionId = uuid4(),
@@ -97,7 +97,7 @@ class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
         setContent {
             resolver = parameterizedStringResolver()
 
-            with(clipboardCellStateParserProvider) {
+            with(cellStateParserProvider) {
                 SelectionOverlay(
                     selectionSessionState = SessionValue(
                         sessionId = uuid4(),
@@ -166,7 +166,7 @@ class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
         setContent {
             resolver = parameterizedStringResolver()
 
-            with(clipboardCellStateParserProvider) {
+            with(cellStateParserProvider) {
                 SelectionOverlay(
                     selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
                     setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },

@@ -83,6 +83,9 @@ kotlin {
             dependsOn(jvmNonAndroidMain)
             configurations["kspDesktop"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
+            dependencies {
+                implementation(libs.jetbrains.compose.ui)
+            }
         }
         val androidMain by getting {
             dependsOn(jvmMain)

@@ -57,10 +57,10 @@ import com.alexvanyo.composelife.geometry.toRingOffset
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
+import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
-import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
 import com.alexvanyo.composelife.ui.util.detectTransformGestures
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
@@ -79,7 +79,7 @@ object CellWindow {
 }
 
 interface CellWindowInjectEntryPoint :
-    ClipboardCellStateParserProvider
+    CellStateParserProvider
 
 interface CellWindowLocalEntryPoint :
     LoadedComposeLifePreferencesProvider,

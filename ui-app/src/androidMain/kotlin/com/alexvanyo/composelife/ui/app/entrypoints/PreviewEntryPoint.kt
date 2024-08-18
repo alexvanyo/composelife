@@ -31,7 +31,9 @@ import com.alexvanyo.composelife.database.ComposeLifeDatabase
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.DefaultComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
+import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.FlexibleCellStateSerializer
+import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
@@ -42,8 +44,6 @@ import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProv
 import com.alexvanyo.composelife.random.di.RandomProvider
 import com.alexvanyo.composelife.ui.app.CellUniversePaneInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.CellUniversePaneLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.ClipboardCellStateParser
-import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseLocalEntryPoint
@@ -146,7 +146,7 @@ internal fun WithPreviewDependencies(
     ),
     random: Random = Random(1),
     clock: Clock = Clock.System,
-    clipboardCellStateParser: ClipboardCellStateParser = ClipboardCellStateParser(
+    cellStateParser: CellStateParser = CellStateParser(
         flexibleCellStateSerializer = FlexibleCellStateSerializer(
             dispatchers = dispatchers,
         ),
@@ -193,8 +193,8 @@ internal fun WithPreviewDependencies(
     val clockProvider = object : ClockProvider {
         override val clock = clock
     }
-    val clipboardCellStateParserProvider = object : ClipboardCellStateParserProvider {
-        override val clipboardCellStateParser = clipboardCellStateParser
+    val cellStateParserProvider = object : CellStateParserProvider {
+        override val cellStateParser = cellStateParser
     }
 
     val entryPoint = object :
@@ -206,7 +206,7 @@ internal fun WithPreviewDependencies(
         LoadedComposeLifePreferencesProvider by loadedPreferencesProvider,
         RandomProvider by randomProvider,
         ClockProvider by clockProvider,
-        ClipboardCellStateParserProvider by clipboardCellStateParserProvider {}
+        CellStateParserProvider by cellStateParserProvider {}
 
     content(entryPoint)
 }

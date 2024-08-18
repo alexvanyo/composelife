@@ -19,7 +19,7 @@ package com.alexvanyo.composelife.ui.app.cells
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.model.CellState
-import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
+import com.alexvanyo.composelife.model.di.CellStateParserProvider
 
 /**
  * A [Modifier] for a drag-and-drop source for a [CellState].
@@ -29,6 +29,6 @@ expect fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): M
 /**
  * A [Modifier] for a drag-and-drop target for a [CellState].
  */
-context(ClipboardCellStateParserProvider)
+context(CellStateParserProvider)
 @Composable
 expect fun Modifier.cellStateDragAndDropTarget(setSelectionToCellState: (CellState) -> Unit): Modifier

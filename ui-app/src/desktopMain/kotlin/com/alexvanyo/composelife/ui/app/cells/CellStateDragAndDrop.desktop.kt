@@ -53,7 +53,8 @@ import androidx.compose.ui.unit.toSize
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
-import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
+import com.alexvanyo.composelife.model.di.CellStateParserProvider
+import com.alexvanyo.composelife.ui.app.parseCellState
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.Picture
 import org.jetbrains.skia.PictureRecorder
@@ -215,7 +216,7 @@ private class CacheDrawScopeDragShadowCallback {
     }
 }
 
-context(ClipboardCellStateParserProvider)
+context(CellStateParserProvider)
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
 @Suppress("ComposeComposableModifier")
@@ -223,12 +224,12 @@ actual fun Modifier.cellStateDragAndDropTarget(
     setSelectionToCellState: (CellState) -> Unit,
 ): Modifier {
     val coroutineScope = rememberCoroutineScope()
-    val target = remember(clipboardCellStateParser, coroutineScope) {
+    val target = remember(cellStateParser, coroutineScope) {
         object : DragAndDropTarget {
             override fun onDrop(event: DragAndDropEvent): Boolean {
                 coroutineScope.launch {
                     when (
-                        val deserializationResult = clipboardCellStateParser.parseCellState(event)
+                        val deserializationResult = cellStateParser.parseCellState(event)
                     ) {
                         is DeserializationResult.Successful -> {
                             setSelectionToCellState(deserializationResult.cellState)
