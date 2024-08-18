@@ -121,7 +121,8 @@ internal interface PreviewEntryPoint :
     InteractiveCellUniverseOverlayLocalEntryPoint,
     NonInteractableCellsLocalEntryPoint,
     SettingUiInjectEntryPoint,
-    SettingUiLocalEntryPoint
+    SettingUiLocalEntryPoint,
+    ComposeLifePreferencesProvider
 
 /**
  * Provides fake implementations for the entry points passed to [content] as context receivers.

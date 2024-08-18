@@ -18,9 +18,6 @@
 
 package com.alexvanyo.composelife.ui.app
 
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.draganddrop.DragAndDropEvent
-import androidx.compose.ui.draganddrop.dragData
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.parseCellState
@@ -29,7 +26,3 @@ import com.alexvanyo.composelife.ui.util.ClipboardReader
 actual suspend fun CellStateParser.parseCellState(
     clipboardStateReader: ClipboardReader,
 ): DeserializationResult = parseCellState(clipboardStateReader.getText()?.text)
-
-@OptIn(ExperimentalComposeUiApi::class)
-actual suspend fun CellStateParser.parseCellState(dragAndDropEvent: DragAndDropEvent): DeserializationResult =
-    parseCellState(dragAndDropEvent.dragData())

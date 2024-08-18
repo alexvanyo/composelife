@@ -37,9 +37,6 @@ internal actual fun Strings.GenerationsPerStepValue(generationsPerStep: Int): Pa
 internal actual val Strings.GenerationsPerStepLabel: ParameterizedString get() =
     ParameterizedString("Generations per step")
 
-internal actual fun Strings.InteractableCellContentDescription(x: Int, y: Int): ParameterizedString =
-    ParameterizedString("$x, $y")
-
 internal actual fun Strings.OffsetInfoMessage(x: Float, y: Float): ParameterizedString =
     ParameterizedString("Offset: x = %.1f, y = %.1f", x, y)
 
@@ -210,9 +207,6 @@ internal actual val Strings.QuickSettingsInfo: ParameterizedString get() =
 
 internal actual val Strings.SeeAll: ParameterizedString get() =
     ParameterizedString("See all…")
-
-internal actual fun Strings.SelectingBoxHandle(x: Int, y: Int) =
-    ParameterizedString("Selection handle: %d, %d", x, y)
 
 internal actual val Strings.EmptyClipboard: ParameterizedString get() =
     ParameterizedString("Empty clipboard")

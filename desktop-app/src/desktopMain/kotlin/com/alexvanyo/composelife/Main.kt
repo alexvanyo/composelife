@@ -24,8 +24,8 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.app.theme.shouldUseDarkTheme
+import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
 import com.slack.circuit.retained.LocalRetainedStateRegistry
 import com.slack.circuit.retained.continuityRetainedStateRegistry
 import kotlinx.coroutines.launch

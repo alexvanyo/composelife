@@ -37,6 +37,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.core)
                 implementation(projects.injectScopes)
                 implementation(projects.uiApp)
+                implementation(projects.uiMobile)
             }
         }
         val desktopMain by getting {
