@@ -31,7 +31,10 @@ import com.alexvanyo.composelife.patterns.SingleCellPattern
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -68,7 +71,9 @@ class TemporalGameOfLifeStateMoleculeTests {
             )
 
             LaunchedEffect(temporalGameOfLifeStateMutator) {
-                temporalGameOfLifeStateMutator.update()
+                withContext(testDispatcher) {
+                    temporalGameOfLifeStateMutator.update()
+                }
             }
             temporalGameOfLifeState
         }
@@ -84,9 +89,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                 )
 
                 SixLongLinePattern.cellStates.forEach { expectedCellState ->
-                    testDispatcher.scheduler.runCurrent()
-                    testDispatcher.scheduler.advanceTimeBy(17)
-                    testDispatcher.scheduler.runCurrent()
+                    advanceTimeBy(17)
+                    runCurrent()
 
                     assertEquals(expectedCellState, temporalGameOfLifeState.cellState)
                     temporalGameOfLifeState.status.let { status ->
@@ -119,7 +123,9 @@ class TemporalGameOfLifeStateMoleculeTests {
             )
 
             LaunchedEffect(temporalGameOfLifeStateMutator) {
-                temporalGameOfLifeStateMutator.update()
+                withContext(testDispatcher) {
+                    temporalGameOfLifeStateMutator.update()
+                }
             }
             temporalGameOfLifeState
         }
@@ -134,8 +140,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     temporalGameOfLifeState.status,
                 )
 
-                testDispatcher.scheduler.advanceTimeBy(8)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(8)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -143,9 +149,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
                 }
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(9)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(9)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -153,9 +158,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(8)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(8)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -163,9 +167,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(9)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(9)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -175,9 +178,8 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 temporalGameOfLifeState.setIsRunning(false)
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(1000)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(1000)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
                 assertIs<TemporalGameOfLifeState.EvolutionStatus.Paused>(temporalGameOfLifeState.status)
@@ -206,7 +208,9 @@ class TemporalGameOfLifeStateMoleculeTests {
             )
 
             LaunchedEffect(temporalGameOfLifeStateMutator) {
-                temporalGameOfLifeStateMutator.update()
+                withContext(testDispatcher) {
+                    temporalGameOfLifeStateMutator.update()
+                }
             }
             temporalGameOfLifeState
         }
@@ -221,8 +225,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     temporalGameOfLifeState.status,
                 )
 
-                testDispatcher.scheduler.advanceTimeBy(8)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(8)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -230,9 +234,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
                 }
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(9)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(9)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -240,9 +243,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(8)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(8)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -250,9 +252,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(9)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(9)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -262,9 +263,8 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 temporalGameOfLifeState.targetStepsPerSecond = 10.0
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(50)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(50)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -272,9 +272,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(50)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(50)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -306,7 +305,9 @@ class TemporalGameOfLifeStateMoleculeTests {
             )
 
             LaunchedEffect(temporalGameOfLifeStateMutator) {
-                temporalGameOfLifeStateMutator.update()
+                withContext(testDispatcher) {
+                    temporalGameOfLifeStateMutator.update()
+                }
             }
             temporalGameOfLifeState
         }
@@ -321,8 +322,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     temporalGameOfLifeState.status,
                 )
 
-                testDispatcher.scheduler.advanceTimeBy(8)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(8)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -330,9 +331,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
                 }
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(9)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(9)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -340,9 +340,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(8)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(8)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -350,9 +349,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(9)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(9)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -362,9 +360,8 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 temporalGameOfLifeState.cellState = SingleCellPattern.seedCellState
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(8)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(8)
+                runCurrent()
 
                 assertEquals(SingleCellPattern.seedCellState, temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -372,9 +369,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(9)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(9)
+                runCurrent()
 
                 assertEquals(SingleCellPattern.cellStates[0], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -409,12 +405,16 @@ class TemporalGameOfLifeStateMoleculeTests {
 
             if (runFirstMutator) {
                 LaunchedEffect(temporalGameOfLifeStateMutator) {
-                    temporalGameOfLifeStateMutator.update()
+                    withContext(testDispatcher) {
+                        temporalGameOfLifeStateMutator.update()
+                    }
                 }
             }
 
             LaunchedEffect(temporalGameOfLifeStateMutator) {
-                temporalGameOfLifeStateMutator.update()
+                withContext(testDispatcher) {
+                    temporalGameOfLifeStateMutator.update()
+                }
             }
             temporalGameOfLifeState
         }
@@ -429,8 +429,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     temporalGameOfLifeState.status,
                 )
 
-                testDispatcher.scheduler.advanceTimeBy(8)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(8)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -438,9 +438,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
                 }
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(9)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(9)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -448,9 +447,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(8)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(8)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -458,9 +456,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(9)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(9)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -470,9 +467,8 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 runFirstMutator = false
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(8)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(8)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -480,9 +476,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
-                testDispatcher.scheduler.runCurrent()
-                testDispatcher.scheduler.advanceTimeBy(9)
-                testDispatcher.scheduler.runCurrent()
+                advanceTimeBy(9)
+                runCurrent()
 
                 assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
@@ -514,7 +509,9 @@ class TemporalGameOfLifeStateMoleculeTests {
             )
 
             LaunchedEffect(temporalGameOfLifeStateMutator) {
-                temporalGameOfLifeStateMutator.update()
+                withContext(testDispatcher) {
+                    temporalGameOfLifeStateMutator.update()
+                }
             }
             temporalGameOfLifeState
         }
@@ -528,9 +525,8 @@ class TemporalGameOfLifeStateMoleculeTests {
                 )
 
                 SixLongLinePattern.cellStates.forEach { expectedCellState ->
-                    testDispatcher.scheduler.runCurrent()
                     temporalGameOfLifeState.step()
-                    testDispatcher.scheduler.runCurrent()
+                    runCurrent()
 
                     assertEquals(expectedCellState, temporalGameOfLifeState.cellState)
                     assertEquals(TemporalGameOfLifeState.EvolutionStatus.Paused, temporalGameOfLifeState.status)
