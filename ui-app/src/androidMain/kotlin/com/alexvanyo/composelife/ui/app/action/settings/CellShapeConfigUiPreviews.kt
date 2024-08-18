@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
-import com.alexvanyo.composelife.ui.app.theme.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import com.benasher44.uuid.uuid4
 

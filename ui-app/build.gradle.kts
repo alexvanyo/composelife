@@ -55,6 +55,7 @@ kotlin {
                 api(projects.data)
                 api(projects.dispatchers)
                 api(projects.random)
+                api(projects.uiCells)
 
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.collections.immutable)
@@ -70,6 +71,7 @@ kotlin {
                 implementation(projects.sessionValue)
                 implementation(projects.snapshotStateSet)
                 implementation(projects.uiCommon)
+                implementation(projects.uiMobile)
                 implementation(projects.uiToolingPreview)
             }
         }

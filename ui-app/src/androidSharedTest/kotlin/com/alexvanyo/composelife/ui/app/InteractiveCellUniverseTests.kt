@@ -68,12 +68,12 @@ import com.alexvanyo.composelife.ui.app.resources.Copy
 import com.alexvanyo.composelife.ui.app.resources.Expand
 import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepLabel
 import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepLabelAndValue
-import com.alexvanyo.composelife.ui.app.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.app.resources.Pause
 import com.alexvanyo.composelife.ui.app.resources.Play
 import com.alexvanyo.composelife.ui.app.resources.Step
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondLabelAndValue
+import com.alexvanyo.composelife.ui.cells.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.util.ClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.rememberFakeClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
@@ -84,6 +84,7 @@ import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import com.alexvanyo.composelife.ui.cells.resources.Strings as CellsStrings
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalTestApi::class)
@@ -254,7 +255,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             scrollToCell(cell)
 
             onNodeWithContentDescription(
-                resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+                resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
             )
                 .performTouchInput { click(topLeft) }
         }
@@ -320,7 +321,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             scrollToCell(cell)
 
             onNodeWithContentDescription(
-                resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+                resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
             )
                 .performTouchInput { click(topLeft) }
         }
@@ -386,7 +387,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             scrollToCell(cell)
 
             onNodeWithContentDescription(
-                resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+                resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
             )
                 .performTouchInput { click(topLeft) }
         }
@@ -465,7 +466,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             scrollToCell(cell)
 
             onNodeWithContentDescription(
-                resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+                resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
             )
                 .performTouchInput { click(topLeft) }
         }
@@ -525,7 +526,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             scrollToCell(cell)
 
             onNodeWithContentDescription(
-                resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+                resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
             )
                 .performTouchInput { click(topLeft) }
         }
@@ -600,7 +601,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             scrollToCell(cell)
 
             onNodeWithContentDescription(
-                resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+                resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
             )
                 .performTouchInput { click(topLeft) }
         }
@@ -700,7 +701,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             scrollToCell(cell)
 
             onNodeWithContentDescription(
-                resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+                resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
             )
                 .performTouchInput { click(topLeft) }
         }
@@ -788,7 +789,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
             scrollToCell(cell)
 
             onNodeWithContentDescription(
-                resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+                resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
             )
                 .performTouchInput { click(topLeft) }
         }
@@ -905,14 +906,14 @@ private fun ComposeUiTest.assertNodesAreAlive(resolver: (ParameterizedString) ->
     cells.forEach { cell ->
         if (
             onAllNodesWithContentDescription(
-                resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+                resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
             ).fetchSemanticsNodes().isEmpty()
         ) {
             scrollToCell(cell)
         }
 
         onNodeWithContentDescription(
-            resolver.invoke(Strings.InteractableCellContentDescription(cell.x, cell.y)),
+            resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
         )
             .assertIsOn()
     }

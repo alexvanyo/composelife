@@ -42,6 +42,7 @@ kotlin {
                 implementation(libs.androidx.compose.foundation)
                 implementation(libs.androidx.compose.ui)
                 implementation(projects.uiApp)
+                implementation(projects.uiMobile)
             }
         }
 

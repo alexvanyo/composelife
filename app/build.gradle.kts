@@ -64,6 +64,7 @@ kotlin {
                 implementation(projects.resourcesApp)
                 implementation(projects.strictMode)
                 implementation(projects.uiApp)
+                implementation(projects.uiMobile)
             }
         }
         val androidMain by getting {

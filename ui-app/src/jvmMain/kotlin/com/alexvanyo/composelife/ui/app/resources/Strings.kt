@@ -33,11 +33,6 @@ internal expect fun Strings.GenerationsPerStepValue(generationsPerStep: Int): Pa
 
 internal expect val Strings.GenerationsPerStepLabel: ParameterizedString
 
-internal expect fun Strings.InteractableCellContentDescription(
-    x: Int,
-    y: Int,
-): ParameterizedString
-
 internal expect fun Strings.OffsetInfoMessage(x: Float, y: Float): ParameterizedString
 
 internal expect fun Strings.ScaleInfoMessage(scale: Float): ParameterizedString
@@ -151,8 +146,6 @@ internal expect val Strings.LightTheme: ParameterizedString
 internal expect val Strings.QuickSettingsInfo: ParameterizedString
 
 internal expect val Strings.SeeAll: ParameterizedString
-
-internal expect fun Strings.SelectingBoxHandle(x: Int, y: Int): ParameterizedString
 
 internal expect val Strings.EmptyClipboard: ParameterizedString
 
