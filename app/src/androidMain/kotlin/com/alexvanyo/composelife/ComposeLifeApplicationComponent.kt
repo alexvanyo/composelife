@@ -28,6 +28,7 @@ import com.alexvanyo.composelife.database.di.DatabaseComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.donotkeepprocess.di.DoNotKeepProcessComponent
+import com.alexvanyo.composelife.model.di.CellStateParserModule
 import com.alexvanyo.composelife.preferences.di.PreferencesComponent
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleComponent
@@ -51,7 +52,8 @@ abstract class ComposeLifeApplicationComponent(
     RandomComponent,
     PreferencesComponent,
     DoNotKeepProcessComponent,
-    UpdatableModule {
+    UpdatableModule,
+    CellStateParserModule {
 
     override val entryPoint: ComposeLifeApplicationEntryPoint get() =
         object :
@@ -62,7 +64,8 @@ abstract class ComposeLifeApplicationComponent(
             AlgorithmModule by this,
             DispatchersModule by this,
             PreferencesModule by this,
-            UpdatableModule by this {}
+            UpdatableModule by this,
+            CellStateParserModule by this {}
 
     companion object
 }
@@ -74,4 +77,5 @@ interface ComposeLifeApplicationEntryPoint :
     AlgorithmModule,
     DispatchersModule,
     PreferencesModule,
-    UpdatableModule
+    UpdatableModule,
+    CellStateParserModule

@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
@@ -26,7 +27,6 @@ import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProv
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
-import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
 import com.alexvanyo.composelife.ui.app.createComponent
@@ -43,7 +43,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {
-    private val clipboardCellStateParserProvider: ClipboardCellStateParserProvider = applicationComponent
+    private val cellStateParserProvider: CellStateParserProvider = applicationComponent
 
     @Test
     fun initial_state_is_correct_when_onboarding() = runUiTest {
@@ -62,7 +62,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
                 object :
                     ComposeLifePreferencesProvider,
                     LoadedComposeLifePreferencesProvider,
-                    ClipboardCellStateParserProvider by clipboardCellStateParserProvider {
+                    CellStateParserProvider by cellStateParserProvider {
                     override val composeLifePreferences = composeLifePreferences
                     override val preferences get(): LoadedComposeLifePreferences {
                         val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
@@ -112,7 +112,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
                 object :
                     ComposeLifePreferencesProvider,
                     LoadedComposeLifePreferencesProvider,
-                    ClipboardCellStateParserProvider by clipboardCellStateParserProvider {
+                    CellStateParserProvider by cellStateParserProvider {
                     override val composeLifePreferences = composeLifePreferences
                     override val preferences get(): LoadedComposeLifePreferences {
                         val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
@@ -163,7 +163,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
                 object :
                     ComposeLifePreferencesProvider,
                     LoadedComposeLifePreferencesProvider,
-                    ClipboardCellStateParserProvider by clipboardCellStateParserProvider {
+                    CellStateParserProvider by cellStateParserProvider {
                     override val composeLifePreferences = composeLifePreferences
                     override val preferences get(): LoadedComposeLifePreferences {
                         val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
@@ -214,7 +214,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
                 object :
                     ComposeLifePreferencesProvider,
                     LoadedComposeLifePreferencesProvider,
-                    ClipboardCellStateParserProvider by clipboardCellStateParserProvider {
+                    CellStateParserProvider by cellStateParserProvider {
                     override val composeLifePreferences = composeLifePreferences
                     override val preferences get(): LoadedComposeLifePreferences {
                         val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
@@ -264,7 +264,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
                 object :
                     ComposeLifePreferencesProvider,
                     LoadedComposeLifePreferencesProvider,
-                    ClipboardCellStateParserProvider by clipboardCellStateParserProvider {
+                    CellStateParserProvider by cellStateParserProvider {
                     override val composeLifePreferences = composeLifePreferences
                     override val preferences get(): LoadedComposeLifePreferences {
                         val loadedPreferencesState = composeLifePreferences.loadedPreferencesState

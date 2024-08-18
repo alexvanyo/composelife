@@ -45,7 +45,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
+import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
@@ -53,11 +55,10 @@ import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProv
 import com.alexvanyo.composelife.preferences.setMouseToolConfig
 import com.alexvanyo.composelife.preferences.setStylusToolConfig
 import com.alexvanyo.composelife.preferences.setTouchToolConfig
-import com.alexvanyo.composelife.ui.app.ClipboardCellStateParser
-import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
 import com.alexvanyo.composelife.ui.app.cells.isSharedElementForCellsSupported
 import com.alexvanyo.composelife.ui.app.component.DropdownOption
 import com.alexvanyo.composelife.ui.app.component.TextFieldDropdown
+import com.alexvanyo.composelife.ui.app.parseCellState
 import com.alexvanyo.composelife.ui.app.resources.Draw
 import com.alexvanyo.composelife.ui.app.resources.Erase
 import com.alexvanyo.composelife.ui.app.resources.Mouse
@@ -83,7 +84,7 @@ import kotlinx.coroutines.launch
 
 interface InlineEditPaneInjectEntryPoint :
     ComposeLifePreferencesProvider,
-    ClipboardCellStateParserProvider,
+    CellStateParserProvider,
     ClipboardCellStatePreviewInjectEntryPoint
 
 interface InlineEditPaneLocalEntryPoint :
@@ -300,7 +301,7 @@ interface PinnedClipboardPreviewState {
 context(
     ComposeLifePreferencesProvider,
     LoadedComposeLifePreferencesProvider,
-    ClipboardCellStateParserProvider
+    CellStateParserProvider
 )
 @Composable
 fun rememberInlineEditPaneState(
@@ -350,7 +351,7 @@ fun rememberInlineEditPaneState(
 context(
     ComposeLifePreferencesProvider,
     LoadedComposeLifePreferencesProvider,
-    ClipboardCellStateParserProvider
+    CellStateParserProvider
 )
 @Composable
 fun rememberClipboardWatchingState(
@@ -394,7 +395,7 @@ fun rememberClipboardWatchingOnboardingState(
         }
     }
 
-context(ClipboardCellStateParserProvider, LoadedComposeLifePreferencesProvider)
+context(CellStateParserProvider, LoadedComposeLifePreferencesProvider)
 @Composable
 fun rememberClipboardWatchingEnabledState(
     setSelectionToCellState: (CellState) -> Unit,
@@ -402,7 +403,7 @@ fun rememberClipboardWatchingEnabledState(
     rememberClipboardWatchingEnabledState(
         useSharedElementForCellStatePreviews = isSharedElementForCellsSupported(),
         clipboardReader = rememberClipboardReader(),
-        parser = clipboardCellStateParser,
+        parser = cellStateParser,
         setSelectionToCellState = setSelectionToCellState,
     )
 
@@ -412,7 +413,7 @@ context(LoadedComposeLifePreferencesProvider)
 fun rememberClipboardWatchingEnabledState(
     useSharedElementForCellStatePreviews: Boolean,
     clipboardReader: ClipboardReader,
-    parser: ClipboardCellStateParser,
+    parser: CellStateParser,
     setSelectionToCellState: (CellState) -> Unit,
 ): ClipboardWatchingState.ClipboardWatchingEnabled {
     var isLoading by remember { mutableStateOf(false) }

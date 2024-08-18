@@ -72,3 +72,6 @@ actual fun DuplicateTopLeftCoordinateMessage(
         overwritingOffset.x,
         overwritingOffset.y,
     )
+
+actual fun EmptyInput(): ParameterizedString =
+    ParameterizedString("Input was empty, could not parse")

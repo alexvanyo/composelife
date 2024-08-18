@@ -45,3 +45,21 @@ sealed interface DeserializationResult {
         val errors: List<ParameterizedString>,
     ) : DeserializationResult
 }
+
+fun Iterable<DeserializationResult>.reduceToSuccessful(): DeserializationResult =
+    reduce { a, b ->
+        when (a) {
+            is DeserializationResult.Unsuccessful -> b
+            is DeserializationResult.Successful -> {
+                when (b) {
+                    is DeserializationResult.Successful -> if (a.warnings.isEmpty()) {
+                        a
+                    } else {
+                        b
+                    }
+
+                    is DeserializationResult.Unsuccessful -> a
+                }
+            }
+        }
+    }

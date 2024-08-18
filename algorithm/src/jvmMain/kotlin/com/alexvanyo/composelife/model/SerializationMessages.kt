@@ -50,3 +50,5 @@ expect fun RuleNotSupportedMessage(): ParameterizedString
 expect fun DuplicateTopLeftCoordinateMessage(
     overwritingOffset: IntOffset,
 ): ParameterizedString
+
+expect fun EmptyInput(): ParameterizedString
