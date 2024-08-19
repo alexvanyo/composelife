@@ -18,19 +18,8 @@ package com.alexvanyo.composelife.ui.cells.entrypoints
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import app.cash.sqldelight.driver.android.AndroidSqliteDriver
-import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
-import com.alexvanyo.composelife.algorithm.NaiveGameOfLifeAlgorithm
-import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
-import com.alexvanyo.composelife.clock.di.ClockProvider
-import com.alexvanyo.composelife.data.CellStateRepositoryImpl
-import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
-import com.alexvanyo.composelife.database.CellState
-import com.alexvanyo.composelife.database.CellStateIdAdapter
-import com.alexvanyo.composelife.database.ComposeLifeDatabase
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.DefaultComposeLifeDispatchers
-import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.FlexibleCellStateSerializer
 import com.alexvanyo.composelife.model.di.CellStateParserProvider
@@ -41,13 +30,10 @@ import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.currentShape
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
-import com.alexvanyo.composelife.random.di.RandomProvider
 import com.alexvanyo.composelife.ui.app.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.InteractableCellsLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.cells.NonInteractableCellsLocalEntryPoint
-import kotlinx.datetime.Clock
-import kotlin.random.Random
 
 /**
  * The full super-interface implementing all entry points for rendering
@@ -69,7 +55,6 @@ internal interface PreviewEntryPoint :
 @Composable
 internal fun WithPreviewDependencies(
     dispatchers: ComposeLifeDispatchers = DefaultComposeLifeDispatchers(),
-    gameOfLifeAlgorithm: GameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
     loadedComposeLifePreferences: LoadedComposeLifePreferences = LoadedComposeLifePreferences.Defaults,
     composeLifePreferences: ComposeLifePreferences = TestComposeLifePreferences(
         algorithmChoice = loadedComposeLifePreferences.algorithmChoice,
@@ -81,8 +66,6 @@ internal fun WithPreviewDependencies(
         disableAGSL = loadedComposeLifePreferences.disableAGSL,
         disableOpenGL = loadedComposeLifePreferences.disableOpenGL,
     ),
-    random: Random = Random(1),
-    clock: Clock = Clock.System,
     cellStateParser: CellStateParser = CellStateParser(
         flexibleCellStateSerializer = FlexibleCellStateSerializer(
             dispatchers = dispatchers,
@@ -92,43 +75,11 @@ internal fun WithPreviewDependencies(
     ),
     content: @Composable context(PreviewEntryPoint) () -> Unit,
 ) {
-    val driver = AndroidSqliteDriver(
-        schema = ComposeLifeDatabase.Schema,
-        context = LocalContext.current,
-        name = null,
-    )
-    val composeLifeDatabase = ComposeLifeDatabase(
-        driver = driver,
-        cellStateAdapter = CellState.Adapter(
-            idAdapter = CellStateIdAdapter(),
-        ),
-    )
-    val cellStateQueries = composeLifeDatabase.cellStateQueries
-
-    val dispatchersProvider = object : ComposeLifeDispatchersProvider {
-        override val dispatchers = dispatchers
-    }
-    val algorithmProvider = object : GameOfLifeAlgorithmProvider {
-        override val gameOfLifeAlgorithm = gameOfLifeAlgorithm
-    }
     val preferencesProvider = object : ComposeLifePreferencesProvider {
         override val composeLifePreferences = composeLifePreferences
     }
-    val cellStateRepositoryProvider = object : CellStateRepositoryProvider {
-        override val cellStateRepository = CellStateRepositoryImpl(
-            flexibleCellStateSerializer = FlexibleCellStateSerializer(dispatchers),
-            cellStateQueries = cellStateQueries,
-            dispatchers = dispatchers,
-        )
-    }
     val loadedPreferencesProvider = object : LoadedComposeLifePreferencesProvider {
         override val preferences: LoadedComposeLifePreferences = loadedComposeLifePreferences
-    }
-    val randomProvider = object : RandomProvider {
-        override val random = random
-    }
-    val clockProvider = object : ClockProvider {
-        override val clock = clock
     }
     val clipboardCellStateParserProvider = object : CellStateParserProvider {
         override val cellStateParser = cellStateParser
@@ -136,13 +87,8 @@ internal fun WithPreviewDependencies(
 
     val entryPoint = object :
         PreviewEntryPoint,
-        ComposeLifeDispatchersProvider by dispatchersProvider,
-        GameOfLifeAlgorithmProvider by algorithmProvider,
         ComposeLifePreferencesProvider by preferencesProvider,
-        CellStateRepositoryProvider by cellStateRepositoryProvider,
         LoadedComposeLifePreferencesProvider by loadedPreferencesProvider,
-        RandomProvider by randomProvider,
-        ClockProvider by clockProvider,
         CellStateParserProvider by clipboardCellStateParserProvider {}
 
     content(entryPoint)

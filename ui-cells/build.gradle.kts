@@ -50,11 +50,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(projects.algorithm)
-                api(projects.clock)
-                api(projects.data)
                 api(projects.dispatchers)
-                api(projects.random)
 
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.collections.immutable)
@@ -62,7 +58,6 @@ kotlin {
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(projects.injectScopes)
-                implementation(projects.navigation)
                 implementation(projects.openglRenderer)
                 implementation(projects.parameterizedString)
                 implementation(projects.patterns)
@@ -84,8 +79,6 @@ kotlin {
         val jbMain by creating {
             dependsOn(jvmMain)
             dependencies {
-                api(libs.material3.windowSizeClass.multiplatform)
-
                 implementation(libs.jetbrains.compose.material3)
                 implementation(libs.jetbrains.compose.materialIconsExtended)
                 implementation(libs.jetbrains.compose.ui)
@@ -119,7 +112,6 @@ kotlin {
                 implementation(libs.androidx.window)
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.sealedEnum.runtime)
-                implementation(libs.sqldelight.androidDriver)
             }
         }
         val commonTest by getting {

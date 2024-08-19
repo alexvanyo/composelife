@@ -17,6 +17,9 @@
 
 package com.alexvanyo.composelife.ui.app
 
+import androidx.test.core.app.ApplicationProvider
+import com.alexvanyo.composelife.test.TestInjectApplication
+
 actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent {
     val application = ApplicationProvider.getApplicationContext<TestInjectApplication>()
     val applicationComponent = TestComposeLifeApplicationComponent.create(application)
