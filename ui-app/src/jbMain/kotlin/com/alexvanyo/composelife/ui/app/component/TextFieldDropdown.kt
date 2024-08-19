@@ -96,12 +96,10 @@ fun <T : DropdownOption> TextFieldDropdown(
             Box(
                 propagateMinConstraints = true,
             ) {
-                @Suppress("DEPRECATION")
-                OutlinedTextFieldDefaults.ContainerBox(
+                OutlinedTextFieldDefaults.Container(
                     enabled = true,
                     isError = false,
                     interactionSource = interactionSource,
-                    colors = OutlinedTextFieldDefaults.colors(),
                 )
 
                 DropdownMenu(
