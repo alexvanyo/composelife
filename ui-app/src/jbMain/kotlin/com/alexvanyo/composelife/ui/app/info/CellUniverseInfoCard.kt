@@ -49,9 +49,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
-import com.alexvanyo.composelife.ui.app.cells.CellWindowViewportState
-import com.alexvanyo.composelife.ui.app.cells.offset
-import com.alexvanyo.composelife.ui.app.cells.scale
 import com.alexvanyo.composelife.ui.app.resources.Collapse
 import com.alexvanyo.composelife.ui.app.resources.Expand
 import com.alexvanyo.composelife.ui.app.resources.GenerationsPerSecondLongMessage
@@ -60,6 +57,9 @@ import com.alexvanyo.composelife.ui.app.resources.OffsetInfoMessage
 import com.alexvanyo.composelife.ui.app.resources.PausedMessage
 import com.alexvanyo.composelife.ui.app.resources.ScaleInfoMessage
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
+import com.alexvanyo.composelife.ui.cells.offset
+import com.alexvanyo.composelife.ui.cells.scale
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.or

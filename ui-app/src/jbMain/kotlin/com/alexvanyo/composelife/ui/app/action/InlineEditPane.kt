@@ -55,7 +55,6 @@ import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProv
 import com.alexvanyo.composelife.preferences.setMouseToolConfig
 import com.alexvanyo.composelife.preferences.setStylusToolConfig
 import com.alexvanyo.composelife.preferences.setTouchToolConfig
-import com.alexvanyo.composelife.ui.app.cells.isSharedElementForCellsSupported
 import com.alexvanyo.composelife.ui.app.component.DropdownOption
 import com.alexvanyo.composelife.ui.app.component.TextFieldDropdown
 import com.alexvanyo.composelife.ui.app.parseCellState
@@ -71,6 +70,7 @@ import com.alexvanyo.composelife.ui.app.resources.Stylus
 import com.alexvanyo.composelife.ui.app.resources.StylusTool
 import com.alexvanyo.composelife.ui.app.resources.Touch
 import com.alexvanyo.composelife.ui.app.resources.TouchTool
+import com.alexvanyo.composelife.ui.cells.isSharedElementForCellsSupported
 import com.alexvanyo.composelife.ui.util.ClipboardReader
 import com.alexvanyo.composelife.ui.util.clipboardStateKey
 import com.alexvanyo.composelife.ui.util.rememberClipboardReader

@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
-import com.alexvanyo.composelife.ui.app.cells.SelectionState
+import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.resources.ClearSelection
 import com.alexvanyo.composelife.ui.app.resources.Collapse
 import com.alexvanyo.composelife.ui.app.resources.Copy
