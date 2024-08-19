@@ -18,9 +18,19 @@ package com.alexvanyo.composelife.updatable.di
 
 import com.alexvanyo.composelife.scopes.Singleton
 import com.alexvanyo.composelife.updatable.Updatable
+import kotlinx.coroutines.awaitCancellation
+import me.tatarka.inject.annotations.IntoSet
+import me.tatarka.inject.annotations.Provides
 
 interface UpdatableModule {
 
     @get:Singleton
     val updatables: Set<Updatable>
+
+    @Provides
+    @Singleton
+    @IntoSet
+    fun providesEmptyUpdatable(): Updatable = object : Updatable {
+        override suspend fun update(): Nothing = awaitCancellation()
+    }
 }

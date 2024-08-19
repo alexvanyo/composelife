@@ -18,20 +18,11 @@
 package com.alexvanyo.composelife.ui.app
 
 import android.app.Application
-import com.alexvanyo.composelife.algorithm.di.AlgorithmComponent
-import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
-import com.alexvanyo.composelife.clock.di.ClockComponent
-import com.alexvanyo.composelife.clock.di.ClockModule
-import com.alexvanyo.composelife.data.di.RepositoryComponent
-import com.alexvanyo.composelife.data.di.RepositoryModule
-import com.alexvanyo.composelife.database.di.TestDatabaseComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
 import com.alexvanyo.composelife.model.di.CellStateParserModule
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
-import com.alexvanyo.composelife.random.di.RandomComponent
-import com.alexvanyo.composelife.random.di.RandomModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import me.tatarka.inject.annotations.Component
@@ -40,23 +31,14 @@ import me.tatarka.inject.annotations.Component
 actual abstract class TestComposeLifeApplicationComponent(
     application: Application,
 ) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
-    AlgorithmComponent,
-    RepositoryComponent,
-    TestDatabaseComponent,
     TestDispatchersComponent,
     TestPreferencesComponent,
-    RandomComponent,
-    ClockComponent,
     UpdatableModule,
     CellStateParserModule {
 
     actual override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
         object :
             TestComposeLifeApplicationEntryPoint,
-            AlgorithmModule by this,
-            RepositoryModule by this,
-            ClockModule by this,
-            RandomModule by this,
             DispatchersModule by this,
             PreferencesModule by this,
             UpdatableModule by this,

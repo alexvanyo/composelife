@@ -64,7 +64,6 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
                 implementation(projects.injectScopes)
                 implementation(projects.navigation)
-                implementation(projects.openglRenderer)
                 implementation(projects.parameterizedString)
                 implementation(projects.patterns)
                 implementation(projects.resourceState)
