@@ -17,20 +17,17 @@
 package com.alexvanyo.composelife
 
 import com.alexvanyo.composelife.scopes.UiComponent
-import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
 import me.tatarka.inject.annotations.Component
 
 @Suppress("UnnecessaryAbstractClass")
 @Component
 abstract class ComposeLifeUiComponent(
     @Component override val applicationComponent: ComposeLifeApplicationComponent,
-) : UiComponent<ComposeLifeApplicationComponent, ComposeLifeUiEntryPoint>(applicationComponent),
-    ClipboardCellStateParserProvider {
+) : UiComponent<ComposeLifeApplicationComponent, ComposeLifeUiEntryPoint>(applicationComponent) {
     override val entryPoint: ComposeLifeUiEntryPoint get() =
         object :
             ComposeLifeUiEntryPoint,
-            ComposeLifeApplicationEntryPoint by applicationComponent.entryPoint,
-            ClipboardCellStateParserProvider by this {}
+            ComposeLifeApplicationEntryPoint by applicationComponent.entryPoint {}
 }
 
 interface ComposeLifeUiEntryPoint :

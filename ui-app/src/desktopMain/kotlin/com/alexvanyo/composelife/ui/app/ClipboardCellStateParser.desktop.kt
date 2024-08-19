@@ -18,40 +18,18 @@
 
 package com.alexvanyo.composelife.ui.app
 
-import androidx.compose.ui.DragData
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.dragData
-import com.alexvanyo.composelife.model.CellStateFormat
+import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
-import com.alexvanyo.composelife.model.FlexibleCellStateSerializer
+import com.alexvanyo.composelife.model.parseCellState
 import com.alexvanyo.composelife.ui.util.ClipboardReader
-import me.tatarka.inject.annotations.Inject
 
-@Inject
-actual class ClipboardCellStateParser(
-    private val flexibleCellStateSerializer: FlexibleCellStateSerializer,
-) {
-    actual suspend fun parseCellState(clipboardStateReader: ClipboardReader): DeserializationResult =
-        flexibleCellStateSerializer.deserializeToCellState(
-            format = CellStateFormat.Unknown,
-            lines = clipboardStateReader.getText()?.text.orEmpty().lineSequence(),
-        )
+actual suspend fun CellStateParser.parseCellState(
+    clipboardStateReader: ClipboardReader,
+): DeserializationResult = parseCellState(clipboardStateReader.getText()?.text)
 
-    @OptIn(ExperimentalComposeUiApi::class)
-    actual suspend fun parseCellState(dragAndDropEvent: DragAndDropEvent): DeserializationResult =
-        parseCellState(dragAndDropEvent.dragData())
-
-    @OptIn(ExperimentalComposeUiApi::class)
-    suspend fun parseCellState(dragData: DragData): DeserializationResult =
-        when (dragData) {
-            is DragData.Text -> flexibleCellStateSerializer.deserializeToCellState(
-                format = CellStateFormat.Unknown,
-                lines = dragData.readText().lineSequence(),
-            )
-            else -> DeserializationResult.Unsuccessful(
-                warnings = emptyList(),
-                errors = emptyList(),
-            )
-        }
-}
+@OptIn(ExperimentalComposeUiApi::class)
+actual suspend fun CellStateParser.parseCellState(dragAndDropEvent: DragAndDropEvent): DeserializationResult =
+    parseCellState(dragAndDropEvent.dragData())

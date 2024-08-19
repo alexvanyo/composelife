@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.app
+@file:Suppress("MatchingDeclarationName")
 
-interface ClipboardCellStateParserProvider {
-    val clipboardCellStateParser: ClipboardCellStateParser
-}
+package com.alexvanyo.composelife.model
+
+import me.tatarka.inject.annotations.Inject
+
+@Inject
+actual class CellStateParser(
+    internal actual val flexibleCellStateSerializer: FlexibleCellStateSerializer,
+)

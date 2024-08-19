@@ -74,11 +74,11 @@ import androidx.compose.ui.util.unpackInt1
 import androidx.compose.ui.util.unpackInt2
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellWindow
+import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.sessionvalue.preLocalSessionId
 import com.alexvanyo.composelife.sessionvalue.rememberSessionValueHolder
-import com.alexvanyo.composelife.ui.app.ClipboardCellStateParserProvider
 import com.alexvanyo.composelife.ui.app.resources.SelectingBoxHandle
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.util.AnchoredDraggable2DState
@@ -97,7 +97,7 @@ import kotlin.math.roundToInt
 /**
  * The overlay based on the [selectionState].
  */
-context(ClipboardCellStateParserProvider)
+context(CellStateParserProvider)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
 fun SelectionOverlay(

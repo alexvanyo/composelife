@@ -47,6 +47,7 @@ import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
+import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.model.isRunning
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardState
@@ -81,7 +82,7 @@ import com.benasher44.uuid.uuid4
 import kotlinx.coroutines.launch
 
 interface InteractiveCellUniverseInjectEntryPoint :
-    ClipboardCellStateParserProvider,
+    CellStateParserProvider,
     CellWindowInjectEntryPoint,
     InteractiveCellUniverseOverlayInjectEntryPoint
 
@@ -276,7 +277,7 @@ interface InteractiveCellUniverseState {
     fun onClearSelection()
 }
 
-context(ClipboardCellStateParserProvider)
+context(CellStateParserProvider)
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun rememberInteractiveCellUniverseState(
@@ -395,7 +396,7 @@ fun rememberInteractiveCellUniverseState(
         infoCardState,
         actionCardState,
         clipboardReaderWriter,
-        clipboardCellStateParser,
+        cellStateParser,
         coroutineScope,
     ) {
         object : InteractiveCellUniverseState {
@@ -464,7 +465,7 @@ fun rememberInteractiveCellUniverseState(
             override fun onPaste() {
                 coroutineScope.launch {
                     when (
-                        val deserializationResult = clipboardCellStateParser.parseCellState(clipboardReaderWriter)
+                        val deserializationResult = cellStateParser.parseCellState(clipboardReaderWriter)
                     ) {
                         is DeserializationResult.Successful -> {
                             setSelectionToCellState(deserializationResult.cellState)

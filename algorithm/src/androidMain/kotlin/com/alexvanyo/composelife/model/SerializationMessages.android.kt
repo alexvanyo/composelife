@@ -73,3 +73,6 @@ actual fun DuplicateTopLeftCoordinateMessage(
     overwritingOffset: IntOffset,
 ): ParameterizedString =
     ParameterizedString(R.string.duplicate_top_left_coordinate, overwritingOffset.x, overwritingOffset.y)
+
+actual fun EmptyInput(): ParameterizedString =
+    ParameterizedString(R.string.empty_input)
