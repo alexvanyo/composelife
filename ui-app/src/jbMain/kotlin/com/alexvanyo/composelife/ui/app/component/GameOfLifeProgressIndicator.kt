@@ -39,13 +39,13 @@ import com.alexvanyo.composelife.patterns.OscillatorPattern
 import com.alexvanyo.composelife.patterns.values
 import com.alexvanyo.composelife.random.di.RandomProvider
 import com.alexvanyo.composelife.sessionvalue.SessionValue
-import com.alexvanyo.composelife.ui.app.cells.CellWindowInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.cells.CellWindowInteractionState
-import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.cells.CellWindowState
-import com.alexvanyo.composelife.ui.app.cells.ImmutableCellWindow
-import com.alexvanyo.composelife.ui.app.cells.SelectionState
-import com.alexvanyo.composelife.ui.app.cells.ViewportInteractionConfig
+import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
+import com.alexvanyo.composelife.ui.cells.CellWindowInteractionState
+import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
+import com.alexvanyo.composelife.ui.cells.CellWindowState
+import com.alexvanyo.composelife.ui.cells.ImmutableCellWindow
+import com.alexvanyo.composelife.ui.cells.SelectionState
+import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
 import com.benasher44.uuid.uuid4
 import kotlin.math.max
 

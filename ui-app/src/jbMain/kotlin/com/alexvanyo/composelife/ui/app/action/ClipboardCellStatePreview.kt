@@ -52,14 +52,6 @@ import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.sessionvalue.SessionValue
-import com.alexvanyo.composelife.ui.app.cells.CellWindowInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.cells.CellWindowInteractionState
-import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.cells.ImmutableCellWindow
-import com.alexvanyo.composelife.ui.app.cells.SelectionState
-import com.alexvanyo.composelife.ui.app.cells.ViewportInteractionConfig
-import com.alexvanyo.composelife.ui.app.cells.cellStateDragAndDropSource
-import com.alexvanyo.composelife.ui.app.cells.rememberTrackingCellWindowViewportState
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.resources.DeserializationFailed
@@ -68,6 +60,14 @@ import com.alexvanyo.composelife.ui.app.resources.Pin
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.resources.Unpin
 import com.alexvanyo.composelife.ui.app.resources.Warnings
+import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
+import com.alexvanyo.composelife.ui.cells.CellWindowInteractionState
+import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
+import com.alexvanyo.composelife.ui.cells.ImmutableCellWindow
+import com.alexvanyo.composelife.ui.cells.SelectionState
+import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
+import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropSource
+import com.alexvanyo.composelife.ui.cells.rememberTrackingCellWindowViewportState
 import com.benasher44.uuid.uuid4
 
 interface ClipboardCellStatePreviewInjectEntryPoint :

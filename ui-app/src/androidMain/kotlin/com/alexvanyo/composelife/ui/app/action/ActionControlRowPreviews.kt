@@ -19,8 +19,8 @@ package com.alexvanyo.composelife.ui.app.action
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.model.emptyCellState
-import com.alexvanyo.composelife.ui.app.cells.SelectionState
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
+import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 

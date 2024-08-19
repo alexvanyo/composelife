@@ -30,10 +30,10 @@ import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.currentShape
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
-import com.alexvanyo.composelife.ui.app.cells.CellWindowInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.cells.InteractableCellsLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.cells.NonInteractableCellsLocalEntryPoint
+import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
+import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
+import com.alexvanyo.composelife.ui.cells.InteractableCellsLocalEntryPoint
+import com.alexvanyo.composelife.ui.cells.NonInteractableCellsLocalEntryPoint
 
 /**
  * The full super-interface implementing all entry points for rendering

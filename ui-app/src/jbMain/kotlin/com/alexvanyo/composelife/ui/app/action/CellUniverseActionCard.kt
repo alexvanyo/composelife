@@ -46,7 +46,7 @@ import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPane
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
-import com.alexvanyo.composelife.ui.app.cells.SelectionState
+import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavigationFrame
 import com.alexvanyo.composelife.ui.util.Layout

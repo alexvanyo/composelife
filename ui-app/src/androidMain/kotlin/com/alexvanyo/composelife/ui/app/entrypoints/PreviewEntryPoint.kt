@@ -72,12 +72,12 @@ import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneInject
 import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.SettingUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.settings.SettingUiLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.cells.CellWindowInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.cells.CellWindowLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.cells.InteractableCellsLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.cells.NonInteractableCellsLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorLocalEntryPoint
+import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
+import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
+import com.alexvanyo.composelife.ui.cells.InteractableCellsLocalEntryPoint
+import com.alexvanyo.composelife.ui.cells.NonInteractableCellsLocalEntryPoint
 import kotlinx.datetime.Clock
 import kotlin.random.Random
 
