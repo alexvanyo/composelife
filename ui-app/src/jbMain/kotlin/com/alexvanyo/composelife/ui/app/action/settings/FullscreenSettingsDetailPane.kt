@@ -170,8 +170,8 @@ private fun SettingsCategoryDetail(
                         Modifier
                     },
                 )
-                .verticalScroll(detailScrollState)
                 .safeDrawingPadding()
+                .verticalScroll(detailScrollState)
                 .padding(vertical = 16.dp),
         ) {
             settingsCategory.settings.forEach { setting ->
