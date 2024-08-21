@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.ui.app.action.settings
 
+import android.os.Build
 import android.view.WindowInsets
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -60,6 +61,7 @@ import com.alexvanyo.composelife.ui.app.component.ListDetailInfo
 import com.alexvanyo.composelife.ui.app.createComponent
 import com.alexvanyo.composelife.ui.app.resources.CornerFractionLabel
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import org.junit.Assume.assumeTrue
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertIs
@@ -76,6 +78,7 @@ class FullscreenSettingsDetailPaneTests :
 
     @Test
     fun visual_settings_category_keeps_scroll_position_with_ime() = runUiTest {
+        assumeTrue(Build.VERSION.SDK_INT >= 30)
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
             uiComponent.entryPoint
 
