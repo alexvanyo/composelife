@@ -1,7 +1,7 @@
 androidx.activity:activity-compose:1.9.0
 androidx.activity:activity-ktx:1.9.0
 androidx.activity:activity:1.9.0
-androidx.annotation:annotation-experimental:1.4.0
+androidx.annotation:annotation-experimental:1.4.1
 androidx.annotation:annotation-jvm:1.9.0-alpha01
 androidx.annotation:annotation:1.9.0-alpha01
 androidx.appcompat:appcompat-resources:1.7.0
@@ -47,9 +47,9 @@ androidx.compose.ui:ui-util-android:1.7.0-beta07
 androidx.compose.ui:ui-util:1.7.0-beta07
 androidx.compose.ui:ui:1.7.0-beta07
 androidx.concurrent:concurrent-futures:1.1.0
-androidx.core:core-ktx:1.15.0-alpha01
+androidx.core:core-ktx:1.15.0-alpha02
 androidx.core:core-splashscreen:1.2.0-alpha01
-androidx.core:core:1.15.0-alpha01
+androidx.core:core:1.15.0-alpha02
 androidx.cursoradapter:cursoradapter:1.0.0
 androidx.customview:customview-poolingcontainer:1.0.0
 androidx.customview:customview:1.0.0
