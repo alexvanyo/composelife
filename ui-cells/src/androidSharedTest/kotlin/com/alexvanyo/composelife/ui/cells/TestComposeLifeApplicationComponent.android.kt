@@ -24,6 +24,7 @@ import com.alexvanyo.composelife.model.di.CellStateParserModule
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.ui.cells.di.CellsFetcherComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import me.tatarka.inject.annotations.Component
 
@@ -34,7 +35,8 @@ actual abstract class TestComposeLifeApplicationComponent(
     TestDispatchersComponent,
     TestPreferencesComponent,
     UpdatableModule,
-    CellStateParserModule {
+    CellStateParserModule,
+    CellsFetcherComponent {
 
     actual override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
         object :

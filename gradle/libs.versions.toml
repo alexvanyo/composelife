@@ -26,6 +26,7 @@ androidxWearWatchface = "1.3.0-alpha03"
 androidxWindow = "1.4.0-alpha01"
 apiGuardian = "1.1.2"
 circuit = "0.23.1"
+coil = "3.0.0-alpha10"
 dependencyGuard = "0.5.0"
 detekt = "1.23.6"
 googleAutoValue = "1.11.0"
@@ -110,6 +111,8 @@ androidx-wear-watchface-style = { group = "androidx.wear.watchface", name = "wat
 androidx-window = { group = "androidx.window", name = "window", version.ref = "androidxWindow" }
 apiGuardian-api = { group = "org.apiguardian", name = "apiguardian-api", version.ref = "apiGuardian" }
 circuit-retained = { group = "com.slack.circuit", name = "circuit-retained", version.ref = "circuit" }
+coil-core = { group = "io.coil-kt.coil3", name = "coil-core", version.ref = "coil" }
+coil-compose-core = { group = "io.coil-kt.coil3", name = "coil-compose-core", version.ref = "coil" }
 dependencyGuard-gradlePlugin = { group = "com.dropbox.dependency-guard", name = "dependency-guard", version.ref = "dependencyGuard" }
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
 detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }

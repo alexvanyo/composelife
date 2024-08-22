@@ -23,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
@@ -58,26 +60,45 @@ fun CanvasNonInteractableCells(
                 scaledCellDpSize * cellWindow.height,
             ),
     ) {
-        drawRect(
-            color = deadColor,
+        drawCells(
+            gameOfLifeState = gameOfLifeState,
+            aliveColor = aliveColor,
+            deadColor = deadColor,
+            cellWindow = cellWindow,
+            scaledCellPixelSize = scaledCellPixelSize,
+            shape = shape,
         )
+    }
+}
 
-        gameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).forEach { cell ->
-            when (shape) {
-                is CurrentShape.RoundRectangle -> {
-                    drawRoundRect(
-                        color = aliveColor,
-                        topLeft = (cell - cellWindow.topLeft).toOffset() * scaledCellPixelSize +
-                            Offset(
-                                scaledCellPixelSize * (1f - shape.sizeFraction) / 2f,
-                                scaledCellPixelSize * (1f - shape.sizeFraction) / 2f,
-                            ),
-                        size = Size(scaledCellPixelSize, scaledCellPixelSize) * shape.sizeFraction,
-                        cornerRadius = CornerRadius(
-                            scaledCellPixelSize * shape.sizeFraction * shape.cornerFraction,
+@Suppress("LongParameterList")
+fun DrawScope.drawCells(
+    gameOfLifeState: GameOfLifeState,
+    aliveColor: Color,
+    deadColor: Color,
+    cellWindow: CellWindow,
+    scaledCellPixelSize: Float,
+    shape: CurrentShape,
+) {
+    drawRect(
+        color = deadColor,
+    )
+
+    gameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).forEach { cell ->
+        when (shape) {
+            is CurrentShape.RoundRectangle -> {
+                drawRoundRect(
+                    color = aliveColor,
+                    topLeft = (cell - cellWindow.topLeft).toOffset() * scaledCellPixelSize +
+                        Offset(
+                            scaledCellPixelSize * (1f - shape.sizeFraction) / 2f,
+                            scaledCellPixelSize * (1f - shape.sizeFraction) / 2f,
                         ),
-                    )
-                }
+                    size = Size(scaledCellPixelSize, scaledCellPixelSize) * shape.sizeFraction,
+                    cornerRadius = CornerRadius(
+                        scaledCellPixelSize * shape.sizeFraction * shape.cornerFraction,
+                    ),
+                )
             }
         }
     }

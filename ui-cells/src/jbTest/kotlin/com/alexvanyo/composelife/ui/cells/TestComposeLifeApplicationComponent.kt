@@ -22,6 +22,7 @@ import com.alexvanyo.composelife.model.di.CellStateParserModule
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.ui.cells.di.CellsFetcherComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 
 expect abstract class TestComposeLifeApplicationComponent :
@@ -29,7 +30,8 @@ expect abstract class TestComposeLifeApplicationComponent :
     TestDispatchersComponent,
     TestPreferencesComponent,
     UpdatableModule,
-    CellStateParserModule {
+    CellStateParserModule,
+    CellsFetcherComponent {
 
     override val entryPoint: TestComposeLifeApplicationEntryPoint
 
