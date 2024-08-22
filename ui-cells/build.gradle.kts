@@ -52,11 +52,13 @@ kotlin {
             dependencies {
                 api(projects.dispatchers)
 
+                implementation(libs.coil.compose.core)
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.collections.immutable)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
+                implementation(projects.imageLoader)
                 implementation(projects.injectScopes)
                 implementation(projects.openglRenderer)
                 implementation(projects.parameterizedString)

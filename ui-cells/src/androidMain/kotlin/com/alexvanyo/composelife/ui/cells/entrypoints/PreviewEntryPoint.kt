@@ -18,8 +18,10 @@ package com.alexvanyo.composelife.ui.cells.entrypoints
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import coil3.ImageLoader
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.DefaultComposeLifeDispatchers
+import com.alexvanyo.composelife.imageloader.di.ImageLoaderProvider
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.FlexibleCellStateSerializer
 import com.alexvanyo.composelife.model.di.CellStateParserProvider
@@ -32,6 +34,7 @@ import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
+import com.alexvanyo.composelife.ui.cells.CellsFetcher
 import com.alexvanyo.composelife.ui.cells.InteractableCellsLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.NonInteractableCellsLocalEntryPoint
 
@@ -44,7 +47,8 @@ internal interface PreviewEntryPoint :
     CellWindowLocalEntryPoint,
     InteractableCellsLocalEntryPoint,
     NonInteractableCellsLocalEntryPoint,
-    ComposeLifePreferencesProvider
+    ComposeLifePreferencesProvider,
+    ImageLoaderProvider
 
 /**
  * Provides fake implementations for the entry points passed to [content] as context receivers.
@@ -84,12 +88,20 @@ internal fun WithPreviewDependencies(
     val clipboardCellStateParserProvider = object : CellStateParserProvider {
         override val cellStateParser = cellStateParser
     }
+    val imageLoaderProvider = object : ImageLoaderProvider {
+        override val imageLoader = ImageLoader.Builder(LocalContext.current)
+            .components {
+                add(CellsFetcher.Factory())
+            }
+            .build()
+    }
 
     val entryPoint = object :
         PreviewEntryPoint,
         ComposeLifePreferencesProvider by preferencesProvider,
         LoadedComposeLifePreferencesProvider by loadedPreferencesProvider,
-        CellStateParserProvider by clipboardCellStateParserProvider {}
+        CellStateParserProvider by clipboardCellStateParserProvider,
+        ImageLoaderProvider by imageLoaderProvider {}
 
     content(entryPoint)
 }
