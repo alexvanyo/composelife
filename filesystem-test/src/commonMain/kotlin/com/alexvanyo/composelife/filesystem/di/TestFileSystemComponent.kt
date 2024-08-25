@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.preferences.di
+package com.alexvanyo.composelife.filesystem.di
 
+import com.alexvanyo.composelife.scopes.Singleton
 import me.tatarka.inject.annotations.Provides
 import okio.FileSystem
-import okio.SYSTEM
+import okio.fakefilesystem.FakeFileSystem
 
-interface PreferencesFileSystemComponent : PreferencesFileSystemModule {
-
+interface TestFileSystemComponent : FileSystemModule {
     @Provides
-    fun providesFileSystem(): FileSystem = FileSystem.SYSTEM
+    @Singleton
+    fun providesFileSystem(): FileSystem = FakeFileSystem()
 }

@@ -53,6 +53,7 @@ kotlin {
                 implementation(libs.androidx.dataStore.core.okio)
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.okio)
+                implementation(projects.filesystem)
                 implementation(projects.injectScopes)
                 implementation(projects.preferencesProto)
             }

@@ -19,11 +19,14 @@ package com.alexvanyo.composelife.ui.cells
 
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
+import com.alexvanyo.composelife.filesystem.di.TestFileSystemComponent
+import com.alexvanyo.composelife.imageloader.di.ImageLoaderComponent
+import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
 import com.alexvanyo.composelife.model.di.CellStateParserModule
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.ui.cells.di.CellsFetcherComponent
+import com.alexvanyo.composelife.ui.cells.di.CellsImageLoadingComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import me.tatarka.inject.annotations.Component
 
@@ -32,9 +35,11 @@ actual abstract class TestComposeLifeApplicationComponent :
     ApplicationComponent<TestComposeLifeApplicationEntryPoint>(),
     TestDispatchersComponent,
     TestPreferencesComponent,
+    ImageLoaderComponent,
+    CellsImageLoadingComponent,
+    TestFileSystemComponent,
     UpdatableModule,
-    CellStateParserModule,
-    CellsFetcherComponent {
+    CellStateParserModule {
 
     actual override val entryPoint: TestComposeLifeApplicationEntryPoint
         get() =
@@ -43,7 +48,8 @@ actual abstract class TestComposeLifeApplicationComponent :
                 DispatchersModule by this,
                 PreferencesModule by this,
                 UpdatableModule by this,
-                CellStateParserModule by this {}
+                CellStateParserModule by this,
+                ImageLoaderModule by this {}
 
     actual companion object
 }

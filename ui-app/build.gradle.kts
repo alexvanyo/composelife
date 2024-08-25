@@ -127,6 +127,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
                 implementation(projects.dispatchersTest)
+                implementation(projects.filesystemTest)
                 implementation(projects.injectTestActivity)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)

@@ -16,10 +16,24 @@
 
 package com.alexvanyo.composelife.imageloader.di
 
-import me.tatarka.inject.annotations.Provides
-import okio.FileSystem
+import coil3.ComponentRegistry
+import coil3.key.Keyer
+import com.alexvanyo.composelife.scopes.Singleton
+import kotlin.reflect.KClass
 
-interface ImageLoaderFileSystemComponent : ImageLoaderFileSystemModule {
-    @Provides
-    fun providesFileSystem(): FileSystem = FileSystem.SYSTEM
+interface ImageLoaderKeyerComponent {
+    @get:Singleton
+    val keyers: Set<KeyerWithType<out Any>>
 }
+
+class KeyerWithType<T : Any>(
+    val type: KClass<T>,
+    val keyer: Keyer<T>,
+)
+
+fun <T : Any> KeyerWithType<T>.addTo(componentRegistryBuilder: ComponentRegistry.Builder) {
+    componentRegistryBuilder.add(keyer, type)
+}
+
+inline fun <reified T : Any> Keyer<T>.withType(): KeyerWithType<T> =
+    KeyerWithType(T::class, this)

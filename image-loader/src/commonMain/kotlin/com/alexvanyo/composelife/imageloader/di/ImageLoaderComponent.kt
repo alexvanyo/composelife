@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.imageloader.di
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.disk.DiskCache
+import com.alexvanyo.composelife.filesystem.di.FileSystemModule
 import com.alexvanyo.composelife.scopes.Singleton
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.awaitCancellation
@@ -27,21 +28,24 @@ import me.tatarka.inject.annotations.Provides
 
 interface ImageLoaderComponent :
     ImageLoaderModule,
+    FileSystemModule,
     PlatformContextComponent,
     ImageLoaderDiskCacheComponent,
-    ImageLoaderFileSystemComponent,
-    ImageLoaderFetcherFactoryComponent {
+    ImageLoaderFetcherFactoryComponent,
+    ImageLoaderKeyerComponent {
 
     @Singleton
     @Provides
     fun providesImageLoader(
         context: PlatformContext,
-        diskCache: DiskCache,
-        fetcherFactoriesWithType: Set<FetcherFactoryWithType<*>>,
+        diskCache: Lazy<DiskCache>,
+        fetcherFactoriesWithType: Set<FetcherFactoryWithType<out Any>>,
+        keyers: Set<KeyerWithType<out Any>>,
     ): ImageLoader = ImageLoader.Builder(context)
-        .diskCache(diskCache)
+        .diskCache(diskCache::value)
         .components {
             addFetcherFactories { fetcherFactoriesWithType.map { it.fetcherFactory to it.type } }
+            keyers.forEach { it.addTo(this) }
         }
         .build()
 

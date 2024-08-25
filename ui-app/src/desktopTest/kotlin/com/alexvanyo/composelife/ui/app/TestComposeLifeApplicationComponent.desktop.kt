@@ -26,12 +26,16 @@ import com.alexvanyo.composelife.data.di.RepositoryModule
 import com.alexvanyo.composelife.database.di.TestDatabaseComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
+import com.alexvanyo.composelife.filesystem.di.TestFileSystemComponent
+import com.alexvanyo.composelife.imageloader.di.ImageLoaderComponent
+import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
 import com.alexvanyo.composelife.model.di.CellStateParserModule
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.random.di.RandomComponent
 import com.alexvanyo.composelife.random.di.RandomModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.ui.cells.di.CellsImageLoadingComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import me.tatarka.inject.annotations.Component
 
@@ -45,6 +49,9 @@ actual abstract class TestComposeLifeApplicationComponent :
     TestPreferencesComponent,
     RandomComponent,
     ClockComponent,
+    ImageLoaderComponent,
+    CellsImageLoadingComponent,
+    TestFileSystemComponent,
     UpdatableModule,
     CellStateParserModule {
 
@@ -58,7 +65,8 @@ actual abstract class TestComposeLifeApplicationComponent :
             DispatchersModule by this,
             PreferencesModule by this,
             UpdatableModule by this,
-            CellStateParserModule by this {}
+            CellStateParserModule by this,
+            ImageLoaderModule by this {}
 
     actual companion object
 }

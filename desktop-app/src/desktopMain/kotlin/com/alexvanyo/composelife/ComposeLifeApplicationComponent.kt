@@ -25,12 +25,16 @@ import com.alexvanyo.composelife.data.di.RepositoryModule
 import com.alexvanyo.composelife.database.di.DatabaseComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
+import com.alexvanyo.composelife.filesystem.di.FileSystemComponent
+import com.alexvanyo.composelife.imageloader.di.ImageLoaderComponent
+import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
 import com.alexvanyo.composelife.model.di.CellStateParserModule
 import com.alexvanyo.composelife.preferences.di.PreferencesComponent
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.random.di.RandomComponent
 import com.alexvanyo.composelife.random.di.RandomModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.ui.cells.di.CellsImageLoadingComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import me.tatarka.inject.annotations.Component
 
@@ -44,6 +48,9 @@ abstract class ComposeLifeApplicationComponent :
     ClockComponent,
     RandomComponent,
     PreferencesComponent,
+    ImageLoaderComponent,
+    CellsImageLoadingComponent,
+    FileSystemComponent,
     UpdatableModule,
     CellStateParserModule {
 
@@ -57,7 +64,8 @@ abstract class ComposeLifeApplicationComponent :
             DispatchersModule by this,
             PreferencesModule by this,
             UpdatableModule by this,
-            CellStateParserModule by this {}
+            CellStateParserModule by this,
+            ImageLoaderModule by this {}
 }
 
 interface ComposeLifeApplicationEntryPoint :
@@ -68,4 +76,5 @@ interface ComposeLifeApplicationEntryPoint :
     DispatchersModule,
     PreferencesModule,
     UpdatableModule,
-    CellStateParserModule
+    CellStateParserModule,
+    ImageLoaderModule
