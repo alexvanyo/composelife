@@ -16,7 +16,15 @@
 
 package com.alexvanyo.composelife.ui.cells
 
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -24,7 +32,7 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
-import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -34,12 +42,19 @@ import androidx.compose.ui.unit.LayoutDirection
 import coil3.BitmapImage
 import coil3.ImageLoader
 import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
+import coil3.compose.LocalPlatformContext
 import coil3.decode.DataSource
 import coil3.fetch.FetchResult
 import coil3.fetch.Fetcher
 import coil3.fetch.ImageFetchResult
+import coil3.key.Keyer
+import coil3.memory.MemoryCache
+import coil3.request.ImageRequest
 import coil3.request.Options
+import coil3.size.Scale
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderProvider
+import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.preferences.CurrentShape
@@ -48,7 +63,7 @@ import me.tatarka.inject.annotations.Inject
 import kotlin.math.roundToInt
 
 context(ImageLoaderProvider)
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "LongMethod")
 @Composable
 fun CoilNonInteractableCells(
     gameOfLifeState: GameOfLifeState,
@@ -63,34 +78,88 @@ fun CoilNonInteractableCells(
     val aliveColor = ComposeLifeTheme.aliveCellColor
     val deadColor = ComposeLifeTheme.deadCellColor
 
+    val model = CellsCoilModel(
+        cellState = gameOfLifeState.cellState,
+        density = LocalDensity.current,
+        layoutDirection = LocalLayoutDirection.current,
+        aliveColor = aliveColor,
+        deadColor = deadColor,
+        cellWindow = cellWindow,
+        scaledCellPixelSize = scaledCellPixelSize,
+        shape = shape,
+    )
+
+    var state: AsyncImagePainter.State by remember { mutableStateOf(AsyncImagePainter.State.Empty) }
+    var previousCacheKey: MemoryCache.Key? by remember { mutableStateOf(null) }
+    val previousPixelOffsetsFromCenter: MutableMap<String, MutableState<Offset>> =
+        remember<SnapshotStateMap<String, MutableState<Offset>>> { mutableStateMapOf() }
+            .apply {
+                get(model.cacheKey())?.value = pixelOffsetFromCenter
+            }
+
     AsyncImage(
-        model = CellsCoilModel(
-            gameOfLifeState = gameOfLifeState,
-            density = LocalDensity.current,
-            layoutDirection = LocalLayoutDirection.current,
-            aliveColor = aliveColor,
-            deadColor = deadColor,
-            cellWindow = cellWindow,
-            scaledCellPixelSize = scaledCellPixelSize,
-            pixelOffsetFromCenter = pixelOffsetFromCenter,
-            shape = shape,
-        ),
+        model = ImageRequest.Builder(LocalPlatformContext.current)
+            .data(model)
+            .size(coil3.size.Size.ORIGINAL)
+            .scale(Scale.FILL)
+            .placeholderMemoryCacheKey(previousCacheKey)
+            .build(),
         contentDescription = null,
         imageLoader = imageLoader,
         contentScale = ContentScale.None,
-        modifier = modifier,
+        onState = {
+            state = it
+            when (it) {
+                AsyncImagePainter.State.Empty,
+                is AsyncImagePainter.State.Loading,
+                -> Unit
+                is AsyncImagePainter.State.Error -> {
+                    previousCacheKey = null
+                    previousPixelOffsetsFromCenter.clear()
+                }
+                is AsyncImagePainter.State.Success -> {
+                    val memoryCacheKey = it.result.memoryCacheKey
+                    previousCacheKey = memoryCacheKey
+                    previousPixelOffsetsFromCenter.clear()
+                    if (memoryCacheKey != null) {
+                        previousPixelOffsetsFromCenter[memoryCacheKey.key] =
+                            mutableStateOf(pixelOffsetFromCenter)
+                    }
+                }
+            }
+        },
+        modifier = modifier
+            .graphicsLayer {
+                when (state) {
+                    AsyncImagePainter.State.Empty -> Unit
+                    is AsyncImagePainter.State.Error -> Unit
+                    is AsyncImagePainter.State.Loading -> {
+                        previousCacheKey?.key?.let(previousPixelOffsetsFromCenter::get)?.let {
+                            translationX = -it.value.x
+                            translationY = -it.value.y
+                        }
+                    }
+                    is AsyncImagePainter.State.Success -> {
+                        translationX = -pixelOffsetFromCenter.x
+                        translationY = -pixelOffsetFromCenter.y
+                    }
+                }
+            }
+            .requiredSize(
+                scaledCellDpSize * cellWindow.width,
+                scaledCellDpSize * cellWindow.height,
+            ),
     )
 }
 
 data class CellsCoilModel(
-    val gameOfLifeState: GameOfLifeState,
+    val cellState: CellState,
     val density: Density,
     val layoutDirection: LayoutDirection,
     val aliveColor: Color,
     val deadColor: Color,
     val cellWindow: CellWindow,
     val scaledCellPixelSize: Float,
-    val pixelOffsetFromCenter: Offset,
     val shape: CurrentShape,
 )
 
@@ -109,19 +178,14 @@ class CellsFetcher(
             Canvas(imageBitmap),
             Size(width, height),
         ) {
-            translate(
-                left = -cellsCoilModel.pixelOffsetFromCenter.x,
-                top = -cellsCoilModel.pixelOffsetFromCenter.y,
-            ) {
-                drawCells(
-                    cellsCoilModel.gameOfLifeState,
-                    cellsCoilModel.aliveColor,
-                    cellsCoilModel.deadColor,
-                    cellsCoilModel.cellWindow,
-                    cellsCoilModel.scaledCellPixelSize,
-                    cellsCoilModel.shape,
-                )
-            }
+            drawCells(
+                cellsCoilModel.cellState,
+                cellsCoilModel.aliveColor,
+                cellsCoilModel.deadColor,
+                cellsCoilModel.cellWindow,
+                cellsCoilModel.scaledCellPixelSize,
+                cellsCoilModel.shape,
+            )
         }
 
         return ImageFetchResult(
@@ -136,6 +200,23 @@ class CellsFetcher(
         override fun create(data: CellsCoilModel, options: Options, imageLoader: ImageLoader): Fetcher =
             CellsFetcher(data)
     }
+}
+
+fun CellsCoilModel.cacheKey(): String =
+    "com.alexvanyo.composelife.CellsCoilModel(" +
+        "cellState: $cellState, " +
+        "density: ${density.density}, " +
+        "layoutDirection: $layoutDirection, " +
+        "aliveColor: $aliveColor, " +
+        "deadColor: $deadColor, " +
+        "cellWindow: $cellWindow, " +
+        "scaledCellPixelSize: $scaledCellPixelSize, " +
+        "shape: $shape)"
+
+@Inject
+class CellsKeyer : Keyer<CellsCoilModel> {
+    override fun key(data: CellsCoilModel, options: Options): String =
+        data.cacheKey()
 }
 
 expect fun ImageBitmap.asCoilBitmapImage(): BitmapImage

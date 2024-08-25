@@ -45,13 +45,14 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
-import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.resources.DeserializationFailed
@@ -61,14 +62,11 @@ import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.resources.Unpin
 import com.alexvanyo.composelife.ui.app.resources.Warnings
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
-import com.alexvanyo.composelife.ui.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
-import com.alexvanyo.composelife.ui.cells.ImmutableCellWindow
-import com.alexvanyo.composelife.ui.cells.SelectionState
+import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindow
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
 import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropSource
 import com.alexvanyo.composelife.ui.cells.rememberTrackingCellWindowViewportState
-import com.benasher44.uuid.uuid4
 
 interface ClipboardCellStatePreviewInjectEntryPoint :
     CellWindowInjectEntryPoint,
@@ -146,22 +144,22 @@ fun LoadedCellStatePreview(
     onPinChanged: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val gameOfLifeState = GameOfLifeState(deserializationResult.cellState)
+    val gameOfLifeState = remember(deserializationResult) {
+        GameOfLifeState(deserializationResult.cellState)
+    }
 
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        ImmutableCellWindow(
+        ThumbnailImmutableCellWindow(
             gameOfLifeState = gameOfLifeState,
-            cellWindowInteractionState = CellWindowInteractionState(
-                viewportInteractionConfig = ViewportInteractionConfig.Tracking(
-                    rememberTrackingCellWindowViewportState(gameOfLifeState),
-                ),
-                selectionSessionState = SessionValue(uuid4(), uuid4(), SelectionState.NoSelection),
+            viewportInteractionConfig = ViewportInteractionConfig.Tracking(
+                rememberTrackingCellWindowViewportState(gameOfLifeState),
             ),
             modifier = Modifier
                 .weight(1f)
+                .clipToBounds()
                 .cellStateDragAndDropSource(getCellState = { deserializationResult.cellState }),
             inOverlay = true,
         )

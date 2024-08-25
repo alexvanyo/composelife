@@ -17,19 +17,27 @@
 package com.alexvanyo.composelife.ui.cells.di
 
 import com.alexvanyo.composelife.imageloader.di.FetcherFactoryWithType
+import com.alexvanyo.composelife.imageloader.di.KeyerWithType
 import com.alexvanyo.composelife.imageloader.di.withType
 import com.alexvanyo.composelife.scopes.Singleton
-import com.alexvanyo.composelife.ui.cells.CellsCoilModel
 import com.alexvanyo.composelife.ui.cells.CellsFetcher
+import com.alexvanyo.composelife.ui.cells.CellsKeyer
 import me.tatarka.inject.annotations.IntoSet
 import me.tatarka.inject.annotations.Provides
 
-interface CellsFetcherComponent {
+interface CellsImageLoadingComponent {
 
     @Provides
     @Singleton
     @IntoSet
-    fun providesCellsFetcherFactoryInFetcherFactories(
+    fun providesCellsFetcherFactoryIntoFetcherFactories(
         cellsFetcherFactory: CellsFetcher.Factory,
-    ): FetcherFactoryWithType<CellsCoilModel> = cellsFetcherFactory.withType()
+    ): FetcherFactoryWithType<out Any> = cellsFetcherFactory.withType()
+
+    @Provides
+    @Singleton
+    @IntoSet
+    fun providesCellsKeyerIntoKeyers(
+        cellsKeyer: CellsKeyer,
+    ): KeyerWithType<out Any> = cellsKeyer.withType()
 }
