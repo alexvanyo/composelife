@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.ui.app.entrypoints
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
+import coil3.ImageLoader
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.algorithm.NaiveGameOfLifeAlgorithm
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
@@ -31,6 +32,7 @@ import com.alexvanyo.composelife.database.ComposeLifeDatabase
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.DefaultComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
+import com.alexvanyo.composelife.imageloader.di.ImageLoaderProvider
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.FlexibleCellStateSerializer
 import com.alexvanyo.composelife.model.di.CellStateParserProvider
@@ -76,6 +78,8 @@ import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInj
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
+import com.alexvanyo.composelife.ui.cells.CellsFetcher
+import com.alexvanyo.composelife.ui.cells.CellsKeyer
 import com.alexvanyo.composelife.ui.cells.InteractableCellsLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.NonInteractableCellsLocalEntryPoint
 import kotlinx.datetime.Clock
@@ -129,7 +133,7 @@ internal interface PreviewEntryPoint :
  *
  * This is useful for providing dependencies to previews where the full dependency graph isn't available.
  */
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "LongMethod")
 @Composable
 internal fun WithPreviewDependencies(
     dispatchers: ComposeLifeDispatchers = DefaultComposeLifeDispatchers(),
@@ -197,6 +201,14 @@ internal fun WithPreviewDependencies(
     val cellStateParserProvider = object : CellStateParserProvider {
         override val cellStateParser = cellStateParser
     }
+    val imageLoaderProvider = object : ImageLoaderProvider {
+        override val imageLoader = ImageLoader.Builder(LocalContext.current)
+            .components {
+                add(CellsFetcher.Factory())
+                add(CellsKeyer())
+            }
+            .build()
+    }
 
     val entryPoint = object :
         PreviewEntryPoint,
@@ -207,7 +219,8 @@ internal fun WithPreviewDependencies(
         LoadedComposeLifePreferencesProvider by loadedPreferencesProvider,
         RandomProvider by randomProvider,
         ClockProvider by clockProvider,
-        CellStateParserProvider by cellStateParserProvider {}
+        CellStateParserProvider by cellStateParserProvider,
+        ImageLoaderProvider by imageLoaderProvider {}
 
     content(entryPoint)
 }

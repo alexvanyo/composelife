@@ -21,10 +21,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -32,15 +28,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
-import com.alexvanyo.composelife.ui.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowState
-import com.alexvanyo.composelife.ui.cells.ImmutableCellWindow
-import com.alexvanyo.composelife.ui.cells.SelectionState
+import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindow
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
-import com.benasher44.uuid.uuid4
 
 interface CellStatePreviewUiInjectEntryPoint :
     CellWindowInjectEntryPoint
@@ -58,16 +50,7 @@ fun CellStatePreviewUi(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,
     ) {
-        var selectionSessionState by remember {
-            mutableStateOf<SessionValue<SelectionState>>(
-                SessionValue(
-                    sessionId = uuid4(),
-                    valueId = uuid4(),
-                    value = SelectionState.NoSelection,
-                ),
-            )
-        }
-        ImmutableCellWindow(
+        ThumbnailImmutableCellWindow(
             gameOfLifeState = GameOfLifeState(
                 """
                 |.....
@@ -78,20 +61,12 @@ fun CellStatePreviewUi(
                 """.toCellState(),
             ),
             modifier = Modifier.size(96.dp).clipToBounds(),
-            cellWindowInteractionState = object : CellWindowInteractionState {
-                override val viewportInteractionConfig = ViewportInteractionConfig.Fixed(
-                    CellWindowState(
-                        offset = Offset(2f, 2f),
-                        scale = 1f,
-                    ),
-                )
-
-                override var selectionSessionState: SessionValue<SelectionState>
-                    get() = selectionSessionState
-                    set(value) {
-                        selectionSessionState = value
-                    }
-            },
+            viewportInteractionConfig = ViewportInteractionConfig.Fixed(
+                CellWindowState(
+                    offset = Offset(2f, 2f),
+                    scale = 1f,
+                ),
+            ),
             cellDpSize = 96.dp / 5,
             inOverlay = true,
         )

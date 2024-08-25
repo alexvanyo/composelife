@@ -61,7 +61,9 @@ import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
+import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.util.detectTransformGestures
+import com.benasher44.uuid.uuid4
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 import kotlin.contracts.ExperimentalContracts
@@ -79,12 +81,39 @@ object CellWindow {
 }
 
 interface CellWindowInjectEntryPoint :
+    NonInteractableCellsInjectEntryPoint,
     CellStateParserProvider
 
 interface CellWindowLocalEntryPoint :
     LoadedComposeLifePreferencesProvider,
     InteractableCellsLocalEntryPoint,
     NonInteractableCellsLocalEntryPoint
+
+/**
+ * A cell window that displays the given [gameOfLifeState] in an immutable fashion for a thumbnail.
+ */
+context(CellWindowInjectEntryPoint, CellWindowLocalEntryPoint)
+@Suppress("LongParameterList")
+@Composable
+fun ThumbnailImmutableCellWindow(
+    gameOfLifeState: GameOfLifeState,
+    viewportInteractionConfig: ViewportInteractionConfig,
+    modifier: Modifier = Modifier,
+    cellDpSize: Dp = CellWindow.defaultCellDpSize,
+    centerOffset: Offset = CellWindow.defaultCenterOffset,
+    inOverlay: Boolean = CellWindow.defaultInOverlay,
+) {
+    CellWindowImpl(
+        cellWindowUiState = CellWindowUiState.ImmutableCellWindowUiState.ThumbnailState(
+            gameOfLifeState = gameOfLifeState,
+            viewportInteractionConfig = viewportInteractionConfig,
+        ),
+        cellDpSize = cellDpSize,
+        centerOffset = centerOffset,
+        inOverlay = inOverlay,
+        modifier = modifier,
+    )
+}
 
 /**
  * A cell window that displays the given [gameOfLifeState] in an immutable fashion.
@@ -101,7 +130,7 @@ fun ImmutableCellWindow(
     inOverlay: Boolean = CellWindow.defaultInOverlay,
 ) {
     CellWindowImpl(
-        cellWindowUiState = CellWindowUiState.ImmutableState(
+        cellWindowUiState = CellWindowUiState.ImmutableCellWindowUiState.InteractableState(
             gameOfLifeState = gameOfLifeState,
             cellWindowInteractionState = cellWindowInteractionState,
         ),
@@ -383,6 +412,12 @@ private fun CellWindowImpl(
                     scaledCellDpSize = scaledCellDpSize,
                     cellWindow = cellWindow,
                     pixelOffsetFromCenter = fracPixelOffsetFromCenter,
+                    isThumbnail = when (cellWindowUiState) {
+                        is CellWindowUiState.ImmutableCellWindowUiState.ThumbnailState -> true
+                        is CellWindowUiState.ImmutableCellWindowUiState.InteractableState,
+                        is CellWindowUiState.MutableState,
+                        -> false
+                    },
                     modifier = Modifier.fillMaxSize(),
                     inOverlay = inOverlay,
                 )
@@ -412,7 +447,7 @@ private fun CellWindowImpl(
             }
 
             when (cellWindowUiState) {
-                is CellWindowUiState.ImmutableState -> Unit
+                is CellWindowUiState.ImmutableCellWindowUiState -> Unit
                 is CellWindowUiState.MutableState -> {
                     SelectionOverlay(
                         selectionSessionState = cellWindowUiState.cellWindowInteractionState.selectionSessionState,
@@ -463,10 +498,22 @@ private sealed interface CellWindowUiState {
 
     val cellWindowInteractionState: CellWindowInteractionState
 
-    class ImmutableState(
-        override val gameOfLifeState: GameOfLifeState,
-        override val cellWindowInteractionState: CellWindowInteractionState,
-    ) : CellWindowUiState
+    sealed interface ImmutableCellWindowUiState : CellWindowUiState {
+        class InteractableState(
+            override val gameOfLifeState: GameOfLifeState,
+            override val cellWindowInteractionState: CellWindowInteractionState,
+        ) : ImmutableCellWindowUiState
+
+        class ThumbnailState(
+            override val gameOfLifeState: GameOfLifeState,
+            viewportInteractionConfig: ViewportInteractionConfig,
+        ) : ImmutableCellWindowUiState {
+            override val cellWindowInteractionState = CellWindowInteractionState(
+                viewportInteractionConfig = viewportInteractionConfig,
+                selectionSessionState = SessionValue(uuid4(), uuid4(), SelectionState.NoSelection),
+            )
+        }
+    }
 
     class MutableState(
         override val gameOfLifeState: MutableGameOfLifeState,
@@ -482,7 +529,7 @@ private fun CellWindowUiState.isEditable(
 ): Boolean {
     contract { returns(true) implies (this@isEditable is CellWindowUiState.MutableState) }
     return when (this) {
-        is CellWindowUiState.ImmutableState -> false
+        is CellWindowUiState.ImmutableCellWindowUiState -> false
         is CellWindowUiState.MutableState -> isEditable(isGesturing, scale)
     }
 }

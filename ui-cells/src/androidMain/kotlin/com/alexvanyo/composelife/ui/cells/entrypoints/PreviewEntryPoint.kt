@@ -35,7 +35,9 @@ import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProv
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellsFetcher
+import com.alexvanyo.composelife.ui.cells.CellsKeyer
 import com.alexvanyo.composelife.ui.cells.InteractableCellsLocalEntryPoint
+import com.alexvanyo.composelife.ui.cells.NonInteractableCellsInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.NonInteractableCellsLocalEntryPoint
 
 /**
@@ -46,6 +48,7 @@ internal interface PreviewEntryPoint :
     CellWindowInjectEntryPoint,
     CellWindowLocalEntryPoint,
     InteractableCellsLocalEntryPoint,
+    NonInteractableCellsInjectEntryPoint,
     NonInteractableCellsLocalEntryPoint,
     ComposeLifePreferencesProvider,
     ImageLoaderProvider
@@ -92,6 +95,7 @@ internal fun WithPreviewDependencies(
         override val imageLoader = ImageLoader.Builder(LocalContext.current)
             .components {
                 add(CellsFetcher.Factory())
+                add(CellsKeyer())
             }
             .build()
     }

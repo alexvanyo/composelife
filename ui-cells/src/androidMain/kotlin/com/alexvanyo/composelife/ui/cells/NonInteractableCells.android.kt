@@ -27,7 +27,7 @@ import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.preferences.currentShape
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 
-context(NonInteractableCellsLocalEntryPoint)
+context(NonInteractableCellsInjectEntryPoint, NonInteractableCellsLocalEntryPoint)
 @Composable
 @Suppress("LongParameterList")
 actual fun NonInteractableCells(
@@ -35,10 +35,11 @@ actual fun NonInteractableCells(
     scaledCellDpSize: Dp,
     cellWindow: CellWindow,
     pixelOffsetFromCenter: Offset,
+    isThumbnail: Boolean,
     modifier: Modifier,
     inOverlay: Boolean,
 ) {
-    when (computeImplementationType()) {
+    when (computeImplementationType(isThumbnail)) {
         NonInteractableCellsImplementationType.AGSL -> {
             @Suppress("NewApi") // Checked by computeImplementationType
             (
@@ -54,6 +55,16 @@ actual fun NonInteractableCells(
         }
         NonInteractableCellsImplementationType.Canvas -> {
             CanvasNonInteractableCells(
+                gameOfLifeState = gameOfLifeState,
+                scaledCellDpSize = scaledCellDpSize,
+                cellWindow = cellWindow,
+                shape = preferences.currentShape,
+                pixelOffsetFromCenter = pixelOffsetFromCenter,
+                modifier = modifier,
+            )
+        }
+        NonInteractableCellsImplementationType.Coil -> {
+            CoilNonInteractableCells(
                 gameOfLifeState = gameOfLifeState,
                 scaledCellDpSize = scaledCellDpSize,
                 cellWindow = cellWindow,
@@ -80,12 +91,17 @@ private sealed interface NonInteractableCellsImplementationType {
     data object AGSL : NonInteractableCellsImplementationType
     data object OpenGL : NonInteractableCellsImplementationType
     data object Canvas : NonInteractableCellsImplementationType
+    data object Coil : NonInteractableCellsImplementationType
 }
 
 context(LoadedComposeLifePreferencesProvider)
 @Composable
-private fun computeImplementationType(): NonInteractableCellsImplementationType =
+private fun computeImplementationType(
+    isThumbnail: Boolean,
+): NonInteractableCellsImplementationType =
     when {
+        isThumbnail ->
+            NonInteractableCellsImplementationType.Coil
         !preferences.disableAGSL && Build.VERSION.SDK_INT >= 33 && Build.FINGERPRINT?.lowercase() != "robolectric" ->
             NonInteractableCellsImplementationType.AGSL
         !preferences.disableOpenGL && !LocalInspectionMode.current && openGLSupported() ->
@@ -99,10 +115,11 @@ private fun computeImplementationType(): NonInteractableCellsImplementationType 
  */
 context(LoadedComposeLifePreferencesProvider)
 @Composable
-actual fun isSharedElementForCellsSupported(): Boolean =
-    when (computeImplementationType()) {
+actual fun isSharedElementForCellsSupported(isThumbnail: Boolean): Boolean =
+    when (computeImplementationType(isThumbnail)) {
         NonInteractableCellsImplementationType.AGSL,
         NonInteractableCellsImplementationType.Canvas,
+        NonInteractableCellsImplementationType.Coil,
         -> true
         NonInteractableCellsImplementationType.OpenGL -> false
     }

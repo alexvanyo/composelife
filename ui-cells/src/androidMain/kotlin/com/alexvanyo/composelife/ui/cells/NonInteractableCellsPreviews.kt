@@ -58,6 +58,7 @@ fun NonInteractableCellsPreview(modifier: Modifier = Modifier) {
                         IntSize(10, 10),
                     ),
                 ),
+                isThumbnail = false,
                 pixelOffsetFromCenter = Offset.Zero,
                 modifier = modifier.size(300.dp),
             )

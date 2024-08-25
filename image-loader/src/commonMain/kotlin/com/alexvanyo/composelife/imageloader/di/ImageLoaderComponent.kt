@@ -19,21 +19,26 @@ package com.alexvanyo.composelife.imageloader.di
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.disk.DiskCache
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.filesystem.di.FileSystemModule
 import com.alexvanyo.composelife.scopes.Singleton
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.awaitCancellation
 import me.tatarka.inject.annotations.IntoSet
 import me.tatarka.inject.annotations.Provides
+import okio.FileSystem
 
 interface ImageLoaderComponent :
     ImageLoaderModule,
     FileSystemModule,
+    DispatchersModule,
     PlatformContextComponent,
     ImageLoaderDiskCacheComponent,
     ImageLoaderFetcherFactoryComponent,
     ImageLoaderKeyerComponent {
 
+    @Suppress("LongParameterList")
     @Singleton
     @Provides
     fun providesImageLoader(
@@ -41,12 +46,17 @@ interface ImageLoaderComponent :
         diskCache: Lazy<DiskCache>,
         fetcherFactoriesWithType: Set<FetcherFactoryWithType<out Any>>,
         keyers: Set<KeyerWithType<out Any>>,
+        dispatchers: ComposeLifeDispatchers,
+        fileSystem: FileSystem,
     ): ImageLoader = ImageLoader.Builder(context)
+        .fileSystem(fileSystem)
         .diskCache(diskCache::value)
         .components {
             addFetcherFactories { fetcherFactoriesWithType.map { it.fetcherFactory to it.type } }
             keyers.forEach { it.addTo(this) }
         }
+        .fetcherCoroutineContext(dispatchers.IO)
+        .decoderCoroutineContext(dispatchers.IO)
         .build()
 
     @Provides

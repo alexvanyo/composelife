@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.toOffset
+import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.preferences.CurrentShape
@@ -61,7 +62,7 @@ fun CanvasNonInteractableCells(
             ),
     ) {
         drawCells(
-            gameOfLifeState = gameOfLifeState,
+            cellState = gameOfLifeState.cellState,
             aliveColor = aliveColor,
             deadColor = deadColor,
             cellWindow = cellWindow,
@@ -73,7 +74,7 @@ fun CanvasNonInteractableCells(
 
 @Suppress("LongParameterList")
 fun DrawScope.drawCells(
-    gameOfLifeState: GameOfLifeState,
+    cellState: CellState,
     aliveColor: Color,
     deadColor: Color,
     cellWindow: CellWindow,
@@ -84,7 +85,7 @@ fun DrawScope.drawCells(
         color = deadColor,
     )
 
-    gameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).forEach { cell ->
+    cellState.getAliveCellsInWindow(cellWindow).forEach { cell ->
         when (shape) {
             is CurrentShape.RoundRectangle -> {
                 drawRoundRect(

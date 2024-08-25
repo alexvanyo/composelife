@@ -402,7 +402,7 @@ fun rememberClipboardWatchingEnabledState(
     setSelectionToCellState: (CellState) -> Unit,
 ): ClipboardWatchingState.ClipboardWatchingEnabled =
     rememberClipboardWatchingEnabledState(
-        useSharedElementForCellStatePreviews = isSharedElementForCellsSupported(),
+        useSharedElementForCellStatePreviews = isSharedElementForCellsSupported(isThumbnail = true),
         clipboardReader = rememberClipboardReader(),
         parser = cellStateParser,
         setSelectionToCellState = setSelectionToCellState,
