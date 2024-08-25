@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.ui.app.action.settings
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
@@ -37,6 +38,8 @@ import com.alexvanyo.composelife.sessionvalue.localSessionId
 import com.alexvanyo.composelife.sessionvalue.rememberSessionValueHolder
 import com.alexvanyo.composelife.ui.util.uuidSaver
 import com.benasher44.uuid.uuid4
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.launch
 
 interface CellShapeConfigUiState {
@@ -66,15 +69,25 @@ context(ComposeLifePreferencesProvider, LoadedComposeLifePreferencesProvider)
 fun rememberCellShapeConfigUiState(): CellShapeConfigUiState {
     val currentShapeType: CurrentShapeType = preferences.currentShapeType
     val coroutineScope = rememberCoroutineScope()
+    val roundRectangleUpdates = remember {
+        Channel<Pair<SessionValue<CurrentShape.RoundRectangle>, SessionValue<CurrentShape.RoundRectangle>>>(
+            capacity = Channel.UNLIMITED,
+        )
+    }
+
+    LaunchedEffect(roundRectangleUpdates, composeLifePreferences) {
+        while (true) {
+            val pendingUpdates = roundRectangleUpdates.receiveBatch()
+            composeLifePreferences.setRoundRectangleConfig(pendingUpdates.first().first, pendingUpdates.last().second)
+        }
+    }
 
     val currentShapeConfigUiState = when (currentShapeType) {
         is CurrentShapeType.RoundRectangle -> {
             val roundRectangleSessionValueHolder = rememberSessionValueHolder<CurrentShape.RoundRectangle>(
                 upstreamSessionValue = preferences.roundRectangleSessionValue,
                 setUpstreamSessionValue = { expected, newValue ->
-                    coroutineScope.launch {
-                        composeLifePreferences.setRoundRectangleConfig(expected, newValue)
-                    }
+                    roundRectangleUpdates.trySend(expected to newValue)
                 },
                 valueSaver = listSaver(
                     save = {
@@ -187,4 +200,22 @@ fun rememberCellShapeConfigUiState(): CellShapeConfigUiState {
             }
         }
     }
+}
+
+/**
+ * Suspends to receive an element from the [ReceiveChannel], and then opportunistically tries to receive any more
+ * elements that are waiting in the channel to form a batch of elements.
+ *
+ * The returned batch is guaranteed to contain at least one element.
+ */
+private suspend fun <T> ReceiveChannel<T>.receiveBatch(): List<T> {
+    val buffer = mutableListOf<T>()
+    val suspendedElement = receive()
+    buffer.add(suspendedElement)
+    var synchronousElement = tryReceive()
+    while (synchronousElement.isSuccess) {
+        buffer.add(synchronousElement.getOrThrow())
+        synchronousElement = tryReceive()
+    }
+    return buffer
 }
