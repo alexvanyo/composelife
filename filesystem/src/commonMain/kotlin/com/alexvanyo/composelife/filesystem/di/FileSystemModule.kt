@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.imageloader.di
+package com.alexvanyo.composelife.filesystem.di
 
 import okio.FileSystem
 
-interface ImageLoaderFileSystemModule {
+interface FileSystemModule {
     val fileSystem: FileSystem
 }

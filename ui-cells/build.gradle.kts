@@ -51,6 +51,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(projects.dispatchers)
+                api(projects.imageLoader)
 
                 implementation(libs.coil.compose.core)
                 implementation(libs.kotlinInject.runtime)
@@ -58,7 +59,6 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
-                implementation(projects.imageLoader)
                 implementation(projects.injectScopes)
                 implementation(projects.openglRenderer)
                 implementation(projects.parameterizedString)
@@ -121,6 +121,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
                 implementation(projects.dispatchersTest)
+                implementation(projects.filesystemTest)
                 implementation(projects.injectTestActivity)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)

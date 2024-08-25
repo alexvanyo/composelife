@@ -18,11 +18,12 @@ package com.alexvanyo.composelife.imageloader.di
 
 import coil3.disk.DiskCache
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.filesystem.di.FileSystemModule
 import com.alexvanyo.composelife.scopes.Singleton
 import me.tatarka.inject.annotations.Provides
 import okio.FileSystem
 
-interface ImageLoaderDiskCacheComponent : ImageLoaderFileSystemModule {
+interface ImageLoaderDiskCacheComponent : FileSystemModule {
     @Singleton
     @Provides
     fun providesDiskCache(

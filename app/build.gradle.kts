@@ -60,6 +60,8 @@ kotlin {
                 implementation(libs.kotlinx.serialization.core)
                 implementation(projects.appCompatSync)
                 implementation(projects.doNotKeepProcess)
+                implementation(projects.filesystem)
+                implementation(projects.imageLoader)
                 implementation(projects.injectScopes)
                 implementation(projects.resourcesApp)
                 implementation(projects.strictMode)
@@ -96,6 +98,7 @@ kotlin {
             dependencies {
                 implementation(projects.databaseTest)
                 implementation(projects.dispatchersTest)
+                implementation(projects.filesystemTest)
                 implementation(projects.patterns)
                 implementation(projects.preferencesTest)
             }

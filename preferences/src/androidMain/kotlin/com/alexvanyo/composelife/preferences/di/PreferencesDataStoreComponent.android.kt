@@ -20,6 +20,7 @@ package com.alexvanyo.composelife.preferences.di
 import android.content.Context
 import androidx.datastore.dataStoreFile
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.filesystem.di.FileSystemModule
 import com.alexvanyo.composelife.preferences.DiskPreferencesDataStore
 import com.alexvanyo.composelife.preferences.PreferencesCoroutineScope
 import com.alexvanyo.composelife.preferences.PreferencesDataStore
@@ -34,7 +35,7 @@ import okio.Path.Companion.toOkioPath
 
 actual interface PreferencesDataStoreComponent :
     PreferencesDataStoreModule,
-    PreferencesFileSystemComponent {
+    FileSystemModule {
 
     val DiskPreferencesDataStore.bind: PreferencesDataStore
         @Provides get() = this

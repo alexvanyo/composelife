@@ -55,6 +55,7 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(projects.filesystem)
                 implementation(projects.injectScopes)
                 implementation(projects.processLifecycle)
                 implementation(projects.strictMode)

@@ -23,7 +23,7 @@ plugins {
 }
 
 android {
-    namespace = "com.alexvanyo.composelife.imageloader"
+    namespace = "com.alexvanyo.composelife.filesystemtest"
     defaultConfig {
         minSdk = 21
     }
@@ -36,20 +36,12 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.coil.core)
+                api(projects.filesystem)
 
                 implementation(libs.kotlinInject.runtime)
-                implementation(projects.dispatchers)
-                implementation(projects.filesystem)
+                implementation(libs.okio.fakefilesystem)
                 implementation(projects.injectScopes)
-                implementation(projects.updatable)
             }
-        }
-        val nonAndroidMain by creating {
-            dependsOn(commonMain)
-        }
-        val desktopMain by getting {
-            dependsOn(nonAndroidMain)
         }
     }
 }

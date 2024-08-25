@@ -14,21 +14,12 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.imageloader.di
+package com.alexvanyo.composelife.filesystem.di
 
-import coil3.fetch.Fetcher
-import com.alexvanyo.composelife.scopes.Singleton
-import kotlin.reflect.KClass
+import me.tatarka.inject.annotations.Provides
+import okio.FileSystem
 
-interface ImageLoaderFetcherFactoryComponent {
-    @get:Singleton
-    val fetcherFactoriesWithType: Set<FetcherFactoryWithType<out Any>>
+interface FileSystemComponent : FileSystemModule {
+    @Provides
+    fun providesFileSystem(): FileSystem = FileSystem.SYSTEM
 }
-
-class FetcherFactoryWithType<T : Any>(
-    val type: KClass<T>,
-    val fetcherFactory: Fetcher.Factory<T>,
-)
-
-inline fun <reified T : Any> Fetcher.Factory<T>.withType(): FetcherFactoryWithType<T> =
-    FetcherFactoryWithType(T::class, this)

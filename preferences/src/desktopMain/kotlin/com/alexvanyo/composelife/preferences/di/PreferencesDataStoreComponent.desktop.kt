@@ -18,6 +18,7 @@
 package com.alexvanyo.composelife.preferences.di
 
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.filesystem.di.FileSystemModule
 import com.alexvanyo.composelife.preferences.DiskPreferencesDataStore
 import com.alexvanyo.composelife.preferences.PreferencesCoroutineScope
 import com.alexvanyo.composelife.preferences.PreferencesDataStore
@@ -30,7 +31,7 @@ import okio.FileSystem
 import okio.Path
 
 actual interface PreferencesDataStoreComponent :
-    PreferencesDataStoreModule, PreferencesFileSystemComponent {
+    PreferencesDataStoreModule, FileSystemModule {
 
     val DiskPreferencesDataStore.bind: PreferencesDataStore
         @Provides get() = this

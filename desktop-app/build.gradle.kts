@@ -35,6 +35,8 @@ kotlin {
                 implementation(libs.circuit.retained)
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.serialization.core)
+                implementation(projects.filesystem)
+                implementation(projects.imageLoader)
                 implementation(projects.injectScopes)
                 implementation(projects.uiApp)
                 implementation(projects.uiMobile)
