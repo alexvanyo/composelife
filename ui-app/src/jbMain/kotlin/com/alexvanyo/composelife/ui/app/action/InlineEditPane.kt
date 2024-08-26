@@ -81,6 +81,7 @@ import com.slack.circuit.retained.rememberRetained
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.collections.removeLast as removeLastKt
 
 interface InlineEditPaneInjectEntryPoint :
     ComposeLifePreferencesProvider,
@@ -457,7 +458,7 @@ fun rememberClipboardWatchingEnabledState(
                 )
                 // Trim the clipboard history down
                 while (previousClipboardCellStates.size > 4) {
-                    previousClipboardCellStates.removeLast()
+                    previousClipboardCellStates.removeLastKt()
                 }
 
                 // We have "locked" in a successful clipboard parsing result into history, so start creating
