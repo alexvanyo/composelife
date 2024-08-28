@@ -237,8 +237,6 @@ The project here creates a distinction between two types of dependencies:
 These two sets of dependencies are then provided by two different entry points for each component:
 
 ```kotlin
-@EntryPoint
-@InstallIn(ActivityComponent::class)
 interface InnerComposableInjectEntryPoint : RandomProvider, ClockProvider
 
 interface InnerComposableLocalEntryPoint : LoadedComposeLifePreferencesProvider
@@ -251,8 +249,6 @@ fun InnerComposable() {
     preferences // from inherited LoadedComposeLifePreferencesProvider scope
 }
 
-@EntryPoint
-@InstallIn(ActivityComponent::class)
 interface OuterComposableInjectEntryPoint :
     InnerComposableInjectEntryPoint,
     ComposeLifePreferencesProvider
