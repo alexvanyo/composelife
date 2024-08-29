@@ -32,3 +32,13 @@ expect fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): M
 context(CellStateParserProvider)
 @Composable
 expect fun Modifier.cellStateDragAndDropTarget(setSelectionToCellState: (CellState) -> Unit): Modifier
+
+sealed interface CellStateDropTargetState {
+    val currentDropSession: CellStateDropTargetSession
+}
+
+internal class CellStateDropTargetState private constructor()
+
+sealed interface CellStateDropTargetSession {
+
+}

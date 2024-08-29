@@ -75,6 +75,10 @@ actual fun Modifier.cellStateDragAndDropTarget(
     val coroutineScope = rememberCoroutineScope()
     val target = remember(cellStateParser, coroutineScope) {
         object : DragAndDropTarget {
+            override fun onMoved(event: DragAndDropEvent) {
+                super.onMoved(event)
+            }
+
             override fun onDrop(event: DragAndDropEvent): Boolean {
                 val clipData = event.toAndroidDragEvent().clipData
                 coroutineScope.launch {
