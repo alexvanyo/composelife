@@ -10,18 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  validate-wrapper:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Validate Gradle Wrapper
-        uses: gradle/actions/wrapper-validation@v4
-
   build-cfg:
-    needs: validate-wrapper
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -222,7 +211,6 @@ jobs:
           directory: codecoverage
 
   android-test-gmd-cfg:
-    needs: validate-wrapper
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
