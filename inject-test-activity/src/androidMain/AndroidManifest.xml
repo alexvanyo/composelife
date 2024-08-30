@@ -18,6 +18,7 @@
     <application>
         <activity
             android:name="com.alexvanyo.composelife.test.InjectTestActivity"
+            android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
             android:theme="@style/Theme.ComposeLife" />
     </application>
 </manifest>
