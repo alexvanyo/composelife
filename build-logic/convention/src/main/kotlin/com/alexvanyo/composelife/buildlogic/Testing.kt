@@ -24,7 +24,6 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
@@ -81,18 +80,8 @@ fun Project.configureAndroidTesting(
         }
 
         sourceSets {
-            // Setup a shared test directory for instrumentation tests and Robolectric tests
-            val sharedResDir = "src/androidSharedTest/res"
-            if (useSharedTest != SharedTestConfig.Instrumentation) {
-                getByName("test") {
-                    res.srcDir(sharedResDir)
-                    resources.srcDirs("src/androidSharedTest/resources")
-                }
-            }
-            if (useSharedTest != SharedTestConfig.Robolectric) {
-                getByName("androidTest") {
-                    res.srcDir(sharedResDir)
-                }
+            getByName("test") {
+                resources.srcDirs("src/androidSharedTest/resources")
             }
         }
 

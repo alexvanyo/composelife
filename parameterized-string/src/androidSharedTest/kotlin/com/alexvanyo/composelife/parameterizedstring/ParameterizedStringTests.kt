@@ -20,7 +20,7 @@ import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.alexvanyo.composelife.parameterizedstring.test.R
+import com.alexvanyo.composelife.parameterizedstring.testresources.R
 import org.junit.Rule
 import org.junit.runner.RunWith
 import java.util.MissingFormatArgumentException
