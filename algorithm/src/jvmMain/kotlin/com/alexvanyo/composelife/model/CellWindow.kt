@@ -23,11 +23,11 @@ import androidx.compose.ui.unit.IntSize
 /**
  * A finite rectangular region of a cell universe.
  *
- * This is represented by an [IntRect], with the [IntRect.topLeft] being the top-left most point (inclusive), and
- * [IntRect.bottomRight] being the bottom-right most point (exclusive).
+ * This is represented by an [IntRect] [intRect], with the [IntRect.topLeft] being the top-left most point (inclusive),
+ * and [IntRect.bottomRight] being the bottom-right most point (exclusive).
  */
 @JvmInline
-value class CellWindow(private val intRect: IntRect) {
+value class CellWindow(val intRect: IntRect) {
 
     init {
         require(intRect.top <= intRect.bottom)
