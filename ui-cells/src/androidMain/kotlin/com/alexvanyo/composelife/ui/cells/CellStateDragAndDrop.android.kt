@@ -23,6 +23,7 @@ import android.view.View
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -31,11 +32,17 @@ import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
+import androidx.compose.ui.geometry.Offset
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.di.CellStateParserProvider
+import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.selects.select
 
 actual fun Modifier.cellStateDragAndDropSource(
     getCellState: () -> CellState,
@@ -91,4 +98,169 @@ actual fun Modifier.cellStateDragAndDropTarget(
         },
         target = target,
     )
+}
+
+
+context(CellStateParserProvider)
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+@Suppress("ComposeComposableModifier")
+fun Modifier.cellStateDragAndDropTarget(
+    mutableCellStateDropStateHolder: MutableCellStateDropStateHolder,
+    setSelectionToCellState: (CellState) -> Unit,
+): Modifier {
+    val coroutineScope = rememberCoroutineScope()
+    val dragAndDropEvents = remember { Channel<CellStateDragAndDropEvent>(Channel.UNLIMITED) }
+
+    LaunchedEffect(dragAndDropEvents) {
+        while (true) {
+            mutableCellStateDropStateHolder.cellStateDropState = CellStateDropState.None
+            var event: CellStateDragAndDropEvent
+            do {
+                event = dragAndDropEvents.receive()
+            } while (event !is CellStateDragAndDropEvent.Started)
+            val startedEvent: CellStateDragAndDropEvent.Started = event
+
+            val deserializationResultDeferred = async {
+                cellStateParser.parseCellState(startedEvent.clipData)
+            }
+
+            var isEntered = false
+            var offset: Offset = Offset.Zero
+
+            while (event != CellStateDragAndDropEvent.Ended) {
+                select {
+                    deserializationResultDeferred.onAwait {}
+                    dragAndDropEvents.onReceive {
+                        event = it
+                        when (it) {
+                            CellStateDragAndDropEvent.Dropped -> {
+                                val deserializationResult = deserializationResultDeferred.await()
+                                when (deserializationResult) {
+                                    is DeserializationResult.Successful -> {
+                                        setSelectionToCellState(deserializationResult.cellState)
+                                    }
+                                    is DeserializationResult.Unsuccessful -> {
+                                        // TODO: Show error for unsuccessful drag and drop
+                                    }
+                                }
+                            }
+                            CellStateDragAndDropEvent.Ended -> Unit
+                            is CellStateDragAndDropEvent.Entered -> {
+                                isEntered = true
+                                offset = it.offset
+                            }
+                            CellStateDragAndDropEvent.Exited -> {
+                                isEntered = false
+                            }
+                            is CellStateDragAndDropEvent.Moved -> {
+                                check(isEntered)
+                                offset = it.offset
+                            }
+                            is CellStateDragAndDropEvent.Started ->
+                                throw IllegalStateException("")
+                        }
+                    }
+                }
+
+                mutableCellStateDropStateHolder.cellStateDropState =
+                    if (isEntered && deserializationResultDeferred.isCompleted) {
+                        val deserializationResult = deserializationResultDeferred.getCompleted()
+                        when (deserializationResult) {
+                            is DeserializationResult.Successful -> {
+                                CellStateDropState.DropPreview(
+                                    offset = offset,
+                                    cellState = deserializationResult.cellState,
+                                )
+                            }
+                            is DeserializationResult.Unsuccessful -> {
+                                // TODO: Show error for what will be an unsuccessful drag and drop
+                                CellStateDropState.ApplicableDropAvailable
+                            }
+                        }
+                    } else {
+                        CellStateDropState.ApplicableDropAvailable
+                    }
+            }
+
+            deserializationResultDeferred.cancel()
+        }
+    }
+
+    val target = remember(cellStateParser, coroutineScope) {
+        object : DragAndDropTarget {
+            override fun onStarted(event: DragAndDropEvent) {
+                dragAndDropEvents.trySend(
+                    CellStateDragAndDropEvent.Started(
+                        event.toAndroidDragEvent().clipData
+                    )
+                )
+            }
+
+            override fun onEntered(event: DragAndDropEvent) {
+                val androidDragEvent = event.toAndroidDragEvent()
+                dragAndDropEvents.trySend(
+                    CellStateDragAndDropEvent.Entered(
+                        Offset(
+                            androidDragEvent.x,
+                            androidDragEvent.y,
+                        )
+                    )
+                )
+            }
+
+            override fun onMoved(event: DragAndDropEvent) {
+                val androidDragEvent = event.toAndroidDragEvent()
+                dragAndDropEvents.trySend(
+                    CellStateDragAndDropEvent.Moved(
+                        Offset(
+                            androidDragEvent.x,
+                            androidDragEvent.y,
+                        )
+                    )
+                )
+            }
+
+            override fun onExited(event: DragAndDropEvent) {
+                dragAndDropEvents.trySend(
+                    CellStateDragAndDropEvent.Exited
+                )
+            }
+
+            override fun onEnded(event: DragAndDropEvent) {
+                dragAndDropEvents.trySend(
+                    CellStateDragAndDropEvent.Ended
+                )
+            }
+
+            override fun onDrop(event: DragAndDropEvent): Boolean {
+                dragAndDropEvents.trySend(
+                    CellStateDragAndDropEvent.Dropped
+                )
+                return true
+            }
+        }
+    }
+
+    return dragAndDropTarget(
+        shouldStartDragAndDrop = { event ->
+            event.mimeTypes().contains(ClipDescription.MIMETYPE_TEXT_PLAIN)
+        },
+        target = target,
+    )
+}
+
+private sealed interface CellStateDragAndDropEvent {
+    data class Started(
+        val clipData: ClipData
+    ) : CellStateDragAndDropEvent
+    data class Entered(
+        val offset: Offset
+    ) : CellStateDragAndDropEvent
+    data class Moved(
+        val offset: Offset
+    ) : CellStateDragAndDropEvent
+    data object Exited : CellStateDragAndDropEvent
+    data object Ended : CellStateDragAndDropEvent
+    data object Dropped : CellStateDragAndDropEvent
 }
