@@ -17,6 +17,7 @@
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 import com.alexvanyo.composelife.buildlogic.jvmMolecule
+import com.android.build.gradle.internal.testFixtures.testFixturesClassifier
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
 
@@ -91,6 +92,7 @@ kotlin {
                 implementation(libs.androidx.compose.uiTestJunit4)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
+                implementation(projects.parameterizedStringTestResources)
                 implementation(projects.testActivity)
             }
         }
