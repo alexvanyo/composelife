@@ -19,8 +19,6 @@ package com.alexvanyo.composelife.buildlogic
 import org.gradle.api.Project
 import org.gradle.api.attributes.java.TargetJvmEnvironment
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
-import org.gradle.kotlin.dsl.get
-import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
@@ -28,13 +26,6 @@ fun Project.jvmMolecule(kotlinMultiplatformExtension: KotlinMultiplatformExtensi
     with(kotlinMultiplatformExtension) {
         jvm("molecule") {
             attributes {
-                attribute(
-                    TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
-                    objects.named(TargetJvmEnvironment::class.java, "molecule"),
-                )
-            }
-            @OptIn(InternalKotlinGradlePluginApi::class)
-            configurations[resourcesElementsConfigurationName].attributes {
                 attribute(
                     TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
                     objects.named(TargetJvmEnvironment::class.java, "molecule"),
