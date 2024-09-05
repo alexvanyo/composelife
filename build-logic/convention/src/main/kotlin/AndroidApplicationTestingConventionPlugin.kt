@@ -29,13 +29,17 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 
 class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
-    val enableKeeperProperty = findProperty("com.alexvanyo.composelife.enableKeeper") as String?
-    val enableKeeper = when (enableKeeperProperty) {
-        "true" -> true
-        "false" -> false
-        null -> defaultEnableKeeper
-        else -> throw GradleException("Unexpected value $enableKeeperProperty for enableKeeper!")
-    }
+    val enableKeeperProperty = providers.gradleProperty("com.alexvanyo.composelife.enableKeeper")
+    val enableKeeper = enableKeeperProperty
+        .orElse(defaultEnableKeeper.toString())
+        .map {
+            when (it) {
+                "true" -> true
+                "false" -> false
+                else ->
+                    throw GradleException("Unexpected value $enableKeeperProperty for enableKeeper!")
+            }
+        }
 
     with(pluginManager) {
         apply("com.android.application")
@@ -45,7 +49,10 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
 
     extensions.configure<ApplicationExtension> {
         defaultConfig {
-            val testBuildTypeProperty = findProperty("com.alexvanyo.composelife.testBuildType") as String?
+            val testBuildTypeProperty =
+                providers
+                    .gradleProperty("com.alexvanyo.composelife.testBuildType")
+                    .orNull
             if (testBuildTypeProperty !in setOf(null, "staging", "debug")) {
                 throw GradleException("Unexpected value $testBuildTypeProperty for testBuildType!")
             }
@@ -56,7 +63,7 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
 
     configureAndroidTesting(extensions.getByType<TestedExtension>())
 
-    if (enableKeeper) {
+    if (enableKeeper.get()) {
         with(pluginManager) {
             apply("com.slack.keeper")
         }

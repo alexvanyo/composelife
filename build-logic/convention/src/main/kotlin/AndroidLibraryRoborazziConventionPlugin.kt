@@ -44,15 +44,17 @@ class AndroidLibraryRoborazziConventionPlugin : ConventionPlugin({
                 // Configure parameterization to either be combined, or at the test runner level
                 systemProperty(
                     "com.alexvanyo.composelife.combinedScreenshotTests",
-                    when (
-                        val combinedScreenshotTests = findProperty("com.alexvanyo.composelife.combinedScreenshotTests")
-                    ) {
-                        null, "false" -> "false"
-                        "true" -> "true"
-                        else -> throw GradleException(
-                            "Unexpected value $combinedScreenshotTests for combinedScreenshotTests!",
-                        )
-                    },
+                    providers.gradleProperty("com.alexvanyo.composelife.combinedScreenshotTests")
+                        .orElse("false")
+                        .map {
+                            when (it) {
+                                "false" -> "false"
+                                "true" -> "true"
+                                else -> throw GradleException(
+                                    "Unexpected value $it for combinedScreenshotTests!",
+                                )
+                            }
+                        },
                 )
                 // Increase memory and parallelize Roborazzi tests
                 maxHeapSize = "2g"
