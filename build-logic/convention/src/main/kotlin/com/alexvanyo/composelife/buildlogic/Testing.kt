@@ -22,6 +22,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
@@ -62,13 +63,18 @@ enum class SharedTestConfig {
     Both,
 }
 
-private val Project.useSharedTest: SharedTestConfig get() =
-    when (val useSharedTest = findProperty("com.alexvanyo.composelife.useSharedTest")) {
-        null, "true" -> SharedTestConfig.Both
-        "robolectric" -> SharedTestConfig.Robolectric
-        "android" -> SharedTestConfig.Instrumentation
-        else -> throw GradleException("Unexpected value $useSharedTest for useSharedTest!")
-    }
+private val Project.useSharedTest: Provider<SharedTestConfig> get() =
+    providers
+        .gradleProperty("com.alexvanyo.composelife.useSharedTest")
+        .orElse("true")
+        .map {
+            when (it) {
+                "true" -> SharedTestConfig.Both
+                "robolectric" -> SharedTestConfig.Robolectric
+                "android" -> SharedTestConfig.Instrumentation
+                else -> throw GradleException("Unexpected value $useSharedTest for useSharedTest!")
+            }
+        }
 
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 fun Project.configureAndroidTesting(
@@ -91,7 +97,7 @@ fun Project.configureAndroidTesting(
             }
         }
 
-        if (useSharedTest == SharedTestConfig.Robolectric) {
+        if (useSharedTest.get() == SharedTestConfig.Robolectric) {
             testVariants.configureEach {
                 connectedInstrumentTestProvider.configure {
                     doFirst {
@@ -122,7 +128,7 @@ fun Project.configureAndroidTesting(
                     dependsOn(commonTest)
                 }
                 getByName("androidUnitTest") {
-                    if (useSharedTest != SharedTestConfig.Instrumentation) {
+                    if (useSharedTest.get() != SharedTestConfig.Instrumentation) {
                         dependsOn(androidSharedTest)
                     }
                     dependencies {
@@ -130,7 +136,7 @@ fun Project.configureAndroidTesting(
                     }
                 }
                 getByName("androidInstrumentedTest") {
-                    if (useSharedTest != SharedTestConfig.Robolectric) {
+                    if (useSharedTest.get() != SharedTestConfig.Robolectric) {
                         dependsOn(androidSharedTest)
                     }
                 }
@@ -142,7 +148,7 @@ fun Project.configureAndroidTesting(
         // Automatically output Robolectric logs to stdout (for ease of debugging in Android Studio)
         systemProperty("robolectric.logging", "stdout")
 
-        if (useSharedTest == SharedTestConfig.Instrumentation && this.name.contains("Unit")) {
+        if (useSharedTest.get() == SharedTestConfig.Instrumentation && this.name.contains("Unit")) {
             doFirst {
                 throw GradleException("useSharedTest is configured to only run android tests!")
             }
