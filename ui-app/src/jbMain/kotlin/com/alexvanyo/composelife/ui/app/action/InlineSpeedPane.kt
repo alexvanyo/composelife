@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -31,7 +32,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
@@ -46,6 +46,8 @@ import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondLabel
 import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondLabelAndValue
 import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondValue
+import com.alexvanyo.composelife.ui.util.nonNegativeDouble
+import com.alexvanyo.composelife.ui.util.nonNegativeLong
 import com.alexvanyo.composelife.ui.util.uuidSaver
 import com.benasher44.uuid.uuid4
 import kotlin.math.log2
@@ -136,6 +138,7 @@ fun TargetStepsPerSecondControl(
                 }
             }
         },
+        inputTransformation = InputTransformation.nonNegativeDouble(),
         modifier = modifier,
     )
 }
@@ -175,7 +178,7 @@ fun GenerationsPerStepControl(
             valueId = it.valueId
             setGenerationsPerStep(it.value)
         },
-        keyboardType = KeyboardType.Number,
+        inputTransformation = InputTransformation.nonNegativeLong(),
         modifier = modifier,
     )
 }
