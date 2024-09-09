@@ -1,7 +1,3 @@
-import io.gitlab.arturbosch.detekt.Detekt
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 /*
  * Copyright 2022 The Android Open Source Project
  *
