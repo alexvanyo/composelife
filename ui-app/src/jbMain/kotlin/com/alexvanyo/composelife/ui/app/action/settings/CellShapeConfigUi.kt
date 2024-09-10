@@ -20,6 +20,7 @@ package com.alexvanyo.composelife.ui.app.action.settings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +40,7 @@ import com.alexvanyo.composelife.ui.app.resources.SizeFractionLabel
 import com.alexvanyo.composelife.ui.app.resources.SizeFractionLabelAndValue
 import com.alexvanyo.composelife.ui.app.resources.SizeFractionValue
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.util.nonNegativeDouble
 import kotlinx.collections.immutable.toImmutableList
 
 interface CellShapeConfigUiInjectEntryPoint :
@@ -91,6 +93,7 @@ fun CellShapeConfigUi(
                     onSessionValueChange = currentShapeConfigUiState::onSizeFractionSessionValueChange,
                     valueRange = 0.1f..1f,
                     sliderBijection = Float.IdentitySliderBijection,
+                    inputTransformation = InputTransformation.nonNegativeDouble(),
                 )
 
                 EditableSlider(
@@ -102,6 +105,7 @@ fun CellShapeConfigUi(
                     onSessionValueChange = currentShapeConfigUiState::onCornerFractionSessionValueChange,
                     valueRange = 0f..0.5f,
                     sliderBijection = Float.IdentitySliderBijection,
+                    inputTransformation = InputTransformation.nonNegativeDouble(),
                 )
             }
         }

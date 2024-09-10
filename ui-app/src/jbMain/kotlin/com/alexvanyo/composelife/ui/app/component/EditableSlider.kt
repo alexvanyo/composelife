@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.ui.app.component
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.SliderColors
@@ -39,10 +40,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.sessionvalue.localSessionId
 import com.alexvanyo.composelife.sessionvalue.rememberSessionValueHolder
+import com.alexvanyo.composelife.ui.util.nonNegativeDouble
 import com.benasher44.uuid.uuid4
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
@@ -65,7 +66,7 @@ fun <T : Comparable<T>> EditableSlider(
     onValueChangeFinished: (() -> Unit)? = null,
     colors: SliderColors = SliderDefaults.colors(),
     sliderOverlay: @Composable () -> Unit = {},
-    keyboardType: KeyboardType = KeyboardType.Decimal,
+    inputTransformation: InputTransformation = InputTransformation.nonNegativeDouble(),
 ) {
     val value = sessionValue.value
 
@@ -165,9 +166,9 @@ fun <T : Comparable<T>> EditableSlider(
                 },
                 isError = transientValue == null,
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = keyboardType,
                     imeAction = ImeAction.Done,
                 ),
+                inputTransformation = inputTransformation,
                 onKeyboardAction = { performDefaultAction ->
                     performDefaultAction()
                     sliderFocusRequester.requestFocus()
