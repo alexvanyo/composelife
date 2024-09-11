@@ -24,7 +24,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.DragData
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
@@ -33,6 +32,7 @@ import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.DragAndDropTransferAction
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.draganddrop.DragAndDropTransferable
+import androidx.compose.ui.draganddrop.DragData
 import androidx.compose.ui.draganddrop.dragData
 import androidx.compose.ui.draw.CacheDrawModifierNode
 import androidx.compose.ui.draw.CacheDrawScope
