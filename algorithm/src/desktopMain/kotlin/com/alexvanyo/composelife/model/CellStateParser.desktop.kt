@@ -18,8 +18,8 @@
 
 package com.alexvanyo.composelife.model
 
-import androidx.compose.ui.DragData
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.draganddrop.DragData
 import me.tatarka.inject.annotations.Inject
 
 @Inject
