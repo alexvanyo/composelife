@@ -47,13 +47,13 @@ class AndroidTestConventionPlugin : ConventionPlugin({
         buildTypes {
             debug {
                 signingConfig = signingConfigs.getByName("debug")
+                matchingFallbacks.add("release") // fallback to release for dependencies
             }
             create("release") {
-                matchingFallbacks.add("debug") // fallback to release and debug for dependencies
                 signingConfig = signingConfigs.getByName("debug") // sign with debug for testing
             }
             create("staging") {
-                matchingFallbacks.addAll(listOf("release", "debug")) // fallback to release and debug for dependencies
+                matchingFallbacks.add("release") // fallback to release for dependencies
                 signingConfig = signingConfigs.getByName("debug") // sign with debug for testing
             }
         }
