@@ -53,12 +53,12 @@ class AndroidApplicationConventionPlugin : ConventionPlugin({
         buildTypes {
             debug {
                 signingConfig = signingConfigs.getByName("debug")
+                matchingFallbacks.add("release") // fallback to release for dependencies
             }
 
             release {
                 isMinifyEnabled = true
                 isShrinkResources = true
-                matchingFallbacks.add("debug") // fallback to debug for dependencies
                 proguardFiles(
                     getDefaultProguardFile("proguard-android-optimize.txt"),
                     "proguard-rules.pro",
@@ -70,7 +70,7 @@ class AndroidApplicationConventionPlugin : ConventionPlugin({
             create("staging") {
                 isMinifyEnabled = true // minify like a release build
                 isShrinkResources = true // shrink resources like a release build
-                matchingFallbacks.addAll(listOf("release", "debug")) // fallback to release and debug for dependencies
+                matchingFallbacks.add("release") // fallback to release for dependencies
                 signingConfig = signingConfigs.getByName("debug") // sign with debug for testing
                 // Use the normal proguard rules, as well as some additional staging ones just for tests (when needed)
                 proguardFiles(

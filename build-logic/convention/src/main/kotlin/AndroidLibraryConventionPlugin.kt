@@ -26,7 +26,7 @@ class AndroidLibraryConventionPlugin : ConventionPlugin({
     }
 
     extensions.configure<LibraryAndroidComponentsExtension> {
-        beforeVariants(selector().withBuildType("release")) { builder ->
+        beforeVariants(selector().withBuildType("debug")) { builder ->
             builder.enable = false
         }
     }
