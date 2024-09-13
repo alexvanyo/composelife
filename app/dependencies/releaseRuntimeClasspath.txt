@@ -134,8 +134,8 @@ io.coil-kt.coil3:coil-compose-core-android:3.0.0-alpha10
 io.coil-kt.coil3:coil-compose-core:3.0.0-alpha10
 io.coil-kt.coil3:coil-core-android:3.0.0-alpha10
 io.coil-kt.coil3:coil-core:3.0.0-alpha10
-me.tatarka.inject:kotlin-inject-runtime-jvm:0.7.1
-me.tatarka.inject:kotlin-inject-runtime:0.7.1
+me.tatarka.inject:kotlin-inject-runtime-jvm:0.7.2
+me.tatarka.inject:kotlin-inject-runtime:0.7.2
 org.checkerframework:checker-qual:3.33.0
 org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.2
 org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.8.2
