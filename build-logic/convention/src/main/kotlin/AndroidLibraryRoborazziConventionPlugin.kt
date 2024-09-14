@@ -54,7 +54,8 @@ class AndroidLibraryRoborazziConventionPlugin : ConventionPlugin({
                                     "Unexpected value $it for combinedScreenshotTests!",
                                 )
                             }
-                        },
+                        }
+                        .get(),
                 )
                 // Increase memory and parallelize Roborazzi tests
                 maxHeapSize = "2g"
