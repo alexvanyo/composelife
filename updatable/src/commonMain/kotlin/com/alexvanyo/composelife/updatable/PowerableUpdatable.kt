@@ -20,6 +20,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.update
@@ -77,7 +78,7 @@ class PowerableUpdatable(
 
                         if (currentlyActivePushes.isEmpty()) {
                             // If we are no longer being pushed at all, cancel and clear out the job running the block
-                            job?.cancel()
+                            job?.cancelAndJoin()
                             job = null
                         } else if (job == null) {
                             // If we are actively pushing and we don't have an existing job, launch the block
