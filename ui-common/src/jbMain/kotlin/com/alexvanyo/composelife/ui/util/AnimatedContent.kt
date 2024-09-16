@@ -300,7 +300,7 @@ fun <T, M> AnimatedContent(
         modifier = modifier,
         propagateMinConstraints = true,
     ) {
-        @Suppress("UnusedContentLambdaTargetStateParameter")
+        @Suppress("UnusedContentLambdaTargetStateParameter", "UnusedTargetStateInContentKeyLambda")
         seekableTransition.AnimatedContent(
             modifier = Modifier.matchParentSize(),
         ) {

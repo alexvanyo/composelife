@@ -31,8 +31,12 @@ fun Project.configureAndroidCompose(
 
     commonExtension.apply {
         lint {
-            // TODO: Re-enable this lint check
-            disable.addAll(listOf("ComposeParameterOrder"))
+            disable.addAll(
+                listOf(
+                    "ComposeParameterOrder", // TODO: Re-enable this lint check
+                    "ComposeUnstableCollections",
+                ),
+            )
         }
 
         buildFeatures {

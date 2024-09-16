@@ -31,4 +31,5 @@ import androidx.compose.runtime.compositionLocalOf
  * Providing a new value for `LocalGhostElement` should likely not "reset" the value back to `false`, as a child of
  * a ghost element should always be a ghost element itself.
  */
+@Suppress("ComposeCompositionLocalUsage")
 val LocalGhostElement: ProvidableCompositionLocal<Boolean> = compositionLocalOf { false }
