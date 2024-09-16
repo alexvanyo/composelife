@@ -61,26 +61,26 @@ fun Project.configureJacocoMerge() {
             )
 
             classDirectories.setFrom(
-                files(
-                    subprojects
-                        .map {
-                            fileTree(it.layout.buildDirectory.dir("tmp/kotlin-classes/$variant")) {
-                                exclude(coverageExclusions)
-                            }
-                        },
-                ),
+                subprojects
+                    .map {
+                        fileTree(it.layout.buildDirectory.dir("tmp/kotlin-classes/$variant")) {
+                            exclude(coverageExclusions)
+                        }
+                    },
             )
             sourceDirectories.setFrom(
-                files(
-                    subprojects
-                        .flatMap {
-                            listOf(
-                                it.layout.projectDirectory.dir("src/commonMain/kotlin"),
-                                it.layout.projectDirectory.dir("src/androidMain/kotlin"),
-                                it.layout.projectDirectory.dir("src/desktopMain/kotlin"),
-                            )
-                        },
-                ),
+                subprojects
+                    .flatMap {
+                        listOf(
+                            it.layout.projectDirectory.dir("src/androidMain/kotlin"),
+                            it.layout.projectDirectory.dir("src/commonMain/kotlin"),
+                            it.layout.projectDirectory.dir("src/desktopMain/kotlin"),
+                            it.layout.projectDirectory.dir("src/jbMain/kotlin"),
+                            it.layout.projectDirectory.dir("src/jvmMain/kotlin"),
+                            it.layout.projectDirectory.dir("src/jvmNonAndroidMain/kotlin"),
+                            it.layout.projectDirectory.dir("src/moleculeMain/kotlin"),
+                        )
+                    },
             )
             executionData.setFrom(
                 subprojects
