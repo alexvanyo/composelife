@@ -115,7 +115,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlin.math.max
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongParameterList", "CyclomaticComplexMethod", "LongMethod")
 @Composable
 fun EdgeToEdgeModalBottomSheet(
@@ -228,17 +228,17 @@ fun EdgeToEdgeModalBottomSheet(
 
                         val newTarget = when (sheetState.anchoredDraggableState.targetValue) {
                             Hidden -> Hidden
-                            PartiallyExpanded -> if (newAnchors.hasAnchorFor(PartiallyExpanded)) {
+                            PartiallyExpanded -> if (newAnchors.hasPositionFor(PartiallyExpanded)) {
                                 PartiallyExpanded
-                            } else if (newAnchors.hasAnchorFor(Expanded)) {
+                            } else if (newAnchors.hasPositionFor(Expanded)) {
                                 Expanded
                             } else {
                                 Hidden
                             }
 
-                            Expanded -> if (newAnchors.hasAnchorFor(Expanded)) {
+                            Expanded -> if (newAnchors.hasPositionFor(Expanded)) {
                                 Expanded
-                            } else if (newAnchors.hasAnchorFor(PartiallyExpanded)) {
+                            } else if (newAnchors.hasPositionFor(PartiallyExpanded)) {
                                 PartiallyExpanded
                             } else {
                                 Hidden
@@ -414,7 +414,7 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     override suspend fun onPreFling(available: Velocity): Velocity {
         val toFling = available.toFloat()
         val currentOffset = sheetState.requireOffset()
-        val minAnchor = sheetState.anchoredDraggableState.anchors.minAnchor()
+        val minAnchor = sheetState.anchoredDraggableState.anchors.minPosition()
         return if (toFling < 0 && currentOffset > minAnchor) {
             onFling(toFling)
             // since we go to the anchor with tween settling, consume all for the best UX
@@ -529,13 +529,13 @@ class SheetState(
      * Whether the sheet has an expanded state defined.
      */
     val hasExpandedState: Boolean
-        get() = anchoredDraggableState.anchors.hasAnchorFor(Expanded)
+        get() = anchoredDraggableState.anchors.hasPositionFor(Expanded)
 
     /**
      * Whether the modal bottom sheet has a partially expanded state defined.
      */
     val hasPartiallyExpandedState: Boolean
-        get() = anchoredDraggableState.anchors.hasAnchorFor(PartiallyExpanded)
+        get() = anchoredDraggableState.anchors.hasPositionFor(PartiallyExpanded)
 
     /**
      * Fully expand the bottom sheet with animation and suspend until it is fully expanded or
