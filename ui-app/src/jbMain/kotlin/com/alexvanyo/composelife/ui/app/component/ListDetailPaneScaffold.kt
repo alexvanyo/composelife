@@ -25,8 +25,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.AnchoredDraggableState
-import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.hoverable
@@ -73,13 +71,17 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
+import com.alexvanyo.composelife.ui.util.AnchoredDraggableState
+import com.alexvanyo.composelife.ui.util.AnchoredDraggableStateSaver
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.ContentStatus
+import com.alexvanyo.composelife.ui.util.DraggableAnchors
 import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackState
 import com.alexvanyo.composelife.ui.util.SwipeEdge
 import com.alexvanyo.composelife.ui.util.TargetState
+import com.alexvanyo.composelife.ui.util.asFoundationDraggableAnchors
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
@@ -108,7 +110,7 @@ fun ListDetailPaneScaffold(
 
     val density = LocalDensity.current
     val anchoredDraggableState = rememberSaveable(
-        saver = AnchoredDraggableState.Saver(
+        saver = AnchoredDraggableStateSaver(
             positionalThreshold = { totalDistance -> totalDistance * 0.5f },
             velocityThreshold = { with(density) { 200.dp.toPx() } },
             snapAnimationSpec = spring(),
@@ -278,6 +280,8 @@ fun ListDetailPaneScaffold(
                             newAnchors = ContinuousDraggableAnchors(
                                 minAnchoredDraggablePosition = minAnchoredDraggablePosition,
                                 maxAnchoredDraggablePosition = maxAnchoredDraggablePosition,
+                            ).asFoundationDraggableAnchors(
+                                equalsKey = minAnchoredDraggablePosition to maxAnchoredDraggablePosition,
                             ),
                             newTarget = anchoredDraggableState.targetValue,
                         )
@@ -468,7 +472,6 @@ fun ListDetailPaneScaffold(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 data class ContinuousDraggableAnchors(
     private val minAnchoredDraggablePosition: Float,
     private val maxAnchoredDraggablePosition: Float,
@@ -506,16 +509,20 @@ data class ContinuousDraggableAnchors(
             }
         }
 
-    override fun maxAnchor(): Float = maxAnchoredDraggablePosition
+    override fun minPosition(): Float = minAnchoredDraggablePosition
 
-    override fun minAnchor(): Float = minAnchoredDraggablePosition
+    override fun maxPosition(): Float = maxAnchoredDraggablePosition
 
-    override fun positionOf(value: Float): Float =
-        value * (maxAnchoredDraggablePosition - minAnchoredDraggablePosition) +
+    override fun anchorAt(index: Int): Float? = null
+
+    override fun positionAt(index: Int): Float = Float.NaN
+
+    override fun positionOf(anchor: Float): Float =
+        anchor * (maxAnchoredDraggablePosition - minAnchoredDraggablePosition) +
             minAnchoredDraggablePosition
 
-    override fun hasAnchorFor(value: Float): Boolean =
-        value in minAnchoredDraggablePosition..maxAnchoredDraggablePosition
+    override fun hasPositionFor(anchor: Float): Boolean =
+        anchor in minAnchoredDraggablePosition..maxAnchoredDraggablePosition
 
     override fun forEach(block: (anchor: Float, position: Float) -> Unit) = Unit
 }

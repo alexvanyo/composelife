@@ -74,6 +74,7 @@ class AndroidApplicationConventionPlugin : ConventionPlugin({
                     "proguard-rules.pro",
                     "staging-proguard-rules.pro",
                 )
+                testProguardFiles("staging-test-proguard-rules.pro")
             }
         }
     }
