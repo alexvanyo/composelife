@@ -24,7 +24,6 @@ import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.moleculeFlow
 import app.cash.turbine.test
-import com.benasher44.uuid.uuid4
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -32,6 +31,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
+import kotlin.uuid.Uuid
 import kotlin.collections.removeFirst as removeFirstKt
 
 @Suppress("LargeClass")
@@ -41,8 +41,8 @@ class SessionValueHolderComposableTests {
 
     @Test
     fun whenCreated_stateIsCorrect() = runTest(broadcastFrameClock) {
-        val sessionId1 = uuid4()
-        val valueId1 = uuid4()
+        val sessionId1 = Uuid.random()
+        val valueId1 = Uuid.random()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -77,9 +77,9 @@ class SessionValueHolderComposableTests {
 
     @Test
     fun whenUpstreamSessionValueUpdated_stateMatches() = runTest(broadcastFrameClock) {
-        val sessionId1 = uuid4()
-        val valueId1 = uuid4()
-        val valueId2 = uuid4()
+        val sessionId1 = Uuid.random()
+        val valueId1 = Uuid.random()
+        val valueId2 = Uuid.random()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -138,10 +138,10 @@ class SessionValueHolderComposableTests {
 
     @Test
     fun whenUpstreamSessionIdUpdated_stateMatches() = runTest(broadcastFrameClock) {
-        val sessionId1 = uuid4()
-        val sessionId2 = uuid4()
-        val valueId1 = uuid4()
-        val valueId2 = uuid4()
+        val sessionId1 = Uuid.random()
+        val sessionId2 = Uuid.random()
+        val valueId1 = Uuid.random()
+        val valueId2 = Uuid.random()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -200,9 +200,9 @@ class SessionValueHolderComposableTests {
 
     @Test
     fun whenCreatingLocalSession_stateIsCorrect() = runTest(broadcastFrameClock) {
-        val sessionId1 = uuid4()
-        val valueId1 = uuid4()
-        val valueId2 = uuid4()
+        val sessionId1 = Uuid.random()
+        val valueId1 = Uuid.random()
+        val valueId2 = Uuid.random()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -264,10 +264,10 @@ class SessionValueHolderComposableTests {
 
     @Test
     fun localSessionActive_whenUpdatingValue_stateIsCorrect() = runTest(broadcastFrameClock) {
-        val sessionId1 = uuid4()
-        val valueId1 = uuid4()
-        val valueId2 = uuid4()
-        val valueId3 = uuid4()
+        val sessionId1 = Uuid.random()
+        val valueId1 = Uuid.random()
+        val valueId2 = Uuid.random()
+        val valueId3 = Uuid.random()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -350,9 +350,9 @@ class SessionValueHolderComposableTests {
 
     @Test
     fun localSessionActive_whenUpstreamSessionCatchesUp_stateIsCorrect() = runTest(broadcastFrameClock) {
-        val sessionId1 = uuid4()
-        val valueId1 = uuid4()
-        val valueId2 = uuid4()
+        val sessionId1 = Uuid.random()
+        val valueId1 = Uuid.random()
+        val valueId2 = Uuid.random()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -437,10 +437,10 @@ class SessionValueHolderComposableTests {
 
     @Test
     fun localSessionActive_whenUpstreamSessionCatchesUpWithTwoChanges_stateIsCorrect() = runTest(broadcastFrameClock) {
-        val sessionId1 = uuid4()
-        val valueId1 = uuid4()
-        val valueId2 = uuid4()
-        val valueId3 = uuid4()
+        val sessionId1 = Uuid.random()
+        val valueId1 = Uuid.random()
+        val valueId2 = Uuid.random()
+        val valueId3 = Uuid.random()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -584,11 +584,11 @@ class SessionValueHolderComposableTests {
 
     @Test
     fun localSessionActive_whenUpstreamSessionChanges_stateIsCorrect() = runTest(broadcastFrameClock) {
-        val sessionId1 = uuid4()
-        val sessionId2 = uuid4()
-        val valueId1 = uuid4()
-        val valueId2 = uuid4()
-        val valueId3 = uuid4()
+        val sessionId1 = Uuid.random()
+        val sessionId2 = Uuid.random()
+        val valueId1 = Uuid.random()
+        val valueId2 = Uuid.random()
+        val valueId3 = Uuid.random()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -677,10 +677,10 @@ class SessionValueHolderComposableTests {
     fun localSessionActive_whenUpstreamSessionChangesBeforeLocalSession_stateIsCorrect() = runTest(
         broadcastFrameClock,
     ) {
-        val sessionId1 = uuid4()
-        val valueId1 = uuid4()
-        val valueId2 = uuid4()
-        val valueId3 = uuid4()
+        val sessionId1 = Uuid.random()
+        val valueId1 = Uuid.random()
+        val valueId2 = Uuid.random()
+        val valueId3 = Uuid.random()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 

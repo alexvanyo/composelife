@@ -29,8 +29,6 @@ co.touchlab:kermit-core-jvm:2.0.4
 co.touchlab:kermit-core:2.0.4
 co.touchlab:kermit-jvm:2.0.4
 co.touchlab:kermit:2.0.4
-com.benasher44:uuid-jvm:0.8.4
-com.benasher44:uuid:0.8.4
 com.github.livefront.sealed-enum:runtime:0.7.0
 com.google.code.findbugs:jsr305:3.0.2
 com.google.errorprone:error_prone_annotations:2.18.0

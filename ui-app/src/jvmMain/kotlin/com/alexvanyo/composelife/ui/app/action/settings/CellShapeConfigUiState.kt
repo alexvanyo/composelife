@@ -37,10 +37,10 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.sessionvalue.localSessionId
 import com.alexvanyo.composelife.sessionvalue.rememberSessionValueHolder
 import com.alexvanyo.composelife.ui.util.uuidSaver
-import com.benasher44.uuid.uuid4
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.launch
+import kotlin.uuid.Uuid
 
 interface CellShapeConfigUiState {
     val currentShapeDropdownOption: ShapeDropdownOption
@@ -119,22 +119,22 @@ fun rememberCellShapeConfigUiState(): CellShapeConfigUiState {
 
             var sizeFractionSessionId by key(localSessionId) {
                 rememberSaveable(stateSaver = uuidSaver) {
-                    mutableStateOf(uuid4())
+                    mutableStateOf(Uuid.random())
                 }
             }
             var sizeFractionValueId by key(localSessionId) {
                 rememberSaveable(stateSaver = uuidSaver) {
-                    mutableStateOf(uuid4())
+                    mutableStateOf(Uuid.random())
                 }
             }
             var cornerFractionSessionId by key(localSessionId) {
                 rememberSaveable(stateSaver = uuidSaver) {
-                    mutableStateOf(uuid4())
+                    mutableStateOf(Uuid.random())
                 }
             }
             var cornerFractionValueId by key(localSessionId) {
                 rememberSaveable(stateSaver = uuidSaver) {
-                    mutableStateOf(uuid4())
+                    mutableStateOf(Uuid.random())
                 }
             }
 

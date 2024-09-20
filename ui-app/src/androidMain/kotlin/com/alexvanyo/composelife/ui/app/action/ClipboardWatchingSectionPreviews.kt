@@ -25,7 +25,7 @@ import com.alexvanyo.composelife.patterns.GliderPattern
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
-import com.benasher44.uuid.uuid4
+import kotlin.uuid.Uuid
 
 @ThemePreviews
 @Composable
@@ -89,7 +89,7 @@ fun ClipboardWatchingSectionEnabledUnsuccessfulPreview(modifier: Modifier = Modi
                         override val isLoading: Boolean = true
                         override val clipboardPreviewStates: List<ClipboardPreviewState> = listOf(
                             object : ClipboardPreviewState {
-                                override val id = uuid4()
+                                override val id = Uuid.random()
                                 override val deserializationResult: DeserializationResult =
                                     DeserializationResult.Unsuccessful(
                                         warnings = emptyList(),
@@ -121,7 +121,7 @@ fun ClipboardWatchingSectionEnabledSuccessfulPreview(modifier: Modifier = Modifi
                         override val isLoading: Boolean = true
                         override val clipboardPreviewStates: List<ClipboardPreviewState> = listOf(
                             object : ClipboardPreviewState {
-                                override val id = uuid4()
+                                override val id = Uuid.random()
                                 override val deserializationResult: DeserializationResult =
                                     DeserializationResult.Successful(
                                         cellState = GliderPattern.seedCellState,

@@ -17,8 +17,7 @@
 package com.alexvanyo.composelife.navigation
 
 import androidx.compose.runtime.Stable
-import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.uuid4
+import kotlin.uuid.Uuid
 
 /**
  * An entry in the backstack.
@@ -32,7 +31,7 @@ import com.benasher44.uuid.uuid4
 class BackstackEntry<T>(
     val value: T,
     val previous: BackstackEntry<T>?,
-    override val id: Uuid = uuid4(),
+    override val id: Uuid = Uuid.random(),
 ) : NavigationEntry, Iterable<BackstackEntry<T>> {
     override fun iterator(): Iterator<BackstackEntry<T>> = iterator {
         var current: BackstackEntry<T>? = this@BackstackEntry

@@ -23,7 +23,7 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
-import com.benasher44.uuid.uuid4
+import kotlin.uuid.Uuid
 
 @ThemePreviews
 @Composable
@@ -37,9 +37,9 @@ fun CellShapeConfigUiRoundRectanglePreview(modifier: Modifier = Modifier) {
                         override val currentShapeConfigUiState =
                             object : CurrentShapeConfigUiState.RoundRectangleConfigUi {
                                 override val sizeFractionSessionValue =
-                                    SessionValue(uuid4(), uuid4(), 0.8f)
+                                    SessionValue(Uuid.random(), Uuid.random(), 0.8f)
                                 override val cornerFractionSessionValue =
-                                    SessionValue(uuid4(), uuid4(), 0.4f)
+                                    SessionValue(Uuid.random(), Uuid.random(), 0.4f)
 
                                 override fun onSizeFractionSessionValueChange(value: SessionValue<Float>) = Unit
                                 override fun onCornerFractionSessionValueChange(value: SessionValue<Float>) = Unit

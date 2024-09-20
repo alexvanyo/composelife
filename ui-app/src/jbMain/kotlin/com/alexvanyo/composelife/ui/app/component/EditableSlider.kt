@@ -44,10 +44,10 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.sessionvalue.localSessionId
 import com.alexvanyo.composelife.sessionvalue.rememberSessionValueHolder
 import com.alexvanyo.composelife.ui.util.nonNegativeDouble
-import com.benasher44.uuid.uuid4
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onEach
+import kotlin.uuid.Uuid
 
 @Suppress("LongParameterList", "LongMethod")
 @Composable
@@ -127,7 +127,7 @@ fun <T : Comparable<T>> EditableSlider(
         label = labelAndValueText(currentValue),
         value = currentValue,
         onValueChange = {
-            onSessionValueChange(SessionValue(uuid4(), uuid4(), it))
+            onSessionValueChange(SessionValue(Uuid.random(), Uuid.random(), it))
         },
         valueRange = valueRange,
         sliderBijection = sliderBijection,
@@ -153,7 +153,7 @@ fun <T : Comparable<T>> EditableSlider(
                         if (!isFirstFocusedChanged && !it.isFocused) {
                             // If we are no longer focused, the current editing session has ended, so update the
                             // value with a randomized session id and invoke the finished listener.
-                            onSessionValueChange(SessionValue(uuid4(), uuid4(), value))
+                            onSessionValueChange(SessionValue(Uuid.random(), Uuid.random(), value))
                             onValueChangeFinished?.invoke()
                         }
                         isFirstFocusedChanged = false

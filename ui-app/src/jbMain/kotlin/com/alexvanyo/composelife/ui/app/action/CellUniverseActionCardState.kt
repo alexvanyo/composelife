@@ -34,7 +34,7 @@ import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
-import com.benasher44.uuid.Uuid
+import kotlin.uuid.Uuid
 
 /**
  * The persistable state describing the [CellUniverseActionCard].

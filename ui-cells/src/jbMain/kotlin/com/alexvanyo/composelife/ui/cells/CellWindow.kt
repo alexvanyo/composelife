@@ -63,12 +63,12 @@ import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.util.detectTransformGestures
-import com.benasher44.uuid.uuid4
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.math.ceil
+import kotlin.uuid.Uuid
 
 object CellWindow {
     val defaultIsEditable: (isGesturing: Boolean, scale: Float) -> Boolean =
@@ -510,7 +510,7 @@ private sealed interface CellWindowUiState {
         ) : ImmutableCellWindowUiState {
             override val cellWindowInteractionState = CellWindowInteractionState(
                 viewportInteractionConfig = viewportInteractionConfig,
-                selectionSessionState = SessionValue(uuid4(), uuid4(), SelectionState.NoSelection),
+                selectionSessionState = SessionValue(Uuid.random(), Uuid.random(), SelectionState.NoSelection),
             )
         }
     }

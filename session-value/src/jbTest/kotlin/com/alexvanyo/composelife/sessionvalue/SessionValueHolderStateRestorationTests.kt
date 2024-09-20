@@ -25,7 +25,6 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
-import com.benasher44.uuid.uuid4
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -33,6 +32,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
+import kotlin.uuid.Uuid
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalTestApi::class)
@@ -43,8 +43,8 @@ class SessionValueHolderStateRestorationTests {
     fun whenSavedInstanceStateIsRestoredWithNoLocalSession_stateIsCorrect() = runComposeUiTest {
         val stateRestorationTester = KmpStateRestorationTester(this)
 
-        val sessionId1 = uuid4()
-        val valueId1 = uuid4()
+        val sessionId1 = Uuid.random()
+        val valueId1 = Uuid.random()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -99,9 +99,9 @@ class SessionValueHolderStateRestorationTests {
     fun whenSavedInstanceStateIsRestoredWithLocalSession_stateIsCorrect() = runComposeUiTest {
         val stateRestorationTester = KmpStateRestorationTester(this)
 
-        val sessionId1 = uuid4()
-        val valueId1 = uuid4()
-        val valueId2 = uuid4()
+        val sessionId1 = Uuid.random()
+        val valueId1 = Uuid.random()
+        val valueId2 = Uuid.random()
 
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
@@ -173,11 +173,11 @@ class SessionValueHolderStateRestorationTests {
     fun upstreamSessionChanges_whenSavedInstanceStateIsRestoredWithLocalSession_resetsSession() = runComposeUiTest {
         val stateRestorationTester = KmpStateRestorationTester(this)
 
-        val sessionId1 = uuid4()
-        val sessionId2 = uuid4()
-        val valueId1 = uuid4()
-        val valueId2 = uuid4()
-        val valueId3 = uuid4()
+        val sessionId1 = Uuid.random()
+        val sessionId2 = Uuid.random()
+        val valueId1 = Uuid.random()
+        val valueId2 = Uuid.random()
+        val valueId3 = Uuid.random()
 
         lateinit var sessionValueHolder: SessionValueHolder<Float>
         val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()

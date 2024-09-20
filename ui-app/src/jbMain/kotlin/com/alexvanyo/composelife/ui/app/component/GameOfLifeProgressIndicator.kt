@@ -46,8 +46,8 @@ import com.alexvanyo.composelife.ui.cells.CellWindowState
 import com.alexvanyo.composelife.ui.cells.ImmutableCellWindow
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
-import com.benasher44.uuid.uuid4
 import kotlin.math.max
+import kotlin.uuid.Uuid
 
 interface GameOfLifeProgressIndicatorInjectEntryPoint :
     GameOfLifeAlgorithmProvider,
@@ -115,8 +115,8 @@ fun GameOfLifeProgressIndicator(
 ) {
     val selectionSessionState = remember {
         SessionValue(
-            sessionId = uuid4(),
-            valueId = uuid4(),
+            sessionId = Uuid.random(),
+            valueId = Uuid.random(),
             value = SelectionState.NoSelection,
         )
     }

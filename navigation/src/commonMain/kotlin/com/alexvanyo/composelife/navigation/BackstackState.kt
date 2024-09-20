@@ -22,8 +22,7 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.autoSaver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
-import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.uuidFrom
+import kotlin.uuid.Uuid
 
 /**
  * A [NavigationState] representing a backstack of [BackstackEntry]s.
@@ -93,7 +92,7 @@ fun <T> rememberBackstackMap(
             },
             restore = { list ->
                 // Create a map from the restored entry ids to their restored values
-                val savedEntries = list.associateBy { entryList -> uuidFrom(entryList[1] as String) }
+                val savedEntries = list.associateBy { entryList -> Uuid.parse(entryList[1] as String) }
 
                 val map = mutableStateMapOf<Uuid, BackstackEntry<T>>()
 
@@ -106,7 +105,7 @@ fun <T> rememberBackstackMap(
                 fun restoreEntry(id: Uuid): BackstackEntry<T> =
                     map.getOrPut(id) {
                         val entryList = savedEntries.getValue(id)
-                        val previousId = (entryList[2] as String?)?.let(::uuidFrom)
+                        val previousId = (entryList[2] as String?)?.let(Uuid::parse)
                         val previous = previousId?.let { restoreEntry(previousId) }
                         val saver = backstackValueSaverFactory.create(previous)
                         @Suppress("UnsafeCallOnNullableType")

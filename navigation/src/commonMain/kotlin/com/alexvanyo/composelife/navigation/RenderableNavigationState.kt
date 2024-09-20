@@ -22,7 +22,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import com.benasher44.uuid.Uuid
+import kotlin.uuid.Uuid
 
 class RenderableNavigationState<T : NavigationEntry, S : NavigationState<T>>(
     val navigationState: S,
