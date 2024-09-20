@@ -62,9 +62,9 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.cells.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.cells.resources.Strings
 import com.alexvanyo.composelife.ui.util.detectDragGestures
-import com.benasher44.uuid.uuid4
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
+import kotlin.uuid.Uuid
 
 interface InteractableCellsLocalEntryPoint : LoadedComposeLifePreferencesProvider
 
@@ -168,8 +168,8 @@ fun InteractableCells(
                                 onLongClick = {
                                     setSelectionSessionState(
                                         SessionValue(
-                                            sessionId = uuid4(),
-                                            valueId = uuid4(),
+                                            sessionId = Uuid.random(),
+                                            valueId = Uuid.random(),
                                             value = SelectionState.SelectingBox.FixedSelectingBox(
                                                 topLeft = cell,
                                                 width = 1,
@@ -281,7 +281,7 @@ private fun Modifier.selectingCellInput(
     val currentCellWindow by rememberUpdatedState(cellWindow)
     val currentSetSelectionSessionState by rememberUpdatedState(setSelectionSessionState)
 
-    var editingSessionId by remember { mutableStateOf(uuid4()) }
+    var editingSessionId by remember { mutableStateOf(Uuid.random()) }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -289,7 +289,7 @@ private fun Modifier.selectingCellInput(
                 currentSetSelectionSessionState(
                     SessionValue(
                         sessionId = editingSessionId,
-                        valueId = uuid4(),
+                        valueId = Uuid.random(),
                         value = SelectionState.NoSelection,
                     ),
                 )
@@ -303,13 +303,13 @@ private fun Modifier.selectingCellInput(
                 selectingPointerTypes,
             onDragStart = {
                 isSelecting = true
-                editingSessionId = uuid4()
+                editingSessionId = Uuid.random()
                 start = ((it / currentScaledCellPixelSize).round() + currentCellWindow.topLeft).toOffset()
                 end = it / currentScaledCellPixelSize + currentCellWindow.topLeft.toOffset()
                 currentSetSelectionSessionState(
                     SessionValue(
                         sessionId = editingSessionId,
-                        valueId = uuid4(),
+                        valueId = Uuid.random(),
                         value = SelectionState.SelectingBox.TransientSelectingBox(
                             rect = Rect(topLeft = start, bottomRight = end),
                         ),
@@ -321,7 +321,7 @@ private fun Modifier.selectingCellInput(
                 currentSetSelectionSessionState(
                     SessionValue(
                         sessionId = editingSessionId,
-                        valueId = uuid4(),
+                        valueId = Uuid.random(),
                         value = SelectionState.SelectingBox.FixedSelectingBox(
                             topLeft = start.round(),
                             width = (end.x - start.x).roundToInt(),
@@ -338,7 +338,7 @@ private fun Modifier.selectingCellInput(
                 currentSetSelectionSessionState(
                     SessionValue(
                         sessionId = editingSessionId,
-                        valueId = uuid4(),
+                        valueId = Uuid.random(),
                         value = SelectionState.NoSelection,
                     ),
                 )
@@ -349,7 +349,7 @@ private fun Modifier.selectingCellInput(
                 currentSetSelectionSessionState(
                     SessionValue(
                         sessionId = editingSessionId,
-                        valueId = uuid4(),
+                        valueId = Uuid.random(),
                         value = SelectionState.SelectingBox.TransientSelectingBox(
                             rect = Rect(topLeft = start, bottomRight = end),
                         ),

@@ -114,8 +114,6 @@ co.touchlab:kermit-android-debug:2.0.4
 co.touchlab:kermit-core-android-debug:2.0.4
 co.touchlab:kermit-core:2.0.4
 co.touchlab:kermit:2.0.4
-com.benasher44:uuid-jvm:0.8.4
-com.benasher44:uuid:0.8.4
 com.github.livefront.sealed-enum:runtime:0.7.0
 com.google.accompanist:accompanist-drawablepainter:0.34.0
 com.google.code.findbugs:jsr305:3.0.2

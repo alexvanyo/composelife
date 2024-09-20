@@ -51,7 +51,6 @@ kotlin {
                 implementation(libs.androidx.annotation)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)
-                implementation(libs.uuid)
                 implementation(projects.dispatchers)
                 implementation(projects.geometry)
                 implementation(projects.navigation)

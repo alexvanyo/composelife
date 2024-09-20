@@ -16,9 +16,8 @@
 
 package com.alexvanyo.composelife.navigation
 
-import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.uuid4
 import kotlin.jvm.JvmName
+import kotlin.uuid.Uuid
 
 /**
  * A navigation action on [MutableBackstackMap] that pops the backstack until the [entryPredicate] is `true` for some
@@ -97,7 +96,7 @@ fun <T> MutableBackstackMap<T>.popUpTo(
 fun <T> MutableBackstackMap<T>.navigate(
     currentEntryId: Uuid,
     valueFactory: (previous: BackstackEntry<T>) -> T,
-    id: Uuid = uuid4(),
+    id: Uuid = Uuid.random(),
 ): Uuid {
     val previous = getValue(currentEntryId)
     val current = BackstackEntry(
@@ -115,7 +114,7 @@ fun <T> MutableBackstackMap<T>.navigate(
 fun <T> MutableBackstackMap<T>.navigate(
     currentEntryId: Uuid,
     value: T,
-    id: Uuid = uuid4(),
+    id: Uuid = Uuid.random(),
 ): Uuid = navigate(
     currentEntryId = currentEntryId,
     valueFactory = { value },

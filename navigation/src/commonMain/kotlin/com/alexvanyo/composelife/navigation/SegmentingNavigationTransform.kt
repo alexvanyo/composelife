@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.navigation
 
 import androidx.compose.runtime.remember
-import com.benasher44.uuid.Uuid
+import kotlin.uuid.Uuid
 
 /**
  * A [RenderableNavigationTransform] that segments an underlying navigation type into a [NavigationSegment].

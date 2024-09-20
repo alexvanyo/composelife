@@ -16,16 +16,16 @@
 
 package com.alexvanyo.composelife.navigation
 
-import com.benasher44.uuid.uuid4
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.uuid.Uuid
 
 class BackstackEntryTests {
 
-    private val id1 = uuid4()
-    private val id2 = uuid4()
-    private val id3 = uuid4()
-    private val id4 = uuid4()
+    private val id1 = Uuid.random()
+    private val id2 = Uuid.random()
+    private val id3 = Uuid.random()
+    private val id4 = Uuid.random()
     private val entry1 = BackstackEntry("a", null, id1)
     private val entry2 = BackstackEntry("b", entry1, id2)
     private val entry3 = BackstackEntry("c", entry2, id3)

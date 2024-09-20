@@ -17,13 +17,12 @@
 package com.alexvanyo.composelife.ui.util
 
 import androidx.compose.runtime.saveable.Saver
-import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.uuidFrom
+import kotlin.uuid.Uuid
 
 /**
  * A [Saver] for a [Uuid].
  */
 val uuidSaver: Saver<Uuid, String> = Saver(
     save = { it.toString() },
-    restore = ::uuidFrom,
+    restore = Uuid::parse,
 )

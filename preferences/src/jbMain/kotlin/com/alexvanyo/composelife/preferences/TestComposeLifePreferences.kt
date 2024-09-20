@@ -24,8 +24,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.firstSuccess
 import com.alexvanyo.composelife.sessionvalue.SessionValue
-import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.uuid4
+import kotlin.uuid.Uuid
 
 @Suppress("TooManyFunctions", "LongParameterList")
 class TestComposeLifePreferences(
@@ -36,8 +35,8 @@ class TestComposeLifePreferences(
         sizeFraction = 1.0f,
         cornerFraction = 0.0f,
     ),
-    roundRectangleSessionId: Uuid = uuid4(),
-    roundRectangleValueId: Uuid = uuid4(),
+    roundRectangleSessionId: Uuid = Uuid.random(),
+    roundRectangleValueId: Uuid = Uuid.random(),
     darkThemeConfig: DarkThemeConfig = DarkThemeConfig.FollowSystem,
     quickAccessSettings: Set<QuickAccessSetting> = emptySet(),
     disableAGSL: Boolean = false,

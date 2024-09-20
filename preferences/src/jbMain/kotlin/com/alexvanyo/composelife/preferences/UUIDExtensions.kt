@@ -17,11 +17,10 @@
 package com.alexvanyo.composelife.preferences
 
 import com.alexvanyo.composelife.preferences.proto.UUIDProto
-import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.uuidFrom
+import kotlin.uuid.Uuid
 
 internal fun UUIDProto?.toResolved(): Uuid? =
-    this?.value_?.let(::uuidFrom)
+    this?.value_?.let(Uuid::parse)
 
 internal fun Uuid.toProto(): UUIDProto =
     UUIDProto(toString())

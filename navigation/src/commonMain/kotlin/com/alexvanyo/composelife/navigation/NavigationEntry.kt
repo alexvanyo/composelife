@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.navigation
 
 import androidx.compose.runtime.Stable
-import com.benasher44.uuid.Uuid
+import kotlin.uuid.Uuid
 
 /**
  * An entry in navigation. An entry just needs to have an identifying [id], which is unique among all entries.

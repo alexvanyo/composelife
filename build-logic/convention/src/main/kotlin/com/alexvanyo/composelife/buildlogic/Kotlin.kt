@@ -35,11 +35,6 @@ fun Project.configureKotlin() {
             // TODO: Currently disabled due to warning for usage of context receivers
             //       https://github.com/Kotlin/KEEP/issues/367#issuecomment-2075034205
             // allWarningsAsErrors.set(true)
-            freeCompilerArgs.addAll(
-                "-Xcontext-receivers",
-                // TODO: Remove when out of beta: https://youtrack.jetbrains.com/issue/KT-61573
-                "-Xexpect-actual-classes",
-            )
         }
     }
 
@@ -48,6 +43,15 @@ fun Project.configureKotlin() {
     extensions.configure<KotlinMultiplatformExtension> {
         sourceSets.configure(
             closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
+                configureEach {
+                    languageSettings {
+                        // TODO: Remove when out of beta: https://youtrack.jetbrains.com/issue/KT-61573
+                        enableLanguageFeature("ExpectActualClasses")
+                        enableLanguageFeature("ContextReceivers")
+                        optIn("kotlin.uuid.ExperimentalUuidApi")
+                    }
+                }
+
                 getByName("commonMain") {
                     dependencies {
                         implementation(libs.findLibrary("kermit").get())

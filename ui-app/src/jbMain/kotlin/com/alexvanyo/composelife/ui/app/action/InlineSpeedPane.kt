@@ -49,10 +49,10 @@ import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondValue
 import com.alexvanyo.composelife.ui.util.nonNegativeDouble
 import com.alexvanyo.composelife.ui.util.nonNegativeLong
 import com.alexvanyo.composelife.ui.util.uuidSaver
-import com.benasher44.uuid.uuid4
 import kotlin.math.log2
 import kotlin.math.pow
 import kotlin.math.roundToInt
+import kotlin.uuid.Uuid
 
 @Suppress("LongParameterList")
 @Composable
@@ -100,8 +100,8 @@ fun TargetStepsPerSecondControl(
         (minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat()).toValue()
     }
 
-    var sessionId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(uuid4()) }
-    var valueId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(uuid4()) }
+    var sessionId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(Uuid.random()) }
+    var valueId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(Uuid.random()) }
     val resolver = parameterizedStringResolver()
     EditableSlider(
         labelAndValueText = {
@@ -160,8 +160,8 @@ fun GenerationsPerStepControl(
         (minGenerationsPerStepPowerOfTwo.toFloat()..maxGenerationsPerStepPowerOfTwo.toFloat()).toValue()
     }
 
-    var sessionId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(uuid4()) }
-    var valueId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(uuid4()) }
+    var sessionId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(Uuid.random()) }
+    var valueId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(Uuid.random()) }
 
     val resolver = parameterizedStringResolver()
     EditableSlider(
