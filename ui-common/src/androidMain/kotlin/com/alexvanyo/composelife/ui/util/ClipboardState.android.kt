@@ -33,8 +33,7 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.core.content.getSystemService
 import androidx.lifecycle.compose.LifecycleStartEffect
 import com.alexvanyo.composelife.ui.common.R
-import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.uuid4
+import kotlin.uuid.Uuid
 
 @Stable
 actual interface ClipboardReader {
@@ -60,17 +59,17 @@ sealed interface ClipboardStateKey {
         val value: String,
     ) : ClipboardStateKey
     data class Unknown(
-        val id: Uuid = uuid4(),
+        val id: Uuid = Uuid.random(),
     ) : ClipboardStateKey
 }
 
 @Composable
 actual fun rememberClipboardReader(): ClipboardReader {
-    var windowFocusKey by remember { mutableStateOf(uuid4()) }
+    var windowFocusKey by remember { mutableStateOf(Uuid.random()) }
     val isWindowFocused = LocalWindowInfo.current.isWindowFocused
     DisposableEffect(isWindowFocused) {
         if (isWindowFocused) {
-            windowFocusKey = uuid4()
+            windowFocusKey = Uuid.random()
         }
         onDispose {}
     }
@@ -78,7 +77,7 @@ actual fun rememberClipboardReader(): ClipboardReader {
     val context = LocalContext.current
     val clipboardManager = remember(context) { requireNotNull(context.getSystemService<ClipboardManager>()) }
 
-    var keyToReadClipData by remember(clipboardManager) { mutableStateOf(uuid4()) }
+    var keyToReadClipData by remember(clipboardManager) { mutableStateOf(Uuid.random()) }
 
     LifecycleStartEffect(
         clipboardManager,
@@ -86,10 +85,10 @@ actual fun rememberClipboardReader(): ClipboardReader {
     ) {
         // The clipboard could have changed while in the background or while the window wasn't focused, so we need
         // to read it again
-        keyToReadClipData = uuid4()
+        keyToReadClipData = Uuid.random()
         val listener = ClipboardManager.OnPrimaryClipChangedListener {
             // The clipboard changed, so we need to read it again
-            keyToReadClipData = uuid4()
+            keyToReadClipData = Uuid.random()
         }
         clipboardManager.addPrimaryClipChangedListener(listener)
         onStopOrDispose {

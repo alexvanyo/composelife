@@ -47,7 +47,6 @@ kotlin {
             dependencies {
                 api(libs.jetbrains.compose.runtime)
                 api(libs.jetbrains.compose.runtime.saveable)
-                api(libs.uuid)
             }
         }
         val desktopMain by getting {

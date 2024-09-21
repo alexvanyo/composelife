@@ -23,7 +23,7 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.cells.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
-import com.benasher44.uuid.uuid4
+import kotlin.uuid.Uuid
 
 @ThemePreviews
 @Composable
@@ -49,8 +49,8 @@ fun NavigableImmutableCellWindowPreview() {
                         mutableCellWindowViewportState = rememberMutableCellWindowViewportState(),
                     ),
                     selectionSessionState = SessionValue(
-                        sessionId = uuid4(),
-                        valueId = uuid4(),
+                        sessionId = Uuid.random(),
+                        valueId = Uuid.random(),
                         value = SelectionState.NoSelection,
                     ),
                 ),
@@ -86,8 +86,8 @@ fun TrackingImmutableCellWindowPreview() {
                         trackingCellWindowViewportState = trackingCellWindowViewportState,
                     ),
                     selectionSessionState = SessionValue(
-                        sessionId = uuid4(),
-                        valueId = uuid4(),
+                        sessionId = Uuid.random(),
+                        valueId = Uuid.random(),
                         value = SelectionState.NoSelection,
                     ),
                 ),
@@ -105,8 +105,8 @@ fun NavigableMutableCellWindowPreview() {
 
             val selectionStateHolder = rememberMutableSelectionStateHolder(
                 SessionValue(
-                    sessionId = uuid4(),
-                    valueId = uuid4(),
+                    sessionId = Uuid.random(),
+                    valueId = Uuid.random(),
                     value = SelectionState.NoSelection,
                 ),
             )
@@ -159,8 +159,8 @@ fun TrackingMutableCellWindowPreview() {
 
             val selectionStateHolder = rememberMutableSelectionStateHolder(
                 SessionValue(
-                    sessionId = uuid4(),
-                    valueId = uuid4(),
+                    sessionId = Uuid.random(),
+                    valueId = Uuid.random(),
                     value = SelectionState.NoSelection,
                 ),
             )

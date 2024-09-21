@@ -43,11 +43,11 @@ import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.cells.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.cells.resources.Strings
-import com.benasher44.uuid.uuid4
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
@@ -83,8 +83,8 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
 
         val selectionStateHolder = MutableSelectionStateHolder(
             SessionValue(
-                sessionId = uuid4(),
-                valueId = uuid4(),
+                sessionId = Uuid.random(),
+                valueId = Uuid.random(),
                 value = SelectionState.NoSelection,
             ),
         )
@@ -178,8 +178,8 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
         val mutableCellWindowViewportState = MutableCellWindowViewportState()
         val selectionStateHolder = MutableSelectionStateHolder(
             SessionValue(
-                sessionId = uuid4(),
-                valueId = uuid4(),
+                sessionId = Uuid.random(),
+                valueId = Uuid.random(),
                 value = SelectionState.NoSelection,
             ),
         )
@@ -251,8 +251,8 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
         val mutableCellWindowViewportState = MutableCellWindowViewportState()
         val selectionStateHolder = MutableSelectionStateHolder(
             SessionValue(
-                sessionId = uuid4(),
-                valueId = uuid4(),
+                sessionId = Uuid.random(),
+                valueId = Uuid.random(),
                 value = SelectionState.NoSelection,
             ),
         )
@@ -326,8 +326,8 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
         val mutableCellWindowViewportState = MutableCellWindowViewportState()
         val selectionStateHolder = MutableSelectionStateHolder(
             SessionValue(
-                sessionId = uuid4(),
-                valueId = uuid4(),
+                sessionId = Uuid.random(),
+                valueId = Uuid.random(),
                 value = SelectionState.NoSelection,
             ),
         )
@@ -383,8 +383,8 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
         val mutableCellWindowViewportState = MutableCellWindowViewportState()
         val selectionStateHolder = MutableSelectionStateHolder(
             SessionValue(
-                sessionId = uuid4(),
-                valueId = uuid4(),
+                sessionId = Uuid.random(),
+                valueId = Uuid.random(),
                 value = SelectionState.NoSelection,
             ),
         )

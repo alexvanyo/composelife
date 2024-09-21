@@ -31,7 +31,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
-import com.benasher44.uuid.Uuid
+import kotlin.uuid.Uuid
 import org.junit.runner.RunWith
 import kotlin.test.Test
 

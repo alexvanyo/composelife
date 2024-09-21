@@ -19,7 +19,6 @@ package com.alexvanyo.composelife.preferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.sessionvalue.SessionValue
-import com.benasher44.uuid.uuid4
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
@@ -32,6 +31,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.uuid.Uuid
 
 @Suppress("LargeClass")
 class DefaultComposeLifePreferencesTests {
@@ -167,8 +167,8 @@ class DefaultComposeLifePreferencesTests {
                 composelifePreferences.currentShapeState,
             )
 
-            val newSessionId = uuid4()
-            val newValueId = uuid4()
+            val newSessionId = Uuid.random()
+            val newValueId = Uuid.random()
 
             composelifePreferences.setRoundRectangleConfig(
                 expected = null,

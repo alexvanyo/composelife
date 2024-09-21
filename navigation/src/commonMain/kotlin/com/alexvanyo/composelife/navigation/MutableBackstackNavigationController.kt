@@ -24,10 +24,8 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.autoSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.uuid4
-import com.benasher44.uuid.uuidFrom
 import kotlin.jvm.JvmName
+import kotlin.uuid.Uuid
 
 /**
  * A mutable [BackstackState] that can be modified by changing the [entryMap] and the [currentEntryId].
@@ -72,7 +70,7 @@ fun <T> rememberMutableBackstackNavigationController(
     var currentBackstackEntryId by rememberSaveable(
         saver = Saver(
             save = { it.value.toString() },
-            restore = { mutableStateOf(uuidFrom(it)) },
+            restore = { mutableStateOf(Uuid.parse(it)) },
         ),
     ) {
         mutableStateOf(initialBackstackEntries.last().id)
@@ -171,7 +169,7 @@ fun <T> MutableBackstackNavigationController<T>.popUpTo(
  */
 fun <T> MutableBackstackNavigationController<T>.navigate(
     valueFactory: (previous: BackstackEntry<T>) -> T,
-    id: Uuid = uuid4(),
+    id: Uuid = Uuid.random(),
 ) {
     currentEntryId = entryMap.navigate(
         currentEntryId = currentEntryId,
@@ -185,7 +183,7 @@ fun <T> MutableBackstackNavigationController<T>.navigate(
  */
 fun <T> MutableBackstackNavigationController<T>.navigate(
     value: T,
-    id: Uuid = uuid4(),
+    id: Uuid = Uuid.random(),
 ) = navigate(
     valueFactory = { value },
     id = id,
