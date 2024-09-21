@@ -20,10 +20,10 @@ androidx.compose.foundation:foundation-android:1.8.0-alpha02
 androidx.compose.foundation:foundation-layout-android:1.8.0-alpha02
 androidx.compose.foundation:foundation-layout:1.8.0-alpha02
 androidx.compose.foundation:foundation:1.8.0-alpha02
-androidx.compose.material:material-icons-core-android:1.7.1
-androidx.compose.material:material-icons-core:1.7.1
-androidx.compose.material:material-icons-extended-android:1.7.1
-androidx.compose.material:material-icons-extended:1.7.1
+androidx.compose.material:material-icons-core-android:1.7.2
+androidx.compose.material:material-icons-core:1.7.2
+androidx.compose.material:material-icons-extended-android:1.7.2
+androidx.compose.material:material-icons-extended:1.7.2
 androidx.compose.material:material-ripple-android:1.7.0
 androidx.compose.material:material-ripple:1.7.0
 androidx.compose.runtime:runtime-android:1.8.0-alpha02
