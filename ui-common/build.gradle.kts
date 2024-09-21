@@ -54,7 +54,6 @@ kotlin {
                 implementation(projects.dispatchers)
                 implementation(projects.geometry)
                 implementation(projects.navigation)
-                implementation(projects.snapshotStateSet)
                 implementation(projects.uiToolingPreview)
                 implementation(projects.updatable)
             }
