@@ -48,7 +48,6 @@ kotlin {
                 implementation(libs.jetbrains.compose.runtime)
                 implementation(libs.jetbrains.compose.runtime.saveable)
                 implementation(libs.kotlinx.coroutines.core)
-                implementation(projects.snapshotStateSet)
             }
         }
         val jbMain by creating {
