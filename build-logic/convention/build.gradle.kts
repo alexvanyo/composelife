@@ -60,7 +60,6 @@ detekt {
 }
 
 dependencies {
-    implementation(libs.android.r8)
     implementation(libs.android.gradlePlugin)
     implementation(libs.android.tools.common)
     implementation(libs.dependencyGuard.gradlePlugin)
