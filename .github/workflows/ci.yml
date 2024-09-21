@@ -175,8 +175,8 @@ jobs:
         if: matrix.sdk == '34' && !cancelled()
         uses: actions/upload-artifact@v4
         with:
-          name: unit-test-results
-          path: '**/build/test-results/test*UnitTest/**.xml'
+          name: test-results
+          path: '**/build/test-results/*Test/**.xml'
 
       - name: Generate code coverage
         if: matrix.sdk == '34'
@@ -189,7 +189,7 @@ jobs:
           name: code-coverage
           path: build/reports/jacoco/**/*.xml
 
-  codecov-upload:
+  codecov-coverage-upload:
     needs: build
     runs-on: ubuntu-latest
 
@@ -209,6 +209,34 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           directory: codecoverage
+
+  codecov-test-upload:
+    needs: build
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download test results from GitHub
+        uses: actions/download-artifact@v4
+        with:
+          name: test-results
+          path: testresults
+
+      - id: test-result-files
+        run: |
+          echo -n "files=" >> $GITHUB_OUTPUT
+          find testresults -name "*.xml" | paste -s -d "," - >> $GITHUB_OUTPUT
+
+      - name: Upload test results to Codecov
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          files: ${{ steps.test-result-files.outputs.files }}
+
 
   android-test-gmd-cfg:
     runs-on: ubuntu-latest
