@@ -65,7 +65,6 @@ kotlin {
                 implementation(projects.patterns)
                 implementation(projects.resourceState)
                 implementation(projects.sessionValue)
-                implementation(projects.snapshotStateSet)
                 implementation(projects.uiCommon)
                 implementation(projects.uiMobile)
                 implementation(projects.uiToolingPreview)
