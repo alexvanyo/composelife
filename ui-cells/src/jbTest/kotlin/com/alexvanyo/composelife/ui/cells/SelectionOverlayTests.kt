@@ -39,11 +39,11 @@ import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.cells.util.isAndroid
 import com.alexvanyo.composelife.ui.cells.resources.SelectingBoxHandle
 import com.alexvanyo.composelife.ui.cells.resources.Strings
-import com.benasher44.uuid.uuid4
 import org.junit.Assume.assumeTrue
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
@@ -64,8 +64,8 @@ class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
             with(cellStateParserProvider) {
                 SelectionOverlay(
                     selectionSessionState = SessionValue(
-                        sessionId = uuid4(),
-                        valueId = uuid4(),
+                        sessionId = Uuid.random(),
+                        valueId = Uuid.random(),
                         value = SelectionState.NoSelection,
                     ),
                     setSelectionSessionState = {},
@@ -97,8 +97,8 @@ class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
             with(cellStateParserProvider) {
                 SelectionOverlay(
                     selectionSessionState = SessionValue(
-                        sessionId = uuid4(),
-                        valueId = uuid4(),
+                        sessionId = Uuid.random(),
+                        valueId = Uuid.random(),
                         value = SelectionState.SelectingBox.FixedSelectingBox(
                             topLeft = IntOffset(1, 1),
                             width = 2,
@@ -149,8 +149,8 @@ class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
         val mutableSelectionStateHolder = MutableSelectionStateHolder(
             SessionValue(
-                sessionId = uuid4(),
-                valueId = uuid4(),
+                sessionId = Uuid.random(),
+                valueId = Uuid.random(),
                 value = SelectionState.SelectingBox.FixedSelectingBox(
                     topLeft = IntOffset(2, 2),
                     width = 2,

@@ -31,7 +31,7 @@ import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.ui.app.component.DetailEntry
 import com.alexvanyo.composelife.ui.app.component.ListDetailInfo
 import com.alexvanyo.composelife.ui.app.component.ListEntry
-import com.benasher44.uuid.Uuid
+import kotlin.uuid.Uuid
 
 @Stable
 sealed interface ComposeLifeUiNavigation {

@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.preferences
 
 import com.alexvanyo.composelife.sessionvalue.SessionValue
-import com.benasher44.uuid.uuid4
+import kotlin.uuid.Uuid
 
 data class LoadedComposeLifePreferences(
     val quickAccessSettings: Set<QuickAccessSetting>,
@@ -35,9 +35,9 @@ data class LoadedComposeLifePreferences(
     val enableClipboardWatching: Boolean,
 ) {
     companion object {
-        internal val defaultRoundRectangleSessionId = uuid4()
+        internal val defaultRoundRectangleSessionId = Uuid.random()
 
-        internal val defaultRoundRectangleValueId = uuid4()
+        internal val defaultRoundRectangleValueId = Uuid.random()
 
         val Defaults = LoadedComposeLifePreferences(
             quickAccessSettings = emptySet(),

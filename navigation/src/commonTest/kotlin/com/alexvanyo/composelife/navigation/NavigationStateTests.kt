@@ -16,17 +16,16 @@
 
 package com.alexvanyo.composelife.navigation
 
-import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.uuid4
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.uuid.Uuid
 
 class NavigationStateTests {
 
     @Test
     fun current_entry_is_correct() {
-        val id1 = uuid4()
-        val id2 = uuid4()
+        val id1 = Uuid.random()
+        val id2 = Uuid.random()
         val entry1 = object : NavigationEntry {
             override val id: Uuid = id1
         }

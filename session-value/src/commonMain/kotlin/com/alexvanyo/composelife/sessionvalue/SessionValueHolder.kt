@@ -23,10 +23,9 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.autoSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.uuid4
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
+import kotlin.uuid.Uuid
 
 /**
  * A multiplexer for a [SessionValue] that can maintain the state for a local session that runs ahead of the
@@ -48,7 +47,7 @@ sealed interface SessionValueHolder<T> {
      */
     fun setValue(
         value: T,
-        valueId: Uuid = uuid4(),
+        valueId: Uuid = Uuid.random(),
     )
 }
 
@@ -199,12 +198,12 @@ private class SessionValueHolderImpl<T>(
         if (currentLocalSessionValue == null) {
             // The upstream session has changed. Cycle the local session, to indicate that any derived local state
             // should update.
-            localSessionId = uuid4()
+            localSessionId = Uuid.random()
         } else {
             if (sessionValue.sessionId != currentLocalSessionValue.sessionId) {
                 // The upstream session has become something different than the local session and the session value
                 // before our local session. Clear the local session, to revert back to the new upstream session.
-                localSessionId = uuid4()
+                localSessionId = Uuid.random()
                 localSessionValue = null
             }
         }
@@ -295,7 +294,7 @@ fun <T> rememberSessionValueHolder(
         SessionValueHolderImpl(
             initialUpstreamSessionValue = upstreamSessionValue,
             initialSetUpstreamSessionValue = setUpstreamSessionValue,
-            initialLocalSessionId = uuid4(),
+            initialLocalSessionId = Uuid.random(),
             initialLocalSessionValue = null,
             initialPreviousUpstreamSessionId = upstreamSessionValue.sessionId,
         )

@@ -59,7 +59,6 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
-                implementation(libs.uuid)
                 implementation(projects.injectScopes)
             }
         }

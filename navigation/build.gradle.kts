@@ -43,8 +43,6 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.uuid)
-
                 implementation(libs.jetbrains.compose.runtime)
                 implementation(libs.jetbrains.compose.runtime.saveable)
                 implementation(libs.kotlinx.coroutines.core)

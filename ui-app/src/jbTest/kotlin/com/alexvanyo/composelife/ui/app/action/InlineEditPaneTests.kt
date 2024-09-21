@@ -53,10 +53,10 @@ import com.alexvanyo.composelife.ui.app.resources.Paste
 import com.alexvanyo.composelife.ui.app.resources.Pin
 import com.alexvanyo.composelife.ui.app.resources.Select
 import com.alexvanyo.composelife.ui.app.resources.Strings
-import com.benasher44.uuid.uuid4
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
@@ -131,7 +131,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                 val clipboardPreviewStates = remember {
                     listOf(
                         object : ClipboardPreviewState {
-                            override val id = uuid4()
+                            override val id = Uuid.random()
                             override val deserializationResult = DeserializationResult.Successful(
                                 warnings = emptyList(),
                                 cellState = GliderPattern.seedCellState,
@@ -207,7 +207,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                 val clipboardPreviewStates = remember {
                     listOf(
                         object : ClipboardPreviewState {
-                            override val id = uuid4()
+                            override val id = Uuid.random()
                             override val deserializationResult = DeserializationResult.Successful(
                                 warnings = emptyList(),
                                 cellState = GliderPattern.seedCellState,
@@ -279,7 +279,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                 val clipboardPreviewStates = remember {
                     listOf(
                         object : ClipboardPreviewState {
-                            override val id = uuid4()
+                            override val id = Uuid.random()
                             override val deserializationResult = DeserializationResult.Successful(
                                 warnings = emptyList(),
                                 cellState = GliderPattern.seedCellState,

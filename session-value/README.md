@@ -474,7 +474,7 @@ sealed interface SessionValueHolder<T> {
 
     fun setValue(
         value: T,
-        valueId: Uuid = uuid4(),
+        valueId: Uuid = Uuid.random(),
     )
 }
 

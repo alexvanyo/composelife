@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.navigation
 
 import androidx.compose.runtime.Stable
-import com.benasher44.uuid.Uuid
+import kotlin.uuid.Uuid
 
 /**
  * A navigation state for destinations of type [T].

@@ -18,7 +18,6 @@ package com.alexvanyo.composelife.navigation
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
-import com.benasher44.uuid.uuid4
 import org.junit.Rule
 import org.junit.runner.RunWith
 import kotlin.test.Test
@@ -26,15 +25,16 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.uuid.Uuid
 
 @Suppress("TooManyFunctions")
 @RunWith(KmpAndroidJUnit4::class)
 class MutableBackstackNavigationControllerTests {
 
-    private val id1 = uuid4()
-    private val id2 = uuid4()
-    private val id3 = uuid4()
-    private val id4 = uuid4()
+    private val id1 = Uuid.random()
+    private val id2 = Uuid.random()
+    private val id3 = Uuid.random()
+    private val id4 = Uuid.random()
 
     @get:Rule
     val composeTestRule = createComposeRule()

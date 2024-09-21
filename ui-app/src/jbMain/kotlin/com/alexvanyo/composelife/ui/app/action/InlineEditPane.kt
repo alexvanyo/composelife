@@ -74,13 +74,12 @@ import com.alexvanyo.composelife.ui.cells.isSharedElementForCellsSupported
 import com.alexvanyo.composelife.ui.util.ClipboardReader
 import com.alexvanyo.composelife.ui.util.clipboardStateKey
 import com.alexvanyo.composelife.ui.util.rememberClipboardReader
-import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.uuid4
 import com.livefront.sealedenum.GenSealedEnum
 import com.slack.circuit.retained.rememberRetained
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.uuid.Uuid
 import kotlin.collections.removeLast as removeLastKt
 
 interface InlineEditPaneInjectEntryPoint :
@@ -419,7 +418,7 @@ fun rememberClipboardWatchingEnabledState(
 ): ClipboardWatchingState.ClipboardWatchingEnabled {
     var isLoading by remember { mutableStateOf(false) }
     var currentClipboardCellStateId: Uuid by rememberRetained {
-        mutableStateOf(uuid4())
+        mutableStateOf(Uuid.random())
     }
     var currentDeserializationResult: DeserializationResult? by rememberRetained {
         mutableStateOf(null)
@@ -463,7 +462,7 @@ fun rememberClipboardWatchingEnabledState(
 
                 // We have "locked" in a successful clipboard parsing result into history, so start creating
                 // a new one
-                currentClipboardCellStateId = uuid4()
+                currentClipboardCellStateId = Uuid.random()
             }
 
             // Bring the deserialization result up-to-date

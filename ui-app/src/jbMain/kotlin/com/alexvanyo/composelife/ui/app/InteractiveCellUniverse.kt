@@ -78,8 +78,8 @@ import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.rememberClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import com.alexvanyo.composelife.ui.util.setText
-import com.benasher44.uuid.uuid4
 import kotlinx.coroutines.launch
+import kotlin.uuid.Uuid
 
 interface InteractiveCellUniverseInjectEntryPoint :
     CellStateParserProvider,
@@ -161,7 +161,7 @@ fun InteractiveCellUniverse(
 
                             Key.Escape -> {
                                 interactiveCellUniverseState.cellWindowInteractionState.selectionSessionState =
-                                    SessionValue(uuid4(), uuid4(), SelectionState.NoSelection)
+                                    SessionValue(Uuid.random(), Uuid.random(), SelectionState.NoSelection)
                                 true
                             }
 
@@ -289,7 +289,7 @@ fun rememberInteractiveCellUniverseState(
     val trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(temporalGameOfLifeState)
 
     val selectionStateHolder = rememberMutableSelectionStateHolder(
-        SessionValue(uuid4(), uuid4(), SelectionState.NoSelection),
+        SessionValue(Uuid.random(), Uuid.random(), SelectionState.NoSelection),
     )
 
     val coroutineScope = rememberCoroutineScope()
@@ -495,7 +495,7 @@ fun rememberInteractiveCellUniverseState(
                                 )
                             }
                         selectionStateHolder.selectionSessionState =
-                            SessionValue(uuid4(), uuid4(), SelectionState.NoSelection)
+                            SessionValue(Uuid.random(), Uuid.random(), SelectionState.NoSelection)
                         true
                     }
                 }
@@ -503,8 +503,8 @@ fun rememberInteractiveCellUniverseState(
             override fun onSelectAll() {
                 val boundingBox = temporalGameOfLifeState.cellState.boundingBox
                 selectionStateHolder.selectionSessionState = SessionValue(
-                    sessionId = uuid4(),
-                    valueId = uuid4(),
+                    sessionId = Uuid.random(),
+                    valueId = Uuid.random(),
                     value = SelectionState.SelectingBox.FixedSelectingBox(
                         topLeft = boundingBox.topLeft,
                         width = boundingBox.width + 1,
@@ -516,14 +516,14 @@ fun rememberInteractiveCellUniverseState(
 
             override fun onClearSelection() {
                 selectionStateHolder.selectionSessionState =
-                    SessionValue(uuid4(), uuid4(), SelectionState.NoSelection)
+                    SessionValue(Uuid.random(), Uuid.random(), SelectionState.NoSelection)
             }
 
             override fun setSelectionToCellState(cellState: CellState) {
                 val boundingBoxSize = cellState.boundingBox.size
                 selectionStateHolder.selectionSessionState = SessionValue(
-                    sessionId = uuid4(),
-                    valueId = uuid4(),
+                    sessionId = Uuid.random(),
+                    valueId = Uuid.random(),
                     value = SelectionState.Selection(
                         cellState = cellState,
                         offset = (
