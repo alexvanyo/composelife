@@ -23,13 +23,13 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.offset
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onPlaced
@@ -53,6 +53,8 @@ import kotlinx.coroutines.launch
  * The [keys] are a set of keys used to reset that animation. This is useful to reset the animation, if the fixed
  * point calculation is changing.
  */
+@Suppress("ComposeComposableModifier", "ComposeModifierWithoutDefault")
+@Composable
 fun Modifier.animatePlacement(
     vararg keys: Any,
     animationSpec: AnimationSpec<IntOffset> = spring(stiffness = Spring.StiffnessMedium),
@@ -64,7 +66,7 @@ fun Modifier.animatePlacement(
         { parentLayoutCoordinates ->
             parentLayoutCoordinates.size.toIntRect().topStart
         },
-): Modifier = composed {
+): Modifier {
     val scope = rememberCoroutineScope()
     var targetOffset by remember { mutableStateOf(IntOffset.Zero) }
     var animatable by remember(keys = keys) {
@@ -76,7 +78,7 @@ fun Modifier.animatePlacement(
             override val layoutDirection = layoutDirection
         }
     }
-    this
+    return this
         .onPlaced { layoutCoordinates ->
             with(layoutDirectionAwareScope) {
                 // Calculate the alignment coordinate of this node in the parent coordinates, and calculate the offset

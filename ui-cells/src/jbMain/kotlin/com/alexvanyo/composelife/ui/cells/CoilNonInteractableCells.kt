@@ -122,6 +122,7 @@ fun CoilNonInteractableCells(
                     previousCacheKey = memoryCacheKey
                     previousPixelOffsetsFromCenter.clear()
                     if (memoryCacheKey != null) {
+                        @Suppress("ComposeRememberMissing")
                         previousPixelOffsetsFromCenter[memoryCacheKey.key] =
                             mutableStateOf(pixelOffsetFromCenter)
                     }

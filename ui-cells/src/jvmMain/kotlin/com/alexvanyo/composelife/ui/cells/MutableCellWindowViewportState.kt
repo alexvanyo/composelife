@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.ui.cells
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
@@ -104,7 +105,7 @@ private class MutableCellWindowViewportStateImpl(
             setScale(scale)
         }
 
-    private var _scale by mutableStateOf(scale)
+    private var _scale by mutableFloatStateOf(scale)
 
     override var cellWindowViewport: CellWindowViewport
         get() = CellWindowViewport(_offset, _scale)

@@ -31,9 +31,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.isSpecified
@@ -205,20 +205,21 @@ fun InteractableCells(
     }
 }
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "ComposeComposableModifier", "ComposeModifierWithoutDefault")
 @OptIn(ExperimentalComposeUiApi::class)
+@Composable
 private fun Modifier.drawingCellInput(
     drawingPointerTypes: Set<PointerType>,
     erasingPointerTypes: Set<PointerType>,
     gameOfLifeState: MutableGameOfLifeState,
-    pendingCellChanges: MutableMap<IntOffset, Boolean>,
+    pendingCellChanges: SnapshotStateMap<IntOffset, Boolean>,
     scaledCellPixelSize: Float,
     cellWindow: CellWindow,
-): Modifier = composed {
+): Modifier {
     val currentScaledCellPixelSize by rememberUpdatedState(scaledCellPixelSize)
     val currentCellWindow by rememberUpdatedState(cellWindow)
 
-    pointerInput(drawingPointerTypes, erasingPointerTypes, pendingCellChanges, gameOfLifeState) {
+    return pointerInput(drawingPointerTypes, erasingPointerTypes, pendingCellChanges, gameOfLifeState) {
         detectDragGestures(
             excludedPointerTypes = setOf(PointerType.Touch, PointerType.Mouse, PointerType.Stylus) -
                 drawingPointerTypes - erasingPointerTypes,
@@ -267,13 +268,14 @@ private fun Modifier.drawingCellInput(
     }
 }
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "ComposeComposableModifier", "ComposeModifierWithoutDefault")
+@Composable
 private fun Modifier.selectingCellInput(
     selectingPointerTypes: Set<PointerType>,
     setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
     scaledCellPixelSize: Float,
     cellWindow: CellWindow,
-): Modifier = composed {
+): Modifier {
     var isSelecting by remember { mutableStateOf(false) }
     var start by remember { mutableStateOf(Offset.Zero) }
     var end by remember { mutableStateOf(Offset.Zero) }
@@ -297,7 +299,7 @@ private fun Modifier.selectingCellInput(
         }
     }
 
-    pointerInput(selectingPointerTypes) {
+    return pointerInput(selectingPointerTypes) {
         detectDragGestures(
             excludedPointerTypes = setOf(PointerType.Touch, PointerType.Mouse, PointerType.Stylus) -
                 selectingPointerTypes,
