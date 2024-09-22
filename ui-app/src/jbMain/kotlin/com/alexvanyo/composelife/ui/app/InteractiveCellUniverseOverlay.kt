@@ -21,9 +21,13 @@ import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.sizeIn
@@ -40,6 +44,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -60,6 +65,8 @@ import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.util.Layout
+import com.alexvanyo.composelife.ui.util.LookaheadSafeDrawingBottomHeight
+import com.alexvanyo.composelife.ui.util.LookaheadSafeDrawingTopHeight
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
 import kotlinx.coroutines.launch
@@ -90,37 +97,34 @@ fun InteractiveCellUniverseOverlay(
     var actionCardAnimatable by remember {
         mutableStateOf<Animatable<Float, AnimationVector1D>?>(null)
     }
+    var displayInfoCardOffscreen: Boolean? by remember { mutableStateOf(null) }
+    var displayActionCardOffscreen: Boolean? by remember { mutableStateOf(null) }
 
     Layout(
         layoutIdTypes = InteractiveCellUniverseOverlayLayoutTypes._sealedEnum,
         content = {
-            Spacer(
-                modifier = Modifier
-                    .windowInsetsTopHeight(WindowInsets.safeDrawing)
-                    .layoutId(TopInsets),
-            )
-            Spacer(
-                modifier = Modifier
-                    .windowInsetsBottomHeight(WindowInsets.safeDrawing)
-                    .layoutId(BottomInsets),
-            )
+            LookaheadSafeDrawingTopHeight(Modifier.layoutId(TopInsets))
+            LookaheadSafeDrawingBottomHeight(Modifier.layoutId(BottomInsets))
 
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.safeDrawing)
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
                     .layoutId(CellUniverseInfoCard),
             ) {
+                LookaheadSafeDrawingTopHeight()
                 CellUniverseInfoCard(
                     cellWindowViewportState = cellWindowViewportState,
                     evolutionStatus = temporalGameOfLifeState.status,
                     infoCardState = interactiveCellUniverseState.infoCardState,
                     modifier = Modifier
-                        .align(Alignment.CenterEnd)
+                        .align(Alignment.End)
+                        .consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical))
                         .padding(8.dp)
                         .sizeIn(maxWidth = with(LocalDensity.current) { 400.sp.toDp() })
                         .testTag("CellUniverseInfoCard"),
                 )
+                LookaheadSafeDrawingBottomHeight()
             }
 
             // TODO: Calling order is weird here, but required due to https://youtrack.jetbrains.com/issue/KT-51863
@@ -154,13 +158,7 @@ fun InteractiveCellUniverseOverlay(
             val infoCardPlaceable = measurables.getValue(CellUniverseInfoCard).measure(constraints)
             val actionCardPlaceable = measurables.getValue(CellUniverseActionCard).measure(constraints)
 
-            layout(constraints.maxWidth, constraints.maxHeight) {
-                topInsetsPlaceable.place(0, 0)
-                bottomInsetsPlaceable.place(0, constraints.maxHeight - bottomInsetsPlaceable.height)
-
-                val displayInfoCardOffscreen: Boolean
-                val displayActionCardOffscreen: Boolean
-
+            if (isLookingAhead) {
                 // If we can fit both cards, place them both on screen.
                 // Otherwise, place the top-card (as determined by isActionCardTopCard) only aligned to the correct
                 // side of the screen, and align the hidden card just off-screen.
@@ -177,11 +175,16 @@ fun InteractiveCellUniverseOverlay(
                     displayInfoCardOffscreen = false
                     displayActionCardOffscreen = true
                 }
+            }
+
+            layout(constraints.maxWidth, constraints.maxHeight) {
+                topInsetsPlaceable.place(0, 0)
+                bottomInsetsPlaceable.place(0, constraints.maxHeight - bottomInsetsPlaceable.height)
 
                 val infoCardYOffscreen = -infoCardPlaceable.height + bottomInsetsPlaceable.height
                 val infoCardYOnscreen = 0
 
-                val targetInfoCardFractionOffscreen = if (displayInfoCardOffscreen) 1f else 0f
+                val targetInfoCardFractionOffscreen = if (requireNotNull(displayInfoCardOffscreen)) 1f else 0f
 
                 val infoAnim = infoCardAnimatable ?: Animatable(
                     initialValue = targetInfoCardFractionOffscreen,
@@ -204,7 +207,7 @@ fun InteractiveCellUniverseOverlay(
                 val actionCardYOffscreen = constraints.maxHeight - topInsetsPlaceable.height
                 val actionCardYOnscreen = constraints.maxHeight - actionCardPlaceable.height
 
-                val targetActionCardFractionOffscreen = if (displayActionCardOffscreen) 1f else 0f
+                val targetActionCardFractionOffscreen = if (requireNotNull(displayActionCardOffscreen)) 1f else 0f
 
                 val actionAnim = actionCardAnimatable ?: Animatable(
                     initialValue = targetActionCardFractionOffscreen,
