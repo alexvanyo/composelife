@@ -701,10 +701,10 @@ data class GridDraggableAnchors2d(
     private val scaledCellPixelSize: Float,
     private val cellWindow: CellWindow,
 ) : DraggableAnchors2D<IntOffset> {
-    override fun positionOf(value: IntOffset): Offset =
-        (value.toOffset() - cellWindow.topLeft.toOffset()) * scaledCellPixelSize
+    override fun positionOf(anchor: IntOffset): Offset =
+        (anchor.toOffset() - cellWindow.topLeft.toOffset()) * scaledCellPixelSize
 
-    override fun hasAnchorFor(value: IntOffset): Boolean = true
+    override fun hasPositionFor(anchor: IntOffset): Boolean = true
     override fun closestAnchor(position: Offset): IntOffset =
         (position / scaledCellPixelSize).round() + cellWindow.topLeft
 
