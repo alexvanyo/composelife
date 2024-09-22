@@ -33,6 +33,7 @@ val LocalNavigationAnimatedVisibilityScope: ProvidableCompositionLocal<AnimatedV
 val LocalNavigationSharedTransitionScope: ProvidableCompositionLocal<SharedTransitionScope?> =
     compositionLocalOf { null }
 
+@Suppress("ComposeComposableModifier", "ComposeModifierWithoutDefault")
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun Modifier.trySharedElement(

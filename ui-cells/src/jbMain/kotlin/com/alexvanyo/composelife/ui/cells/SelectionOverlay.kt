@@ -278,13 +278,6 @@ private fun FixedSelectingBoxOverlay(
         }
 
         @Stable
-        class HandleState(
-            val state: AnchoredDraggable2DState<IntOffset>,
-        ) {
-            var reentrancyCount by mutableStateOf(0)
-        }
-
-        @Stable
         class SelectionDraggableHandleState(
             val state: HandleState,
             transientSelectingBoxAnimatable: Animatable<Offset, AnimationVector2D>,
@@ -492,6 +485,13 @@ private fun FixedSelectingBoxOverlay(
                 }
             }
     }
+}
+
+@Stable
+private class HandleState(
+    val state: AnchoredDraggable2DState<IntOffset>,
+) {
+    var reentrancyCount by mutableStateOf(0)
 }
 
 @Composable

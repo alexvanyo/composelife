@@ -30,6 +30,7 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.draggable2D
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.offset
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -39,7 +40,6 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.geometry.isUnspecified
@@ -141,14 +141,16 @@ fun <T : Any> DraggableAnchors2D(
  * the internal [Modifier.draggable].
  */
 @OptIn(ExperimentalFoundationApi::class)
+@Suppress("ComposeComposableModifier", "ComposeModifierWithoutDefault")
+@Composable
 fun <T> Modifier.anchoredDraggable2D(
     state: AnchoredDraggable2DState<T>,
     enabled: Boolean = true,
     reverseDirection: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
-) = composed {
+): Modifier {
     val coroutineScope = rememberCoroutineScope()
-    draggable2D(
+    return draggable2D(
         state = state.draggableState,
         enabled = enabled,
         interactionSource = interactionSource,
