@@ -45,13 +45,6 @@ class AppCompatSync(
         }
             .successes()
             .onEach { darkThemeConfig ->
-                AppCompatDelegate.setDefaultNightMode(
-                    when (darkThemeConfig.value) {
-                        DarkThemeConfig.Dark -> AppCompatDelegate.MODE_NIGHT_YES
-                        DarkThemeConfig.FollowSystem -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-                        DarkThemeConfig.Light -> AppCompatDelegate.MODE_NIGHT_NO
-                    },
-                )
                 // If we can, update and persist the application-defined night mode
                 if (Build.VERSION.SDK_INT >= 31) {
                     uiModeManager?.setApplicationNightMode(
@@ -59,6 +52,14 @@ class AppCompatSync(
                             DarkThemeConfig.Dark -> UiModeManager.MODE_NIGHT_YES
                             DarkThemeConfig.FollowSystem -> UiModeManager.MODE_NIGHT_AUTO
                             DarkThemeConfig.Light -> UiModeManager.MODE_NIGHT_NO
+                        },
+                    )
+                } else {
+                    AppCompatDelegate.setDefaultNightMode(
+                        when (darkThemeConfig.value) {
+                            DarkThemeConfig.Dark -> AppCompatDelegate.MODE_NIGHT_YES
+                            DarkThemeConfig.FollowSystem -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                            DarkThemeConfig.Light -> AppCompatDelegate.MODE_NIGHT_NO
                         },
                     )
                 }
