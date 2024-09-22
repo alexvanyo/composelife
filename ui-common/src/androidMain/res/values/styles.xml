@@ -18,8 +18,8 @@
     <style name="EdgeToEdgeFloatingDialogWindowTheme">
         <item name="android:dialogTheme">@style/EdgeToEdgeFloatingDialogTheme</item>
     </style>
-    <style name="EdgeToEdgeFloatingDialogTheme" parent="android:Theme.DeviceDefault.Dialog">
-        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="27">always</item>
+    <style name="EdgeToEdgeFloatingDialogThemeBase" parent="android:Theme.DeviceDefault.Dialog">
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="27">shortEdges</item>
         <item name="android:windowClipToOutline">false</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
@@ -28,6 +28,11 @@
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowElevation">0dp</item>
     </style>
+
+    <style name="EdgeToEdgeFloatingDialogThemeBase.WindowLayoutInDisplayCutoutModeAdjusted" parent="EdgeToEdgeFloatingDialogThemeBase" />
+
+    <style name="EdgeToEdgeFloatingDialogTheme" parent="EdgeToEdgeFloatingDialogThemeBase.WindowLayoutInDisplayCutoutModeAdjusted" />
+
     <style name="PlatformEdgeToEdgeFloatingDialogWindowTheme">
         <item name="android:dialogTheme">@style/PlatformEdgeToEdgeFloatingDialogTheme</item>
     </style>
