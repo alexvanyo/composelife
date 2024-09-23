@@ -47,21 +47,9 @@ class AppCompatSync(
             .onEach { darkThemeConfig ->
                 // If we can, update and persist the application-defined night mode
                 if (Build.VERSION.SDK_INT >= 31) {
-                    uiModeManager?.setApplicationNightMode(
-                        when (darkThemeConfig.value) {
-                            DarkThemeConfig.Dark -> UiModeManager.MODE_NIGHT_YES
-                            DarkThemeConfig.FollowSystem -> UiModeManager.MODE_NIGHT_AUTO
-                            DarkThemeConfig.Light -> UiModeManager.MODE_NIGHT_NO
-                        },
-                    )
+                    uiModeManager?.setApplicationNightMode(darkThemeConfig.value.uiModeManagerMode)
                 } else {
-                    AppCompatDelegate.setDefaultNightMode(
-                        when (darkThemeConfig.value) {
-                            DarkThemeConfig.Dark -> AppCompatDelegate.MODE_NIGHT_YES
-                            DarkThemeConfig.FollowSystem -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-                            DarkThemeConfig.Light -> AppCompatDelegate.MODE_NIGHT_NO
-                        },
-                    )
+                    AppCompatDelegate.setDefaultNightMode(darkThemeConfig.value.appCompatDelegateMode)
                 }
             }
             .collect()
@@ -69,3 +57,17 @@ class AppCompatSync(
         error("snapshotFlow can not complete normally")
     }
 }
+
+internal val DarkThemeConfig.uiModeManagerMode get() =
+    when (this) {
+        DarkThemeConfig.Dark -> UiModeManager.MODE_NIGHT_YES
+        DarkThemeConfig.FollowSystem -> UiModeManager.MODE_NIGHT_AUTO
+        DarkThemeConfig.Light -> UiModeManager.MODE_NIGHT_NO
+    }
+
+internal val DarkThemeConfig.appCompatDelegateMode get() =
+    when (this) {
+        DarkThemeConfig.Dark -> AppCompatDelegate.MODE_NIGHT_YES
+        DarkThemeConfig.FollowSystem -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        DarkThemeConfig.Light -> AppCompatDelegate.MODE_NIGHT_NO
+    }
