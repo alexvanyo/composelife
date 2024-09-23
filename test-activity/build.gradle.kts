@@ -41,6 +41,9 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 api(libs.androidx.compose.uiTestManifest)
+
+                implementation(libs.androidx.activityCompose)
+                implementation(libs.androidx.appcompat)
             }
         }
     }
