@@ -1,3 +1,6 @@
+import com.alexvanyo.composelife.buildlogic.FormFactor
+import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+
 /*
  * Copyright 2023 The Android Open Source Project
  *
@@ -17,6 +20,8 @@
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
+    alias(libs.plugins.convention.androidLibraryJacoco)
+    alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
 }
@@ -26,6 +31,7 @@ android {
     defaultConfig {
         minSdk = 21
     }
+    configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
 }
 
 kotlin {
@@ -43,6 +49,22 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation(libs.androidx.appcompat)
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.turbine)
+                implementation(projects.preferencesTest)
+                implementation(projects.testActivity)
+            }
+        }
+        val androidSharedTest by getting {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.androidx.test.core)
+                implementation(libs.androidx.test.junit)
+                implementation(libs.androidx.test.runner)
             }
         }
     }
