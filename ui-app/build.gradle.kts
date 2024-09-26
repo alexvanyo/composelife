@@ -83,7 +83,7 @@ kotlin {
         val jbMain by creating {
             dependsOn(jvmMain)
             dependencies {
-                api(libs.material3.windowSizeClass.multiplatform)
+                api(libs.jetbrains.compose.material3.adaptive)
 
                 implementation(libs.jetbrains.compose.material3)
                 implementation(libs.jetbrains.compose.materialIconsExtended)
