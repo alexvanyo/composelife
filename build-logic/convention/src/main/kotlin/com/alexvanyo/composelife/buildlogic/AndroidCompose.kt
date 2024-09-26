@@ -38,7 +38,6 @@ fun Project.configureAndroidCompose(
         lint {
             disable.addAll(
                 listOf(
-                    "ComposeParameterOrder", // TODO: Re-enable this lint check
                     "ComposeUnstableCollections",
                 ),
             )
