@@ -17,17 +17,15 @@
 package com.alexvanyo.composelife.ui.app
 
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
+import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
+import androidx.window.core.layout.computeWindowSizeClass
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @MobileDevicePreviews
 @Composable
 fun LoadingPreferencesComposeLifeAppPreview() {
@@ -36,7 +34,10 @@ fun LoadingPreferencesComposeLifeAppPreview() {
             BoxWithConstraints {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 ComposeLifeApp(
-                    windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
+                    windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                        widthDp = size.width,
+                        heightDp = size.height,
+                    ),
                     composeLifeAppState = ComposeLifeAppState.LoadingPreferences,
                 )
             }
