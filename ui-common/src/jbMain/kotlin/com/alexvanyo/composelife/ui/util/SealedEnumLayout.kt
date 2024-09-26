@@ -37,6 +37,7 @@ import com.livefront.sealedenum.SealedEnum
  */
 @UiComposable
 @Composable
+@Suppress("ComposeParameterOrder") // Mimics the Layout composable parameter order
 inline fun <T> Layout(
     layoutIdTypes: SealedEnum<T>,
     content:
