@@ -32,10 +32,13 @@ val GradleManagedDeviceConfig.taskPrefix get() =
         append(
             when (systemImageSource) {
                 SystemImageSource.Aosp -> "aosp"
+                SystemImageSource.AospTablet -> "aosptablet"
                 SystemImageSource.AospAtd -> "aospatd"
                 SystemImageSource.Google -> "google"
+                SystemImageSource.GoogleTablet -> "googletablet"
                 SystemImageSource.GoogleAtd -> "googleatd"
                 SystemImageSource.GooglePlayStore -> "googleplaystore"
+                SystemImageSource.GooglePlayStoreTablet -> "googleplaystoretablet"
                 SystemImageSource.AndroidDesktop -> "desktop"
                 SystemImageSource.AndroidWear -> "wear"
             },
@@ -49,24 +52,30 @@ val GradleManagedDeviceConfig.taskPrefix get() =
 
 enum class SystemImageSource {
     Aosp,
+    AospTablet,
     AospAtd,
     Google,
+    GoogleTablet,
     GoogleAtd,
     GooglePlayStore,
+    GooglePlayStoreTablet,
     AndroidDesktop,
     AndroidWear,
 }
 
 sealed interface AndroidDevice {
 
-    enum class MobileDevice : AndroidDevice {
+    enum class PhoneDevice : AndroidDevice {
         Nexus4,
         Nexus5,
         PixelFold,
-        PixelTablet,
         Pixel2,
         Pixel3XL,
         Pixel6Pro,
+    }
+
+    enum class TabletDevice : AndroidDevice {
+        PixelTablet,
     }
 
     enum class DesktopDevice : AndroidDevice {
@@ -113,13 +122,13 @@ fun configureGradleManagedDevices(
                 create<ManagedVirtualDevice>(config.taskPrefix) {
                     this.device = when (config.device) {
                         AndroidDevice.DesktopDevice.MediumDesktop -> "Medium Desktop"
-                        AndroidDevice.MobileDevice.Nexus4 -> "Nexus 4"
-                        AndroidDevice.MobileDevice.Nexus5 -> "Nexus 5"
-                        AndroidDevice.MobileDevice.PixelFold -> "Pixel Fold"
-                        AndroidDevice.MobileDevice.PixelTablet -> "Pixel Tablet"
-                        AndroidDevice.MobileDevice.Pixel2 -> "Pixel 2"
-                        AndroidDevice.MobileDevice.Pixel3XL -> "Pixel 3 XL"
-                        AndroidDevice.MobileDevice.Pixel6Pro -> "Pixel 6 Pro"
+                        AndroidDevice.PhoneDevice.Nexus4 -> "Nexus 4"
+                        AndroidDevice.PhoneDevice.Nexus5 -> "Nexus 5"
+                        AndroidDevice.PhoneDevice.PixelFold -> "Pixel Fold"
+                        AndroidDevice.PhoneDevice.Pixel2 -> "Pixel 2"
+                        AndroidDevice.PhoneDevice.Pixel3XL -> "Pixel 3 XL"
+                        AndroidDevice.PhoneDevice.Pixel6Pro -> "Pixel 6 Pro"
+                        AndroidDevice.TabletDevice.PixelTablet -> "Pixel Tablet"
                         AndroidDevice.WearDevice.WearOSSquare -> "Wear OS Square"
                         AndroidDevice.WearDevice.WearOSSmallRound -> "Wear OS Small Round"
                         AndroidDevice.WearDevice.WearOSLargeRound -> "Wear OS Large Round"
@@ -127,10 +136,13 @@ fun configureGradleManagedDevices(
                     this.apiLevel = config.apiLevel
                     this.systemImageSource = when (config.systemImageSource) {
                         SystemImageSource.Aosp -> "aosp"
-                        SystemImageSource.AospAtd -> "aosp-atd"
+                        SystemImageSource.AospTablet -> "aosp_tablet"
+                        SystemImageSource.AospAtd -> "aosp_atd"
                         SystemImageSource.Google -> "google"
-                        SystemImageSource.GoogleAtd -> "google-atd"
+                        SystemImageSource.GoogleTablet -> "google_apis_tablet"
+                        SystemImageSource.GoogleAtd -> "google_atd"
                         SystemImageSource.GooglePlayStore -> "google_apis_playstore"
+                        SystemImageSource.GooglePlayStoreTablet -> "google_playstore_tablet"
                         SystemImageSource.AndroidDesktop -> "android-desktop"
                         SystemImageSource.AndroidWear -> "android-wear"
                     }
@@ -139,18 +151,15 @@ fun configureGradleManagedDevices(
     }
 }
 
-private val mobileDevices = run {
-    val deviceNames =
-        enumValues<AndroidDevice.MobileDevice>().toList() +
-            enumValues<AndroidDevice.DesktopDevice>().toList()
-    val apiLevels = 21..34
+private val phoneDevices = run {
+    val deviceNames = enumValues<AndroidDevice.PhoneDevice>().toList()
+    val apiLevels = 21..35
     val systemImageSources = listOf(
         SystemImageSource.Aosp,
         SystemImageSource.AospAtd,
         SystemImageSource.Google,
         SystemImageSource.GoogleAtd,
         SystemImageSource.GooglePlayStore,
-        SystemImageSource.AndroidDesktop,
     )
 
     deviceNames.flatMap { deviceName ->
@@ -170,26 +179,71 @@ private val mobileDevices = run {
         }
         .filterNot {
             // google-atd is only supported on some versions
-            it.systemImageSource == SystemImageSource.GoogleAtd && it.apiLevel !in 30..33
-        }
-        .filterNot {
-            // Desktop images only make sense on desktop devices
-            (
-                it.systemImageSource == SystemImageSource.AndroidDesktop &&
-                    it.device !is AndroidDevice.DesktopDevice
-                ) ||
-                (
-                    it.systemImageSource != SystemImageSource.AndroidDesktop &&
-                        it.device is AndroidDevice.DesktopDevice
-                    ) ||
-                // Desktop images are only supported on some versions
-                (it.systemImageSource == SystemImageSource.AndroidDesktop && it.apiLevel !in 32..33)
+            it.systemImageSource == SystemImageSource.GoogleAtd && it.apiLevel !in 30..34
         }
 }
 
+private val tabletDevices = run {
+    val deviceNames =
+        enumValues<AndroidDevice.TabletDevice>().toList()
+    val apiLevels = 21..35
+    val systemImageSources = listOf(
+        SystemImageSource.Aosp,
+        SystemImageSource.AospTablet,
+        SystemImageSource.AospAtd,
+        SystemImageSource.Google,
+        SystemImageSource.GoogleTablet,
+        SystemImageSource.GoogleAtd,
+        SystemImageSource.GooglePlayStore,
+        SystemImageSource.GooglePlayStoreTablet,
+    )
+
+    deviceNames.flatMap { deviceName ->
+        apiLevels.flatMap { apiLevel ->
+            systemImageSources.map { systemImageSource ->
+                GradleManagedDeviceConfig(
+                    device = deviceName,
+                    apiLevel = apiLevel,
+                    systemImageSource = systemImageSource,
+                )
+            }
+        }
+    }
+        .filterNot {
+            // aosp tablet images are only supported on some versions
+            it.systemImageSource == SystemImageSource.AospTablet && it.apiLevel != 34
+        }
+        .filterNot {
+            // google tablet images are only supported on some versions
+            it.systemImageSource == SystemImageSource.AospTablet && it.apiLevel !in 34..35
+        }
+}
+
+private val desktopDevices = run {
+    val deviceNames = enumValues<AndroidDevice.DesktopDevice>().toList()
+    val apiLevels = 32..34
+    val systemImageSources = listOf(
+        SystemImageSource.AndroidDesktop,
+    )
+
+    deviceNames.flatMap { deviceName ->
+        apiLevels.flatMap { apiLevel ->
+            systemImageSources.map { systemImageSource ->
+                GradleManagedDeviceConfig(
+                    device = deviceName,
+                    apiLevel = apiLevel,
+                    systemImageSource = systemImageSource,
+                )
+            }
+        }
+    }
+}
+
+private val mobileDevices = phoneDevices + tabletDevices + desktopDevices
+
 private val wearDevices = run {
     val deviceNames = enumValues<AndroidDevice.WearDevice>()
-    val apiLevels = setOf(28, 30, 33)
+    val apiLevels = setOf(28, 30, 33, 34)
     val systemImageSources = listOf(
         SystemImageSource.AndroidWear,
     )
