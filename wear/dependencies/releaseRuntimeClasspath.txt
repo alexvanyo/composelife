@@ -24,8 +24,8 @@ androidx.compose.material:material-icons-core-android:1.7.2
 androidx.compose.material:material-icons-core:1.7.2
 androidx.compose.material:material-icons-extended-android:1.7.2
 androidx.compose.material:material-icons-extended:1.7.2
-androidx.compose.material:material-ripple-android:1.7.0
-androidx.compose.material:material-ripple:1.7.0
+androidx.compose.material:material-ripple-android:1.8.0-alpha02
+androidx.compose.material:material-ripple:1.8.0-alpha02
 androidx.compose.runtime:runtime-android:1.8.0-alpha02
 androidx.compose.runtime:runtime-saveable-android:1.8.0-alpha02
 androidx.compose.runtime:runtime-saveable:1.8.0-alpha02
@@ -44,6 +44,7 @@ androidx.compose.ui:ui-unit:1.8.0-alpha02
 androidx.compose.ui:ui-util-android:1.8.0-alpha02
 androidx.compose.ui:ui-util:1.8.0-alpha02
 androidx.compose.ui:ui:1.8.0-alpha02
+androidx.compose:compose-bom-alpha:2024.09.02
 androidx.concurrent:concurrent-futures:1.1.0
 androidx.core:core-ktx:1.15.0-alpha02
 androidx.core:core:1.15.0-alpha02
