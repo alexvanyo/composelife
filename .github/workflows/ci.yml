@@ -273,7 +273,11 @@ jobs:
               {"api-level": "33", "target": "wear", "device": "wearoslargeround"},
               {"api-level": "33", "target": "wear", "device": "wearossquare"},
               {"api-level": "34", "target": "aospatd", "device": "pixel6pro"},
-              {"api-level": "34", "target": "aospatd", "device": "pixeltablet"}
+              {"api-level": "34", "target": "aosptablet", "device": "pixeltablet"},
+              {"api-level": "34", "target": "wear", "device": "wearoslargeround"},
+              {"api-level": "34", "target": "wear", "device": "wearossquare"},
+              {"api-level": "35", "target": "google", "device": "pixel6pro"},
+              {"api-level": "35", "target": "googletablet", "device": "pixeltablet"}
             '
           else
             MATRIX='

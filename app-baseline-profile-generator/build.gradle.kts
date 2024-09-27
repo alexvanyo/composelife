@@ -29,7 +29,7 @@ plugins {
 }
 
 val aosppixel2Api30 = GradleManagedDeviceConfig(
-    device = AndroidDevice.MobileDevice.Pixel2,
+    device = AndroidDevice.PhoneDevice.Pixel2,
     apiLevel = 30,
     systemImageSource = SystemImageSource.Aosp,
 )
