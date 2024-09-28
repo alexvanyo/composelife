@@ -20,6 +20,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
@@ -84,6 +85,67 @@ class SessionValueHolderStateRestorationTests {
                 sessionId1,
                 valueId1,
                 0f,
+            ),
+        )
+        val info2 = sessionValueHolder.info
+        assertFalse(info2.isLocalSessionActive())
+        val nextLocalSessionId2 = info1.nextLocalSessionId
+        assertEquals(nextLocalSessionId1, info2.localSessionId)
+        assertEquals(nextLocalSessionId1, nextLocalSessionId2)
+        assertEquals(sessionId1, info2.currentUpstreamSessionId)
+        assertEquals(sessionId1, info2.preLocalSessionId)
+    }
+
+    @Test
+    fun whenSavedInstanceStateIsRestoredWithNoLocalSession_withCustomSaver_stateIsCorrect() = runComposeUiTest {
+        val stateRestorationTester = KmpStateRestorationTester(this)
+
+        val sessionId1 = Uuid.random()
+        val valueId1 = Uuid.random()
+        val value1 = Uuid.random()
+
+        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Uuid>, SessionValue<Uuid>>>()
+
+        lateinit var sessionValueHolder: SessionValueHolder<Uuid>
+        val upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, value1))
+
+        stateRestorationTester.setContent {
+            sessionValueHolder = rememberSessionValueHolder(
+                upstreamSessionValue = upstreamSessionValue,
+                setUpstreamSessionValue = { upstreamSessionId, sessionValue ->
+                    pendingUpstreamSessionValues.add(upstreamSessionId to sessionValue)
+                },
+                valueSaver = Saver(
+                    save = { it.toString() },
+                    restore = Uuid::parse,
+                ),
+            )
+        }
+
+        assertEquals(
+            sessionValueHolder.sessionValue,
+            SessionValue(
+                sessionId1,
+                valueId1,
+                value1,
+            ),
+        )
+        val info1 = sessionValueHolder.info
+        assertFalse(info1.isLocalSessionActive())
+        val nextLocalSessionId1 = info1.nextLocalSessionId
+        assertEquals(nextLocalSessionId1, info1.localSessionId)
+        assertEquals(sessionId1, info1.currentUpstreamSessionId)
+        assertEquals(sessionId1, info1.preLocalSessionId)
+
+        stateRestorationTester.emulateSavedInstanceStateRestore()
+        waitForIdle()
+
+        assertEquals(
+            sessionValueHolder.sessionValue,
+            SessionValue(
+                sessionId1,
+                valueId1,
+                value1,
             ),
         )
         val info2 = sessionValueHolder.info
