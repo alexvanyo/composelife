@@ -152,7 +152,7 @@ fun CellUniverseActionCard(
     val contentScrollStateMap =
         actionCardState.inlineNavigationState.entryMap.mapValues { (entryId, _) ->
             key(entryId) {
-                rememberScrollState()
+                rememberScrollState(initial = Int.MAX_VALUE)
             }
         }
 
@@ -177,7 +177,7 @@ fun CellUniverseActionCard(
                     ActionControlRow(
                         isElevated = !actionCardState.expandedTargetState.isInProgress() &&
                             actionCardState.expandedTargetState.current &&
-                            currentScrollState.canScrollBackward,
+                            currentScrollState.canScrollForward,
                         isRunning = isRunning,
                         setIsRunning = setIsRunning,
                         onStep = onStep,
@@ -266,7 +266,7 @@ fun CellUniverseActionCard(
                             ) {
                                 ActionCardNavigationBar(
                                     actionCardState = actionCardState,
-                                    isElevated = currentScrollState.canScrollForward,
+                                    isElevated = currentScrollState.canScrollBackward,
                                 )
                             }
                         }

@@ -109,11 +109,14 @@ context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLoca
 fun InlineEditPane(
     state: InlineEditPaneState,
     modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState(),
+    scrollState: ScrollState = rememberScrollState(initial = Int.MAX_VALUE),
 ) {
     Column(
         modifier
-            .verticalScroll(scrollState)
+            .verticalScroll(
+                state = scrollState,
+                reverseScrolling = true,
+            )
             .padding(vertical = 8.dp),
     ) {
         ClipboardWatchingSection(
