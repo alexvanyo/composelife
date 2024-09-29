@@ -113,20 +113,6 @@ jobs:
                echo sdk=${{ matrix.sdk }} > "$project"src/androidUnitTest/resources/com/alexvanyo/composelife/robolectric.properties
           done
 
-      - name: Sync project
-        run: ./gradlew tasks
-
-      - name: Assemble
-        # Assemble with running benchmarks and generating baseline profile to ensure those compile
-        run: ./gradlew assemble -Pcom.alexvanyo.composelife.runBenchmarks=true -Pandroidx.baselineprofile.skipgeneration
-
-      - name: Upload APKs
-        if: matrix.sdk == '34'
-        uses: actions/upload-artifact@v4
-        with:
-          name: apks
-          path: "**/build/outputs/apk/**/*.apk"
-
       - name: Run checks
         id: check
         run: ./gradlew check --stacktrace
@@ -172,26 +158,41 @@ jobs:
           push_options: --force-with-lease
 
       - name: Upload unit test results
-        if: matrix.sdk == '34' && !cancelled()
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: unit-test-results-${{ matrix.sdk }}
           path: '**/build/test-results/*Test/**.xml'
 
       - name: Generate code coverage
-        if: matrix.sdk == '34'
         run: ./gradlew jacocoTestReport --stacktrace
 
       - name: Upload code coverage to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-code-coverage-${{ matrix.sdk }}
+          path: build/reports/jacoco/**/*.xml
+
+      - name: Assemble
+        if: matrix.sdk == '34'
+        # Assemble with running benchmarks and generating baseline profile to ensure those compile
+        run: ./gradlew assemble -Pcom.alexvanyo.composelife.runBenchmarks=true -Pandroidx.baselineprofile.skipgeneration
+
+      - name: Upload APKs
         if: matrix.sdk == '34'
         uses: actions/upload-artifact@v4
         with:
-          name: code-coverage
-          path: build/reports/jacoco/**/*.xml
+          name: apks
+          path: "**/build/outputs/apk/**/*.apk"
 
-  codecov-coverage-upload:
-    needs: build
+  codecov-unit-coverage-upload:
+    needs: [build, build-cfg]
+    if: always()
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.build-cfg.outputs.matrix) }}
 
     steps:
       - name: Checkout
@@ -200,7 +201,7 @@ jobs:
       - name: Download code coverage from GitHub
         uses: actions/download-artifact@v4
         with:
-          name: code-coverage
+          name: unit-code-coverage-${{ matrix.sdk }}
           path: codecoverage
 
       - name: Upload coverage to Codecov
@@ -209,11 +210,16 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           directory: codecoverage
+          flags: unit,${{ matrix.sdk }}
 
-  codecov-test-upload:
-    needs: build
+  codecov-unit-test-upload:
+    needs: [build, build-cfg]
     if: always()
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.build-cfg.outputs.matrix) }}
 
     steps:
       - name: Checkout
@@ -222,7 +228,7 @@ jobs:
       - name: Download test results from GitHub
         uses: actions/download-artifact@v4
         with:
-          name: test-results
+          name: unit-test-results-${{ matrix.sdk }}
           path: testresults
 
       - id: test-result-files
@@ -236,7 +242,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           files: ${{ steps.test-result-files.outputs.files }}
-
+          flags: unit,${{ matrix.sdk }}
 
   android-test-gmd-cfg:
     runs-on: ubuntu-latest
@@ -360,3 +366,80 @@ jobs:
           # run the tests, with one retry attempt
           run_tests () { ./gradlew ${{ matrix.target }}${{ matrix.device }}api${{ matrix.api-level }}Check --stacktrace; }
           (echo "==== Attempt 1 ====" && run_tests) || (echo "==== Attempt 2 ====" && run_tests) || (echo "==== Both attempts failed ====" && exit 1)
+
+      - name: Upload device test results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: device-test-results-${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
+          path: '**/build/outputs/androidTest-results/managedDevice/**/TEST*.xml'
+
+      - name: Generate coverage report
+        run: |
+          run_tests () { ./gradlew jacocoTest${{ matrix.target }}${{ matrix.device }}api${{ matrix.api-level }}AndroidTestReport --stacktrace; }
+          (echo "==== Attempt 1 ====" && run_tests) || (echo "==== Attempt 2 ====" && run_tests) || (echo "==== Both attempts failed ====" && exit 1)
+
+      - name: Upload code coverage to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: device-code-coverage-${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
+          path: build/reports/jacoco/**/*.xml
+
+  codecov-device-coverage-upload:
+    needs: [android-test-gmd, android-test-gmd-cfg]
+    if: always()
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.android-test-gmd-cfg.outputs.matrix) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download code coverage from GitHub
+        uses: actions/download-artifact@v4
+        with:
+          name: device-code-coverage-${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
+          path: codecoverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          directory: codecoverage
+          flags: device,${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
+
+  codecov-device-test-upload:
+    needs: [android-test-gmd, android-test-gmd-cfg]
+    if: always()
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.android-test-gmd-cfg.outputs.matrix) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download test results from GitHub
+        uses: actions/download-artifact@v4
+        with:
+          name: device-test-results-${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
+          path: testresults
+
+      - id: test-result-files
+        run: |
+          echo -n "files=" >> $GITHUB_OUTPUT
+          find testresults -name "*.xml" | paste -s -d "," - >> $GITHUB_OUTPUT
+
+      - name: Upload test results to Codecov
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          files: ${{ steps.test-result-files.outputs.files }}
+          flags: device,${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
