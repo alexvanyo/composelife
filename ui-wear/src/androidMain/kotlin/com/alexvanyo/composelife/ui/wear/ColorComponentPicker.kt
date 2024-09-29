@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -32,14 +31,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
-import androidx.wear.compose.foundation.rememberActiveFocusRequester
-import androidx.wear.compose.foundation.rotary.rotaryScrollable
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Picker
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.rememberPickerState
-import com.google.android.horologist.compose.rotaryinput.accumulatedBehavior
-import kotlinx.coroutines.launch
 
 @Composable
 @Suppress("LongParameterList")
@@ -57,8 +52,6 @@ fun ColorComponentPicker(
     )
     val currentSetComponentValue by rememberUpdatedState(setComponentValue)
 
-    val coroutineScope = rememberCoroutineScope()
-
     LaunchedEffect(pickerState) {
         snapshotFlow { pickerState.selectedOption }
             .collect {
@@ -73,15 +66,7 @@ fun ColorComponentPicker(
             state = pickerState,
             contentDescription = contentDescription,
             onSelected = onSelected,
-            modifier = modifier
-                .rotaryScrollable(
-                    behavior = accumulatedBehavior {
-                        coroutineScope.launch {
-                            pickerState.scrollToOption(pickerState.selectedOption + if (it > 0) 1 else -1)
-                        }
-                    },
-                    focusRequester = rememberActiveFocusRequester(),
-                ),
+            modifier = modifier,
         ) { optionIndex ->
             Box(
                 contentAlignment = Alignment.Center,
