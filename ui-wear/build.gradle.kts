@@ -56,6 +56,7 @@ kotlin {
         val androidMain by getting {
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
+                implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.foundation)
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.androidx.core)
@@ -69,7 +70,6 @@ kotlin {
                 implementation(libs.androidx.wear.watchface.data)
                 implementation(libs.androidx.wear.watchface.editor)
                 implementation(libs.androidx.wear.watchface.style)
-                implementation(libs.horologist.composeLayout)
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.sealedEnum.runtime)
             }
