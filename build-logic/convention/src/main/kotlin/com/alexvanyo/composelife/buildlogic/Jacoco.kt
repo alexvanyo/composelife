@@ -42,6 +42,7 @@ private val coverageExclusions = listOf(
     "**/proto/*",
 )
 
+@Suppress("LongMethod")
 fun Project.configureJacocoMerge() {
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
@@ -51,8 +52,21 @@ fun Project.configureJacocoMerge() {
 
     val variants = listOf("debug", "release")
 
+    val sourceDirectoryFiles = subprojects
+        .flatMap {
+            listOf(
+                it.layout.projectDirectory.dir("src/androidMain/kotlin"),
+                it.layout.projectDirectory.dir("src/commonMain/kotlin"),
+                it.layout.projectDirectory.dir("src/desktopMain/kotlin"),
+                it.layout.projectDirectory.dir("src/jbMain/kotlin"),
+                it.layout.projectDirectory.dir("src/jvmMain/kotlin"),
+                it.layout.projectDirectory.dir("src/jvmNonAndroidMain/kotlin"),
+                it.layout.projectDirectory.dir("src/moleculeMain/kotlin"),
+            )
+        }
+
     @Suppress("NoNameShadowing")
-    val variantJacocoTestReports = variants.map { variant ->
+    val variantJacocoTestUnitTestReports = variants.map { variant ->
         tasks.register("jacocoTest${variant.capitalizeForTaskName()}UnitTestReport", JacocoReport::class) {
             dependsOn(
                 subprojects.flatMap {
@@ -68,20 +82,7 @@ fun Project.configureJacocoMerge() {
                         }
                     },
             )
-            sourceDirectories.setFrom(
-                subprojects
-                    .flatMap {
-                        listOf(
-                            it.layout.projectDirectory.dir("src/androidMain/kotlin"),
-                            it.layout.projectDirectory.dir("src/commonMain/kotlin"),
-                            it.layout.projectDirectory.dir("src/desktopMain/kotlin"),
-                            it.layout.projectDirectory.dir("src/jbMain/kotlin"),
-                            it.layout.projectDirectory.dir("src/jvmMain/kotlin"),
-                            it.layout.projectDirectory.dir("src/jvmNonAndroidMain/kotlin"),
-                            it.layout.projectDirectory.dir("src/moleculeMain/kotlin"),
-                        )
-                    },
-            )
+            sourceDirectories.setFrom(sourceDirectoryFiles)
             executionData.setFrom(
                 subprojects
                     .map {
@@ -98,9 +99,45 @@ fun Project.configureJacocoMerge() {
             }
         }
     }
+    @Suppress("NoNameShadowing")
+    getGradleManagedDeviceConfig(FormFactor.values().toSet())
+        .map { gradleManagedDeviceConfig ->
+            tasks.register("jacocoTest${gradleManagedDeviceConfig.taskPrefix}AndroidTestReport", JacocoReport::class) {
+                dependsOn(
+                    subprojects.flatMap {
+                        it.getTasksByName("${gradleManagedDeviceConfig.taskPrefix}Check", false)
+                    },
+                )
+
+                classDirectories.setFrom(
+                    subprojects
+                        .map {
+                            fileTree(it.layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
+                                exclude(coverageExclusions)
+                            }
+                        },
+                )
+                sourceDirectories.setFrom(sourceDirectoryFiles)
+                executionData.setFrom(
+                    subprojects
+                        .map {
+                            fileTree(it.layout.buildDirectory) {
+                                include(
+                                    "intermediates/managed_device_code_coverage/**/coverage.ec",
+                                )
+                            }
+                        },
+                )
+
+                reports {
+                    html.required.set(true)
+                    xml.required.set(true)
+                }
+            }
+        }
 
     tasks.register("jacocoTestReport") {
-        dependsOn(variantJacocoTestReports)
+        dependsOn(variantJacocoTestUnitTestReports)
     }
 }
 
@@ -115,6 +152,7 @@ fun Project.configureJacoco(
 
     commonExtension.buildTypes.configureEach {
         enableUnitTestCoverage = true
+        enableAndroidTestCoverage = true
     }
 
     tasks.withType<Test>().configureEach {

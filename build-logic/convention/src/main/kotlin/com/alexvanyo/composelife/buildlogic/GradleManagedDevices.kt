@@ -93,20 +93,24 @@ enum class FormFactor {
     Mobile, Wear
 }
 
+fun getGradleManagedDeviceConfig(
+    formFactors: Set<FormFactor>,
+): Set<GradleManagedDeviceConfig> = formFactors
+    .map { formFactor ->
+        when (formFactor) {
+            FormFactor.Mobile -> mobileDevices
+            FormFactor.Wear -> wearDevices
+        }
+    }
+    .flatten()
+    .toSet()
+
 @JvmName("configureGradleManagedDevicesFormFactors")
 fun configureGradleManagedDevices(
     formFactors: Set<FormFactor>,
     commonExtension: CommonExtension<*, *, *, *, *, *>,
 ) = configureGradleManagedDevices(
-    devices = formFactors
-        .map { formFactor ->
-            when (formFactor) {
-                FormFactor.Mobile -> mobileDevices
-                FormFactor.Wear -> wearDevices
-            }
-        }
-        .flatten()
-        .toSet(),
+    devices = getGradleManagedDeviceConfig(formFactors),
     commonExtension = commonExtension,
 )
 
