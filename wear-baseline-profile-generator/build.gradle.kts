@@ -40,7 +40,7 @@ android {
         minSdk = 28
     }
     targetProjectPath = ":wear"
-    configureGradleManagedDevices(setOf(wearwearoslargeroundapi28), this)
+    configureGradleManagedDevices(setOf(wearwearoslargeroundapi28), this, false)
 }
 
 kotlin {
