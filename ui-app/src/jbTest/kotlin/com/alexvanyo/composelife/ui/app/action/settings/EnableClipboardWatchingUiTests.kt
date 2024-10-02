@@ -29,7 +29,7 @@ import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
-import com.alexvanyo.composelife.ui.app.resources.ClipboardWatchingOnboardingCompleted
+import com.alexvanyo.composelife.ui.app.resources.EnableClipboardWatching
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import org.junit.runner.RunWith
 import kotlin.test.Test
@@ -38,85 +38,85 @@ import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class ClipboardWatchingOnboardingCompletedUiTests {
+class EnableClipboardWatchingUiTests {
 
     @Test
-    fun not_completed_is_displayed_correctly() = runComposeUiTest {
+    fun disabled_is_displayed_correctly() = runComposeUiTest {
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            ClipboardWatchingOnboardingCompletedUi(
-                completedClipboardWatchingOnboarding = false,
-                setCompletedClipboardWatchingOnboarding = {},
+            EnableClipboardWatchingUi(
+                enableClipboardWatching = false,
+                setEnableClipboardWatching = {},
             )
         }
 
-        onNodeWithContentDescription(resolver(Strings.ClipboardWatchingOnboardingCompleted))
+        onNodeWithContentDescription(resolver(Strings.EnableClipboardWatching))
             .assertExists()
             .assertIsOff()
             .assertHasClickAction()
     }
 
     @Test
-    fun not_completed_will_update_correctly() = runComposeUiTest {
-        var completedClipboardWatchingOnboarding by mutableStateOf(false)
+    fun disabled_will_update_correctly() = runComposeUiTest {
+        var enableClipboardWatching by mutableStateOf(false)
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            ClipboardWatchingOnboardingCompletedUi(
-                completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
-                setCompletedClipboardWatchingOnboarding = {
-                    completedClipboardWatchingOnboarding = it
+            EnableClipboardWatchingUi(
+                enableClipboardWatching = enableClipboardWatching,
+                setEnableClipboardWatching = {
+                    enableClipboardWatching = it
                 },
             )
         }
 
-        onNodeWithContentDescription(resolver(Strings.ClipboardWatchingOnboardingCompleted))
+        onNodeWithContentDescription(resolver(Strings.EnableClipboardWatching))
             .performClick()
 
-        assertTrue(completedClipboardWatchingOnboarding)
+        assertTrue(enableClipboardWatching)
     }
 
     @Test
-    fun completed_is_displayed_correctly() = runComposeUiTest {
+    fun enable_is_displayed_correctly() = runComposeUiTest {
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            ClipboardWatchingOnboardingCompletedUi(
-                completedClipboardWatchingOnboarding = true,
-                setCompletedClipboardWatchingOnboarding = {},
+            EnableClipboardWatchingUi(
+                enableClipboardWatching = true,
+                setEnableClipboardWatching = {},
             )
         }
 
-        onNodeWithContentDescription(resolver(Strings.ClipboardWatchingOnboardingCompleted))
+        onNodeWithContentDescription(resolver(Strings.EnableClipboardWatching))
             .assertExists()
             .assertIsOn()
             .assertHasClickAction()
     }
 
     @Test
-    fun completed_will_update_correctly() = runComposeUiTest {
-        var completedClipboardWatchingOnboarding by mutableStateOf(true)
+    fun enable_will_update_correctly() = runComposeUiTest {
+        var enableClipboardWatching by mutableStateOf(true)
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            ClipboardWatchingOnboardingCompletedUi(
-                completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
-                setCompletedClipboardWatchingOnboarding = {
-                    completedClipboardWatchingOnboarding = it
+            EnableClipboardWatchingUi(
+                enableClipboardWatching = enableClipboardWatching,
+                setEnableClipboardWatching = {
+                    enableClipboardWatching = it
                 },
             )
         }
 
-        onNodeWithContentDescription(resolver(Strings.ClipboardWatchingOnboardingCompleted))
+        onNodeWithContentDescription(resolver(Strings.EnableClipboardWatching))
             .performClick()
 
-        assertFalse(completedClipboardWatchingOnboarding)
+        assertFalse(enableClipboardWatching)
     }
 }
