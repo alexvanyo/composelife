@@ -37,7 +37,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.alexvanyo.composelife.ui.util.ColorComponent
 import com.alexvanyo.composelife.ui.util.get
@@ -64,7 +64,7 @@ fun WatchFaceColorPicker(
             .background(color)
             .padding(12.dp)
             .background(
-                MaterialTheme.colors.background,
+                MaterialTheme.colorScheme.background,
                 if (LocalConfiguration.current.isScreenRound) CircleShape else RectangleShape,
             )
             .clip(
