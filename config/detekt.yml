@@ -151,6 +151,8 @@ style:
       - 'org.junit.jupiter.params.*'
       # Disallow android.util.Log in favor of Kermit
       - 'android.util.Log'
+      # Disallow Wear Material 2 imports
+      - 'androidx.wear.compose.material.*'
   MaxLineLength:
     excludes: [ '**/generated/**' ]
   MagicNumber:

@@ -32,12 +32,11 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
-import androidx.wear.compose.material.Chip
-import androidx.wear.compose.material.ChipDefaults
-import androidx.wear.compose.material.CircularProgressIndicator
-import androidx.wear.compose.material.Switch
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.ToggleChip
+import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.CircularProgressIndicator
+import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.SwitchButton
+import androidx.wear.compose.material3.Text
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resources.wear.R as resourcesWearR
 
@@ -49,73 +48,71 @@ fun WatchFaceConfigList(
     scalingLazyListState: ScalingLazyListState,
     modifier: Modifier = Modifier,
 ) {
-    ScalingLazyColumn(
-        modifier = modifier,
-        state = scalingLazyListState,
-        autoCentering = AutoCenteringParams(itemIndex = 0),
+    ScreenScaffold(
+        scrollState = scalingLazyListState,
     ) {
-        item {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                when (val currentPreview = state.preview) {
-                    is ResourceState.Failure, ResourceState.Loading -> {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .fillMaxWidth(0.8f)
-                                .aspectRatio(1f)
-                                .fillMaxHeight(),
-                        ) {
-                            CircularProgressIndicator()
+        ScalingLazyColumn(
+            modifier = modifier,
+            state = scalingLazyListState,
+            autoCentering = AutoCenteringParams(itemIndex = 0),
+        ) {
+            item {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    when (val currentPreview = state.preview) {
+                        is ResourceState.Failure, ResourceState.Loading -> {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth(0.8f)
+                                    .aspectRatio(1f)
+                                    .fillMaxHeight(),
+                            ) {
+                                CircularProgressIndicator()
+                            }
                         }
-                    }
-                    is ResourceState.Success -> {
-                        WatchFacePreview(
-                            previewImageBitmap = currentPreview.value,
-                            onComplicationClicked = { id ->
-                                state.openComplicationDataSourceChooser(id)
-                            },
-                            modifier = Modifier.fillMaxWidth(0.8f),
-                        )
+                        is ResourceState.Success -> {
+                            WatchFacePreview(
+                                previewImageBitmap = currentPreview.value,
+                                onComplicationClicked = { id ->
+                                    state.openComplicationDataSourceChooser(id)
+                                },
+                                modifier = Modifier.fillMaxWidth(0.8f),
+                            )
+                        }
                     }
                 }
             }
-        }
-        item {
-            Chip(
-                label = {
-                    Text(text = stringResource(id = resourcesWearR.string.color))
-                },
-                icon = {
-                    Spacer(
-                        modifier = Modifier
-                            .size(16.dp)
-                            .background(state.color, CircleShape),
-                    )
-                },
-                colors = ChipDefaults.secondaryChipColors(),
-                onClick = onEditColorClicked,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-        item {
-            ToggleChip(
-                checked = state.showComplicationsInAmbient,
-                onCheckedChange = {
-                    state.showComplicationsInAmbient = it
-                },
-                label = {
-                    Text(text = stringResource(id = resourcesWearR.string.show_complications_in_ambient))
-                },
-                toggleControl = {
-                    Switch(
-                        checked = state.showComplicationsInAmbient,
-                    )
-                },
-                modifier = Modifier.fillMaxWidth(),
-            )
+            item {
+                Button(
+                    label = {
+                        Text(text = stringResource(id = resourcesWearR.string.color))
+                    },
+                    icon = {
+                        Spacer(
+                            modifier = Modifier
+                                .size(16.dp)
+                                .background(state.color, CircleShape),
+                        )
+                    },
+                    onClick = onEditColorClicked,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+            item {
+                SwitchButton(
+                    checked = state.showComplicationsInAmbient,
+                    onCheckedChange = {
+                        state.showComplicationsInAmbient = it
+                    },
+                    label = {
+                        Text(text = stringResource(id = resourcesWearR.string.show_complications_in_ambient))
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
         }
     }
 }
