@@ -30,7 +30,7 @@ androidxLintGradle = "1.0.0-alpha02"
 #androidxPoolingContainer
 androidxPoolingContainer = "1.0.0"
 #androidxProfileInstaller
-androidxProfileInstaller = "1.4.0"
+androidxProfileInstaller = "1.4.1"
 #androidxTestCore
 androidxTestCore = "1.6.1"
 #androidxTestEspresso
