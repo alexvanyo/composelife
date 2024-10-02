@@ -62,11 +62,14 @@ fun InlineSpeedPane(
     generationsPerStep: Int,
     setGenerationsPerStep: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState(),
+    scrollState: ScrollState = rememberScrollState(initial = Int.MAX_VALUE),
 ) {
     Column(
         modifier = modifier
-            .verticalScroll(scrollState)
+            .verticalScroll(
+                state = scrollState,
+                reverseScrolling = true,
+            )
             .padding(vertical = 8.dp),
     ) {
         TargetStepsPerSecondControl(

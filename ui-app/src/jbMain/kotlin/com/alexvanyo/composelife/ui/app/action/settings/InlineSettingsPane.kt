@@ -69,12 +69,15 @@ fun InlineSettingsPane(
     onSeeMoreClicked: () -> Unit,
     onOpenInSettingsClicked: (Setting) -> Unit,
     modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState(),
+    scrollState: ScrollState = rememberScrollState(initial = Int.MAX_VALUE),
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .verticalScroll(scrollState)
+            .verticalScroll(
+                state = scrollState,
+                reverseScrolling = true,
+            )
             .padding(vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
