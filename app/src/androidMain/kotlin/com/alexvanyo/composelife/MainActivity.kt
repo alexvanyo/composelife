@@ -22,8 +22,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -83,8 +82,7 @@ class MainActivity : AppCompatActivity(), UiComponentOwner {
                     }
 
                     ComposeLifeTheme(darkTheme) {
-                        @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-                        ComposeLifeApp(calculateWindowSizeClass())
+                        ComposeLifeApp(currentWindowAdaptiveInfo().windowSizeClass)
                     }
                 }
             }

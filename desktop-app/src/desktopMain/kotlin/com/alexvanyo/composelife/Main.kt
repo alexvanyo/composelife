@@ -16,8 +16,7 @@
 
 package com.alexvanyo.composelife
 
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.window.Window
@@ -59,8 +58,7 @@ fun main() = application {
 
             with(mainInjectEntryPoint) {
                 ComposeLifeTheme(shouldUseDarkTheme()) {
-                    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-                    ComposeLifeApp(calculateWindowSizeClass())
+                    ComposeLifeApp(currentWindowAdaptiveInfo().windowSizeClass)
                 }
             }
         }

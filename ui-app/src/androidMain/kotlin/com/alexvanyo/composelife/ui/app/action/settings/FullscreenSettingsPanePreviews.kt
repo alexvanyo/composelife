@@ -21,20 +21,19 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
+import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
+import androidx.window.core.layout.computeWindowSizeClass
 import com.alexvanyo.composelife.ui.app.ComposeLifeNavigation
 import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class)
 @MobileDevicePreviews
 @Composable
 fun FullscreenSettingsPaneListPreview(modifier: Modifier = Modifier) {
@@ -42,7 +41,10 @@ fun FullscreenSettingsPaneListPreview(modifier: Modifier = Modifier) {
         ComposeLifeTheme {
             BoxWithConstraints(modifier) {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
-                val windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current)
+                val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                    widthDp = size.width,
+                    heightDp = size.height,
+                )
 
                 val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                     nav = ComposeLifeNavigation.FullscreenSettingsList(
@@ -75,7 +77,7 @@ fun FullscreenSettingsPaneListPreview(modifier: Modifier = Modifier) {
     }
 }
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class)
 @MobileDevicePreviews
 @Composable
 fun FullscreenSettingsPaneAlgorithmPreview(modifier: Modifier = Modifier) {
@@ -83,7 +85,10 @@ fun FullscreenSettingsPaneAlgorithmPreview(modifier: Modifier = Modifier) {
         ComposeLifeTheme {
             BoxWithConstraints(modifier) {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
-                val windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current)
+                val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                    widthDp = size.width,
+                    heightDp = size.height,
+                )
 
                 val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                     nav = ComposeLifeNavigation.FullscreenSettingsList(
@@ -116,7 +121,7 @@ fun FullscreenSettingsPaneAlgorithmPreview(modifier: Modifier = Modifier) {
     }
 }
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class)
 @MobileDevicePreviews
 @Composable
 fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) {
@@ -124,7 +129,10 @@ fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) {
         ComposeLifeTheme {
             BoxWithConstraints(modifier) {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
-                val windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current)
+                val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                    widthDp = size.width,
+                    heightDp = size.height,
+                )
 
                 val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                     nav = ComposeLifeNavigation.FullscreenSettingsList(
@@ -157,7 +165,7 @@ fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) {
     }
 }
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class)
 @MobileDevicePreviews
 @Composable
 fun FullscreenSettingsPaneFeatureFlagsPreview(modifier: Modifier = Modifier) {
@@ -165,7 +173,10 @@ fun FullscreenSettingsPaneFeatureFlagsPreview(modifier: Modifier = Modifier) {
         ComposeLifeTheme {
             BoxWithConstraints(modifier) {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
-                val windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current)
+                val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                    widthDp = size.width,
+                    heightDp = size.height,
+                )
 
                 val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                     nav = ComposeLifeNavigation.FullscreenSettingsList(

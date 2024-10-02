@@ -17,9 +17,6 @@
 package com.alexvanyo.composelife
 
 import android.app.Activity
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsSelected
@@ -35,6 +32,9 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Density
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
+import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
+import androidx.window.core.layout.computeWindowSizeClass
 import androidx.window.layout.WindowMetricsCalculator
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.preferences.AlgorithmType
@@ -51,7 +51,6 @@ import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationComponent, MainActivity>(
     { TestComposeLifeApplicationComponent.createComponent() },
@@ -88,13 +87,18 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
     fun can_change_theme_to_dark_mode() = runAppTest(testDispatcher) {
         val windowSizeClass =
             composeTestRule.activityRule.scenario.withActivity {
-                WindowSizeClass.calculateFromSize(
+                val dpSize = with(Density(this)) {
                     WindowMetricsCalculator.getOrCreate()
-                        .computeCurrentWindowMetrics(this)
+                        .computeCurrentWindowMetrics(this@withActivity)
                         .bounds
                         .toComposeRect()
-                        .size,
-                    Density(this),
+                        .size
+                        .toDpSize()
+                }
+
+                BREAKPOINTS_V1.computeWindowSizeClass(
+                    widthDp = dpSize.width.value,
+                    heightDp = dpSize.height.value,
                 )
             }
 
@@ -136,12 +140,10 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
 
         assertEquals(ResourceState.Success(DarkThemeConfig.Dark), preferences.darkThemeConfigState)
 
-        when (windowSizeClass.widthSizeClass) {
-            WindowWidthSizeClass.Compact -> {
-                composeTestRule
-                    .onNodeWithContentDescription(context.getString(R.string.back))
-                    .performClick()
-            }
+        if (!windowSizeClass.containsWidthDp(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+            composeTestRule
+                .onNodeWithContentDescription(context.getString(R.string.back))
+                .performClick()
         }
 
         composeTestRule
@@ -173,13 +175,18 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
     fun can_save_theme_to_quick_access() = runAppTest(testDispatcher) {
         val windowSizeClass =
             composeTestRule.activityRule.scenario.withActivity {
-                WindowSizeClass.calculateFromSize(
+                val dpSize = with(Density(this)) {
                     WindowMetricsCalculator.getOrCreate()
-                        .computeCurrentWindowMetrics(this)
+                        .computeCurrentWindowMetrics(this@withActivity)
                         .bounds
                         .toComposeRect()
-                        .size,
-                    Density(this),
+                        .size
+                        .toDpSize()
+                }
+
+                BREAKPOINTS_V1.computeWindowSizeClass(
+                    widthDp = dpSize.width.value,
+                    heightDp = dpSize.height.value,
                 )
             }
 
@@ -219,12 +226,10 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
             preferences.quickAccessSettingsState,
         )
 
-        when (windowSizeClass.widthSizeClass) {
-            WindowWidthSizeClass.Compact -> {
-                composeTestRule
-                    .onNodeWithContentDescription(context.getString(R.string.back))
-                    .performClick()
-            }
+        if (!windowSizeClass.containsWidthDp(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+            composeTestRule
+                .onNodeWithContentDescription(context.getString(R.string.back))
+                .performClick()
         }
 
         composeTestRule
@@ -265,12 +270,10 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
             )
             .assertDoesNotExist()
 
-        when (windowSizeClass.widthSizeClass) {
-            WindowWidthSizeClass.Compact -> {
-                composeTestRule
-                    .onNodeWithContentDescription(context.getString(R.string.back))
-                    .performClick()
-            }
+        if (!windowSizeClass.containsWidthDp(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+            composeTestRule
+                .onNodeWithContentDescription(context.getString(R.string.back))
+                .performClick()
         }
 
         composeTestRule
@@ -302,13 +305,18 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
     fun can_change_algorithm_implementation_to_naive() = runAppTest(testDispatcher) {
         val windowSizeClass =
             composeTestRule.activityRule.scenario.withActivity {
-                WindowSizeClass.calculateFromSize(
+                val dpSize = with(Density(this)) {
                     WindowMetricsCalculator.getOrCreate()
-                        .computeCurrentWindowMetrics(this)
+                        .computeCurrentWindowMetrics(this@withActivity)
                         .bounds
                         .toComposeRect()
-                        .size,
-                    Density(this),
+                        .size
+                        .toDpSize()
+                }
+
+                BREAKPOINTS_V1.computeWindowSizeClass(
+                    widthDp = dpSize.width.value,
+                    heightDp = dpSize.height.value,
                 )
             }
 
@@ -350,11 +358,9 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
 
         assertEquals(ResourceState.Success(AlgorithmType.NaiveAlgorithm), preferences.algorithmChoiceState)
 
-        when (windowSizeClass.widthSizeClass) {
-            WindowWidthSizeClass.Compact -> {
-                Espresso.pressBack()
-                composeTestRule.waitForIdle()
-            }
+        if (!windowSizeClass.containsWidthDp(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+            Espresso.pressBack()
+            composeTestRule.waitForIdle()
         }
 
         Espresso.pressBack()

@@ -17,13 +17,12 @@
 package com.alexvanyo.composelife.ui.app
 
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
+import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
+import androidx.window.core.layout.computeWindowSizeClass
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
@@ -31,7 +30,6 @@ import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import kotlin.random.Random
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @MobileDevicePreviews
 @Composable
 fun LoadingCellStateCellUniversePanePreview(modifier: Modifier = Modifier) {
@@ -40,7 +38,10 @@ fun LoadingCellStateCellUniversePanePreview(modifier: Modifier = Modifier) {
             BoxWithConstraints(modifier = modifier) {
                 val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 CellUniversePane(
-                    windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
+                    windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                        widthDp = size.width,
+                        heightDp = size.height,
+                    ),
                     immersiveModeManager = rememberImmersiveModeManager(),
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
@@ -51,7 +52,6 @@ fun LoadingCellStateCellUniversePanePreview(modifier: Modifier = Modifier) {
     }
 }
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @MobileDevicePreviews
 @Composable
 fun LoadedCellUniversePanePreview(modifier: Modifier = Modifier) {
@@ -66,7 +66,10 @@ fun LoadedCellUniversePanePreview(modifier: Modifier = Modifier) {
                     isRunning = false,
                 )
                 CellUniversePane(
-                    windowSizeClass = WindowSizeClass.calculateFromSize(size, LocalDensity.current),
+                    windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                        widthDp = size.width,
+                        heightDp = size.height,
+                    ),
                     immersiveModeManager = rememberImmersiveModeManager(),
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},

@@ -30,8 +30,6 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.windowInsetsTopHeight
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,6 +44,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
+import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.BottomInsets
@@ -195,7 +195,7 @@ fun InteractiveCellUniverseOverlay(
 
                 infoCardPlaceable.place(0, lerp(infoCardYOnscreen, infoCardYOffscreen, infoAnim.value))
 
-                val actionCardX = if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) {
+                val actionCardX = if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT) {
                     (constraints.maxWidth - actionCardPlaceable.width) / 2
                 } else {
                     constraints.maxWidth - actionCardPlaceable.width

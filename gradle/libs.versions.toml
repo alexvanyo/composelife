@@ -87,12 +87,12 @@ ksp = "2.1.0-Beta1-1.0.25"
 jacoco = "0.8.12"
 #jetbrainsCompose
 jetbrainsCompose = "1.7.0-beta02"
+#jetbrainsComposeMaterial3Adaptive
+jetbrainsComposeMaterial3Adaptive = "1.0.0-alpha03"
 #junit4
 junit4 = "4.13.2"
 #leakCanary
 leakCanary = "3.0-alpha-8"
-#material3WindowSizeClassMultiplatform
-material3WindowSizeClassMultiplatform = "0.5.0"
 #molecule
 molecule = "2.0.0"
 #okio
@@ -127,7 +127,6 @@ androidx-compose-animation = { group = "androidx.compose.animation", name = "ani
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom-alpha", version.ref = "androidxComposeBomAlpha" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
-material3-windowSizeClass-multiplatform = { group = "dev.chrisbanes.material3", name = "material3-window-size-class-multiplatform", version.ref = "material3WindowSizeClassMultiplatform" }
 androidx-compose-materialIconsExtended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
@@ -178,6 +177,7 @@ jetbrains-compose-animation = { group = "org.jetbrains.compose.animation", name 
 jetbrains-compose-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "jetbrainsCompose" }
 jetbrains-compose-gradlePlugin = { group = "org.jetbrains.compose", name = "compose-gradle-plugin", version.ref = "jetbrainsCompose" }
 jetbrains-compose-material3 = { group = "org.jetbrains.compose.material3", name = "material3", version.ref = "jetbrainsCompose" }
+jetbrains-compose-material3-adaptive = { group = "org.jetbrains.compose.material3.adaptive", name = "adaptive", version.ref = "jetbrainsComposeMaterial3Adaptive" }
 jetbrains-compose-materialIconsExtended = { group = "org.jetbrains.compose.material", name = "material-icons-extended", version.ref = "jetbrainsCompose" }
 jetbrains-compose-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime", version.ref = "jetbrainsCompose" }
 jetbrains-compose-runtime-saveable = { group = "org.jetbrains.compose.runtime", name = "runtime-saveable", version.ref = "jetbrainsCompose" }

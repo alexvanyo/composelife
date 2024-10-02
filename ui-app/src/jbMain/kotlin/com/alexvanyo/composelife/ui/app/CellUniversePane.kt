@@ -18,7 +18,6 @@ package com.alexvanyo.composelife.ui.app
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.window.core.layout.WindowSizeClass
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.clock.di.ClockProvider
 import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider

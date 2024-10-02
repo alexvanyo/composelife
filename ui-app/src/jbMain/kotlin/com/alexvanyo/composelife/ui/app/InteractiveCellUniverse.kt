@@ -20,7 +20,6 @@ package com.alexvanyo.composelife.ui.app
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -43,6 +42,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.round
+import androidx.window.core.layout.WindowSizeClass
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
