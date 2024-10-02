@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.app.action
+package com.alexvanyo.composelife.ui.app.action.settings
 
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -43,11 +43,6 @@ import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
-import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPane
-import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.Setting
-import com.alexvanyo.composelife.ui.app.action.settings._name
 import com.alexvanyo.composelife.ui.app.createComponent
 import com.alexvanyo.composelife.ui.app.resources.DisableOpenGL
 import com.alexvanyo.composelife.ui.app.resources.OpenInSettings
