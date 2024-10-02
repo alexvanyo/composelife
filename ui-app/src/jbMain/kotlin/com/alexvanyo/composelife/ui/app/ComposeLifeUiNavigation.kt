@@ -16,14 +16,14 @@
 
 package com.alexvanyo.composelife.ui.app
 
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackState
@@ -44,10 +44,10 @@ sealed interface ComposeLifeUiNavigation {
         private val isDetailPresent: Boolean,
     ) : ComposeLifeUiNavigation, ListEntry {
         override val isDetailVisible: Boolean
-            get() = isDetailPresent || windowSizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
+            get() = isDetailPresent || windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT
 
         override val isListVisible: Boolean
-            get() = !isDetailPresent || windowSizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
+            get() = !isDetailPresent || windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT
     }
 
     class FullscreenSettingsDetail(

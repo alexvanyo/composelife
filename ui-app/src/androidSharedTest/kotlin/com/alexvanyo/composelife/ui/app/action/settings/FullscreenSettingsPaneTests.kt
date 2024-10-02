@@ -17,8 +17,6 @@
 package com.alexvanyo.composelife.ui.app.action.settings
 
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -43,9 +41,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toSize
+import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
+import androidx.window.core.layout.computeWindowSizeClass
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
@@ -71,7 +69,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 @Suppress("LargeClass")
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
     TestComposeLifeApplicationComponent::createComponent,
@@ -100,10 +98,12 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                 DeviceConfigurationOverride.ForcedSize(DpSize(500.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(
-                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
-                        LocalDensity.current,
-                    )
+                    val windowSizeClass = with(LocalDensity.current) {
+                        BREAKPOINTS_V1.computeWindowSizeClass(
+                            widthDp = constraints.maxWidth.toDp().value,
+                            heightDp = constraints.maxHeight.toDp().value,
+                        )
+                    }
                     val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                         nav = ComposeLifeNavigation.FullscreenSettingsList(
                             initialSettingsCategory = SettingsCategory.Algorithm,
@@ -181,10 +181,12 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                 DeviceConfigurationOverride.ForcedSize(DpSize(700.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(
-                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
-                        LocalDensity.current,
-                    )
+                    val windowSizeClass = with(LocalDensity.current) {
+                        BREAKPOINTS_V1.computeWindowSizeClass(
+                            widthDp = constraints.maxWidth.toDp().value,
+                            heightDp = constraints.maxHeight.toDp().value,
+                        )
+                    }
                     val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                         nav = ComposeLifeNavigation.FullscreenSettingsList(
                             initialSettingsCategory = SettingsCategory.Algorithm,
@@ -266,10 +268,12 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                 DeviceConfigurationOverride.ForcedSize(DpSize(500.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(
-                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
-                        LocalDensity.current,
-                    )
+                    val windowSizeClass = with(LocalDensity.current) {
+                        BREAKPOINTS_V1.computeWindowSizeClass(
+                            widthDp = constraints.maxWidth.toDp().value,
+                            heightDp = constraints.maxHeight.toDp().value,
+                        )
+                    }
                     val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                         nav = ComposeLifeNavigation.FullscreenSettingsList(
                             initialSettingsCategory = SettingsCategory.Algorithm,
@@ -335,10 +339,12 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                 DeviceConfigurationOverride.ForcedSize(DpSize(700.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(
-                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
-                        LocalDensity.current,
-                    )
+                    val windowSizeClass = with(LocalDensity.current) {
+                        BREAKPOINTS_V1.computeWindowSizeClass(
+                            widthDp = constraints.maxWidth.toDp().value,
+                            heightDp = constraints.maxHeight.toDp().value,
+                        )
+                    }
                     val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                         nav = ComposeLifeNavigation.FullscreenSettingsList(
                             initialSettingsCategory = SettingsCategory.Algorithm,
@@ -417,10 +423,12 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                 DeviceConfigurationOverride.ForcedSize(DpSize(500.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(
-                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
-                        LocalDensity.current,
-                    )
+                    val windowSizeClass = with(LocalDensity.current) {
+                        BREAKPOINTS_V1.computeWindowSizeClass(
+                            widthDp = constraints.maxWidth.toDp().value,
+                            heightDp = constraints.maxHeight.toDp().value,
+                        )
+                    }
                     val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                         nav = listNavValue,
                         windowSizeClass = windowSizeClass,
@@ -486,10 +494,12 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                 DeviceConfigurationOverride.ForcedSize(DpSize(700.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(
-                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
-                        LocalDensity.current,
-                    )
+                    val windowSizeClass = with(LocalDensity.current) {
+                        BREAKPOINTS_V1.computeWindowSizeClass(
+                            widthDp = constraints.maxWidth.toDp().value,
+                            heightDp = constraints.maxHeight.toDp().value,
+                        )
+                    }
                     val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                         nav = listNavValue,
                         windowSizeClass = windowSizeClass,
@@ -562,10 +572,12 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                 DeviceConfigurationOverride.ForcedSize(DpSize(300.dp, 300.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(
-                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
-                        LocalDensity.current,
-                    )
+                    val windowSizeClass = with(LocalDensity.current) {
+                        BREAKPOINTS_V1.computeWindowSizeClass(
+                            widthDp = constraints.maxWidth.toDp().value,
+                            heightDp = constraints.maxHeight.toDp().value,
+                        )
+                    }
                     val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                         nav = ComposeLifeNavigation.FullscreenSettingsList(
                             initialSettingsCategory = SettingsCategory.Visual,
@@ -632,10 +644,12 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                 DeviceConfigurationOverride.ForcedSize(DpSize(300.dp, 300.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(
-                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
-                        LocalDensity.current,
-                    )
+                    val windowSizeClass = with(LocalDensity.current) {
+                        BREAKPOINTS_V1.computeWindowSizeClass(
+                            widthDp = constraints.maxWidth.toDp().value,
+                            heightDp = constraints.maxHeight.toDp().value,
+                        )
+                    }
                     val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                         nav = ComposeLifeNavigation.FullscreenSettingsList(
                             initialSettingsCategory = SettingsCategory.Visual,
@@ -705,10 +719,12 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                 DeviceConfigurationOverride.ForcedSize(size),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(
-                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
-                        LocalDensity.current,
-                    )
+                    val windowSizeClass = with(LocalDensity.current) {
+                        BREAKPOINTS_V1.computeWindowSizeClass(
+                            widthDp = constraints.maxWidth.toDp().value,
+                            heightDp = constraints.maxHeight.toDp().value,
+                        )
+                    }
                     val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                         nav = listNavValue,
                         windowSizeClass = windowSizeClass,
@@ -772,10 +788,12 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
                 DeviceConfigurationOverride.ForcedSize(size),
             ) {
                 BoxWithConstraints {
-                    val windowSizeClass = WindowSizeClass.calculateFromSize(
-                        IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
-                        LocalDensity.current,
-                    )
+                    val windowSizeClass = with(LocalDensity.current) {
+                        BREAKPOINTS_V1.computeWindowSizeClass(
+                            widthDp = constraints.maxWidth.toDp().value,
+                            heightDp = constraints.maxHeight.toDp().value,
+                        )
+                    }
                     val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                         nav = listNavValue,
                         windowSizeClass = windowSizeClass,

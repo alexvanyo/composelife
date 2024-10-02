@@ -17,8 +17,7 @@
 package com.alexvanyo.composelife.ui.app
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -87,7 +86,7 @@ import kotlin.test.assertNotNull
 import com.alexvanyo.composelife.ui.cells.resources.Strings as CellsStrings
 
 @Suppress("LargeClass")
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalTestApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
     TestComposeLifeApplicationComponent::createComponent,
@@ -134,7 +133,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
                         immersiveModeManager = rememberImmersiveModeManager(),
-                        windowSizeClass = calculateWindowSizeClass(),
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -187,7 +186,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
                         immersiveModeManager = rememberImmersiveModeManager(),
-                        windowSizeClass = calculateWindowSizeClass(),
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -239,7 +238,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
                         immersiveModeManager = rememberImmersiveModeManager(),
-                        windowSizeClass = calculateWindowSizeClass(),
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -303,7 +302,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
                         immersiveModeManager = rememberImmersiveModeManager(),
-                        windowSizeClass = calculateWindowSizeClass(),
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -371,7 +370,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
                         immersiveModeManager = rememberImmersiveModeManager(),
-                        windowSizeClass = calculateWindowSizeClass(),
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -450,7 +449,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
                         immersiveModeManager = rememberImmersiveModeManager(),
-                        windowSizeClass = calculateWindowSizeClass(),
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -510,7 +509,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
                         immersiveModeManager = rememberImmersiveModeManager(),
-                        windowSizeClass = calculateWindowSizeClass(),
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -585,7 +584,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
                         immersiveModeManager = rememberImmersiveModeManager(),
-                        windowSizeClass = calculateWindowSizeClass(),
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -672,7 +671,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
                         immersiveModeManager = immersiveModeManager,
-                        windowSizeClass = calculateWindowSizeClass(),
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -765,7 +764,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
                         immersiveModeManager = rememberImmersiveModeManager(),
-                        windowSizeClass = calculateWindowSizeClass(),
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
@@ -845,7 +844,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                     InteractiveCellUniverse(
                         temporalGameOfLifeState = temporalGameOfLifeState,
                         immersiveModeManager = immersiveModeManager,
-                        windowSizeClass = calculateWindowSizeClass(),
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         modifier = Modifier.fillMaxSize(),
