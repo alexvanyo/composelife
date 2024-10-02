@@ -22,12 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
-import androidx.wear.compose.material.PositionIndicator
-import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.canNavigateBack
-import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.navigate
 import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
@@ -57,38 +54,27 @@ fun WatchFaceConfigPane(
         navigationController.popBackstack()
     }
 
-    Scaffold(
-        positionIndicator = when (val value = navigationController.currentEntry.value) {
-            is WatchFaceConfigNavigation.List -> {
-                {
-                    PositionIndicator(value.scalingLazyListState)
-                }
-            }
-            WatchFaceConfigNavigation.ColorPicker -> null
-        },
+    WearNavigationHost(
+        navigationController = navigationController,
         modifier = modifier,
-    ) {
-        WearNavigationHost(
-            navigationController = navigationController,
-        ) { entry ->
-            when (val value = entry.value) {
-                is WatchFaceConfigNavigation.List -> {
-                    WatchFaceConfigList(
-                        state = state,
-                        onEditColorClicked = {
-                            navigationController.withExpectedActor(entry.id) {
-                                navigate(WatchFaceConfigNavigation.ColorPicker)
-                            }
-                        },
-                        scalingLazyListState = value.scalingLazyListState,
-                    )
-                }
-                WatchFaceConfigNavigation.ColorPicker -> {
-                    WatchFaceColorPicker(
-                        color = state.color,
-                        setColor = { state.color = it },
-                    )
-                }
+    ) { entry ->
+        when (val value = entry.value) {
+            is WatchFaceConfigNavigation.List -> {
+                WatchFaceConfigList(
+                    state = state,
+                    onEditColorClicked = {
+                        navigationController.withExpectedActor(entry.id) {
+                            navigate(WatchFaceConfigNavigation.ColorPicker)
+                        }
+                    },
+                    scalingLazyListState = value.scalingLazyListState,
+                )
+            }
+            WatchFaceConfigNavigation.ColorPicker -> {
+                WatchFaceColorPicker(
+                    color = state.color,
+                    setColor = { state.color = it },
+                )
             }
         }
     }
