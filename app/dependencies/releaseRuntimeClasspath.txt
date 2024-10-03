@@ -90,7 +90,7 @@ androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.9.0-alpha04
 androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.0-alpha04
 androidx.lifecycle:lifecycle-viewmodel:2.9.0-alpha04
 androidx.loader:loader:1.0.0
-androidx.profileinstaller:profileinstaller:1.4.0
+androidx.profileinstaller:profileinstaller:1.4.1
 androidx.resourceinspection:resourceinspection-annotation:1.0.1
 androidx.savedstate:savedstate-android:1.3.0-alpha02
 androidx.savedstate:savedstate-ktx:1.3.0-alpha02
