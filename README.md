@@ -33,7 +33,7 @@ These include:
 ## Setup
 
 Requirements:
-- Android Studio Koala Feature Drop 2024.1.2
+- Android Studio Ladybug 2024.2.1
 - JDK 21+
 
 Clone the project, and build! (no API keys or other setup necessary)
