@@ -20,7 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.DragAndDropSourceScope
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -54,6 +54,7 @@ import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.di.CellStateParserProvider
+import com.alexvanyo.composelife.model.parseCellState
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.Picture
 import org.jetbrains.skia.PictureRecorder
@@ -63,8 +64,8 @@ import java.awt.datatransfer.StringSelection
 @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 actual fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): Modifier =
     dragAndDropSource {
-        detectTapGestures(
-            onLongPress = {
+        detectDragGestures(
+            onDragStart = { offset ->
                 startTransfer(
                     DragAndDropTransferData(
                         transferable = DragAndDropTransferable(
@@ -73,10 +74,16 @@ actual fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): M
                                     .joinToString("\n"),
                             ),
                         ),
-                        supportedActions = listOf(DragAndDropTransferAction.Copy),
+                        supportedActions = listOf(
+                            DragAndDropTransferAction.Copy,
+                            DragAndDropTransferAction.Move,
+                            DragAndDropTransferAction.Link
+                        ),
+                        dragDecorationOffset = offset,
                     ),
                 )
             },
+            onDrag = { _, _ -> }
         )
     }
 
@@ -226,18 +233,25 @@ actual fun Modifier.cellStateDragAndDropTarget(
     val target = remember(cellStateParser, coroutineScope) {
         object : DragAndDropTarget {
             override fun onDrop(event: DragAndDropEvent): Boolean {
-                coroutineScope.launch {
-                    when (
-                        val deserializationResult = cellStateParser.parseCellState(event)
-                    ) {
-                        is DeserializationResult.Successful -> {
-                            setSelectionToCellState(deserializationResult.cellState)
-                        }
-                        is DeserializationResult.Unsuccessful -> {
-                            // TODO: Show error for unsuccessful drag and drop
+                when (val dragData = event.dragData()) {
+                    is DragData.Text -> {
+                        val text = dragData.readText()
+                        coroutineScope.launch {
+                            when (
+                                val deserializationResult = cellStateParser.parseCellState(text)
+                            ) {
+                                is DeserializationResult.Successful -> {
+                                    setSelectionToCellState(deserializationResult.cellState)
+                                }
+                                is DeserializationResult.Unsuccessful -> {
+                                    // TODO: Show error for unsuccessful drag and drop
+                                }
+                            }
                         }
                     }
+                    else -> Unit
                 }
+
                 return true
             }
         }
