@@ -39,7 +39,6 @@ import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
 actual fun Modifier.cellStateDragAndDropSource(
     getCellState: () -> CellState,
 ): Modifier =
@@ -66,7 +65,6 @@ actual fun Modifier.cellStateDragAndDropSource(
     }
 
 context(CellStateParserProvider)
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Suppress("ComposeComposableModifier")
 actual fun Modifier.cellStateDragAndDropTarget(
