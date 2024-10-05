@@ -77,13 +77,13 @@ actual fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): M
                         supportedActions = listOf(
                             DragAndDropTransferAction.Copy,
                             DragAndDropTransferAction.Move,
-                            DragAndDropTransferAction.Link
+                            DragAndDropTransferAction.Link,
                         ),
                         dragDecorationOffset = offset,
                     ),
                 )
             },
-            onDrag = { _, _ -> }
+            onDrag = { _, _ -> },
         )
     }
 
