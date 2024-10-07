@@ -41,27 +41,22 @@ import kotlinx.coroutines.launch
 actual fun Modifier.cellStateDragAndDropSource(
     getCellState: () -> CellState,
 ): Modifier =
-    dragAndDropSource {
-        detectTapGestures(
-            onLongPress = {
-                startTransfer(
-                    DragAndDropTransferData(
-                        clipData = ClipData.newPlainText(
-                            "cellState",
-                            RunLengthEncodedCellStateSerializer.serializeToString(getCellState())
-                                .joinToString("\n"),
-                        ),
-                        flags =
-                        if (Build.VERSION.SDK_INT >= 24) {
-                            View.DRAG_FLAG_GLOBAL
-                        } else {
-                            0
-                        },
-                    ),
-                )
-            },
-        )
-    }
+    dragAndDropSource(
+        transferData = {
+            DragAndDropTransferData(
+                clipData = ClipData.newPlainText(
+                    "cellState",
+                    RunLengthEncodedCellStateSerializer.serializeToString(getCellState())
+                        .joinToString("\n"),
+                ),
+                flags = if (Build.VERSION.SDK_INT >= 24) {
+                    View.DRAG_FLAG_GLOBAL
+                } else {
+                    0
+                },
+            )
+        },
+    )
 
 context(CellStateParserProvider)
 @Composable
