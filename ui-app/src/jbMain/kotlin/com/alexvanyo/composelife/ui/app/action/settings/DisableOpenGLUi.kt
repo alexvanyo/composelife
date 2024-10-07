@@ -24,9 +24,9 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.setDisableOpenGL
-import com.alexvanyo.composelife.ui.app.component.LabeledSwitch
 import com.alexvanyo.composelife.ui.app.resources.DisableOpenGL
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.mobile.component.LabeledSwitch
 import kotlinx.coroutines.launch
 
 interface DisableOpenGLUiInjectEntryPoint :

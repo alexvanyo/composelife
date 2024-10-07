@@ -17,9 +17,9 @@
 package com.alexvanyo.composelife.ui.app.action.settings
 
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
-import com.alexvanyo.composelife.ui.app.component.DropdownOption
 import com.alexvanyo.composelife.ui.app.resources.RoundRectangle
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.mobile.component.DropdownOption
 import com.livefront.sealedenum.GenSealedEnum
 
 sealed interface ShapeDropdownOption : DropdownOption {

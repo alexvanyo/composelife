@@ -29,9 +29,6 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
-import com.alexvanyo.composelife.ui.app.component.EditableSlider
-import com.alexvanyo.composelife.ui.app.component.IdentitySliderBijection
-import com.alexvanyo.composelife.ui.app.component.TextFieldDropdown
 import com.alexvanyo.composelife.ui.app.resources.CornerFractionLabel
 import com.alexvanyo.composelife.ui.app.resources.CornerFractionLabelAndValue
 import com.alexvanyo.composelife.ui.app.resources.CornerFractionValue
@@ -40,6 +37,9 @@ import com.alexvanyo.composelife.ui.app.resources.SizeFractionLabel
 import com.alexvanyo.composelife.ui.app.resources.SizeFractionLabelAndValue
 import com.alexvanyo.composelife.ui.app.resources.SizeFractionValue
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.mobile.component.EditableSlider
+import com.alexvanyo.composelife.ui.mobile.component.IdentitySliderBijection
+import com.alexvanyo.composelife.ui.mobile.component.TextFieldDropdown
 import com.alexvanyo.composelife.ui.util.nonNegativeDouble
 import kotlinx.collections.immutable.toImmutableList
 

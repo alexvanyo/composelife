@@ -15,7 +15,7 @@
  */
 @file:Suppress("MatchingDeclarationName")
 
-package com.alexvanyo.composelife.ui.app.component
+package com.alexvanyo.composelife.ui.mobile.component
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource

@@ -26,12 +26,12 @@ import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.setAlgorithmChoice
-import com.alexvanyo.composelife.ui.app.component.DropdownOption
-import com.alexvanyo.composelife.ui.app.component.TextFieldDropdown
 import com.alexvanyo.composelife.ui.app.resources.AlgorithmImplementation
 import com.alexvanyo.composelife.ui.app.resources.HashLifeAlgorithm
 import com.alexvanyo.composelife.ui.app.resources.NaiveAlgorithm
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.mobile.component.DropdownOption
+import com.alexvanyo.composelife.ui.mobile.component.TextFieldDropdown
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.app.component
+package com.alexvanyo.composelife.ui.mobile.component
 
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -139,6 +139,15 @@ fun <T : Comparable<T>> EditableSlider(
         onValueChangeFinished = onValueChangeFinished,
         colors = colors,
         labelSlot = {
+            /**
+             * True if this is the first invocation of [onFocusChanged].
+             */
+            /**
+             * True if this is the first invocation of [onFocusChanged].
+             */
+            /**
+             * True if this is the first invocation of [onFocusChanged].
+             */
             /**
              * True if this is the first invocation of [onFocusChanged].
              */

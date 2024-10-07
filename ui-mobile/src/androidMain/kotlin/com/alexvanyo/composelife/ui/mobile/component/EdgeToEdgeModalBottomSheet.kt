@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.app.component
+package com.alexvanyo.composelife.ui.mobile.component
 
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
