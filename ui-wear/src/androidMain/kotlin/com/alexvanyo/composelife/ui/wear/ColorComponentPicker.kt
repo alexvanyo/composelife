@@ -48,12 +48,12 @@ fun ColorComponentPicker(
 ) {
     val pickerState = rememberPickerState(
         initialNumberOfOptions = 256,
-        initiallySelectedOption = remember { initialComponentValue },
+        initiallySelectedIndex = remember { initialComponentValue },
     )
     val currentSetComponentValue by rememberUpdatedState(setComponentValue)
 
     LaunchedEffect(pickerState) {
-        snapshotFlow { pickerState.selectedOption }
+        snapshotFlow { pickerState.selectedOptionIndex }
             .collect {
                 currentSetComponentValue(it)
             }
