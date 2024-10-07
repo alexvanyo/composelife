@@ -20,7 +20,6 @@ import android.content.ClipData
 import android.content.ClipDescription
 import android.os.Build
 import android.view.View
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -39,7 +38,6 @@ import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
 actual fun Modifier.cellStateDragAndDropSource(
     getCellState: () -> CellState,
 ): Modifier =
@@ -66,7 +64,6 @@ actual fun Modifier.cellStateDragAndDropSource(
     }
 
 context(CellStateParserProvider)
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Suppress("ComposeComposableModifier")
 actual fun Modifier.cellStateDragAndDropTarget(
