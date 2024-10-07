@@ -45,9 +45,13 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(libs.kotlinx.collections.immutable)
+                api(projects.parameterizedString)
                 api(projects.preferences)
 
                 implementation(projects.resourceState)
+                implementation(projects.uiCommon)
+                implementation(projects.uiToolingPreview)
             }
         }
         val jvmMain by creating {
@@ -57,6 +61,7 @@ kotlin {
             dependsOn(jvmMain)
             dependencies {
                 implementation(libs.jetbrains.compose.material3)
+                implementation(libs.jetbrains.compose.materialIconsExtended)
             }
         }
         val desktopMain by getting {
@@ -68,7 +73,9 @@ kotlin {
         val androidMain by getting {
             dependsOn(jbMain)
             dependencies {
+                implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.material3)
+                implementation(libs.androidx.compose.uiTooling)
             }
         }
         val commonTest by getting {}

@@ -36,9 +36,6 @@ import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.sessionvalue.SessionValue
-import com.alexvanyo.composelife.ui.app.component.EditableSlider
-import com.alexvanyo.composelife.ui.app.component.SliderBijection
-import com.alexvanyo.composelife.ui.app.component.toValue
 import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepLabel
 import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepLabelAndValue
 import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepValue
@@ -46,6 +43,9 @@ import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondLabel
 import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondLabelAndValue
 import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondValue
+import com.alexvanyo.composelife.ui.mobile.component.EditableSlider
+import com.alexvanyo.composelife.ui.mobile.component.SliderBijection
+import com.alexvanyo.composelife.ui.mobile.component.toValue
 import com.alexvanyo.composelife.ui.util.nonNegativeDouble
 import com.alexvanyo.composelife.ui.util.nonNegativeLong
 import com.alexvanyo.composelife.ui.util.uuidSaver
