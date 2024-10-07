@@ -19,13 +19,10 @@ package com.alexvanyo.composelife.ui.app.component
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.NavigationSegment
-import com.alexvanyo.composelife.navigation.RenderableNavigationState
 import com.alexvanyo.composelife.navigation.RenderableNavigationTransform
 import com.alexvanyo.composelife.navigation.backstackRenderableNavigationTransform
 import kotlin.uuid.Uuid
