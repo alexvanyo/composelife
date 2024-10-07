@@ -108,7 +108,7 @@ slackComposeLintChecks = "1.4.1"
 #sqldelight
 sqldelight = "2.0.2"
 #testParameterInjector
-testParameterInjector = "1.17"
+testParameterInjector = "1.18"
 #turbine
 turbine = "1.1.0"
 #wire
