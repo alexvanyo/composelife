@@ -18,12 +18,17 @@ package com.alexvanyo.composelife.ui.app.component
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.NavigationSegment
+import com.alexvanyo.composelife.navigation.RenderableNavigationState
 import com.alexvanyo.composelife.navigation.RenderableNavigationTransform
 import com.alexvanyo.composelife.navigation.backstackRenderableNavigationTransform
+import kotlin.uuid.Uuid
 
 /**
  * A [RenderableNavigationTransform] to display multiple panes in a list-detail layout, if there is enough room
@@ -47,46 +52,70 @@ fun <T> listDetailNavigationTransform(
     BackstackEntry<NavigationSegment<T>>,
     BackstackState<NavigationSegment<T>>,
     > =
-    backstackRenderableNavigationTransform { entry, movablePanes ->
-        when (val navigationSegment = entry.value) {
-            is NavigationSegment.CombinedSegment -> entry to movablePanes.getValue(entry.id)
-            is NavigationSegment.SingleSegment -> {
-                when (val value = navigationSegment.value) {
-                    is ListEntry -> null
-                    is DetailEntry -> {
-                        val previous = requireNotNull(entry.previous)
-                        val newEntry = BackstackEntry(
-                            value = object : NavigationSegment.CombinedSegment<T> {
-                                override val combinedValues =
-                                    previous.value.combinedValues + navigationSegment.combinedValues
-                            },
-                            previous = previous.previous,
-                            id = previous.id,
-                        )
-                        val newPane = @Composable {
-                            @Suppress("UNCHECKED_CAST")
-                            val listEntry: ListEntry =
-                                (previous.value as NavigationSegment.SingleSegment<ListEntry>).value
-                            val detailEntry: DetailEntry = value
-
-                            ListDetailPaneScaffold(
-                                showList = listEntry.isListVisible,
-                                showDetail = detailEntry.isDetailVisible,
-                                listContent = {
-                                    remember(previous.id) { movablePanes.getValue(previous.id) }.invoke()
-                                },
-                                detailContent = {
-                                    remember(entry.id) { movablePanes.getValue(entry.id) }.invoke()
-                                },
-                                onBackButtonPressed = onBackButtonPressed,
-                            )
+    { renderableNavigationState ->
+        /**
+         * Create a mapping from each list entry ids in the navigation state to a unique pane id for the combination
+         * list-detail panes.
+         */
+        val listDetailPaneIds = renderableNavigationState.navigationState
+            .entryMap
+            .entries
+            .mapNotNull { entry ->
+                when (val navigationSegment = entry.value.value) {
+                    is NavigationSegment.CombinedSegment -> null
+                    is NavigationSegment.SingleSegment -> {
+                        when (navigationSegment.value) {
+                            is ListEntry -> entry.key to key(entry.key) { remember { Uuid.random() } }
+                            else -> null
                         }
-                        newEntry to newPane
                     }
-                    else -> entry to movablePanes.getValue(entry.id)
                 }
             }
-        }
+            .toMap()
+
+        backstackRenderableNavigationTransform<NavigationSegment<T>, NavigationSegment<T>> { entry, movablePanes ->
+            when (val navigationSegment = entry.value) {
+                is NavigationSegment.CombinedSegment -> entry to movablePanes.getValue(entry.id)
+                is NavigationSegment.SingleSegment -> {
+                    when (val value = navigationSegment.value) {
+                        is ListEntry -> null
+                        is DetailEntry -> {
+                            val previous = requireNotNull(entry.previous)
+                            val newEntryId = remember(previous.id) { listDetailPaneIds.getValue(previous.id) }
+
+                            val newEntry = BackstackEntry(
+                                value = object : NavigationSegment.CombinedSegment<T> {
+                                    override val combinedValues =
+                                        previous.value.combinedValues + navigationSegment.combinedValues
+                                },
+                                previous = previous.previous,
+                                id = newEntryId,
+                            )
+                            val newPane = @Composable {
+                                @Suppress("UNCHECKED_CAST")
+                                val listEntry: ListEntry =
+                                    (previous.value as NavigationSegment.SingleSegment<ListEntry>).value
+                                val detailEntry: DetailEntry = value
+
+                                ListDetailPaneScaffold(
+                                    showList = listEntry.isListVisible,
+                                    showDetail = detailEntry.isDetailVisible,
+                                    listContent = {
+                                        remember(previous.id) { movablePanes.getValue(previous.id) }.invoke()
+                                    },
+                                    detailContent = {
+                                        remember(entry.id) { movablePanes.getValue(entry.id) }.invoke()
+                                    },
+                                    onBackButtonPressed = onBackButtonPressed,
+                                )
+                            }
+                            newEntry to newPane
+                        }
+                        else -> entry to movablePanes.getValue(entry.id)
+                    }
+                }
+            }
+        }.invoke(renderableNavigationState)
     }
 
 /**
