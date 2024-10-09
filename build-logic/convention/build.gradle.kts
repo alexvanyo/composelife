@@ -15,7 +15,7 @@
  */
 
 import io.gitlab.arturbosch.detekt.Detekt
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     `kotlin-dsl`
@@ -30,17 +30,17 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_17
+        allWarningsAsErrors = true
+    }
+}
+
 tasks {
     validatePlugins {
         enableStricterValidation = true
         failOnWarning = true
-    }
-
-    withType<KotlinCompile>().configureEach {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_17.toString()
-            allWarningsAsErrors = true
-        }
     }
 
     withType<Detekt>().configureEach {
