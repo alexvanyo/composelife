@@ -54,8 +54,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -108,6 +110,20 @@ fun ListDetailPaneScaffold(
         onBackButtonPressed()
     }
 
+    val currentListContent by rememberUpdatedState(listContent)
+    val currentDetailContent by rememberUpdatedState(detailContent)
+
+    val movableListContent = remember {
+        movableContentOf {
+            currentListContent()
+        }
+    }
+    val movableDetailContent = remember {
+        movableContentOf {
+            currentDetailContent()
+        }
+    }
+
     val density = LocalDensity.current
     val anchoredDraggableState = rememberSaveable(
         saver = AnchoredDraggableStateSaver(
@@ -155,7 +171,7 @@ fun ListDetailPaneScaffold(
                                 ),
                             ),
                     ) {
-                        listContent()
+                        movableListContent()
                     }
 
                     Column(
@@ -190,7 +206,7 @@ fun ListDetailPaneScaffold(
                                     ),
                                 ),
                         ) {
-                            detailContent()
+                            movableDetailContent()
                         }
                         Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
                     }
@@ -460,11 +476,11 @@ fun ListDetailPaneScaffold(
             ) { targetShowList ->
                 if (targetShowList) {
                     Surface {
-                        listContent()
+                        movableListContent()
                     }
                 } else {
                     Surface {
-                        detailContent()
+                        movableDetailContent()
                     }
                 }
             }
