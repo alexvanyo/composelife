@@ -48,7 +48,6 @@ import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import java.nio.IntBuffer
-import kotlin.concurrent.Volatile
 
 @Composable
 fun openGLSupported(): Boolean {
