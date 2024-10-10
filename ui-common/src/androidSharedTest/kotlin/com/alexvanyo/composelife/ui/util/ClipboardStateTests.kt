@@ -18,12 +18,14 @@ package com.alexvanyo.composelife.ui.util
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.res.Configuration
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runAndroidComposeUiTest
 import androidx.core.content.getSystemService
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import org.junit.Assume.assumeFalse
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -35,6 +37,8 @@ class ClipboardStateTests {
 
     @Test
     fun reading_from_clipboard_state_is_correct() = runAndroidComposeUiTest<ComponentActivity> {
+        assumeFalse(activity!!.resources.configuration.isWatch())
+
         var clipData: ClipData? = null
 
         setContent {
@@ -57,6 +61,8 @@ class ClipboardStateTests {
 
     @Test
     fun writing_to_clipboard_state_is_correct() = runAndroidComposeUiTest<ComponentActivity> {
+        assumeFalse(activity!!.resources.configuration.isWatch())
+
         lateinit var clipboardWriter: ClipboardWriter
 
         val testClipData = ClipData.newPlainText("test clip data", "test value 2")
@@ -78,3 +84,6 @@ class ClipboardStateTests {
         }
     }
 }
+
+private fun Configuration.isWatch() =
+    uiMode and Configuration.UI_MODE_TYPE_MASK == Configuration.UI_MODE_TYPE_WATCH
