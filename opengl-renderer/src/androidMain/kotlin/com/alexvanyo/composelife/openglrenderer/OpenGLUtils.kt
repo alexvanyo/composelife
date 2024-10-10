@@ -30,6 +30,16 @@ fun checkOpenGLError() {
 }
 
 /**
+ * Throws if the framebuffer is not complete.
+ */
+fun checkOpenGLFramebufferStatus() {
+    val status = GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER)
+    if (status != GLES20.GL_FRAMEBUFFER_COMPLETE) {
+        error("OpenGL framebuffer error: $status")
+    }
+}
+
+/**
  * Creates and compiles the given [shaderCode] of type [type].
  */
 fun loadShader(type: Int, shaderCode: String): Int =
