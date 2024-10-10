@@ -37,7 +37,7 @@ typealias RenderableNavigationTransform<T1, S1, T2, S2> =
     @Composable (RenderableNavigationState<T1, S1>) -> RenderableNavigationState<T2, S2>
 
 fun <T1, T2> backstackRenderableNavigationTransform(
-    entryTransform: (
+    entryTransform: @Composable (
         BackstackEntry<T1>,
         movablePanes: Map<Uuid, @Composable () -> Unit>,
     ) -> Pair<BackstackEntry<T2>, @Composable () -> Unit>?,
