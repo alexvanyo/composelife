@@ -261,8 +261,10 @@ class GameOfLifeShape(
 
     fun draw(mvpMatrix: FloatArray) {
         GLES20.glUseProgram(program)
+        checkOpenGLError()
 
         GLES20.glEnableVertexAttribArray(positionHandle)
+        checkOpenGLError()
 
         GLES20.glVertexAttribPointer(
             positionHandle,
@@ -272,8 +274,11 @@ class GameOfLifeShape(
             vertexStride,
             vertexBuffer,
         )
+        checkOpenGLError()
 
         GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0)
+        checkOpenGLError()
+        checkOpenGLFramebufferStatus()
 
         GLES20.glDrawElements(
             GLES20.GL_TRIANGLES,
@@ -281,6 +286,7 @@ class GameOfLifeShape(
             GLES20.GL_UNSIGNED_SHORT,
             drawListBuffer,
         )
+        checkOpenGLError()
 
         GLES20.glDisableVertexAttribArray(positionHandle)
         checkOpenGLError()
