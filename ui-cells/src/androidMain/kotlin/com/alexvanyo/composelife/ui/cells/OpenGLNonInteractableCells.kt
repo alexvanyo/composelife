@@ -48,6 +48,7 @@ import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import java.nio.IntBuffer
+import kotlin.concurrent.Volatile
 
 @Composable
 fun openGLSupported(): Boolean {
@@ -137,15 +138,14 @@ fun OpenGLNonInteractableCells(
                         surface: Surface,
                         width: Int,
                         height: Int,
-                    ): EGLSurface? {
-                        return super.onSurfaceCreated(spec, config, surface, width, height).also {
+                    ): EGLSurface? =
+                        super.onSurfaceCreated(spec, config, surface, width, height).also {
                             GLES20.glClearColor(0f, 0f, 0f, 0f)
                             GLES20.glViewport(0, 0, width, height)
                             gameOfLifeShape = GameOfLifeShape().apply {
                                 setSize(width, height)
                             }
                         }
-                    }
 
                     override fun onDrawFrame(eglManager: EGLManager) {
                         gameOfLifeShape.setScreenShapeParameters(parameters)
