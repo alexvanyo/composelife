@@ -33,6 +33,11 @@ import com.alexvanyo.composelife.ui.app.component.ListDetailInfo
 import com.alexvanyo.composelife.ui.app.component.ListEntry
 import kotlin.uuid.Uuid
 
+/**
+ * The ui-scoped navigation destination types.
+ *
+ * These are mapped from the plain [ComposeLifeNavigation] types using [toComposeLifeUiNavigation].
+ */
 @Stable
 sealed interface ComposeLifeUiNavigation {
 
@@ -56,15 +61,31 @@ sealed interface ComposeLifeUiNavigation {
     ) : ComposeLifeUiNavigation, DetailEntry, ListDetailInfo by listDetailInfo
 }
 
+/**
+ * Converts a [BackstackState] of plain [ComposeLifeNavigation] destinations to a [BackstackState] of
+ * [ComposeLifeUiNavigation].
+ */
 @Composable
 fun BackstackState<ComposeLifeNavigation>.toComposeLifeUiNavigation(
     windowSizeClass: WindowSizeClass,
 ): BackstackState<ComposeLifeUiNavigation> =
     remember(entryMap.keys.toSet(), currentEntryId, windowSizeClass) {
+        /**
+         * The result entry map of [ComposeLifeUiNavigation].
+         */
         val map = mutableMapOf<Uuid, BackstackEntry<ComposeLifeUiNavigation>>()
 
+        /**
+         * A set of [Uuid]s representing list destinations that are known to be paired with existing detail
+         * destinations.
+         */
         val listsPairedWithDetails = mutableSetOf<Uuid>()
 
+        /**
+         * The resulting current entry id for the transformed backstack state.
+         *
+         * This is initially the [currentEntryId], but may be updated in the mapping.
+         */
         var transformedCurrentEntryId by mutableStateOf(currentEntryId)
 
         fun createEntry(nav: BackstackEntry<ComposeLifeNavigation>): BackstackEntry<ComposeLifeUiNavigation> =
@@ -100,7 +121,7 @@ fun BackstackState<ComposeLifeNavigation>.toComposeLifeUiNavigation(
                             nav.previous?.let(::createEntry),
                             nav.id,
                         )
-                        if (!isDetailPresent) {
+                        if (!isDetailPresent && windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT) {
                             map.put(
                                 value.transientDetailId,
                                 BackstackEntry(
@@ -119,8 +140,11 @@ fun BackstackState<ComposeLifeNavigation>.toComposeLifeUiNavigation(
                 }
             }
 
+        // First, generate entries iterating through the current backstack hierarchy with the previous pointers
         generateSequence(currentEntry, BackstackEntry<ComposeLifeNavigation>::previous).forEach(::createEntry)
 
+        // Second, iterate through all of the entries, to generate any missing entries that are not part of the current
+        // backstack hierarchy
         entryMap.values.forEach {
             createEntry(it)
         }

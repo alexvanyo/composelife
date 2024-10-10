@@ -19,6 +19,8 @@ package com.alexvanyo.composelife.ui.app.action.settings
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
@@ -49,7 +51,7 @@ import com.alexvanyo.composelife.preferences.ordinal
 import com.alexvanyo.composelife.ui.app.resources.QuickSettingsInfo
 import com.alexvanyo.composelife.ui.app.resources.SeeAll
 import com.alexvanyo.composelife.ui.app.resources.Strings
-import com.alexvanyo.composelife.ui.util.trySharedElement
+import com.alexvanyo.composelife.ui.util.trySharedBounds
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -63,6 +65,7 @@ interface InlineSettingsPaneLocalEntryPoint :
     SettingUiLocalEntryPoint
 
 context(InlineSettingsPaneInjectEntryPoint, InlineSettingsPaneLocalEntryPoint)
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod")
 @Composable
 fun InlineSettingsPane(
@@ -138,8 +141,9 @@ fun InlineSettingsPane(
                                     onOpenInSettingsClicked = onOpenInSettingsClicked,
                                     modifier = Modifier
                                         .padding(horizontal = 16.dp)
-                                        .trySharedElement(
+                                        .trySharedBounds(
                                             key = "SettingUi-${quickAccessSetting.setting}",
+                                            resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
                                         ),
                                 )
                             }
