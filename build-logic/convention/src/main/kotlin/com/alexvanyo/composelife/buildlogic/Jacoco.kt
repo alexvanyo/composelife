@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.buildlogic
 
 import com.android.build.api.dsl.CommonExtension
+import com.android.build.gradle.internal.coverage.JacocoReportTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.tasks.testing.Test
@@ -28,21 +29,7 @@ import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
 
-private val coverageExclusions = listOf(
-    // Android
-    "**/R.class",
-    "**/R\$*.class",
-    "**/BuildConfig.*",
-    "**/Manifest*.*",
-
-    // SealedEnum
-    "**/*SealedEnum*",
-
-    // protobuf
-    "**/proto/*",
-)
-
-@Suppress("LongMethod")
+@Suppress("LongMethod", "NoNameShadowing")
 fun Project.configureJacocoMerge() {
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
@@ -65,32 +52,26 @@ fun Project.configureJacocoMerge() {
             )
         }
 
-    @Suppress("NoNameShadowing")
-    val variantJacocoTestUnitTestReports = variants.map { variant ->
-        tasks.register("jacocoTest${variant.capitalizeForTaskName()}UnitTestReport", JacocoReport::class) {
+    val createVariantUnitTestCoverageReports = variants.map { variant ->
+        tasks.register("create${variant.capitalizeForTaskName()}UnitTestReport", JacocoReport::class) {
             dependsOn(
                 subprojects.flatMap {
-                    it.getTasksByName("create${variant.capitalizeForTaskName()}UnitTestCoverageReport", false)
+                    it.getUnitTestReportTasks(variant)
                 },
             )
 
             classDirectories.setFrom(
-                subprojects
-                    .map {
-                        fileTree(it.layout.buildDirectory.dir("tmp/kotlin-classes/$variant")) {
-                            exclude(coverageExclusions)
-                        }
-                    },
+                subprojects.flatMap {
+                    it.getUnitTestReportTasks(variant)
+                        .map(JacocoReport::getClassDirectories)
+                },
             )
             sourceDirectories.setFrom(sourceDirectoryFiles)
             executionData.setFrom(
-                subprojects
-                    .map {
-                        it.layout.buildDirectory.file(
-                            "outputs/unit_test_code_coverage/" +
-                                "${variant}UnitTest/test${variant.capitalizeForTaskName()}UnitTest.exec",
-                        )
-                    },
+                subprojects.flatMap {
+                    it.getUnitTestReportTasks(variant)
+                        .map(JacocoReport::getExecutionData)
+                },
             )
 
             reports {
@@ -99,47 +80,59 @@ fun Project.configureJacocoMerge() {
             }
         }
     }
-    @Suppress("NoNameShadowing")
-    getGradleManagedDeviceConfig(FormFactor.values().toSet())
-        .map { gradleManagedDeviceConfig ->
-            tasks.register("jacocoTest${gradleManagedDeviceConfig.taskPrefix}AndroidTestReport", JacocoReport::class) {
-                dependsOn(
-                    subprojects.flatMap {
-                        it.getTasksByName("${gradleManagedDeviceConfig.taskPrefix}Check", false)
-                    },
-                )
+    val createAndroidTestCoverageReport = tasks.register("createAndroidTestCoverageReport", JacocoReport::class) {
+        dependsOn(
+            subprojects.flatMap {
+                it.getAndroidTestReportTasks()
+            },
+        )
 
-                classDirectories.setFrom(
-                    subprojects
-                        .map {
-                            fileTree(it.layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
-                                exclude(coverageExclusions)
-                            }
-                        },
-                )
-                sourceDirectories.setFrom(sourceDirectoryFiles)
-                executionData.setFrom(
-                    subprojects
-                        .map {
-                            fileTree(it.layout.buildDirectory) {
-                                include(
-                                    "intermediates/managed_device_code_coverage/**/coverage.ec",
-                                )
-                            }
-                        },
-                )
+        classDirectories.setFrom(
+            subprojects
+                .map {
+                    it.getAndroidTestReportTasks()
+                        .map(JacocoReportTask::classFileCollection)
+                },
+        )
+        sourceDirectories.setFrom(sourceDirectoryFiles)
+        executionData.setFrom(
+            subprojects
+                .map {
+                    it.getAndroidTestReportTasks()
+                        .map(JacocoReportTask::jacocoConnectedTestsCoverageDir)
+                        .map(::fileTree)
+                },
+        )
 
-                reports {
-                    html.required.set(true)
-                    xml.required.set(true)
-                }
-            }
+        reports {
+            html.required.set(true)
+            xml.required.set(true)
         }
+    }
 
-    tasks.register("jacocoTestReport") {
-        dependsOn(variantJacocoTestUnitTestReports)
+    val createUnitTestCoverageReport = tasks.register("createUnitTestCoverageReport") {
+        dependsOn(createVariantUnitTestCoverageReports)
+    }
+
+    tasks.register("createTestCoverageReport") {
+        dependsOn(createUnitTestCoverageReport)
+        dependsOn(createAndroidTestCoverageReport)
     }
 }
+
+private fun Project.getUnitTestReportTasks(variant: String) =
+    getTasksByName("create${variant.capitalizeForTaskName()}UnitTestCoverageReport", false)
+        .filterIsInstance<JacocoReport>()
+
+private fun Project.getAndroidTestReportTasks() =
+    listOf(
+        "debug",
+        "release",
+        "staging",
+    ).flatMap { variant ->
+        getTasksByName("createManagedDevice${variant.capitalizeForTaskName()}AndroidTestCoverageReport", false)
+            .filterIsInstance<JacocoReportTask>()
+    }
 
 fun Project.configureJacoco(
     commonExtension: CommonExtension<*, *, *, *, *, *>,
