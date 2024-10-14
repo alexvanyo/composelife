@@ -37,7 +37,7 @@ val aosppixel2Api30 = GradleManagedDeviceConfig(
 android {
     namespace = "com.alexvanyo.composelife.app.baselineprofilegenerator"
     targetProjectPath = ":app"
-    configureGradleManagedDevices(setOf(aosppixel2Api30), this)
+    configureGradleManagedDevices(setOf(aosppixel2Api30), this, false)
 
     defaultConfig {
         minSdk = 28
