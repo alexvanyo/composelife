@@ -50,8 +50,8 @@ androidx.compose.ui:ui:1.8.0-alpha03
 androidx.compose:compose-bom-alpha:2024.09.03
 androidx.concurrent:concurrent-futures:1.1.0
 androidx.coordinatorlayout:coordinatorlayout:1.0.0
-androidx.core:core-ktx:1.15.0-beta01
-androidx.core:core:1.15.0-beta01
+androidx.core:core-ktx:1.15.0-rc01
+androidx.core:core:1.15.0-rc01
 androidx.cursoradapter:cursoradapter:1.0.0
 androidx.customview:customview-poolingcontainer:1.0.0
 androidx.customview:customview:1.0.0
