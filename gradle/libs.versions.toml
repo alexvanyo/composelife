@@ -110,7 +110,7 @@ sqldelight = "2.0.2"
 #testParameterInjector
 testParameterInjector = "1.18"
 #turbine
-turbine = "1.1.0"
+turbine = "1.2.0"
 #wire
 wire = "5.1.0"
 
