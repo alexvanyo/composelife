@@ -1,5 +1,5 @@
 package: name='com.alexvanyo.composelife' versionCode='1' versionName='1.0' platformBuildVersionName='15' platformBuildVersionCode='35' compileSdkVersion='35' compileSdkVersionCodename='15'
-sdkVersion:'21'
+minSdkVersion:'21'
 targetSdkVersion:'34'
 uses-permission: name='com.alexvanyo.composelife.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
 application-label:'ComposeLife'
