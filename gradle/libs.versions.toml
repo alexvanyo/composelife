@@ -88,7 +88,7 @@ jacoco = "0.8.12"
 #jetbrainsCompose
 jetbrainsCompose = "1.7.0"
 #jetbrainsComposeMaterial3Adaptive
-jetbrainsComposeMaterial3Adaptive = "1.0.0-rc01"
+jetbrainsComposeMaterial3Adaptive = "1.0.0"
 #junit4
 junit4 = "4.13.2"
 #leakCanary
