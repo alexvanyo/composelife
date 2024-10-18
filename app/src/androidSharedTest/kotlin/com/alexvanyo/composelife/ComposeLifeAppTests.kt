@@ -140,7 +140,7 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
 
         assertEquals(ResourceState.Success(DarkThemeConfig.Dark), preferences.darkThemeConfigState)
 
-        if (!windowSizeClass.containsWidthDp(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+        if (!windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
             composeTestRule
                 .onNodeWithContentDescription(context.getString(R.string.back))
                 .performClick()
@@ -226,7 +226,7 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
             preferences.quickAccessSettingsState,
         )
 
-        if (!windowSizeClass.containsWidthDp(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+        if (!windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
             composeTestRule
                 .onNodeWithContentDescription(context.getString(R.string.back))
                 .performClick()
@@ -270,7 +270,7 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
             )
             .assertDoesNotExist()
 
-        if (!windowSizeClass.containsWidthDp(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+        if (!windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
             composeTestRule
                 .onNodeWithContentDescription(context.getString(R.string.back))
                 .performClick()
@@ -358,7 +358,7 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
 
         assertEquals(ResourceState.Success(AlgorithmType.NaiveAlgorithm), preferences.algorithmChoiceState)
 
-        if (!windowSizeClass.containsWidthDp(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+        if (!windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
             Espresso.pressBack()
             composeTestRule.waitForIdle()
         }
