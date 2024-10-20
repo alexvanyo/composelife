@@ -16,10 +16,6 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import com.alexvanyo.composelife.buildlogic.jvmMolecule
-import com.android.build.gradle.internal.testFixtures.testFixturesClassifier
-import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
-import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -43,7 +39,6 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
-    jvmMolecule(this)
 
     sourceSets {
         val commonMain by getting {
@@ -58,9 +53,6 @@ kotlin {
         }
         val jvmNonAndroidMain by creating {
             dependsOn(jvmMain)
-        }
-        val moleculeMain by getting {
-            dependsOn(jvmNonAndroidMain)
         }
         val jbMain by creating {
             dependsOn(jvmMain)
