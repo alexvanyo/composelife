@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.FormFactor
-import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import com.alexvanyo.composelife.buildlogic.jvmMolecule
-import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
-import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
-
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)

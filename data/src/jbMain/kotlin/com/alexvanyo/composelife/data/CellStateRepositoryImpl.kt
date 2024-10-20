@@ -45,7 +45,7 @@ class CellStateRepositoryImpl(
                 .joinToString("\n")
 
         @Suppress("InjectDispatcher")
-        val insertedId = withContext(dispatchers.IO) {
+        val insertedId: CellStateId = withContext(dispatchers.IO) {
             cellStateQueries.transactionWithResult {
                 if (saveableCellState.cellStateMetadata.id == null) {
                     cellStateQueries.insertCellState(
