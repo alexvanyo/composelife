@@ -16,7 +16,6 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import com.alexvanyo.composelife.buildlogic.jvmMolecule
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -40,7 +39,6 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
-    jvmMolecule(this)
 
     sourceSets {
         val commonMain by getting {
@@ -66,9 +64,6 @@ kotlin {
         }
         val jvmTest by creating {
             dependsOn(commonTest)
-        }
-        val moleculeTest by getting {
-            dependsOn(jvmTest)
         }
         val jbTest by creating {
             dependsOn(commonTest)

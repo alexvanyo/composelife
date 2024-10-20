@@ -16,10 +16,6 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import com.alexvanyo.composelife.buildlogic.jvmMolecule
-import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
-import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
-import java.io.Serializable
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -45,7 +41,6 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
-    jvmMolecule(this)
 
     sourceSets {
         val commonMain by getting {
@@ -75,10 +70,6 @@ kotlin {
         }
         val jvmMain by creating {
             dependsOn(commonMain)
-        }
-        val moleculeMain by getting {
-            dependsOn(jvmMain)
-            configurations["kspMolecule"].dependencies.add(libs.sealedEnum.ksp.get())
         }
         val jbMain by creating {
             dependsOn(jvmMain)
