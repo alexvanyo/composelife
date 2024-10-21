@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastMap
+import co.touchlab.kermit.Logger
 import com.alexvanyo.composelife.geometry.lerp
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.buffer
@@ -163,6 +164,7 @@ fun <T, M> AnimatedContent(
      */
     animateInternalContentSizeChanges: Boolean = true,
     contentKey: (T) -> Any? = { it },
+    label: String = "Custom AnimatedContent",
     content: @Composable (T) -> Unit,
 ) {
     val targetKeyState = targetState.map(contentKey)
@@ -170,7 +172,10 @@ fun <T, M> AnimatedContent(
 
     val seekableTransitionState = remember { SeekableTransitionState(targetKeyState.current) }
 
-    val seekableTransition = rememberTransition(seekableTransitionState)
+    val seekableTransition = rememberTransition(
+        transitionState = seekableTransitionState,
+        label = label,
+    )
 
     val previousTargetsInTransition = remember { mutableStateMapOf<Any?, T>() }
 
@@ -197,21 +202,36 @@ fun <T, M> AnimatedContent(
                             seekableTransition.currentState != newTargetKeyState.current &&
                             seekableTransition.targetState != newTargetKeyState.current
                         ) {
+                            Logger.d { "$label: snapping to ${newTargetKeyState.current}" }
                             seekableTransitionState.snapTo(newTargetKeyState.current)
+                            Logger.d { "$label: snapped to ${newTargetKeyState.current}" }
+                        }
+                        Logger.d {
+                            "$label: seeking to ${newTargetKeyState.progress}, ${newTargetKeyState.provisional}"
                         }
                         seekableTransitionState.seekTo(newTargetKeyState.progress, newTargetKeyState.provisional)
+                        Logger.d {
+                            "$label: seeked to ${newTargetKeyState.progress}, ${newTargetKeyState.provisional}"
+                        }
                     }
+
                     is TargetState.Single -> {
                         if (seekableTransition.currentState == newTargetKeyState.current) {
-                            seekableTransitionState.snapTo(newTargetKeyState.current)
+                            Logger.d { "$label: snapping to ${newTargetKeyState.current}" }
+                            seekableTransitionState.animateTo(newTargetKeyState.current, snap())
+                            Logger.d { "$label: snapped to ${newTargetKeyState.current}" }
                         } else {
+                            Logger.d { "$label: animating to ${newTargetKeyState.current}" }
                             seekableTransitionState.animateTo(newTargetKeyState.current)
+                            Logger.d { "$label: animated to ${newTargetKeyState.current}" }
                         }
                     }
                 }
             }
             .collect()
     }
+
+    Logger.d { "$label: currentTargetsInTransition: $currentTargetsInTransition" }
 
     val targetKeysWithTransitions = currentTargetsInTransition.keys.associateWith { targetKey ->
         key(targetKey) {
@@ -247,7 +267,7 @@ fun <T, M> AnimatedContent(
                 transitionState = transitionState.apply {
                     this.targetState = targetContentStatus
                 },
-                label = "Content Status",
+                label = "$label > $targetKey content status",
             )
         }
     }

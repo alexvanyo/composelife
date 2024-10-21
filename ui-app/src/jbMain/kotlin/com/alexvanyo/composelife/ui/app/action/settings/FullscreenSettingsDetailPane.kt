@@ -17,6 +17,8 @@
 
 package com.alexvanyo.composelife.ui.app.action.settings
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
@@ -64,7 +66,8 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
 import com.alexvanyo.composelife.ui.app.resources.Back
 import com.alexvanyo.composelife.ui.app.resources.Strings
-import com.alexvanyo.composelife.ui.util.trySharedElement
+import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
+import com.alexvanyo.composelife.ui.util.trySharedBounds
 import kotlin.math.roundToInt
 
 interface FullscreenSettingsDetailPaneInjectEntryPoint :
@@ -92,7 +95,7 @@ fun FullscreenSettingsDetailPane(
 }
 
 context(SettingUiInjectEntryPoint, SettingUiLocalEntryPoint)
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
 private fun SettingsCategoryDetail(
@@ -104,98 +107,106 @@ private fun SettingsCategoryDetail(
     onFinishedScrollingToSetting: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier.fillMaxSize(),
+    Surface(
+        modifier = modifier,
+        color = LocalBackgroundColor.current ?: MaterialTheme.colorScheme.surface,
     ) {
-        if (showAppBar) {
-            val isElevated = detailScrollState.canScrollBackward
-            val elevation by animateDpAsState(targetValue = if (isElevated) 3.dp else 0.dp)
+        Column(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            if (showAppBar) {
+                val isElevated = detailScrollState.canScrollBackward
+                val elevation by animateDpAsState(targetValue = if (isElevated) 3.dp else 0.dp)
 
-            Surface(
-                tonalElevation = elevation,
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .windowInsetsPadding(
-                            WindowInsets.safeDrawing.only(
-                                WindowInsetsSides.Horizontal + WindowInsetsSides.Top,
-                            ),
-                        )
-                        .height(64.dp),
+                Surface(
+                    tonalElevation = elevation,
                 ) {
                     Box(
-                        modifier = Modifier.align(Alignment.CenterStart),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .windowInsetsPadding(
+                                WindowInsets.safeDrawing.only(
+                                    WindowInsetsSides.Horizontal + WindowInsetsSides.Top,
+                                ),
+                            )
+                            .height(64.dp),
                     ) {
-                        TooltipBox(
-                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                            tooltip = {
-                                PlainTooltip {
-                                    Text(parameterizedStringResource(Strings.Back))
-                                }
-                            },
-                            state = rememberTooltipState(),
+                        Box(
+                            modifier = Modifier.align(Alignment.CenterStart),
                         ) {
-                            IconButton(
-                                onClick = onBackButtonPressed,
+                            TooltipBox(
+                                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                                tooltip = {
+                                    PlainTooltip {
+                                        Text(parameterizedStringResource(Strings.Back))
+                                    }
+                                },
+                                state = rememberTooltipState(),
                             ) {
-                                Icon(
-                                    Icons.AutoMirrored.Default.ArrowBack,
-                                    contentDescription = parameterizedStringResource(Strings.Back),
-                                )
+                                IconButton(
+                                    onClick = onBackButtonPressed,
+                                ) {
+                                    Icon(
+                                        Icons.AutoMirrored.Default.ArrowBack,
+                                        contentDescription = parameterizedStringResource(Strings.Back),
+                                    )
+                                }
                             }
                         }
-                    }
 
-                    Text(
-                        text = settingsCategory.title,
-                        modifier = Modifier.align(Alignment.Center),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
+                        Text(
+                            text = settingsCategory.title,
+                            modifier = Modifier.align(Alignment.Center),
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                    }
                 }
             }
-        }
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier
-                .then(
-                    if (showAppBar) {
-                        Modifier.consumeWindowInsets(
-                            WindowInsets.safeDrawing.only(
-                                WindowInsetsSides.Horizontal + WindowInsetsSides.Top,
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .then(
+                        if (showAppBar) {
+                            Modifier.consumeWindowInsets(
+                                WindowInsets.safeDrawing.only(
+                                    WindowInsetsSides.Horizontal + WindowInsetsSides.Top,
+                                ),
+                            )
+                        } else {
+                            Modifier
+                        },
+                    )
+                    .safeDrawingPadding()
+                    .verticalScroll(detailScrollState)
+                    .padding(vertical = 16.dp),
+            ) {
+                settingsCategory.settings.forEach { setting ->
+                    var layoutCoordinates: LayoutCoordinates? by remember { mutableStateOf(null) }
+
+                    SettingUi(
+                        setting = setting,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .onPlaced {
+                                layoutCoordinates = it
+                            }
+                            .trySharedBounds(
+                                key = "SettingUi-$setting",
+                                resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
                             ),
-                        )
-                    } else {
-                        Modifier
-                    },
-                )
-                .safeDrawingPadding()
-                .verticalScroll(detailScrollState)
-                .padding(vertical = 16.dp),
-        ) {
-            settingsCategory.settings.forEach { setting ->
-                var layoutCoordinates: LayoutCoordinates? by remember { mutableStateOf(null) }
+                    )
 
-                SettingUi(
-                    setting = setting,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .onPlaced {
-                            layoutCoordinates = it
+                    val currentOnFinishedScrollingToSetting by rememberUpdatedState(onFinishedScrollingToSetting)
+
+                    LaunchedEffect(settingToScrollTo, layoutCoordinates) {
+                        val currentLayoutCoordinates = layoutCoordinates
+                        if (currentLayoutCoordinates != null && settingToScrollTo == setting) {
+                            detailScrollState.animateScrollTo(
+                                currentLayoutCoordinates.boundsInParent().top.roundToInt(),
+                            )
+                            currentOnFinishedScrollingToSetting()
                         }
-                        .trySharedElement(
-                            key = "SettingUi-$setting",
-                        ),
-                )
-
-                val currentOnFinishedScrollingToSetting by rememberUpdatedState(onFinishedScrollingToSetting)
-
-                LaunchedEffect(settingToScrollTo, layoutCoordinates) {
-                    val currentLayoutCoordinates = layoutCoordinates
-                    if (currentLayoutCoordinates != null && settingToScrollTo == setting) {
-                        detailScrollState.animateScrollTo(currentLayoutCoordinates.boundsInParent().top.roundToInt())
-                        currentOnFinishedScrollingToSetting()
                     }
                 }
             }

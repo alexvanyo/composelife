@@ -53,6 +53,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
@@ -73,6 +74,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
+import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
 import com.alexvanyo.composelife.ui.util.AnchoredDraggableState
 import com.alexvanyo.composelife.ui.util.AnchoredDraggableStateSaver
 import com.alexvanyo.composelife.ui.util.AnimatedContent
@@ -206,7 +208,11 @@ fun ListDetailPaneScaffold(
                                     ),
                                 ),
                         ) {
-                            movableDetailContent()
+                            CompositionLocalProvider(
+                                LocalBackgroundColor provides MaterialTheme.colorScheme.secondaryContainer,
+                            ) {
+                                movableDetailContent()
+                            }
                         }
                         Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
                     }
