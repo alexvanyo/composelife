@@ -16,15 +16,22 @@
 
 package com.alexvanyo.composelife.ui.app.component
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.NavigationSegment
 import com.alexvanyo.composelife.navigation.RenderableNavigationTransform
 import com.alexvanyo.composelife.navigation.backstackRenderableNavigationTransform
+import com.alexvanyo.composelife.ui.util.AnimatedContent
+import com.alexvanyo.composelife.ui.util.TargetState
+import com.alexvanyo.composelife.ui.util.trySharedElementWithCallerManagedVisibility
 import kotlin.uuid.Uuid
 
 /**
@@ -40,6 +47,7 @@ import kotlin.uuid.Uuid
  * It is invalid for a [ListEntry] to be alone, or a [DetailEntry] to be alone - it is the responsibility of the
  * code maintaining the [BackstackState] to enforce this invariant.
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 fun <T> listDetailNavigationTransform(
     onBackButtonPressed: () -> Unit,
@@ -70,43 +78,139 @@ fun <T> listDetailNavigationTransform(
             }
             .toMap()
 
+        val useListDetailPanes = renderableNavigationState.navigationState
+            .entryMap
+            .entries
+            .mapNotNull { entry ->
+                when (val navigationSegment = entry.value.value) {
+                    is NavigationSegment.CombinedSegment -> null
+                    is NavigationSegment.SingleSegment -> {
+                        when (val value = navigationSegment.value) {
+                            is ListDetailInfo -> {
+                                key(entry.key) {
+                                    val useListDetailPane by rememberUpdatedState(
+                                        value.isListVisible && value.isDetailVisible,
+                                    )
+
+                                    entry.key to remember { { useListDetailPane } }
+                                }
+                            }
+                            else -> null
+                        }
+                    }
+                }
+            }
+            .toMap()
+
         backstackRenderableNavigationTransform<NavigationSegment<T>, NavigationSegment<T>> { entry, movablePanes ->
             when (val navigationSegment = entry.value) {
                 is NavigationSegment.CombinedSegment -> entry to movablePanes.getValue(entry.id)
                 is NavigationSegment.SingleSegment -> {
                     when (val value = navigationSegment.value) {
-                        is ListEntry -> null
-                        is DetailEntry -> {
-                            val previous = requireNotNull(entry.previous)
-                            val newEntryId = remember(previous.id) { listDetailPaneIds.getValue(previous.id) }
+                        is ListEntry -> {
+                            if (useListDetailPanes.getValue(entry.id).invoke()) {
+                                null
+                            } else {
+                                entry to @Composable {
+                                    val visible = !remember { useListDetailPanes.getValue(entry.id) }.invoke()
 
-                            val newEntry = BackstackEntry(
-                                value = object : NavigationSegment.CombinedSegment<T> {
-                                    override val combinedValues =
-                                        previous.value.combinedValues + navigationSegment.combinedValues
-                                },
-                                previous = previous.previous,
-                                id = newEntryId,
-                            )
-                            val newPane = @Composable {
-                                @Suppress("UNCHECKED_CAST")
-                                val listEntry: ListEntry =
-                                    (previous.value as NavigationSegment.SingleSegment<ListEntry>).value
-                                val detailEntry: DetailEntry = value
-
-                                ListDetailPaneScaffold(
-                                    showList = listEntry.isListVisible,
-                                    showDetail = detailEntry.isDetailVisible,
-                                    listContent = {
-                                        remember(previous.id) { movablePanes.getValue(previous.id) }.invoke()
-                                    },
-                                    detailContent = {
-                                        remember(entry.id) { movablePanes.getValue(entry.id) }.invoke()
-                                    },
-                                    onBackButtonPressed = onBackButtonPressed,
-                                )
+                                    Box(
+                                        modifier = Modifier.trySharedElementWithCallerManagedVisibility(
+                                            key = entry.id,
+                                            visible = visible,
+                                        ),
+                                    ) {
+                                        val pane = remember(entry.id) { movablePanes.getValue(entry.id) }
+                                        if (visible) {
+                                            pane.invoke()
+                                        }
+                                    }
+                                }
                             }
-                            newEntry to newPane
+                        }
+                        is DetailEntry -> {
+                            if (useListDetailPanes.getValue(entry.id).invoke()) {
+                                val previous = requireNotNull(entry.previous)
+                                val newEntryId = remember(previous.id) { listDetailPaneIds.getValue(previous.id) }
+
+                                val newEntry = BackstackEntry(
+                                    value = object : NavigationSegment.CombinedSegment<T> {
+                                        override val combinedValues =
+                                            previous.value.combinedValues + navigationSegment.combinedValues
+                                    },
+                                    previous = previous.previous,
+                                    id = newEntryId,
+                                )
+                                val newPane = @Composable {
+                                    @Suppress("UNCHECKED_CAST")
+                                    val listEntry: ListEntry =
+                                        (previous.value as NavigationSegment.SingleSegment<ListEntry>).value
+                                    val detailEntry: DetailEntry = value
+
+                                    ListDetailPaneScaffold(
+                                        showList = listEntry.isListVisible,
+                                        showDetail = detailEntry.isDetailVisible,
+                                        listContent = {
+                                            val visible = remember { useListDetailPanes.getValue(previous.id) }.invoke()
+
+                                            Box(
+                                                modifier = Modifier.trySharedElementWithCallerManagedVisibility(
+                                                    key = previous.id,
+                                                    visible = visible,
+                                                ),
+                                            ) {
+                                                val pane = remember(previous.id) { movablePanes.getValue(previous.id) }
+                                                if (visible) {
+                                                    pane.invoke()
+                                                }
+                                            }
+                                        },
+                                        detailContent = {
+                                            AnimatedContent(
+                                                targetState = TargetState.Single(entry.id),
+                                                animateInternalContentSizeChanges = false,
+                                            ) { targetEntryId ->
+                                                val visible = remember {
+                                                    useListDetailPanes.getValue(
+                                                        targetEntryId,
+                                                    )
+                                                }.invoke()
+
+                                                Box(
+                                                    modifier = Modifier.trySharedElementWithCallerManagedVisibility(
+                                                        key = targetEntryId,
+                                                        visible = visible,
+                                                    ),
+                                                ) {
+                                                    val pane =
+                                                        remember(targetEntryId) { movablePanes.getValue(targetEntryId) }
+                                                    if (visible) {
+                                                        pane.invoke()
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        onBackButtonPressed = onBackButtonPressed,
+                                    )
+                                }
+                                newEntry to newPane
+                            } else {
+                                entry to @Composable {
+                                    val visible = !remember { useListDetailPanes.getValue(entry.id) }.invoke()
+
+                                    Box(
+                                        modifier = Modifier.trySharedElementWithCallerManagedVisibility(
+                                            key = entry.id,
+                                            visible = visible,
+                                        ),
+                                    ) {
+                                        val pane = remember(entry.id) { movablePanes.getValue(entry.id) }
+                                        if (visible) {
+                                            pane.invoke()
+                                        }
+                                    }
+                                }
+                            }
                         }
                         else -> entry to movablePanes.getValue(entry.id)
                     }

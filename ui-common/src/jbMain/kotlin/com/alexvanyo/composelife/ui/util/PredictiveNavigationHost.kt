@@ -109,6 +109,7 @@ fun <T> CrossfadePredictiveNavigationFrame(
         contentSizeAnimationSpec = contentSizeAnimationSpec,
         animateInternalContentSizeChanges = animateInternalContentSizeChanges,
         contentKey = BackstackEntry<T>::id,
+        label = "CrossfadePredictiveNavigationFrame",
         modifier = modifier,
     ) { entry ->
         key(entry.id) {
@@ -305,6 +306,7 @@ fun <T> MaterialPredictiveNavigationFrame(
         contentSizeAnimationSpec = contentSizeAnimationSpec,
         animateInternalContentSizeChanges = animateInternalContentSizeChanges,
         contentKey = BackstackEntry<T>::id,
+        label = "MaterialPredictiveNavigationFrame",
         modifier = modifier,
     ) { entry ->
         key(entry.id) {
