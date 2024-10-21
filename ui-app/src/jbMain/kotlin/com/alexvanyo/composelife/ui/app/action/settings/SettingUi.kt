@@ -18,6 +18,8 @@
 package com.alexvanyo.composelife.ui.app.action.settings
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -27,6 +29,7 @@ import com.alexvanyo.composelife.preferences.addQuickAccessSetting
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.removeQuickAccessSetting
+import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
 import kotlinx.coroutines.launch
 
 interface SettingUiInjectEntryPoint :
@@ -66,37 +69,40 @@ fun SettingUi(
     modifier: Modifier = Modifier,
     onOpenInSettingsClicked: ((Setting) -> Unit)? = null,
 ) {
-    Column(
+    Surface(
+        color = LocalBackgroundColor.current ?: MaterialTheme.colorScheme.surface,
         modifier = modifier.testTag("SettingUi:${setting._name}"),
     ) {
-        val quickAccessSetting = setting.quickAccessSetting
-        if (quickAccessSetting != null) {
-            val coroutineScope = rememberCoroutineScope()
-            QuickAccessSettingHeader(
-                isFavorite = quickAccessSetting in preferences.quickAccessSettings,
-                setIsFavorite = { isFavorite ->
-                    coroutineScope.launch {
-                        if (isFavorite) {
-                            composeLifePreferences.addQuickAccessSetting(quickAccessSetting)
-                        } else {
-                            composeLifePreferences.removeQuickAccessSetting(quickAccessSetting)
+        Column {
+            val quickAccessSetting = setting.quickAccessSetting
+            if (quickAccessSetting != null) {
+                val coroutineScope = rememberCoroutineScope()
+                QuickAccessSettingHeader(
+                    isFavorite = quickAccessSetting in preferences.quickAccessSettings,
+                    setIsFavorite = { isFavorite ->
+                        coroutineScope.launch {
+                            if (isFavorite) {
+                                composeLifePreferences.addQuickAccessSetting(quickAccessSetting)
+                            } else {
+                                composeLifePreferences.removeQuickAccessSetting(quickAccessSetting)
+                            }
                         }
-                    }
-                },
-                onOpenInSettingsClicked = onOpenInSettingsClicked?.let { { it(setting) } },
-            )
-        }
+                    },
+                    onOpenInSettingsClicked = onOpenInSettingsClicked?.let { { it(setting) } },
+                )
+            }
 
-        when (setting) {
-            Setting.AlgorithmImplementation -> AlgorithmImplementationUi()
-            Setting.CellStatePreview -> CellStatePreviewUi()
-            Setting.DarkThemeConfig -> DarkThemeConfigUi()
-            Setting.CellShapeConfig -> CellShapeConfigUi()
-            Setting.DisableAGSL -> DisableAGSLUi()
-            Setting.DisableOpenGL -> DisableOpenGLUi()
-            Setting.DoNotKeepProcess -> DoNotKeepProcessUi()
-            Setting.EnableClipboardWatching -> EnableClipboardWatchingUi()
-            Setting.ClipboardWatchingOnboardingCompleted -> ClipboardWatchingOnboardingCompletedUi()
+            when (setting) {
+                Setting.AlgorithmImplementation -> AlgorithmImplementationUi()
+                Setting.CellStatePreview -> CellStatePreviewUi()
+                Setting.DarkThemeConfig -> DarkThemeConfigUi()
+                Setting.CellShapeConfig -> CellShapeConfigUi()
+                Setting.DisableAGSL -> DisableAGSLUi()
+                Setting.DisableOpenGL -> DisableOpenGLUi()
+                Setting.DoNotKeepProcess -> DoNotKeepProcessUi()
+                Setting.EnableClipboardWatching -> EnableClipboardWatchingUi()
+                Setting.ClipboardWatchingOnboardingCompleted -> ClipboardWatchingOnboardingCompletedUi()
+            }
         }
     }
 }
