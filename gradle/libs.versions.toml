@@ -104,7 +104,7 @@ roborazzi = "1.29.0"
 #sealedEnum
 sealedEnum = "0.7.0"
 #slackComposeLintChecks
-slackComposeLintChecks = "1.4.1"
+slackComposeLintChecks = "1.4.2"
 #sqldelight
 sqldelight = "2.0.2"
 #testParameterInjector
