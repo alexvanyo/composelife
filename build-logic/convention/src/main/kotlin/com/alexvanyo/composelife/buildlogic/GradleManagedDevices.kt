@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.buildlogic
 
 import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.dsl.ManagedVirtualDevice
+import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.invoke
 
@@ -106,22 +107,33 @@ fun getGradleManagedDeviceConfig(
     .toSet()
 
 @JvmName("configureGradleManagedDevicesFormFactors")
-fun configureGradleManagedDevices(
+fun Project.configureGradleManagedDevices(
     formFactors: Set<FormFactor>,
     commonExtension: CommonExtension<*, *, *, *, *, *>,
+    filterForTests: Boolean = true,
 ) = configureGradleManagedDevices(
     devices = getGradleManagedDeviceConfig(formFactors),
+    filterForTests = filterForTests,
     commonExtension = commonExtension,
 )
 
 @Suppress("CyclomaticComplexMethod")
 @JvmName("configureGradleManagedDevicesDeviceConfig")
-fun configureGradleManagedDevices(
+fun Project.configureGradleManagedDevices(
     devices: Set<GradleManagedDeviceConfig>,
     commonExtension: CommonExtension<*, *, *, *, *, *>,
+    filterForTests: Boolean = true,
 ) {
     commonExtension.testOptions.managedDevices.devices {
         devices
+            .filter { config ->
+                !filterForTests ||
+                    providers
+                        .gradleProperty("com.alexvanyo.composelife.enabledGradleManagedDevices")
+                        .map { config.taskPrefix in it.split(",") }
+                        .orElse(true)
+                        .get()
+            }
             .forEach { config ->
                 create<ManagedVirtualDevice>(config.taskPrefix) {
                     this.device = when (config.device) {
