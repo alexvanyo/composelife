@@ -54,7 +54,7 @@ fun Project.configureJacocoMerge() {
         }
 
     val createVariantUnitTestCoverageReports = variants.map { variant ->
-        tasks.register("create${variant.capitalizeForTaskName()}UnitTestCoverageReport", JacocoReport::class) {
+        tasks.register("jacoco${variant.capitalizeForTaskName()}UnitTestCoverageReport", JacocoReport::class) {
             dependsOn(
                 subprojects.flatMap {
                     it.getUnitTestReportTasks(variant)
@@ -81,7 +81,7 @@ fun Project.configureJacocoMerge() {
             }
         }
     }
-    val createAndroidTestCoverageReport = tasks.register("createAndroidTestCoverageReport", JacocoReport::class) {
+    val createAndroidTestCoverageReport = tasks.register("jacocoAndroidTestCoverageReport", JacocoReport::class) {
         dependsOn(
             subprojects.flatMap {
                 it.getAndroidTestReportTasks()
@@ -111,11 +111,11 @@ fun Project.configureJacocoMerge() {
         }
     }
 
-    val createUnitTestCoverageReport = tasks.register("createUnitTestCoverageReport") {
+    val createUnitTestCoverageReport = tasks.register("jacocoUnitTestCoverageReport") {
         dependsOn(createVariantUnitTestCoverageReports)
     }
 
-    tasks.register("createTestCoverageReport") {
+    tasks.register("jacocoTestCoverageReport") {
         dependsOn(createUnitTestCoverageReport)
         dependsOn(createAndroidTestCoverageReport)
     }
