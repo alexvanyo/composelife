@@ -165,7 +165,7 @@ jobs:
           path: '**/build/test-results/*Test/**.xml'
 
       - name: Generate code coverage
-        run: ./gradlew createUnitTestCoverageReport --stacktrace
+        run: ./gradlew jacocoUnitTestCoverageReport --stacktrace
 
       - name: Upload code coverage to GitHub
         uses: actions/upload-artifact@v4
@@ -383,7 +383,7 @@ jobs:
 
       - name: Generate coverage report
         run: |
-          run_tests () { ./gradlew createAndroidTestCoverageReport --stacktrace; }
+          run_tests () { ./gradlew jacocoAndroidTestCoverageReport --stacktrace; }
           (echo "==== Attempt 1 ====" && run_tests) || (echo "==== Attempt 2 ====" && run_tests) || (echo "==== Both attempts failed ====" && exit 1)
 
       - name: Upload code coverage to GitHub
