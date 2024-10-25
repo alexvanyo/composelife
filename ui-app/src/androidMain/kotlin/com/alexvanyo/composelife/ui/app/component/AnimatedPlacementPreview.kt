@@ -55,7 +55,7 @@ import com.alexvanyo.composelife.ui.util.topStart
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Preview
 @Composable
-internal fun AnimatePlacementPreview() {
+private fun AnimatePlacementPreview() {
     var animatePlacementAlignmentIndex by remember { mutableIntStateOf(0) }
     var animatePlacementParentAlignmentIndex by remember { mutableIntStateOf(0) }
     var alignmentInBoxIndex by remember { mutableIntStateOf(0) }

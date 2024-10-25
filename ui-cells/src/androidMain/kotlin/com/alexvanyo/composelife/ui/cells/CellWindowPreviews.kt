@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.ui.cells
 import androidx.compose.runtime.Composable
+import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
@@ -25,9 +26,10 @@ import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import kotlin.uuid.Uuid
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun NavigableImmutableCellWindowPreview() {
+internal fun NavigableImmutableCellWindowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             ImmutableCellWindow(
@@ -59,9 +61,10 @@ fun NavigableImmutableCellWindowPreview() {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun TrackingImmutableCellWindowPreview() {
+internal fun TrackingImmutableCellWindowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             val gameOfLifeState = GameOfLifeState(
@@ -96,9 +99,10 @@ fun TrackingImmutableCellWindowPreview() {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun NavigableMutableCellWindowPreview() {
+internal fun NavigableMutableCellWindowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             val mutableCellWindowViewportState = rememberMutableCellWindowViewportState()
@@ -137,9 +141,10 @@ fun NavigableMutableCellWindowPreview() {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun TrackingMutableCellWindowPreview() {
+internal fun TrackingMutableCellWindowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             val gameOfLifeState = GameOfLifeState(

@@ -7,6 +7,8 @@ comments:
 complexity:
   CyclomaticComplexMethod:
     excludes: [ '**/generated/**' ]
+  LargeClass:
+    excludes: [ '**/generated/**' ]
   LongMethod:
     excludes: [
       '**/generated/**',
@@ -44,6 +46,10 @@ empty-blocks:
   EmptyKtFile:
     excludes: [ '**/generated/**' ]
 
+exceptions:
+  SwallowedException:
+    excludes: [ '**/generated/**' ]
+
 formatting:
   ArgumentListWrapping:
     excludes: [ '**/generated/**' ]
@@ -74,6 +80,7 @@ formatting:
     excludes: [ '**/generated/**' ]
   NoEmptyFirstLineInMethodBlock:
     active: true
+    excludes: [ '**/generated/**' ]
   NoLineBreakBeforeAssignment:
     excludes: [ '**/generated/**' ]
   NoMultipleSpaces:
@@ -93,6 +100,10 @@ formatting:
   SpacingAroundCurly:
     excludes: [ '**/generated/**' ]
   SpacingAroundComma:
+    excludes: [ '**/generated/**' ]
+  SpacingAroundKeyword:
+    excludes: [ '**/generated/**' ]
+  SpacingAroundParens:
     excludes: [ '**/generated/**' ]
   TrailingCommaOnCallSite:
     active: true
@@ -159,5 +170,9 @@ style:
     active: false
   ObjectLiteralToLambda:
     excludes: [ '**/generated/**' ]
+  UnusedPrivateMember:
+    ignoreAnnotated:
+      - "com.alexvanyo.composelife.ui.util.*Previews"
+      - "androidx.compose.ui.tooling.preview.Preview"
   VarCouldBeVal:
     excludes: [ '**/generated/**' ]

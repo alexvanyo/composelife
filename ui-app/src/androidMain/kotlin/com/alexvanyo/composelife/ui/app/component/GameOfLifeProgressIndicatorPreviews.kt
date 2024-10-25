@@ -18,14 +18,16 @@
 package com.alexvanyo.composelife.ui.app.component
 
 import androidx.compose.runtime.Composable
+import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import kotlin.random.Random
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun GameOfLifeProgressIndicatorBlinkerPreview() {
+internal fun GameOfLifeProgressIndicatorBlinkerPreview() {
     WithPreviewDependencies(
         random = Random(6),
     ) {
@@ -35,9 +37,10 @@ fun GameOfLifeProgressIndicatorBlinkerPreview() {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun GameOfLifeProgressIndicatorToadPreview() {
+internal fun GameOfLifeProgressIndicatorToadPreview() {
     WithPreviewDependencies(
         random = Random(2),
     ) {
@@ -47,9 +50,10 @@ fun GameOfLifeProgressIndicatorToadPreview() {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun GameOfLifeProgressIndicatorBeaconPreview() {
+internal fun GameOfLifeProgressIndicatorBeaconPreview() {
     WithPreviewDependencies(
         random = Random(1),
     ) {
@@ -59,9 +63,10 @@ fun GameOfLifeProgressIndicatorBeaconPreview() {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun GameOfLifeProgressIndicatorPulsarPreview() {
+internal fun GameOfLifeProgressIndicatorPulsarPreview() {
     WithPreviewDependencies(
         random = Random(0),
     ) {

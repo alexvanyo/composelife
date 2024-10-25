@@ -27,12 +27,14 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
 import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
 import androidx.window.core.layout.computeWindowSizeClass
+import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.ui.app.ComposeLifeNavigation
 import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
 
+@ShowkaseComposable
 @OptIn(ExperimentalSharedTransitionApi::class)
 @MobileDevicePreviews
 @Composable
@@ -77,6 +79,7 @@ fun FullscreenSettingsPaneListPreview(modifier: Modifier = Modifier) {
     }
 }
 
+@ShowkaseComposable
 @OptIn(ExperimentalSharedTransitionApi::class)
 @MobileDevicePreviews
 @Composable
@@ -121,10 +124,11 @@ fun FullscreenSettingsPaneAlgorithmPreview(modifier: Modifier = Modifier) {
     }
 }
 
+@ShowkaseComposable
 @OptIn(ExperimentalSharedTransitionApi::class)
 @MobileDevicePreviews
 @Composable
-fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) {
+internal fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             BoxWithConstraints(modifier) {
@@ -165,10 +169,11 @@ fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) {
     }
 }
 
+@ShowkaseComposable
 @OptIn(ExperimentalSharedTransitionApi::class)
 @MobileDevicePreviews
 @Composable
-fun FullscreenSettingsPaneFeatureFlagsPreview(modifier: Modifier = Modifier) {
+internal fun FullscreenSettingsPaneFeatureFlagsPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             BoxWithConstraints(modifier) {

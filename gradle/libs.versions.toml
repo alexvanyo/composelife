@@ -103,6 +103,8 @@ robolectric = "4.13"
 roborazzi = "1.29.0"
 #sealedEnum
 sealedEnum = "0.7.0"
+#showkase
+showkase = "1.0.3"
 #slackComposeLintChecks
 slackComposeLintChecks = "1.4.2"
 #sqldelight
@@ -214,6 +216,9 @@ roborazzi-core =  { group = "io.github.takahirom.roborazzi", name = "roborazzi",
 roborazzi-compose =  { group = "io.github.takahirom.roborazzi", name = "roborazzi-compose", version.ref = "roborazzi" }
 sealedEnum-ksp = { group = "com.github.livefront.sealed-enum", name = "ksp", version.ref = "sealedEnum" }
 sealedEnum-runtime = { group = "com.github.livefront.sealed-enum", name = "runtime", version.ref = "sealedEnum" }
+showkase-annotation = { group = "com.airbnb.android", name = "showkase-annotation", version.ref = "showkase" }
+showkase-processor = { group = "com.airbnb.android", name = "showkase-processor", version.ref = "showkase" }
+showkase-runtime = { group = "com.airbnb.android", name = "showkase", version.ref = "showkase" }
 slackComposeLintChecks = { group = "com.slack.lint.compose", name = "compose-lint-checks", version.ref = "slackComposeLintChecks" }
 sqldelight-androidDriver = { group = "app.cash.sqldelight", name = "android-driver", version.ref = "sqldelight" }
 sqldelight-coroutinesExtensions = { group = "app.cash.sqldelight", name = "coroutines-extensions", version.ref = "sqldelight" }
