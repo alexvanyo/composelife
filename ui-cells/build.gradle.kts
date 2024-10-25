@@ -23,9 +23,11 @@ plugins {
     alias(libs.plugins.convention.androidLibraryCompose)
     alias(libs.plugins.convention.androidLibraryJacoco)
     alias(libs.plugins.convention.androidLibraryKsp)
+    alias(libs.plugins.convention.androidLibraryRoborazzi)
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    alias(libs.plugins.roborazzi)
     kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
 }
@@ -90,6 +92,7 @@ kotlin {
             dependsOn(jbMain)
             configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
+            configurations["kspAndroid"].dependencies.add(libs.showkase.processor.get())
             dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.animation)
@@ -104,6 +107,7 @@ kotlin {
                 implementation(libs.androidx.window)
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.sealedEnum.runtime)
+                implementation(libs.showkase.runtime)
             }
         }
         val commonTest by getting {
@@ -145,6 +149,10 @@ kotlin {
         }
         val androidUnitTest by getting {
             configurations["kspAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
+            configurations["kspAndroidTest"].dependencies.add(libs.showkase.processor.get())
+            dependencies {
+                implementation(libs.roborazzi.compose)
+            }
         }
         val androidInstrumentedTest by getting {
             configurations["kspAndroidAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())

@@ -19,11 +19,13 @@ package com.alexvanyo.composelife.ui.app.info
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
 fun CellUniverseInfoItemNotEditingPreview(modifier: Modifier = Modifier) {
@@ -41,6 +43,7 @@ fun CellUniverseInfoItemNotEditingPreview(modifier: Modifier = Modifier) {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
 fun CellUniverseInfoItemEditingPreview(modifier: Modifier = Modifier) {

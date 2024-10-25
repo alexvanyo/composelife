@@ -20,14 +20,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.ui.cells.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun AliveCellPreview(modifier: Modifier = Modifier) {
+internal fun AliveCellPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             InteractableCell(
@@ -44,9 +46,10 @@ fun AliveCellPreview(modifier: Modifier = Modifier) {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun PendingAliveCellPreview(modifier: Modifier = Modifier) {
+internal fun PendingAliveCellPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             InteractableCell(
@@ -63,9 +66,10 @@ fun PendingAliveCellPreview(modifier: Modifier = Modifier) {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun DeadCellPreview(modifier: Modifier = Modifier) {
+internal fun DeadCellPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             InteractableCell(
@@ -82,9 +86,10 @@ fun DeadCellPreview(modifier: Modifier = Modifier) {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun PendingDeadCellPreview(modifier: Modifier = Modifier) {
+internal fun PendingDeadCellPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             InteractableCell(

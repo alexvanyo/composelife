@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
+import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.canNavigateBack
 import com.alexvanyo.composelife.navigation.navigate
@@ -80,9 +81,10 @@ fun WatchFaceConfigPane(
     }
 }
 
+@ShowkaseComposable
 @WearPreviewDevices
 @Composable
-fun WatchFaceConfigPanePreview() {
+internal fun WatchFaceConfigPanePreview() {
     ComposeLifeTheme {
         val preview = ImageBitmap.imageResource(id = resourcesWearR.drawable.watchface_square)
 
