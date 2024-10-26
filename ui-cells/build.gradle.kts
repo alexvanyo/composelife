@@ -127,6 +127,9 @@ kotlin {
         }
         val jvmTest by creating {
             dependsOn(commonTest)
+            dependencies {
+                implementation(libs.testParameterInjector.junit4)
+            }
         }
         val jbTest by creating {
             dependsOn(jvmTest)
