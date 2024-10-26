@@ -17,13 +17,15 @@
 package com.alexvanyo.composelife.ui.app.action.settings
 
 import androidx.compose.runtime.Composable
+import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun DisableOpenGLUiDisabledPreview() {
+internal fun DisableOpenGLUiDisabledPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             DisableOpenGLUi(
@@ -34,9 +36,10 @@ fun DisableOpenGLUiDisabledPreview() {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun DisableOpenGLUiEnabledPreview() {
+internal fun DisableOpenGLUiEnabledPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             DisableOpenGLUi(

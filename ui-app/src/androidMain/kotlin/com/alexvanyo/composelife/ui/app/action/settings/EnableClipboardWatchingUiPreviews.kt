@@ -17,13 +17,15 @@
 package com.alexvanyo.composelife.ui.app.action.settings
 
 import androidx.compose.runtime.Composable
+import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun EnableClipboardWatchingUiDisabledPreview() {
+internal fun EnableClipboardWatchingUiDisabledPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             EnableClipboardWatchingUi(
@@ -34,9 +36,10 @@ fun EnableClipboardWatchingUiDisabledPreview() {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun EnableClipboardWatchingUiEnabledPreview() {
+internal fun EnableClipboardWatchingUiEnabledPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             EnableClipboardWatchingUi(

@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.ui.app.action
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.model.CellStateFormat
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.patterns.GliderPattern
@@ -27,9 +28,10 @@ import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import kotlin.uuid.Uuid
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun ClipboardWatchingSectionOnboardingPreview(modifier: Modifier = Modifier) {
+internal fun ClipboardWatchingSectionOnboardingPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             Surface(modifier) {
@@ -46,7 +48,7 @@ fun ClipboardWatchingSectionOnboardingPreview(modifier: Modifier = Modifier) {
 
 @ThemePreviews
 @Composable
-fun ClipboardWatchingSectionDisabledPreview(modifier: Modifier = Modifier) {
+private fun ClipboardWatchingSectionDisabledPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             Surface(modifier) {
@@ -58,9 +60,10 @@ fun ClipboardWatchingSectionDisabledPreview(modifier: Modifier = Modifier) {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun ClipboardWatchingSectionEnabledLoadingPreview(modifier: Modifier = Modifier) {
+internal fun ClipboardWatchingSectionEnabledLoadingPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             Surface(modifier) {
@@ -77,9 +80,10 @@ fun ClipboardWatchingSectionEnabledLoadingPreview(modifier: Modifier = Modifier)
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun ClipboardWatchingSectionEnabledUnsuccessfulPreview(modifier: Modifier = Modifier) {
+internal fun ClipboardWatchingSectionEnabledUnsuccessfulPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             Surface(modifier) {
@@ -109,9 +113,10 @@ fun ClipboardWatchingSectionEnabledUnsuccessfulPreview(modifier: Modifier = Modi
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun ClipboardWatchingSectionEnabledSuccessfulPreview(modifier: Modifier = Modifier) {
+internal fun ClipboardWatchingSectionEnabledSuccessfulPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             Surface(modifier) {

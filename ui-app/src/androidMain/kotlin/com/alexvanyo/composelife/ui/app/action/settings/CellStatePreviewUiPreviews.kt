@@ -20,13 +20,15 @@ package com.alexvanyo.composelife.ui.app.action.settings
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun CellStatePreviewUiPreview(modifier: Modifier = Modifier) {
+internal fun CellStatePreviewUiPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
             Surface(modifier) {

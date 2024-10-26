@@ -18,15 +18,17 @@ package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.IntOffset
+import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun CollapsedRunningActionControlRowPreview() {
+internal fun CollapsedRunningActionControlRowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             ActionControlRow(
@@ -53,7 +55,7 @@ fun CollapsedRunningActionControlRowPreview() {
 
 @ThemePreviews
 @Composable
-fun CollapsedPausedActionControlRowPreview() {
+internal fun CollapsedPausedActionControlRowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             ActionControlRow(
@@ -80,7 +82,7 @@ fun CollapsedPausedActionControlRowPreview() {
 
 @ThemePreviews
 @Composable
-fun ExpandedActionControlRowPreview() {
+internal fun ExpandedActionControlRowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             ActionControlRow(
@@ -107,7 +109,7 @@ fun ExpandedActionControlRowPreview() {
 
 @ThemePreviews
 @Composable
-fun ViewportTrackingActionControlRowPreview() {
+internal fun ViewportTrackingActionControlRowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             ActionControlRow(
@@ -134,7 +136,7 @@ fun ViewportTrackingActionControlRowPreview() {
 
 @ThemePreviews
 @Composable
-fun ImmersiveModeActionControlRowPreview() {
+internal fun ImmersiveModeActionControlRowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             ActionControlRow(
@@ -161,7 +163,7 @@ fun ImmersiveModeActionControlRowPreview() {
 
 @ThemePreviews
 @Composable
-fun SelectingBoxActionControlRowPreview() {
+internal fun SelectingBoxActionControlRowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             ActionControlRow(
@@ -193,7 +195,7 @@ fun SelectingBoxActionControlRowPreview() {
 
 @ThemePreviews
 @Composable
-fun SelectionActionControlRowPreview() {
+internal fun SelectionActionControlRowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             ActionControlRow(
@@ -223,7 +225,7 @@ fun SelectionActionControlRowPreview() {
 
 @ThemePreviews
 @Composable
-fun ElevatedExpandedActionControlRowPreview() {
+internal fun ElevatedExpandedActionControlRowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             ActionControlRow(

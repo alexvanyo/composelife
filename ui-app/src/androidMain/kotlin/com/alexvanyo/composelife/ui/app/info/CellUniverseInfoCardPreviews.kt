@@ -17,14 +17,16 @@
 package com.alexvanyo.composelife.ui.app.info
 
 import androidx.compose.runtime.Composable
+import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun CellUniverseInfoCardCollapsedPreview() {
+internal fun CellUniverseInfoCardCollapsedPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             CellUniverseInfoCard(
@@ -50,9 +52,10 @@ fun CellUniverseInfoCardCollapsedPreview() {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun CellUniverseInfoCardCollapsedSingleSelectionPreview() {
+internal fun CellUniverseInfoCardCollapsedSingleSelectionPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             CellUniverseInfoCard(
@@ -78,9 +81,10 @@ fun CellUniverseInfoCardCollapsedSingleSelectionPreview() {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun CellUniverseInfoCardFullyCollapsedPreview() {
+internal fun CellUniverseInfoCardFullyCollapsedPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             CellUniverseInfoCard(
@@ -106,9 +110,10 @@ fun CellUniverseInfoCardFullyCollapsedPreview() {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
-fun CellUniverseInfoCardExpandedPreview() {
+internal fun CellUniverseInfoCardExpandedPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             CellUniverseInfoCard(

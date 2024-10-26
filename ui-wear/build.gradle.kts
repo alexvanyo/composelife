@@ -22,7 +22,10 @@ plugins {
     alias(libs.plugins.convention.androidLibrary)
     alias(libs.plugins.convention.androidLibraryCompose)
     alias(libs.plugins.convention.androidLibraryKsp)
+    alias(libs.plugins.convention.androidLibraryRoborazzi)
+    alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.roborazzi)
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
@@ -55,6 +58,7 @@ kotlin {
         }
         val androidMain by getting {
             configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
+            configurations["kspAndroid"].dependencies.add(libs.showkase.processor.get())
             dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.foundation)
@@ -72,6 +76,37 @@ kotlin {
                 implementation(libs.androidx.wear.watchface.style)
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.sealedEnum.runtime)
+                implementation(libs.showkase.runtime)
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(projects.testActivity)
+            }
+        }
+        val jvmTest by creating {
+            dependsOn(commonTest)
+        }
+        val jbTest by creating {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.jetbrains.compose.uiTestJunit4)
+            }
+        }
+        val androidSharedTest by getting {
+            dependsOn(jbTest)
+            dependencies {
+                implementation(libs.androidx.compose.uiTestJunit4)
+                implementation(libs.androidx.test.core)
+                implementation(libs.androidx.test.espresso)
+                implementation(libs.androidx.test.junit)
+            }
+        }
+        val androidUnitTest by getting {
+            configurations["kspAndroidTest"].dependencies.add(libs.showkase.processor.get())
+            dependencies {
+                implementation(libs.roborazzi.compose)
             }
         }
     }

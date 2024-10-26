@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.imageResource
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
+import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.wear.watchface.configuration.GameOfLifeComplication
 import com.alexvanyo.composelife.wear.watchface.configuration.values
 import com.alexvanyo.composelife.resources.wear.R as resourcesWearR
@@ -100,9 +101,10 @@ fun WatchFacePreview(
     }
 }
 
+@ShowkaseComposable
 @WearPreviewDevices
 @Composable
-fun WatchFacePreviewPreview() {
+internal fun WatchFacePreviewPreview() {
     WatchFacePreview(
         previewImageBitmap = ImageBitmap.imageResource(resourcesWearR.drawable.watchface_square),
         onComplicationClicked = {},

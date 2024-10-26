@@ -39,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
+import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.ui.util.ColorComponent
 import com.alexvanyo.composelife.ui.util.get
 import com.alexvanyo.composelife.ui.util.values
@@ -94,9 +95,10 @@ fun WatchFaceColorPicker(
     }
 }
 
+@ShowkaseComposable
 @WearPreviewDevices
 @Composable
-fun WatchFaceColorPickerPreview() {
+internal fun WatchFaceColorPickerPreview() {
     var color by remember { mutableStateOf(Color.Cyan) }
     WatchFaceColorPicker(
         color = color,

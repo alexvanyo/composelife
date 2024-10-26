@@ -60,7 +60,7 @@ import com.alexvanyo.composelife.ui.util.TargetState
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalLayoutApi::class)
 @Preview
 @Composable
-internal fun AnimatedContentSharedElement() {
+private fun AnimatedContentSharedElement() {
     var isExpanded by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.size(256.dp)) {
@@ -118,7 +118,7 @@ internal fun AnimatedContentSharedElement() {
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalLayoutApi::class)
 @Preview
 @Composable
-internal fun AnimatedContentSharedElementWithCallerManagedVisibility() {
+private fun AnimatedContentSharedElementWithCallerManagedVisibility() {
     var isExpanded by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.size(256.dp)) {
@@ -176,7 +176,7 @@ internal fun AnimatedContentSharedElementWithCallerManagedVisibility() {
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalLayoutApi::class)
 @Preview
 @Composable
-internal fun CustomAnimatedContentSharedElementWithCallerManagedVisibility() {
+private fun CustomAnimatedContentSharedElementWithCallerManagedVisibility() {
     var isExpanded by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.size(256.dp)) {
@@ -237,7 +237,7 @@ internal fun CustomAnimatedContentSharedElementWithCallerManagedVisibility() {
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalLayoutApi::class)
 @Preview
 @Composable
-internal fun CustomAnimatedContentSettingUiSharedElementWithCallerManagedVisibility() {
+private fun CustomAnimatedContentSettingUiSharedElementWithCallerManagedVisibility() {
     var isExpanded by remember { mutableStateOf(false) }
 
     WithPreviewDependencies {
@@ -282,7 +282,7 @@ internal fun CustomAnimatedContentSettingUiSharedElementWithCallerManagedVisibil
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
-internal fun CMYSharedElement() {
+private fun CMYSharedElement() {
     var count by remember { mutableStateOf(0) }
     val state = Colors.entries[count.mod(Colors.entries.size)]
 
@@ -509,7 +509,7 @@ interface ComposableThatFitsScope {
 @Preview(widthDp = 400, heightDp = 400)
 @Preview(widthDp = 400, heightDp = 350)
 @Preview(widthDp = 400, heightDp = 300)
-internal fun TextTruncation() {
+private fun TextTruncation() {
     Surface {
         Layout(
             content = @Suppress("MaxLineLength", "MaximumLineLength") {
@@ -599,7 +599,7 @@ internal fun TextTruncation() {
 @MobileDevicePreviews
 @Preview
 @Composable
-internal fun MovableContentAnimateAfter() {
+private fun MovableContentAnimateAfter() {
     val textField = remember {
         movableContentOf {
             var textFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
