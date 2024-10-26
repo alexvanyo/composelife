@@ -98,7 +98,7 @@ molecule = "2.0.0"
 #okio
 okio = "3.9.1"
 #robolectric
-robolectric = "4.13"
+robolectric = "4.14-beta-1"
 #roborazzi
 roborazzi = "1.29.0"
 #sealedEnum
