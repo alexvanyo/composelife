@@ -41,16 +41,16 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.test.platform.graphics.HardwareRendererCompat
-import co.touchlab.kermit.Logger
 import com.airbnb.android.showkase.models.Showkase
 import com.airbnb.android.showkase.models.ShowkaseBrowserComponent
+import com.alexvanyo.composelife.ui.app.RoborazziTest.RoborazziParameterizationProvider.parameterizations
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.github.takahirom.roborazzi.captureRoboImage
-import org.junit.Rule
-import org.junit.rules.TestWatcher
-import org.junit.runner.Description
+import com.google.testing.junit.testparameterinjector.TestParameter
+import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
+import org.robolectric.RobolectricTestParameterInjector
 import org.robolectric.annotation.Config
 import java.io.File
 import kotlin.properties.Delegates
@@ -59,25 +59,13 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-@RunWith(ParameterizedRobolectricTestRunner::class)
+@RunWith(RobolectricTestParameterInjector::class)
 @Config(
     qualifiers = "w1280dp-h1280dp",
     sdk = [34],
 )
-class RoborazziTest(
-    private val roborazziParameterization: RoborazziParameterization,
-) {
-    lateinit var description: Description
-
+class RoborazziTest {
     private var wasDrawingEnabled by Delegates.notNull<Boolean>()
-
-    @get:Rule
-    val watcher = object : TestWatcher() {
-        override fun starting(description: Description) {
-            super.starting(description)
-            this@RoborazziTest.description = description
-        }
-    }
 
     @BeforeTest
     fun setup() {
@@ -92,12 +80,14 @@ class RoborazziTest(
     }
 
     @Test
-    fun test() = runComposeUiTest {
+    fun test(
+        @TestParameter(valuesProvider = RoborazziParameterizationProvider::class)
+        roborazziParameterization: RoborazziParameterization,
+    ) = runComposeUiTest {
         val testParameterizations = when (roborazziParameterization) {
             CombinedRoborazziParameterization -> parameterizations
             is SingleRoborazziParameterization -> listOf(roborazziParameterization)
         }
-        Logger.d { "testParameterizations: $testParameterizations" }
 
         var currentParameterization by mutableStateOf(testParameterizations.first())
 
@@ -151,26 +141,21 @@ class RoborazziTest(
         }
     }
 
-    companion object {
-
-        @JvmStatic
-        @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
-        fun data() =
-            // Check if we want to provide parameterization at the test level
+    object RoborazziParameterizationProvider : TestParameterValuesProvider() {
+        override fun provideValues(context: Context): List<RoborazziParameterization> =
+        // Check if we want to provide parameterization at the test level
             // This makes it easier to debug which test is failing, at the cost of speed
             if (System.getProperty("com.alexvanyo.composelife.combinedScreenshotTests").toBoolean()) {
-                listOf(arrayOf(CombinedRoborazziParameterization))
+                listOf(CombinedRoborazziParameterization)
             } else {
-                parameterizations.map {
-                    arrayOf(it)
-                }
+                parameterizations
             }
 
         /**
          * The underlying parameterizations we want to test.
          *
          * This will either be done via test runner level parameterization, or in-test parameterization, depending
-         * on the environment value determined in [data].
+         * on the environment value determined in [provideValues].
          */
         val parameterizations = Showkase.getMetadata().componentList
             .filter { it.componentKey.startsWith("com.alexvanyo.composelife.ui.app") }
@@ -204,10 +189,10 @@ sealed interface RoborazziParameterization
  * particular parameterization.
  */
 data class SingleRoborazziParameterization(
+    val showkaseBrowserComponent: ShowkaseBrowserComponent,
     val size: DpSize,
     val darkTheme: Boolean,
     val fontScale: Float,
-    val showkaseBrowserComponent: ShowkaseBrowserComponent,
 ) : RoborazziParameterization
 
 /**
