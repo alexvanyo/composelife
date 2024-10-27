@@ -109,7 +109,7 @@ kotlin {
         val androidUnitTest by getting {
             configurations["kspAndroidTest"].dependencies.add(libs.showkase.processor.get())
             dependencies {
-                implementation(libs.roborazzi.compose)
+                implementation(projects.roborazziShowkaseScreenshotTest)
             }
         }
     }
