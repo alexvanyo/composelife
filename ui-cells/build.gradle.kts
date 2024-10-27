@@ -154,7 +154,7 @@ kotlin {
             configurations["kspAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspAndroidTest"].dependencies.add(libs.showkase.processor.get())
             dependencies {
-                implementation(libs.roborazzi.compose)
+                implementation(projects.roborazziShowkaseScreenshotTest)
             }
         }
         val androidInstrumentedTest by getting {
