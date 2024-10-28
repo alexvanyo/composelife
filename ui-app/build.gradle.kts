@@ -137,6 +137,9 @@ kotlin {
         }
         val jvmTest by creating {
             dependsOn(commonTest)
+            dependencies {
+                implementation(libs.testParameterInjector.junit4)
+            }
         }
         val jbTest by creating {
             dependsOn(jvmTest)
@@ -161,7 +164,7 @@ kotlin {
             configurations["kspAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
             configurations["kspAndroidTest"].dependencies.add(libs.showkase.processor.get())
             dependencies {
-                implementation(libs.roborazzi.compose)
+                implementation(projects.roborazziShowkaseScreenshotTest)
             }
         }
         val androidInstrumentedTest by getting {
