@@ -18,7 +18,7 @@ package com.alexvanyo.composelife.ui.app.action.settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
-import com.alexvanyo.composelife.ui.app.component.ListDetailPaneScaffold
+import com.alexvanyo.composelife.ui.mobile.component.ListDetailPaneScaffold
 
 context(FullscreenSettingsDetailPaneInjectEntryPoint, FullscreenSettingsDetailPaneLocalEntryPoint)
 @Composable

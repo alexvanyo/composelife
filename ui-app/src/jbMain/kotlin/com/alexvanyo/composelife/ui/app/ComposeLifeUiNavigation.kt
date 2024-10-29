@@ -28,9 +28,9 @@ import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.currentEntry
-import com.alexvanyo.composelife.ui.app.component.DetailEntry
-import com.alexvanyo.composelife.ui.app.component.ListDetailInfo
-import com.alexvanyo.composelife.ui.app.component.ListEntry
+import com.alexvanyo.composelife.ui.mobile.component.DetailEntry
+import com.alexvanyo.composelife.ui.mobile.component.ListDetailInfo
+import com.alexvanyo.composelife.ui.mobile.component.ListEntry
 import kotlin.uuid.Uuid
 
 /**
