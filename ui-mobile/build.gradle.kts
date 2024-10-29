@@ -21,6 +21,7 @@ plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
     alias(libs.plugins.convention.androidLibraryCompose)
+    alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
@@ -46,6 +47,7 @@ kotlin {
                 api(projects.parameterizedString)
                 api(projects.preferences)
 
+                implementation(projects.navigation)
                 implementation(projects.resourceState)
                 implementation(projects.uiCommon)
                 implementation(projects.uiToolingPreview)
@@ -63,12 +65,14 @@ kotlin {
         }
         val desktopMain by getting {
             dependsOn(jbMain)
+            configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
         }
         val androidMain by getting {
             dependsOn(jbMain)
+            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
             dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.material3)
