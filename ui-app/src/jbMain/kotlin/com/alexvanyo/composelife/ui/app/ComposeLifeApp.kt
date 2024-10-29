@@ -60,8 +60,8 @@ import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsListPa
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.component.ListDetailInfo
-import com.alexvanyo.composelife.ui.app.component.listDetailNavigationTransform
+import com.alexvanyo.composelife.ui.mobile.component.ListDetailInfo
+import com.alexvanyo.composelife.ui.mobile.component.listDetailNavigationTransform
 import com.alexvanyo.composelife.ui.util.LocalNavigationSharedTransitionScope
 import com.alexvanyo.composelife.ui.util.MaterialPredictiveNavigationFrame
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
