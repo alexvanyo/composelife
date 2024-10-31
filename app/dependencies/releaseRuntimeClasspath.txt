@@ -1,6 +1,6 @@
-androidx.activity:activity-compose:1.10.0-alpha02
-androidx.activity:activity-ktx:1.10.0-alpha02
-androidx.activity:activity:1.10.0-alpha02
+androidx.activity:activity-compose:1.10.0-alpha03
+androidx.activity:activity-ktx:1.10.0-alpha03
+androidx.activity:activity:1.10.0-alpha03
 androidx.annotation:annotation-experimental:1.4.1
 androidx.annotation:annotation-jvm:1.9.1
 androidx.annotation:annotation:1.9.1
