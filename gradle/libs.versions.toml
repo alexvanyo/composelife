@@ -10,7 +10,7 @@ androidR8 = "8.6.15"
 #androidxActivity
 androidxActivity = "1.10.0-alpha02"
 #androidxAnnotation
-androidxAnnotation = "1.9.0"
+androidxAnnotation = "1.9.1"
 #androidxAppcompat
 androidxAppcompat = "1.7.0"
 #androidxBenchmark
