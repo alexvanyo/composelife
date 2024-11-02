@@ -18,15 +18,17 @@ These include:
 - UI written in [Jetpack Compose][jetpack_compose]
   - Mobile Android app and desktop app for exploring Game of Life patterns.
   - Watchface for Wear OS with configuration
-- Dependency injection using [kotlin-inject][kotlin_inject] and [context receivers][context_receivers]
-- [AGSL][agsl] and [OpenGL](https://developer.android.com/develop/ui/views/graphics/opengl/about-opengl) rendering
+  - Custom [adaptive navigation library][navigation]
+- [Dependency injection][dependency-injection] using [kotlin-inject][kotlin_inject] and [context receivers][context_receivers]
+- [AGSL][agsl], [OpenGL](https://developer.android.com/develop/ui/views/graphics/opengl/about-opengl) and [SKSL][sksl] rendering
 - Fully functional CI system with GitHub Actions with:
-    - JVM tests
-    - [Robolectric][robolectric] tests
-    - Integration tests (minification with the help of [Keeper][keeper], memory leak checking with [LeakCanary][leakcanary])
-    - Screenshot tests with [Roborazzi][roborazzi]
-    - Linting, with android/lint and [detekt][detekt]
-    - Code coverage with [JaCoCo][jacoco] (reporting done with [Codecov][codecov])
+    - Comprehensive automated tests
+      - Hierarchical KMP tests shared across platforms
+      - Shared [Robolectric][robolectric] and instrumentation tests
+      - Minified instrumentation tests with the help of [Keeper][keeper], memory leak checking with [LeakCanary][leakcanary])
+      - Screenshot tests with [Roborazzi][roborazzi] with automatic updates on CI
+      - Code coverage with [JaCoCo][jacoco] (reporting done with [Codecov][codecov])
+    - Linting, with android/lint and [detekt][detekt] with automatic updates on CI
     - Automatic dependency updates with [Renovate][renovate]
     - Automatic [baseline profile][baseline_profiles] generation
 
@@ -90,12 +92,15 @@ limitations under the License.
 [renovate]: https://docs.renovatebot.com/
 [robolectric]: https://robolectric.org/
 [roborazzi]: https://github.com/takahirom/roborazzi/
+[sksl]: https://skia.org/docs/user/sksl/
 [wikipedia_gameoflife]: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
 
 [//]: # (relative links)
 
 [app]: app
 [desktop-app]: desktop-app
+[dependency-injection]: docs/di.md
 [icon]: app/src/androidMain/ic_launcher-playstore.png
+[navigation]: docs/navigation.md
 [watchface]: resources-wear/src/androidMain/res/drawable-nodpi/watchface_round.png
 [wear]: wear
