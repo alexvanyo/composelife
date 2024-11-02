@@ -16,14 +16,11 @@
 
 package com.alexvanyo.composelife.ui.util
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import android.view.Window
+import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -33,7 +30,7 @@ import kotlinx.coroutines.awaitCancellation
 
 @Composable
 actual fun rememberImmersiveModeManager(): ImmersiveModeManager = rememberImmersiveModeManager(
-    requireNotNull(LocalContext.current.findActivity()).window,
+    requireNotNull(LocalActivity.current).window,
 )
 
 @Composable
@@ -73,12 +70,4 @@ private class AndroidImmersiveModeManager private constructor(
     )
 
     override suspend fun hideSystemUi() = powerableUpdatable.press()
-}
-
-private tailrec fun Context.findActivity(): Activity? {
-    return when (this) {
-        is Activity -> this
-        is ContextWrapper -> this.baseContext.findActivity()
-        else -> null
-    }
 }
