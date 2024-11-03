@@ -100,7 +100,7 @@ okio = "3.9.1"
 #robolectric
 robolectric = "4.14-beta-1"
 #roborazzi
-roborazzi = "1.29.0"
+roborazzi = "1.30.0"
 #sealedEnum
 sealedEnum = "0.7.0"
 #showkase
