@@ -70,7 +70,7 @@ keeper = "0.16.1"
 #kermit
 kermit = "2.0.4"
 #kotlin
-kotlin = "2.1.0-Beta2"
+kotlin = "2.1.0-RC"
 #kotlinInject
 kotlinInject = "0.7.2"
 #kotlinxCollectionsImmutable
