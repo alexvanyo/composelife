@@ -54,7 +54,7 @@ apiGuardian = "1.1.2"
 #circuit
 circuit = "0.25.0"
 #coil
-coil = "3.0.0-rc02"
+coil = "3.0.0"
 #dependencyGuard
 dependencyGuard = "0.5.0"
 #detekt
