@@ -51,11 +51,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.selected
@@ -66,6 +64,7 @@ import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
 import com.alexvanyo.composelife.ui.app.resources.Back
 import com.alexvanyo.composelife.ui.app.resources.Settings
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.mobile.component.rememberTooltipPositionProvider
 
 @Composable
 fun FullscreenSettingsListPane(
@@ -140,7 +139,7 @@ private fun SettingsCategoryList(
                         modifier = Modifier.align(Alignment.CenterStart),
                     ) {
                         TooltipBox(
-                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                            positionProvider = rememberTooltipPositionProvider(),
                             tooltip = {
                                 PlainTooltip {
                                     Text(parameterizedStringResource(Strings.Back))
