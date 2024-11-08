@@ -32,7 +32,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -43,6 +42,7 @@ import com.alexvanyo.composelife.ui.app.resources.AddSettingToQuickAccess
 import com.alexvanyo.composelife.ui.app.resources.OpenInSettings
 import com.alexvanyo.composelife.ui.app.resources.RemoveSettingFromQuickAccess
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.mobile.component.rememberTooltipPositionProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongMethod")
@@ -64,7 +64,7 @@ fun QuickAccessSettingHeader(
 
         if (onOpenInSettingsClicked != null) {
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                positionProvider = rememberTooltipPositionProvider(),
                 tooltip = {
                     PlainTooltip {
                         Text(parameterizedStringResource(Strings.OpenInSettings))
@@ -88,7 +88,7 @@ fun QuickAccessSettingHeader(
         }
 
         TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+            positionProvider = rememberTooltipPositionProvider(),
             tooltip = {
                 PlainTooltip {
                     Text(
