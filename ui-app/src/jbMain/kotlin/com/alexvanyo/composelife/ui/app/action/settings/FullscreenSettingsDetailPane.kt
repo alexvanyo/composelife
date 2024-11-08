@@ -47,7 +47,6 @@ import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -67,6 +66,7 @@ import com.alexvanyo.composelife.ui.app.ComposeLifeUiNavigation
 import com.alexvanyo.composelife.ui.app.resources.Back
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
+import com.alexvanyo.composelife.ui.mobile.component.rememberTooltipPositionProvider
 import com.alexvanyo.composelife.ui.util.trySharedBounds
 import kotlin.math.roundToInt
 
@@ -135,7 +135,7 @@ private fun SettingsCategoryDetail(
                             modifier = Modifier.align(Alignment.CenterStart),
                         ) {
                             TooltipBox(
-                                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                                positionProvider = rememberTooltipPositionProvider(),
                                 tooltip = {
                                     PlainTooltip {
                                         Text(parameterizedStringResource(Strings.Back))
