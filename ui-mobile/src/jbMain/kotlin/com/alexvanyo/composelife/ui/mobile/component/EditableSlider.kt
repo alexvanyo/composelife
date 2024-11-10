@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
@@ -28,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.ImeAction
@@ -44,12 +47,10 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.sessionvalue.localSessionId
 import com.alexvanyo.composelife.sessionvalue.rememberSessionValueHolder
 import com.alexvanyo.composelife.ui.util.nonNegativeDouble
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.onEach
 import kotlin.uuid.Uuid
 
-@Suppress("LongParameterList", "LongMethod")
+@Suppress("LongParameterList")
 @Composable
 fun <T : Comparable<T>> EditableSlider(
     labelAndValueText: @Composable (T) -> String,
@@ -68,67 +69,23 @@ fun <T : Comparable<T>> EditableSlider(
     sliderOverlay: @Composable () -> Unit = {},
     inputTransformation: InputTransformation = InputTransformation.nonNegativeDouble(),
 ) {
-    val value = sessionValue.value
-
-    /**
-     * The [String] representation of the [value] passed in.
-     */
-    val nonTransientValueText = valueText(value)
-
-    val textFieldSessionValueHolder = rememberSessionValueHolder(
-        upstreamSessionValue = sessionValue,
-        setUpstreamSessionValue = { _, newSessionValue -> onSessionValueChange(newSessionValue) },
+    val state = rememberEditableSliderState(
+        labelAndValueText = labelAndValueText,
+        valueText = valueText,
+        textToValue = textToValue,
+        sessionValue = sessionValue,
+        onSessionValueChange = onSessionValueChange,
+        valueRange = valueRange,
+        onValueChangeFinished = onValueChangeFinished,
     )
-
-    val textFieldLocalSessionId = textFieldSessionValueHolder.info.localSessionId
-
-    /**
-     * The transient [TextField] value that the user is editing.
-     */
-    val transientTextFieldState = key(textFieldLocalSessionId) {
-        rememberTextFieldState(
-            initialText = nonTransientValueText,
-        )
-    }
-
-    /**
-     * Parses a value [T] from the given [text].
-     */
-    fun parseValue(text: String): T? =
-        textToValue(text)?.coerceIn(valueRange)
-
-    /**
-     * If non-null, this is the value [T] created from the currently entered string in the current edit session, as
-     * stored in [transientTextFieldState].
-     *
-     * If null, the currently entered string cannot be turned into a value of type [T].
-     */
-    val transientValue by rememberUpdatedState(
-        parseValue(transientTextFieldState.text.toString()),
-    )
-
-    LaunchedEffect(Unit) {
-        snapshotFlow { transientValue }
-            .filterNotNull()
-            .onEach(textFieldSessionValueHolder::setValue)
-            .collect()
-    }
-
-    /**
-     * The current value to display. This is either the current transient value, or the persisted [value] if the
-     * transient value is `null`.
-     */
-    val currentValue = transientValue ?: value
 
     val sliderFocusRequester = remember { FocusRequester() }
     val textFieldFocusRequester = remember { FocusRequester() }
 
     LabeledSlider(
-        label = labelAndValueText(currentValue),
-        value = currentValue,
-        onValueChange = {
-            onSessionValueChange(SessionValue(Uuid.random(), Uuid.random(), it))
-        },
+        label = state.sliderLabel,
+        value = state.currentValue,
+        onValueChange = state::onSliderValueChange,
         valueRange = valueRange,
         sliderBijection = sliderBijection,
         modifier = modifier
@@ -139,41 +96,19 @@ fun <T : Comparable<T>> EditableSlider(
         onValueChangeFinished = onValueChangeFinished,
         colors = colors,
         labelSlot = {
-            /**
-             * True if this is the first invocation of [onFocusChanged].
-             */
-            /**
-             * True if this is the first invocation of [onFocusChanged].
-             */
-            /**
-             * True if this is the first invocation of [onFocusChanged].
-             */
-            /**
-             * True if this is the first invocation of [onFocusChanged].
-             */
-            var isFirstFocusedChanged: Boolean by remember { mutableStateOf(true) }
-
             TextField(
-                state = transientTextFieldState,
+                state = state.textFieldState,
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(textFieldFocusRequester)
-                    .onFocusChanged {
-                        if (!isFirstFocusedChanged && !it.isFocused) {
-                            // If we are no longer focused, the current editing session has ended, so update the
-                            // value with a randomized session id and invoke the finished listener.
-                            onSessionValueChange(SessionValue(Uuid.random(), Uuid.random(), value))
-                            onValueChangeFinished?.invoke()
-                        }
-                        isFirstFocusedChanged = false
-                    },
+                    .onFocusChanged(state::onTextFieldFocusChanged),
                 label = {
                     Text(labelText)
                 },
                 placeholder = {
-                    Text(nonTransientValueText)
+                    Text(state.placeholderText)
                 },
-                isError = transientValue == null,
+                isError = state.isError,
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Done,
                 ),
@@ -187,4 +122,147 @@ fun <T : Comparable<T>> EditableSlider(
         },
         sliderOverlay = sliderOverlay,
     )
+}
+
+@Suppress("LongParameterList")
+@Composable
+private fun <T : Comparable<T>> rememberEditableSliderState(
+    labelAndValueText: @Composable (T) -> String,
+    valueText: (T) -> String,
+    textToValue: (String) -> T?,
+    sessionValue: SessionValue<T>,
+    onSessionValueChange: (SessionValue<T>) -> Unit,
+    valueRange: ClosedRange<T>,
+    onValueChangeFinished: (() -> Unit)?,
+): EditableSliderState<T> {
+    /**
+     * True if this is the first invocation of [onFocusChanged].
+     */
+    var isFirstFocusedChanged: Boolean by remember { mutableStateOf(true) }
+
+    /**
+     * The [String] representation of the [value] passed in.
+     */
+    val nonTransientValueText = valueText(sessionValue.value)
+
+    val textFieldSessionValueHolder = rememberSessionValueHolder(
+        upstreamSessionValue = sessionValue,
+        setUpstreamSessionValue = { _, newSessionValue -> onSessionValueChange(newSessionValue) },
+    )
+
+    /**
+     * The transient [TextField] value that the user is editing.
+     *
+     * This resets if the local session id changes, which occurs if either the value is updated elsewhere, or
+     * the editing session of the text has completed
+     */
+    val transientTextFieldState = key(textFieldSessionValueHolder.info.localSessionId) {
+        rememberTextFieldState(
+            initialText = nonTransientValueText,
+        )
+    }
+
+    val editableSliderState = remember(
+        labelAndValueText,
+        valueText,
+        textToValue,
+        onSessionValueChange,
+        valueRange,
+        onValueChangeFinished,
+        nonTransientValueText,
+        textFieldSessionValueHolder,
+        transientTextFieldState,
+    ) {
+        object : EditableSliderState<T> {
+            /**
+             * Parses a value [T] from the given [text].
+             */
+            private fun parseValue(text: String): T? =
+                textToValue(text)?.coerceIn(valueRange)
+
+            /**
+             * If non-null, this is the value [T] created from the currently entered string in the current edit session,
+             * as stored in [transientTextFieldState].
+             *
+             * If null, the currently entered string cannot be turned into a value of type [T].
+             */
+            val transientValue: T?
+                get() = parseValue(transientTextFieldState.text.toString())
+
+            override val currentValue: T
+                get() = transientValue ?: textFieldSessionValueHolder.sessionValue.value
+
+            override val textFieldState: TextFieldState
+                get() = transientTextFieldState
+            override val sliderLabel: String
+                @Composable get() = labelAndValueText(currentValue)
+            override val placeholderText: String
+                get() = nonTransientValueText
+            override val isError: Boolean
+                get() = transientValue == null
+
+            override fun onSliderValueChange(value: T) {
+                onSessionValueChange(SessionValue(Uuid.random(), Uuid.random(), value))
+            }
+
+            override fun onTextFieldFocusChanged(focusState: FocusState) {
+                if (!isFirstFocusedChanged && !focusState.isFocused) {
+                    // If we are no longer focused, the current editing session has ended, so update the
+                    // value with the current value and a randomized session id and then invoke the finished
+                    // listener.
+                    onSessionValueChange(SessionValue(Uuid.random(), Uuid.random(), currentValue))
+                    onValueChangeFinished?.invoke()
+                }
+                isFirstFocusedChanged = false
+            }
+        }
+    }
+
+    val currentEditableSliderState by rememberUpdatedState(editableSliderState)
+
+    // Synchronize the transient value back to the session value holder, if it has changed
+    LaunchedEffect(textFieldSessionValueHolder) {
+        snapshotFlow { currentEditableSliderState.transientValue }
+            .filterNotNull()
+            .collect { newTransientValue ->
+                if (textFieldSessionValueHolder.sessionValue.value != newTransientValue) {
+                    textFieldSessionValueHolder.setValue(newTransientValue)
+                }
+            }
+    }
+
+    return currentEditableSliderState
+}
+
+@Stable
+private interface EditableSliderState<T : Comparable<T>> {
+    /**
+     * The current value to display. This is either the current transient value, or the persisted [value] if the
+     * transient value is `null`.
+     */
+    val currentValue: T
+
+    /**
+     * The backing [TextFieldState]
+     */
+    val textFieldState: TextFieldState
+
+    /**
+     * The label for the slider.
+     */
+    @get:Composable
+    val sliderLabel: String
+
+    /**
+     * The placeholder text.
+     */
+    val placeholderText: String
+
+    /**
+     * True if the current value for the text field is invalid.
+     */
+    val isError: Boolean
+
+    fun onSliderValueChange(value: T)
+    fun onTextFieldFocusChanged(focusState: FocusState)
 }
