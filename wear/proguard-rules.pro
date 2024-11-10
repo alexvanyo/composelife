@@ -20,3 +20,7 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 -keep class androidx.wear.watchface.complications.rendering.ComplicationDrawable
+
+-assumenosideeffects class co.touchlab.kermit.Logger$Companion {
+    public *;
+}

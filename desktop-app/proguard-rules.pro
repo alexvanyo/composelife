@@ -20,6 +20,12 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+-optimizations !method/specialization/**
+
 -dontwarn android.**
 -dontwarn org.slf4j.**
 -keep class org.sqlite.** { *; }
+
+-assumenosideeffects class co.touchlab.kermit.Logger$Companion {
+    public *;
+}
