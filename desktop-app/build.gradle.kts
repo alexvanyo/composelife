@@ -1,5 +1,6 @@
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import kotlin.text.get
 
 /*
  * Copyright 2024 The Android Open Source Project
@@ -65,7 +66,11 @@ compose.desktop {
     application {
         mainClass = "com.alexvanyo.composelife.MainKt"
         buildTypes.release.proguard {
+            version = libs.versions.proguard
             configurationFiles.from("proguard-rules.pro")
+            // TODO: Fix desktop proguard optimization
+            //       https://github.com/alexvanyo/composelife/issues/2192
+            optimize = false
         }
         nativeDistributions {
             targetFormats(TargetFormat.Deb, TargetFormat.Msi, TargetFormat.Dmg)
