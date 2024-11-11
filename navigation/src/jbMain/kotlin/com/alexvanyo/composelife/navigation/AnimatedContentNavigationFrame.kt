@@ -25,9 +25,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -50,17 +48,11 @@ fun <T : NavigationEntry> AnimatedContentNavigationFrame(
     },
     contentAlignment: Alignment = Alignment.TopStart,
 ) {
-    val movablePanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
+    val rememberedPanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
         key(id) {
-            val currentPaneContent by rememberUpdatedState(paneContent)
-            remember {
-                movableContentOf {
-                    currentPaneContent()
-                }
-            }
+            rememberUpdatedState(paneContent)
         }
     }
-
     AnimatedContent(
         targetState = renderableNavigationState.navigationState.currentEntry,
         transitionSpec = transitionSpec,
@@ -70,7 +62,7 @@ fun <T : NavigationEntry> AnimatedContentNavigationFrame(
     ) { entry ->
         key(entry.id) {
             // Fetch and store the movable pane to hold onto while animating out
-            remember { movablePanes.getValue(entry.id) }.invoke()
+            remember { rememberedPanes.getValue(entry.id) }.value.invoke()
         }
     }
 }

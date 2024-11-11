@@ -23,8 +23,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.navigation.BackstackEntry
+import com.alexvanyo.composelife.navigation.BackstackRenderableNavigationTransformResult
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.NavigationSegment
 import com.alexvanyo.composelife.navigation.RenderableNavigationTransform
@@ -32,6 +34,7 @@ import com.alexvanyo.composelife.navigation.backstackRenderableNavigationTransfo
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.trySharedElementWithCallerManagedVisibility
+import com.alexvanyo.composelife.ui.util.uuidSaver
 import kotlin.uuid.Uuid
 
 /**
@@ -70,7 +73,11 @@ fun <T> listDetailNavigationTransform(
                     is NavigationSegment.CombinedSegment -> null
                     is NavigationSegment.SingleSegment -> {
                         when (navigationSegment.value) {
-                            is ListEntry -> entry.key to key(entry.key) { remember { Uuid.random() } }
+                            is ListEntry -> entry.key to key(entry.key) {
+                                rememberSaveable(saver = uuidSaver) {
+                                    Uuid.random()
+                                }
+                            }
                             else -> null
                         }
                     }
@@ -104,28 +111,40 @@ fun <T> listDetailNavigationTransform(
 
         backstackRenderableNavigationTransform<NavigationSegment<T>, NavigationSegment<T>> { entry, movablePanes ->
             when (val navigationSegment = entry.value) {
-                is NavigationSegment.CombinedSegment -> entry to movablePanes.getValue(entry.id)
+                is NavigationSegment.CombinedSegment -> {
+                    BackstackRenderableNavigationTransformResult<NavigationSegment<T>>(
+                        id = entry.id,
+                        value = entry.value,
+                        previousPreTransformedId = entry.previous?.id,
+                        pane = movablePanes.getValue(entry.id),
+                    )
+                }
                 is NavigationSegment.SingleSegment -> {
                     when (val value = navigationSegment.value) {
                         is ListEntry -> {
                             if (useListDetailPanes.getValue(entry.id).invoke()) {
                                 null
                             } else {
-                                entry to @Composable {
-                                    val visible = !remember { useListDetailPanes.getValue(entry.id) }.invoke()
+                                BackstackRenderableNavigationTransformResult<NavigationSegment<T>>(
+                                    id = entry.id,
+                                    value = entry.value,
+                                    previousPreTransformedId = entry.previous?.id,
+                                    pane = @Composable {
+                                        val visible = !remember { useListDetailPanes.getValue(entry.id) }.invoke()
 
-                                    Box(
-                                        modifier = Modifier.trySharedElementWithCallerManagedVisibility(
-                                            key = entry.id,
-                                            visible = visible,
-                                        ),
-                                    ) {
-                                        val pane = remember(entry.id) { movablePanes.getValue(entry.id) }
-                                        if (visible) {
-                                            pane.invoke()
+                                        Box(
+                                            modifier = Modifier.trySharedElementWithCallerManagedVisibility(
+                                                key = entry.id,
+                                                visible = visible,
+                                            ),
+                                        ) {
+                                            val pane = remember(entry.id) { movablePanes.getValue(entry.id) }
+                                            if (visible) {
+                                                pane.invoke()
+                                            }
                                         }
-                                    }
-                                }
+                                    },
+                                )
                             }
                         }
                         is DetailEntry -> {
@@ -133,14 +152,6 @@ fun <T> listDetailNavigationTransform(
                                 val previous = requireNotNull(entry.previous)
                                 val newEntryId = remember(previous.id) { listDetailPaneIds.getValue(previous.id) }
 
-                                val newEntry = BackstackEntry(
-                                    value = object : NavigationSegment.CombinedSegment<T> {
-                                        override val combinedValues =
-                                            previous.value.combinedValues + navigationSegment.combinedValues
-                                    },
-                                    previous = previous.previous,
-                                    id = newEntryId,
-                                )
                                 val newPane = @Composable {
                                     @Suppress("UNCHECKED_CAST")
                                     val listEntry: ListEntry =
@@ -193,26 +204,46 @@ fun <T> listDetailNavigationTransform(
                                         onBackButtonPressed = onBackButtonPressed,
                                     )
                                 }
-                                newEntry to newPane
+                                BackstackRenderableNavigationTransformResult<NavigationSegment<T>>(
+                                    id = newEntryId,
+                                    value = object : NavigationSegment.CombinedSegment<T> {
+                                        override val combinedValues =
+                                            previous.value.combinedValues + navigationSegment.combinedValues
+                                    },
+                                    previousPreTransformedId = previous.previous?.id,
+                                    pane = newPane,
+                                )
                             } else {
-                                entry to @Composable {
-                                    val visible = !remember { useListDetailPanes.getValue(entry.id) }.invoke()
+                                BackstackRenderableNavigationTransformResult<NavigationSegment<T>>(
+                                    id = entry.id,
+                                    value = entry.value,
+                                    previousPreTransformedId = entry.previous?.id,
+                                    pane = @Composable {
+                                        val visible = !remember { useListDetailPanes.getValue(entry.id) }.invoke()
 
-                                    Box(
-                                        modifier = Modifier.trySharedElementWithCallerManagedVisibility(
-                                            key = entry.id,
-                                            visible = visible,
-                                        ),
-                                    ) {
-                                        val pane = remember(entry.id) { movablePanes.getValue(entry.id) }
-                                        if (visible) {
-                                            pane.invoke()
+                                        Box(
+                                            modifier = Modifier.trySharedElementWithCallerManagedVisibility(
+                                                key = entry.id,
+                                                visible = visible,
+                                            ),
+                                        ) {
+                                            val pane = remember(entry.id) { movablePanes.getValue(entry.id) }
+                                            if (visible) {
+                                                pane.invoke()
+                                            }
                                         }
-                                    }
-                                }
+                                    },
+                                )
                             }
                         }
-                        else -> entry to movablePanes.getValue(entry.id)
+                        else -> {
+                            BackstackRenderableNavigationTransformResult<NavigationSegment<T>>(
+                                id = entry.id,
+                                value = entry.value,
+                                previousPreTransformedId = entry.previous?.id,
+                                pane = movablePanes.getValue(entry.id),
+                            )
+                        }
                     }
                 }
             }
