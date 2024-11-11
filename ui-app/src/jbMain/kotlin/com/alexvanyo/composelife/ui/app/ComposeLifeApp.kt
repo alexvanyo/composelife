@@ -61,6 +61,7 @@ import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailInfo
+import com.alexvanyo.composelife.ui.mobile.component.dialogNavigationTransform
 import com.alexvanyo.composelife.ui.mobile.component.listDetailNavigationTransform
 import com.alexvanyo.composelife.ui.util.LocalNavigationSharedTransitionScope
 import com.alexvanyo.composelife.ui.util.MaterialPredictiveNavigationFrame
@@ -168,13 +169,17 @@ fun ComposeLifeApp(
 
                                     MaterialPredictiveNavigationFrame(
                                         renderableNavigationState =
-                                        listDetailNavigationTransform<ComposeLifeUiNavigation>(
+                                        dialogNavigationTransform<ComposeLifeUiNavigation>(
                                             onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
                                         ).invoke(
-                                            segmentingNavigationTransform<ComposeLifeUiNavigation>()
-                                                .invoke(renderableNavigationState),
+                                            listDetailNavigationTransform<ComposeLifeUiNavigation>(
+                                                onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
+                                            ).invoke(
+                                                segmentingNavigationTransform<ComposeLifeUiNavigation>()
+                                                    .invoke(renderableNavigationState),
+                                            ),
                                         ),
-                                        predictiveBackStateHolder.value,
+                                        repeatablePredictiveBackState = predictiveBackStateHolder.value,
                                     )
                                 }
                             }

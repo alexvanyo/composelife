@@ -27,7 +27,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -75,14 +74,9 @@ fun <T> CrossfadePredictiveNavigationFrame(
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     animateInternalContentSizeChanges: Boolean = false,
 ) {
-    val movablePanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
+    val rememberedPanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
         key(id) {
-            val currentPaneContent by rememberUpdatedState(paneContent)
-            remember {
-                movableContentOf {
-                    currentPaneContent()
-                }
-            }
+            rememberUpdatedState(paneContent)
         }
     }
 
@@ -113,7 +107,7 @@ fun <T> CrossfadePredictiveNavigationFrame(
         modifier = modifier,
     ) { entry ->
         key(entry.id) {
-            remember { movablePanes.getValue(entry.id) }.invoke()
+            remember { rememberedPanes.getValue(entry.id) }.value.invoke()
         }
     }
 }
@@ -134,14 +128,9 @@ fun <T> MaterialPredictiveNavigationFrame(
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     animateInternalContentSizeChanges: Boolean = false,
 ) {
-    val movablePanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
+    val rememberedPanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
         key(id) {
-            val currentPaneContent by rememberUpdatedState(paneContent)
-            remember {
-                movableContentOf {
-                    currentPaneContent()
-                }
-            }
+            rememberUpdatedState(paneContent)
         }
     }
 
@@ -310,7 +299,7 @@ fun <T> MaterialPredictiveNavigationFrame(
         modifier = modifier,
     ) { entry ->
         key(entry.id) {
-            remember { movablePanes.getValue(entry.id) }.invoke()
+            remember { rememberedPanes.getValue(entry.id) }.value.invoke()
         }
     }
 }

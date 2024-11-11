@@ -36,11 +36,29 @@ class RenderableNavigationState<T : NavigationEntry, S : NavigationState<T>>(
 typealias RenderableNavigationTransform<T1, S1, T2, S2> =
     @Composable (RenderableNavigationState<T1, S1>) -> RenderableNavigationState<T2, S2>
 
+/**
+ * Returns a [RenderableNavigationTransform] that applies [entryTransform] to each entry.
+ *
+ * The order in which [entryTransform] is called for each entry is not guaranteed.
+ */
 fun <T1, T2> backstackRenderableNavigationTransform(
+    /**
+     * The transform to apply to each entry in [RenderableNavigationState], which is passed as [entry].
+     *
+     * The provided [movablePanes] is a map from the current entry ids to the pane content for each entry, pre-wrapped
+     * in a [movableContentOf] to allow the content to be invoked in different places, or from the result from
+     * different entry transforms.
+     *
+     * If this transform returns `null`, then this entry will not contribute to the resulting
+     * [RenderableNavigationState], which can be useful if the pane for this entry is rendered as part of the result
+     * for a different entry and this transform consolidates entries.
+     *
+     * The result can have a different entry value type, a different id space, and a different amount of entries.
+     */
     entryTransform: @Composable (
-        BackstackEntry<T1>,
+        entry: BackstackEntry<T1>,
         movablePanes: Map<Uuid, @Composable () -> Unit>,
-    ) -> Pair<BackstackEntry<T2>, @Composable () -> Unit>?,
+    ) -> BackstackRenderableNavigationTransformResult<T2>?,
 ): RenderableNavigationTransform<BackstackEntry<T1>, BackstackState<T1>, BackstackEntry<T2>, BackstackState<T2>> =
     { renderableNavigationState ->
         val movablePanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
@@ -59,12 +77,28 @@ fun <T1, T2> backstackRenderableNavigationTransform(
             }
         }.toMap()
 
-        val transformedIdsMap = transformed.values.associateBy { it.first.id }
-        val transformedEntryMap = transformedIdsMap.mapValues { it.value.first }
-        val transformedPaneMap = transformedIdsMap.mapValues { it.value.second }
+        val transformedIdsMap = transformed.values.associateBy { it.id }
+
+        val transformedEntryMap = remember(transformed) {
+            val map = mutableMapOf<Uuid, BackstackEntry<T2>>()
+            fun createNavigationSegment(
+                result: BackstackRenderableNavigationTransformResult<T2>,
+            ): BackstackEntry<T2> =
+                map.getOrPut(result.id) {
+                    BackstackEntry(
+                        value = result.value,
+                        previous = transformed[result.previousPreTransformedId]?.let(::createNavigationSegment),
+                        id = result.id,
+                    )
+                }
+
+            transformed.values.forEach(::createNavigationSegment)
+            map
+        }
+        val transformedPaneMap = transformedIdsMap.mapValues { it.value.pane }
 
         val transformedCurrentEntryId =
-            transformed.getValue(renderableNavigationState.navigationState.currentEntryId).first.id
+            transformed.getValue(renderableNavigationState.navigationState.currentEntryId).id
 
         val transformedBackstackState: BackstackState<T2> =
             object : BackstackState<T2> {
@@ -79,3 +113,25 @@ fun <T1, T2> backstackRenderableNavigationTransform(
             transformedPaneMap,
         )
     }
+
+/**
+ * The result of the [entryTransform] for a [backstackRenderableNavigationTransform].
+ */
+class BackstackRenderableNavigationTransformResult<T>(
+    /**
+     * The transformed id of the entry.
+     */
+    val id: Uuid,
+    /**
+     * The transformed entry value of the entry.
+     */
+    val value: T,
+    /**
+     * The _non-transformed_ id of the transformed previous entry.
+     */
+    val previousPreTransformedId: Uuid?,
+    /**
+     * The transformed content pane for the entry.
+     */
+    val pane: @Composable () -> Unit,
+)
