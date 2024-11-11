@@ -26,7 +26,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
@@ -78,14 +77,9 @@ fun <T> WearNavigationFrame(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val movablePanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
+    val rememberedPanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
         key(id) {
-            val currentPaneContent by rememberUpdatedState(paneContent)
-            remember {
-                movableContentOf {
-                    currentPaneContent()
-                }
-            }
+            rememberUpdatedState(paneContent)
         }
     }
     val currentEntry = renderableNavigationState.navigationState.currentEntry
@@ -162,8 +156,7 @@ fun <T> WearNavigationFrame(
             ) {
                 key(entry.id) {
                     // Fetch and store the movable content to hold onto while animating out
-                    val movablePane = remember { movablePanes.getValue(entry.id) }
-                    movablePane()
+                    remember { rememberedPanes.getValue(entry.id) }.value.invoke()
                 }
             }
         }
