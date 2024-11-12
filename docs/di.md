@@ -20,7 +20,7 @@ an argument:
 fun InnerComposable(
     random: Random,
 ) {
-    // use Logger
+    // use random
 }
 
 @Composable
