@@ -86,7 +86,7 @@ ksp = "2.1.0-RC-1.0.27"
 #jacoco
 jacoco = "0.8.12"
 #jetbrainsCompose
-jetbrainsCompose = "1.7.0"
+jetbrainsCompose = "1.7.1"
 #jetbrainsComposeMaterial3Adaptive
 jetbrainsComposeMaterial3Adaptive = "1.0.0"
 #junit4
