@@ -1,27 +1,33 @@
 {
   "extends": [
-    "config:base"
+    "config:recommended"
   ],
   "ignoreUnstable": false,
   "packageRules": [
     {
-      "matchPackagePatterns": [
-        "^org.jetbrains.kotlin",
-        "^com.google.devtools.ksp",
-        "^androidx.compose.compiler"
+      "groupName": "Kotlin",
+      "matchPackageNames": [
+        "/^org.jetbrains.kotlin/",
+        "/^com.google.devtools.ksp/",
+        "/^androidx.compose.compiler/"
+      ]
+    },
+    {
+      "groupName": "Android Gradle Plugin",
+      "matchPackageNames": [
+        "/^com.android.tools/"
+      ]
+    },
+    {
+      "versioning": "docker",
+      "matchPackageNames": [
+        "/^com.google.guava/"
+      ]
+    },
+    {
+      "matchDatasources": [
+        "maven"
       ],
-      "groupName": "Kotlin"
-    },
-    {
-      "matchPackagePatterns": ["^com.android.tools"],
-      "groupName": "Android Gradle Plugin"
-    },
-    {
-      "matchPackagePatterns": ["^com.google.guava"],
-      "versionScheme": "docker"
-    },
-    {
-      "matchDatasources": ["maven"],
       "allowedVersions": "!/-SNAPSHOT$/"
     }
   ]
