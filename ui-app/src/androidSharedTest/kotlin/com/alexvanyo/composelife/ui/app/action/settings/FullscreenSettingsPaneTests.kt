@@ -64,7 +64,6 @@ import com.alexvanyo.composelife.ui.app.resources.HashLifeAlgorithm
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.resources.Visual
 import org.junit.runner.RunWith
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -696,7 +695,6 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
             )
     }
 
-    @Ignore("https://issuetracker.google.com/issues/374079517")
     @Test
     fun reducing_size_keeps_selected_detail() = runUiTest {
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
@@ -767,7 +765,6 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationC
             .assertIsDisplayed()
     }
 
-    @Ignore("https://issuetracker.google.com/issues/374079517")
     @Test
     fun expanding_size_keeps_selected_detail() = runUiTest {
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
