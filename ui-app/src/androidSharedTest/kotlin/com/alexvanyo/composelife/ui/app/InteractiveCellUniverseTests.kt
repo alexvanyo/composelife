@@ -136,6 +136,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                         windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
@@ -189,6 +190,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                         windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
@@ -241,6 +243,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                         windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
@@ -305,6 +308,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                         windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
@@ -373,6 +377,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                         windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
@@ -452,6 +457,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                         windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
@@ -512,6 +518,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                         windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
@@ -587,6 +594,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                         windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
@@ -674,6 +682,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                         windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
                         modifier = Modifier.fillMaxSize(),
                         interactiveCellUniverseState = rememberInteractiveCellUniverseState(
                             temporalGameOfLifeState = temporalGameOfLifeState,
@@ -767,6 +776,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                         windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
@@ -847,6 +857,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
                         windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
                         modifier = Modifier.fillMaxSize(),
                         interactiveCellUniverseState = rememberInteractiveCellUniverseState(
                             temporalGameOfLifeState = temporalGameOfLifeState,

@@ -168,6 +168,8 @@ private fun PinnedClipboardPreviews(
                                         isPinned = true,
                                         onPaste = pinnedClipboardPreviewState::onPaste,
                                         onPinChanged = pinnedClipboardPreviewState::onUnpin,
+                                        onViewDeserializationInfo =
+                                        pinnedClipboardPreviewState::onViewDeserializationInfo,
                                         modifier = Modifier
                                             .weight(1f)
                                             .padding(8.dp)
@@ -195,6 +197,7 @@ private fun PinnedClipboardPreviews(
 }
 
 context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
+@Suppress("LongMethod")
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun ClipboardPreviewHistory(
@@ -250,6 +253,8 @@ private fun ClipboardPreviewHistory(
                                                         Modifier
                                                     },
                                                 ),
+                                            onViewDeserializationInfo =
+                                            clipboardPreviewState::onViewDeserializationInfo,
                                         )
                                     }
                                 }

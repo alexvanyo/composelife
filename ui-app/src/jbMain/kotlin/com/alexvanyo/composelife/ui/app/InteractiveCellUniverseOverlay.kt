@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
+import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.BottomInsets
@@ -81,6 +82,7 @@ fun InteractiveCellUniverseOverlay(
     windowSizeClass: WindowSizeClass,
     onSeeMoreSettingsClicked: () -> Unit,
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
@@ -142,6 +144,7 @@ fun InteractiveCellUniverseOverlay(
                 onApplyPaste = interactiveCellUniverseState::onApplyPaste,
                 onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
                 onOpenInSettingsClicked = onOpenInSettingsClicked,
+                onViewDeserializationInfo = onViewDeserializationInfo,
                 actionCardState = interactiveCellUniverseState.actionCardState,
                 modifier = Modifier
                     .layoutId(CellUniverseActionCard)
