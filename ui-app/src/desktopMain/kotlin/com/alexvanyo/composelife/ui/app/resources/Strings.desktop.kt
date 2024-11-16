@@ -226,6 +226,9 @@ internal actual val Strings.Unpin: ParameterizedString get() =
 internal actual val Strings.Back: ParameterizedString get() =
     ParameterizedString("Back")
 
+internal actual val Strings.Close: ParameterizedString get() =
+    ParameterizedString("Close")
+
 internal actual val Strings.Algorithm: ParameterizedString get() =
     ParameterizedString("Algorithm")
 
@@ -253,8 +256,14 @@ internal actual val Strings.Disallow: ParameterizedString get() =
 internal actual val Strings.EnableClipboardWatching: ParameterizedString get() =
     ParameterizedString("Enable clipboard watching")
 
+internal actual val Strings.DeserializationSucceeded: ParameterizedString get() =
+    ParameterizedString("Deserialization Succeeded")
+
 internal actual val Strings.DeserializationFailed: ParameterizedString get() =
     ParameterizedString("Deserialization Failed")
 
 internal actual val Strings.Warnings: ParameterizedString get() =
     ParameterizedString("Warnings")
+
+internal actual val Strings.Errors: ParameterizedString get() =
+    ParameterizedString("Errors")

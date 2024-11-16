@@ -95,10 +95,11 @@ context(InlineEditPaneInjectEntryPoint, InlineEditPaneLocalEntryPoint)
 @Composable
 fun InlineEditPane(
     setSelectionToCellState: (CellState) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
 ) = InlineEditPane(
-    state = rememberInlineEditPaneState(setSelectionToCellState),
+    state = rememberInlineEditPaneState(setSelectionToCellState, onViewDeserializationInfo),
     modifier = modifier,
     scrollState = scrollState,
 )
@@ -290,6 +291,8 @@ interface ClipboardPreviewState {
     fun onPaste()
 
     fun onPinChanged()
+
+    fun onViewDeserializationInfo()
 }
 
 interface PinnedClipboardPreviewState {
@@ -299,6 +302,8 @@ interface PinnedClipboardPreviewState {
     fun onPaste()
 
     fun onUnpin()
+
+    fun onViewDeserializationInfo()
 }
 
 context(
@@ -309,12 +314,14 @@ context(
 @Composable
 fun rememberInlineEditPaneState(
     setSelectionToCellState: (CellState) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
 ): InlineEditPaneState {
     val coroutineScope = rememberCoroutineScope()
 
     val clipboardWatchingState = rememberClipboardWatchingState(
         coroutineScope = coroutineScope,
         setSelectionToCellState = setSelectionToCellState,
+        onViewDeserializationInfo = onViewDeserializationInfo,
     )
 
     return remember(coroutineScope, composeLifePreferences, preferences, clipboardWatchingState) {
@@ -358,12 +365,13 @@ context(
 )
 @Composable
 fun rememberClipboardWatchingState(
-    coroutineScope: CoroutineScope = rememberCoroutineScope(),
     setSelectionToCellState: (CellState) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ): ClipboardWatchingState =
     if (preferences.completedClipboardWatchingOnboarding) {
         if (preferences.enableClipboardWatching) {
-            rememberClipboardWatchingEnabledState(setSelectionToCellState)
+            rememberClipboardWatchingEnabledState(setSelectionToCellState, onViewDeserializationInfo)
         } else {
             ClipboardWatchingState.ClipboardWatchingDisabled
         }
@@ -402,12 +410,14 @@ context(CellStateParserProvider, LoadedComposeLifePreferencesProvider)
 @Composable
 fun rememberClipboardWatchingEnabledState(
     setSelectionToCellState: (CellState) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
 ): ClipboardWatchingState.ClipboardWatchingEnabled =
     rememberClipboardWatchingEnabledState(
         useSharedElementForCellStatePreviews = isSharedElementForCellsSupported(isThumbnail = true),
         clipboardReader = rememberClipboardReader(),
         parser = cellStateParser,
         setSelectionToCellState = setSelectionToCellState,
+        onViewDeserializationInfo = onViewDeserializationInfo,
     )
 
 context(LoadedComposeLifePreferencesProvider)
@@ -418,6 +428,7 @@ fun rememberClipboardWatchingEnabledState(
     clipboardReader: ClipboardReader,
     parser: CellStateParser,
     setSelectionToCellState: (CellState) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
 ): ClipboardWatchingState.ClipboardWatchingEnabled {
     var isLoading by remember { mutableStateOf(false) }
     var currentClipboardCellStateId: Uuid by rememberRetained {
@@ -510,6 +521,10 @@ fun rememberClipboardWatchingEnabledState(
                                     is DeserializationResult.Unsuccessful -> Unit
                                 }
                             }
+
+                            override fun onViewDeserializationInfo() {
+                                onViewDeserializationInfo(deserializationResult)
+                            }
                         }
                     },
                 ) + previousClipboardCellStates.map { (id, deserializationResult) ->
@@ -530,6 +545,10 @@ fun rememberClipboardWatchingEnabledState(
                                 pinnedClipboardCellStates.add(id to deserializationResult)
                             }
                         }
+
+                        override fun onViewDeserializationInfo() {
+                            onViewDeserializationInfo(deserializationResult)
+                        }
                     }
                 }
 
@@ -545,6 +564,10 @@ fun rememberClipboardWatchingEnabledState(
 
                         override fun onUnpin() {
                             pinnedClipboardCellStates.removeIf { it.first == id }
+                        }
+
+                        override fun onViewDeserializationInfo() {
+                            onViewDeserializationInfo(deserializationResult)
                         }
                     }
                 }

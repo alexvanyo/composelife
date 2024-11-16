@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.window.core.layout.WindowHeightSizeClass
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import com.alexvanyo.composelife.navigation.BackstackEntry
@@ -29,6 +30,7 @@ import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.ui.mobile.component.DetailEntry
+import com.alexvanyo.composelife.ui.mobile.component.DialogableEntry
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailInfo
 import com.alexvanyo.composelife.ui.mobile.component.ListEntry
 import kotlin.uuid.Uuid
@@ -46,19 +48,28 @@ sealed interface ComposeLifeUiNavigation {
     class FullscreenSettingsList(
         val nav: ComposeLifeNavigation.FullscreenSettingsList,
         val windowSizeClass: WindowSizeClass,
-        private val isDetailPresent: Boolean,
+        isDetailPresent: Boolean,
     ) : ComposeLifeUiNavigation, ListEntry {
-        override val isDetailVisible: Boolean
-            get() = isDetailPresent || windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT
+        override val isDetailVisible: Boolean =
+            isDetailPresent || windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT
 
-        override val isListVisible: Boolean
-            get() = !isDetailPresent || windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT
+        override val isListVisible: Boolean =
+            !isDetailPresent || windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT
     }
 
     class FullscreenSettingsDetail(
         val nav: ComposeLifeNavigation.FullscreenSettingsDetail,
         listDetailInfo: ListDetailInfo,
     ) : ComposeLifeUiNavigation, DetailEntry, ListDetailInfo by listDetailInfo
+
+    class DeserializationInfo(
+        val nav: ComposeLifeNavigation.DeserializationInfo,
+        val windowSizeClass: WindowSizeClass,
+    ) : ComposeLifeUiNavigation, DialogableEntry {
+        override val isDialog =
+            windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT ||
+                windowSizeClass.windowHeightSizeClass != WindowHeightSizeClass.COMPACT
+    }
 }
 
 /**
@@ -92,9 +103,9 @@ fun BackstackState<ComposeLifeNavigation>.toComposeLifeUiNavigation(
             map.getOrPut(nav.id) {
                 when (val value = nav.value) {
                     ComposeLifeNavigation.CellUniverse -> BackstackEntry(
-                        ComposeLifeUiNavigation.CellUniverse,
-                        nav.previous?.let(::createEntry),
-                        nav.id,
+                        value = ComposeLifeUiNavigation.CellUniverse,
+                        previous = nav.previous?.let(::createEntry),
+                        id = nav.id,
                     )
                     is ComposeLifeNavigation.FullscreenSettingsDetail -> {
                         val previous = nav.previous
@@ -104,22 +115,22 @@ fun BackstackState<ComposeLifeNavigation>.toComposeLifeUiNavigation(
                         val listEntry = previous.let(::createEntry)
                         val listNavEntry = listEntry.value as ListDetailInfo
                         BackstackEntry(
-                            ComposeLifeUiNavigation.FullscreenSettingsDetail(value, listNavEntry),
-                            listEntry,
-                            nav.id,
+                            value = ComposeLifeUiNavigation.FullscreenSettingsDetail(value, listNavEntry),
+                            previous = listEntry,
+                            id = nav.id,
                         )
                     }
                     is ComposeLifeNavigation.FullscreenSettingsList -> {
                         val isDetailPresent = nav.id in listsPairedWithDetails
                         val newEntryValue = ComposeLifeUiNavigation.FullscreenSettingsList(
-                            value,
-                            windowSizeClass,
-                            isDetailPresent,
+                            nav = value,
+                            windowSizeClass = windowSizeClass,
+                            isDetailPresent = isDetailPresent,
                         )
                         val newEntry = BackstackEntry(
-                            newEntryValue,
-                            nav.previous?.let(::createEntry),
-                            nav.id,
+                            value = newEntryValue,
+                            previous = nav.previous?.let(::createEntry),
+                            id = nav.id,
                         )
                         if (!isDetailPresent && windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT) {
                             map.put(
@@ -137,6 +148,14 @@ fun BackstackState<ComposeLifeNavigation>.toComposeLifeUiNavigation(
                         }
                         newEntry
                     }
+                    is ComposeLifeNavigation.DeserializationInfo -> BackstackEntry(
+                        value = ComposeLifeUiNavigation.DeserializationInfo(
+                            nav = value,
+                            windowSizeClass = windowSizeClass,
+                        ),
+                        previous = nav.previous?.let(::createEntry),
+                        id = nav.id,
+                    )
                 }
             }
 

@@ -80,12 +80,14 @@ interface ClipboardCellStatePreviewLocalEntryPoint :
  * Renders the current clipboard as a cell-state, if possible.
  */
 context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
+@Suppress("LongParameterList")
 @Composable
 fun ClipboardCellStatePreview(
     deserializationResult: DeserializationResult,
     isPinned: Boolean,
     onPaste: () -> Unit,
     onPinChanged: () -> Unit,
+    onViewDeserializationInfo: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
@@ -113,18 +115,24 @@ fun ClipboardCellStatePreview(
                             isPinned = isPinned,
                             onPaste = onPaste,
                             onPinChanged = onPinChanged,
+                            onViewDeserializationInfo = onViewDeserializationInfo,
                         )
                     }
                     is DeserializationResult.Unsuccessful -> {
                         Row(
                             modifier = Modifier.padding(8.dp),
                             horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(parameterizedStringResource(Strings.DeserializationFailed))
-                            Icon(
-                                imageVector = Icons.Default.Error,
-                                contentDescription = null,
-                            )
+                            IconButton(
+                                onClick = onViewDeserializationInfo,
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Error,
+                                    contentDescription = null,
+                                )
+                            }
                         }
                     }
                 }
@@ -134,7 +142,7 @@ fun ClipboardCellStatePreview(
 }
 
 context(CellWindowInjectEntryPoint, CellWindowLocalEntryPoint)
-@Suppress("LongMethod")
+@Suppress("LongMethod", "LongParameterList")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoadedCellStatePreview(
@@ -142,6 +150,7 @@ fun LoadedCellStatePreview(
     isPinned: Boolean,
     onPaste: () -> Unit,
     onPinChanged: () -> Unit,
+    onViewDeserializationInfo: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val gameOfLifeState = remember(deserializationResult) {
@@ -212,7 +221,7 @@ fun LoadedCellStatePreview(
                     state = rememberTooltipState(),
                 ) {
                     IconButton(
-                        onClick = { /* TODO: Show warnings */ },
+                        onClick = onViewDeserializationInfo,
                     ) {
                         Icon(
                             imageVector = Icons.Default.Warning,
