@@ -19,8 +19,13 @@ package com.alexvanyo.composelife.parameterizedstring
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.saveable.Saver
 
-expect sealed class ParameterizedString
+expect sealed class ParameterizedString {
+    companion object
+}
+
+expect val ParameterizedString.Companion.Saver: Saver<ParameterizedString, Any>
 
 /**
  * Creates a lambda to resolve the [ParameterizedString] to a [String].

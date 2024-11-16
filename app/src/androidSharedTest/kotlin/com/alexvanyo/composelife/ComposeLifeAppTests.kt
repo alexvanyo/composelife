@@ -17,19 +17,24 @@
 package com.alexvanyo.composelife
 
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
 import androidx.compose.ui.graphics.toComposeRect
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Density
+import androidx.core.content.getSystemService
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.window.core.layout.WindowSizeClass
@@ -46,10 +51,13 @@ import com.alexvanyo.composelife.preferences.quickAccessSettingsState
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.test.BaseActivityInjectTest
 import com.alexvanyo.composelife.ui.app.R
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runCurrent
 import leakcanary.SkipLeakDetection
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 @RunWith(KmpAndroidJUnit4::class)
 class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationComponent, MainActivity>(
@@ -383,6 +391,86 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
                     hasContentDescription(context.getString(R.string.expand)),
             )
             .assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
+    @SkipLeakDetection("recomposer", "Outer", "Inner")
+    @Test
+    fun can_watch_clipboard_and_view_deserialization_info() = runAppTest(testDispatcher) {
+        val windowSizeClass =
+            composeTestRule.activityRule.scenario.withActivity {
+                val dpSize = with(Density(this)) {
+                    WindowMetricsCalculator.getOrCreate()
+                        .computeCurrentWindowMetrics(this@withActivity)
+                        .bounds
+                        .toComposeRect()
+                        .size
+                        .toDpSize()
+                }
+
+                BREAKPOINTS_V1.computeWindowSizeClass(
+                    widthDp = dpSize.width.value,
+                    heightDp = dpSize.height.value,
+                )
+            }
+
+        val clipboardManager = context.getSystemService<ClipboardManager>()
+        assertNotNull(clipboardManager)
+        clipboardManager.setPrimaryClip(
+            ClipData.newPlainText("test", ".X.\n..X\nXXX"),
+        )
+
+        composeTestRule
+            .onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(context.getString(R.string.expand)),
+            )
+            .performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.edit))
+            .performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.edit))
+            .assertIsSelected()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.allow))
+            .performClick()
+
+        composeTestRule.waitForIdle()
+        runCurrent()
+
+        composeTestRule
+            .onNodeWithContentDescription(context.getString(R.string.warnings))
+            .performClick()
+
+        if (
+            windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) ||
+            windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND)
+        ) {
+            composeTestRule
+                .onNode(isDialog())
+                .assertExists()
+        } else {
+            composeTestRule
+                .onNode(isDialog())
+                .assertDoesNotExist()
+        }
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.deserialization_succeeded))
+            .performClick()
+
+        Espresso.pressBack()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.deserialization_succeeded))
+            .assertDoesNotExist()
+        composeTestRule
+            .onNode(isDialog())
+            .assertDoesNotExist()
     }
 }
 

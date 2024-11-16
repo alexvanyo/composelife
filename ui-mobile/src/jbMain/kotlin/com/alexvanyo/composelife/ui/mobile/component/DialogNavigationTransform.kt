@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.mobile.component
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,8 +23,6 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.window.Dialog
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackRenderableNavigationTransformResult
@@ -36,9 +33,9 @@ import com.alexvanyo.composelife.navigation.RenderableNavigationTransform
 import com.alexvanyo.composelife.navigation.backstackRenderableNavigationTransform
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavigationFrame
+import com.alexvanyo.composelife.ui.util.PlatformEdgeToEdgeDialog
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
-import com.alexvanyo.composelife.ui.util.trySharedElementWithCallerManagedVisibility
 import com.alexvanyo.composelife.ui.util.uuidSaver
 import kotlin.uuid.Uuid
 
@@ -94,7 +91,6 @@ fun <T> dialogNavigationTransform(
     }
 
 @Suppress("LongParameterList", "LongMethod")
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun <T> entryTransform(
     seedPaneIds: Set<Uuid>,
@@ -131,19 +127,14 @@ private fun <T> entryTransform(
                 }.invoke()
                 val visible = !isDialog
 
-                Box(
-                    modifier = Modifier.trySharedElementWithCallerManagedVisibility(
-                        key = "dialog" to entry.id,
-                        visible = visible,
-                    ),
-                ) {
+                Box {
                     if (visible) {
                         pane()
                     }
                 }
 
                 if (dialogEntries.isNotEmpty()) {
-                    Dialog(
+                    PlatformEdgeToEdgeDialog(
                         onDismissRequest = onBackButtonPressed,
                     ) {
                         val repeatablePredictiveBackStateHolder =
@@ -174,7 +165,6 @@ private fun <T> entryTransform(
                         it.value.combinedValues
                     }
             },
-            // TODO: This previous needs to be the transformed previous
             previousPreTransformedId = nonDialogEntry.previous?.id,
             pane = key(newEntryId) {
                 @Composable {
@@ -186,7 +176,6 @@ private fun <T> entryTransform(
         null
     }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun <T> createDialogRenderableNavigationState(
     dialogEntries: List<BackstackEntry<NavigationSegment<T>>>,
@@ -210,12 +199,7 @@ private fun <T> createDialogRenderableNavigationState(
                     val isDialog = remember { paneIdToIsDialog.getValue(id) }.invoke()
                     val visible = isDialog
 
-                    Box(
-                        modifier = Modifier.trySharedElementWithCallerManagedVisibility(
-                            key = "dialog" to id,
-                            visible = visible,
-                        ),
-                    ) {
+                    Box {
                         if (visible) {
                             pane()
                         }

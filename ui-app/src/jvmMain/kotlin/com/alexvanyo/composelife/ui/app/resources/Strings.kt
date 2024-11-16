@@ -159,6 +159,8 @@ internal expect val Strings.Unpin: ParameterizedString
 
 internal expect val Strings.Back: ParameterizedString
 
+internal expect val Strings.Close: ParameterizedString
+
 internal expect val Strings.Algorithm: ParameterizedString
 
 internal expect val Strings.FeatureFlags: ParameterizedString
@@ -175,6 +177,10 @@ internal expect val Strings.Disallow: ParameterizedString
 
 internal expect val Strings.EnableClipboardWatching: ParameterizedString
 
+internal expect val Strings.DeserializationSucceeded: ParameterizedString
+
 internal expect val Strings.DeserializationFailed: ParameterizedString
 
 internal expect val Strings.Warnings: ParameterizedString
+
+internal expect val Strings.Errors: ParameterizedString

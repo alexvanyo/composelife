@@ -23,8 +23,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
+import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackValueSaverFactory
+import com.alexvanyo.composelife.ui.app.ComposeLifeNavigation.FullscreenSettingsDetail
 import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.util.sealedEnumSaver
@@ -133,6 +135,29 @@ sealed interface ComposeLifeNavigation {
         }
     }
 
+    class DeserializationInfo(
+        val deserializationResult: DeserializationResult,
+    ) : ComposeLifeNavigation {
+        override val type = Companion
+
+        companion object : ComposeLifeNavigationType {
+            @Suppress("UnsafeCallOnNullableType")
+            override fun saverFactory(
+                previous: BackstackEntry<ComposeLifeNavigation>?,
+            ): Saver<DeserializationInfo, Any> =
+                Saver(
+                    save = {
+                        with(DeserializationResult.Saver) {
+                            save(it.deserializationResult)
+                        }
+                    },
+                    restore = {
+                        DeserializationInfo(DeserializationResult.Saver.restore(it)!!)
+                    },
+                )
+        }
+    }
+
     companion object {
         @Suppress("UnsafeCallOnNullableType")
         val SaverFactory: BackstackValueSaverFactory<ComposeLifeNavigation> = BackstackValueSaverFactory { previous ->
@@ -152,6 +177,11 @@ sealed interface ComposeLifeNavigation {
                                 }
 
                             is FullscreenSettingsDetail ->
+                                with(composeLifeNavigation.type.saverFactory(previous)) {
+                                    save(composeLifeNavigation)
+                                }
+
+                            is DeserializationInfo ->
                                 with(composeLifeNavigation.type.saverFactory(previous)) {
                                     save(composeLifeNavigation)
                                 }

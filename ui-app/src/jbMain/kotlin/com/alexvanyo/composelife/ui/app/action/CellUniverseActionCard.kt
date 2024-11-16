@@ -40,6 +40,7 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.associateWithRenderablePanes
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.ActionControlRow
@@ -81,6 +82,7 @@ fun CellUniverseActionCard(
     setIsImmersiveMode: (Boolean) -> Unit,
     selectionState: SelectionState,
     setSelectionToCellState: (CellState) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
     onClearSelection: () -> Unit,
     onCopy: () -> Unit,
     onCut: () -> Unit,
@@ -113,6 +115,7 @@ fun CellUniverseActionCard(
         setIsImmersiveMode = setIsImmersiveMode,
         selectionState = selectionState,
         setSelectionToCellState = setSelectionToCellState,
+        onViewDeserializationInfo = onViewDeserializationInfo,
         onClearSelection = onClearSelection,
         onCopy = onCopy,
         onCut = onCut,
@@ -142,6 +145,7 @@ fun CellUniverseActionCard(
     setIsImmersiveMode: (Boolean) -> Unit,
     selectionState: SelectionState,
     setSelectionToCellState: (CellState) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
     onClearSelection: () -> Unit,
     onCopy: () -> Unit,
     onCut: () -> Unit,
@@ -244,6 +248,7 @@ fun CellUniverseActionCard(
                                             is InlineActionCardNavigation.Edit -> {
                                                 InlineEditPane(
                                                     setSelectionToCellState = setSelectionToCellState,
+                                                    onViewDeserializationInfo = onViewDeserializationInfo,
                                                     modifier = Modifier.fillMaxWidth(),
                                                     scrollState = scrollState,
                                                 )

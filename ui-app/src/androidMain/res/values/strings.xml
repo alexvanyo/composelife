@@ -65,6 +65,7 @@
     <string name="round_rectangle">Round Rectangle</string>
     <string name="see_all">See all…</string>
     <string name="back">Back</string>
+    <string name="close">Close</string>
     <string name="algorithm_implementation">Implementation</string>
     <string name="hash_life_algorithm">Hashlife</string>
     <string name="naive_algorithm">Naïve</string>
@@ -92,6 +93,8 @@
     <string name="allow">Allow</string>
     <string name="disallow">Don\'t allow</string>
     <string name="enable_clipboard_watching">Enable clipboard watching</string>
+    <string name="deserialization_succeeded">Deserialization succeeded</string>
     <string name="deserialization_failed">Deserialization failed</string>
     <string name="warnings">Warnings</string>
+    <string name="errors">Errors</string>
 </resources>

@@ -33,6 +33,7 @@ internal fun InlineEditPanePreview(modifier: Modifier = Modifier) {
             Surface(modifier) {
                 InlineEditPane(
                     setSelectionToCellState = {},
+                    onViewDeserializationInfo = {},
                 )
             }
         }

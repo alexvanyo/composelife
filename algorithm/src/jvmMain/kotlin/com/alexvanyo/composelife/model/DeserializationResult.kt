@@ -16,7 +16,14 @@
 
 package com.alexvanyo.composelife.model
 
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.Saver
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 /**
  * A result of deserializing into a [CellState].
@@ -44,6 +51,88 @@ sealed interface DeserializationResult {
         override val warnings: List<ParameterizedString>,
         val errors: List<ParameterizedString>,
     ) : DeserializationResult
+
+    companion object {
+        val Saver: Saver<DeserializationResult, Any> =
+            listSaver(
+                save = {
+                    when (it) {
+                        is Successful -> {
+                            listOf(
+                                0,
+                                with(JsonSaver(CellStateFormat.FixedFormat.serializer())) {
+                                    save(it.format)
+                                },
+                                with(JsonSaver(CellState.serializer())) {
+                                    save(it.cellState)
+                                },
+                                it.warnings.map { warning ->
+                                    with(ParameterizedString.Saver) {
+                                        save(warning)
+                                    }
+                                },
+                            )
+                        }
+                        is Unsuccessful -> {
+                            listOf(
+                                1,
+                                it.warnings.map { warning ->
+                                    with(ParameterizedString.Saver) {
+                                        save(warning)
+                                    }
+                                },
+                                it.errors.map { error ->
+                                    with(ParameterizedString.Saver) {
+                                        save(error)
+                                    }
+                                },
+                            )
+                        }
+                    }
+                },
+                restore = {
+                    val type = it[0] as Int
+                    when (type) {
+                        0 -> {
+                            Successful(
+                                format = JsonSaver(
+                                    CellStateFormat.FixedFormat.serializer(),
+                                ).restore(it[1] as String)!!,
+                                cellState = JsonSaver(
+                                    CellState.serializer(),
+                                ).restore(it[2] as String)!!,
+                                warnings = (it[3] as List<Any>).map {
+                                    ParameterizedString.Saver.restore(it)!!
+                                },
+                            )
+                        }
+                        1 -> {
+                            Unsuccessful(
+                                warnings = (it[1] as List<Any>).map {
+                                    ParameterizedString.Saver.restore(it)!!
+                                },
+                                errors = (it[2] as List<Any>).map {
+                                    ParameterizedString.Saver.restore(it)!!
+                                },
+                            )
+                        }
+                        else -> error("Unexpected type $type")
+                    }
+                },
+            )
+    }
+}
+
+@OptIn(ExperimentalContracts::class)
+fun DeserializationResult.isSuccessful(): Boolean {
+    contract {
+        returns(true) implies (this@isSuccessful is DeserializationResult.Successful)
+        returns(false) implies (this@isSuccessful is DeserializationResult.Unsuccessful)
+    }
+    return when (this) {
+        is DeserializationResult.Successful -> true
+        is DeserializationResult.Unsuccessful -> false
+    }
 }
 
 fun Iterable<DeserializationResult>.reduceToSuccessful(): DeserializationResult =
@@ -63,3 +152,11 @@ fun Iterable<DeserializationResult>.reduceToSuccessful(): DeserializationResult 
             }
         }
     }
+
+/**
+ * A [Saver] for a [T] using [Json] to encode and decode with the given [KSerializer].
+ */
+private class JsonSaver<T>(serializer: KSerializer<T>) : Saver<T, String> by Saver(
+    { Json.encodeToString(serializer, it) },
+    { Json.decodeFromString(serializer, it) },
+)

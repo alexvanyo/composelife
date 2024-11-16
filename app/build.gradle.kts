@@ -101,6 +101,7 @@ kotlin {
                 implementation(projects.filesystemTest)
                 implementation(projects.patterns)
                 implementation(projects.preferencesTest)
+                implementation(projects.uiCommon)
             }
         }
         val androidSharedTest by getting {

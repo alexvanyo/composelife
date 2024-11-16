@@ -73,6 +73,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
             ) {
                 inlineEditPaneState = rememberInlineEditPaneState(
                     setSelectionToCellState = {},
+                    onViewDeserializationInfo = {},
                 )
             }
         }
@@ -123,6 +124,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
             ) {
                 inlineEditPaneState = rememberInlineEditPaneState(
                     setSelectionToCellState = {},
+                    onViewDeserializationInfo = {},
                 )
             }
         }
@@ -174,6 +176,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
             ) {
                 inlineEditPaneState = rememberInlineEditPaneState(
                     setSelectionToCellState = {},
+                    onViewDeserializationInfo = {},
                 )
             }
         }
@@ -225,6 +228,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
             ) {
                 inlineEditPaneState = rememberInlineEditPaneState(
                     setSelectionToCellState = {},
+                    onViewDeserializationInfo = {},
                 )
             }
         }
@@ -275,6 +279,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
             ) {
                 inlineEditPaneState = rememberInlineEditPaneState(
                     setSelectionToCellState = {},
+                    onViewDeserializationInfo = {},
                 )
             }
         }

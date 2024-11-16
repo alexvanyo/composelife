@@ -34,6 +34,7 @@ import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
 import com.alexvanyo.composelife.data.model.CellStateMetadata
 import com.alexvanyo.composelife.data.model.SaveableCellState
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
+import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.model.toCellState
@@ -70,6 +71,7 @@ fun CellUniversePane(
     windowSizeClass: WindowSizeClass,
     onSeeMoreSettingsClicked: () -> Unit,
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
     modifier: Modifier = Modifier,
     cellUniversePaneState: CellUniversePaneState = rememberCellUniversePaneState(),
 ) {
@@ -91,6 +93,7 @@ fun CellUniversePane(
                     windowSizeClass = windowSizeClass,
                     onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
                     onOpenInSettingsClicked = onOpenInSettingsClicked,
+                    onViewDeserializationInfo = onViewDeserializationInfo,
                 )
             }
         }

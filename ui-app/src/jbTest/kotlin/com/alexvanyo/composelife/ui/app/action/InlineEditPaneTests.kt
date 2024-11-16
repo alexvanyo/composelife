@@ -143,6 +143,8 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                             override fun onPaste() = Unit
 
                             override fun onPinChanged() = Unit
+
+                            override fun onViewDeserializationInfo() = Unit
                         },
                     )
                 }
@@ -221,6 +223,8 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                             }
 
                             override fun onPinChanged() = Unit
+
+                            override fun onViewDeserializationInfo() = Unit
                         },
                     )
                 }
@@ -292,6 +296,8 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
                             override fun onPinChanged() {
                                 onPinClipboardClickedCount++
                             }
+
+                            override fun onViewDeserializationInfo() = Unit
                         },
                     )
                 }

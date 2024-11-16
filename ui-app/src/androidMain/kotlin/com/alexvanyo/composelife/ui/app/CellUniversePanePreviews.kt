@@ -47,6 +47,7 @@ internal fun LoadingCellStateCellUniversePanePreview(modifier: Modifier = Modifi
                     immersiveModeManager = rememberImmersiveModeManager(),
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
+                    onViewDeserializationInfo = {},
                     cellUniversePaneState = CellUniversePaneState.LoadingCellState,
                 )
             }
@@ -76,6 +77,7 @@ internal fun LoadedCellUniversePanePreview(modifier: Modifier = Modifier) {
                     immersiveModeManager = rememberImmersiveModeManager(),
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
+                    onViewDeserializationInfo = {},
                     cellUniversePaneState = object : CellUniversePaneState.LoadedCellState {
                         override val temporalGameOfLifeState = temporalGameOfLifeState
                     },

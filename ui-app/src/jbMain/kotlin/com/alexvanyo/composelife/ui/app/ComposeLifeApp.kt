@@ -39,6 +39,7 @@ import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.clock.di.ClockProvider
 import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
+import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.associateWithRenderablePanes
@@ -145,6 +146,8 @@ fun ComposeLifeApp(
                                                         targetComposeLifeAppState::onSeeMoreSettingsClicked,
                                                         onOpenInSettingsClicked =
                                                         targetComposeLifeAppState::onOpenInSettingsClicked,
+                                                        onViewDeserializationInfo =
+                                                        targetComposeLifeAppState::onViewDeserializationInfo,
                                                     )
                                                 }
                                             }
@@ -160,6 +163,13 @@ fun ComposeLifeApp(
 
                                             is ComposeLifeUiNavigation.FullscreenSettingsDetail -> {
                                                 FullscreenSettingsDetailPane(
+                                                    navEntryValue = value,
+                                                    onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
+                                                )
+                                            }
+
+                                            is ComposeLifeUiNavigation.DeserializationInfo -> {
+                                                DeserializationInfoPane(
                                                     navEntryValue = value,
                                                     onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
                                                 )
@@ -291,6 +301,16 @@ fun rememberComposeLifeAppState(
                             )
                         }
                     }
+
+                    override fun onViewDeserializationInfo(deserializationResult: DeserializationResult) {
+                        navController.withExpectedActor(currentEntryId) {
+                            navController.navigate(
+                                ComposeLifeNavigation.DeserializationInfo(
+                                    deserializationResult = deserializationResult,
+                                ),
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -324,5 +344,7 @@ sealed interface ComposeLifeAppState {
         fun onOpenInSettingsClicked(setting: Setting)
 
         fun onSettingsCategoryClicked(settingsCategory: SettingsCategory)
+
+        fun onViewDeserializationInfo(deserializationResult: DeserializationResult)
     }
 }

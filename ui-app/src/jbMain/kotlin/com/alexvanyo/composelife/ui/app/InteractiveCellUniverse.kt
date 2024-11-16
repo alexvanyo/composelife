@@ -103,6 +103,7 @@ fun InteractiveCellUniverse(
     windowSizeClass: WindowSizeClass,
     onSeeMoreSettingsClicked: () -> Unit,
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
     modifier: Modifier = Modifier,
     interactiveCellUniverseState: InteractiveCellUniverseState =
         rememberInteractiveCellUniverseState(temporalGameOfLifeState, immersiveModeManager),
@@ -186,6 +187,7 @@ fun InteractiveCellUniverse(
             windowSizeClass = windowSizeClass,
             onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
             onOpenInSettingsClicked = onOpenInSettingsClicked,
+            onViewDeserializationInfo = onViewDeserializationInfo,
         )
     }
 }

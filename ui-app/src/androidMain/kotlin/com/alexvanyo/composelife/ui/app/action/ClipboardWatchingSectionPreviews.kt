@@ -103,6 +103,7 @@ internal fun ClipboardWatchingSectionEnabledUnsuccessfulPreview(modifier: Modifi
 
                                 override fun onPaste() = Unit
                                 override fun onPinChanged() = Unit
+                                override fun onViewDeserializationInfo() = Unit
                             },
                         )
                         override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> = emptyList()
@@ -137,6 +138,7 @@ internal fun ClipboardWatchingSectionEnabledSuccessfulPreview(modifier: Modifier
 
                                 override fun onPaste() = Unit
                                 override fun onPinChanged() = Unit
+                                override fun onViewDeserializationInfo() = Unit
                             },
                         )
                         override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> = emptyList()
