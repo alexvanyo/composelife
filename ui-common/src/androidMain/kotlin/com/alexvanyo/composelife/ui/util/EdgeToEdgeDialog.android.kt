@@ -177,6 +177,33 @@ fun EdgeToEdgeDialog(
     }
 }
 
+@Suppress("ComposeModifierMissing", "LongMethod", "CyclomaticComplexMethod")
+@Composable
+actual fun PlatformEdgeToEdgeDialog(
+    onDismissRequest: () -> Unit,
+    properties: DialogProperties,
+    content: @Composable () -> Unit,
+) = PlatformEdgeToEdgeDialog(
+    onDismissRequest = onDismissRequest,
+    properties = properties,
+    scrim = {
+        Spacer(
+            modifier = Modifier
+                .fillMaxSize()
+                .then(
+                    if (properties.dismissOnClickOutside) {
+                        Modifier.pointerInput(Unit) {
+                            detectTapGestures { onDismissRequest() }
+                        }
+                    } else {
+                        Modifier
+                    },
+                ),
+        )
+    },
+    content = content,
+)
+
 /**
  * A [Dialog] based on [EdgeToEdgeDialog] that provides a more opinionated dialog that is closer to the default
  * [Dialog].
