@@ -16,6 +16,9 @@
 
 package com.alexvanyo.composelife.parameterizedstring
 
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
+
 /**
  * A nestable representation of a string resource or a quantity string resource.
  */
@@ -27,7 +30,26 @@ actual sealed class ParameterizedString {
         val value: String,
         override val args: List<Any>,
     ) : ParameterizedString()
+
+    actual companion object
 }
+
+actual val ParameterizedString.Companion.Saver: Saver<ParameterizedString, Any> get() =
+    listSaver(
+        save = {
+            when (it) {
+                is ParameterizedString.BasicString -> {
+                    listOf(it.value) + it.args
+                }
+            }
+        },
+        restore = {
+            ParameterizedString.BasicString(
+                value = it[0] as String,
+                args = it.drop(1)
+            )
+        }
+    )
 
 /**
  * Creates a representation of a string resource [stringRes] with optional [args].

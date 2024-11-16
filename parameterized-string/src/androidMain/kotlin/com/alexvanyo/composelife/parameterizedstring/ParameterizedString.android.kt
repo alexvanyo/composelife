@@ -22,6 +22,8 @@ import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.os.ConfigurationCompat
@@ -48,7 +50,55 @@ actual sealed class ParameterizedString {
         val value: String,
         override val args: List<Any>,
     ) : ParameterizedString()
+
+    actual companion object
 }
+
+actual val ParameterizedString.Companion.Saver: Saver<ParameterizedString, Any> get() =
+    listSaver(
+        save = {
+            when (it) {
+                is ParameterizedString.NormalString -> listOf(
+                    0,
+                    it.stringRes,
+                )
+                is ParameterizedString.QuantityString -> listOf(
+                    1,
+                    it.pluralsRes,
+                    it.quantity,
+                )
+                is ParameterizedString.BasicString -> listOf(
+                    2,
+                    it.value,
+                )
+            } + it.args
+        },
+        restore = {
+            val type = it[0] as Int
+            when (type) {
+                0 -> {
+                    ParameterizedString.NormalString(
+                        it[1] as Int,
+                        it.drop(2),
+                    )
+                }
+                1 -> {
+                    ParameterizedString.QuantityString(
+                        it[1] as Int,
+                        it[2] as Int,
+                        it.drop(3),
+                    )
+                }
+                2 -> {
+                    ParameterizedString.BasicString(
+                        it[1] as String,
+                        it.drop(2),
+                    )
+                }
+                else -> error("Unexpected type $type")
+            }
+        },
+    )
 
 /**
  * Creates a representation of a plain-text string.
