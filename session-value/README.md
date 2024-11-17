@@ -215,7 +215,7 @@ by just a bit:
 @Preview
 @Composable
 fun Example7() {
-    val updateChannel = Channel<Float>(Channel.CONFLATED)
+    val updateChannel = remember { Channel<Float>(Channel.CONFLATED) }
     val value by produceState(0f) {
         updateChannel
             .receiveAsFlow()
