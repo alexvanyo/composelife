@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
 import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
@@ -53,6 +54,7 @@ fun FullscreenSettingsPaneListPreview(modifier: Modifier = Modifier) {
                         initialSettingsCategory = SettingsCategory.Algorithm,
                     ),
                     windowSizeClass = windowSizeClass,
+                    windowSize = with(LocalDensity.current) { size.toDpSize() },
                     isDetailPresent = false,
                 )
                 val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
@@ -60,6 +62,8 @@ fun FullscreenSettingsPaneListPreview(modifier: Modifier = Modifier) {
                         settingsCategory = SettingsCategory.Algorithm,
                         initialSettingToScrollTo = null,
                     ),
+                    windowSizeClass = windowSizeClass,
+                    windowSize = with(LocalDensity.current) { size.toDpSize() },
                     listDetailInfo = listUiNavValue,
                 )
 
@@ -98,6 +102,7 @@ fun FullscreenSettingsPaneAlgorithmPreview(modifier: Modifier = Modifier) {
                         initialSettingsCategory = SettingsCategory.Algorithm,
                     ),
                     windowSizeClass = windowSizeClass,
+                    windowSize = with(LocalDensity.current) { size.toDpSize() },
                     isDetailPresent = true,
                 )
                 val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
@@ -105,6 +110,8 @@ fun FullscreenSettingsPaneAlgorithmPreview(modifier: Modifier = Modifier) {
                         settingsCategory = SettingsCategory.Algorithm,
                         initialSettingToScrollTo = null,
                     ),
+                    windowSizeClass = windowSizeClass,
+                    windowSize = with(LocalDensity.current) { size.toDpSize() },
                     listDetailInfo = listUiNavValue,
                 )
 
@@ -143,6 +150,7 @@ internal fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) 
                         initialSettingsCategory = SettingsCategory.Visual,
                     ),
                     windowSizeClass = windowSizeClass,
+                    windowSize = with(LocalDensity.current) { size.toDpSize() },
                     isDetailPresent = true,
                 )
                 val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
@@ -150,6 +158,8 @@ internal fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) 
                         settingsCategory = SettingsCategory.Visual,
                         initialSettingToScrollTo = null,
                     ),
+                    windowSizeClass = windowSizeClass,
+                    windowSize = with(LocalDensity.current) { size.toDpSize() },
                     listDetailInfo = listUiNavValue,
                 )
 
@@ -188,6 +198,7 @@ internal fun FullscreenSettingsPaneFeatureFlagsPreview(modifier: Modifier = Modi
                         initialSettingsCategory = SettingsCategory.FeatureFlags,
                     ),
                     windowSizeClass = windowSizeClass,
+                    windowSize = with(LocalDensity.current) { size.toDpSize() },
                     isDetailPresent = true,
                 )
                 val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
@@ -195,6 +206,8 @@ internal fun FullscreenSettingsPaneFeatureFlagsPreview(modifier: Modifier = Modi
                         settingsCategory = SettingsCategory.FeatureFlags,
                         initialSettingToScrollTo = null,
                     ),
+                    windowSizeClass = windowSizeClass,
+                    windowSize = with(LocalDensity.current) { size.toDpSize() },
                     listDetailInfo = listUiNavValue,
                 )
 

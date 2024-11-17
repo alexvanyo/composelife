@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.ui.app.action.settings
 
 import android.os.Build
 import android.view.WindowInsets
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +46,8 @@ import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
+import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
+import androidx.window.core.layout.computeWindowSizeClass
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
@@ -114,19 +117,30 @@ class FullscreenSettingsDetailPaneTests :
                                     .build(),
                             ),
                         ) {
-                            FullscreenSettingsDetailPane(
-                                navEntryValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
-                                    nav = ComposeLifeNavigation.FullscreenSettingsDetail(
-                                        settingsCategory = SettingsCategory.Visual,
-                                        initialSettingToScrollTo = null,
+                            BoxWithConstraints {
+                                val windowSize = DpSize(maxWidth, maxHeight)
+                                val windowSizeClass = with(LocalDensity.current) {
+                                    BREAKPOINTS_V1.computeWindowSizeClass(
+                                        widthDp = windowSize.width.value,
+                                        heightDp = windowSize.height.value,
+                                    )
+                                }
+                                FullscreenSettingsDetailPane(
+                                    navEntryValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
+                                        nav = ComposeLifeNavigation.FullscreenSettingsDetail(
+                                            settingsCategory = SettingsCategory.Visual,
+                                            initialSettingToScrollTo = null,
+                                        ),
+                                        windowSizeClass = windowSizeClass,
+                                        windowSize = windowSize,
+                                        listDetailInfo = object : ListDetailInfo {
+                                            override val isListVisible: Boolean = false
+                                            override val isDetailVisible: Boolean = true
+                                        },
                                     ),
-                                    listDetailInfo = object : ListDetailInfo {
-                                        override val isListVisible: Boolean = false
-                                        override val isDetailVisible: Boolean = true
-                                    },
-                                ),
-                                onBackButtonPressed = {},
-                            )
+                                    onBackButtonPressed = {},
+                                )
+                            }
                         }
                     }
                 }

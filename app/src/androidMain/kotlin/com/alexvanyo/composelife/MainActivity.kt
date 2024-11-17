@@ -23,8 +23,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.toSize
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowInsetsControllerCompat
 import com.alexvanyo.composelife.resourcestate.isSuccess
@@ -82,7 +85,10 @@ class MainActivity : AppCompatActivity(), UiComponentOwner {
                     }
 
                     ComposeLifeTheme(darkTheme) {
-                        ComposeLifeApp(currentWindowAdaptiveInfo().windowSizeClass)
+                        ComposeLifeApp(
+                            windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                            windowSize = with(LocalDensity.current) { currentWindowSize().toSize().toDpSize() },
+                        )
                     }
                 }
             }

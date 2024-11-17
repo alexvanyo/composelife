@@ -40,6 +40,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.DpSize
 import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
 import androidx.window.core.layout.computeWindowSizeClass
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
@@ -99,10 +100,11 @@ class FullscreenSettingsPaneRobolectricTests :
         setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
+                val windowSize = DpSize(maxWidth, maxHeight)
                 val windowSizeClass = with(LocalDensity.current) {
                     BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = constraints.maxWidth.toDp().value,
-                        heightDp = constraints.maxHeight.toDp().value,
+                        widthDp = windowSize.width.value,
+                        heightDp = windowSize.height.value,
                     )
                 }
                 val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
@@ -110,6 +112,7 @@ class FullscreenSettingsPaneRobolectricTests :
                         initialSettingsCategory = SettingsCategory.Algorithm,
                     ),
                     windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     isDetailPresent = false,
                 )
                 val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
@@ -117,6 +120,8 @@ class FullscreenSettingsPaneRobolectricTests :
                         settingsCategory = SettingsCategory.Algorithm,
                         initialSettingToScrollTo = null,
                     ),
+                    windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     listDetailInfo = listUiNavValue,
                 )
 
@@ -179,10 +184,11 @@ class FullscreenSettingsPaneRobolectricTests :
         setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
+                val windowSize = DpSize(maxWidth, maxHeight)
                 val windowSizeClass = with(LocalDensity.current) {
                     BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = constraints.maxWidth.toDp().value,
-                        heightDp = constraints.maxHeight.toDp().value,
+                        widthDp = windowSize.width.value,
+                        heightDp = windowSize.height.value,
                     )
                 }
                 val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
@@ -190,6 +196,7 @@ class FullscreenSettingsPaneRobolectricTests :
                         initialSettingsCategory = SettingsCategory.Algorithm,
                     ),
                     windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     isDetailPresent = false,
                 )
                 val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
@@ -197,6 +204,8 @@ class FullscreenSettingsPaneRobolectricTests :
                         settingsCategory = SettingsCategory.Algorithm,
                         initialSettingToScrollTo = null,
                     ),
+                    windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     listDetailInfo = listUiNavValue,
                 )
 
@@ -263,10 +272,11 @@ class FullscreenSettingsPaneRobolectricTests :
         setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
+                val windowSize = DpSize(maxWidth, maxHeight)
                 val windowSizeClass = with(LocalDensity.current) {
                     BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = constraints.maxWidth.toDp().value,
-                        heightDp = constraints.maxHeight.toDp().value,
+                        widthDp = windowSize.width.value,
+                        heightDp = windowSize.height.value,
                     )
                 }
                 val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
@@ -274,6 +284,7 @@ class FullscreenSettingsPaneRobolectricTests :
                         initialSettingsCategory = SettingsCategory.Algorithm,
                     ),
                     windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     isDetailPresent = true,
                 )
                 val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
@@ -281,6 +292,8 @@ class FullscreenSettingsPaneRobolectricTests :
                         settingsCategory = SettingsCategory.Algorithm,
                         initialSettingToScrollTo = null,
                     ),
+                    windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     listDetailInfo = listUiNavValue,
                 )
 
@@ -331,10 +344,11 @@ class FullscreenSettingsPaneRobolectricTests :
         setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
+                val windowSize = DpSize(maxWidth, maxHeight)
                 val windowSizeClass = with(LocalDensity.current) {
                     BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = constraints.maxWidth.toDp().value,
-                        heightDp = constraints.maxHeight.toDp().value,
+                        widthDp = windowSize.width.value,
+                        heightDp = windowSize.height.value,
                     )
                 }
                 val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
@@ -342,6 +356,7 @@ class FullscreenSettingsPaneRobolectricTests :
                         initialSettingsCategory = SettingsCategory.Algorithm,
                     ),
                     windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     isDetailPresent = true,
                 )
                 val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
@@ -349,6 +364,8 @@ class FullscreenSettingsPaneRobolectricTests :
                         settingsCategory = SettingsCategory.Algorithm,
                         initialSettingToScrollTo = null,
                     ),
+                    windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     listDetailInfo = listUiNavValue,
                 )
 
@@ -412,15 +429,17 @@ class FullscreenSettingsPaneRobolectricTests :
         setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
+                val windowSize = DpSize(maxWidth, maxHeight)
                 val windowSizeClass = with(LocalDensity.current) {
                     BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = constraints.maxWidth.toDp().value,
-                        heightDp = constraints.maxHeight.toDp().value,
+                        widthDp = windowSize.width.value,
+                        heightDp = windowSize.height.value,
                     )
                 }
                 val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                     nav = listNavValue,
                     windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     isDetailPresent = isDetailPresent,
                 )
                 val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
@@ -428,6 +447,8 @@ class FullscreenSettingsPaneRobolectricTests :
                         settingsCategory = listNavValue.settingsCategory,
                         initialSettingToScrollTo = null,
                     ),
+                    windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     listDetailInfo = listUiNavValue,
                 )
 
@@ -480,15 +501,17 @@ class FullscreenSettingsPaneRobolectricTests :
         setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
+                val windowSize = DpSize(maxWidth, maxHeight)
                 val windowSizeClass = with(LocalDensity.current) {
                     BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = constraints.maxWidth.toDp().value,
-                        heightDp = constraints.maxHeight.toDp().value,
+                        widthDp = windowSize.width.value,
+                        heightDp = windowSize.height.value,
                     )
                 }
                 val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                     nav = listNavValue,
                     windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     isDetailPresent = isDetailPresent,
                 )
                 val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
@@ -496,6 +519,8 @@ class FullscreenSettingsPaneRobolectricTests :
                         settingsCategory = listNavValue.settingsCategory,
                         initialSettingToScrollTo = null,
                     ),
+                    windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     listDetailInfo = listUiNavValue,
                 )
 
@@ -555,10 +580,11 @@ class FullscreenSettingsPaneRobolectricTests :
         setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
+                val windowSize = DpSize(maxWidth, maxHeight)
                 val windowSizeClass = with(LocalDensity.current) {
                     BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = constraints.maxWidth.toDp().value,
-                        heightDp = constraints.maxHeight.toDp().value,
+                        widthDp = windowSize.width.value,
+                        heightDp = windowSize.height.value,
                     )
                 }
                 val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
@@ -566,6 +592,7 @@ class FullscreenSettingsPaneRobolectricTests :
                         initialSettingsCategory = SettingsCategory.Visual,
                     ),
                     windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     isDetailPresent = true,
                 )
                 val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
@@ -573,6 +600,8 @@ class FullscreenSettingsPaneRobolectricTests :
                         settingsCategory = SettingsCategory.Visual,
                         initialSettingToScrollTo = null,
                     ),
+                    windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     listDetailInfo = listUiNavValue,
                 )
 
@@ -624,10 +653,11 @@ class FullscreenSettingsPaneRobolectricTests :
         setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
+                val windowSize = DpSize(maxWidth, maxHeight)
                 val windowSizeClass = with(LocalDensity.current) {
                     BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = constraints.maxWidth.toDp().value,
-                        heightDp = constraints.maxHeight.toDp().value,
+                        widthDp = windowSize.width.value,
+                        heightDp = windowSize.height.value,
                     )
                 }
                 val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
@@ -635,10 +665,13 @@ class FullscreenSettingsPaneRobolectricTests :
                         initialSettingsCategory = SettingsCategory.Visual,
                     ),
                     windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     isDetailPresent = true,
                 )
                 val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
                     nav = detailNavValue,
+                    windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     listDetailInfo = listUiNavValue,
                 )
 
@@ -696,15 +729,17 @@ class FullscreenSettingsPaneRobolectricTests :
             view = LocalView.current
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
+                val windowSize = DpSize(maxWidth, maxHeight)
                 val windowSizeClass = with(LocalDensity.current) {
                     BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = constraints.maxWidth.toDp().value,
-                        heightDp = constraints.maxHeight.toDp().value,
+                        widthDp = windowSize.width.value,
+                        heightDp = windowSize.height.value,
                     )
                 }
                 val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                     nav = listNavValue,
                     windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     isDetailPresent = isDetailPresent,
                 )
                 val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
@@ -712,6 +747,8 @@ class FullscreenSettingsPaneRobolectricTests :
                         settingsCategory = listNavValue.settingsCategory,
                         initialSettingToScrollTo = null,
                     ),
+                    windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     listDetailInfo = listUiNavValue,
                 )
 
@@ -765,15 +802,17 @@ class FullscreenSettingsPaneRobolectricTests :
             view = LocalView.current
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
+                val windowSize = DpSize(maxWidth, maxHeight)
                 val windowSizeClass = with(LocalDensity.current) {
                     BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = constraints.maxWidth.toDp().value,
-                        heightDp = constraints.maxHeight.toDp().value,
+                        widthDp = windowSize.width.value,
+                        heightDp = windowSize.height.value,
                     )
                 }
                 val listUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsList(
                     nav = listNavValue,
                     windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     isDetailPresent = isDetailPresent,
                 )
                 val detailsUiNavValue = ComposeLifeUiNavigation.FullscreenSettingsDetail(
@@ -781,6 +820,8 @@ class FullscreenSettingsPaneRobolectricTests :
                         settingsCategory = listNavValue.settingsCategory,
                         initialSettingToScrollTo = null,
                     ),
+                    windowSizeClass = windowSizeClass,
+                    windowSize = windowSize,
                     listDetailInfo = listUiNavValue,
                 )
 

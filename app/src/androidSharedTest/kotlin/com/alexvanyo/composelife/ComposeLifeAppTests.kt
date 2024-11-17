@@ -22,6 +22,7 @@ import android.content.ClipboardManager
 import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
@@ -272,11 +273,8 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
             .performClick()
 
         composeTestRule
-            .onNode(
-                hasAnyAncestor(hasTestTag("SettingUi:Setting_DarkThemeConfig")) and
-                    hasContentDescription(context.getString(R.string.open_in_settings)),
-            )
-            .assertDoesNotExist()
+            .onNodeWithText(context.getString(R.string.visual))
+            .assertIsDisplayed()
 
         if (!windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
             composeTestRule
