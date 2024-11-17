@@ -20,6 +20,13 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import kotlin.uuid.Uuid
 
+/**
+ * An object representing a specific session for [value].
+ *
+ * This [value] is from the given [sessionId], and has the associated [valueId].
+ *
+ * Session values can be managed with a [SessionValueHolder] created with [rememberSessionValueHolder].
+ */
 data class SessionValue<out T>(
     val sessionId: Uuid,
     val valueId: Uuid,
