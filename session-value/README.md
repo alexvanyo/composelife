@@ -114,7 +114,7 @@ The reason for this difference is that the `CountButton` uses the `count` that i
 composing `CountButton`.
 Composition doesn't magically happen instantly after calling the first `setCount`, updating the
 captured `count`, and allow the new count to be used when calling the second `setCount`.
-Instead, `setCount(count + 1)` twice in a row.
+Instead, `setCount(count + 1)` is called twice in a row.
 
 `Example3` hides its behavior due to the usage of the property delegate syntax for reading and
 writing `count`.
@@ -273,7 +273,7 @@ in `BasicTextField2`.
 
 However, there are real cases where the state changes can't be synchronous.
 If this `Slider` is a representation of a preference that is being saved to disk, disk access
-is by nature synchronous.
+is by nature asynchronous.
 
 This initially seems like an impossible task while preserving the principles of unidirectional
 data flow: asynchronous state handling with a single source of truth will lead to buggy behavior,
@@ -283,7 +283,7 @@ than the asynchronous data source.
 This is a tricky problem, but it isn't an impossible one.
 The important insight is that in these situations while we do have to have two sets of state, these
 two sources of state represent tangibly different things.
-We don't violate a single source of truth principle, because our sources of truth represent
+We don't violate a single source of truth principle, because our sources of truth can represent
 different (but related) pieces of state.
 
 Through careful handling of how these pieces of state interact, we can create a good experience
@@ -438,7 +438,8 @@ Because the asynchronous state can lag behind when the state is set an arbitrari
 hard to directly solve these issues without adding additional information.
 
 The two pieces of additional information that we can use is a "session id" and a "value id",
-both of which are bundled with the value into a `SessionValue`:
+both of which are bundled with the value into a
+[`SessionValue`](src/commonMain/kotlin/com/alexvanyo/composelife/sessionvalue/SessionValue.kt):
 
 ```kotlin
 data class SessionValue<out T>(
@@ -465,7 +466,8 @@ Storing and using these ids allows distinguishing between situations like:
   update the value should fail to update?
 - Has the asynchronous source reported the most recently set value?
 
-The tool for updating this value is `SessionValueHolder`:
+The tool for updating this value is
+[`SessionValueHolder`](src/commonMain/kotlin/com/alexvanyo/composelife/sessionvalue/SessionValueHolder.kt):
 
 ```kotlin
 sealed interface SessionValueHolder<T> {
@@ -526,6 +528,7 @@ interface SessionValueProbabilityInfo {
 }
 ```
 
+Confirmation case:
 ```kotlin
 @Composable
 fun Example10(
@@ -599,6 +602,7 @@ fun MySlider(
 }
 ```
 
+Continuous case:
 ```kotlin
 @Composable
 fun Example11(
@@ -612,23 +616,11 @@ fun Example11(
           probabilityInfo.updateProbability(expected, newValue)
         },
     )
-
-    val sessionValue = sessionValueHolder.sessionValue
-
-    /**
-     * The local source of truth for the probability.
-     * This is initialized to the asynchronously-updated value, and is reset to the
-     * asynchronously-updated value if the session changes.
-     */
-    val localProbability by rememberSaveable(sessionValueHolder.info.localSessionId) {
-        mutableStateOf(sessionValue.value)
-    }
   
     MySlider(
-        value = localProbability,
+        value = sessionValueHolder.sessionValue.value,
         onValueChange = {
-            localProbability = it
-            sessionValueHolder.setValue(localProbability)
+            sessionValueHolder.setValue(it)
         }
     )
 }
