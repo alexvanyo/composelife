@@ -34,6 +34,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LookaheadScope
+import androidx.compose.ui.unit.DpSize
 import androidx.window.core.layout.WindowSizeClass
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.clock.di.ClockProvider
@@ -85,8 +86,9 @@ context(ComposeLifeAppInjectEntryPoint)
 @Composable
 fun ComposeLifeApp(
     windowSizeClass: WindowSizeClass,
+    windowSize: DpSize,
     modifier: Modifier = Modifier,
-    composeLifeAppState: ComposeLifeAppState = rememberComposeLifeAppState(windowSizeClass),
+    composeLifeAppState: ComposeLifeAppState = rememberComposeLifeAppState(windowSizeClass, windowSize),
 ) {
     val immersiveModeManager = rememberImmersiveModeManager()
 
@@ -209,6 +211,7 @@ context(
 @Composable
 fun rememberComposeLifeAppState(
     windowSizeClass: WindowSizeClass,
+    windowSize: DpSize,
 ): ComposeLifeAppState {
     return when (val loadedPreferencesState = composeLifePreferences.loadedPreferencesState) {
         is ResourceState.Failure -> ComposeLifeAppState.ErrorLoadingPreferences
@@ -228,7 +231,7 @@ fun rememberComposeLifeAppState(
 
             val currentEntryId = navController.currentEntryId
 
-            val navigationUiState = navController.toComposeLifeUiNavigation(windowSizeClass)
+            val navigationUiState = navController.toComposeLifeUiNavigation(windowSizeClass, windowSize)
 
             remember(navController, navigationUiState) {
                 object : ComposeLifeAppState.LoadedPreferences {
