@@ -42,10 +42,10 @@ com.squareup.okio:okio-jvm:3.9.1
 com.squareup.okio:okio:3.9.1
 com.squareup.wire:wire-runtime-jvm:5.1.0
 com.squareup.wire:wire-runtime:5.1.0
-io.coil-kt.coil3:coil-compose-core-jvm:3.0.2
-io.coil-kt.coil3:coil-compose-core:3.0.2
-io.coil-kt.coil3:coil-core-jvm:3.0.2
-io.coil-kt.coil3:coil-core:3.0.2
+io.coil-kt.coil3:coil-compose-core-jvm:3.0.3
+io.coil-kt.coil3:coil-compose-core:3.0.3
+io.coil-kt.coil3:coil-core-jvm:3.0.3
+io.coil-kt.coil3:coil-core:3.0.3
 me.tatarka.inject:kotlin-inject-runtime-jvm:0.7.2
 me.tatarka.inject:kotlin-inject-runtime:0.7.2
 org.checkerframework:checker-qual:3.33.0
