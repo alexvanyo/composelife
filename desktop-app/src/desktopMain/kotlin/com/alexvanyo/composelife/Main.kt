@@ -58,7 +58,10 @@ fun main() = application {
 
             with(mainInjectEntryPoint) {
                 ComposeLifeTheme(shouldUseDarkTheme()) {
-                    ComposeLifeApp(currentWindowAdaptiveInfo().windowSizeClass)
+                    ComposeLifeApp(
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                        windowSize = windowState.size,
+                    )
                 }
             }
         }

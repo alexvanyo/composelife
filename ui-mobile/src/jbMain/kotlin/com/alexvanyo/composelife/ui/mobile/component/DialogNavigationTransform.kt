@@ -16,8 +16,11 @@
 
 package com.alexvanyo.composelife.ui.mobile.component
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
@@ -33,6 +36,7 @@ import com.alexvanyo.composelife.navigation.RenderableNavigationTransform
 import com.alexvanyo.composelife.navigation.backstackRenderableNavigationTransform
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavigationFrame
+import com.alexvanyo.composelife.ui.util.LocalNavigationSharedTransitionScope
 import com.alexvanyo.composelife.ui.util.PlatformEdgeToEdgeDialog
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
@@ -54,16 +58,7 @@ fun <T> dialogNavigationTransform(
             .entryMap
             .mapValues { (_, entry) ->
                 key(entry.id) {
-                    val isDialog by rememberUpdatedState(
-                        when (val navigationSegment = entry.value) {
-                            is NavigationSegment.CombinedSegment -> false
-                            is NavigationSegment.SingleSegment -> {
-                                val value = navigationSegment.value
-                                value is DialogableEntry && value.isDialog
-                            }
-                        },
-                    )
-
+                    val isDialog by rememberUpdatedState(entry.value.isDialog())
                     remember { { isDialog } }
                 }
             }
@@ -90,6 +85,7 @@ fun <T> dialogNavigationTransform(
         }.invoke(renderableNavigationState)
     }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 private fun <T> entryTransform(
@@ -137,19 +133,23 @@ private fun <T> entryTransform(
                     PlatformEdgeToEdgeDialog(
                         onDismissRequest = onBackButtonPressed,
                     ) {
-                        val repeatablePredictiveBackStateHolder =
-                            rememberRepeatablePredictiveBackStateHolder()
+                        SharedTransitionLayout {
+                            CompositionLocalProvider(LocalNavigationSharedTransitionScope provides null) {
+                                val repeatablePredictiveBackStateHolder =
+                                    rememberRepeatablePredictiveBackStateHolder()
 
-                        RepeatablePredictiveBackHandler(
-                            repeatablePredictiveBackStateHolder = repeatablePredictiveBackStateHolder,
-                            enabled = dialogEntries.size > 1,
-                            onBack = onBackButtonPressed,
-                        )
+                                RepeatablePredictiveBackHandler(
+                                    repeatablePredictiveBackStateHolder = repeatablePredictiveBackStateHolder,
+                                    enabled = dialogEntries.size > 1,
+                                    onBack = onBackButtonPressed,
+                                )
 
-                        CrossfadePredictiveNavigationFrame(
-                            dialogRenderableNavigationState,
-                            repeatablePredictiveBackStateHolder.value,
-                        )
+                                CrossfadePredictiveNavigationFrame(
+                                    dialogRenderableNavigationState,
+                                    repeatablePredictiveBackStateHolder.value,
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -209,22 +209,23 @@ private fun <T> createDialogRenderableNavigationState(
         },
     )
 
+private fun <T> NavigationSegment<T>.isDialog() = when (this) {
+    is NavigationSegment.SingleSegment<*> -> {
+        val value = this.value
+        value is DialogableEntry && value.isDialog
+    }
+    is NavigationSegment.CombinedSegment<*> -> combinedValues.all {
+        it is DialogableEntry && it.isDialog
+    }
+}
+
 @Composable
 private fun <T> BackstackEntry<NavigationSegment<T>>.createDialogableEntryGroup():
     List<BackstackEntry<NavigationSegment<T>>> = buildList {
     var currentEntry: BackstackEntry<NavigationSegment<T>>? = this@createDialogableEntryGroup
     while (currentEntry != null) {
         add(currentEntry)
-
-        val isCurrentEntryDialog = when (val navSegment = currentEntry.value) {
-            is NavigationSegment.SingleSegment<*> -> {
-                val value = navSegment.value
-                value is DialogableEntry && value.isDialog
-            }
-            is NavigationSegment.CombinedSegment<*> -> false
-        }
-
-        currentEntry = currentEntry.previous?.takeIf { isCurrentEntryDialog }
+        currentEntry = currentEntry.previous?.takeIf { currentEntry.value.isDialog() }
     }
 }
 

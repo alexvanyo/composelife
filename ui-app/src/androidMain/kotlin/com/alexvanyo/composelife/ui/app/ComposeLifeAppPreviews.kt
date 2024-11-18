@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.ui.app
 
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
 import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
@@ -40,6 +41,7 @@ internal fun LoadingPreferencesComposeLifeAppPreview() {
                         widthDp = size.width,
                         heightDp = size.height,
                     ),
+                    windowSize = with(LocalDensity.current) { size.toDpSize() },
                     composeLifeAppState = ComposeLifeAppState.LoadingPreferences,
                 )
             }
