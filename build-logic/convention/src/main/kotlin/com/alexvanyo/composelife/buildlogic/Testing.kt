@@ -23,6 +23,7 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.provider.Provider
+import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
@@ -111,8 +112,8 @@ fun Project.configureAndroidTesting(
     extensions.configure<KotlinMultiplatformExtension> {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         androidTarget {
-            unitTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
-            instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
+            unitTestVariant.sourceSetTree = KotlinSourceSetTree.test
+            instrumentedTestVariant.sourceSetTree = KotlinSourceSetTree.test
         }
 
         sourceSets.configure(
