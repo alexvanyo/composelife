@@ -82,7 +82,7 @@ kotlinxDatetime = "0.6.1"
 #kotlinxSerialization
 kotlinxSerialization = "1.7.3"
 #ksp
-ksp = "2.1.0-RC-1.0.27"
+ksp = "2.1.0-RC2-1.0.28"
 #jacoco
 jacoco = "0.8.12"
 #jetbrainsCompose
