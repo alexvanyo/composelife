@@ -124,10 +124,10 @@ app.cash.sqldelight:primitive-adapters-jvm:2.0.2
 app.cash.sqldelight:primitive-adapters:2.0.2
 app.cash.sqldelight:runtime-jvm:2.0.2
 app.cash.sqldelight:runtime:2.0.2
-co.touchlab:kermit-android-debug:2.0.4
-co.touchlab:kermit-core-android-debug:2.0.4
-co.touchlab:kermit-core:2.0.4
-co.touchlab:kermit:2.0.4
+co.touchlab:kermit-android-debug:2.0.5
+co.touchlab:kermit-core-android-debug:2.0.5
+co.touchlab:kermit-core:2.0.5
+co.touchlab:kermit:2.0.5
 com.airbnb.android:showkase-annotation:1.0.3
 com.airbnb.android:showkase:1.0.3
 com.github.livefront.sealed-enum:runtime:0.7.0
