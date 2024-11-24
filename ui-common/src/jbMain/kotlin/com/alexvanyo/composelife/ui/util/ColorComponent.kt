@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.ui.util
 
 import androidx.compose.ui.graphics.Color
+import com.alexvanyo.composelife.serialization.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
 

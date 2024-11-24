@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.util
+package com.alexvanyo.composelife.serialization
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -57,6 +57,7 @@ class SealedEnumSaverTests {
             }
         }
 
+        onNodeWithText("Change to Third").performClick()
         onNodeWithText("Change to Third").performClick()
 
         stateRestorationTester.emulateSavedInstanceStateRestore()

@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.util
+package com.alexvanyo.composelife.serialization
 
 import androidx.compose.runtime.saveable.Saver
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.json.Json
+import kotlin.uuid.Uuid
 
 /**
- * A [Saver] for a [T] using [Json] to encode and decode with the given [KSerializer].
+ * A [Saver] for a [Uuid].
  */
-val <T> KSerializer<T>.saver: Saver<T, String> get() = JsonSaver(this)
+val uuidSaver: Saver<Uuid, String> = Saver(
+    save = { it.toString() },
+    restore = Uuid::parse,
+)

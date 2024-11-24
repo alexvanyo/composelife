@@ -21,7 +21,7 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackValueSaverFactory
-import com.alexvanyo.composelife.ui.util.sealedEnumSaver
+import com.alexvanyo.composelife.serialization.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
 

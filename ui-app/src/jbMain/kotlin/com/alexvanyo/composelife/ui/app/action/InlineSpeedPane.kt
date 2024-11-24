@@ -35,6 +35,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.serialization.uuidSaver
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepLabel
 import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepLabelAndValue
@@ -48,7 +49,6 @@ import com.alexvanyo.composelife.ui.mobile.component.SliderBijection
 import com.alexvanyo.composelife.ui.mobile.component.toValue
 import com.alexvanyo.composelife.ui.util.nonNegativeDouble
 import com.alexvanyo.composelife.ui.util.nonNegativeLong
-import com.alexvanyo.composelife.ui.util.uuidSaver
 import kotlin.math.log2
 import kotlin.math.pow
 import kotlin.math.roundToInt
