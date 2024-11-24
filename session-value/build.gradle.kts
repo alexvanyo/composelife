@@ -45,6 +45,7 @@ kotlin {
             dependencies {
                 api(libs.jetbrains.compose.runtime)
                 api(libs.jetbrains.compose.runtime.saveable)
+                implementation(projects.serialization)
             }
         }
         val desktopMain by getting {

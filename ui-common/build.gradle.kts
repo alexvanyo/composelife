@@ -46,10 +46,10 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.annotation)
                 implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.serialization.json)
                 implementation(projects.dispatchers)
                 implementation(projects.geometry)
                 implementation(projects.navigation)
+                implementation(projects.serialization)
                 implementation(projects.uiToolingPreview)
                 implementation(projects.updatable)
             }
@@ -57,9 +57,6 @@ kotlin {
         val jvmMain by creating {
             dependsOn(commonMain)
             dependencies {
-                implementation(libs.jetbrains.compose.uiGeometry)
-                implementation(libs.jetbrains.compose.uiUnit)
-                implementation(libs.jetbrains.compose.uiUtil)
                 implementation(libs.sealedEnum.runtime)
             }
         }

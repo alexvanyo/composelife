@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.util
+package com.alexvanyo.composelife.serialization
 
 import androidx.compose.runtime.saveable.Saver
-import com.livefront.sealedenum.SealedEnum
+import androidx.savedstate.SavedState
+import androidx.savedstate.serialization.decodeFromSavedState
+import androidx.savedstate.serialization.encodeToSavedState
+import kotlinx.serialization.KSerializer
 
 /**
- * Creates a [Saver] for the given [sealedEnum] using the ordinal value.
+ * A [Saver] for a [T] using [Json] to encode and decode with the given [KSerializer].
  */
-fun <T> sealedEnumSaver(sealedEnum: SealedEnum<T>): Saver<T, Any> = Saver(
-    save = { sealedEnum.ordinalOf(it) },
-    restore = { sealedEnum.values[it as Int] },
+val <T : Any> KSerializer<T>.saver: Saver<T, SavedState> get() = Saver(
+    save = { encodeToSavedState(this@saver, it) },
+    restore = { decodeFromSavedState(this, it) },
 )

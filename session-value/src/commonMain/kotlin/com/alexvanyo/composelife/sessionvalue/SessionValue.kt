@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.sessionvalue
 
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
+import com.alexvanyo.composelife.serialization.uuidSaver
 import kotlin.uuid.Uuid
 
 /**
@@ -54,11 +55,3 @@ data class SessionValue<out T>(
         )
     }
 }
-
-/**
- * A [Saver] for a [Uuid].
- */
-internal val uuidSaver: Saver<Uuid, String> = Saver(
-    save = { it.toString() },
-    restore = Uuid::parse,
-)

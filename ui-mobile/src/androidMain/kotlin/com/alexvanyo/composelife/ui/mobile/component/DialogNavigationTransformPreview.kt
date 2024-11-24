@@ -49,12 +49,12 @@ import com.alexvanyo.composelife.navigation.navigate
 import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.segmentingNavigationTransform
+import com.alexvanyo.composelife.serialization.uuidSaver
 import com.alexvanyo.composelife.ui.util.AnimatedVisibility
 import com.alexvanyo.composelife.ui.util.MaterialPredictiveNavigationFrame
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
-import com.alexvanyo.composelife.ui.util.uuidSaver
 import kotlinx.coroutines.delay
 import kotlin.uuid.Uuid
 

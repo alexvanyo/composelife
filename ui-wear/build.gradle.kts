@@ -51,6 +51,7 @@ kotlin {
                 implementation(projects.navigation)
                 implementation(projects.resourceState)
                 implementation(projects.resourcesWear)
+                implementation(projects.serialization)
                 implementation(projects.uiCommon)
                 implementation(projects.uiToolingPreview)
                 implementation(projects.wearWatchfaceConfiguration)

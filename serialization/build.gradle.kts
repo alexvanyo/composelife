@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,19 +21,20 @@ plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
     alias(libs.plugins.convention.androidLibraryCompose)
-    alias(libs.plugins.convention.androidLibraryKsp)
+    alias(libs.plugins.convention.androidLibraryJacoco)
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
-    namespace = "com.alexvanyo.composelife.ui.mobile"
+    namespace = "com.alexvanyo.composelife.serialization"
     defaultConfig {
         minSdk = 21
     }
-    configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
+    configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
 }
 
 kotlin {
@@ -43,42 +44,30 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.kotlinx.collections.immutable)
-                api(projects.parameterizedString)
-                api(projects.preferences)
-
-                implementation(projects.navigation)
-                implementation(projects.resourceState)
-                implementation(projects.serialization)
-                implementation(projects.uiCommon)
-                implementation(projects.uiToolingPreview)
+                api(libs.androidx.savedState)
+                api(libs.jetbrains.compose.runtime)
+                api(libs.jetbrains.compose.runtime.saveable)
+                api(libs.kotlinx.serialization.core)
             }
         }
         val jvmMain by creating {
             dependsOn(commonMain)
+            dependencies {
+                api(libs.jetbrains.compose.uiGeometry)
+                api(libs.jetbrains.compose.uiUnit)
+                api(libs.sealedEnum.runtime)
+
+                implementation(libs.jetbrains.compose.uiUtil)
+            }
         }
         val jbMain by creating {
             dependsOn(jvmMain)
-            dependencies {
-                implementation(libs.jetbrains.compose.material3)
-                implementation(libs.jetbrains.compose.materialIconsExtended)
-            }
         }
         val desktopMain by getting {
             dependsOn(jbMain)
-            configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
-            dependencies {
-                implementation(compose.desktop.currentOs)
-            }
         }
         val androidMain by getting {
             dependsOn(jbMain)
-            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
-            dependencies {
-                implementation(libs.androidx.activityCompose)
-                implementation(libs.androidx.compose.material3)
-                implementation(libs.androidx.compose.uiTooling)
-            }
         }
         val commonTest by getting {
             dependencies {
@@ -95,6 +84,7 @@ kotlin {
         val jbTest by creating {
             dependsOn(jvmTest)
             dependencies {
+                implementation(libs.jetbrains.compose.foundation)
                 implementation(libs.jetbrains.compose.uiTestJunit4)
             }
         }

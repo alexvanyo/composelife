@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.util
+package com.alexvanyo.composelife.serialization
 
 import androidx.compose.ui.geometry.Rect
 import kotlinx.serialization.ExperimentalSerializationApi
