@@ -102,7 +102,7 @@ proguard = "7.6.0"
 #robolectric
 robolectric = "4.14.1"
 #roborazzi
-roborazzi = "1.33.0"
+roborazzi = "1.34.0"
 #sealedEnum
 sealedEnum = "0.7.0"
 #showkase
