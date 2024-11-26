@@ -18,10 +18,10 @@ package com.alexvanyo.composelife.model
 
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
+import androidx.savedstate.SavedState
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.Saver
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.json.Json
+import com.alexvanyo.composelife.serialization.saver
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -60,10 +60,10 @@ sealed interface DeserializationResult {
                         is Successful -> {
                             listOf(
                                 0,
-                                with(JsonSaver(CellStateFormat.FixedFormat.serializer())) {
+                                with(CellStateFormat.FixedFormat.serializer().saver) {
                                     save(it.format)
                                 },
-                                with(JsonSaver(CellState.serializer())) {
+                                with(CellState.serializer().saver) {
                                     save(it.cellState)
                                 },
                                 it.warnings.map { warning ->
@@ -95,12 +95,10 @@ sealed interface DeserializationResult {
                     when (type) {
                         0 -> {
                             Successful(
-                                format = JsonSaver(
-                                    CellStateFormat.FixedFormat.serializer(),
-                                ).restore(it[1] as String)!!,
-                                cellState = JsonSaver(
-                                    CellState.serializer(),
-                                ).restore(it[2] as String)!!,
+                                format =
+                                CellStateFormat.FixedFormat.serializer().saver.restore(it[1] as SavedState)!!,
+                                cellState =
+                                CellState.serializer().saver.restore(it[2] as SavedState)!!,
                                 warnings = (it[3] as List<Any>).map {
                                     ParameterizedString.Saver.restore(it)!!
                                 },
@@ -152,11 +150,3 @@ fun Iterable<DeserializationResult>.reduceToSuccessful(): DeserializationResult 
             }
         }
     }
-
-/**
- * A [Saver] for a [T] using [Json] to encode and decode with the given [KSerializer].
- */
-private class JsonSaver<T>(serializer: KSerializer<T>) : Saver<T, String> by Saver(
-    { Json.encodeToString(serializer, it) },
-    { Json.decodeFromString(serializer, it) },
-)

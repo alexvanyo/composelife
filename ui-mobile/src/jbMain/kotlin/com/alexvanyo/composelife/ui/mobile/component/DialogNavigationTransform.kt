@@ -35,12 +35,12 @@ import com.alexvanyo.composelife.navigation.RenderableNavigationState
 import com.alexvanyo.composelife.navigation.RenderableNavigationTransform
 import com.alexvanyo.composelife.navigation.backstackRenderableNavigationTransform
 import com.alexvanyo.composelife.navigation.currentEntry
+import com.alexvanyo.composelife.serialization.uuidSaver
 import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavigationFrame
 import com.alexvanyo.composelife.ui.util.LocalNavigationSharedTransitionScope
 import com.alexvanyo.composelife.ui.util.PlatformEdgeToEdgeDialog
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
-import com.alexvanyo.composelife.ui.util.uuidSaver
 import kotlin.uuid.Uuid
 
 fun <T> dialogNavigationTransform(

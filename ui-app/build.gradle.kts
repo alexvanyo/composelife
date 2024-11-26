@@ -68,6 +68,7 @@ kotlin {
                 implementation(projects.parameterizedString)
                 implementation(projects.patterns)
                 implementation(projects.resourceState)
+                implementation(projects.serialization)
                 implementation(projects.sessionValue)
                 implementation(projects.uiCommon)
                 implementation(projects.uiMobile)

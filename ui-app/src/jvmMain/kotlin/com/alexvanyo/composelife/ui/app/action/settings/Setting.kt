@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.ui.app.action.settings
 
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
-import com.alexvanyo.composelife.ui.util.sealedEnumSaver
+import com.alexvanyo.composelife.serialization.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
 

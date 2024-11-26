@@ -31,10 +31,10 @@ import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.NavigationSegment
 import com.alexvanyo.composelife.navigation.RenderableNavigationTransform
 import com.alexvanyo.composelife.navigation.backstackRenderableNavigationTransform
+import com.alexvanyo.composelife.serialization.uuidSaver
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.trySharedElementWithCallerManagedVisibility
-import com.alexvanyo.composelife.ui.util.uuidSaver
 import kotlin.uuid.Uuid
 
 /**
