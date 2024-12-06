@@ -40,6 +40,10 @@ android {
     configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
 }
 
+ksp {
+    arg("skipPrivatePreviews", "true")
+}
+
 kotlin {
     androidTarget()
     jvm("desktop")
