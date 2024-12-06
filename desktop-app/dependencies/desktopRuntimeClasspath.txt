@@ -79,8 +79,10 @@ org.jetbrains.compose.material3.adaptive:adaptive:1.0.1
 org.jetbrains.compose.material3:material3-desktop:1.8.0-alpha01
 org.jetbrains.compose.material3:material3:1.8.0-alpha01
 org.jetbrains.compose.material:material-desktop:1.8.0-alpha01
-org.jetbrains.compose.material:material-icons-core-desktop:1.6.11
-org.jetbrains.compose.material:material-icons-core:1.6.11
+org.jetbrains.compose.material:material-icons-core-desktop:1.7.1
+org.jetbrains.compose.material:material-icons-core:1.7.1
+org.jetbrains.compose.material:material-icons-extended-desktop:1.7.1
+org.jetbrains.compose.material:material-icons-extended:1.7.1
 org.jetbrains.compose.material:material-ripple-desktop:1.8.0-alpha01
 org.jetbrains.compose.material:material-ripple:1.8.0-alpha01
 org.jetbrains.compose.material:material:1.8.0-alpha01
