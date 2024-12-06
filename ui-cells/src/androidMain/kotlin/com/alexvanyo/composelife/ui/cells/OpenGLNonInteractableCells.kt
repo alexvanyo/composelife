@@ -24,6 +24,7 @@ import android.opengl.Matrix
 import android.view.Surface
 import androidx.compose.foundation.AndroidExternalSurface
 import androidx.compose.foundation.AndroidExternalSurfaceZOrder
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.getValue
@@ -34,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.core.content.getSystemService
 import androidx.graphics.opengl.GLRenderer
@@ -48,7 +50,6 @@ import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import java.nio.IntBuffer
-import kotlin.concurrent.Volatile
 
 @Composable
 fun openGLSupported(): Boolean {
@@ -185,3 +186,69 @@ fun rememberGLRenderer(): GLRenderer =
             }
         }
     }.glRenderer
+
+@Preview
+@Composable
+private fun OpenGLRepro() {
+    val glRenderer = rememberGLRenderer()
+
+    AndroidExternalSurface(
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        onSurface { surface, width, height ->
+            val renderTarget = glRenderer.attach(
+                surface,
+                width,
+                height,
+                object : GLRenderer.RenderCallback {
+                    override fun onSurfaceCreated(
+                        spec: EGLSpec,
+                        config: EGLConfig,
+                        surface: Surface,
+                        width: Int,
+                        height: Int,
+                    ): EGLSurface? =
+                        super.onSurfaceCreated(spec, config, surface, width, height).also {
+                            GLES20.glViewport(0, 0, width, height)
+                        }
+
+                    override fun onDrawFrame(eglManager: EGLManager) {
+                        checkOpenGLError()
+                        checkOpenGLFramebufferStatus()
+                    }
+                },
+            )
+
+            surface.onChanged { w, h ->
+                renderTarget.resize(w, h)
+                renderTarget.requestRender()
+            }
+
+            surface.onDestroyed {
+                glRenderer.detach(renderTarget, true)
+            }
+
+            renderTarget.requestRender()
+        }
+    }
+}
+
+/**
+ * Throws if there has been an OpenGL error.
+ */
+fun checkOpenGLError() {
+    val error = GLES20.glGetError()
+    if (error != GLES20.GL_NO_ERROR) {
+        error("OpenGL error: $error")
+    }
+}
+
+/**
+ * Throws if the framebuffer is not complete.
+ */
+fun checkOpenGLFramebufferStatus() {
+    val status = GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER)
+    if (status != GLES20.GL_FRAMEBUFFER_COMPLETE) {
+        error("OpenGL framebuffer error: $status")
+    }
+}
