@@ -276,7 +276,6 @@ fun EdgeToEdgeModalBottomSheet(
                         state = sheetState.anchoredDraggableState,
                         orientation = Orientation.Vertical,
                         enabled = sheetState.isVisible,
-                        startDragImmediately = sheetState.anchoredDraggableState.isAnimationRunning,
                     )
                     .graphicsLayer {
                         val predictiveBackState = predictiveBackStateHolder.value
