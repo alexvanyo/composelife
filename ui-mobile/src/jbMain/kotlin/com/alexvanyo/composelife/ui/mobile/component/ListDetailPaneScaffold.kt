@@ -20,11 +20,12 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.hoverable
@@ -69,22 +70,17 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
-import com.alexvanyo.composelife.ui.util.AnchoredDraggableState
-import com.alexvanyo.composelife.ui.util.AnchoredDraggableStateSaver
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.ContentStatus
-import com.alexvanyo.composelife.ui.util.DraggableAnchors
 import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackState
 import com.alexvanyo.composelife.ui.util.SwipeEdge
 import com.alexvanyo.composelife.ui.util.TargetState
-import com.alexvanyo.composelife.ui.util.asFoundationDraggableAnchors
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
@@ -125,22 +121,8 @@ fun ListDetailPaneScaffold(
         }
     }
 
-    val density = LocalDensity.current
-    val anchoredDraggableState = rememberSaveable(
-        saver = AnchoredDraggableStateSaver(
-            positionalThreshold = { totalDistance -> totalDistance * 0.5f },
-            velocityThreshold = { with(density) { 200.dp.toPx() } },
-            snapAnimationSpec = spring(),
-            decayAnimationSpec = exponentialDecay(),
-        ),
-    ) {
-        AnchoredDraggableState(
-            initialValue = 0.5f,
-            positionalThreshold = { totalDistance -> totalDistance * 0.5f },
-            velocityThreshold = { with(density) { 200.dp.toPx() } },
-            snapAnimationSpec = spring(),
-            decayAnimationSpec = exponentialDecay(),
-        )
+    val anchoredDraggableState = rememberSaveable(saver = AnchoredDraggableState.Saver()) {
+        AnchoredDraggableState(initialValue = 0.5f)
     }
 
     val minPaneWidth = 200.dp
@@ -301,8 +283,6 @@ fun ListDetailPaneScaffold(
                             newAnchors = ContinuousDraggableAnchors(
                                 minAnchoredDraggablePosition = minAnchoredDraggablePosition,
                                 maxAnchoredDraggablePosition = maxAnchoredDraggablePosition,
-                            ).asFoundationDraggableAnchors(
-                                equalsKey = minAnchoredDraggablePosition to maxAnchoredDraggablePosition,
                             ),
                             newTarget = anchoredDraggableState.targetValue,
                         )
@@ -544,8 +524,6 @@ data class ContinuousDraggableAnchors(
 
     override fun hasPositionFor(anchor: Float): Boolean =
         anchor in minAnchoredDraggablePosition..maxAnchoredDraggablePosition
-
-    override fun forEach(block: (anchor: Float, position: Float) -> Unit) = Unit
 }
 
 sealed interface ListAndDetailLayoutTypes {
