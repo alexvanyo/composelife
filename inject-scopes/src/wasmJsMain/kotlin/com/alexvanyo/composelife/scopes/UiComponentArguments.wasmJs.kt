@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+package com.alexvanyo.composelife.scopes
 
-plugins {
-    alias(libs.plugins.convention.kotlinMultiplatform)
-    alias(libs.plugins.convention.androidLibrary)
-    alias(libs.plugins.convention.detekt)
-    alias(libs.plugins.gradleDependenciesSorter)
-}
-
-android {
-    namespace = "com.alexvanyo.composelife.resources.common"
-    defaultConfig {
-        minSdk = 21
-    }
-}
-
-kotlin {
-    androidTarget()
-    jvm("desktop")
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        browser()
-    }
-}
+actual interface UiComponentArguments
