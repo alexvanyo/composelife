@@ -26,7 +26,6 @@ import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.junit4.ComposeContentTestRule
 
 /**
  * Helps to test the state restoration for your Composable component.

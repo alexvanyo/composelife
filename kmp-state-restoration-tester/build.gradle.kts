@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
-    alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
     alias(libs.plugins.gradleDependenciesSorter)
@@ -33,19 +34,26 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
 
     sourceSets {
         val commonMain by getting {}
         val jbMain by creating {
             dependsOn(commonMain)
             dependencies {
-                implementation(libs.jetbrains.compose.uiTestJunit4)
+                implementation(libs.jetbrains.compose.uiTest)
             }
         }
         val desktopMain by getting {
             dependsOn(jbMain)
         }
         val androidMain by getting {
+            dependsOn(jbMain)
+        }
+        val wasmJsMain by getting {
             dependsOn(jbMain)
         }
     }
