@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,13 @@
  * limitations under the License.
  */
 
-plugins {
-    alias(libs.plugins.convention.kotlinMultiplatform)
-    alias(libs.plugins.convention.androidLibrary)
-    alias(libs.plugins.convention.detekt)
-    alias(libs.plugins.gradleDependenciesSorter)
-}
+package com.alexvanyo.composelife.logging.di
 
-android {
-    namespace = "com.alexvanyo.composelife.strictmode"
-    defaultConfig {
-        minSdk = 21
-    }
-}
+import com.alexvanyo.composelife.logging.Logger
+import com.alexvanyo.composelife.logging.SingletonSystemLogger
+import me.tatarka.inject.annotations.Provides
 
-kotlin {
-    androidTarget()
-
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation(projects.logging)
-            }
-        }
-    }
+interface LoggerComponent : LoggerModule {
+    @Provides
+    fun providesFileSystem(): Logger = SingletonSystemLogger
 }
