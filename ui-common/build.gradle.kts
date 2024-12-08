@@ -48,6 +48,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(projects.dispatchers)
                 implementation(projects.geometry)
+                implementation(projects.logging)
                 implementation(projects.navigation)
                 implementation(projects.serialization)
                 implementation(projects.uiToolingPreview)

@@ -48,6 +48,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.core)
+                implementation(projects.logging)
                 implementation(projects.navigation)
                 implementation(projects.resourceState)
                 implementation(projects.resourcesWear)

@@ -20,7 +20,8 @@ import android.app.Application
 import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.StrictMode
-import co.touchlab.kermit.Logger
+import com.alexvanyo.composelife.logging.Logger
+import com.alexvanyo.composelife.logging.e
 
 fun Application.initStrictModeIfNeeded() {
     if (isDebuggable) {
@@ -44,7 +45,7 @@ private fun Application.initStrictModeThreadPolicy() {
                     ) {
                         val stackTraceAsString = it.stackTraceToString()
                         if (strictModeAllowlist.none(stackTraceAsString::contains)) {
-                            Logger.w("StrictMode") { "StrictMode ThreadPolicy violation: $stackTraceAsString" }
+                            Logger.e("StrictMode", it) { "StrictMode ThreadPolicy violation" }
                             @Suppress("TooGenericExceptionThrown")
                             throw RuntimeException("StrictMode ThreadPolicy violation", it)
                         }
@@ -69,7 +70,7 @@ private fun Application.initStrictModeVmPolicy() {
                     ) {
                         val stackTraceAsString = it.stackTraceToString()
                         if (strictModeAllowlist.none(stackTraceAsString::contains)) {
-                            Logger.w("StrictMode") { "StrictMode VmPolicy violation: $stackTraceAsString" }
+                            Logger.e("StrictMode", it) { "StrictMode VmPolicy violation" }
                             @Suppress("TooGenericExceptionThrown")
                             throw RuntimeException("StrictMode VmPolicy violation", it)
                         }

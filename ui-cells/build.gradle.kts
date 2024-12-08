@@ -57,6 +57,7 @@ kotlin {
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(projects.injectScopes)
+                implementation(projects.logging)
                 implementation(projects.openglRenderer)
                 implementation(projects.parameterizedString)
                 implementation(projects.patterns)

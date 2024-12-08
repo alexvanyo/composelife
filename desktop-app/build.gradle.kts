@@ -68,9 +68,6 @@ compose.desktop {
         buildTypes.release.proguard {
             version = libs.versions.proguard
             configurationFiles.from("proguard-rules.pro")
-            // TODO: Fix desktop proguard optimization
-            //       https://github.com/alexvanyo/composelife/issues/2192
-            optimize = false
         }
         nativeDistributions {
             targetFormats(TargetFormat.Deb, TargetFormat.Msi, TargetFormat.Dmg)
