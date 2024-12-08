@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,13 @@
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
+    alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
 android {
-    namespace = "com.alexvanyo.composelife.strictmode"
+    namespace = "com.alexvanyo.composelife.logging"
     defaultConfig {
         minSdk = 21
     }
@@ -30,11 +31,14 @@ android {
 
 kotlin {
     androidTarget()
+    jvm("desktop")
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.logging)
+                implementation(libs.kermit)
+                implementation(libs.kotlinInject.runtime)
+                implementation(projects.injectScopes)
             }
         }
     }
