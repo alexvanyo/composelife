@@ -47,6 +47,7 @@ kotlin {
                 api(projects.parameterizedString)
                 api(projects.preferences)
 
+                implementation(projects.logging)
                 implementation(projects.navigation)
                 implementation(projects.resourceState)
                 implementation(projects.serialization)
