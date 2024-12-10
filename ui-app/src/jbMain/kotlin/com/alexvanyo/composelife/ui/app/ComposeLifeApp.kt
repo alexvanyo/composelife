@@ -156,7 +156,7 @@ fun ComposeLifeApp(
 
                                             is ComposeLifeUiNavigation.FullscreenSettingsList -> {
                                                 FullscreenSettingsListPane(
-                                                    navEntryValue = value,
+                                                    fullscreenSettingsListPaneState = value,
                                                     setSettingsCategory =
                                                     targetComposeLifeAppState::onSettingsCategoryClicked,
                                                     onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
@@ -165,7 +165,7 @@ fun ComposeLifeApp(
 
                                             is ComposeLifeUiNavigation.FullscreenSettingsDetail -> {
                                                 FullscreenSettingsDetailPane(
-                                                    navEntryValue = value,
+                                                    fullscreenSettingsDetailPaneState = value,
                                                     onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
                                                 )
                                             }

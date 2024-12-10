@@ -57,6 +57,7 @@ kotlin {
                 api(projects.dispatchers)
                 api(projects.random)
                 api(projects.uiCells)
+                api(projects.uiSettings)
 
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.collections.immutable)
