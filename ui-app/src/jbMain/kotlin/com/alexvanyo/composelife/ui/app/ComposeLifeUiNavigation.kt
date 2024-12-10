@@ -31,6 +31,10 @@ import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.currentEntry
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsDetailPaneState
+import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsListPaneState
+import com.alexvanyo.composelife.ui.app.action.settings.Setting
+import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.mobile.component.DetailEntry
 import com.alexvanyo.composelife.ui.mobile.component.DialogableEntry
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailInfo
@@ -52,7 +56,10 @@ sealed interface ComposeLifeUiNavigation {
         val windowSizeClass: WindowSizeClass,
         windowSize: DpSize,
         isDetailPresent: Boolean,
-    ) : ComposeLifeUiNavigation, ListEntry, DialogableEntry {
+    ) : ComposeLifeUiNavigation, FullscreenSettingsListPaneState, ListEntry, DialogableEntry {
+        override val settingsCategory: SettingsCategory
+            get() = nav.settingsCategory
+
         override val isDetailVisible: Boolean =
             isDetailPresent || windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT
 
@@ -69,7 +76,18 @@ sealed interface ComposeLifeUiNavigation {
         windowSizeClass: WindowSizeClass,
         windowSize: DpSize,
         listDetailInfo: ListDetailInfo,
-    ) : ComposeLifeUiNavigation, DetailEntry, ListDetailInfo by listDetailInfo, DialogableEntry {
+    ) : ComposeLifeUiNavigation,
+        FullscreenSettingsDetailPaneState,
+        DetailEntry,
+        ListDetailInfo by listDetailInfo,
+        DialogableEntry {
+        override val settingsCategory: SettingsCategory
+            get() = nav.settingsCategory
+        override val settingToScrollTo: Setting?
+            get() = nav.settingToScrollTo
+
+        override fun onFinishedScrollingToSetting() = nav.onFinishedScrollingToSetting()
+
         override val isDialog =
             windowSize.width >= 1200.dp &&
                 windowSizeClass.windowHeightSizeClass != WindowHeightSizeClass.COMPACT
