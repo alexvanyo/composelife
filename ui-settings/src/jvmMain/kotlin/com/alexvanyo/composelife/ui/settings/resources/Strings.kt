@@ -21,62 +21,6 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 
 object Strings
 
-internal expect fun Strings.TargetStepsPerSecondLabelAndValue(targetStepsPerSecond: Double): ParameterizedString
-
-internal expect fun Strings.TargetStepsPerSecondValue(targetStepsPerSecond: Double): ParameterizedString
-
-internal expect val Strings.TargetStepsPerSecondLabel: ParameterizedString
-
-internal expect fun Strings.GenerationsPerStepLabelAndValue(generationsPerStep: Int): ParameterizedString
-
-internal expect fun Strings.GenerationsPerStepValue(generationsPerStep: Int): ParameterizedString
-
-internal expect val Strings.GenerationsPerStepLabel: ParameterizedString
-
-internal expect fun Strings.OffsetInfoMessage(x: Float, y: Float): ParameterizedString
-
-internal expect fun Strings.ScaleInfoMessage(scale: Float): ParameterizedString
-
-internal expect val Strings.PausedMessage: ParameterizedString
-
-internal expect fun Strings.GenerationsPerSecondShortMessage(generationsPerSecond: Double): ParameterizedString
-
-internal expect fun Strings.GenerationsPerSecondLongMessage(generationsPerSecond: Double): ParameterizedString
-
-internal expect val Strings.Collapse: ParameterizedString
-
-internal expect val Strings.Expand: ParameterizedString
-
-internal expect val Strings.Pause: ParameterizedString
-
-internal expect val Strings.Play: ParameterizedString
-
-internal expect val Strings.Step: ParameterizedString
-
-internal expect val Strings.ClearSelection: ParameterizedString
-
-internal expect val Strings.Copy: ParameterizedString
-
-internal expect val Strings.Cut: ParameterizedString
-
-internal expect val Strings.Paste: ParameterizedString
-
-internal expect val Strings.CancelPaste: ParameterizedString
-
-internal expect val Strings.ApplyPaste: ParameterizedString
-
-internal expect val Strings.DisableAutofit: ParameterizedString
-
-internal expect val Strings.EnableAutofit: ParameterizedString
-
-internal expect val Strings.DisableImmersiveMode: ParameterizedString
-
-internal expect val Strings.EnableImmersiveMode: ParameterizedString
-
-internal expect val Strings.Speed: ParameterizedString
-
-internal expect val Strings.Edit: ParameterizedString
-
 internal expect val Strings.Settings: ParameterizedString
 
 internal expect val Strings.OpenInSettings: ParameterizedString
@@ -84,28 +28,6 @@ internal expect val Strings.OpenInSettings: ParameterizedString
 internal expect val Strings.RemoveSettingFromQuickAccess: ParameterizedString
 
 internal expect val Strings.AddSettingToQuickAccess: ParameterizedString
-
-internal expect val Strings.Touch: ParameterizedString
-
-internal expect val Strings.TouchTool: ParameterizedString
-
-internal expect val Strings.Stylus: ParameterizedString
-
-internal expect val Strings.StylusTool: ParameterizedString
-
-internal expect val Strings.Mouse: ParameterizedString
-
-internal expect val Strings.MouseTool: ParameterizedString
-
-internal expect val Strings.Pan: ParameterizedString
-
-internal expect val Strings.Draw: ParameterizedString
-
-internal expect val Strings.Erase: ParameterizedString
-
-internal expect val Strings.Select: ParameterizedString
-
-internal expect val Strings.None: ParameterizedString
 
 internal expect val Strings.AlgorithmImplementation: ParameterizedString
 
@@ -147,19 +69,7 @@ internal expect val Strings.QuickSettingsInfo: ParameterizedString
 
 internal expect val Strings.SeeAll: ParameterizedString
 
-internal expect val Strings.EmptyClipboard: ParameterizedString
-
-internal expect val Strings.Clipboard: ParameterizedString
-
-internal expect val Strings.Pinned: ParameterizedString
-
-internal expect val Strings.Pin: ParameterizedString
-
-internal expect val Strings.Unpin: ParameterizedString
-
 internal expect val Strings.Back: ParameterizedString
-
-internal expect val Strings.Close: ParameterizedString
 
 internal expect val Strings.Algorithm: ParameterizedString
 
@@ -167,20 +77,6 @@ internal expect val Strings.FeatureFlags: ParameterizedString
 
 internal expect val Strings.Visual: ParameterizedString
 
-internal expect val Strings.ClipboardWatchingOnboarding: ParameterizedString
-
 internal expect val Strings.ClipboardWatchingOnboardingCompleted: ParameterizedString
 
-internal expect val Strings.Allow: ParameterizedString
-
-internal expect val Strings.Disallow: ParameterizedString
-
 internal expect val Strings.EnableClipboardWatching: ParameterizedString
-
-internal expect val Strings.DeserializationSucceeded: ParameterizedString
-
-internal expect val Strings.DeserializationFailed: ParameterizedString
-
-internal expect val Strings.Warnings: ParameterizedString
-
-internal expect val Strings.Errors: ParameterizedString

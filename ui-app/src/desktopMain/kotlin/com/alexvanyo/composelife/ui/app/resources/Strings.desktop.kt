@@ -106,15 +106,6 @@ internal actual val Strings.Edit: ParameterizedString get() =
 internal actual val Strings.Settings: ParameterizedString get() =
     ParameterizedString("Settings")
 
-internal actual val Strings.OpenInSettings: ParameterizedString get() =
-    ParameterizedString("Open in settings")
-
-internal actual val Strings.RemoveSettingFromQuickAccess: ParameterizedString get() =
-    ParameterizedString("Remove setting from quick access")
-
-internal actual val Strings.AddSettingToQuickAccess: ParameterizedString get() =
-    ParameterizedString("Add setting to quick access")
-
 internal actual val Strings.Touch: ParameterizedString get() =
     ParameterizedString("Touch")
 
@@ -148,66 +139,6 @@ internal actual val Strings.Select: ParameterizedString get() =
 internal actual val Strings.None: ParameterizedString get() =
     ParameterizedString("None")
 
-internal actual val Strings.AlgorithmImplementation: ParameterizedString get() =
-    ParameterizedString("Implementation")
-
-internal actual val Strings.NaiveAlgorithm: ParameterizedString get() =
-    ParameterizedString("Naïve")
-
-internal actual val Strings.HashLifeAlgorithm: ParameterizedString get() =
-    ParameterizedString("Hashlife")
-
-internal actual val Strings.DoNotKeepProcess: ParameterizedString get() =
-    ParameterizedString("Do not keep process")
-
-internal actual val Strings.DisableOpenGL: ParameterizedString get() =
-    ParameterizedString("Disable OpenGL")
-
-internal actual val Strings.DisableAGSL: ParameterizedString get() =
-    ParameterizedString("Disable AGSL")
-
-internal actual val Strings.Shape: ParameterizedString get() =
-    ParameterizedString("Shape")
-
-internal actual fun Strings.SizeFractionLabelAndValue(sizeFraction: Float): ParameterizedString =
-    ParameterizedString("Size fraction: %.2f", sizeFraction)
-
-internal actual fun Strings.SizeFractionValue(sizeFraction: Float): ParameterizedString =
-    ParameterizedString("%.2f", sizeFraction)
-
-internal actual val Strings.SizeFractionLabel: ParameterizedString get() =
-    ParameterizedString("Size fraction")
-
-internal actual fun Strings.CornerFractionLabelAndValue(cornerFraction: Float): ParameterizedString =
-    ParameterizedString("Corner fraction: %.2f", cornerFraction)
-
-internal actual fun Strings.CornerFractionValue(cornerFraction: Float): ParameterizedString =
-    ParameterizedString("%.2f", cornerFraction)
-
-internal actual val Strings.CornerFractionLabel: ParameterizedString get() =
-    ParameterizedString("Corner fraction")
-
-internal actual val Strings.RoundRectangle: ParameterizedString get() =
-    ParameterizedString("Round Rectangle")
-
-internal actual val Strings.DarkThemeConfig: ParameterizedString get() =
-    ParameterizedString("Theme")
-
-internal actual val Strings.FollowSystem: ParameterizedString get() =
-    ParameterizedString("Follow system")
-
-internal actual val Strings.DarkTheme: ParameterizedString get() =
-    ParameterizedString("Dark")
-
-internal actual val Strings.LightTheme: ParameterizedString get() =
-    ParameterizedString("Light")
-
-internal actual val Strings.QuickSettingsInfo: ParameterizedString get() =
-    ParameterizedString("Settings saved for quick access will appear here")
-
-internal actual val Strings.SeeAll: ParameterizedString get() =
-    ParameterizedString("See all…")
-
 internal actual val Strings.EmptyClipboard: ParameterizedString get() =
     ParameterizedString("Empty clipboard")
 
@@ -229,32 +160,17 @@ internal actual val Strings.Back: ParameterizedString get() =
 internal actual val Strings.Close: ParameterizedString get() =
     ParameterizedString("Close")
 
-internal actual val Strings.Algorithm: ParameterizedString get() =
-    ParameterizedString("Algorithm")
-
-internal actual val Strings.FeatureFlags: ParameterizedString get() =
-    ParameterizedString("Feature flags")
-
-internal actual val Strings.Visual: ParameterizedString get() =
-    ParameterizedString("Visual")
-
 internal actual val Strings.ClipboardWatchingOnboarding: ParameterizedString get() =
     ParameterizedString(
         "Allow watching the contents of the system clipboard to provide a preview of the cell state? " +
             "This can be changed later in settings.",
     )
 
-internal actual val Strings.ClipboardWatchingOnboardingCompleted: ParameterizedString get() =
-    ParameterizedString("Watch clipboard onboarding completed")
-
 internal actual val Strings.Allow: ParameterizedString get() =
     ParameterizedString("Allow")
 
 internal actual val Strings.Disallow: ParameterizedString get() =
     ParameterizedString("Don't allow")
-
-internal actual val Strings.EnableClipboardWatching: ParameterizedString get() =
-    ParameterizedString("Enable clipboard watching")
 
 internal actual val Strings.DeserializationSucceeded: ParameterizedString get() =
     ParameterizedString("Deserialization Succeeded")
