@@ -45,12 +45,12 @@ import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.associateWithRenderablePanes
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.ActionControlRow
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.NavContainer
-import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPane
-import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
+import com.alexvanyo.composelife.ui.settings.InlineSettingsPane
+import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneInjectEntryPoint
+import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneLocalEntryPoint
+import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavigationFrame
 import com.alexvanyo.composelife.ui.util.Layout

@@ -31,14 +31,14 @@ import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.currentEntry
-import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsDetailPaneState
-import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsListPaneState
-import com.alexvanyo.composelife.ui.app.action.settings.Setting
-import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.mobile.component.DetailEntry
 import com.alexvanyo.composelife.ui.mobile.component.DialogableEntry
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailInfo
 import com.alexvanyo.composelife.ui.mobile.component.ListEntry
+import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneState
+import com.alexvanyo.composelife.ui.settings.FullscreenSettingsListPaneState
+import com.alexvanyo.composelife.ui.settings.Setting
+import com.alexvanyo.composelife.ui.settings.SettingsCategory
 import kotlin.uuid.Uuid
 
 /**

@@ -27,8 +27,8 @@ import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackValueSaverFactory
 import com.alexvanyo.composelife.serialization.sealedEnumSaver
-import com.alexvanyo.composelife.ui.app.action.settings.Setting
-import com.alexvanyo.composelife.ui.app.action.settings.SettingsCategory
+import com.alexvanyo.composelife.ui.settings.Setting
+import com.alexvanyo.composelife.ui.settings.SettingsCategory
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
 import kotlin.uuid.Uuid

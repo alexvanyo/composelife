@@ -51,9 +51,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.alexvanyo.composelife.ui.app.action.settings.Setting
-import com.alexvanyo.composelife.ui.app.action.settings.SettingUi
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
+import com.alexvanyo.composelife.ui.settings.Setting
+import com.alexvanyo.composelife.ui.settings.SettingUi
 import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
 import com.alexvanyo.composelife.ui.util.TargetState
 

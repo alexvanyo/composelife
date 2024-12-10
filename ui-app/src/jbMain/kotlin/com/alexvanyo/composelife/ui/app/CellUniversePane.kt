@@ -38,10 +38,10 @@ import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicator
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorLocalEntryPoint
+import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.ImmersiveModeManager
 import com.slack.circuit.retained.rememberRetained
 import kotlinx.coroutines.delay

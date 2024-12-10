@@ -52,7 +52,6 @@ import com.alexvanyo.composelife.model.isRunning
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardState
 import com.alexvanyo.composelife.ui.app.action.rememberCellUniverseActionCardState
-import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
@@ -69,6 +68,7 @@ import com.alexvanyo.composelife.ui.cells.getSelectedCellState
 import com.alexvanyo.composelife.ui.cells.rememberMutableCellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.rememberMutableSelectionStateHolder
 import com.alexvanyo.composelife.ui.cells.rememberTrackingCellWindowViewportState
+import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.ClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.ImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.LocalGhostElement

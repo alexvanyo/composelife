@@ -56,10 +56,10 @@ import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutType
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCard
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLocalEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.Setting
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.SelectionState
+import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.Layout
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
