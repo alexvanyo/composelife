@@ -31,9 +31,9 @@ import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.AlgorithmType
-import com.alexvanyo.composelife.ui.app.resources.HashLifeAlgorithm
-import com.alexvanyo.composelife.ui.app.resources.NaiveAlgorithm
-import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.settings.resources.HashLifeAlgorithm
+import com.alexvanyo.composelife.ui.settings.resources.NaiveAlgorithm
+import com.alexvanyo.composelife.ui.settings.resources.Strings
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals

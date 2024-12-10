@@ -29,8 +29,8 @@ import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
-import com.alexvanyo.composelife.ui.app.resources.DisableAGSL
-import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.settings.resources.DisableAGSL
+import com.alexvanyo.composelife.ui.settings.resources.Strings
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertFalse

@@ -48,9 +48,9 @@ import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.ordinal
-import com.alexvanyo.composelife.ui.app.resources.QuickSettingsInfo
-import com.alexvanyo.composelife.ui.app.resources.SeeAll
-import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.settings.resources.QuickSettingsInfo
+import com.alexvanyo.composelife.ui.settings.resources.SeeAll
+import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.util.trySharedBounds
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
