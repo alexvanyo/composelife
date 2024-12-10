@@ -60,11 +60,11 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
-import com.alexvanyo.composelife.ui.app.resources.Back
-import com.alexvanyo.composelife.ui.app.resources.Settings
-import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailInfo
 import com.alexvanyo.composelife.ui.mobile.component.rememberTooltipPositionProvider
+import com.alexvanyo.composelife.ui.settings.resources.Back
+import com.alexvanyo.composelife.ui.settings.resources.Settings
+import com.alexvanyo.composelife.ui.settings.resources.Strings
 
 @Composable
 fun FullscreenSettingsListPane(

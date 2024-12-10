@@ -31,10 +31,10 @@ import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
-import com.alexvanyo.composelife.ui.app.resources.DarkTheme
-import com.alexvanyo.composelife.ui.app.resources.FollowSystem
-import com.alexvanyo.composelife.ui.app.resources.LightTheme
-import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.settings.resources.DarkTheme
+import com.alexvanyo.composelife.ui.settings.resources.FollowSystem
+import com.alexvanyo.composelife.ui.settings.resources.LightTheme
+import com.alexvanyo.composelife.ui.settings.resources.Strings
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals

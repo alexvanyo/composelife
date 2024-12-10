@@ -15,7 +15,7 @@
  */
 @file:Suppress("TooManyFunctions")
 
-package com.alexvanyo.composelife.ui.app.resources
+package com.alexvanyo.composelife.ui.settings.resources
 
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.ui.settings.R
