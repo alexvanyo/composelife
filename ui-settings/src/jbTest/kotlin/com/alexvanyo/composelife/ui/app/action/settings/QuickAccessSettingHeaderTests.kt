@@ -26,10 +26,10 @@ import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
-import com.alexvanyo.composelife.ui.app.resources.AddSettingToQuickAccess
-import com.alexvanyo.composelife.ui.app.resources.OpenInSettings
-import com.alexvanyo.composelife.ui.app.resources.RemoveSettingFromQuickAccess
-import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.settings.resources.AddSettingToQuickAccess
+import com.alexvanyo.composelife.ui.settings.resources.OpenInSettings
+import com.alexvanyo.composelife.ui.settings.resources.RemoveSettingFromQuickAccess
+import com.alexvanyo.composelife.ui.settings.resources.Strings
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals

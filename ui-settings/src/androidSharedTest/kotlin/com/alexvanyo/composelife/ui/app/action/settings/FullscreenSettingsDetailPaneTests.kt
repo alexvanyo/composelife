@@ -56,8 +56,8 @@ import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
 import com.alexvanyo.composelife.ui.app.createComponent
-import com.alexvanyo.composelife.ui.app.resources.CornerFractionLabel
-import com.alexvanyo.composelife.ui.app.resources.Strings
+import com.alexvanyo.composelife.ui.settings.resources.CornerFractionLabel
+import com.alexvanyo.composelife.ui.settings.resources.Strings
 import org.junit.Assume.assumeTrue
 import org.junit.runner.RunWith
 import kotlin.test.Test

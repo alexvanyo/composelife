@@ -26,10 +26,10 @@ import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
-import com.alexvanyo.composelife.ui.app.resources.Algorithm
-import com.alexvanyo.composelife.ui.app.resources.FeatureFlags
-import com.alexvanyo.composelife.ui.app.resources.Strings
-import com.alexvanyo.composelife.ui.app.resources.Visual
+import com.alexvanyo.composelife.ui.settings.resources.Algorithm
+import com.alexvanyo.composelife.ui.settings.resources.FeatureFlags
+import com.alexvanyo.composelife.ui.settings.resources.Strings
+import com.alexvanyo.composelife.ui.settings.resources.Visual
 
 val SettingsCategory.title: String
     @Composable

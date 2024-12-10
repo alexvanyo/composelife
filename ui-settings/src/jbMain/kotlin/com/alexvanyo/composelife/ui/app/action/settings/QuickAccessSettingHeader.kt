@@ -38,11 +38,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
-import com.alexvanyo.composelife.ui.app.resources.AddSettingToQuickAccess
-import com.alexvanyo.composelife.ui.app.resources.OpenInSettings
-import com.alexvanyo.composelife.ui.app.resources.RemoveSettingFromQuickAccess
-import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.mobile.component.rememberTooltipPositionProvider
+import com.alexvanyo.composelife.ui.settings.resources.AddSettingToQuickAccess
+import com.alexvanyo.composelife.ui.settings.resources.OpenInSettings
+import com.alexvanyo.composelife.ui.settings.resources.RemoveSettingFromQuickAccess
+import com.alexvanyo.composelife.ui.settings.resources.Strings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongMethod")
