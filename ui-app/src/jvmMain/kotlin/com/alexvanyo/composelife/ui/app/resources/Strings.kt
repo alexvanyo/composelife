@@ -79,12 +79,6 @@ internal expect val Strings.Edit: ParameterizedString
 
 internal expect val Strings.Settings: ParameterizedString
 
-internal expect val Strings.OpenInSettings: ParameterizedString
-
-internal expect val Strings.RemoveSettingFromQuickAccess: ParameterizedString
-
-internal expect val Strings.AddSettingToQuickAccess: ParameterizedString
-
 internal expect val Strings.Touch: ParameterizedString
 
 internal expect val Strings.TouchTool: ParameterizedString
@@ -107,46 +101,6 @@ internal expect val Strings.Select: ParameterizedString
 
 internal expect val Strings.None: ParameterizedString
 
-internal expect val Strings.AlgorithmImplementation: ParameterizedString
-
-internal expect val Strings.NaiveAlgorithm: ParameterizedString
-
-internal expect val Strings.HashLifeAlgorithm: ParameterizedString
-
-internal expect val Strings.DoNotKeepProcess: ParameterizedString
-
-internal expect val Strings.DisableOpenGL: ParameterizedString
-
-internal expect val Strings.DisableAGSL: ParameterizedString
-
-internal expect val Strings.Shape: ParameterizedString
-
-internal expect fun Strings.SizeFractionLabelAndValue(sizeFraction: Float): ParameterizedString
-
-internal expect fun Strings.SizeFractionValue(sizeFraction: Float): ParameterizedString
-
-internal expect val Strings.SizeFractionLabel: ParameterizedString
-
-internal expect fun Strings.CornerFractionLabelAndValue(cornerFraction: Float): ParameterizedString
-
-internal expect fun Strings.CornerFractionValue(cornerFraction: Float): ParameterizedString
-
-internal expect val Strings.CornerFractionLabel: ParameterizedString
-
-internal expect val Strings.RoundRectangle: ParameterizedString
-
-internal expect val Strings.DarkThemeConfig: ParameterizedString
-
-internal expect val Strings.FollowSystem: ParameterizedString
-
-internal expect val Strings.DarkTheme: ParameterizedString
-
-internal expect val Strings.LightTheme: ParameterizedString
-
-internal expect val Strings.QuickSettingsInfo: ParameterizedString
-
-internal expect val Strings.SeeAll: ParameterizedString
-
 internal expect val Strings.EmptyClipboard: ParameterizedString
 
 internal expect val Strings.Clipboard: ParameterizedString
@@ -161,21 +115,11 @@ internal expect val Strings.Back: ParameterizedString
 
 internal expect val Strings.Close: ParameterizedString
 
-internal expect val Strings.Algorithm: ParameterizedString
-
-internal expect val Strings.FeatureFlags: ParameterizedString
-
-internal expect val Strings.Visual: ParameterizedString
-
 internal expect val Strings.ClipboardWatchingOnboarding: ParameterizedString
-
-internal expect val Strings.ClipboardWatchingOnboardingCompleted: ParameterizedString
 
 internal expect val Strings.Allow: ParameterizedString
 
 internal expect val Strings.Disallow: ParameterizedString
-
-internal expect val Strings.EnableClipboardWatching: ParameterizedString
 
 internal expect val Strings.DeserializationSucceeded: ParameterizedString
 

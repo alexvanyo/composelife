@@ -15,45 +15,6 @@
      limitations under the License.
 -->
 <resources>
-    <string name="play">Play</string>
-    <string name="pause">Pause</string>
-    <string name="step">Step</string>
-    <string name="clear_selection">Clear selection</string>
-    <string name="copy">Copy</string>
-    <string name="cut">Cut</string>
-    <string name="paste">Paste</string>
-    <string name="cancel_paste">Cancel paste</string>
-    <string name="apply_paste">Apply paste</string>
-    <string name="target_steps_per_second_label">Target steps per second</string>
-    <string name="target_steps_per_second_label_and_value">Target steps per second: %1$.2f</string>
-    <string name="target_steps_per_second_value" translatable="false">%1$.2f</string>
-    <string name="generations_per_step_label">Generations per step</string>
-    <string name="generations_per_step_label_and_value">Generations per step: %1$d</string>
-    <string name="generations_per_step_value" translatable="false">%1$d</string>
-    <string name="expand">Expand</string>
-    <string name="collapse">Collapse</string>
-    <string name="enable_autofit">Enable autofit</string>
-    <string name="disable_autofit">Disable autofit</string>
-    <string name="enable_immersive_mode">Enable immersive mode</string>
-    <string name="disable_immersive_mode">Disable immersive mode</string>
-    <string name="offset">Offset: x = %1$.1f, y = %2$.1f</string>
-    <string name="scale">Scale: %1$.2f</string>
-    <string name="paused">Paused</string>
-    <string name="generations_per_second_short">GPS: %1$.2f</string>
-    <string name="generations_per_second_long">Generations per second: %1$.2f</string>
-    <string name="speed">Speed</string>
-    <string name="edit">Edit</string>
-    <string name="touch">Touch</string>
-    <string name="touch_tool">Touch tool</string>
-    <string name="stylus">Stylus</string>
-    <string name="stylus_tool">Stylus tool</string>
-    <string name="mouse">Mouse</string>
-    <string name="mouse_tool">Mouse tool</string>
-    <string name="pan">Pan</string>
-    <string name="draw">Draw</string>
-    <string name="erase">Erase</string>
-    <string name="select">Select</string>
-    <string name="none">None</string>
     <string name="corner_fraction_label">Corner fraction</string>
     <string name="corner_fraction_label_and_value">Corner fraction: %1$.2f</string>
     <string name="corner_fraction_value" translatable="false">%1$.2f</string>
@@ -65,7 +26,6 @@
     <string name="round_rectangle">Round Rectangle</string>
     <string name="see_all">See all…</string>
     <string name="back">Back</string>
-    <string name="close">Close</string>
     <string name="algorithm_implementation">Implementation</string>
     <string name="hash_life_algorithm">Hashlife</string>
     <string name="naive_algorithm">Naïve</string>
@@ -83,18 +43,6 @@
     <string name="disable_agsl">Disable AGSL</string>
     <string name="disable_opengl">Disable OpenGL</string>
     <string name="do_not_keep_process">Do not keep process</string>
-    <string name="empty_clipboard">Clipboard was empty</string>
-    <string name="clipboard">Clipboard</string>
-    <string name="pinned">Pinned</string>
-    <string name="pin">Pin</string>
-    <string name="unpin">Unpin</string>
-    <string name="clipboard_watching_onboarding">Allow watching the contents of the system clipboard to provide a preview of the cell state? This can be changed later in settings.</string>
     <string name="clipboard_watching_onboarding_completed">Watch clipboard onboarding completed</string>
-    <string name="allow">Allow</string>
-    <string name="disallow">Don\'t allow</string>
     <string name="enable_clipboard_watching">Enable clipboard watching</string>
-    <string name="deserialization_succeeded">Deserialization succeeded</string>
-    <string name="deserialization_failed">Deserialization failed</string>
-    <string name="warnings">Warnings</string>
-    <string name="errors">Errors</string>
 </resources>
