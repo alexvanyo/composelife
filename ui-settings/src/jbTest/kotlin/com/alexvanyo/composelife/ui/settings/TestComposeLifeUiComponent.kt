@@ -14,21 +14,11 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.app
+package com.alexvanyo.composelife.ui.settings
 
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
-import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardInjectEntryPoint
-import com.alexvanyo.composelife.ui.settings.AlgorithmImplementationUiInjectEntryPoint
-import com.alexvanyo.composelife.ui.settings.CellShapeConfigUiInjectEntryPoint
-import com.alexvanyo.composelife.ui.settings.DarkThemeConfigUiInjectEntryPoint
-import com.alexvanyo.composelife.ui.settings.DisableAGSLUiInjectEntryPoint
-import com.alexvanyo.composelife.ui.settings.DisableOpenGLUiInjectEntryPoint
-import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneInjectEntryPoint
-import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneInjectEntryPoint
-import com.alexvanyo.composelife.ui.settings.SettingUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 
 expect abstract class TestComposeLifeUiComponent :
     UiComponent<TestComposeLifeApplicationComponent, TestComposeLifeUiEntryPoint> {
@@ -42,17 +32,12 @@ interface TestComposeLifeUiEntryPoint :
     TestComposeLifeApplicationEntryPoint,
     AlgorithmImplementationUiInjectEntryPoint,
     CellShapeConfigUiInjectEntryPoint,
-    CellUniverseActionCardInjectEntryPoint,
     CellWindowInjectEntryPoint,
-    ComposeLifeAppInjectEntryPoint,
     DarkThemeConfigUiInjectEntryPoint,
     DisableAGSLUiInjectEntryPoint,
     DisableOpenGLUiInjectEntryPoint,
     FullscreenSettingsDetailPaneInjectEntryPoint,
-    GameOfLifeProgressIndicatorInjectEntryPoint,
     InlineSettingsPaneInjectEntryPoint,
-    InteractiveCellUniverseInjectEntryPoint,
-    InteractiveCellUniverseOverlayInjectEntryPoint,
     SettingUiInjectEntryPoint
 
 expect fun TestComposeLifeUiComponent.Companion.createComponent(
