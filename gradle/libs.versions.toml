@@ -26,7 +26,7 @@ androidxDataStore = "1.1.1"
 #androidxLifecycle
 androidxLifecycle = "2.9.0-alpha07"
 #androidxLintGradle
-androidxLintGradle = "1.0.0-alpha02"
+androidxLintGradle = "1.0.0-alpha03"
 #androidxPoolingContainer
 androidxPoolingContainer = "1.0.0"
 #androidxProfileInstaller
