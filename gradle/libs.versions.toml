@@ -82,7 +82,7 @@ kotlinxCoroutines = "1.9.0"
 #kotlinxDatetime
 kotlinxDatetime = "0.6.1"
 #kotlinxSerialization
-kotlinxSerialization = "1.7.3"
+kotlinxSerialization = "1.8.0-RC"
 #ksp
 ksp = "2.1.0-1.0.29"
 #jacoco
