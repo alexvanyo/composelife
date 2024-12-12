@@ -52,10 +52,10 @@ androidx.compose.ui:ui-util:1.8.0-alpha06
 androidx.compose.ui:ui:1.8.0-alpha06
 androidx.compose:compose-bom-alpha:2024.11.00
 androidx.concurrent:concurrent-futures:1.1.0
-androidx.core:core-ktx:1.15.0
+androidx.core:core-ktx:1.16.0-alpha01
 androidx.core:core-splashscreen:1.2.0-alpha02
 androidx.core:core-viewtree:1.0.0-alpha01
-androidx.core:core:1.15.0
+androidx.core:core:1.16.0-alpha01
 androidx.cursoradapter:cursoradapter:1.0.0
 androidx.customview:customview-poolingcontainer:1.0.0
 androidx.customview:customview:1.0.0
