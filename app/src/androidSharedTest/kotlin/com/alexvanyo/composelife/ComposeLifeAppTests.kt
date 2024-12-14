@@ -51,7 +51,6 @@ import com.alexvanyo.composelife.preferences.darkThemeConfigState
 import com.alexvanyo.composelife.preferences.quickAccessSettingsState
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.test.BaseActivityInjectTest
-import com.alexvanyo.composelife.ui.app.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runCurrent
 import leakcanary.SkipLeakDetection
@@ -59,6 +58,8 @@ import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import com.alexvanyo.composelife.ui.app.R as uiAppR
+import com.alexvanyo.composelife.ui.settings.R as uiSettingsR
 
 @RunWith(KmpAndroidJUnit4::class)
 class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationComponent, MainActivity>(
@@ -72,9 +73,9 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
     @SkipLeakDetection("recomposer", "Outer")
     @Test
     fun app_does_not_crash() = runAppTest(testDispatcher) {
-        composeTestRule.onNodeWithContentDescription(context.getString(R.string.play)).performClick()
+        composeTestRule.onNodeWithContentDescription(context.getString(uiAppR.string.play)).performClick()
 
-        composeTestRule.onNodeWithContentDescription(context.getString(R.string.pause)).performClick()
+        composeTestRule.onNodeWithContentDescription(context.getString(uiAppR.string.pause)).performClick()
 
         composeTestRule.waitForIdle()
     }
@@ -82,9 +83,9 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
     @SkipLeakDetection("recomposer", "Outer", "Inner")
     @Test
     fun app_does_not_crash_when_recreating() = runAppTest(testDispatcher) {
-        composeTestRule.onNodeWithContentDescription(context.getString(R.string.play)).performClick()
+        composeTestRule.onNodeWithContentDescription(context.getString(uiAppR.string.play)).performClick()
 
-        composeTestRule.onNodeWithContentDescription(context.getString(R.string.pause)).performClick()
+        composeTestRule.onNodeWithContentDescription(context.getString(uiAppR.string.pause)).performClick()
 
         composeTestRule.activityRule.scenario.recreate()
 
@@ -114,32 +115,32 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
         composeTestRule
             .onNode(
                 hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(R.string.expand)),
+                    hasContentDescription(context.getString(uiAppR.string.expand)),
             )
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings))
+            .onNodeWithText(context.getString(uiAppR.string.settings))
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings))
+            .onNodeWithText(context.getString(uiAppR.string.settings))
             .assertIsSelected()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.see_all))
+            .onNodeWithText(context.getString(uiSettingsR.string.see_all))
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.visual))
+            .onNodeWithText(context.getString(uiSettingsR.string.visual))
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.dark_theme_config))
+            .onNodeWithText(context.getString(uiSettingsR.string.dark_theme_config))
             .performClick()
 
         composeTestRule
-            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(R.string.dark_theme)))
+            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(uiSettingsR.string.dark_theme)))
             .assertHasClickAction()
             .performClick()
 
@@ -151,22 +152,22 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
 
         if (!windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
             composeTestRule
-                .onNodeWithContentDescription(context.getString(R.string.back))
+                .onNodeWithContentDescription(context.getString(uiAppR.string.back))
                 .performClick()
         }
 
         composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.back))
+            .onNodeWithContentDescription(context.getString(uiAppR.string.back))
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings))
+            .onNodeWithText(context.getString(uiAppR.string.settings))
             .assertIsSelected()
 
         Espresso.pressBack()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.speed))
+            .onNodeWithText(context.getString(uiAppR.string.speed))
             .assertIsSelected()
 
         Espresso.pressBack()
@@ -174,7 +175,7 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
         composeTestRule
             .onNode(
                 hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(R.string.expand)),
+                    hasContentDescription(context.getString(uiAppR.string.expand)),
             )
             .assertExists()
     }
@@ -202,30 +203,30 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
         composeTestRule
             .onNode(
                 hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(R.string.expand)),
+                    hasContentDescription(context.getString(uiAppR.string.expand)),
             )
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings))
+            .onNodeWithText(context.getString(uiAppR.string.settings))
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings))
+            .onNodeWithText(context.getString(uiAppR.string.settings))
             .assertIsSelected()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.see_all))
+            .onNodeWithText(context.getString(uiSettingsR.string.see_all))
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.visual))
+            .onNodeWithText(context.getString(uiSettingsR.string.visual))
             .performClick()
 
         composeTestRule
             .onNode(
                 hasAnyAncestor(hasTestTag("SettingUi:Setting_DarkThemeConfig")) and
-                    hasContentDescription(context.getString(R.string.add_setting_to_quick_access)),
+                    hasContentDescription(context.getString(uiSettingsR.string.add_setting_to_quick_access)),
             )
             .performScrollTo()
             .performClick()
@@ -237,24 +238,24 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
 
         if (!windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
             composeTestRule
-                .onNodeWithContentDescription(context.getString(R.string.back))
+                .onNodeWithContentDescription(context.getString(uiAppR.string.back))
                 .performClick()
         }
 
         composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.back))
+            .onNodeWithContentDescription(context.getString(uiAppR.string.back))
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings))
+            .onNodeWithText(context.getString(uiAppR.string.settings))
             .assertIsSelected()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.dark_theme_config))
+            .onNodeWithText(context.getString(uiSettingsR.string.dark_theme_config))
             .performClick()
 
         composeTestRule
-            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(R.string.dark_theme)))
+            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(uiSettingsR.string.dark_theme)))
             .assertHasClickAction()
             .performClick()
 
@@ -267,33 +268,33 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
         composeTestRule
             .onNode(
                 hasAnyAncestor(hasTestTag("SettingUi:Setting_DarkThemeConfig")) and
-                    hasContentDescription(context.getString(R.string.open_in_settings)),
+                    hasContentDescription(context.getString(uiSettingsR.string.open_in_settings)),
             )
             .performScrollTo()
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.visual))
+            .onNodeWithText(context.getString(uiSettingsR.string.visual))
             .assertIsDisplayed()
 
         if (!windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
             composeTestRule
-                .onNodeWithContentDescription(context.getString(R.string.back))
+                .onNodeWithContentDescription(context.getString(uiAppR.string.back))
                 .performClick()
         }
 
         composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.back))
+            .onNodeWithContentDescription(context.getString(uiAppR.string.back))
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings))
+            .onNodeWithText(context.getString(uiAppR.string.settings))
             .assertIsSelected()
 
         Espresso.pressBack()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.speed))
+            .onNodeWithText(context.getString(uiAppR.string.speed))
             .assertIsSelected()
 
         Espresso.pressBack()
@@ -301,7 +302,7 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
         composeTestRule
             .onNode(
                 hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(R.string.expand)),
+                    hasContentDescription(context.getString(uiAppR.string.expand)),
             )
             .assertExists()
     }
@@ -329,32 +330,32 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
         composeTestRule
             .onNode(
                 hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(R.string.expand)),
+                    hasContentDescription(context.getString(uiAppR.string.expand)),
             )
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings))
+            .onNodeWithText(context.getString(uiAppR.string.settings))
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings))
+            .onNodeWithText(context.getString(uiAppR.string.settings))
             .assertIsSelected()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.see_all))
+            .onNodeWithText(context.getString(uiSettingsR.string.see_all))
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.algorithm))
+            .onNodeWithText(context.getString(uiSettingsR.string.algorithm))
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.algorithm_implementation))
+            .onNodeWithText(context.getString(uiSettingsR.string.algorithm_implementation))
             .performClick()
 
         composeTestRule
-            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(R.string.naive_algorithm)))
+            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(uiSettingsR.string.naive_algorithm)))
             .assertHasClickAction()
             .performClick()
 
@@ -372,13 +373,13 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
         Espresso.pressBack()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings))
+            .onNodeWithText(context.getString(uiAppR.string.settings))
             .assertIsSelected()
 
         Espresso.pressBack()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.speed))
+            .onNodeWithText(context.getString(uiAppR.string.speed))
             .assertIsSelected()
 
         Espresso.pressBack()
@@ -386,7 +387,7 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
         composeTestRule
             .onNode(
                 hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(R.string.expand)),
+                    hasContentDescription(context.getString(uiAppR.string.expand)),
             )
             .assertExists()
     }
@@ -421,27 +422,27 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
         composeTestRule
             .onNode(
                 hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(R.string.expand)),
+                    hasContentDescription(context.getString(uiAppR.string.expand)),
             )
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.edit))
+            .onNodeWithText(context.getString(uiAppR.string.edit))
             .performClick()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.edit))
+            .onNodeWithText(context.getString(uiAppR.string.edit))
             .assertIsSelected()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.allow))
+            .onNodeWithText(context.getString(uiAppR.string.allow))
             .performClick()
 
         composeTestRule.waitForIdle()
         runCurrent()
 
         composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.warnings))
+            .onNodeWithContentDescription(context.getString(uiAppR.string.warnings))
             .performClick()
 
         if (
@@ -458,13 +459,13 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
         }
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.deserialization_succeeded))
+            .onNodeWithText(context.getString(uiAppR.string.deserialization_succeeded))
             .performClick()
 
         Espresso.pressBack()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.deserialization_succeeded))
+            .onNodeWithText(context.getString(uiAppR.string.deserialization_succeeded))
             .assertDoesNotExist()
         composeTestRule
             .onNode(isDialog())
