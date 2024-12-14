@@ -24,6 +24,7 @@ import com.slack.keeper.KeeperExtension
 import com.slack.keeper.optInToKeeper
 import org.gradle.api.GradleException
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
@@ -77,7 +78,7 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
         }
 
         extensions.configure<KeeperExtension> {
-            automaticR8RepoManagement.set(false)
+            automaticR8RepoManagement = false
             traceReferences {}
         }
 
