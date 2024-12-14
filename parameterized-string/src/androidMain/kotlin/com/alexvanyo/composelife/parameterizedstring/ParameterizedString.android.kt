@@ -56,49 +56,82 @@ actual sealed class ParameterizedString {
 
 actual val ParameterizedString.Companion.Saver: Saver<ParameterizedString, Any> get() =
     listSaver(
-        save = {
-            when (it) {
-                is ParameterizedString.NormalString -> listOf(
-                    0,
-                    it.stringRes,
-                )
-                is ParameterizedString.QuantityString -> listOf(
-                    1,
-                    it.pluralsRes,
-                    it.quantity,
-                )
-                is ParameterizedString.BasicString -> listOf(
-                    2,
-                    it.value,
-                )
-            } + it.args
-        },
-        restore = {
-            val type = it[0] as Int
-            when (type) {
-                0 -> {
-                    ParameterizedString.NormalString(
-                        it[1] as Int,
-                        it.drop(2),
-                    )
-                }
-                1 -> {
-                    ParameterizedString.QuantityString(
-                        it[1] as Int,
-                        it[2] as Int,
-                        it.drop(3),
-                    )
-                }
-                2 -> {
-                    ParameterizedString.BasicString(
-                        it[1] as String,
-                        it.drop(2),
-                    )
-                }
-                else -> error("Unexpected type $type")
-            }
-        },
+        save = { save(it) },
+        restore = { restore(it) },
     )
+
+private fun save(parameterizedString: ParameterizedString): List<Any> =
+    when (parameterizedString) {
+        is ParameterizedString.NormalString -> listOf(
+            0,
+            parameterizedString.stringRes,
+        )
+        is ParameterizedString.QuantityString -> listOf(
+            1,
+            parameterizedString.pluralsRes,
+            parameterizedString.quantity,
+        )
+        is ParameterizedString.BasicString -> listOf(
+            2,
+            parameterizedString.value,
+        )
+    } + parameterizedString.args.map { arg ->
+        when (arg) {
+            is ParameterizedString -> listOf(
+                0,
+                save(arg),
+            )
+            else -> listOf(
+                1,
+                arg,
+            )
+        }
+    }
+
+private fun restore(list: List<Any>): ParameterizedString {
+    val type = list[0] as Int
+
+    @Suppress("UNCHECKED_CAST")
+    val args = list.drop(
+        when (type) {
+            0 -> 2
+            1 -> 3
+            2 -> 2
+            else -> error("Unexpected type $type")
+        }
+    ) as List<List<Any>>
+    val restoredArgs = args.map { arg ->
+        val type = arg[0] as Int
+        when (type) {
+            0 -> @Suppress("UNCHECKED_CAST") restore(arg[1] as List<Any>)
+            1 -> arg[1]
+            else -> error("Unexpected type $type")
+        }
+    }
+
+    return when (type) {
+        0 -> {
+            ParameterizedString.NormalString(
+                list[1] as Int,
+                restoredArgs,
+            )
+        }
+        1 -> {
+            ParameterizedString.QuantityString(
+                list[1] as Int,
+                list[2] as Int,
+                restoredArgs,
+            )
+        }
+        2 -> {
+            ParameterizedString.BasicString(
+                list[1] as String,
+                restoredArgs,
+            )
+        }
+        else -> error("Unexpected type $type")
+    }
+}
 
 /**
  * Creates a representation of a plain-text string.
