@@ -98,14 +98,16 @@ private fun restore(list: List<Any>): ParameterizedString {
             1 -> 3
             2 -> 2
             else -> error("Unexpected type $type")
-        }
+        },
     ) as List<List<Any>>
     val restoredArgs = args.map { arg ->
-        val type = arg[0] as Int
-        when (type) {
-            0 -> @Suppress("UNCHECKED_CAST") restore(arg[1] as List<Any>)
+        val argType = arg[0] as Int
+        when (argType) {
+            0 ->
+                @Suppress("UNCHECKED_CAST")
+                restore(arg[1] as List<Any>)
             1 -> arg[1]
-            else -> error("Unexpected type $type")
+            else -> error("Unexpected type $argType")
         }
     }
 
@@ -136,7 +138,7 @@ private fun restore(list: List<Any>): ParameterizedString {
 /**
  * Creates a representation of a plain-text string.
  */
-fun ParameterizedString(
+actual fun ParameterizedString(
     value: String,
     vararg args: Any,
 ): ParameterizedString = ParameterizedString.BasicString(value, args.toList())

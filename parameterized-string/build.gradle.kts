@@ -78,10 +78,24 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
+                implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
             }
         }
+        val jvmTest by creating {
+            dependsOn(commonTest)
+        }
+        val jbTest by creating {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.jetbrains.compose.uiTest)
+            }
+        }
+        val desktopTest by getting {
+            dependsOn(jbTest)
+        }
         val androidSharedTest by getting {
+            dependsOn(jbTest)
             dependencies {
                 implementation(libs.androidx.compose.uiTestJunit4)
                 implementation(libs.androidx.test.core)
