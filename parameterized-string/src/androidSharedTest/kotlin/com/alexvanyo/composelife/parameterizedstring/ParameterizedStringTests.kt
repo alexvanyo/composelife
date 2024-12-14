@@ -17,23 +17,21 @@
 package com.alexvanyo.composelife.parameterizedstring
 
 import android.content.Context
-import androidx.activity.ComponentActivity
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.runComposeUiTest
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.parameterizedstring.testresources.R
-import org.junit.Rule
 import org.junit.runner.RunWith
 import java.util.MissingFormatArgumentException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@OptIn(ExperimentalTestApi::class)
 @RunWith(AndroidJUnit4::class)
 class ParameterizedStringTests {
 
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
-
-    private val context: Context get() = composeTestRule.activity
+    val context = ApplicationProvider.getApplicationContext<Context>()
 
     @Test
     fun zero_arg_string_is_correct() {
@@ -213,10 +211,10 @@ class ParameterizedStringTests {
     }
 
     @Test
-    fun composable_parameterized_string_resource_is_correct() {
+    fun composable_parameterized_string_resource_is_correct() = runComposeUiTest {
         lateinit var string: String
 
-        composeTestRule.setContent {
+        setContent {
             string = parameterizedStringResource(
                 parameterizedString = ParameterizedString(
                     R.string.three_arg_string,
@@ -253,10 +251,10 @@ class ParameterizedStringTests {
     }
 
     @Test
-    fun composable_resolver_is_correct() {
+    fun composable_resolver_is_correct() = runComposeUiTest {
         lateinit var resolver: (ParameterizedString) -> String
 
-        composeTestRule.setContent {
+        setContent {
             resolver = parameterizedStringResolver()
         }
 
