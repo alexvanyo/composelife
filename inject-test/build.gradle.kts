@@ -46,7 +46,7 @@ kotlin {
         val jbMain by creating {
             dependsOn(commonMain)
             dependencies {
-                api(libs.jetbrains.compose.uiTestJunit4)
+                api(libs.jetbrains.compose.uiTest)
                 implementation(libs.kotlin.test.junit)
             }
         }

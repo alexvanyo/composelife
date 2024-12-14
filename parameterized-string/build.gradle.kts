@@ -82,7 +82,7 @@ kotlin {
         }
         val androidSharedTest by getting {
             dependencies {
-                implementation(libs.androidx.compose.uiTestJunit4)
+                implementation(libs.androidx.compose.uiTest)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
                 implementation(projects.parameterizedStringTestResources)

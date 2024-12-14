@@ -96,13 +96,13 @@ kotlin {
         val jbTest by creating {
             dependsOn(jvmTest)
             dependencies {
-                implementation(libs.jetbrains.compose.uiTestJunit4)
+                implementation(libs.jetbrains.compose.uiTest)
             }
         }
         val androidSharedTest by getting {
             dependsOn(jbTest)
             dependencies {
-                implementation(libs.androidx.compose.uiTestJunit4)
+                implementation(libs.androidx.compose.uiTest)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
                 implementation(libs.androidx.test.junit)
