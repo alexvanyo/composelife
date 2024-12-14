@@ -17,15 +17,19 @@
 package com.alexvanyo.composelife.parameterizedstring
 
 import android.content.Context
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
 import com.alexvanyo.composelife.parameterizedstring.testresources.R
 import org.junit.runner.RunWith
 import java.util.MissingFormatArgumentException
+import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(AndroidJUnit4::class)
@@ -288,5 +292,122 @@ class ParameterizedStringTests {
                 ),
             ),
         )
+    }
+
+    @Test
+    fun saver_is_correct_for_normal_string() = runComposeUiTest {
+        val stateRestorationTester = KmpStateRestorationTester(this)
+
+        var parameterizedString: ParameterizedString? = null
+
+        stateRestorationTester.setContent {
+            parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
+                ParameterizedString(R.string.two_arg_string, Random.nextInt().toString(), Random.nextInt().toString())
+            }
+        }
+
+        val initial = parameterizedString
+
+        assertNotNull(initial)
+
+        stateRestorationTester.emulateSavedInstanceStateRestore()
+
+        val restored = parameterizedString
+
+        assertEquals(initial, restored)
+    }
+
+    @Test
+    fun saver_is_correct_for_quantity_string() = runComposeUiTest {
+        val stateRestorationTester = KmpStateRestorationTester(this)
+
+        var parameterizedString: ParameterizedString? = null
+
+        stateRestorationTester.setContent {
+            parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
+                val value = Random.nextInt()
+                ParameterizedQuantityString(R.plurals.plural_string_with_number, value, value)
+            }
+        }
+
+        val initial = parameterizedString
+
+        assertNotNull(initial)
+
+        stateRestorationTester.emulateSavedInstanceStateRestore()
+
+        val restored = parameterizedString
+
+        assertEquals(initial, restored)
+    }
+
+    @Test
+    fun saver_is_correct_for_basic_string() = runComposeUiTest {
+        val stateRestorationTester = KmpStateRestorationTester(this)
+
+        var parameterizedString: ParameterizedString? = null
+
+        stateRestorationTester.setContent {
+            parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
+                ParameterizedString("Two: (%s) (%s)", Random.nextInt().toString(), Random.nextInt().toString())
+            }
+        }
+
+        val initial = parameterizedString
+
+        assertNotNull(initial)
+
+        stateRestorationTester.emulateSavedInstanceStateRestore()
+
+        val restored = parameterizedString
+
+        assertEquals(initial, restored)
+    }
+
+    @Test
+    fun saver_is_correct_for_nested_parameterized_string() = runComposeUiTest {
+        val stateRestorationTester = KmpStateRestorationTester(this)
+
+        var parameterizedString: ParameterizedString? = null
+
+        stateRestorationTester.setContent {
+            parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
+                ParameterizedString(
+                    R.string.three_arg_string,
+                    ParameterizedString(
+                        R.string.two_arg_string,
+                        Random.nextInt().toString(),
+                        Random.nextInt().toString(),
+                    ),
+                    ParameterizedString(
+                        R.string.one_arg_string,
+                        ParameterizedString(
+                            R.string.one_arg_string,
+                            Random.nextInt().toString(),
+                        ),
+                    ),
+                    ParameterizedString(
+                        R.string.one_arg_string,
+                        ParameterizedString(
+                            R.string.one_arg_string,
+                            ParameterizedString(
+                                R.string.one_arg_string,
+                                Random.nextInt().toString(),
+                            ),
+                        ),
+                    ),
+                )
+            }
+        }
+
+        val initial = parameterizedString
+
+        assertNotNull(initial)
+
+        stateRestorationTester.emulateSavedInstanceStateRestore()
+
+        val restored = parameterizedString
+
+        assertEquals(initial, restored)
     }
 }
