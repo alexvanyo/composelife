@@ -36,25 +36,47 @@ actual sealed class ParameterizedString {
 
 actual val ParameterizedString.Companion.Saver: Saver<ParameterizedString, Any> get() =
     listSaver(
-        save = {
-            when (it) {
-                is ParameterizedString.BasicString -> {
-                    listOf(it.value) + it.args
-                }
-            }
-        },
-        restore = {
-            ParameterizedString.BasicString(
-                value = it[0] as String,
-                args = it.drop(1)
+        save = { save(it) },
+        restore = { restore(it) },
+    )
+
+private fun save(parameterizedString: ParameterizedString): List<Any> =
+    when (parameterizedString) {
+        is ParameterizedString.BasicString -> {
+            listOf(parameterizedString.value)
+        }
+    } + parameterizedString.args.map { arg ->
+        when (arg) {
+            is ParameterizedString -> listOf(
+                0,
+                save(arg),
             )
+            else -> listOf(
+                1,
+                arg,
+            )
+        }
+    }
+
+private fun restore(list: List<Any>): ParameterizedString =
+    ParameterizedString.BasicString(
+        value = list[0] as String,
+        args = list.drop(1).map { arg ->
+            @Suppress("UNCHECKED_CAST")
+            arg as List<Any>
+            val type = arg[0] as Int
+            when (type) {
+                0 -> @Suppress("UNCHECKED_CAST") restore(arg[1] as List<Any>)
+                1 -> arg[1]
+                else -> error("Unexpected type $type")
+            }
         }
     )
 
 /**
- * Creates a representation of a string resource [stringRes] with optional [args].
+ * Creates a representation of a plain-text string.
  */
-fun ParameterizedString(
+actual fun ParameterizedString(
     value: String,
     vararg args: Any,
 ): ParameterizedString = ParameterizedString.BasicString(
