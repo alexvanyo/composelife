@@ -25,6 +25,14 @@ expect sealed class ParameterizedString {
     companion object
 }
 
+/**
+ * Creates a representation of a plain-text string.
+ */
+expect fun ParameterizedString(
+    value: String,
+    vararg args: Any,
+): ParameterizedString
+
 expect val ParameterizedString.Companion.Saver: Saver<ParameterizedString, Any>
 
 /**

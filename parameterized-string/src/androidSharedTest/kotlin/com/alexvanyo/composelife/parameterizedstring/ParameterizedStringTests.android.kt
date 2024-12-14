@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("MatchingDeclarationName", "Filename")
+
 package com.alexvanyo.composelife.parameterizedstring
 
 import android.content.Context
@@ -33,7 +35,7 @@ import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(AndroidJUnit4::class)
-class ParameterizedStringTests {
+class AndroidParameterizedStringTests {
 
     val context = ApplicationProvider.getApplicationContext<Context>()
 

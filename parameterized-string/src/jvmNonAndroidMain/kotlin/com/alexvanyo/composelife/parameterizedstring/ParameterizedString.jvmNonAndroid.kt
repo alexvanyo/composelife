@@ -74,9 +74,9 @@ private fun restore(list: List<Any>): ParameterizedString =
     )
 
 /**
- * Creates a representation of a string resource [stringRes] with optional [args].
+ * Creates a representation of a plain-text string.
  */
-fun ParameterizedString(
+actual fun ParameterizedString(
     value: String,
     vararg args: Any,
 ): ParameterizedString = ParameterizedString.BasicString(
