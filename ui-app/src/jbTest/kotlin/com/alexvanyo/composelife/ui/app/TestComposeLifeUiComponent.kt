@@ -19,14 +19,14 @@ package com.alexvanyo.composelife.ui.app
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.AlgorithmImplementationUiInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.CellShapeConfigUiInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.DarkThemeConfigUiInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.DisableAGSLUiInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.DisableOpenGLUiInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.FullscreenSettingsDetailPaneInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.InlineSettingsPaneInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.settings.SettingUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.settings.AlgorithmImplementationUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.settings.CellShapeConfigUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.settings.DarkThemeConfigUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.settings.DisableAGSLUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.settings.DisableOpenGLUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneInjectEntryPoint
+import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneInjectEntryPoint
+import com.alexvanyo.composelife.ui.settings.SettingUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 
