@@ -16,44 +16,7 @@
 
 package com.alexvanyo.composelife.ui.util
 
-import androidx.annotation.IntRange
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.core.graphics.alpha
-import androidx.core.graphics.blue
-import androidx.core.graphics.green
-import androidx.core.graphics.red
 import com.alexvanyo.composelife.ui.util.ColorComponent.RgbIntComponent
 import com.livefront.sealedenum.SealedEnum
-
-/**
- * Modifies the given [color] with updating the given [component] with the given [value].
- */
-fun Color.withComponent(
-    component: RgbIntComponent,
-    @IntRange(from = 0, to = 255) value: Int,
-): Color =
-    Color(
-        red = if (component == RgbIntComponent.Red) value else get(RgbIntComponent.Red),
-        green = if (component == RgbIntComponent.Green) value else get(RgbIntComponent.Green),
-        blue = if (component == RgbIntComponent.Blue) value else get(RgbIntComponent.Blue),
-        alpha = toArgb().alpha,
-    )
-
-/**
- * Returns the given [component] of the [Color] as an integer value (from 0 to 255).
- *
- * This implies a color space conversion is applied, if needed.
- *
- * @see Color.toArgb
- */
-fun Color.get(component: RgbIntComponent): Int =
-    toArgb().let {
-        when (component) {
-            RgbIntComponent.Blue -> it.blue
-            RgbIntComponent.Green -> it.green
-            RgbIntComponent.Red -> it.red
-        }
-    }
 
 actual val RgbIntComponent.Companion._sealedEnum: SealedEnum<RgbIntComponent> get() = sealedEnum
