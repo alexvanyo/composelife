@@ -47,9 +47,9 @@ import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
 import com.alexvanyo.composelife.ui.app.createComponent
-import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropTarget
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
+import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropTarget
 import kotlinx.coroutines.test.runCurrent
 import org.junit.runner.RunWith
 import kotlin.test.Test
@@ -88,7 +88,7 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<TestComposeLifeApplicationC
                             onViewDeserializationInfo = {},
                             modifier = Modifier
                                 .testTag("LoadedCellStatePreview")
-                                .height(200.dp)
+                                .height(200.dp),
                         )
                     }
                 }
@@ -101,7 +101,7 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<TestComposeLifeApplicationC
                                 droppedCellState = it
                             }
                             .size(100.dp)
-                            .background(Color.Blue)
+                            .background(Color.Blue),
                     )
                 }
             }
@@ -168,4 +168,3 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<TestComposeLifeApplicationC
         assertEquals(GliderPattern.seedCellState, droppedCellState)
     }
 }
-
