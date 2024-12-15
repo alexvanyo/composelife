@@ -46,7 +46,6 @@ kotlin {
         compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java) {
             instrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
         }
-        configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
     }
     jvm("desktop")
 
