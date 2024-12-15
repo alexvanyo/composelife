@@ -172,6 +172,9 @@ kotlin {
         }
         val androidInstrumentedTest by getting {
             configurations["kspAndroidAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
+            dependencies {
+                implementation(libs.androidx.test.uiAutomator)
+            }
         }
     }
 }
