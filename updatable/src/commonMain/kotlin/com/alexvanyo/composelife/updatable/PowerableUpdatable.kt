@@ -23,6 +23,9 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.select
@@ -43,13 +46,66 @@ import kotlinx.coroutines.sync.withLock
  * [block] will be cancelled if the button is no longer being pressed at all, or when the call to [update] is
  * cancelled.
  */
-class PowerableUpdatable(
-    private val block: suspend () -> Nothing,
+class PowerableUpdatable private constructor(
+    private val powerableUpdatableWithMetadata: PowerableUpdatableWithMetadata<Unit>,
+) : Updatable {
+
+    constructor(
+        block: suspend () -> Nothing,
+    ) : this(
+        PowerableUpdatableWithMetadata { block() }
+    )
+
+    /**
+     * "Powers" the button, allowing the [block] to run if [press]ed.
+     *
+     * This does nothing unless the button is also pressed via [press].
+     *
+     * Multiple calls to [update] to power the button are safe, _but_ if the source of power is replaced, the [block]
+     * will be cancelled and restarted.
+     */
+    override suspend fun update(): Nothing = powerableUpdatableWithMetadata.update()
+
+    /**
+     * Presses the button.
+     *
+     * This does nothing unless the button is also "powered" via [update].
+     *
+     * Multiple calls to [press] are safe, and the running of [block] will not be interrupted if the source of pressing
+     * is replaced (as long as the presses overlap).
+     */
+    suspend fun press(): Nothing = powerableUpdatableWithMetadata.press(Unit)
+}
+
+/**
+ * An implementation of [Updatable] that resembles a button that can be powered, and pressed by multiple coroutines
+ * simultaneously to control running a given [block] with mutual exclusion.
+ *
+ * Calling [update] will "power" the button, which will not run the [block] on its own.
+ *
+ * When the button is pressed and powered (due to an active coroutine calling [update], and at least one coroutine
+ * calling [press]), the [block] will begin to run.
+ *
+ * Pressing the button more than once has no effect.
+ *
+ * [block] will be cancelled if the button is no longer being pressed at all, or when the call to [update] is
+ * cancelled.
+ */
+class PowerableUpdatableWithMetadata<T>(
+    /**
+     * The suspending code to run while pressed and powered.
+     *
+     * The [activePushesMetadata] is a [StateFlow] giving the metadata for all active presses. The list is ordered from
+     * least recently pressed to most recently pressed. In other words, the last item in the list (if any) is the most
+     * recent press.
+     */
+    private val block: suspend (activePushesMetadata: StateFlow<List<T>>) -> Nothing,
 ) : Updatable {
     private val mutex = Mutex()
 
     private val activePushesMutex = Mutex()
-    private val activePushes = mutableListOf<Deferred<Nothing>>()
+    private var activePushes = emptyList<Deferred<Nothing>>()
+    private val activePushesMetadata = MutableStateFlow(emptyList<T>())
 
     private val newActivePushesTick = Channel<Unit>(capacity = Channel.CONFLATED)
 
@@ -73,7 +129,7 @@ class PowerableUpdatable(
                         // Remove any pushes that have been cancelled
                         // We do this on both sides to avoid leaking if pressing and unpressing the button
                         // repeatedly without being powered
-                        activePushes.removeAll { it.isCompleted }
+                        removeCompletedPushes()
                         currentlyActivePushes = activePushes
 
                         if (currentlyActivePushes.isEmpty()) {
@@ -82,7 +138,7 @@ class PowerableUpdatable(
                             job = null
                         } else if (job == null) {
                             // If we are actively pushing and we don't have an existing job, launch the block
-                            job = launch { block() }
+                            job = launch { block(activePushesMetadata.asStateFlow()) }
                         }
                     }
 
@@ -106,7 +162,7 @@ class PowerableUpdatable(
      * Multiple calls to [press] are safe, and the running of [block] will not be interrupted if the source of pressing
      * is replaced (as long as the presses overlap).
      */
-    suspend fun press(): Nothing {
+    suspend fun press(metadata: T): Nothing {
         val push = CompletableDeferred<Nothing>()
         try {
             activePushesMutex.withLock {
@@ -119,12 +175,27 @@ class PowerableUpdatable(
                 // Remove any pushes that have been cancelled
                 // We do this on both sides to avoid leaking if pressing and unpressing the button
                 // repeatedly without being powered
-                activePushes.removeAll { it.isCompleted }
-                activePushes.add(push)
+                removeCompletedPushes()
+                activePushes += push
+                activePushesMetadata.update { it + metadata }
             }
             awaitCancellation()
         } finally {
             push.cancel()
         }
+    }
+
+    private fun removeCompletedPushes() {
+        val joinWithIsCompleted = activePushes
+            .withIndex()
+            .map { it.value.isCompleted to it }
+        val indicesToRemove = joinWithIsCompleted.filter { it.first }.map { it.second.index }.toSet()
+        val remainingActivePushes = joinWithIsCompleted.filter { !it.first }.map { it.second.value }
+
+        activePushesMetadata.update {
+            it.filterIndexed { index, _ -> index !in indicesToRemove }
+        }
+
+        activePushes = remainingActivePushes
     }
 }
