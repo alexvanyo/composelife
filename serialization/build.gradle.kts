@@ -85,7 +85,7 @@ kotlin {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.jetbrains.compose.foundation)
-                implementation(libs.jetbrains.compose.uiTestJunit4)
+                implementation(libs.jetbrains.compose.uiTest)
             }
         }
         val desktopTest by getting {

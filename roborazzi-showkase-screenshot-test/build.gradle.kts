@@ -42,7 +42,7 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.foundation)
-                implementation(libs.androidx.compose.uiTestJunit4)
+                implementation(libs.androidx.compose.uiTest)
                 implementation(libs.androidx.test.core)
                 implementation(libs.kotlin.test.junit)
                 implementation(libs.robolectric)

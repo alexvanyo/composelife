@@ -69,7 +69,7 @@ kotlin {
         val jbTest by creating {
             dependsOn(commonTest)
             dependencies {
-                implementation(libs.jetbrains.compose.uiTestJunit4)
+                implementation(libs.jetbrains.compose.uiTest)
             }
         }
         val desktopTest by getting {

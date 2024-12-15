@@ -139,6 +139,7 @@ androidx-compose-materialIconsExtended = { group = "androidx.compose.material", 
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-uiGeometry = { group = "androidx.compose.ui", name = "ui-geometry" }
+androidx-compose-uiTest = { group = "androidx.compose.ui", name = "ui-test" }
 androidx-compose-uiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-uiTestManifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-compose-uiTooling = { group = "androidx.compose.ui", name = "ui-tooling" }

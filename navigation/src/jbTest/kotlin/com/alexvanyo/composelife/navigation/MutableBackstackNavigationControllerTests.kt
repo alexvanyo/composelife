@@ -16,9 +16,9 @@
 
 package com.alexvanyo.composelife.navigation
 
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
-import org.junit.Rule
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -27,6 +27,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalTestApi::class)
 @Suppress("TooManyFunctions")
 @RunWith(KmpAndroidJUnit4::class)
 class MutableBackstackNavigationControllerTests {
@@ -36,13 +37,10 @@ class MutableBackstackNavigationControllerTests {
     private val id3 = Uuid.random()
     private val id4 = Uuid.random()
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
-
     @Test
-    fun empty_initial_backstack_entries_throws_exception() {
+    fun empty_initial_backstack_entries_throws_exception() = runComposeUiTest {
         assertFailsWith<IllegalArgumentException> {
-            composeTestRule.setContent {
+            setContent {
                 rememberMutableBackstackNavigationController<String>(
                     initialBackstackEntries = emptyList(),
                 )
@@ -51,10 +49,10 @@ class MutableBackstackNavigationControllerTests {
     }
 
     @Test
-    fun initial_navigation_state_is_correct() {
+    fun initial_navigation_state_is_correct() = runComposeUiTest {
         lateinit var navController: MutableBackstackNavigationController<String>
 
-        composeTestRule.setContent {
+        setContent {
             navController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
@@ -73,10 +71,10 @@ class MutableBackstackNavigationControllerTests {
     }
 
     @Test
-    fun navigation_state_is_correct_after_navigating() {
+    fun navigation_state_is_correct_after_navigating() = runComposeUiTest {
         lateinit var navController: MutableBackstackNavigationController<String>
 
-        composeTestRule.setContent {
+        setContent {
             navController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
@@ -100,10 +98,10 @@ class MutableBackstackNavigationControllerTests {
     }
 
     @Test
-    fun navigation_state_is_correct_after_navigating_with_random_id() {
+    fun navigation_state_is_correct_after_navigating_with_random_id() = runComposeUiTest {
         lateinit var navController: MutableBackstackNavigationController<String>
 
-        composeTestRule.setContent {
+        setContent {
             navController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
@@ -128,10 +126,10 @@ class MutableBackstackNavigationControllerTests {
     }
 
     @Test
-    fun navigation_state_is_correct_after_navigating_with_value_factory() {
+    fun navigation_state_is_correct_after_navigating_with_value_factory() = runComposeUiTest {
         lateinit var navController: MutableBackstackNavigationController<String>
 
-        composeTestRule.setContent {
+        setContent {
             navController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
@@ -155,10 +153,10 @@ class MutableBackstackNavigationControllerTests {
     }
 
     @Test
-    fun navigation_state_is_correct_after_navigating_with_value_factory_and_random_id() {
+    fun navigation_state_is_correct_after_navigating_with_value_factory_and_random_id() = runComposeUiTest {
         lateinit var navController: MutableBackstackNavigationController<String>
 
-        composeTestRule.setContent {
+        setContent {
             navController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
@@ -183,10 +181,10 @@ class MutableBackstackNavigationControllerTests {
     }
 
     @Test
-    fun navigation_state_is_correct_after_navigating_and_popping_backstack() {
+    fun navigation_state_is_correct_after_navigating_and_popping_backstack() = runComposeUiTest {
         lateinit var navController: MutableBackstackNavigationController<String>
 
-        composeTestRule.setContent {
+        setContent {
             navController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
@@ -211,10 +209,10 @@ class MutableBackstackNavigationControllerTests {
     }
 
     @Test
-    fun navigation_state_is_correct_after_navigating_repeatedly() {
+    fun navigation_state_is_correct_after_navigating_repeatedly() = runComposeUiTest {
         lateinit var navController: MutableBackstackNavigationController<String>
 
-        composeTestRule.setContent {
+        setContent {
             navController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
@@ -246,10 +244,10 @@ class MutableBackstackNavigationControllerTests {
     }
 
     @Test
-    fun navigation_state_is_correct_after_navigating_repeatedly_and_popping_up_to_id() {
+    fun navigation_state_is_correct_after_navigating_repeatedly_and_popping_up_to_id() = runComposeUiTest {
         lateinit var navController: MutableBackstackNavigationController<String>
 
-        composeTestRule.setContent {
+        setContent {
             navController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
@@ -282,10 +280,10 @@ class MutableBackstackNavigationControllerTests {
     }
 
     @Test
-    fun navigation_state_is_correct_after_navigating_repeatedly_and_popping_up_to_value() {
+    fun navigation_state_is_correct_after_navigating_repeatedly_and_popping_up_to_value() = runComposeUiTest {
         lateinit var navController: MutableBackstackNavigationController<String>
 
-        composeTestRule.setContent {
+        setContent {
             navController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
@@ -318,10 +316,10 @@ class MutableBackstackNavigationControllerTests {
     }
 
     @Test
-    fun navigation_state_is_correct_after_navigating_repeatedly_and_popping_up_to_entry() {
+    fun navigation_state_is_correct_after_navigating_repeatedly_and_popping_up_to_entry() = runComposeUiTest {
         lateinit var navController: MutableBackstackNavigationController<String>
 
-        composeTestRule.setContent {
+        setContent {
             navController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
@@ -354,10 +352,10 @@ class MutableBackstackNavigationControllerTests {
     }
 
     @Test
-    fun navigation_state_is_correct_after_with_expected_actor_fails() {
+    fun navigation_state_is_correct_after_with_expected_actor_fails() = runComposeUiTest {
         lateinit var navController: MutableBackstackNavigationController<String>
 
-        composeTestRule.setContent {
+        setContent {
             navController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
@@ -400,10 +398,10 @@ class MutableBackstackNavigationControllerTests {
     }
 
     @Test
-    fun navigation_state_is_correct_after_with_expected_actor_succeeds() {
+    fun navigation_state_is_correct_after_with_expected_actor_succeeds() = runComposeUiTest {
         lateinit var navController: MutableBackstackNavigationController<String>
 
-        composeTestRule.setContent {
+        setContent {
             navController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(
@@ -441,10 +439,10 @@ class MutableBackstackNavigationControllerTests {
     }
 
     @Test
-    fun navigation_state_is_correct_after_with_expected_actor_succeeds_by_null() {
+    fun navigation_state_is_correct_after_with_expected_actor_succeeds_by_null() = runComposeUiTest {
         lateinit var navController: MutableBackstackNavigationController<String>
 
-        composeTestRule.setContent {
+        setContent {
             navController = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(

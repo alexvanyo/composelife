@@ -26,7 +26,6 @@ import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.junit4.ComposeContentTestRule
 
 /**
  * Helps to test the state restoration for your Composable component.
@@ -45,10 +44,8 @@ class KmpStateRestorationTester(private val composeUiTest: ComposeUiTest) {
     private var registry: RestorationRegistry? = null
 
     /**
-     * This functions is a direct replacement for [ComposeContentTestRule.setContent] if you are
+     * This functions is a direct replacement for [ComposeUiTest.setContent] if you are
      * going to use [emulateSavedInstanceStateRestore] in the test.
-     *
-     * @see ComposeContentTestRule.setContent
      */
     fun setContent(composable: @Composable () -> Unit) {
         composeUiTest.setContent {

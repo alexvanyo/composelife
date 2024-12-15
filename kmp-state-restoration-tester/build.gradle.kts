@@ -39,7 +39,7 @@ kotlin {
         val jbMain by creating {
             dependsOn(commonMain)
             dependencies {
-                implementation(libs.jetbrains.compose.uiTestJunit4)
+                implementation(libs.jetbrains.compose.uiTest)
             }
         }
         val desktopMain by getting {
