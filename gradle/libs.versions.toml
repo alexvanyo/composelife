@@ -13,6 +13,8 @@ androidxAnnotation = "1.9.1"
 androidxAppcompat = "1.7.0"
 #androidxBenchmark
 androidxBenchmark = "1.4.0-alpha06"
+#androidxCompose
+androidxCompose = "1.8.0-SNAPSHOT"
 #androidxComposeBomAlpha
 androidxComposeBomAlpha = "2024.12.01"
 #androidxCore
@@ -136,7 +138,7 @@ androidx-compose-foundation = { group = "androidx.compose.foundation", name = "f
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-materialIconsExtended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
-androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "androidxCompose" }
 androidx-compose-uiGeometry = { group = "androidx.compose.ui", name = "ui-geometry" }
 androidx-compose-uiTest = { group = "androidx.compose.ui", name = "ui-test" }
 androidx-compose-uiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
