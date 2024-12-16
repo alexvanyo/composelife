@@ -200,7 +200,15 @@ fun SelectionOverlay(
     }
 }
 
-val SelectionState.SelectingBox.FixedSelectingBox.initialHandles get(): List<Offset> {
+/**
+ * Computes the initial handles for a [SelectionState.SelectingBox.FixedSelectingBox].
+ *
+ * If there is a [SelectionState.SelectingBox.FixedSelectingBox.previousTransientSelectingBox], then these handles
+ * will follow those offsets (to be transiently adjusted back to the rounded values).
+ *
+ * Otherwise, it will just be the direct fixed values.
+ */
+private val SelectionState.SelectingBox.FixedSelectingBox.initialHandles get(): List<Offset> {
     val initialHandleAOffset: Offset
     val initialHandleBOffset: Offset
     val initialHandleCOffset: Offset
@@ -243,12 +251,23 @@ private fun FixedSelectingBoxOverlay(
     modifier: Modifier = Modifier,
 ) {
     Box(modifier) {
+        /**
+         * The initial handles to initialize the handles with.
+         */
         val initialHandles = selectionSessionState.value.initialHandles
 
+        /**
+         * The [DraggableAnchors2D] aligned to the current grid.
+         */
         val handleAnchors = remember(scaledCellPixelSize, cellWindow) {
             GridDraggableAnchors2d(scaledCellPixelSize, cellWindow)
         }
 
+        /**
+         * State holders for the value change confirmation lambdas.
+         *
+         * These are initialized with a placeholder method, since this depends on the state of the other handles.
+         */
         val confirmValueChangeStates = List(initialHandles.size) { index ->
             key(index) {
                 remember { mutableStateOf({ _: IntOffset -> true }) }
@@ -257,6 +276,12 @@ private fun FixedSelectingBoxOverlay(
 
         val coroutineScope = rememberCoroutineScope()
 
+        /**
+         * A list of [Animatable]s for each handle representing the fractional part of the initial handle value, in
+         * cell coordinates.
+         *
+         * This will be initially added to the offset calculations, and animated to zero.
+         */
         val transientSelectingBoxAnimatables = initialHandles.mapIndexed { index, offset ->
             key(index) {
                 remember {
@@ -269,6 +294,7 @@ private fun FixedSelectingBoxOverlay(
             }
         }
 
+        // Resolve the transient offsets to zero
         transientSelectingBoxAnimatables.forEachIndexed { index, animatable ->
             key(index) {
                 LaunchedEffect(animatable) {
@@ -553,6 +579,9 @@ private fun TransientSelectingBoxOverlay(
     }
 }
 
+/**
+ * A selection handle.
+ */
 @Composable
 fun SelectionHandle(
     isActive: Boolean,

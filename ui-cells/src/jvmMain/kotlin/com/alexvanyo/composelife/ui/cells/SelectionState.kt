@@ -43,14 +43,30 @@ sealed interface SelectionState {
 
         @Serializable
         data class FixedSelectingBox(
+            /**
+             * The top left coordinate of the box.
+             */
             @Serializable(with = IntOffsetSerializer::class) val topLeft: IntOffset,
+            /**
+             * The width of the box, which may be negative.
+             */
             val width: Int,
+            /**
+             * The height of the box, which may be negative.
+             */
             val height: Int,
+            /**
+             * The previous [TransientSelectingBox] that was used to create the current [FixedSelectingBox], if any.
+             */
             val previousTransientSelectingBox: TransientSelectingBox?,
         ) : SelectingBox
 
         @Serializable
         data class TransientSelectingBox(
+            /**
+             * The [Rect] describing the transient box. This [Rect] may not be normalized, and have either a negative
+             * width or a negative height.
+             */
             @Serializable(with = RectSerializer::class) val rect: Rect,
         ) : SelectingBox
     }
