@@ -19,7 +19,6 @@ package com.alexvanyo.composelife.kmpstaterestorationtester
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
@@ -95,35 +94,14 @@ class KmpStateRestorationTester(private val composeUiTest: ComposeUiTest) {
             }
         }
     }
-
-    private class RestorationRegistry(private val original: SaveableStateRegistry) :
-        SaveableStateRegistry {
-
-        var shouldEmitChildren by mutableStateOf(true)
-            private set
-        private var currentRegistry: SaveableStateRegistry = original
-        private var savedMap: Map<String, List<Any?>> = emptyMap()
-
-        fun saveStateAndDisposeChildren() {
-            savedMap = currentRegistry.performSave()
-            shouldEmitChildren = false
-        }
-
-        fun emitChildrenWithRestoredState() {
-            currentRegistry = SaveableStateRegistry(
-                restoredValues = savedMap,
-                canBeSaved = { original.canBeSaved(it) },
-            )
-            shouldEmitChildren = true
-        }
-
-        override fun consumeRestored(key: String) = currentRegistry.consumeRestored(key)
-
-        override fun registerProvider(key: String, valueProvider: () -> Any?) =
-            currentRegistry.registerProvider(key, valueProvider)
-
-        override fun canBeSaved(value: Any) = currentRegistry.canBeSaved(value)
-
-        override fun performSave() = currentRegistry.performSave()
-    }
 }
+
+internal interface RestorationRegistry : SaveableStateRegistry {
+    val shouldEmitChildren: Boolean
+
+    fun saveStateAndDisposeChildren()
+
+    fun emitChildrenWithRestoredState()
+}
+
+internal expect fun RestorationRegistry(original: SaveableStateRegistry): RestorationRegistry

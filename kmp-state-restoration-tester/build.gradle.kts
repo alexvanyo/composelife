@@ -35,7 +35,12 @@ kotlin {
     jvm("desktop")
 
     sourceSets {
-        val commonMain by getting {}
+        val commonMain by getting {
+            dependencies {
+                implementation(libs.jetbrains.compose.runtime)
+                implementation(libs.jetbrains.compose.runtime.saveable)
+            }
+        }
         val jbMain by creating {
             dependsOn(commonMain)
             dependencies {
