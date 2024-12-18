@@ -138,13 +138,10 @@ fun <T> MutableBackstackNavigationController<T>.popUpTo(
 fun <T> MutableBackstackNavigationController<T>.popUpTo(
     id: Uuid,
     inclusive: Boolean = false,
-) {
-    val predicate: (BackstackEntry<T>) -> Boolean = { it.id == id }
-    popUpTo(
-        entryPredicate = predicate,
-        inclusive = inclusive,
-    )
-}
+) = popUpTo(
+    entryPredicate = { it.id == id },
+    inclusive = inclusive,
+)
 
 /**
  * A navigation action that pops the backstack until the [predicate] is `true` for some entry's value, starting at the
@@ -156,13 +153,10 @@ fun <T> MutableBackstackNavigationController<T>.popUpTo(
 fun <T> MutableBackstackNavigationController<T>.popUpTo(
     predicate: (T) -> Boolean,
     inclusive: Boolean = false,
-) {
-    val entryPredicate: (BackstackEntry<T>) -> Boolean = { predicate(it.value) }
-    popUpTo(
-        entryPredicate = entryPredicate,
-        inclusive = inclusive,
-    )
-}
+) = popUpTo(
+    entryPredicate = { predicate(it.value) },
+    inclusive = inclusive,
+)
 
 /**
  * A navigation action which adds the destination.
