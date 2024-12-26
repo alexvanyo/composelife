@@ -59,14 +59,11 @@ fun <T> MutableBackstackMap<T>.popUpTo(
     currentEntryId: Uuid,
     id: Uuid,
     inclusive: Boolean = false,
-): Uuid {
-    val predicate: (BackstackEntry<T>) -> Boolean = { it.id == id }
-    return popUpTo(
-        currentEntryId = currentEntryId,
-        entryPredicate = predicate,
-        inclusive = inclusive,
-    )
-}
+): Uuid = popUpTo(
+    currentEntryId = currentEntryId,
+    entryPredicate = { it.id == id },
+    inclusive = inclusive,
+)
 
 /**
  * A navigation action on [MutableBackstackMap] that pops the backstack until the [predicate] is `true` for some
@@ -81,14 +78,11 @@ fun <T> MutableBackstackMap<T>.popUpTo(
     currentEntryId: Uuid,
     predicate: (T) -> Boolean,
     inclusive: Boolean = false,
-): Uuid {
-    val entryPredicate: (BackstackEntry<T>) -> Boolean = { predicate(it.value) }
-    return popUpTo(
-        currentEntryId = currentEntryId,
-        entryPredicate = entryPredicate,
-        inclusive = inclusive,
-    )
-}
+): Uuid = popUpTo(
+    currentEntryId = currentEntryId,
+    entryPredicate = { predicate(it.value) },
+    inclusive = inclusive,
+)
 
 /**
  * A navigation action which adds the destination.
