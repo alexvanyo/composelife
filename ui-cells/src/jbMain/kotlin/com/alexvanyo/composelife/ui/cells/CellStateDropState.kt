@@ -182,6 +182,7 @@ internal class MutableCellStateDropStateHolderImpl(
                     channelFlow {
                         launch {
                             snapshotFlow { session.isEnded && !session.isDropped }.filter { it }.first()
+                            Logger.d { "Session ended without dropping" }
                             send(Unit)
                         }
                         launch {
@@ -200,6 +201,7 @@ internal class MutableCellStateDropStateHolderImpl(
                                 }
                             }
                             snapshotFlow { session.isEnded }.filter { it }.first()
+                            Logger.d { "Session dropped and ended" }
                             send(Unit)
                         }
                     }.first()
