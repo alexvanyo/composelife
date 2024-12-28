@@ -146,7 +146,7 @@ fun Project.configureJacoco(
 
     commonExtension.buildTypes.configureEach {
         enableUnitTestCoverage = true
-        // TODO: Re-enable test coverage for instrumented tests
+        // TODO: Re-enable test coverage for instrumented tests https://github.com/alexvanyo/composelife/issues/2257
         // enableAndroidTestCoverage = true
     }
 
