@@ -16,30 +16,31 @@
 
 package com.alexvanyo.composelife.ui.cells
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
-import androidx.compose.foundation.draganddrop.dragAndDropTarget
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
-import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.DragAndDropTransferAction
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.draganddrop.DragAndDropTransferable
 import androidx.compose.ui.draganddrop.DragData
 import androidx.compose.ui.draganddrop.dragData
+import androidx.compose.ui.geometry.Offset
 import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
-import com.alexvanyo.composelife.model.di.CellStateParserProvider
-import com.alexvanyo.composelife.model.parseCellState
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import java.awt.datatransfer.StringSelection
+import java.awt.dnd.DropTargetDragEvent
+import java.awt.dnd.DropTargetDropEvent
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 actual fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): Modifier =
     dragAndDropSource { offset ->
         DragAndDropTransferData(
@@ -58,45 +59,68 @@ actual fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): M
         )
     }
 
-context(CellStateParserProvider)
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
-@Composable
-@Suppress("ComposeComposableModifier")
-actual fun Modifier.cellStateDragAndDropTarget(
-    setSelectionToCellState: (CellState) -> Unit,
-): Modifier {
-    val coroutineScope = rememberCoroutineScope()
-    val target = remember(cellStateParser, coroutineScope) {
-        object : DragAndDropTarget {
-            override fun onDrop(event: DragAndDropEvent): Boolean {
-                when (val dragData = event.dragData()) {
-                    is DragData.Text -> {
-                        val text = dragData.readText()
-                        coroutineScope.launch {
-                            when (
-                                val deserializationResult = cellStateParser.parseCellState(text)
-                            ) {
-                                is DeserializationResult.Successful -> {
-                                    setSelectionToCellState(deserializationResult.cellState)
-                                }
-                                is DeserializationResult.Unsuccessful -> {
-                                    // TODO: Show error for unsuccessful drag and drop
-                                }
-                            }
-                        }
-                    }
-                    else -> Unit
-                }
+@OptIn(ExperimentalComposeUiApi::class)
+internal actual fun cellStateShouldStartDragAndDrop(event: DragAndDropEvent): Boolean =
+    event.dragData() is DragData.Text
 
-                return true
-            }
-        }
+@OptIn(ExperimentalComposeUiApi::class)
+internal actual class DragAndDropSession {
+    private var _isEntered by mutableStateOf(false)
+    private var _isEnded by mutableStateOf(false)
+    private var _isDropped by mutableStateOf(false)
+    private var _rootOffset by mutableStateOf(Offset.Zero)
+
+    actual val isEntered get() = _isEntered
+    actual val isEnded get() = _isEnded
+    actual val isDropped get() = _isDropped
+    actual val rootOffset get() = _rootOffset
+    var dragData by mutableStateOf<DragData?>(null)
+    actual var deserializationResult by mutableStateOf<DeserializationResult?>(null)
+
+    actual fun updateWithOnStarted(event: DragAndDropEvent) {
+        dragData = event.dragData()
     }
 
-    return dragAndDropTarget(
-        shouldStartDragAndDrop = { event ->
-            event.dragData() is DragData.Text
-        },
-        target = target,
-    )
+    actual fun updateWithOnEntered(event: DragAndDropEvent) {
+        _isEntered = true
+        _rootOffset = event.positionInRoot
+    }
+
+    actual fun updateWithOnMoved(event: DragAndDropEvent) {
+        _rootOffset = event.positionInRoot
+    }
+
+    actual fun updateWithOnExited(event: DragAndDropEvent) {
+        _isEntered = false
+        _rootOffset = event.positionInRoot
+    }
+
+    actual fun updateWithOnEnded(event: DragAndDropEvent) {
+        _isEnded = true
+    }
+
+    actual fun updateWithOnDrop(event: DragAndDropEvent) {
+        _isDropped = true
+        _rootOffset = event.positionInRoot
+    }
 }
+
+private fun java.awt.Point.toOffset(): Offset =
+    Offset(x.toFloat(), y.toFloat())
+
+@OptIn(ExperimentalComposeUiApi::class)
+private val DragAndDropEvent.positionInRoot get() =
+    when (val event = nativeEvent) {
+        is DropTargetDragEvent -> event.location.toOffset()
+        is DropTargetDropEvent -> event.location.toOffset()
+        else -> Offset.Zero
+    }
+
+@OptIn(ExperimentalComposeUiApi::class)
+internal actual suspend fun awaitAndParseCellState(
+    session: DragAndDropSession,
+    cellStateParser: CellStateParser,
+): DeserializationResult =
+    cellStateParser.parseCellState(
+        snapshotFlow { session.dragData }.filterNotNull().first(),
+    )

@@ -35,7 +35,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -393,14 +392,6 @@ private fun CellWindowImpl(
         }
 
         Box {
-            // Create the offset modifier for adjusting the components that expect to be precisely sized to a multiple
-            // of scaledCellDpSize to represent exactly the current CellWindow
-            val cellWindowOffsetModifier = Modifier
-                .graphicsLayer {
-                    this.translationX = -fracPixelOffsetFromCenter.x
-                    this.translationY = -fracPixelOffsetFromCenter.y
-                }
-
             // Apply the navigable modifier around the cells, but not the selection overlay.
             // This ensures gestures for the selection overlay are given precedence over the cells.
             Box(
@@ -441,7 +432,7 @@ private fun CellWindowImpl(
                         },
                         scaledCellDpSize = scaledCellDpSize,
                         cellWindow = cellWindow,
-                        modifier = cellWindowOffsetModifier,
+                        pixelOffsetFromCenter = fracPixelOffsetFromCenter,
                     )
                 }
             }
@@ -457,7 +448,7 @@ private fun CellWindowImpl(
                         getSelectionCellState = cellWindowUiState::getSelectionCellState,
                         scaledCellDpSize = scaledCellDpSize,
                         cellWindow = cellWindow,
-                        modifier = cellWindowOffsetModifier,
+                        pixelOffsetFromCenter = fracPixelOffsetFromCenter,
                     )
                 }
             }

@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.ui.cells
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.dragAndDrop
@@ -26,19 +27,19 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.geometry.toPx
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.model.CellWindow
+import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
-import com.alexvanyo.composelife.ui.cells.util.isAndroid
 import com.alexvanyo.composelife.ui.cells.resources.SelectingBoxHandle
 import com.alexvanyo.composelife.ui.cells.resources.Strings
+import com.alexvanyo.composelife.ui.cells.util.isAndroid
 import org.junit.Assume.assumeTrue
 import org.junit.runner.RunWith
 import kotlin.test.Test
@@ -77,6 +78,7 @@ class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
                             IntSize(9, 9),
                         ),
                     ),
+                    pixelOffsetFromCenter = Offset.Zero,
                 )
             }
         }
@@ -115,6 +117,7 @@ class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
                             IntSize(9, 9),
                         ),
                     ),
+                    pixelOffsetFromCenter = Offset.Zero,
                 )
             }
         }
@@ -175,6 +178,7 @@ class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
                             IntSize(9, 9),
                         ),
                     ),
+                    pixelOffsetFromCenter = Offset.Zero,
                 )
             }
         }

@@ -16,10 +16,13 @@
 
 package com.alexvanyo.composelife.ui.cells
 
+import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import com.alexvanyo.composelife.model.CellState
-import com.alexvanyo.composelife.model.di.CellStateParserProvider
 
 /**
  * A [Modifier] for a drag-and-drop source for a [CellState].
@@ -29,6 +32,24 @@ expect fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): M
 /**
  * A [Modifier] for a drag-and-drop target for a [CellState].
  */
-context(CellStateParserProvider)
 @Composable
-expect fun Modifier.cellStateDragAndDropTarget(setSelectionToCellState: (CellState) -> Unit): Modifier
+fun Modifier.cellStateDragAndDropTarget(
+    mutableCellStateDropStateHolder: MutableCellStateDropStateHolder,
+): Modifier {
+    when (mutableCellStateDropStateHolder) {
+        is MutableCellStateDropStateHolderImpl -> Unit
+    }
+
+    return onGloballyPositioned { coordinates ->
+        mutableCellStateDropStateHolder.positionInRoot = coordinates.positionInRoot()
+    }
+        .dragAndDropTarget(
+            shouldStartDragAndDrop = ::cellStateShouldStartDragAndDrop,
+            target = mutableCellStateDropStateHolder,
+        )
+}
+
+/**
+ * Returns `true` if the drag-and-drop should start for the [cellStateDragAndDropTarget].
+ */
+internal expect fun cellStateShouldStartDragAndDrop(event: DragAndDropEvent): Boolean

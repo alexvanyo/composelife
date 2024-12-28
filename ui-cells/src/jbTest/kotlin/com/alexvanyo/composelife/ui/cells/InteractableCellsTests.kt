@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.ui.cells
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsOff
@@ -87,6 +88,7 @@ class InteractableCellsTests {
                             IntSize(9, 9),
                         ),
                     ),
+                    pixelOffsetFromCenter = Offset.Zero,
                 )
             }
         }
@@ -189,6 +191,7 @@ class InteractableCellsTests {
                             IntSize(9, 9),
                         ),
                     ),
+                    pixelOffsetFromCenter = Offset.Zero,
                 )
             }
         }
@@ -251,6 +254,7 @@ class InteractableCellsTests {
                             IntSize(9, 9),
                         ),
                     ),
+                    pixelOffsetFromCenter = Offset.Zero,
                 )
             }
         }
@@ -318,6 +322,7 @@ class InteractableCellsTests {
                             IntSize(9, 9),
                         ),
                     ),
+                    pixelOffsetFromCenter = Offset.Zero,
                 )
             }
         }

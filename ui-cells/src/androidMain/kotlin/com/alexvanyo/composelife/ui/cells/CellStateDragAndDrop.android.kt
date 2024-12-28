@@ -21,33 +21,37 @@ import android.content.ClipDescription
 import android.os.Build
 import android.view.View
 import androidx.compose.foundation.draganddrop.dragAndDropSource
-import androidx.compose.foundation.draganddrop.dragAndDropTarget
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
-import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
+import androidx.compose.ui.geometry.Offset
 import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
-import com.alexvanyo.composelife.model.di.CellStateParserProvider
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 
 actual fun Modifier.cellStateDragAndDropSource(
     getCellState: () -> CellState,
 ): Modifier =
     dragAndDropSource(
         transferData = {
+            val clipData = ClipData.newPlainText(
+                "cellState",
+                RunLengthEncodedCellStateSerializer.serializeToString(getCellState())
+                    .joinToString("\n"),
+            )
+
             DragAndDropTransferData(
-                clipData = ClipData.newPlainText(
-                    "cellState",
-                    RunLengthEncodedCellStateSerializer.serializeToString(getCellState())
-                        .joinToString("\n"),
-                ),
+                clipData = clipData,
+                localState = clipData,
                 flags = if (Build.VERSION.SDK_INT >= 24) {
                     View.DRAG_FLAG_GLOBAL
                 } else {
@@ -57,38 +61,65 @@ actual fun Modifier.cellStateDragAndDropSource(
         },
     )
 
-context(CellStateParserProvider)
-@Composable
-@Suppress("ComposeComposableModifier")
-actual fun Modifier.cellStateDragAndDropTarget(
-    setSelectionToCellState: (CellState) -> Unit,
-): Modifier {
-    val coroutineScope = rememberCoroutineScope()
-    val target = remember(cellStateParser, coroutineScope) {
-        object : DragAndDropTarget {
-            override fun onDrop(event: DragAndDropEvent): Boolean {
-                val clipData = event.toAndroidDragEvent().clipData
-                coroutineScope.launch {
-                    when (
-                        val deserializationResult = cellStateParser.parseCellState(clipData)
-                    ) {
-                        is DeserializationResult.Successful -> {
-                            setSelectionToCellState(deserializationResult.cellState)
-                        }
-                        is DeserializationResult.Unsuccessful -> {
-                            // TODO: Show error for unsuccessful drag and drop
-                        }
-                    }
-                }
-                return true
-            }
-        }
+internal actual fun cellStateShouldStartDragAndDrop(event: DragAndDropEvent): Boolean =
+    event.mimeTypes().contains(ClipDescription.MIMETYPE_TEXT_PLAIN)
+
+internal actual class DragAndDropSession {
+    private var _isEntered by mutableStateOf(false)
+    private var _isEnded by mutableStateOf(false)
+    private var _isDropped by mutableStateOf(false)
+    private var _rootOffset by mutableStateOf(Offset.Zero)
+
+    actual val isEntered get() = _isEntered
+    actual val isEnded get() = _isEnded
+    actual val isDropped get() = _isDropped
+    actual val rootOffset get() = _rootOffset
+    var clipData by mutableStateOf<ClipData?>(null)
+    actual var deserializationResult by mutableStateOf<DeserializationResult?>(null)
+
+    actual fun updateWithOnStarted(event: DragAndDropEvent) {
+        val androidDragEvent = event.toAndroidDragEvent()
+        clipData = androidDragEvent.clipData ?: androidDragEvent.localState as? ClipData
     }
 
-    return dragAndDropTarget(
-        shouldStartDragAndDrop = { event ->
-            event.mimeTypes().contains(ClipDescription.MIMETYPE_TEXT_PLAIN)
-        },
-        target = target,
-    )
+    actual fun updateWithOnEntered(event: DragAndDropEvent) {
+        val androidDragEvent = event.toAndroidDragEvent()
+        clipData = androidDragEvent.clipData ?: androidDragEvent.localState as? ClipData
+        _isEntered = true
+        _rootOffset = Offset(androidDragEvent.x, androidDragEvent.y)
+    }
+
+    actual fun updateWithOnMoved(event: DragAndDropEvent) {
+        val androidDragEvent = event.toAndroidDragEvent()
+        clipData = androidDragEvent.clipData ?: androidDragEvent.localState as? ClipData
+        _rootOffset = Offset(androidDragEvent.x, androidDragEvent.y)
+    }
+
+    actual fun updateWithOnExited(event: DragAndDropEvent) {
+        val androidDragEvent = event.toAndroidDragEvent()
+        clipData = androidDragEvent.clipData ?: androidDragEvent.localState as? ClipData
+        _isEntered = false
+        _rootOffset = Offset(androidDragEvent.x, androidDragEvent.y)
+    }
+
+    actual fun updateWithOnEnded(event: DragAndDropEvent) {
+        val androidDragEvent = event.toAndroidDragEvent()
+        clipData = androidDragEvent.clipData ?: androidDragEvent.localState as? ClipData
+        _isEnded = true
+    }
+
+    actual fun updateWithOnDrop(event: DragAndDropEvent) {
+        val androidDragEvent = event.toAndroidDragEvent()
+        clipData = androidDragEvent.clipData
+        _rootOffset = Offset(androidDragEvent.x, androidDragEvent.y)
+        _isDropped = true
+    }
 }
+
+internal actual suspend fun awaitAndParseCellState(
+    session: DragAndDropSession,
+    cellStateParser: CellStateParser,
+): DeserializationResult =
+    cellStateParser.parseCellState(
+        snapshotFlow { session.clipData }.filterNotNull().first(),
+    )
