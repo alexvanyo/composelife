@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -61,6 +62,7 @@ internal fun InteractableCellsPreview(modifier: Modifier = Modifier) {
                             IntSize(10, 10),
                         ),
                     ),
+                    pixelOffsetFromCenter = Offset.Zero,
                 )
             }
         }

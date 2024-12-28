@@ -50,6 +50,7 @@ import com.alexvanyo.composelife.ui.app.createComponent
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropTarget
+import com.alexvanyo.composelife.ui.cells.rememberMutableCellStateDropStateHolder
 import kotlinx.coroutines.test.runCurrent
 import org.junit.runner.RunWith
 import kotlin.test.Test
@@ -97,9 +98,11 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<TestComposeLifeApplicationC
                     Spacer(
                         modifier = Modifier
                             .testTag("TestDropTarget")
-                            .cellStateDragAndDropTarget {
-                                droppedCellState = it
-                            }
+                            .cellStateDragAndDropTarget(
+                                rememberMutableCellStateDropStateHolder { _, cellState ->
+                                    droppedCellState = cellState
+                                },
+                            )
                             .size(100.dp)
                             .background(Color.Blue),
                     )
@@ -125,8 +128,8 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<TestComposeLifeApplicationC
                 downTime,
                 downTime,
                 MotionEvent.ACTION_DOWN,
-                loadedCellStatePreviewCenter.x.toFloat(),
-                loadedCellStatePreviewCenter.y.toFloat(),
+                loadedCellStatePreviewCenter.x,
+                loadedCellStatePreviewCenter.y,
                 0,
             ).apply {
                 source = InputDevice.SOURCE_TOUCHSCREEN
@@ -141,8 +144,8 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<TestComposeLifeApplicationC
             downTime,
             SystemClock.uptimeMillis(),
             MotionEvent.ACTION_MOVE,
-            testDropTargetCenter.x.toFloat(),
-            testDropTargetCenter.y.toFloat(),
+            testDropTargetCenter.x,
+            testDropTargetCenter.y,
             0,
         ).apply {
             source = InputDevice.SOURCE_TOUCHSCREEN
@@ -154,8 +157,8 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<TestComposeLifeApplicationC
             downTime,
             SystemClock.uptimeMillis(),
             MotionEvent.ACTION_UP,
-            testDropTargetCenter.x.toFloat(),
-            testDropTargetCenter.y.toFloat(),
+            testDropTargetCenter.x,
+            testDropTargetCenter.y,
             0,
         ).apply {
             source = InputDevice.SOURCE_TOUCHSCREEN
