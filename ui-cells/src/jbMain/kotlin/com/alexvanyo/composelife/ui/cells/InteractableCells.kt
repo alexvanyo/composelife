@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.isSpecified
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.HistoricalChange
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -81,10 +82,15 @@ fun InteractableCells(
     setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
     scaledCellDpSize: Dp,
     cellWindow: CellWindow,
+    pixelOffsetFromCenter: Offset,
     modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier
+            .graphicsLayer {
+                this.translationX = -pixelOffsetFromCenter.x
+                this.translationY = -pixelOffsetFromCenter.y
+            }
             .requiredSize(
                 scaledCellDpSize * cellWindow.width,
                 scaledCellDpSize * cellWindow.height,
