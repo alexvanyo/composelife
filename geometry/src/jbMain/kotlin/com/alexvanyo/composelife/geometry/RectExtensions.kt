@@ -23,6 +23,18 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
 
+operator fun Rect.times(scale: Float): Rect =
+    Rect(
+        topLeft = topLeft * scale,
+        bottomRight = bottomRight * scale,
+    )
+
+operator fun Rect.div(scale: Float): Rect =
+    Rect(
+        topLeft = topLeft / scale,
+        bottomRight = bottomRight / scale,
+    )
+
 fun Rect.topStart(layoutDirection: LayoutDirection): Offset = when (layoutDirection) {
     LayoutDirection.Ltr -> topLeft
     LayoutDirection.Rtl -> topRight
