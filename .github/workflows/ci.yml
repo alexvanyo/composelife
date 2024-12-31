@@ -395,7 +395,8 @@ jobs:
 
   codecov-device-coverage-upload:
     needs: [android-test-gmd, android-test-gmd-cfg]
-    if: always()
+    # TODO: Re-enable with device code coverage: https://github.com/alexvanyo/composelife/issues/2257
+    if: false
     runs-on: ubuntu-latest
 
     strategy:
