@@ -149,6 +149,11 @@ fun Project.configureGradleManagedDevices(
                         .orElse(true)
                         .get()
             }
+            .filter { config ->
+                // Filter out incompatible devices based on API level
+                val minSdk = commonExtension.defaultConfig.minSdk
+                minSdk == null || config.apiLevel >= minSdk
+            }
             .forEach { config ->
                 create<ManagedVirtualDevice>(config.taskPrefix) {
                     this.device = when (config.device) {
