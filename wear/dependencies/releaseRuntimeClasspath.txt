@@ -145,12 +145,7 @@ co.touchlab:kermit:2.0.5
 com.airbnb.android:showkase-annotation:1.0.3
 com.airbnb.android:showkase:1.0.3
 com.github.livefront.sealed-enum:runtime:0.7.0
-com.google.code.findbugs:jsr305:3.0.2
-com.google.errorprone:error_prone_annotations:2.18.0
-com.google.guava:failureaccess:1.0.1
-com.google.guava:guava:32.0.0-android
-com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
-com.google.j2objc:j2objc-annotations:2.8
+com.google.guava:listenablefuture:1.0
 com.slack.circuit:circuit-retained-android:0.27.0
 com.slack.circuit:circuit-retained:0.27.0
 com.squareup.okio:okio-jvm:3.10.2
@@ -159,7 +154,6 @@ com.squareup.wire:wire-runtime-jvm:5.3.1
 com.squareup.wire:wire-runtime:5.3.1
 me.tatarka.inject:kotlin-inject-runtime-jvm:0.7.2
 me.tatarka.inject:kotlin-inject-runtime:0.7.2
-org.checkerframework:checker-qual:3.33.0
 org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.0-alpha03
 org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.0-alpha03
 org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.9.0-alpha03
