@@ -34,12 +34,6 @@ co.touchlab:kermit-core:2.0.5
 co.touchlab:kermit-jvm:2.0.5
 co.touchlab:kermit:2.0.5
 com.github.livefront.sealed-enum:runtime:0.7.0
-com.google.code.findbugs:jsr305:3.0.2
-com.google.errorprone:error_prone_annotations:2.18.0
-com.google.guava:failureaccess:1.0.1
-com.google.guava:guava:32.0.0-android
-com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
-com.google.j2objc:j2objc-annotations:2.8
 com.slack.circuit:circuit-retained-jvm:0.26.0
 com.slack.circuit:circuit-retained:0.26.0
 com.squareup.okio:okio-jvm:3.10.2
@@ -52,7 +46,6 @@ io.coil-kt.coil3:coil-core-jvm:3.1.0
 io.coil-kt.coil3:coil-core:3.1.0
 me.tatarka.inject:kotlin-inject-runtime-jvm:0.7.2
 me.tatarka.inject:kotlin-inject-runtime:0.7.2
-org.checkerframework:checker-qual:3.33.0
 org.jetbrains.androidx.graphics:graphics-shapes:1.0.0-alpha02
 org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.0-alpha02
 org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose-desktop:2.9.0-alpha02
