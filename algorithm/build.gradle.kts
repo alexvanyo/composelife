@@ -82,7 +82,6 @@ kotlin {
         val jvmMain by creating {
             dependsOn(commonMain)
             dependencies {
-                implementation(libs.guava.android)
                 implementation(libs.jetbrains.compose.uiUnit)
                 implementation(libs.sealedEnum.runtime)
             }
