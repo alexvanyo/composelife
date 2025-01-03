@@ -29,7 +29,7 @@ class AndroidTestConventionPlugin : ConventionPlugin({
 
         defaultConfig {
             minSdk = 23
-            targetSdk = 31
+            targetSdk = 35
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
 
