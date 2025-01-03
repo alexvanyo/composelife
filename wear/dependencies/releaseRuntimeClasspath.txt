@@ -183,7 +183,7 @@ org.jetbrains.kotlin:kotlin-bom:2.0.21
 org.jetbrains.kotlin:kotlin-parcelize-runtime:1.9.22
 org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21
 org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.21
-org.jetbrains.kotlin:kotlin-stdlib:2.1.0
+org.jetbrains.kotlin:kotlin-stdlib:2.1.20-Beta1
 org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
 org.jetbrains.kotlinx:atomicfu:0.23.2
 org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0
