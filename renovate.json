@@ -19,12 +19,6 @@
       ]
     },
     {
-      "versioning": "docker",
-      "matchPackageNames": [
-        "/^com.google.guava/"
-      ]
-    },
-    {
       "matchDatasources": [
         "maven"
       ],
