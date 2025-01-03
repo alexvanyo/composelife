@@ -87,7 +87,6 @@ import com.alexvanyo.composelife.ui.cells.resources.Strings as CellsStrings
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
 class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,

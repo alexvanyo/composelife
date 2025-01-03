@@ -746,7 +746,7 @@ private fun Velocity.toValidVelocity() =
 internal sealed class DragEvent {
     class DragStarted(val startPoint: Offset) : DragEvent()
     class DragStopped(val velocity: Velocity) : DragEvent()
-    object DragCancelled : DragEvent()
+    data object DragCancelled : DragEvent()
     class DragDelta(val delta: Offset) : DragEvent()
 }
 

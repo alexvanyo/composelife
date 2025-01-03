@@ -42,7 +42,6 @@ import org.junit.runner.RunWith
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
 class NonInteractableCellsVisualTests :
     BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
         TestComposeLifeApplicationComponent::createComponent,

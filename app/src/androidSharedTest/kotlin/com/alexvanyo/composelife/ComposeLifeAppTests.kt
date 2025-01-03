@@ -61,7 +61,6 @@ import kotlin.test.assertNotNull
 import com.alexvanyo.composelife.ui.app.R as uiAppR
 import com.alexvanyo.composelife.ui.settings.R as uiSettingsR
 
-@RunWith(KmpAndroidJUnit4::class)
 class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationComponent, MainActivity>(
     { TestComposeLifeApplicationComponent.createComponent() },
     MainActivity::class.java,
