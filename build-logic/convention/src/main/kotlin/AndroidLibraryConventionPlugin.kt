@@ -34,8 +34,8 @@ class AndroidLibraryConventionPlugin : ConventionPlugin({
     extensions.configure<LibraryExtension> {
         configureAndroid(this)
 
-        testOptions.targetSdk = 34
-        lint.targetSdk = 34
+        testOptions.targetSdk = 35
+        lint.targetSdk = 35
         defaultConfig {
             consumerProguardFiles("consumer-rules.pro")
         }
