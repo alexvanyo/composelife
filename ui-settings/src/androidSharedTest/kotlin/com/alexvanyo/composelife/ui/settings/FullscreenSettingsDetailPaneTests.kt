@@ -63,7 +63,6 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
 class FullscreenSettingsDetailPaneTests :
     BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
         TestComposeLifeApplicationComponent::createComponent,

@@ -36,7 +36,6 @@ import org.junit.runner.RunWith
  * Subclasses must call [runAppTest] instead of [runTest] to properly initialize dependencies.
  */
 @Suppress("UnnecessaryAbstractClass")
-@RunWith(KmpAndroidJUnit4::class)
 abstract class BaseActivityInjectTest<T, A>(
     applicationComponentCreator: () -> T,
     clazz: Class<A>,
