@@ -42,7 +42,6 @@ import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
 import androidx.window.core.layout.computeWindowSizeClass
 import androidx.window.layout.WindowMetricsCalculator
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
@@ -54,14 +53,12 @@ import com.alexvanyo.composelife.test.BaseActivityInjectTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runCurrent
 import leakcanary.SkipLeakDetection
-import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import com.alexvanyo.composelife.ui.app.R as uiAppR
 import com.alexvanyo.composelife.ui.settings.R as uiSettingsR
 
-@RunWith(KmpAndroidJUnit4::class)
 class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationComponent, MainActivity>(
     { TestComposeLifeApplicationComponent.createComponent() },
     MainActivity::class.java,

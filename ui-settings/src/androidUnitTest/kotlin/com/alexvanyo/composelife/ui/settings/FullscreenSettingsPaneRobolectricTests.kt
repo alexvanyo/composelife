@@ -69,7 +69,6 @@ import kotlin.test.assertNull
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
 class FullscreenSettingsPaneRobolectricTests :
     BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
         TestComposeLifeApplicationComponent::createComponent,
