@@ -92,7 +92,7 @@ jacoco = "0.8.12"
 #jetbrainsCompose
 jetbrainsCompose = "1.8.0-alpha01"
 #jetbrainsComposeMaterialIconsExtended
-jetbrainsComposeMaterialIconsExtended = "1.7.1"
+jetbrainsComposeMaterialIconsExtended = "1.7.3"
 #jetbrainsComposeMaterial3Adaptive
 jetbrainsComposeMaterial3Adaptive = "1.1.0-alpha01"
 #junit4
