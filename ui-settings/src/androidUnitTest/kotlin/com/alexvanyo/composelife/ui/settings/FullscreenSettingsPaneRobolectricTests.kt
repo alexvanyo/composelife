@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
 import androidx.window.core.layout.computeWindowSizeClass
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
@@ -58,7 +57,6 @@ import com.alexvanyo.composelife.ui.settings.resources.FeatureFlags
 import com.alexvanyo.composelife.ui.settings.resources.HashLifeAlgorithm
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.settings.resources.Visual
-import org.junit.runner.RunWith
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import org.robolectric.shadow.api.Shadow
