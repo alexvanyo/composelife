@@ -24,10 +24,10 @@ androidx.compose.foundation:foundation-layout-android:1.8.0-alpha06
 androidx.compose.foundation:foundation-layout:1.8.0-alpha06
 androidx.compose.foundation:foundation:1.8.0-alpha06
 androidx.compose.material:material-android:1.8.0-alpha06
-androidx.compose.material:material-icons-core-android:1.7.5
-androidx.compose.material:material-icons-core:1.7.5
-androidx.compose.material:material-icons-extended-android:1.7.5
-androidx.compose.material:material-icons-extended:1.7.5
+androidx.compose.material:material-icons-core-android:1.7.6
+androidx.compose.material:material-icons-core:1.7.6
+androidx.compose.material:material-icons-extended-android:1.7.6
+androidx.compose.material:material-icons-extended:1.7.6
 androidx.compose.material:material-ripple-android:1.8.0-alpha06
 androidx.compose.material:material-ripple:1.8.0-alpha06
 androidx.compose.material:material:1.8.0-alpha06
@@ -167,8 +167,8 @@ org.jetbrains.compose.annotation-internal:annotation:1.7.1
 org.jetbrains.compose.collection-internal:collection:1.8.0-alpha01
 org.jetbrains.compose.foundation:foundation-layout:1.8.0-alpha01
 org.jetbrains.compose.foundation:foundation:1.8.0-alpha01
-org.jetbrains.compose.material:material-icons-core:1.7.1
-org.jetbrains.compose.material:material-icons-extended:1.7.1
+org.jetbrains.compose.material:material-icons-core:1.7.3
+org.jetbrains.compose.material:material-icons-extended:1.7.3
 org.jetbrains.compose.runtime:runtime-saveable:1.8.0-alpha01
 org.jetbrains.compose.runtime:runtime:1.8.0-alpha01
 org.jetbrains.compose.ui:ui-geometry:1.8.0-alpha01
