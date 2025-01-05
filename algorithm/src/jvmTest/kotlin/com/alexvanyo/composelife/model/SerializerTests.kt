@@ -70,6 +70,13 @@ class SerializerTests {
                     ) {
                         RunLengthEncodedCellStateSerializer
                     },
+                    CellStateSerializerFactory(
+                        name = "Macrocell",
+                        trueEquals = false,
+                        format = CellStateFormat.FixedFormat.Macrocell,
+                    ) {
+                        MacrocellCellStateSerializer
+                    },
                 )
         }
     }

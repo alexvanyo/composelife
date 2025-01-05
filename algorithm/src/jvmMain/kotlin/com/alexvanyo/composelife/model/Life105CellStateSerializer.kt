@@ -31,7 +31,7 @@ object Life105CellStateSerializer : FixedFormatCellStateSerializer {
         val iterator = lines.iterator()
 
         if (!iterator.hasNext()) {
-            warnings.add(UnexpectedEmptyFileMessage())
+            warnings.add(UnexpectedEmptyFileMessage)
 
             return DeserializationResult.Successful(
                 warnings = warnings,
@@ -98,7 +98,7 @@ object Life105CellStateSerializer : FixedFormatCellStateSerializer {
                     if (survival != setOf(2, 3) || birth != setOf(3)) {
                         return DeserializationResult.Unsuccessful(
                             warnings = warnings,
-                            errors = listOf(RuleNotSupportedMessage()),
+                            errors = listOf(RuleNotSupportedMessage),
                         )
                     } else {
                         lineIndex++

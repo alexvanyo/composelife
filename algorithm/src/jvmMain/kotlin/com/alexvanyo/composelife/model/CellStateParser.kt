@@ -27,7 +27,7 @@ suspend fun CellStateParser.parseCellState(text: CharSequence?): Deserialization
     if (text.isNullOrEmpty()) {
         DeserializationResult.Unsuccessful(
             warnings = emptyList(),
-            errors = listOf(EmptyInput()),
+            errors = listOf(EmptyInput),
         )
     } else {
         flexibleCellStateSerializer.deserializeToCellState(
