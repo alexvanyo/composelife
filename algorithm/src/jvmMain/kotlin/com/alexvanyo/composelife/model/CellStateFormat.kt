@@ -42,6 +42,9 @@ sealed interface CellStateFormat {
         @Serializable
         data object RunLengthEncoding : FixedFormat
 
+        @Serializable
+        data object Macrocell : FixedFormat
+
         @GenSealedEnum(generateEnum = true)
         companion object
     }
@@ -57,5 +60,6 @@ fun CellStateFormat.Companion.fromFileExtension(fileExtension: String?): CellSta
         "cells" -> CellStateFormat.FixedFormat.Plaintext
         "lif", "life" -> CellStateFormat.Life
         "rle" -> CellStateFormat.FixedFormat.RunLengthEncoding
+        "mc" -> CellStateFormat.FixedFormat.Macrocell
         else -> CellStateFormat.Unknown
     }

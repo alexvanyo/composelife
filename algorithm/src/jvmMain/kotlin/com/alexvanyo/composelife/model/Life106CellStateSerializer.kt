@@ -31,7 +31,7 @@ object Life106CellStateSerializer : FixedFormatCellStateSerializer {
         val iterator = lines.iterator()
 
         if (!iterator.hasNext()) {
-            warnings.add(UnexpectedEmptyFileMessage())
+            warnings.add(UnexpectedEmptyFileMessage)
 
             return DeserializationResult.Successful(
                 warnings = warnings,
