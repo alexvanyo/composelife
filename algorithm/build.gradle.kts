@@ -36,6 +36,15 @@ android {
         minSdk = 21
     }
     configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
+    // Add test pattern files in resources
+    sourceSets {
+        getByName("test") {
+            resources.srcDirs("src/jvmTest/resources")
+        }
+        getByName("androidTest") {
+            resources.srcDirs("src/jvmTest/resources")
+        }
+    }
 }
 
 kotlin {
