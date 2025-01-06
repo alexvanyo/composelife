@@ -44,6 +44,7 @@ fun Project.configureKotlin() {
                         // TODO: Remove when out of beta: https://youtrack.jetbrains.com/issue/KT-61573
                         enableLanguageFeature("ExpectActualClasses")
                         enableLanguageFeature("ContextReceivers")
+                        enableLanguageFeature("MultiDollarInterpolation")
                         optIn("kotlin.uuid.ExperimentalUuidApi")
                     }
                 }
