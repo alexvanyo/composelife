@@ -5,8 +5,6 @@ androidDesugarJdkLibs = "2.1.3"
 androidGradlePlugin = "8.7.3"
 #androidTools
 androidTools = "31.7.3"
-#androidR8
-androidR8 = "8.6.15"
 #androidxActivity
 androidxActivity = "1.10.0-rc01"
 #androidxAnnotation
@@ -126,7 +124,6 @@ wire = "5.2.0"
 
 [libraries]
 android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "androidDesugarJdkLibs" }
-android-r8 = { group = "com.android.tools", name = "r8", version.ref = "androidR8" }
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
 android-tools-common = { group = "com.android.tools", name = "common", version.ref = "androidTools" }
 androidx-activityCompose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
