@@ -39,7 +39,7 @@ actual class CellStateParser(
         if (items.isEmpty()) {
             return DeserializationResult.Unsuccessful(
                 warnings = emptyList(),
-                errors = listOf(EmptyInput()),
+                errors = listOf(EmptyInput),
             )
         }
 

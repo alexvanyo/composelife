@@ -38,6 +38,7 @@ class FlexibleCellStateSerializer(
                 CellStateFormat.FixedFormat.Life105 -> Life105CellStateSerializer
                 CellStateFormat.FixedFormat.RunLengthEncoding -> RunLengthEncodedCellStateSerializer
                 CellStateFormat.FixedFormat.Life106 -> Life106CellStateSerializer
+                CellStateFormat.FixedFormat.Macrocell -> MacrocellCellStateSerializer
                 CellStateFormat.Life,
                 CellStateFormat.Unknown,
                 -> null
@@ -83,5 +84,6 @@ class FlexibleCellStateSerializer(
             CellStateFormat.FixedFormat.Life105 -> Life105CellStateSerializer
             CellStateFormat.FixedFormat.RunLengthEncoding -> RunLengthEncodedCellStateSerializer
             CellStateFormat.FixedFormat.Life106 -> Life106CellStateSerializer
+            CellStateFormat.FixedFormat.Macrocell -> MacrocellCellStateSerializer
         }.serializeToString(cellState)
 }

@@ -32,7 +32,7 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
         val iterator = lines.iterator()
 
         if (!iterator.hasNext()) {
-            warnings.add(UnexpectedEmptyFileMessage())
+            warnings.add(UnexpectedEmptyFileMessage)
 
             return DeserializationResult.Successful(
                 warnings = warnings,
@@ -108,7 +108,7 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
             if (survival != setOf(2, 3) || birth != setOf(3)) {
                 return DeserializationResult.Unsuccessful(
                     warnings = warnings,
-                    errors = listOf(RuleNotSupportedMessage()),
+                    errors = listOf(RuleNotSupportedMessage),
                 )
             }
         } else if (withRuleFormat2MatchResult != null) {
@@ -123,7 +123,7 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
             if (survival != setOf(2, 3) || birth != setOf(3)) {
                 return DeserializationResult.Unsuccessful(
                     warnings = warnings,
-                    errors = listOf(RuleNotSupportedMessage()),
+                    errors = listOf(RuleNotSupportedMessage),
                 )
             }
         } else {
