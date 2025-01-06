@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
@@ -63,7 +64,7 @@ private class TestPaneState(
     initialCount: Int = 0,
     initialIsDialog: Boolean = false,
 ) : DialogableEntry {
-    var count by mutableStateOf(initialCount)
+    var count by mutableIntStateOf(initialCount)
         private set
 
     val canIncrementPrevious: Boolean get() = previous != null

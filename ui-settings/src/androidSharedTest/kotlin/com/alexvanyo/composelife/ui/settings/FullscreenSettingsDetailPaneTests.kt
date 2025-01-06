@@ -46,7 +46,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
@@ -57,13 +56,11 @@ import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.settings.resources.CornerFractionLabel
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import org.junit.Assume.assumeTrue
-import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
 class FullscreenSettingsDetailPaneTests :
     BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
         TestComposeLifeApplicationComponent::createComponent,

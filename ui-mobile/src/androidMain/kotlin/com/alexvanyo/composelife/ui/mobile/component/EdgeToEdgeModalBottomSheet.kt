@@ -361,6 +361,7 @@ private fun Scrim(
         val alpha by animateFloatAsState(
             targetValue = if (visible) 1f else 0f,
             animationSpec = TweenSpec(),
+            label = "alpha",
         )
         val dismissSheet = if (visible) {
             Modifier
