@@ -44,7 +44,7 @@ sealed interface ComposeLifeNavigation {
 
         override val type = Companion
 
-        object Companion : ComposeLifeNavigationType {
+        data object Companion : ComposeLifeNavigationType {
             override fun saverFactory(
                 previous: BackstackEntry<ComposeLifeNavigation>?,
             ): Saver<CellUniverse, Any> = Saver(

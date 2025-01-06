@@ -60,7 +60,7 @@ sealed interface InlineActionCardNavigation {
     data object Speed : InlineActionCardNavigation {
         override val type = Companion
 
-        object Companion : InlineActionCardNavigationType {
+        data object Companion : InlineActionCardNavigationType {
             override fun saverFactory(
                 previous: BackstackEntry<InlineActionCardNavigation>?,
             ): Saver<Speed, Any> = Saver(
@@ -73,7 +73,7 @@ sealed interface InlineActionCardNavigation {
     data object Edit : InlineActionCardNavigation {
         override val type = Companion
 
-        object Companion : InlineActionCardNavigationType {
+        data object Companion : InlineActionCardNavigationType {
             override fun saverFactory(
                 previous: BackstackEntry<InlineActionCardNavigation>?,
             ): Saver<Edit, Any> = Saver(
@@ -86,7 +86,7 @@ sealed interface InlineActionCardNavigation {
     data object Settings : InlineActionCardNavigation {
         override val type = Companion
 
-        object Companion : InlineActionCardNavigationType {
+        data object Companion : InlineActionCardNavigationType {
             override fun saverFactory(
                 previous: BackstackEntry<InlineActionCardNavigation>?,
             ): Saver<Settings, Any> = Saver(

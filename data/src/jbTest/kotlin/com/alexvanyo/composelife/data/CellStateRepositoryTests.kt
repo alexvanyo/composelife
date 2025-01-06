@@ -28,7 +28,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-@RunWith(KmpAndroidJUnit4::class)
 class CellStateRepositoryTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
     TestComposeLifeApplicationComponent::createComponent,
 ) {

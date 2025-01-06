@@ -283,7 +283,7 @@ private fun CustomAnimatedContentSettingUiSharedElementWithCallerManagedVisibili
 @Preview
 @Composable
 private fun CMYSharedElement() {
-    var count by remember { mutableStateOf(0) }
+    var count by remember { mutableIntStateOf(0) }
     val state = Colors.entries[count.mod(Colors.entries.size)]
 
     androidx.compose.animation.SharedTransitionLayout(

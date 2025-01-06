@@ -38,7 +38,6 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
 class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,

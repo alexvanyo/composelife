@@ -50,7 +50,6 @@ import kotlin.test.assertTrue
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
 class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,

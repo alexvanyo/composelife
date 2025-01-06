@@ -20,7 +20,6 @@ import android.content.Context
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.UiComponentOwner
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
@@ -28,7 +27,6 @@ import kotlinx.coroutines.test.runTest
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Rule
 import org.junit.rules.TestRule
-import org.junit.runner.RunWith
 
 /**
  * A base class for testing an [ComponentActivity] that depends on injected classes.
@@ -36,7 +34,6 @@ import org.junit.runner.RunWith
  * Subclasses must call [runAppTest] instead of [runTest] to properly initialize dependencies.
  */
 @Suppress("UnnecessaryAbstractClass")
-@RunWith(KmpAndroidJUnit4::class)
 abstract class BaseActivityInjectTest<T, A>(
     applicationComponentCreator: () -> T,
     clazz: Class<A>,
