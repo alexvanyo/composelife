@@ -70,7 +70,7 @@ sealed interface WatchFaceConfigNavigation {
     data object ColorPicker : WatchFaceConfigNavigation {
         override val type = Companion
 
-        object Companion : WatchFaceConfigNavigationType {
+        data object Companion : WatchFaceConfigNavigationType {
             override fun saverFactory(
                 previous: BackstackEntry<WatchFaceConfigNavigation>?,
             ): Saver<ColorPicker, Any> = Saver(

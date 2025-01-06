@@ -22,7 +22,6 @@ import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertIs
 
-@RunWith(KmpAndroidJUnit4::class)
 class ComposeLifeDatabaseTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
     TestComposeLifeApplicationComponent::createComponent,
 ) {
