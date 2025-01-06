@@ -63,10 +63,10 @@ actual fun UnexpectedBlankLineMessage(
     lineIndex,
 )
 
-actual fun UnexpectedEmptyFileMessage(): ParameterizedString =
+actual val UnexpectedEmptyFileMessage: ParameterizedString =
     ParameterizedString(R.string.unexpected_empty_file)
 
-actual fun RuleNotSupportedMessage(): ParameterizedString =
+actual val RuleNotSupportedMessage: ParameterizedString =
     ParameterizedString(R.string.rule_not_supported)
 
 actual fun DuplicateTopLeftCoordinateMessage(
@@ -74,5 +74,16 @@ actual fun DuplicateTopLeftCoordinateMessage(
 ): ParameterizedString =
     ParameterizedString(R.string.duplicate_top_left_coordinate, overwritingOffset.x, overwritingOffset.y)
 
-actual fun EmptyInput(): ParameterizedString =
+actual val EmptyInput: ParameterizedString =
     ParameterizedString(R.string.empty_input)
+
+actual fun UnexpectedNodeIdMessage(
+    lineIndex: Int,
+    characterIndices: IntRange,
+): ParameterizedString =
+    ParameterizedString(
+        R.string.unexpected_node_id,
+        lineIndex,
+        characterIndices.first,
+        characterIndices.last,
+    )
