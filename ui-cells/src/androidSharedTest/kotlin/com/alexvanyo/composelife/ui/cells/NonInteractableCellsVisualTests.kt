@@ -27,7 +27,6 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
@@ -38,11 +37,9 @@ import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import org.junit.Assume.assumeTrue
-import org.junit.runner.RunWith
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
 class NonInteractableCellsVisualTests :
     BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
         TestComposeLifeApplicationComponent::createComponent,
