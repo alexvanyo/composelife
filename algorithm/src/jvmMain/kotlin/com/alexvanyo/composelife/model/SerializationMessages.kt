@@ -43,12 +43,17 @@ expect fun UnexpectedBlankLineMessage(
     lineIndex: Int,
 ): ParameterizedString
 
-expect fun UnexpectedEmptyFileMessage(): ParameterizedString
+expect val UnexpectedEmptyFileMessage: ParameterizedString
 
-expect fun RuleNotSupportedMessage(): ParameterizedString
+expect val RuleNotSupportedMessage: ParameterizedString
 
 expect fun DuplicateTopLeftCoordinateMessage(
     overwritingOffset: IntOffset,
 ): ParameterizedString
 
-expect fun EmptyInput(): ParameterizedString
+expect val EmptyInput: ParameterizedString
+
+expect fun UnexpectedNodeIdMessage(
+    lineIndex: Int,
+    characterIndices: IntRange,
+): ParameterizedString

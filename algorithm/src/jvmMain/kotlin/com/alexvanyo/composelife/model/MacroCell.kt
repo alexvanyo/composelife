@@ -238,7 +238,7 @@ fun MacroCell.iterator(
  * This runs in O(level) time.
  */
 @Suppress("NestedBlockDepth")
-tailrec fun MacroCell.contains(target: IntOffset): Boolean =
+tailrec operator fun MacroCell.contains(target: IntOffset): Boolean =
     if (target.x !in 0 until (1 shl level) || target.y !in 0 until (1 shl level)) {
         false
     } else {
