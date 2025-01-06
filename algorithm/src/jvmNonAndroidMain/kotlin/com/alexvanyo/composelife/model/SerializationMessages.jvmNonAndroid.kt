@@ -58,10 +58,10 @@ actual fun UnexpectedBlankLineMessage(
 ): ParameterizedString =
     ParameterizedString("Unexpected blank line at line %d", lineIndex)
 
-actual fun UnexpectedEmptyFileMessage(): ParameterizedString =
+actual val UnexpectedEmptyFileMessage: ParameterizedString =
     ParameterizedString("Unexpected empty file, assuming blank pattern")
 
-actual fun RuleNotSupportedMessage(): ParameterizedString =
+actual val RuleNotSupportedMessage: ParameterizedString =
     ParameterizedString("Ruleset not supported")
 
 actual fun DuplicateTopLeftCoordinateMessage(
@@ -73,5 +73,16 @@ actual fun DuplicateTopLeftCoordinateMessage(
         overwritingOffset.y,
     )
 
-actual fun EmptyInput(): ParameterizedString =
+actual val EmptyInput: ParameterizedString =
     ParameterizedString("Input was empty, could not parse")
+
+actual fun UnexpectedNodeIdMessage(
+    lineIndex: Int,
+    characterIndices: IntRange,
+): ParameterizedString =
+    ParameterizedString(
+        "Invalid node id on line %d, characters %d-%d",
+        lineIndex,
+        characterIndices.first,
+        characterIndices.last,
+    )
