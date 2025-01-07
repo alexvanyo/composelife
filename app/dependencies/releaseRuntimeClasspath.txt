@@ -143,8 +143,8 @@ com.slack.circuit:circuit-retained-android:0.25.0
 com.slack.circuit:circuit-retained:0.25.0
 com.squareup.okio:okio-jvm:3.9.1
 com.squareup.okio:okio:3.9.1
-com.squareup.wire:wire-runtime-jvm:5.1.0
-com.squareup.wire:wire-runtime:5.1.0
+com.squareup.wire:wire-runtime-jvm:5.2.0
+com.squareup.wire:wire-runtime:5.2.0
 io.coil-kt.coil3:coil-compose-core-android:3.0.4
 io.coil-kt.coil3:coil-compose-core:3.0.4
 io.coil-kt.coil3:coil-core-android:3.0.4
