@@ -11,7 +11,7 @@ androidx.arch.core:core-runtime:2.2.0
 androidx.asynclayoutinflater:asynclayoutinflater:1.0.0
 androidx.autofill:autofill:1.0.0
 androidx.collection:collection-jvm:1.5.0-SNAPSHOT
-androidx.collection:collection-ktx:1.4.2
+androidx.collection:collection-ktx:1.5.0-SNAPSHOT
 androidx.collection:collection:1.5.0-SNAPSHOT
 androidx.compose.animation:animation-android:1.8.0-alpha07
 androidx.compose.animation:animation-core-android:1.8.0-alpha07
@@ -42,8 +42,8 @@ androidx.compose.ui:ui-graphics-android:1.8.0-SNAPSHOT
 androidx.compose.ui:ui-graphics:1.8.0-SNAPSHOT
 androidx.compose.ui:ui-text-android:1.8.0-SNAPSHOT
 androidx.compose.ui:ui-text:1.8.0-SNAPSHOT
-androidx.compose.ui:ui-tooling-preview-android:1.8.0-alpha07
-androidx.compose.ui:ui-tooling-preview:1.8.0-alpha07
+androidx.compose.ui:ui-tooling-preview-android:1.8.0-SNAPSHOT
+androidx.compose.ui:ui-tooling-preview:1.8.0-SNAPSHOT
 androidx.compose.ui:ui-unit-android:1.8.0-SNAPSHOT
 androidx.compose.ui:ui-unit:1.8.0-SNAPSHOT
 androidx.compose.ui:ui-util-android:1.8.0-SNAPSHOT
