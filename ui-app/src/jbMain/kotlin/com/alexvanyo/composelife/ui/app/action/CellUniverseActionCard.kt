@@ -208,6 +208,51 @@ fun CellUniverseActionCard(
                         )
                     }
 
+                    val renderableNavigationState = associateWithRenderablePanes(
+                        actionCardState.inlineNavigationState,
+                    ) { entry ->
+                        // Cache the scroll state based for the target entry id.
+                        // This value won't change normally, but it will ensure we keep using
+                        // the old state while being removed from the backstack
+                        val scrollState =
+                            remember { contentScrollStateMap.getValue(entry.id) }
+
+                        Box(
+                            Modifier.widthIn(max = 480.dp),
+                        ) {
+                            when (entry.value) {
+                                is InlineActionCardNavigation.Speed -> {
+                                    InlineSpeedPane(
+                                        targetStepsPerSecond = targetStepsPerSecond,
+                                        setTargetStepsPerSecond = setTargetStepsPerSecond,
+                                        generationsPerStep = generationsPerStep,
+                                        setGenerationsPerStep = setGenerationsPerStep,
+                                        scrollState = scrollState,
+                                        modifier = Modifier.fillMaxWidth(),
+                                    )
+                                }
+
+                                is InlineActionCardNavigation.Edit -> {
+                                    InlineEditPane(
+                                        setSelectionToCellState = setSelectionToCellState,
+                                        onViewDeserializationInfo = onViewDeserializationInfo,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        scrollState = scrollState,
+                                    )
+                                }
+
+                                is InlineActionCardNavigation.Settings -> {
+                                    InlineSettingsPane(
+                                        onSeeMoreClicked = onSeeMoreSettingsClicked,
+                                        onOpenInSettingsClicked = onOpenInSettingsClicked,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        scrollState = scrollState,
+                                    )
+                                }
+                            }
+                        }
+                    }
+
                     AnimatedContent(
                         targetState = actionCardState.expandedTargetState,
                         contentAlignment = Alignment.BottomCenter,
@@ -221,51 +266,6 @@ fun CellUniverseActionCard(
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
-                                val renderableNavigationState = associateWithRenderablePanes(
-                                    actionCardState.inlineNavigationState,
-                                ) { entry ->
-                                    // Cache the scroll state based for the target entry id.
-                                    // This value won't change normally, but it will ensure we keep using
-                                    // the old state while being removed from the backstack
-                                    val scrollState =
-                                        remember { contentScrollStateMap.getValue(entry.id) }
-
-                                    Box(
-                                        Modifier.widthIn(max = 480.dp),
-                                    ) {
-                                        when (entry.value) {
-                                            is InlineActionCardNavigation.Speed -> {
-                                                InlineSpeedPane(
-                                                    targetStepsPerSecond = targetStepsPerSecond,
-                                                    setTargetStepsPerSecond = setTargetStepsPerSecond,
-                                                    generationsPerStep = generationsPerStep,
-                                                    setGenerationsPerStep = setGenerationsPerStep,
-                                                    scrollState = scrollState,
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                )
-                                            }
-
-                                            is InlineActionCardNavigation.Edit -> {
-                                                InlineEditPane(
-                                                    setSelectionToCellState = setSelectionToCellState,
-                                                    onViewDeserializationInfo = onViewDeserializationInfo,
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                    scrollState = scrollState,
-                                                )
-                                            }
-
-                                            is InlineActionCardNavigation.Settings -> {
-                                                InlineSettingsPane(
-                                                    onSeeMoreClicked = onSeeMoreSettingsClicked,
-                                                    onOpenInSettingsClicked = onOpenInSettingsClicked,
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                    scrollState = scrollState,
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-
                                 CrossfadePredictiveNavigationFrame(
                                     renderableNavigationState = renderableNavigationState,
                                     repeatablePredictiveBackState = actionCardState.inlineRepeatablePredictiveBackState,

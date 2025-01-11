@@ -60,7 +60,7 @@ class KSerializerSaverTests {
         val initialValue = value
         value = null
 
-        stateRestorationTester.emulateSavedInstanceStateRestore()
+        stateRestorationTester.emulateStateRestore()
 
         val restoredValue = value
 

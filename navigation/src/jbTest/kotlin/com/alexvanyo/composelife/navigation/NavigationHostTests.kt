@@ -19,7 +19,6 @@ package com.alexvanyo.composelife.navigation
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -33,8 +32,6 @@ import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
 import kotlin.uuid.Uuid
-import com.slack.circuit.retained.LocalRetainedStateRegistry
-import com.slack.circuit.retained.RetainedStateRegistry
 import com.slack.circuit.retained.rememberRetained
 import org.junit.runner.RunWith
 import kotlin.test.Test
@@ -117,7 +114,7 @@ class NavigationHostTests {
             id = id2,
         )
 
-        val backstackMap = mutableStateMapOf<Uuid, BackstackEntry<String>>(
+        val backstackMap = mutableStateMapOf(
             id1 to entry1,
             id2 to entry2,
         )
@@ -129,30 +126,26 @@ class NavigationHostTests {
             override val currentEntryId get() = currentEntryId
         }
 
-        val retainedStateRegistry = RetainedStateRegistry()
-
         setContent {
-            CompositionLocalProvider(LocalRetainedStateRegistry provides retainedStateRegistry) {
-                NavigationHost(
-                    navigationState = navigationState,
-                ) { entry ->
-                    var rememberSaveableCount by rememberSaveable { mutableStateOf(0) }
-                    var rememberRetainedCount by rememberRetained { mutableStateOf(0) }
+            NavigationHost(
+                navigationState = navigationState,
+            ) { entry ->
+                var rememberSaveableCount by rememberSaveable { mutableStateOf(0) }
+                var rememberRetainedCount by rememberRetained { mutableStateOf(0) }
 
-                    Column {
-                        BasicText(
-                            "value: ${entry.value}, id: ${entry.id}, " +
-                                "rememberSaveableCount: $rememberSaveableCount, " +
-                                "rememberRetainedCount: $rememberRetainedCount",
-                        )
-                        BasicText(
-                            "+",
-                            modifier = Modifier.clickable {
-                                rememberSaveableCount++
-                                rememberRetainedCount++
-                            },
-                        )
-                    }
+                Column {
+                    BasicText(
+                        "value: ${entry.value}, id: ${entry.id}, " +
+                            "rememberSaveableCount: $rememberSaveableCount, " +
+                            "rememberRetainedCount: $rememberRetainedCount",
+                    )
+                    BasicText(
+                        "+",
+                        modifier = Modifier.clickable {
+                            rememberSaveableCount++
+                            rememberRetainedCount++
+                        },
+                    )
                 }
             }
         }
@@ -187,7 +180,7 @@ class NavigationHostTests {
             id = id2,
         )
 
-        val backstackMap = mutableStateMapOf<Uuid, BackstackEntry<String>>(
+        val backstackMap = mutableStateMapOf(
             id1 to entry1,
             id2 to entry2,
         )
@@ -199,32 +192,28 @@ class NavigationHostTests {
             override val currentEntryId get() = currentEntryId
         }
 
-        val retainedStateRegistry = RetainedStateRegistry()
-
         setContent {
-            CompositionLocalProvider(LocalRetainedStateRegistry provides retainedStateRegistry) {
-                NavigationHost(
-                    navigationState = navigationState,
-                ) { entry ->
-                    var rememberSaveableCount by rememberSaveable { mutableStateOf(0) }
-                    var rememberRetainedCount by rememberRetained(key = "rememberRetainedCount") {
-                        mutableStateOf(0)
-                    }
+            NavigationHost(
+                navigationState = navigationState,
+            ) { entry ->
+                var rememberSaveableCount by rememberSaveable { mutableStateOf(0) }
+                var rememberRetainedCount by rememberRetained(key = "rememberRetainedCount") {
+                    mutableStateOf(0)
+                }
 
-                    Column {
-                        BasicText(
-                            "value: ${entry.value}, id: ${entry.id}, " +
-                                "rememberSaveableCount: $rememberSaveableCount, " +
-                                "rememberRetainedCount: $rememberRetainedCount",
-                        )
-                        BasicText(
-                            "+",
-                            modifier = Modifier.clickable {
-                                rememberSaveableCount++
-                                rememberRetainedCount++
-                            },
-                        )
-                    }
+                Column {
+                    BasicText(
+                        "value: ${entry.value}, id: ${entry.id}, " +
+                            "rememberSaveableCount: $rememberSaveableCount, " +
+                            "rememberRetainedCount: $rememberRetainedCount",
+                    )
+                    BasicText(
+                        "+",
+                        modifier = Modifier.clickable {
+                            rememberSaveableCount++
+                            rememberRetainedCount++
+                        },
+                    )
                 }
             }
         }
@@ -267,7 +256,7 @@ class NavigationHostTests {
             id = id3,
         )
 
-        val backstackMap = mutableStateMapOf<Uuid, BackstackEntry<String>>(
+        val backstackMap = mutableStateMapOf(
             id1 to entry1,
             id2 to entry2,
             id3 to entry3,
@@ -280,32 +269,28 @@ class NavigationHostTests {
             override val currentEntryId get() = currentEntryId
         }
 
-        val retainedStateRegistry = RetainedStateRegistry()
-
         setContent {
-            CompositionLocalProvider(LocalRetainedStateRegistry provides retainedStateRegistry) {
-                NavigationHost(
-                    navigationState = navigationState,
-                ) { entry ->
-                    var rememberSaveableCount by rememberSaveable { mutableStateOf(0) }
-                    var rememberRetainedCount by rememberRetained(key = "rememberRetainedCount") {
-                        mutableStateOf(0)
-                    }
+            NavigationHost(
+                navigationState = navigationState,
+            ) { entry ->
+                var rememberSaveableCount by rememberSaveable { mutableStateOf(0) }
+                var rememberRetainedCount by rememberRetained(key = "rememberRetainedCount") {
+                    mutableStateOf(0)
+                }
 
-                    Column {
-                        BasicText(
-                            "value: ${entry.value}, id: ${entry.id}, " +
-                                "rememberSaveableCount: $rememberSaveableCount, " +
-                                "rememberRetainedCount: $rememberRetainedCount",
-                        )
-                        BasicText(
-                            "+",
-                            modifier = Modifier.clickable {
-                                rememberSaveableCount++
-                                rememberRetainedCount++
-                            },
-                        )
-                    }
+                Column {
+                    BasicText(
+                        "value: ${entry.value}, id: ${entry.id}, " +
+                            "rememberSaveableCount: $rememberSaveableCount, " +
+                            "rememberRetainedCount: $rememberRetainedCount",
+                    )
+                    BasicText(
+                        "+",
+                        modifier = Modifier.clickable {
+                            rememberSaveableCount++
+                            rememberRetainedCount++
+                        },
+                    )
                 }
             }
         }
@@ -338,8 +323,8 @@ class NavigationHostTests {
     fun navigation_host_state_is_preserved_through_recreation() = runComposeUiTest {
         val stateRestorationTester = KmpStateRestorationTester(this)
 
-        val id1 = Uuid.random()
-        val id2 = Uuid.random()
+        val id1 = Uuid.parse("00000000-0000-0000-0000-000000000000")
+        val id2 = Uuid.parse("11111111-1111-1111-1111-111111111111")
         val entry1 = BackstackEntry(
             value = "a",
             previous = null,
@@ -351,7 +336,7 @@ class NavigationHostTests {
             id = id2,
         )
 
-        val backstackMap = mutableStateMapOf<Uuid, BackstackEntry<String>>(
+        val backstackMap = mutableStateMapOf(
             id1 to entry1,
             id2 to entry2,
         )
@@ -363,30 +348,26 @@ class NavigationHostTests {
             override val currentEntryId get() = currentEntryId
         }
 
-        val retainedStateRegistry = RetainedStateRegistry()
-
         stateRestorationTester.setContent {
-            CompositionLocalProvider(LocalRetainedStateRegistry provides retainedStateRegistry) {
-                NavigationHost(
-                    navigationState = navigationState,
-                ) { entry ->
-                    var rememberSaveableCount by rememberSaveable { mutableStateOf(0) }
-                    var rememberRetainedCount by rememberRetained { mutableStateOf(0) }
+            NavigationHost(
+                navigationState = navigationState,
+            ) { entry ->
+                var rememberSaveableCount by rememberSaveable { mutableStateOf(0) }
+                var rememberRetainedCount by rememberRetained { mutableStateOf(0) }
 
-                    Column {
-                        BasicText(
-                            "value: ${entry.value}, id: ${entry.id}, " +
-                                "rememberSaveableCount: $rememberSaveableCount, " +
-                                "rememberRetainedCount: $rememberRetainedCount",
-                        )
-                        BasicText(
-                            "+",
-                            modifier = Modifier.clickable {
-                                rememberSaveableCount++
-                                rememberRetainedCount++
-                            },
-                        )
-                    }
+                Column {
+                    BasicText(
+                        "value: ${entry.value}, id: ${entry.id}, " +
+                            "rememberSaveableCount: $rememberSaveableCount, " +
+                            "rememberRetainedCount: $rememberRetainedCount",
+                    )
+                    BasicText(
+                        "+",
+                        modifier = Modifier.clickable {
+                            rememberSaveableCount++
+                            rememberRetainedCount++
+                        },
+                    )
                 }
             }
         }
@@ -401,7 +382,7 @@ class NavigationHostTests {
 
         onNodeWithText("value: b, id: $id2, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
 
-        stateRestorationTester.emulateSavedInstanceStateRestore()
+        stateRestorationTester.emulateStateRestore()
 
         currentEntryId = id1
 

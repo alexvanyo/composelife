@@ -232,7 +232,7 @@ class ModifyPreviousDestinationUseCaseTests {
         onNodeWithText("count: 0").assertExists()
         onNodeWithText("navigate back").assertExists()
 
-        stateRestorationTester.emulateSavedInstanceStateRestore()
+        stateRestorationTester.emulateStateRestore()
 
         onNodeWithText("increment previous").performClick()
 

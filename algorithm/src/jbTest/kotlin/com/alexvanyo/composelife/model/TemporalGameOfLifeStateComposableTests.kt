@@ -74,7 +74,7 @@ class TemporalGameOfLifeStateComposableTests {
         waitForIdle()
         extractedState = null
 
-        stateRestorationTester.emulateSavedInstanceStateRestore()
+        stateRestorationTester.emulateStateRestore()
         waitForIdle()
 
         val restoredState = requireNotNull(extractedState)
