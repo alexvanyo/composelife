@@ -54,7 +54,7 @@ androidxWindow = "1.4.0-beta01"
 #apiGuardian
 apiGuardian = "1.1.2"
 #circuit
-circuit = "0.25.0"
+circuit = "0.26.0"
 #coil
 coil = "3.1.0"
 #dependencyGuard
