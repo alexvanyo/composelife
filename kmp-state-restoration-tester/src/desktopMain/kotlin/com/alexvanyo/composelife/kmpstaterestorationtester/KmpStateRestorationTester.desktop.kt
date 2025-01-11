@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import com.slack.circuit.retained.RetainedStateRegistry
 import com.slack.circuit.retained.RetainedValueProvider
 
+@Suppress("TooManyFunctions")
 private class RestorationRegistryImpl(
     private val originalSaveableStateRegistry: SaveableStateRegistry,
     private val retainedStateRegistry: RetainedStateRegistry,
@@ -68,7 +69,7 @@ private class RestorationRegistryImpl(
 
     override fun saveAll() = retainedStateRegistry.saveAll()
 
-    override fun saveValue(key: String)= retainedStateRegistry.saveValue(key)
+    override fun saveValue(key: String) = retainedStateRegistry.saveValue(key)
 }
 
 internal actual fun RestorationRegistry(

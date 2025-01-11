@@ -60,7 +60,7 @@ class SealedEnumSaverTests {
         onNodeWithText("Change to Third").performClick()
         onNodeWithText("Change to Third").performClick()
 
-        stateRestorationTester.emulateSavedInstanceStateRestore()
+        stateRestorationTester.emulateStateRestore()
 
         onNodeWithText("Current Value: Third").assertExists()
     }

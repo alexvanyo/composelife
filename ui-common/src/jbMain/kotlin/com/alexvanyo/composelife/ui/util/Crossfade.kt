@@ -27,10 +27,12 @@ import androidx.compose.ui.Modifier
 fun <T> Crossfade(
     targetState: TargetState<T, *>,
     modifier: Modifier = Modifier,
+    contentKey: (T) -> Any? = { it },
     content: @Composable (T) -> Unit,
 ) = AnimatedContent(
     targetState = targetState,
     modifier = modifier,
+    contentKey = contentKey,
     content = content,
     animateInternalContentSizeChanges = false,
 )
