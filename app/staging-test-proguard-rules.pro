@@ -22,3 +22,5 @@
 
 # Added due to dependency on Material via accessibility-test-framework
 -dontwarn androidx.appcompat.graphics.drawable.DrawableWrapper
+
+-dontwarn javax.lang.model.element.Modifier
