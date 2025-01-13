@@ -26,11 +26,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
@@ -70,7 +70,11 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<TestComposeLifeApplicationC
 
         var droppedCellState: CellState? = null
 
+        lateinit var viewConfiguration: ViewConfiguration
+
         setContent {
+            viewConfiguration = LocalViewConfiguration.current
+
             Column {
                 with(cellWindowLocalEntryPoint) {
                     with(cellWindowInjectEntryPoint) {
@@ -119,23 +123,20 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<TestComposeLifeApplicationC
                 node.positionOnScreen + node.size.center.toOffset()
             }
 
-        onNodeWithTag("LoadedCellStatePreview").performTouchInput {
-            longClick()
-            val down = MotionEvent.obtain(
-                downTime,
-                downTime,
-                MotionEvent.ACTION_DOWN,
-                loadedCellStatePreviewCenter.x,
-                loadedCellStatePreviewCenter.y,
-                0,
-            ).apply {
-                source = InputDevice.SOURCE_TOUCHSCREEN
-            }
-            automation.injectInputEvent(down, true)
-            down.recycle()
+        val down = MotionEvent.obtain(
+            downTime,
+            downTime,
+            MotionEvent.ACTION_DOWN,
+            loadedCellStatePreviewCenter.x,
+            loadedCellStatePreviewCenter.y,
+            0,
+        ).apply {
+            source = InputDevice.SOURCE_TOUCHSCREEN
         }
+        automation.injectInputEvent(down, true)
+        down.recycle()
 
-        waitForIdle()
+        mainClock.advanceTimeBy(viewConfiguration.longPressTimeoutMillis + 100)
 
         val move = MotionEvent.obtain(
             downTime,
@@ -150,6 +151,8 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<TestComposeLifeApplicationC
         automation.injectInputEvent(move, true)
         move.recycle()
 
+        waitForIdle()
+
         val up = MotionEvent.obtain(
             downTime,
             SystemClock.uptimeMillis(),
@@ -163,6 +166,7 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<TestComposeLifeApplicationC
         automation.injectInputEvent(up, true)
         up.recycle()
 
+        waitForIdle()
         runCurrent()
 
         assertEquals(GliderPattern.seedCellState, droppedCellState)
