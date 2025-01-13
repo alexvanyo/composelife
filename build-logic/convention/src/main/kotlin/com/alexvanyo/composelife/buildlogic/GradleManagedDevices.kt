@@ -13,14 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// TODO: https://github.com/gradle/gradle/issues/7735
+@file:Suppress("InternalAgpApiUsage", "InternalGradleApiUsage")
 
 package com.alexvanyo.composelife.buildlogic
 
 import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.dsl.ManagedVirtualDevice
+import com.android.build.gradle.internal.tasks.ManagedDeviceInstrumentationTestTask
+import org.gradle.api.DefaultTask
 import org.gradle.api.Project
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.TaskAction
+import org.gradle.internal.os.OperatingSystem
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.invoke
+import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.withType
+import org.gradle.process.ExecOperations
+import org.gradle.work.DisableCachingByDefault
+import java.io.ByteArrayOutputStream
+import java.nio.charset.Charset
+import javax.inject.Inject
 
 data class GradleManagedDeviceConfig(
     val device: AndroidDevice,
@@ -164,6 +179,52 @@ fun Project.configureGradleManagedDevices(
                     }
                 }
             }
+    }
+
+    if (OperatingSystem.current().isLinux) {
+        tasks.withType<ManagedDeviceInstrumentationTestTask> {
+            val id = path
+            // Manually kill the qemu process associated with this test task to reclaim resources
+            finalizedBy(
+                tasks.register<KillEmulatorProcessesTask>("${name}KillEmulatorProcesses") {
+                    this.id.set(id)
+                },
+            )
+        }
+    }
+}
+
+@DisableCachingByDefault
+abstract class KillEmulatorProcessesTask : DefaultTask() {
+
+    @get:Input
+    abstract val id: Property<String>
+
+    @get:Inject
+    abstract val execOperations: ExecOperations
+
+    @TaskAction
+    fun taskAction() {
+        val stream = ByteArrayOutputStream()
+        // List all processes
+        execOperations.exec {
+            commandLine("ps", "-ax")
+            standardOutput = stream
+        }
+        val emulatorPidsToKill = stream
+            .toString(Charset.forName("UTF-8"))
+            .lineSequence()
+            // Find processes with the id that matches the path
+            .filter { line -> line.contains(id.get()) }
+            // Extract the process id
+            .map { it.trim().split(Regex("""\s+""")).first() }
+            .toList()
+        emulatorPidsToKill.forEach { pid ->
+            execOperations.exec {
+                commandLine("kill", "-9", pid)
+            }
+        }
+        logger.info("Killed qemu process(es) for ${id.get()}: $emulatorPidsToKill")
     }
 }
 
