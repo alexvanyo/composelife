@@ -20,7 +20,7 @@ androidxCore = "1.16.0-alpha01"
 #androidxCoreSplashscreen
 androidxCoreSplashscreen = "1.2.0-alpha02"
 #androidxDataStore
-androidxDataStore = "1.1.1"
+androidxDataStore = "1.1.2"
 #androidxLifecycle
 androidxLifecycle = "2.9.0-alpha08"
 #androidxLintGradle
