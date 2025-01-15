@@ -150,8 +150,8 @@ com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
 com.google.j2objc:j2objc-annotations:2.8
 com.slack.circuit:circuit-retained-android:0.25.0
 com.slack.circuit:circuit-retained:0.25.0
-com.squareup.okio:okio-jvm:3.10.1
-com.squareup.okio:okio:3.10.1
+com.squareup.okio:okio-jvm:3.10.2
+com.squareup.okio:okio:3.10.2
 com.squareup.wire:wire-runtime-jvm:5.2.1
 com.squareup.wire:wire-runtime:5.2.1
 me.tatarka.inject:kotlin-inject-runtime-jvm:0.7.2
