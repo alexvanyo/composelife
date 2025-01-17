@@ -45,6 +45,8 @@ import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.openglrenderer.GameOfLifeShape
 import com.alexvanyo.composelife.openglrenderer.GameOfLifeShapeParameters
+import com.alexvanyo.composelife.openglrenderer.checkOpenGLError
+import com.alexvanyo.composelife.openglrenderer.checkOpenGLFramebufferStatus
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import kotlinx.coroutines.flow.collect
@@ -230,25 +232,5 @@ private fun OpenGLRepro() {
 
             renderTarget.requestRender()
         }
-    }
-}
-
-/**
- * Throws if there has been an OpenGL error.
- */
-fun checkOpenGLError() {
-    val error = GLES20.glGetError()
-    if (error != GLES20.GL_NO_ERROR) {
-        error("OpenGL error: $error")
-    }
-}
-
-/**
- * Throws if the framebuffer is not complete.
- */
-fun checkOpenGLFramebufferStatus() {
-    val status = GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER)
-    if (status != GLES20.GL_FRAMEBUFFER_COMPLETE) {
-        error("OpenGL framebuffer error: $status")
     }
 }
