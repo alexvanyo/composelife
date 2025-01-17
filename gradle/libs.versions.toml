@@ -6,7 +6,7 @@ androidGradlePlugin = "8.7.3"
 #androidTools
 androidTools = "31.7.3"
 #androidxActivity
-androidxActivity = "1.10.0-rc01"
+androidxActivity = "1.10.0"
 #androidxAnnotation
 androidxAnnotation = "1.9.1"
 #androidxAppcompat
