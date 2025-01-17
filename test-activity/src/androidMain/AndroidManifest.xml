@@ -14,15 +14,18 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <application>
         <activity
             android:name="androidx.activity.ComponentActivity"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
-            android:theme="@style/Theme.ComposeLife" />
+            android:theme="@style/Theme.ComposeLife"
+            tools:replace="android:theme" />
         <activity
             android:name="androidx.appcompat.app.AppCompatActivity"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
-            android:theme="@style/Theme.ComposeLife" />
+            android:theme="@style/Theme.ComposeLife"
+            tools:replace="android:theme" />
     </application>
 </manifest>
