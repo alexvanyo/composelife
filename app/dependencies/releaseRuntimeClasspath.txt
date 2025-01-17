@@ -75,7 +75,7 @@ androidx.emoji2:emoji2-views-helper:1.4.0
 androidx.emoji2:emoji2:1.4.0
 androidx.exifinterface:exifinterface:1.4.1
 androidx.fragment:fragment:1.5.4
-androidx.graphics:graphics-core:1.0.1
+androidx.graphics:graphics-core:1.0.2
 androidx.graphics:graphics-path:1.0.1
 androidx.graphics:graphics-shapes-android:1.1.0
 androidx.graphics:graphics-shapes:1.1.0
