@@ -197,7 +197,7 @@ class InlineSpeedPaneTests {
                 hasText(resolver(Strings.TargetStepsPerSecondLabel)),
         )
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("")))
-            // TODO: .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
             .performImeAction()
 
         onNode(
@@ -349,7 +349,7 @@ class InlineSpeedPaneTests {
                 hasText(resolver(Strings.GenerationsPerStepLabel)),
         )
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("")))
-            // TODO: .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
             .performImeAction()
 
         onNode(
