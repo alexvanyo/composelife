@@ -53,6 +53,7 @@ internal fun CollapsedRunningActionControlRowPreview() {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
 internal fun CollapsedPausedActionControlRowPreview() {
@@ -80,6 +81,7 @@ internal fun CollapsedPausedActionControlRowPreview() {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
 internal fun ExpandedActionControlRowPreview() {
@@ -107,6 +109,7 @@ internal fun ExpandedActionControlRowPreview() {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
 internal fun ViewportTrackingActionControlRowPreview() {
@@ -134,6 +137,7 @@ internal fun ViewportTrackingActionControlRowPreview() {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
 internal fun ImmersiveModeActionControlRowPreview() {
@@ -161,6 +165,7 @@ internal fun ImmersiveModeActionControlRowPreview() {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
 internal fun SelectingBoxActionControlRowPreview() {
@@ -193,6 +198,7 @@ internal fun SelectingBoxActionControlRowPreview() {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
 internal fun SelectionActionControlRowPreview() {
@@ -223,6 +229,7 @@ internal fun SelectionActionControlRowPreview() {
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
 internal fun ElevatedExpandedActionControlRowPreview() {

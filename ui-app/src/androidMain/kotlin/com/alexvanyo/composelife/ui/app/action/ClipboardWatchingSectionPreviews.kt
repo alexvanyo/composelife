@@ -46,6 +46,7 @@ internal fun ClipboardWatchingSectionOnboardingPreview(modifier: Modifier = Modi
     }
 }
 
+@ShowkaseComposable
 @ThemePreviews
 @Composable
 private fun ClipboardWatchingSectionDisabledPreview(modifier: Modifier = Modifier) {
