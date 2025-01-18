@@ -47,11 +47,12 @@ class DiskPreferencesDataStore(
     fileSystem: FileSystem,
     path: @PreferencesProtoPath Lazy<Path>,
     scope: @PreferencesCoroutineScope CoroutineScope,
-) : PreferencesDataStore,
-    DataStore<PreferencesProto> by DataStoreFactory.create(
+) : PreferencesDataStore {
+    override val dataStore: DataStore<PreferencesProto> = DataStoreFactory.create(
         storage = OkioStorage(
             fileSystem = fileSystem,
-            serializer = object : OkioSerializer<PreferencesProto> {
+            serializer =
+            object : OkioSerializer<PreferencesProto> {
                 override val defaultValue: PreferencesProto
                     get() = PreferencesProto()
 
@@ -88,3 +89,4 @@ class DiskPreferencesDataStore(
         ),
         scope = scope,
     )
+}
