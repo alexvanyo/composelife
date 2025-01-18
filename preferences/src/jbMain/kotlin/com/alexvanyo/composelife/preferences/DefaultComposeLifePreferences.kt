@@ -41,8 +41,9 @@ import me.tatarka.inject.annotations.Inject
 @Singleton
 @Inject
 class DefaultComposeLifePreferences(
-    private val dataStore: PreferencesDataStore,
+    preferencesDataStore: PreferencesDataStore,
 ) : ComposeLifePreferences, Updatable {
+    private val dataStore = preferencesDataStore.dataStore
 
     override var loadedPreferencesState:
         ResourceState<LoadedComposeLifePreferences> by mutableStateOf(ResourceState.Loading)
