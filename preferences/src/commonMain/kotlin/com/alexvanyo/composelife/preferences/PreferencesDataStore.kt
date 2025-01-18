@@ -19,4 +19,6 @@ package com.alexvanyo.composelife.preferences
 import androidx.datastore.core.DataStore
 import com.alexvanyo.composelife.preferences.proto.PreferencesProto
 
-interface PreferencesDataStore : DataStore<PreferencesProto>
+interface PreferencesDataStore {
+    val dataStore: DataStore<PreferencesProto>
+}
