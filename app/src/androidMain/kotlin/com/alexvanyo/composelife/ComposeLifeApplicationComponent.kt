@@ -33,7 +33,7 @@ import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
 import com.alexvanyo.composelife.model.di.CellStateParserModule
 import com.alexvanyo.composelife.preferences.di.PreferencesComponent
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
-import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleComponent
+import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleModule
 import com.alexvanyo.composelife.random.di.RandomModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.ui.cells.di.CellsImageLoadingComponent
@@ -48,7 +48,7 @@ abstract class ComposeLifeApplicationComponent(
     application: Application,
 ) : ApplicationComponent<ComposeLifeApplicationEntryPoint>(application),
     AppCompatSyncComponent,
-    ProcessLifecycleComponent,
+    ProcessLifecycleModule,
     AlgorithmComponent,
     DatabaseComponent,
     RepositoryComponent,
