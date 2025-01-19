@@ -22,16 +22,17 @@ import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.alexvanyo.composelife.database.ComposeLifeDatabase
 import com.alexvanyo.composelife.scopes.ApplicationContext
-import com.alexvanyo.composelife.scopes.Singleton
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.awaitCancellation
 import me.tatarka.inject.annotations.IntoSet
 import me.tatarka.inject.annotations.Provides
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 actual interface DriverComponent {
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     fun providesDriver(
         context: @ApplicationContext Context,
     ): SqlDriver =
@@ -42,7 +43,7 @@ actual interface DriverComponent {
         )
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     @IntoSet
     fun providesDriverClosingIntoUpdatable(
         driver: SqlDriver,

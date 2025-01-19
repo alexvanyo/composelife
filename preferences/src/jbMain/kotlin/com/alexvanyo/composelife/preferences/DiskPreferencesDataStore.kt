@@ -23,7 +23,6 @@ import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.core.okio.OkioStorage
 import com.alexvanyo.composelife.preferences.proto.PreferencesProto
-import com.alexvanyo.composelife.scopes.Singleton
 import kotlinx.coroutines.CoroutineScope
 import me.tatarka.inject.annotations.Inject
 import me.tatarka.inject.annotations.Qualifier
@@ -31,6 +30,8 @@ import okio.BufferedSink
 import okio.BufferedSource
 import okio.FileSystem
 import okio.Path
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 import java.io.IOException
 
 @Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
@@ -41,7 +42,7 @@ annotation class PreferencesProtoPath
 @Qualifier
 annotation class PreferencesCoroutineScope
 
-@Singleton
+@SingleIn(AppScope::class)
 @Inject
 class DiskPreferencesDataStore(
     fileSystem: FileSystem,

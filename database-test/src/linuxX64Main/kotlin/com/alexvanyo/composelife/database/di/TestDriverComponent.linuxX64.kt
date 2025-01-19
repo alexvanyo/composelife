@@ -32,7 +32,7 @@ import me.tatarka.inject.annotations.Provides
 actual interface TestDriverComponent {
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     fun providesDriver(): SqlDriver {
         val schema = ComposeLifeDatabase.Schema
         return NativeSqliteDriver(
@@ -58,7 +58,7 @@ actual interface TestDriverComponent {
     }
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     @IntoSet
     fun providesDriverClosingIntoUpdatable(
         driver: SqlDriver,

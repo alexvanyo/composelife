@@ -23,12 +23,13 @@ import com.alexvanyo.composelife.preferences.DiskPreferencesDataStore
 import com.alexvanyo.composelife.preferences.PreferencesCoroutineScope
 import com.alexvanyo.composelife.preferences.PreferencesDataStore
 import com.alexvanyo.composelife.preferences.PreferencesProtoPath
-import com.alexvanyo.composelife.scopes.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import me.tatarka.inject.annotations.Provides
 import okio.FileSystem
 import okio.Path
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 actual interface PreferencesDataStoreComponent :
     PreferencesDataStoreModule, FileSystemModule {
@@ -42,7 +43,7 @@ actual interface PreferencesDataStoreComponent :
         FileSystem.SYSTEM_TEMPORARY_DIRECTORY.resolve("preferences.pb")
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     @PreferencesCoroutineScope
     @Suppress("InjectDispatcher") // Dispatchers are injected via dispatchers
     fun providesPreferencesCoroutineScope(

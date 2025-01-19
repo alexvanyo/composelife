@@ -129,3 +129,7 @@ org.jetbrains:annotations:23.0.0
 org.jspecify:jspecify:1.0.0
 org.slf4j:slf4j-api:1.7.36
 org.xerial:sqlite-jdbc:3.45.2.0
+software.amazon.lastmile.kotlin.inject.anvil:runtime-jvm:0.1.2
+software.amazon.lastmile.kotlin.inject.anvil:runtime-optional-jvm:0.1.2
+software.amazon.lastmile.kotlin.inject.anvil:runtime-optional:0.1.2
+software.amazon.lastmile.kotlin.inject.anvil:runtime:0.1.2
