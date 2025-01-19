@@ -21,7 +21,6 @@ import com.alexvanyo.composelife.algorithm.di.AlgorithmComponent
 import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
 import com.alexvanyo.composelife.dispatchers.di.DispatchersComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.filesystem.di.FileSystemComponent
 import com.alexvanyo.composelife.preferences.di.PreferencesComponent
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleModule
@@ -40,7 +39,6 @@ abstract class ComposeLifeApplicationComponent(
     AlgorithmComponent,
     DispatchersComponent,
     PreferencesComponent,
-    FileSystemComponent,
     UpdatableModule {
 
     override val entryPoint: ComposeLifeApplicationEntryPoint get() =

@@ -20,8 +20,10 @@ import me.tatarka.inject.annotations.Provides
 import okio.FileSystem
 import okio.fakefilesystem.FakeFileSystem
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
+@ContributesTo(AppScope::class, replaces = [FileSystemComponent::class])
 interface TestFileSystemComponent : FileSystemModule {
     @Provides
     @SingleIn(AppScope::class)
