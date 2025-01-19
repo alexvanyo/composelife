@@ -24,16 +24,19 @@ import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.filesystem.di.FileSystemComponent
 import com.alexvanyo.composelife.preferences.di.PreferencesComponent
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
-import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleComponent
+import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
-import me.tatarka.inject.annotations.Component
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-@Component
+@MergeComponent(AppScope::class)
+@SingleIn(AppScope::class)
 abstract class ComposeLifeApplicationComponent(
     application: Application,
 ) : ApplicationComponent<ComposeLifeApplicationEntryPoint>(application),
-    ProcessLifecycleComponent,
+    ProcessLifecycleModule,
     AlgorithmComponent,
     DispatchersComponent,
     PreferencesComponent,

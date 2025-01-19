@@ -20,8 +20,10 @@ import androidx.lifecycle.LifecycleOwner
 import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
 import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
+@ContributesTo(AppScope::class)
 interface ProcessLifecycleComponent : ProcessLifecycleModule {
 
     @SingleIn(AppScope::class)
