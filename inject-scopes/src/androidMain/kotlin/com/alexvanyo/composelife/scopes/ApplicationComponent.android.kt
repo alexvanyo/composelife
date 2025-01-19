@@ -20,9 +20,13 @@ package com.alexvanyo.composelife.scopes
 import android.app.Application
 import android.content.Context
 import me.tatarka.inject.annotations.Provides
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @Suppress("UnnecessaryAbstractClass")
-@Singleton
+@SingleIn(AppScope::class)
+@MergeComponent(AppScope::class)
 actual abstract class ApplicationComponent<E>(
     @get:Provides val application: Application,
 ) {

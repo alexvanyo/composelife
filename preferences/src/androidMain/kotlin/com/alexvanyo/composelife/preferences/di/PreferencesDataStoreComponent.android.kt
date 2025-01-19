@@ -26,12 +26,13 @@ import com.alexvanyo.composelife.preferences.PreferencesCoroutineScope
 import com.alexvanyo.composelife.preferences.PreferencesDataStore
 import com.alexvanyo.composelife.preferences.PreferencesProtoPath
 import com.alexvanyo.composelife.scopes.ApplicationContext
-import com.alexvanyo.composelife.scopes.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import me.tatarka.inject.annotations.Provides
 import okio.Path
 import okio.Path.Companion.toOkioPath
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 actual interface PreferencesDataStoreComponent :
     PreferencesDataStoreModule,
@@ -47,7 +48,7 @@ actual interface PreferencesDataStoreComponent :
     ): Path = context.dataStoreFile("preferences.pb").absoluteFile.toOkioPath()
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     @PreferencesCoroutineScope
     @Suppress("InjectDispatcher") // Dispatchers are injected via dispatchers
     fun providesPreferencesCoroutineScope(

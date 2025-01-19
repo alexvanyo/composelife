@@ -18,9 +18,12 @@
 package com.alexvanyo.composelife.scopes
 
 import me.tatarka.inject.annotations.Component
+import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @Suppress("UnnecessaryAbstractClass")
-@Ui
+@SingleIn(UiScope::class)
+@MergeComponent(UiScope::class)
 actual abstract class UiComponent<T : ApplicationComponent<*>, E>(
     @Component open val applicationComponent: T,
 ) {

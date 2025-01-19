@@ -29,7 +29,6 @@ import com.alexvanyo.composelife.preferences.proto.QuickAccessSettingProto
 import com.alexvanyo.composelife.preferences.proto.ToolConfigProto
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.asResourceState
-import com.alexvanyo.composelife.scopes.Singleton
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.flow.collect
@@ -37,8 +36,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retry
 import me.tatarka.inject.annotations.Inject
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-@Singleton
+@SingleIn(AppScope::class)
 @Inject
 class DefaultComposeLifePreferences(
     preferencesDataStore: PreferencesDataStore,
