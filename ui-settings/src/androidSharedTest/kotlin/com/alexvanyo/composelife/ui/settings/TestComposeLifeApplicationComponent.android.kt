@@ -18,7 +18,6 @@
 package com.alexvanyo.composelife.ui.settings
 
 import android.app.Application
-import com.alexvanyo.composelife.algorithm.di.AlgorithmComponent
 import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
 import com.alexvanyo.composelife.database.di.TestDatabaseComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
@@ -38,7 +37,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 actual abstract class TestComposeLifeApplicationComponent(
     application: Application,
 ) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
-    AlgorithmComponent,
+    AlgorithmModule,
     TestDatabaseComponent,
     DispatchersModule,
     PreferencesModule,
