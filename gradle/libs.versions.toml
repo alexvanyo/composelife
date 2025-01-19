@@ -75,6 +75,8 @@ kermit = "2.0.5"
 kotlin = "2.1.20-Beta2"
 #kotlinInject
 kotlinInject = "0.7.2"
+#kotlinInjectAnvil
+kotlinInjectAnvil = "0.1.2"
 #kotlinxCollectionsImmutable
 kotlinxCollectionsImmutable = "0.3.8"
 #kotlinxCoroutines
@@ -208,6 +210,9 @@ kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.re
 kotlin-test-junit = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit", version.ref = "kotlin" }
 kotlinInject-ksp = { group = "me.tatarka.inject", name = "kotlin-inject-compiler-ksp", version.ref = "kotlinInject" }
 kotlinInject-runtime = { group = "me.tatarka.inject", name = "kotlin-inject-runtime", version.ref = "kotlinInject" }
+kotlinInjectAnvil-ksp = { group = "software.amazon.lastmile.kotlin.inject.anvil", name = "compiler", version.ref = "kotlinInjectAnvil" }
+kotlinInjectAnvil-runtime = { group = "software.amazon.lastmile.kotlin.inject.anvil", name = "runtime", version.ref = "kotlinInjectAnvil" }
+kotlinInjectAnvil-runtimeOptional = { group = "software.amazon.lastmile.kotlin.inject.anvil", name = "runtime-optional", version.ref = "kotlinInjectAnvil" }
 kotlinx-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }

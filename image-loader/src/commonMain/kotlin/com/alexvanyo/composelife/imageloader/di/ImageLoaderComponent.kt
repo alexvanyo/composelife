@@ -22,12 +22,13 @@ import coil3.disk.DiskCache
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.filesystem.di.FileSystemModule
-import com.alexvanyo.composelife.scopes.Singleton
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.awaitCancellation
 import me.tatarka.inject.annotations.IntoSet
 import me.tatarka.inject.annotations.Provides
 import okio.FileSystem
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 interface ImageLoaderComponent :
     ImageLoaderModule,
@@ -39,7 +40,7 @@ interface ImageLoaderComponent :
     ImageLoaderKeyerComponent {
 
     @Suppress("LongParameterList")
-    @Singleton
+    @SingleIn(AppScope::class)
     @Provides
     fun providesImageLoader(
         context: PlatformContext,
@@ -60,7 +61,7 @@ interface ImageLoaderComponent :
         .build()
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     @IntoSet
     fun providesImagerLoaderShutdownIntoUpdatable(
         imageLoader: ImageLoader,

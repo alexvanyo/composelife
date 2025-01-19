@@ -16,19 +16,20 @@
 
 package com.alexvanyo.composelife.updatable.di
 
-import com.alexvanyo.composelife.scopes.Singleton
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.awaitCancellation
 import me.tatarka.inject.annotations.IntoSet
 import me.tatarka.inject.annotations.Provides
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 interface UpdatableModule {
 
-    @get:Singleton
+    @get:SingleIn(AppScope::class)
     val updatables: Set<Updatable>
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     @IntoSet
     fun providesEmptyUpdatable(): Updatable = object : Updatable {
         override suspend fun update(): Nothing = awaitCancellation()
