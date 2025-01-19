@@ -23,4 +23,4 @@ actual fun TestComposeLifeUiComponent.Companion.createComponent(
     applicationComponent: TestComposeLifeApplicationComponent,
     uiComponentArguments: UiComponentArguments,
 ): TestComposeLifeUiComponent =
-    TestComposeLifeUiComponent.Companion.create(applicationComponent, uiComponentArguments.activity)
+    TestComposeLifeUiComponent::class.create(applicationComponent, uiComponentArguments.activity)

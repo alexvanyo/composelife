@@ -31,14 +31,14 @@ class ComposeLifeApplication : Application(), ApplicationComponentOwner {
     override lateinit var applicationComponent: ComposeLifeApplicationComponent
 
     override val uiComponentFactory: (UiComponentArguments) -> ComposeLifeUiComponent =
-        { ComposeLifeUiComponent.create(applicationComponent, it.activity) }
+        { ComposeLifeUiComponent::class.create(applicationComponent, it.activity) }
 
     override fun onCreate() {
         super.onCreate()
 
         initStrictModeIfNeeded()
 
-        applicationComponent = ComposeLifeApplicationComponent.create(this)
+        applicationComponent = ComposeLifeApplicationComponent::class.create(this)
 
         val processLifecycleOwner = applicationComponent.processLifecycleOwner
         val updatables = applicationComponent.updatables

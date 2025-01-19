@@ -72,4 +72,4 @@ actual abstract class TestComposeLifeApplicationComponent :
 }
 
 actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent =
-    TestComposeLifeApplicationComponent.create()
+    TestComposeLifeApplicationComponent::class.create()
