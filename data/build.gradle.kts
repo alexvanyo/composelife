@@ -57,9 +57,21 @@ kotlin {
         }
         val desktopMain by getting {
             dependsOn(jbMain)
+            configurations["kspDesktop"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                )
+            )
         }
         val androidMain by getting {
             dependsOn(jbMain)
+            configurations["kspAndroid"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                )
+            )
             dependencies {
                 api(libs.kotlinx.coroutines.android)
             }
