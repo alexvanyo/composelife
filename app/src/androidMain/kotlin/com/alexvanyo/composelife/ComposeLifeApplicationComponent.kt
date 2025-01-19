@@ -24,7 +24,6 @@ import com.alexvanyo.composelife.clock.di.ClockModule
 import com.alexvanyo.composelife.data.di.RepositoryComponent
 import com.alexvanyo.composelife.data.di.RepositoryModule
 import com.alexvanyo.composelife.database.di.DatabaseComponent
-import com.alexvanyo.composelife.dispatchers.di.DispatchersComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.donotkeepprocess.di.DoNotKeepProcessComponent
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderComponent
@@ -51,7 +50,7 @@ abstract class ComposeLifeApplicationComponent(
     AlgorithmComponent,
     DatabaseComponent,
     RepositoryComponent,
-    DispatchersComponent,
+    DispatchersModule,
     ClockModule,
     RandomModule,
     PreferencesComponent,

@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.ui.cells
 
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
+import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderComponent
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
 import com.alexvanyo.composelife.model.di.CellStateParserModule
@@ -29,7 +29,8 @@ import com.alexvanyo.composelife.updatable.di.UpdatableModule
 
 expect abstract class TestComposeLifeApplicationComponent :
     ApplicationComponent<TestComposeLifeApplicationEntryPoint>,
-    TestDispatchersComponent,
+    DispatchersModule,
+    TestDispatcherModule,
     TestPreferencesComponent,
     ImageLoaderComponent,
     CellsImageLoadingComponent,

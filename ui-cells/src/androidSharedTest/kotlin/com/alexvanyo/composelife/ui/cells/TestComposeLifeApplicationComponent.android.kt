@@ -19,7 +19,7 @@ package com.alexvanyo.composelife.ui.cells
 
 import android.app.Application
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
+import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderComponent
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
 import com.alexvanyo.composelife.model.di.CellStateParserModule
@@ -37,7 +37,8 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 actual abstract class TestComposeLifeApplicationComponent(
     application: Application,
 ) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
-    TestDispatchersComponent,
+    DispatchersModule,
+    TestDispatcherModule,
     TestPreferencesComponent,
     ImageLoaderComponent,
     CellsImageLoadingComponent,

@@ -19,7 +19,6 @@ package com.alexvanyo.composelife.wear
 import android.app.Application
 import com.alexvanyo.composelife.algorithm.di.AlgorithmComponent
 import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
-import com.alexvanyo.composelife.dispatchers.di.DispatchersComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.preferences.di.PreferencesComponent
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
@@ -37,7 +36,7 @@ abstract class ComposeLifeApplicationComponent(
 ) : ApplicationComponent<ComposeLifeApplicationEntryPoint>(application),
     ProcessLifecycleModule,
     AlgorithmComponent,
-    DispatchersComponent,
+    DispatchersModule,
     PreferencesComponent,
     UpdatableModule {
 

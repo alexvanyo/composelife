@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,15 @@
 
 package com.alexvanyo.composelife.dispatchers.di
 
-import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.dispatchers.DefaultComposeLifeDispatchers
-import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
 
-@ContributesTo(AppScope::class)
-interface DispatchersComponent : DispatchersModule {
-    val DefaultComposeLifeDispatchers.bind: ComposeLifeDispatchers
-        @Provides get() = this
+interface TestDispatcherModule {
+
+    @GeneralTestDispatcher
+    val generalTestDispatcher: TestDispatcher
+
+    @CellTickerTestDispatcher
+    val cellTickerTestDispatcher: TestDispatcher
 }
