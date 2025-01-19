@@ -18,7 +18,10 @@ package com.alexvanyo.composelife.filesystem.di
 
 import me.tatarka.inject.annotations.Provides
 import okio.FileSystem
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 
+@ContributesTo(AppScope::class)
 interface FileSystemComponent : FileSystemModule {
     @Provides
     fun providesFileSystem(): FileSystem = FileSystem.SYSTEM

@@ -24,7 +24,6 @@ import com.alexvanyo.composelife.data.di.RepositoryModule
 import com.alexvanyo.composelife.database.di.DatabaseComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.filesystem.di.FileSystemComponent
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderComponent
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
 import com.alexvanyo.composelife.model.di.CellStateParserModule
@@ -51,7 +50,6 @@ abstract class ComposeLifeApplicationComponent :
     PreferencesComponent,
     ImageLoaderComponent,
     CellsImageLoadingComponent,
-    FileSystemComponent,
     UpdatableModule,
     CellStateParserModule {
 
