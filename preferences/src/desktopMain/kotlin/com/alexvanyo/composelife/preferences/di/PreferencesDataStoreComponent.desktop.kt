@@ -29,8 +29,10 @@ import me.tatarka.inject.annotations.Provides
 import okio.FileSystem
 import okio.Path
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
+@ContributesTo(AppScope::class)
 actual interface PreferencesDataStoreComponent :
     PreferencesDataStoreModule, FileSystemModule {
 

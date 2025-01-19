@@ -20,8 +20,10 @@ import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
+@ContributesTo(AppScope::class, replaces = [PreferencesComponent::class, PreferencesDataStoreComponent::class])
 interface TestPreferencesComponent : PreferencesModule {
 
     @SingleIn(AppScope::class)

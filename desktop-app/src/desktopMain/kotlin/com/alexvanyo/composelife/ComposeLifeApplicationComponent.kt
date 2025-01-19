@@ -26,7 +26,6 @@ import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderComponent
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
 import com.alexvanyo.composelife.model.di.CellStateParserModule
-import com.alexvanyo.composelife.preferences.di.PreferencesComponent
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.random.di.RandomModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
@@ -46,7 +45,7 @@ abstract class ComposeLifeApplicationComponent :
     DispatchersModule,
     ClockModule,
     RandomModule,
-    PreferencesComponent,
+    PreferencesModule,
     ImageLoaderComponent,
     CellsImageLoadingComponent,
     UpdatableModule,
