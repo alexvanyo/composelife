@@ -19,7 +19,6 @@ package com.alexvanyo.composelife.ui.app
 
 import com.alexvanyo.composelife.algorithm.di.AlgorithmComponent
 import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
-import com.alexvanyo.composelife.clock.di.ClockComponent
 import com.alexvanyo.composelife.clock.di.ClockModule
 import com.alexvanyo.composelife.data.di.RepositoryComponent
 import com.alexvanyo.composelife.data.di.RepositoryModule
@@ -37,9 +36,12 @@ import com.alexvanyo.composelife.random.di.RandomModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.ui.cells.di.CellsImageLoadingComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
-import me.tatarka.inject.annotations.Component
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-@Component
+@MergeComponent(AppScope::class)
+@SingleIn(AppScope::class)
 actual abstract class TestComposeLifeApplicationComponent :
     ApplicationComponent<TestComposeLifeApplicationEntryPoint>(),
     AlgorithmComponent,
@@ -48,7 +50,7 @@ actual abstract class TestComposeLifeApplicationComponent :
     TestDispatchersComponent,
     TestPreferencesComponent,
     RandomComponent,
-    ClockComponent,
+    ClockModule,
     ImageLoaderComponent,
     CellsImageLoadingComponent,
     TestFileSystemComponent,
