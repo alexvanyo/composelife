@@ -18,7 +18,6 @@ package com.alexvanyo.composelife.ui.app
 
 import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
 import com.alexvanyo.composelife.clock.di.ClockModule
-import com.alexvanyo.composelife.data.di.RepositoryComponent
 import com.alexvanyo.composelife.data.di.RepositoryModule
 import com.alexvanyo.composelife.database.di.TestDatabaseComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
@@ -35,7 +34,7 @@ import com.alexvanyo.composelife.updatable.di.UpdatableModule
 expect abstract class TestComposeLifeApplicationComponent :
     ApplicationComponent<TestComposeLifeApplicationEntryPoint>,
     AlgorithmModule,
-    RepositoryComponent,
+    RepositoryModule,
     TestDatabaseComponent,
     DispatchersModule,
     TestDispatcherModule,
