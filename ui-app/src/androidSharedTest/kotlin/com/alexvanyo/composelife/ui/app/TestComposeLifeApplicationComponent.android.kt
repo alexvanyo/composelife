@@ -18,7 +18,6 @@
 package com.alexvanyo.composelife.ui.app
 
 import android.app.Application
-import com.alexvanyo.composelife.algorithm.di.AlgorithmComponent
 import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
 import com.alexvanyo.composelife.clock.di.ClockModule
 import com.alexvanyo.composelife.data.di.RepositoryComponent
@@ -43,7 +42,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 actual abstract class TestComposeLifeApplicationComponent(
     application: Application,
 ) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
-    AlgorithmComponent,
+    AlgorithmModule,
     RepositoryComponent,
     TestDatabaseComponent,
     DispatchersModule,

@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife
 
 import android.app.Application
-import com.alexvanyo.composelife.algorithm.di.AlgorithmComponent
 import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
 import com.alexvanyo.composelife.appcompatsync.di.AppCompatSyncComponent
 import com.alexvanyo.composelife.clock.di.ClockModule
@@ -46,7 +45,7 @@ abstract class ComposeLifeApplicationComponent(
 ) : ApplicationComponent<ComposeLifeApplicationEntryPoint>(application),
     AppCompatSyncComponent,
     ProcessLifecycleModule,
-    AlgorithmComponent,
+    AlgorithmModule,
     DatabaseComponent,
     RepositoryComponent,
     DispatchersModule,
