@@ -17,11 +17,9 @@
 package com.alexvanyo.composelife.scopes
 
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @SingleIn(AppScope::class)
-@MergeComponent(AppScope::class)
 expect abstract class ApplicationComponent<E> {
     abstract val entryPoint: E
 }

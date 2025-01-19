@@ -70,7 +70,10 @@ kotlin {
             }
         }
         val androidMain by getting {
-            configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
+            configurations["kspAndroid"].dependencies.addAll(listOf(
+                libs.kotlinInject.ksp.get(),
+                libs.kotlinInjectAnvil.ksp.get(),
+            ))
             configurations["baselineProfile"].dependencies.add(projects.appBaselineProfileGenerator)
             dependencies {
                 implementation(libs.androidx.activityCompose)
@@ -113,10 +116,16 @@ kotlin {
             }
         }
         val androidUnitTest by getting {
-            configurations["kspAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
+            configurations["kspAndroidTest"].dependencies.addAll(listOf(
+                libs.kotlinInject.ksp.get(),
+                libs.kotlinInjectAnvil.ksp.get(),
+            ))
         }
         val androidInstrumentedTest by getting {
-            configurations["kspAndroidAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
+            configurations["kspAndroidAndroidTest"].dependencies.addAll(listOf(
+                libs.kotlinInject.ksp.get(),
+                libs.kotlinInjectAnvil.ksp.get(),
+            ))
             dependencies {
                 compileOnly(libs.apiGuardian.api)
                 compileOnly(libs.google.autoValue.annotations)
