@@ -21,8 +21,11 @@ import com.alexvanyo.composelife.preferences.DefaultComposeLifePreferences
 import com.alexvanyo.composelife.updatable.Updatable
 import me.tatarka.inject.annotations.IntoSet
 import me.tatarka.inject.annotations.Provides
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 
-interface PreferencesComponent : PreferencesModule, PreferencesDataStoreComponent {
+@ContributesTo(AppScope::class)
+interface PreferencesComponent : PreferencesModule {
 
     val DefaultComposeLifePreferences.bindComposeLifePreferences: ComposeLifePreferences
         @Provides get() = this
