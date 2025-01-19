@@ -30,7 +30,6 @@ import com.alexvanyo.composelife.imageloader.di.ImageLoaderComponent
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
 import com.alexvanyo.composelife.model.di.CellStateParserModule
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
-import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.random.di.RandomModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.ui.cells.di.CellsImageLoadingComponent
@@ -49,7 +48,7 @@ actual abstract class TestComposeLifeApplicationComponent(
     TestDatabaseComponent,
     DispatchersModule,
     TestDispatcherModule,
-    TestPreferencesComponent,
+    PreferencesModule,
     RandomModule,
     ClockModule,
     ImageLoaderComponent,

@@ -20,7 +20,6 @@ import android.app.Application
 import com.alexvanyo.composelife.algorithm.di.AlgorithmComponent
 import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.preferences.di.PreferencesComponent
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
@@ -37,7 +36,7 @@ abstract class ComposeLifeApplicationComponent(
     ProcessLifecycleModule,
     AlgorithmComponent,
     DispatchersModule,
-    PreferencesComponent,
+    PreferencesModule,
     UpdatableModule {
 
     override val entryPoint: ComposeLifeApplicationEntryPoint get() =
