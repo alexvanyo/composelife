@@ -18,9 +18,11 @@ package com.alexvanyo.composelife.random.di
 
 import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 import kotlin.random.Random
 
+@ContributesTo(AppScope::class)
 interface RandomComponent : RandomModule {
 
     @SingleIn(AppScope::class)
