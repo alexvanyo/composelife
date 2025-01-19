@@ -20,7 +20,6 @@ import android.app.Application
 import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
 import com.alexvanyo.composelife.appcompatsync.di.AppCompatSyncComponent
 import com.alexvanyo.composelife.clock.di.ClockModule
-import com.alexvanyo.composelife.data.di.RepositoryComponent
 import com.alexvanyo.composelife.data.di.RepositoryModule
 import com.alexvanyo.composelife.database.di.DatabaseComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
@@ -47,7 +46,7 @@ abstract class ComposeLifeApplicationComponent(
     ProcessLifecycleModule,
     AlgorithmModule,
     DatabaseComponent,
-    RepositoryComponent,
+    RepositoryModule,
     DispatchersModule,
     ClockModule,
     RandomModule,

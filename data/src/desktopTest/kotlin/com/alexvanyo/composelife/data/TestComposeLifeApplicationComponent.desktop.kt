@@ -17,7 +17,6 @@
 
 package com.alexvanyo.composelife.data
 
-import com.alexvanyo.composelife.data.di.RepositoryComponent
 import com.alexvanyo.composelife.data.di.RepositoryModule
 import com.alexvanyo.composelife.database.di.DatabaseModule
 import com.alexvanyo.composelife.database.di.TestDatabaseComponent
@@ -33,7 +32,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 @SingleIn(AppScope::class)
 actual abstract class TestComposeLifeApplicationComponent :
     ApplicationComponent<TestComposeLifeApplicationEntryPoint>(),
-    RepositoryComponent,
+    RepositoryModule,
     TestDatabaseComponent,
     DispatchersModule,
     TestDispatcherModule,

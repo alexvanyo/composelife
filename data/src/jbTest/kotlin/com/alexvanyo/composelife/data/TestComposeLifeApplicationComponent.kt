@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.data
 
-import com.alexvanyo.composelife.data.di.RepositoryComponent
 import com.alexvanyo.composelife.data.di.RepositoryModule
 import com.alexvanyo.composelife.database.di.DatabaseModule
 import com.alexvanyo.composelife.database.di.TestDatabaseComponent
@@ -27,7 +26,7 @@ import com.alexvanyo.composelife.updatable.di.UpdatableModule
 
 expect abstract class TestComposeLifeApplicationComponent :
     ApplicationComponent<TestComposeLifeApplicationEntryPoint>,
-    RepositoryComponent,
+    RepositoryModule,
     TestDatabaseComponent,
     DispatchersModule,
     TestDispatcherModule,
