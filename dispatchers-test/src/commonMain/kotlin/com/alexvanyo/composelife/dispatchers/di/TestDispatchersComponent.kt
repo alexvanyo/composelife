@@ -19,8 +19,11 @@ package com.alexvanyo.composelife.dispatchers.di
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
 import me.tatarka.inject.annotations.Provides
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 
-interface TestDispatchersComponent : DispatchersModule, TestDispatcherComponent {
+@ContributesTo(AppScope::class, replaces = [DispatchersComponent::class])
+interface TestDispatchersComponent : DispatchersModule {
     val TestComposeLifeDispatchers.bind: ComposeLifeDispatchers
         @Provides get() = this
 }

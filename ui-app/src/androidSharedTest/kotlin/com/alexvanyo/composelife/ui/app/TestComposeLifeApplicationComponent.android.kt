@@ -25,7 +25,7 @@ import com.alexvanyo.composelife.data.di.RepositoryComponent
 import com.alexvanyo.composelife.data.di.RepositoryModule
 import com.alexvanyo.composelife.database.di.TestDatabaseComponent
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
+import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderComponent
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
 import com.alexvanyo.composelife.model.di.CellStateParserModule
@@ -47,7 +47,8 @@ actual abstract class TestComposeLifeApplicationComponent(
     AlgorithmComponent,
     RepositoryComponent,
     TestDatabaseComponent,
-    TestDispatchersComponent,
+    DispatchersModule,
+    TestDispatcherModule,
     TestPreferencesComponent,
     RandomModule,
     ClockModule,

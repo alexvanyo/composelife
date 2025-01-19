@@ -22,15 +22,11 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-interface TestDispatcherComponent {
-
-    @GeneralTestDispatcher
-    val generalTestDispatcher: TestDispatcher
-
-    @CellTickerTestDispatcher
-    val cellTickerTestDispatcher: TestDispatcher
+@ContributesTo(AppScope::class)
+interface TestDispatcherComponent : TestDispatcherModule {
 
     @Provides
     @SingleIn(AppScope::class)

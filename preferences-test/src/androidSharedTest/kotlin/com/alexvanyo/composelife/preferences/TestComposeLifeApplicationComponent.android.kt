@@ -19,18 +19,20 @@ package com.alexvanyo.composelife.preferences
 
 import android.app.Application
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import me.tatarka.inject.annotations.Component
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-@Component
+@MergeComponent(AppScope::class)
+@SingleIn(AppScope::class)
 actual abstract class TestComposeLifeApplicationComponent(
     application: Application,
 ) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
     TestPreferencesComponent,
-    TestDispatchersComponent {
+    DispatchersModule {
 
     actual override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
         object :
