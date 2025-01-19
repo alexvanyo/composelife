@@ -22,10 +22,10 @@ import com.alexvanyo.composelife.test.TestInjectApplication
 
 actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent {
     val application = ApplicationProvider.getApplicationContext<TestInjectApplication>()
-    val applicationComponent = TestComposeLifeApplicationComponent.Companion.create(application)
+    val applicationComponent = TestComposeLifeApplicationComponent::class.create(application)
     application.applicationComponent = applicationComponent
     application.uiComponentFactory = {
-        TestComposeLifeUiComponent.Companion.create(applicationComponent, it.activity)
+        TestComposeLifeUiComponent::class.create(applicationComponent, it.activity)
     }
     return applicationComponent
 }
