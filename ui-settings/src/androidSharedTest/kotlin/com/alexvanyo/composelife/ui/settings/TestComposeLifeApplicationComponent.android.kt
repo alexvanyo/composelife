@@ -19,7 +19,7 @@ package com.alexvanyo.composelife.ui.settings
 
 import android.app.Application
 import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
-import com.alexvanyo.composelife.database.di.TestDatabaseComponent
+import com.alexvanyo.composelife.database.di.DatabaseModule
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderComponent
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
@@ -38,7 +38,7 @@ actual abstract class TestComposeLifeApplicationComponent(
     application: Application,
 ) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
     AlgorithmModule,
-    TestDatabaseComponent,
+    DatabaseModule,
     DispatchersModule,
     PreferencesModule,
     ImageLoaderComponent,

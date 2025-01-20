@@ -19,7 +19,7 @@ package com.alexvanyo.composelife.database
 
 import android.app.Application
 import com.alexvanyo.composelife.database.di.DatabaseModule
-import com.alexvanyo.composelife.database.di.TestDatabaseComponent
+import com.alexvanyo.composelife.database.di.QueriesModule
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
@@ -33,7 +33,8 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 actual abstract class TestComposeLifeApplicationComponent(
     application: Application,
 ) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
-    TestDatabaseComponent,
+    DatabaseModule,
+    QueriesModule,
     DispatchersModule,
     TestDispatcherModule,
     UpdatableModule {
