@@ -16,10 +16,7 @@
 
 package com.alexvanyo.composelife.dispatchers
 
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.MainCoroutineDispatcher
 import me.tatarka.inject.annotations.Inject
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -32,22 +29,22 @@ interface ComposeLifeDispatchers {
     /**
      * @see Dispatchers.Default
      */
-    val Default: CoroutineDispatcher
+    val Default: CoroutineContext
 
     /**
      * @see Dispatchers.Main
      */
-    val Main: CoroutineDispatcher
+    val Main: CoroutineContext
 
     /**
      * @see Dispatchers.Unconfined
      */
-    val Unconfined: CoroutineDispatcher
+    val Unconfined: CoroutineContext
 
     /**
      * @see Dispatchers.IO
      */
-    val IO: CoroutineDispatcher
+    val IO: CoroutineContext
 
     /**
      * The [CoroutineContext] for driving cell state ticks, in response to time delays.
@@ -61,9 +58,9 @@ interface ComposeLifeDispatchers {
 @Suppress("InjectDispatcher")
 @Inject
 class DefaultComposeLifeDispatchers : ComposeLifeDispatchers {
-    override val Default: CoroutineDispatcher = Dispatchers.Default
-    override val Main: MainCoroutineDispatcher = Dispatchers.Main
-    override val Unconfined: CoroutineDispatcher = Dispatchers.Unconfined
-    override val IO: CoroutineDispatcher = Dispatchers.IO
+    override val Default: CoroutineContext = Dispatchers.Default
+    override val Main: CoroutineContext = Dispatchers.Main
+    override val Unconfined: CoroutineContext = Dispatchers.Unconfined
+    override val IO: CoroutineContext = Dispatchers.IO
     override val CellTicker: CoroutineContext = EmptyCoroutineContext
 }
