@@ -83,6 +83,7 @@ kotlin {
                 implementation(libs.turbine)
                 implementation(projects.databaseTest)
                 implementation(projects.dispatchersTest)
+                implementation(projects.filesystemTest)
                 implementation(projects.kmpAndroidRunner)
             }
         }
