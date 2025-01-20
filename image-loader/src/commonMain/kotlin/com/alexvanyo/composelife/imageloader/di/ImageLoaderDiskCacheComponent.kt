@@ -22,8 +22,10 @@ import com.alexvanyo.composelife.filesystem.di.FileSystemModule
 import me.tatarka.inject.annotations.Provides
 import okio.FileSystem
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
+@ContributesTo(AppScope::class)
 interface ImageLoaderDiskCacheComponent : FileSystemModule {
     @SingleIn(AppScope::class)
     @Provides
