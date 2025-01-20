@@ -54,6 +54,12 @@ kotlin {
             }
         }
         val androidMain by getting {
+            configurations["kspAndroid"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                )
+            )
             dependencies {
                 api(libs.kotlinx.coroutines.android)
 
@@ -61,6 +67,12 @@ kotlin {
             }
         }
         val desktopMain by getting {
+            configurations["kspDesktop"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                )
+            )
             dependencies {
                 implementation(libs.sqldelight.sqliteDriver)
             }

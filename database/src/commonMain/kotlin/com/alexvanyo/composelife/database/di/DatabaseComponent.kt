@@ -21,9 +21,11 @@ import com.alexvanyo.composelife.database.CellState
 import com.alexvanyo.composelife.database.ComposeLifeDatabase
 import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-interface DatabaseComponent : DatabaseModule, AdapterComponent, DriverComponent, QueriesComponent {
+@ContributesTo(AppScope::class)
+interface DatabaseComponent : DatabaseModule {
 
     @Provides
     @SingleIn(AppScope::class)
