@@ -20,7 +20,10 @@ import com.alexvanyo.composelife.appcompatsync.AppCompatSync
 import com.alexvanyo.composelife.updatable.Updatable
 import me.tatarka.inject.annotations.IntoSet
 import me.tatarka.inject.annotations.Provides
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 
+@ContributesTo(AppScope::class)
 interface AppCompatSyncComponent {
 
     val AppCompatSync.bind: Updatable
