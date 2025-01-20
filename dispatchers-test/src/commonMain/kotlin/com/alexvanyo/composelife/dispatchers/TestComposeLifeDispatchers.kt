@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.dispatchers
 
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.TestDispatcher
 import me.tatarka.inject.annotations.Inject
@@ -34,9 +33,9 @@ class TestComposeLifeDispatchers(
     generalTestDispatcher: @GeneralTestDispatcher TestDispatcher,
     cellTickerTestDispatcher: @CellTickerTestDispatcher TestDispatcher,
 ) : ComposeLifeDispatchers {
-    override val Default: CoroutineDispatcher = generalTestDispatcher
-    override val Main: CoroutineDispatcher = generalTestDispatcher
-    override val Unconfined: CoroutineDispatcher = Dispatchers.Unconfined
-    override val IO: CoroutineDispatcher = generalTestDispatcher
+    override val Default: CoroutineContext = generalTestDispatcher
+    override val Main: CoroutineContext = generalTestDispatcher
+    override val Unconfined: CoroutineContext = Dispatchers.Unconfined
+    override val IO: CoroutineContext = generalTestDispatcher
     override val CellTicker: CoroutineContext = cellTickerTestDispatcher
 }
