@@ -20,6 +20,7 @@ import coil3.disk.DiskCache
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.filesystem.di.FileSystemModule
 import com.alexvanyo.composelife.scopes.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
 import me.tatarka.inject.annotations.Provides
 import okio.FileSystem
 
@@ -32,6 +33,6 @@ interface ImageLoaderDiskCacheComponent : FileSystemModule {
     ): DiskCache = DiskCache.Builder()
         .directory(FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "coil3_disk_cache")
         .fileSystem(fileSystem)
-        .cleanupDispatcher(dispatchers.IO)
+        .cleanupCoroutineContext(dispatchers.IO)
         .build()
 }
