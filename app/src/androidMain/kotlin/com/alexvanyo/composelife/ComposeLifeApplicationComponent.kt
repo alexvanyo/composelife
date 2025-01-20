@@ -18,7 +18,6 @@ package com.alexvanyo.composelife
 
 import android.app.Application
 import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
-import com.alexvanyo.composelife.appcompatsync.di.AppCompatSyncComponent
 import com.alexvanyo.composelife.clock.di.ClockModule
 import com.alexvanyo.composelife.data.di.RepositoryModule
 import com.alexvanyo.composelife.database.di.DatabaseModule
@@ -42,7 +41,6 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 abstract class ComposeLifeApplicationComponent(
     application: Application,
 ) : ApplicationComponent<ComposeLifeApplicationEntryPoint>(application),
-    AppCompatSyncComponent,
     ProcessLifecycleModule,
     AlgorithmModule,
     DatabaseModule,
