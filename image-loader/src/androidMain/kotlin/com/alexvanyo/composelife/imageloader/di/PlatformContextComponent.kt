@@ -20,7 +20,10 @@ import android.content.Context
 import coil3.PlatformContext
 import com.alexvanyo.composelife.scopes.ApplicationContext
 import me.tatarka.inject.annotations.Provides
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 
+@ContributesTo(AppScope::class)
 actual interface PlatformContextComponent {
     @Provides
     fun providesPlatformContext(

@@ -19,12 +19,10 @@ package com.alexvanyo.composelife.ui.settings
 import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
 import com.alexvanyo.composelife.database.di.DatabaseModule
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.imageloader.di.ImageLoaderComponent
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
 import com.alexvanyo.composelife.model.di.CellStateParserModule
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.ui.cells.di.CellsImageLoadingComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 
 expect abstract class TestComposeLifeApplicationComponent :
@@ -33,8 +31,7 @@ expect abstract class TestComposeLifeApplicationComponent :
     DatabaseModule,
     DispatchersModule,
     PreferencesModule,
-    ImageLoaderComponent,
-    CellsImageLoadingComponent,
+    ImageLoaderModule,
     UpdatableModule,
     CellStateParserModule {
 
