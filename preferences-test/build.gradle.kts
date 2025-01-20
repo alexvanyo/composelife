@@ -76,6 +76,7 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(projects.dispatchersTest)
+                implementation(projects.filesystemTest)
                 implementation(projects.injectScopes)
                 implementation(projects.kmpAndroidRunner)
             }
