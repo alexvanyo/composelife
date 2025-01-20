@@ -37,10 +37,13 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retry
 import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-@SingleIn(AppScope::class)
 @Inject
+@ContributesBinding(AppScope::class, boundType = ComposeLifePreferences::class)
+@ContributesBinding(AppScope::class, boundType = Updatable::class, multibinding = true)
+@SingleIn(AppScope::class)
 class DefaultComposeLifePreferences(
     preferencesDataStore: PreferencesDataStore,
 ) : ComposeLifePreferences, Updatable {
