@@ -20,7 +20,10 @@ import com.alexvanyo.composelife.donotkeepprocess.DoNotKeepProcess
 import com.alexvanyo.composelife.updatable.Updatable
 import me.tatarka.inject.annotations.IntoSet
 import me.tatarka.inject.annotations.Provides
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 
+@ContributesTo(AppScope::class)
 interface DoNotKeepProcessComponent {
 
     val DoNotKeepProcess.bind: Updatable

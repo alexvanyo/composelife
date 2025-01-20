@@ -24,7 +24,6 @@ import com.alexvanyo.composelife.data.di.RepositoryModule
 import com.alexvanyo.composelife.database.di.DatabaseModule
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
-import com.alexvanyo.composelife.donotkeepprocess.di.DoNotKeepProcessComponent
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderComponent
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
 import com.alexvanyo.composelife.model.di.CellStateParserModule
@@ -52,7 +51,6 @@ abstract class TestComposeLifeApplicationComponent(
     RandomModule,
     ClockModule,
     ProcessLifecycleModule,
-    DoNotKeepProcessComponent,
     ImageLoaderComponent,
     CellsImageLoadingComponent,
     UpdatableModule,
