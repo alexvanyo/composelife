@@ -20,7 +20,7 @@ package com.alexvanyo.composelife.data
 import android.app.Application
 import com.alexvanyo.composelife.data.di.RepositoryModule
 import com.alexvanyo.composelife.database.di.DatabaseModule
-import com.alexvanyo.composelife.database.di.TestDatabaseComponent
+import com.alexvanyo.composelife.database.di.QueriesModule
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
@@ -35,7 +35,8 @@ actual abstract class TestComposeLifeApplicationComponent(
     application: Application,
 ) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
     RepositoryModule,
-    TestDatabaseComponent,
+    DatabaseModule,
+    QueriesModule,
     DispatchersModule,
     TestDispatcherModule,
     UpdatableModule {

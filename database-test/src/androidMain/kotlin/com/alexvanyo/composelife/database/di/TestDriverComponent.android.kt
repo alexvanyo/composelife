@@ -27,8 +27,10 @@ import kotlinx.coroutines.awaitCancellation
 import me.tatarka.inject.annotations.IntoSet
 import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
+@ContributesTo(AppScope::class, replaces = [DriverComponent::class])
 actual interface TestDriverComponent {
 
     @Provides

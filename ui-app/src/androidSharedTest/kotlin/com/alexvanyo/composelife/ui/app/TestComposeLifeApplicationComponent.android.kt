@@ -21,7 +21,7 @@ import android.app.Application
 import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
 import com.alexvanyo.composelife.clock.di.ClockModule
 import com.alexvanyo.composelife.data.di.RepositoryModule
-import com.alexvanyo.composelife.database.di.TestDatabaseComponent
+import com.alexvanyo.composelife.database.di.DatabaseModule
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderComponent
@@ -43,7 +43,7 @@ actual abstract class TestComposeLifeApplicationComponent(
 ) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
     AlgorithmModule,
     RepositoryModule,
-    TestDatabaseComponent,
+    DatabaseModule,
     DispatchersModule,
     TestDispatcherModule,
     PreferencesModule,
