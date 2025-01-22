@@ -19,17 +19,20 @@ package com.alexvanyo.composelife.ui.settings
 
 import android.app.Activity
 import com.alexvanyo.composelife.scopes.UiComponent
-import me.tatarka.inject.annotations.Component
+import com.alexvanyo.composelife.scopes.UiScope
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesSubcomponent
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-@Component
-actual abstract class TestComposeLifeUiComponent(
-    @Component override val applicationComponent: TestComposeLifeApplicationComponent,
-    activity: Activity,
-) : UiComponent<TestComposeLifeApplicationComponent, TestComposeLifeUiEntryPoint>(activity, applicationComponent) {
-    actual override val entryPoint: TestComposeLifeUiEntryPoint get() =
-        object :
-            TestComposeLifeUiEntryPoint,
-            TestComposeLifeApplicationEntryPoint by applicationComponent.entryPoint {}
+@ContributesSubcomponent(UiScope::class)
+@SingleIn(UiScope::class)
+actual interface TestComposeLifeUiComponent : UiComponent<TestComposeLifeUiEntryPoint> {
+    actual override val entryPoint: TestComposeLifeUiEntryPoint
+
+    @ContributesSubcomponent.Factory(AppScope::class)
+    actual interface Factory {
+        fun createTestComponent(activity: Activity): TestComposeLifeUiComponent
+    }
 
     actual companion object
 }

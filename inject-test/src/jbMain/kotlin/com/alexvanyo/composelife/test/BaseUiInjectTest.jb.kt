@@ -34,19 +34,18 @@ import kotlin.time.Duration.Companion.seconds
  *
  * Subclasses must call [runUiTest] instead of [runAppTest] or [runAppTest] to properly initialize dependencies.
  */
-abstract class BaseUiInjectTest<T, U>(
+abstract class BaseUiInjectTest<T : ApplicationComponent<E>, E : UpdatableModule, U : UiComponent<*>>(
     applicationComponentCreator: () -> T,
     internal val uiComponentCreator: (T, UiComponentArguments) -> U,
-) : BaseInjectTest<T>(applicationComponentCreator)
-    where T : ApplicationComponent<*>, T : UpdatableModule, U : UiComponent<T, *>
+) : BaseInjectTest<T, E>(applicationComponentCreator)
 
 @OptIn(ExperimentalTestApi::class)
-expect fun <T, U> BaseUiInjectTest<T, U>.runUiTest(
+expect fun <T : ApplicationComponent<E>, E : UpdatableModule, U : UiComponent<*>> BaseUiInjectTest<T, E, U>.runUiTest(
     appTestContext: CoroutineContext = EmptyCoroutineContext,
     timeout: Duration = 60.seconds,
-    testBody: suspend context(ComposeUiTest, TestScope) UiTestScope<T, U>.() -> Unit,
-): TestResult where T : ApplicationComponent<*>, T : UpdatableModule, U : UiComponent<T, *>
+    testBody: suspend context(ComposeUiTest, TestScope) UiTestScope<T, E, U>.() -> Unit,
+): TestResult
 
-interface UiTestScope<T, U> where T : ApplicationComponent<*>, T : UpdatableModule, U : UiComponent<T, *> {
+interface UiTestScope<T : ApplicationComponent<E>, E : UpdatableModule, U : UiComponent<*>> {
     val uiComponent: U
 }

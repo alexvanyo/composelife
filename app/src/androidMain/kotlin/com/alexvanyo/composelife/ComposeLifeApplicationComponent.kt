@@ -17,18 +17,13 @@
 package com.alexvanyo.composelife
 
 import android.app.Application
-import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
-import com.alexvanyo.composelife.clock.di.ClockModule
-import com.alexvanyo.composelife.data.di.RepositoryModule
-import com.alexvanyo.composelife.database.di.DatabaseModule
-import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
-import com.alexvanyo.composelife.model.di.CellStateParserModule
-import com.alexvanyo.composelife.preferences.di.PreferencesModule
+import androidx.lifecycle.LifecycleOwner
+import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
 import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleModule
-import com.alexvanyo.composelife.random.di.RandomModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
@@ -37,42 +32,18 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 @SingleIn(AppScope::class)
 abstract class ComposeLifeApplicationComponent(
     application: Application,
-) : ApplicationComponent<ComposeLifeApplicationEntryPoint>(application),
-    ProcessLifecycleModule,
-    AlgorithmModule,
-    DatabaseModule,
-    RepositoryModule,
-    DispatchersModule,
-    ClockModule,
-    RandomModule,
-    PreferencesModule,
-    ImageLoaderModule,
-    UpdatableModule,
-    CellStateParserModule {
+) : ApplicationComponent<ComposeLifeApplicationEntryPoint>(application) {
 
-    override val entryPoint: ComposeLifeApplicationEntryPoint get() =
-        object :
-            ComposeLifeApplicationEntryPoint,
-            RandomModule by this,
-            ClockModule by this,
-            RepositoryModule by this,
-            AlgorithmModule by this,
-            DispatchersModule by this,
-            PreferencesModule by this,
-            UpdatableModule by this,
-            CellStateParserModule by this,
-            ImageLoaderModule by this {}
+    abstract override val entryPoint: ComposeLifeApplicationEntryPoint
 
     companion object
 }
 
-interface ComposeLifeApplicationEntryPoint :
-    RandomModule,
-    ClockModule,
-    RepositoryModule,
-    AlgorithmModule,
-    DispatchersModule,
-    PreferencesModule,
-    UpdatableModule,
-    CellStateParserModule,
-    ImageLoaderModule
+@SingleIn(AppScope::class)
+@Inject
+class ComposeLifeApplicationEntryPoint(
+    override val processLifecycleOwner: @ProcessLifecycleOwner LifecycleOwner,
+    override val updatables: Set<Updatable>,
+    val uiComponentFactory: ComposeLifeUiComponent.Factory,
+) : ProcessLifecycleModule,
+    UpdatableModule

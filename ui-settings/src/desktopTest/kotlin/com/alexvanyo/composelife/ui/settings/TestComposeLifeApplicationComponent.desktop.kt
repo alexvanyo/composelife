@@ -17,14 +17,7 @@
 
 package com.alexvanyo.composelife.ui.settings
 
-import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
-import com.alexvanyo.composelife.database.di.DatabaseModule
-import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
-import com.alexvanyo.composelife.model.di.CellStateParserModule
-import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
@@ -32,25 +25,9 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 @MergeComponent(AppScope::class)
 @SingleIn(AppScope::class)
 actual abstract class TestComposeLifeApplicationComponent :
-    ApplicationComponent<TestComposeLifeApplicationEntryPoint>(),
-    AlgorithmModule,
-    DatabaseModule,
-    DispatchersModule,
-    PreferencesModule,
-    ImageLoaderModule,
-    UpdatableModule,
-    CellStateParserModule {
+    ApplicationComponent<TestComposeLifeApplicationEntryPoint>() {
 
-    actual override val entryPoint: TestComposeLifeApplicationEntryPoint
-        get() =
-            object :
-                TestComposeLifeApplicationEntryPoint,
-                AlgorithmModule by this,
-                DispatchersModule by this,
-                PreferencesModule by this,
-                UpdatableModule by this,
-                CellStateParserModule by this,
-                ImageLoaderModule by this {}
+    actual abstract override val entryPoint: TestComposeLifeApplicationEntryPoint
 
     actual companion object
 }
