@@ -18,21 +18,25 @@ package com.alexvanyo.composelife.wear
 
 import android.app.Activity
 import com.alexvanyo.composelife.scopes.UiComponent
-import me.tatarka.inject.annotations.Component
+import com.alexvanyo.composelife.scopes.UiScope
+import me.tatarka.inject.annotations.Inject
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesSubcomponent
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-@Suppress("UnnecessaryAbstractClass")
-@Component
-abstract class ComposeLifeUiComponent(
-    @Component override val applicationComponent: ComposeLifeApplicationComponent,
-    activity: Activity,
-) : UiComponent<ComposeLifeApplicationComponent, ComposeLifeUiEntryPoint>(activity, applicationComponent) {
-    override val entryPoint: ComposeLifeUiEntryPoint get() =
-        object :
-            ComposeLifeUiEntryPoint,
-            ComposeLifeApplicationEntryPoint by applicationComponent.entryPoint {}
+@ContributesSubcomponent(UiScope::class)
+@SingleIn(UiScope::class)
+interface ComposeLifeUiComponent : UiComponent<ComposeLifeUiEntryPoint> {
+    override val entryPoint: ComposeLifeUiEntryPoint
+
+    @ContributesSubcomponent.Factory(AppScope::class)
+    interface Factory {
+        fun createComponent(activity: Activity): ComposeLifeUiComponent
+    }
 
     companion object
 }
 
-interface ComposeLifeUiEntryPoint :
-    ComposeLifeApplicationEntryPoint
+@SingleIn(UiScope::class)
+@Inject
+class ComposeLifeUiEntryPoint

@@ -17,5 +17,5 @@
 package com.alexvanyo.composelife.scopes
 
 interface UiComponentOwner {
-    val uiComponent: UiComponent<*, *>
+    val uiComponent: UiComponent<*>
 }

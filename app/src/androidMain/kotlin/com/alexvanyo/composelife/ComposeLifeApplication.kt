@@ -31,7 +31,7 @@ class ComposeLifeApplication : Application(), ApplicationComponentOwner {
     override lateinit var applicationComponent: ComposeLifeApplicationComponent
 
     override val uiComponentFactory: (UiComponentArguments) -> ComposeLifeUiComponent =
-        { ComposeLifeUiComponent::class.create(applicationComponent, it.activity) }
+        { applicationComponent.entryPoint.uiComponentFactory.createComponent(it.activity) }
 
     override fun onCreate() {
         super.onCreate()
@@ -40,8 +40,8 @@ class ComposeLifeApplication : Application(), ApplicationComponentOwner {
 
         applicationComponent = ComposeLifeApplicationComponent::class.create(this)
 
-        val processLifecycleOwner = applicationComponent.processLifecycleOwner
-        val updatables = applicationComponent.updatables
+        val processLifecycleOwner = applicationComponent.entryPoint.processLifecycleOwner
+        val updatables = applicationComponent.entryPoint.updatables
 
         // Update all singleton scoped updatables in the process lifecycle scope, when its created.
         // Effectively, this is just a permanently running coroutine scope.

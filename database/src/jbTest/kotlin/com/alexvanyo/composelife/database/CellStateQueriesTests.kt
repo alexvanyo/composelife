@@ -30,12 +30,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.time.Duration.Companion.seconds
 
-class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
+class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeApplicationEntryPoint>(
     TestComposeLifeApplicationComponent::createComponent,
 ) {
-    private val cellStateQueries get() = applicationComponent.cellStateQueries
+    private val cellStateQueries get() = applicationComponent.entryPoint.cellStateQueries
 
-    private val testDispatcher get() = applicationComponent.generalTestDispatcher
+    private val testDispatcher get() = applicationComponent.entryPoint.generalTestDispatcher
 
     @Test
     fun get_cell_states_returns_empty_initially() = runAppTest(testDispatcher) {

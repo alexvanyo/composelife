@@ -28,14 +28,17 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class CellStateRepositoryTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
+class CellStateRepositoryTests : BaseInjectTest<
+    TestComposeLifeApplicationComponent,
+    TestComposeLifeApplicationEntryPoint
+    >(
     TestComposeLifeApplicationComponent::createComponent,
 ) {
-    private val cellStateRepository get() = applicationComponent.cellStateRepository
+    private val cellStateRepository get() = applicationComponent.entryPoint.cellStateRepository
 
-    private val cellStateQueries get() = applicationComponent.cellStateQueries
+    private val cellStateQueries get() = applicationComponent.entryPoint.cellStateQueries
 
-    private val testDispatcher get() = applicationComponent.generalTestDispatcher
+    private val testDispatcher get() = applicationComponent.entryPoint.generalTestDispatcher
 
     @Test
     fun get_autosaved_cell_state_returns_null_initially() = runAppTest(testDispatcher) {

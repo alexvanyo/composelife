@@ -26,7 +26,7 @@ import com.alexvanyo.composelife.scopes.UiComponentOwner
 
 class InjectTestActivity : AppCompatActivity(), UiComponentOwner {
 
-    override lateinit var uiComponent: UiComponent<*, *>
+    override lateinit var uiComponent: UiComponent<*>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
