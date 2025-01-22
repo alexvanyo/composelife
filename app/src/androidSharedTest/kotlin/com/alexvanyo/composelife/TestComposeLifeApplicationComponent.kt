@@ -18,19 +18,16 @@
 package com.alexvanyo.composelife
 
 import android.app.Application
-import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
-import com.alexvanyo.composelife.clock.di.ClockModule
-import com.alexvanyo.composelife.data.di.RepositoryModule
-import com.alexvanyo.composelife.database.di.DatabaseModule
-import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
+import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
-import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
-import com.alexvanyo.composelife.model.di.CellStateParserModule
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
-import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleModule
-import com.alexvanyo.composelife.random.di.RandomModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import kotlinx.coroutines.test.TestDispatcher
+import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
@@ -39,45 +36,23 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 @SingleIn(AppScope::class)
 abstract class TestComposeLifeApplicationComponent(
     application: Application,
-) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
-    AlgorithmModule,
-    RepositoryModule,
-    DatabaseModule,
-    DispatchersModule,
-    TestDispatcherModule,
-    PreferencesModule,
-    RandomModule,
-    ClockModule,
-    ProcessLifecycleModule,
-    ImageLoaderModule,
-    UpdatableModule,
-    CellStateParserModule {
+) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application) {
 
-    override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
-        object :
-            TestComposeLifeApplicationEntryPoint,
-            RandomModule by this,
-            ClockModule by this,
-            RepositoryModule by this,
-            AlgorithmModule by this,
-            DispatchersModule by this,
-            PreferencesModule by this,
-            UpdatableModule by this,
-            CellStateParserModule by this,
-            ImageLoaderModule by this {}
+    abstract override val entryPoint: TestComposeLifeApplicationEntryPoint
 
     companion object
 }
 
 expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent
 
-interface TestComposeLifeApplicationEntryPoint :
-    RandomModule,
-    ClockModule,
-    RepositoryModule,
-    AlgorithmModule,
-    DispatchersModule,
-    PreferencesModule,
-    UpdatableModule,
-    CellStateParserModule,
-    ImageLoaderModule
+@SingleIn(AppScope::class)
+@Inject
+class TestComposeLifeApplicationEntryPoint(
+    override val updatables: Set<Updatable>,
+    override val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher,
+    override val cellTickerTestDispatcher: @CellTickerTestDispatcher TestDispatcher,
+    override val composeLifePreferences: ComposeLifePreferences,
+    val uiComponentFactory: TestComposeLifeUiComponent.Factory,
+) : UpdatableModule,
+    TestDispatcherModule,
+    PreferencesModule

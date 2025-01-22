@@ -25,7 +25,7 @@ actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): Test
     val applicationComponent = TestComposeLifeApplicationComponent::class.create(application)
     application.applicationComponent = applicationComponent
     application.uiComponentFactory = {
-        TestComposeLifeUiComponent::class.create(applicationComponent, it.activity)
+        applicationComponent.entryPoint.uiComponentFactory.createTestComponent(it.activity)
     }
     return applicationComponent
 }

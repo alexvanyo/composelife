@@ -16,36 +16,29 @@
 
 package com.alexvanyo.composelife.ui.settings
 
-import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
-import com.alexvanyo.composelife.database.di.DatabaseModule
-import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
-import com.alexvanyo.composelife.model.di.CellStateParserModule
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import me.tatarka.inject.annotations.Inject
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-expect abstract class TestComposeLifeApplicationComponent :
-    ApplicationComponent<TestComposeLifeApplicationEntryPoint>,
-    AlgorithmModule,
-    DatabaseModule,
-    DispatchersModule,
-    PreferencesModule,
-    ImageLoaderModule,
-    UpdatableModule,
-    CellStateParserModule {
+expect abstract class TestComposeLifeApplicationComponent : ApplicationComponent<TestComposeLifeApplicationEntryPoint> {
 
-    override val entryPoint: TestComposeLifeApplicationEntryPoint
+    abstract override val entryPoint: TestComposeLifeApplicationEntryPoint
 
     companion object
 }
 
-interface TestComposeLifeApplicationEntryPoint :
-    AlgorithmModule,
-    DispatchersModule,
-    PreferencesModule,
-    UpdatableModule,
-    CellStateParserModule,
-    ImageLoaderModule
+@SingleIn(AppScope::class)
+@Inject
+class TestComposeLifeApplicationEntryPoint(
+    override val updatables: Set<Updatable>,
+    override val composeLifePreferences: ComposeLifePreferences,
+    val uiComponentFactory: TestComposeLifeUiComponent.Factory,
+) : UpdatableModule,
+    PreferencesModule
 
 expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent

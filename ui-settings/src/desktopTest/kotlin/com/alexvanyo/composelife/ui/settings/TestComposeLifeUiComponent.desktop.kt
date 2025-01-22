@@ -19,18 +19,20 @@ package com.alexvanyo.composelife.ui.settings
 
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
-import me.tatarka.inject.annotations.Component
+import com.alexvanyo.composelife.scopes.UiScope
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesSubcomponent
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-@Component
-@Suppress("UnnecessaryAbstractClass")
-actual abstract class TestComposeLifeUiComponent(
-    @Component override val applicationComponent: TestComposeLifeApplicationComponent,
-) : UiComponent<TestComposeLifeApplicationComponent, TestComposeLifeUiEntryPoint>(applicationComponent) {
+@ContributesSubcomponent(UiScope::class)
+@SingleIn(UiScope::class)
+actual interface TestComposeLifeUiComponent : UiComponent<TestComposeLifeUiEntryPoint> {
     actual override val entryPoint: TestComposeLifeUiEntryPoint
-        get() =
-            object :
-                TestComposeLifeUiEntryPoint,
-                TestComposeLifeApplicationEntryPoint by applicationComponent.entryPoint {}
+
+    @ContributesSubcomponent.Factory(AppScope::class)
+    actual interface Factory {
+        fun createTestComponent(): TestComposeLifeUiComponent
+    }
 
     actual companion object
 }
@@ -39,4 +41,4 @@ actual fun TestComposeLifeUiComponent.Companion.createComponent(
     applicationComponent: TestComposeLifeApplicationComponent,
     uiComponentArguments: UiComponentArguments,
 ): TestComposeLifeUiComponent =
-    TestComposeLifeUiComponent::class.create(applicationComponent)
+    applicationComponent.entryPoint.uiComponentFactory.createTestComponent()

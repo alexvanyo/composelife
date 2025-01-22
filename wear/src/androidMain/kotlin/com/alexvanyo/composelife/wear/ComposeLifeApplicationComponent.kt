@@ -17,12 +17,17 @@
 package com.alexvanyo.composelife.wear
 
 import android.app.Application
+import androidx.lifecycle.LifecycleOwner
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.preferences.di.PreferencesModule
+import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
 import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
@@ -31,26 +36,22 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 @SingleIn(AppScope::class)
 abstract class ComposeLifeApplicationComponent(
     application: Application,
-) : ApplicationComponent<ComposeLifeApplicationEntryPoint>(application),
-    ProcessLifecycleModule,
-    AlgorithmModule,
-    DispatchersModule,
-    PreferencesModule,
-    UpdatableModule {
+) : ApplicationComponent<ComposeLifeApplicationEntryPoint>(application) {
 
-    override val entryPoint: ComposeLifeApplicationEntryPoint get() =
-        object :
-            ComposeLifeApplicationEntryPoint,
-            AlgorithmModule by this,
-            DispatchersModule by this,
-            PreferencesModule by this,
-            UpdatableModule by this {}
+    abstract override val entryPoint: ComposeLifeApplicationEntryPoint
 
     companion object
 }
 
-interface ComposeLifeApplicationEntryPoint :
+@SingleIn(AppScope::class)
+@Inject
+class ComposeLifeApplicationEntryPoint(
+    override val updatables: Set<Updatable>,
+    override val processLifecycleOwner: @ProcessLifecycleOwner LifecycleOwner,
+    override val gameOfLifeAlgorithm: GameOfLifeAlgorithm,
+    override val dispatchers: ComposeLifeDispatchers,
+    val uiComponentFactory: ComposeLifeUiComponent.Factory,
+) : UpdatableModule,
+    ProcessLifecycleModule,
     AlgorithmModule,
-    DispatchersModule,
-    PreferencesModule,
-    UpdatableModule
+    DispatchersModule

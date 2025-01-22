@@ -16,11 +16,9 @@
 
 package com.alexvanyo.composelife.scopes
 
-import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @SingleIn(UiScope::class)
-@MergeComponent(UiScope::class)
-expect abstract class UiComponent<T : ApplicationComponent<*>, E> {
-    abstract val entryPoint: E
+expect interface UiComponent<E> {
+    val entryPoint: E
 }

@@ -16,33 +16,36 @@
 
 package com.alexvanyo.composelife.ui.cells
 
-import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
+import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
-import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
+import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.di.CellStateParserModule
-import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import kotlinx.coroutines.test.TestDispatcher
+import me.tatarka.inject.annotations.Inject
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-expect abstract class TestComposeLifeApplicationComponent :
-    ApplicationComponent<TestComposeLifeApplicationEntryPoint>,
-    DispatchersModule,
-    TestDispatcherModule,
-    PreferencesModule,
-    ImageLoaderModule,
-    UpdatableModule,
-    CellStateParserModule {
+expect abstract class TestComposeLifeApplicationComponent : ApplicationComponent<TestComposeLifeApplicationEntryPoint> {
 
-    override val entryPoint: TestComposeLifeApplicationEntryPoint
+    abstract override val entryPoint: TestComposeLifeApplicationEntryPoint
 
     companion object
 }
 
-interface TestComposeLifeApplicationEntryPoint :
-    DispatchersModule,
-    PreferencesModule,
-    UpdatableModule,
+@SingleIn(AppScope::class)
+@Inject
+class TestComposeLifeApplicationEntryPoint(
+    override val updatables: Set<Updatable>,
+    override val cellStateParser: CellStateParser,
+    override val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher,
+    override val cellTickerTestDispatcher: @CellTickerTestDispatcher TestDispatcher,
+    val uiComponentFactory: TestComposeLifeUiComponent.Factory,
+) : UpdatableModule,
     CellStateParserModule,
-    ImageLoaderModule
+    TestDispatcherModule
 
 expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent

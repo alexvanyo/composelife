@@ -64,7 +64,11 @@ import kotlin.test.assertNull
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalTestApi::class)
-class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
+class FullscreenSettingsPaneTests : BaseUiInjectTest<
+    TestComposeLifeApplicationComponent,
+    TestComposeLifeApplicationEntryPoint,
+    TestComposeLifeUiComponent,
+    >(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent.Companion::createComponent,
 ) {

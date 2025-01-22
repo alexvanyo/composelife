@@ -18,12 +18,7 @@
 package com.alexvanyo.composelife.database
 
 import android.app.Application
-import com.alexvanyo.composelife.database.di.DatabaseModule
-import com.alexvanyo.composelife.database.di.QueriesModule
-import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
@@ -32,18 +27,9 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 @SingleIn(AppScope::class)
 actual abstract class TestComposeLifeApplicationComponent(
     application: Application,
-) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
-    DatabaseModule,
-    QueriesModule,
-    DispatchersModule,
-    TestDispatcherModule,
-    UpdatableModule {
+) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application) {
 
-    actual override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
-        object :
-            TestComposeLifeApplicationEntryPoint,
-            DispatchersModule by this,
-            DatabaseModule by this {}
+    actual abstract override val entryPoint: TestComposeLifeApplicationEntryPoint
 
     actual companion object
 }
