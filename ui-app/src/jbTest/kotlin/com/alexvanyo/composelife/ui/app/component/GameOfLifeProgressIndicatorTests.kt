@@ -26,12 +26,17 @@ import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
+import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationEntryPoint
 import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
 import com.alexvanyo.composelife.ui.app.createComponent
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
+class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<
+        TestComposeLifeApplicationComponent,
+        TestComposeLifeApplicationEntryPoint,
+        TestComposeLifeUiComponent,
+        >(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {

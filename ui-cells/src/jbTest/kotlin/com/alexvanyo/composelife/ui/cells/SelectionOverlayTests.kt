@@ -47,12 +47,16 @@ import kotlin.test.assertEquals
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTestApi::class)
-class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
+class SelectionOverlayTests : BaseUiInjectTest<
+    TestComposeLifeApplicationComponent,
+    TestComposeLifeApplicationEntryPoint,
+    TestComposeLifeUiComponent
+    >(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {
 
-    private val cellStateParserProvider: CellStateParserProvider = applicationComponent
+    private val cellStateParserProvider: CellStateParserProvider = applicationComponent.entryPoint
 
     @Test
     fun no_selection_is_displayed_correctly() = runUiTest {

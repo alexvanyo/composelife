@@ -16,65 +16,22 @@
 
 package com.alexvanyo.composelife
 
-import com.alexvanyo.composelife.algorithm.di.AlgorithmComponent
-import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
-import com.alexvanyo.composelife.clock.di.ClockComponent
-import com.alexvanyo.composelife.clock.di.ClockModule
-import com.alexvanyo.composelife.data.di.RepositoryComponent
-import com.alexvanyo.composelife.data.di.RepositoryModule
-import com.alexvanyo.composelife.database.di.DatabaseComponent
-import com.alexvanyo.composelife.dispatchers.di.DispatchersComponent
-import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.filesystem.di.FileSystemComponent
-import com.alexvanyo.composelife.imageloader.di.ImageLoaderComponent
-import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
-import com.alexvanyo.composelife.model.di.CellStateParserModule
-import com.alexvanyo.composelife.preferences.di.PreferencesComponent
-import com.alexvanyo.composelife.preferences.di.PreferencesModule
-import com.alexvanyo.composelife.random.di.RandomComponent
-import com.alexvanyo.composelife.random.di.RandomModule
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.ui.cells.di.CellsImageLoadingComponent
+import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
-import me.tatarka.inject.annotations.Component
+import me.tatarka.inject.annotations.Inject
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-@Component
-abstract class ComposeLifeApplicationComponent :
-    ApplicationComponent<ComposeLifeApplicationEntryPoint>(),
-    AlgorithmComponent,
-    DatabaseComponent,
-    RepositoryComponent,
-    DispatchersComponent,
-    ClockComponent,
-    RandomComponent,
-    PreferencesComponent,
-    ImageLoaderComponent,
-    CellsImageLoadingComponent,
-    FileSystemComponent,
-    UpdatableModule,
-    CellStateParserModule {
-
-    override val entryPoint: ComposeLifeApplicationEntryPoint get() =
-        object :
-            ComposeLifeApplicationEntryPoint,
-            RandomModule by this,
-            ClockModule by this,
-            RepositoryModule by this,
-            AlgorithmModule by this,
-            DispatchersModule by this,
-            PreferencesModule by this,
-            UpdatableModule by this,
-            CellStateParserModule by this,
-            ImageLoaderModule by this {}
+@MergeComponent(AppScope::class)
+@SingleIn(AppScope::class)
+interface ComposeLifeApplicationComponent {
+    val entryPoint: ComposeLifeApplicationEntryPoint
 }
 
-interface ComposeLifeApplicationEntryPoint :
-    RandomModule,
-    ClockModule,
-    RepositoryModule,
-    AlgorithmModule,
-    DispatchersModule,
-    PreferencesModule,
-    UpdatableModule,
-    CellStateParserModule,
-    ImageLoaderModule
+@SingleIn(AppScope::class)
+@Inject
+class ComposeLifeApplicationEntryPoint(
+    override val updatables: Set<Updatable>,
+    val uiComponentFactory: ComposeLifeUiComponent.Factory,
+) : UpdatableModule

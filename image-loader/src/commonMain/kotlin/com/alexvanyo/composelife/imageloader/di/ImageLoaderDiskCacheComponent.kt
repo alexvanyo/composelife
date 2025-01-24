@@ -18,13 +18,15 @@ package com.alexvanyo.composelife.imageloader.di
 
 import coil3.disk.DiskCache
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.filesystem.di.FileSystemModule
-import com.alexvanyo.composelife.scopes.Singleton
 import me.tatarka.inject.annotations.Provides
 import okio.FileSystem
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-interface ImageLoaderDiskCacheComponent : FileSystemModule {
-    @Singleton
+@ContributesTo(AppScope::class)
+interface ImageLoaderDiskCacheComponent {
+    @SingleIn(AppScope::class)
     @Provides
     fun providesDiskCache(
         dispatchers: ComposeLifeDispatchers,

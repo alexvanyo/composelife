@@ -16,16 +16,17 @@
 
 package com.alexvanyo.composelife.database
 
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.test.BaseInjectTest
-import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertIs
 
-class ComposeLifeDatabaseTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
+class ComposeLifeDatabaseTests : BaseInjectTest<
+    TestComposeLifeApplicationComponent,
+    TestComposeLifeApplicationEntryPoint,
+    >(
     TestComposeLifeApplicationComponent::createComponent,
 ) {
-    private val composeLifeDatabase get() = applicationComponent.composeLifeDatabase
+    private val composeLifeDatabase get() = applicationComponent.entryPoint.composeLifeDatabase
 
     @Test
     fun cell_state_dao_returns_valid_instance() = runAppTest {
