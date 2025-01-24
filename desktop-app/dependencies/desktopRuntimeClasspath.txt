@@ -123,7 +123,8 @@ org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.0
 org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.8.0
 org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0
 org.jetbrains.skiko:skiko-awt-runtime-linux-x64:0.8.18
-org.jetbrains.skiko:skiko-awt:0.8.18
+org.jetbrains.skiko:skiko-awt:0.8.19
+org.jetbrains.skiko:skiko:0.8.19
 org.jetbrains:annotations:23.0.0
 org.jspecify:jspecify:1.0.0
 org.slf4j:slf4j-api:1.7.36
