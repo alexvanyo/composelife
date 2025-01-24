@@ -24,7 +24,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @ContributesTo(AppScope::class)
-interface ProcessLifecycleComponent : ProcessLifecycleModule {
+interface ProcessLifecycleComponent {
 
     @SingleIn(AppScope::class)
     @Provides

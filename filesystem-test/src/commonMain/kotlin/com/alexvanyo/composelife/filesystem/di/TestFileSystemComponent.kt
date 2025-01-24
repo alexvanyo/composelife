@@ -24,7 +24,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @ContributesTo(AppScope::class, replaces = [FileSystemComponent::class])
-interface TestFileSystemComponent : FileSystemModule {
+interface TestFileSystemComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun providesFileSystem(): FileSystem = FakeFileSystem()

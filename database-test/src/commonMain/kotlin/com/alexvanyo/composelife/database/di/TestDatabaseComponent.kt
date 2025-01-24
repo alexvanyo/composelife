@@ -25,7 +25,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @ContributesTo(AppScope::class, replaces = [DatabaseComponent::class])
-interface TestDatabaseComponent : DatabaseModule {
+interface TestDatabaseComponent {
 
     @Provides
     @SingleIn(AppScope::class)
