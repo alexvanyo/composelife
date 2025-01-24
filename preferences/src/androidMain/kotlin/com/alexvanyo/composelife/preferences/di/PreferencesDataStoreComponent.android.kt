@@ -20,7 +20,6 @@ package com.alexvanyo.composelife.preferences.di
 import android.content.Context
 import androidx.datastore.dataStoreFile
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.filesystem.di.FileSystemModule
 import com.alexvanyo.composelife.preferences.DiskPreferencesDataStore
 import com.alexvanyo.composelife.preferences.PreferencesCoroutineScope
 import com.alexvanyo.composelife.preferences.PreferencesDataStore
@@ -36,9 +35,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @ContributesTo(AppScope::class)
-actual interface PreferencesDataStoreComponent :
-    PreferencesDataStoreModule,
-    FileSystemModule {
+actual interface PreferencesDataStoreComponent {
 
     val DiskPreferencesDataStore.bind: PreferencesDataStore
         @Provides get() = this

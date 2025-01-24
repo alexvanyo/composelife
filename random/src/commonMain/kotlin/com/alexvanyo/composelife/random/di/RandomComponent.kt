@@ -23,7 +23,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 import kotlin.random.Random
 
 @ContributesTo(AppScope::class)
-interface RandomComponent : RandomModule {
+interface RandomComponent {
 
     @SingleIn(AppScope::class)
     @Provides
