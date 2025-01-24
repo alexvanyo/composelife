@@ -25,7 +25,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @ContributesTo(AppScope::class, replaces = [DefaultComposeLifePreferences::class])
-interface TestPreferencesComponent : PreferencesModule {
+interface TestPreferencesComponent {
 
     @SingleIn(AppScope::class)
     @Provides
