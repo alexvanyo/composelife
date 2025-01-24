@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.ui.cells
 
 import androidx.compose.foundation.draganddrop.dragAndDropSource
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -41,6 +42,7 @@ import java.awt.dnd.DropTargetDragEvent
 import java.awt.dnd.DropTargetDropEvent
 
 @OptIn(ExperimentalComposeUiApi::class)
+@Composable
 actual fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): Modifier =
     dragAndDropSource { offset ->
         DragAndDropTransferData(
