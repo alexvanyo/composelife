@@ -46,7 +46,7 @@ androidxTracing = "1.3.0-alpha02"
 #androidxWearCompose
 androidxWearCompose = "1.5.0-alpha08"
 #androidxWearComposeMaterial3
-androidxWearComposeMaterial3 = "1.0.0-alpha31"
+androidxWearComposeMaterial3 = "1.0.0-alpha32"
 #androidxWearWatchface
 androidxWearWatchface = "1.3.0-alpha05"
 #androidxWindow
