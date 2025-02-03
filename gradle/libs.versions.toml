@@ -88,7 +88,7 @@ ksp = "2.1.20-Beta1-1.0.29"
 #jacoco
 jacoco = "0.8.12"
 #jetbrainsCompose
-jetbrainsCompose = "1.8.0-alpha01"
+jetbrainsCompose = "1.8.0-alpha02"
 #jetbrainsComposeMaterialIconsExtended
 jetbrainsComposeMaterialIconsExtended = "1.7.3"
 #jetbrainsComposeMaterial3Adaptive
