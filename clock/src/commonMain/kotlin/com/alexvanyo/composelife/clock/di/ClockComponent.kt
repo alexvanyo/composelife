@@ -18,8 +18,11 @@ package com.alexvanyo.composelife.clock.di
 
 import kotlinx.datetime.Clock
 import me.tatarka.inject.annotations.Provides
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 
-interface ClockComponent : ClockModule {
+@ContributesTo(AppScope::class)
+interface ClockComponent {
     @Provides
     fun providesClock(): Clock = Clock.System
 }

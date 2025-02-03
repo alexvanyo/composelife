@@ -16,7 +16,9 @@
 
 package com.alexvanyo.composelife.scopes
 
-@Ui
-expect abstract class UiComponent<T : ApplicationComponent<*>, E> {
-    abstract val entryPoint: E
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+
+@SingleIn(UiScope::class)
+expect interface UiComponent<E> {
+    val entryPoint: E
 }

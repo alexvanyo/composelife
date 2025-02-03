@@ -20,6 +20,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.TestDispatcher
 import me.tatarka.inject.annotations.Inject
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -30,6 +33,8 @@ import kotlin.coroutines.CoroutineContext
  */
 @Suppress("InjectDispatcher")
 @Inject
+@ContributesBinding(AppScope::class, replaces = [DefaultComposeLifeDispatchers::class])
+@SingleIn(AppScope::class)
 class TestComposeLifeDispatchers(
     generalTestDispatcher: @GeneralTestDispatcher TestDispatcher,
     cellTickerTestDispatcher: @CellTickerTestDispatcher TestDispatcher,

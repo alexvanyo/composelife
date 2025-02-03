@@ -27,8 +27,11 @@ import com.alexvanyo.composelife.model.FlexibleCellStateSerializer
 import com.alexvanyo.composelife.model.fromFileExtension
 import kotlinx.coroutines.withContext
 import me.tatarka.inject.annotations.Inject
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
 
 @Inject
+@ContributesBinding(AppScope::class)
 class CellStateRepositoryImpl(
     private val flexibleCellStateSerializer: FlexibleCellStateSerializer,
     private val cellStateQueries: CellStateQueries,

@@ -31,8 +31,13 @@ import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import me.tatarka.inject.annotations.Inject
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @Inject
+@ContributesBinding(AppScope::class, boundType = Updatable::class, multibinding = true)
+@SingleIn(AppScope::class)
 class AppCompatSync(
     private val composeLifePreferences: ComposeLifePreferences,
     context: @ApplicationContext Context,
