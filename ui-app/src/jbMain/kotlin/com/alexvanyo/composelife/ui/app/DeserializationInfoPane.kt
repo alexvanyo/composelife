@@ -45,6 +45,7 @@ import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -67,7 +68,6 @@ import com.alexvanyo.composelife.ui.app.resources.DeserializationSucceeded
 import com.alexvanyo.composelife.ui.app.resources.Errors
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.resources.Warnings
-import com.alexvanyo.composelife.ui.mobile.component.rememberTooltipPositionProvider
 import com.alexvanyo.composelife.ui.util.plus
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -170,7 +170,7 @@ fun DeserializationInfoTopAppBar(
             }
 
             TooltipBox(
-                positionProvider = rememberTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                 tooltip = {
                     PlainTooltip {
                         Text(parameterizedStringResource(text))

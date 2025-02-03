@@ -27,6 +27,10 @@ import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize
 import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize.Companion.contentSize
 import androidx.compose.animation.SharedTransitionScope.ResizeMode
 import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.ScaleToBounds
+import androidx.compose.animation.SharedTransitionScope.SharedContentState
+import androidx.compose.animation.core.Spring.StiffnessMediumLow
+import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
@@ -34,7 +38,11 @@ import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 
 @Suppress("ComposeCompositionLocalUsage")
 val LocalNavigationAnimatedVisibilityScope: ProvidableCompositionLocal<AnimatedVisibilityScope?> =
@@ -65,7 +73,7 @@ fun Modifier.trySharedElement(
         } else {
             with(sharedTransitionScope) {
                 Modifier.sharedElement(
-                    s = rememberSharedContentState(key),
+                    sharedContentState = rememberSharedContentState(key),
                     animatedVisibilityScope = animatedVisibilityScope,
                     boundsTransform = boundsTransform,
                     placeHolderSize = placeHolderSize,
@@ -149,3 +157,26 @@ fun Modifier.trySharedElementWithCallerManagedVisibility(
         },
     )
 }
+
+// Defaults copied from SharedTransitionScope.kt
+
+@ExperimentalSharedTransitionApi
+internal val DefaultBoundsTransform = BoundsTransform { _, _ ->
+    spring(
+        stiffness = StiffnessMediumLow,
+        visibilityThreshold = Rect.VisibilityThreshold,
+    )
+}
+
+@ExperimentalSharedTransitionApi
+internal val ParentClip: OverlayClip =
+    object : OverlayClip {
+        override fun getClipPath(
+            sharedContentState: SharedContentState,
+            bounds: Rect,
+            layoutDirection: LayoutDirection,
+            density: Density,
+        ): Path? {
+            return sharedContentState.parentSharedContentState?.clipPathInOverlay
+        }
+    }
