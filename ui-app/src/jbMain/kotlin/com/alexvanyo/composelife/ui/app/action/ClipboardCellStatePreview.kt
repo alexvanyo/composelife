@@ -42,6 +42,7 @@ import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -66,7 +67,6 @@ import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindow
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
 import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropSource
 import com.alexvanyo.composelife.ui.cells.rememberTrackingCellWindowViewportState
-import com.alexvanyo.composelife.ui.mobile.component.rememberTooltipPositionProvider
 
 interface ClipboardCellStatePreviewInjectEntryPoint :
     CellWindowInjectEntryPoint,
@@ -174,7 +174,7 @@ fun LoadedCellStatePreview(
         )
         Column {
             TooltipBox(
-                positionProvider = rememberTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                 tooltip = {
                     PlainTooltip {
                         Text(parameterizedStringResource(Strings.Paste))
@@ -192,7 +192,7 @@ fun LoadedCellStatePreview(
                 }
             }
             TooltipBox(
-                positionProvider = rememberTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                 tooltip = {
                     PlainTooltip {
                         Text(parameterizedStringResource(if (isPinned) Strings.Unpin else Strings.Pin))
@@ -212,7 +212,7 @@ fun LoadedCellStatePreview(
             }
             if (deserializationResult.warnings.isNotEmpty()) {
                 TooltipBox(
-                    positionProvider = rememberTooltipPositionProvider(),
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                     tooltip = {
                         PlainTooltip {
                             Text(parameterizedStringResource(Strings.Warnings))
