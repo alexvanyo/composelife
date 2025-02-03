@@ -7,7 +7,7 @@
     {
       "groupName": "Kotlin",
       "matchPackageNames": [
-        "/^org.jetbrains.kotlin[^a-zA-Z]?/",
+        "/^org.jetbrains.kotlin[^a-zA-Z]/",
         "/^com.google.devtools.ksp/"
       ]
     },
