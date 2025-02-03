@@ -67,6 +67,7 @@ develocity {
 
 rootProject.name = "ComposeLife"
 include(":algorithm")
+include(":algorithm-benchmark")
 include(":app")
 include(":app-baseline-profile-generator")
 include(":app-benchmark")
