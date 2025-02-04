@@ -27,6 +27,7 @@ import com.alexvanyo.composelife.model.CellState
 /**
  * A [Modifier] for a drag-and-drop source for a [CellState].
  */
+@Composable
 expect fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): Modifier
 
 /**
