@@ -38,7 +38,7 @@ androidxTestEspresso = "3.7.0-alpha01"
 #androidxTestExt
 androidxTestExt = "1.2.1"
 #androidxTestRunner
-androidxTestRunner = "1.6.2"
+androidxTestRunner = "1.7.0-alpha01"
 #androidxTestUiAutomator
 androidxTestUiAutomator = "2.4.0-alpha01"
 #androidxTracing
