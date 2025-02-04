@@ -21,6 +21,7 @@ import android.content.ClipDescription
 import android.os.Build
 import android.view.View
 import androidx.compose.foundation.draganddrop.dragAndDropSource
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -30,7 +31,10 @@ import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
@@ -38,28 +42,40 @@ import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 
+@Composable
 actual fun Modifier.cellStateDragAndDropSource(
     getCellState: () -> CellState,
-): Modifier =
-    dragAndDropSource(
-        transferData = {
-            val clipData = ClipData.newPlainText(
-                "cellState",
-                RunLengthEncodedCellStateSerializer.serializeToString(getCellState())
-                    .joinToString("\n"),
-            )
+): Modifier {
+    // TODO: Remove graphics layer workaround once default drag decoration works with Coil.
+    //       https://github.com/coil-kt/coil/issues/2150
+    val graphicsLayer = rememberGraphicsLayer()
+    return drawWithCache {
+        graphicsLayer.record { drawContent() }
+        onDrawWithContent { drawLayer(graphicsLayer) }
+    }
+        .dragAndDropSource(
+            drawDragDecoration = {
+                drawLayer(graphicsLayer)
+            },
+            transferData = {
+                val clipData = ClipData.newPlainText(
+                    "cellState",
+                    RunLengthEncodedCellStateSerializer.serializeToString(getCellState())
+                        .joinToString("\n"),
+                )
 
-            DragAndDropTransferData(
-                clipData = clipData,
-                localState = clipData,
-                flags = if (Build.VERSION.SDK_INT >= 24) {
-                    View.DRAG_FLAG_GLOBAL
-                } else {
-                    0
-                },
-            )
-        },
-    )
+                DragAndDropTransferData(
+                    clipData = clipData,
+                    localState = clipData,
+                    flags = if (Build.VERSION.SDK_INT >= 24) {
+                        View.DRAG_FLAG_GLOBAL
+                    } else {
+                        0
+                    },
+                )
+            },
+        )
+}
 
 internal actual fun cellStateShouldStartDragAndDrop(event: DragAndDropEvent): Boolean =
     event.mimeTypes().contains(ClipDescription.MIMETYPE_TEXT_PLAIN)
