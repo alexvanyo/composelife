@@ -36,15 +36,6 @@ android {
         minSdk = 21
     }
     configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
-    // Add test pattern files in resources
-    sourceSets {
-        getByName("test") {
-            resources.srcDirs("src/jvmTest/resources")
-        }
-        getByName("androidTest") {
-            resources.srcDirs("src/jvmTest/resources")
-        }
-    }
 }
 
 kotlin {
@@ -111,6 +102,7 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
+                implementation(projects.algorithmTestResources)
                 implementation(projects.dispatchersTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
