@@ -372,7 +372,7 @@ jobs:
       - name: Run device checks
         run: |
           # run the tests, with one retry attempt
-          run_tests () { ./gradlew ${{ matrix.target }}${{ matrix.device }}api${{ matrix.api-level }}Check --stacktrace; }
+          run_tests () { ./gradlew ${{ matrix.target }}${{ matrix.device }}api${{ matrix.api-level }}Check --no-parallel -Dorg.gradle.workers.max=1 --stacktrace; }
           (echo "==== Attempt 1 ====" && run_tests) || (echo "==== Attempt 2 ====" && run_tests) || (echo "==== Both attempts failed ====" && exit 1)
 
       - name: Upload device test results
