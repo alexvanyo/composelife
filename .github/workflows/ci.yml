@@ -104,8 +104,11 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ matrix.sdk != 35 || github.ref != 'refs/heads/main' }}
 
       - name: Create CI robolectric.properties
+        if: ${{ matrix.sdk != 35 }}
         run: |
           robolectric_projects=($(find . -regex ".*/src/androidUnitTest/resources/com/alexvanyo/robolectric.properties" | grep -oP '\./(.*?)/'))
           for project in "${robolectric_projects[@]}"
@@ -368,6 +371,8 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: true # Don't write caches for GMD tests
 
       - name: Run device checks
         run: |
