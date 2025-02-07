@@ -75,7 +75,10 @@ fun <T : NavigationEntry, S : NavigationState<T>> associateWithRenderablePanes(
                 // Only retain the entry when it is in the backstack.
                 // Remember the CanRetainChecker lambda to avoid propagating changes through the tree
                 LocalCanRetainChecker provides remember(entry.id) {
-                    { _ -> entry.id in currentEntryKeySet }
+                    {
+                            _ ->
+                        entry.id in currentEntryKeySet
+                    }
                 },
             ) {
                 retainedStateHolder.RetainedStateProvider(key = entry.id.toString()) {
