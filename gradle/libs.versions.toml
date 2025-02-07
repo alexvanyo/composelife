@@ -130,6 +130,7 @@ androidx-activityCompose = { group = "androidx.activity", name = "activity-compo
 androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "androidxAnnotation" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppcompat" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "androidxBenchmark" }
+androidx-benchmark-micro-junit4 = { group = "androidx.benchmark", name = "benchmark-junit4", version.ref = "androidxBenchmark" }
 androidx-compose-animation = { group = "androidx.compose.animation", name = "animation" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom-alpha", version.ref = "androidxComposeBomAlpha" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
@@ -258,9 +259,11 @@ convention-kotlinMultiplatformCompose = { id = "com.alexvanyo.composelife.kotlin
 convention-mergeJacoco = { id = "com.alexvanyo.composelife.mergeJacoco" }
 android-lint = { id = "com.android.lint", version.ref = "androidGradlePlugin" }
 androidx-baselineProfile = { id = "androidx.baselineprofile", version.ref = "androidxBenchmark" }
+androidx-benchmark = { id = "androidx.benchmark", version.ref = "androidxBenchmark" }
 compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 gradleDependenciesSorter = { id = "com.squareup.sort-dependencies", version.ref = "gradleDependenciesSorter" }
+keeper = { id = "com.slack.keeper" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
