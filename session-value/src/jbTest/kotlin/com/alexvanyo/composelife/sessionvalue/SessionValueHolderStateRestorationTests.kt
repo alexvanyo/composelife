@@ -76,7 +76,7 @@ class SessionValueHolderStateRestorationTests {
         assertEquals(sessionId1, info1.currentUpstreamSessionId)
         assertEquals(sessionId1, info1.preLocalSessionId)
 
-        stateRestorationTester.emulateSavedInstanceStateRestore()
+        stateRestorationTester.emulateStateRestore()
         waitForIdle()
 
         assertEquals(
@@ -137,7 +137,7 @@ class SessionValueHolderStateRestorationTests {
         assertEquals(sessionId1, info1.currentUpstreamSessionId)
         assertEquals(sessionId1, info1.preLocalSessionId)
 
-        stateRestorationTester.emulateSavedInstanceStateRestore()
+        stateRestorationTester.emulateStateRestore()
         waitForIdle()
 
         assertEquals(
@@ -212,7 +212,7 @@ class SessionValueHolderStateRestorationTests {
         assertEquals(sessionId1, info2.previousUpstreamSessionId)
         assertEquals(sessionId1, info2.preLocalSessionId)
 
-        stateRestorationTester.emulateSavedInstanceStateRestore()
+        stateRestorationTester.emulateStateRestore()
         waitForIdle()
 
         assertEquals(
@@ -299,7 +299,7 @@ class SessionValueHolderStateRestorationTests {
         assertEquals(sessionId1, info2.previousUpstreamSessionId)
         assertEquals(sessionId1, info2.preLocalSessionId)
 
-        stateRestorationTester.emulateSavedInstanceStateRestore()
+        stateRestorationTester.emulateStateRestore()
         waitForIdle()
 
         assertEquals(

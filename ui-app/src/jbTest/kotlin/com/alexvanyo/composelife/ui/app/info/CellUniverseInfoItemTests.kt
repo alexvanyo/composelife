@@ -139,7 +139,7 @@ class CellUniverseInfoItemTests {
 
         onNodeWithText("Test").assertIsOff()
 
-        stateRestorationTester.emulateSavedInstanceStateRestore()
+        stateRestorationTester.emulateStateRestore()
 
         onNodeWithText("Test").assertIsOff()
     }

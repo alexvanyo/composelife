@@ -23,19 +23,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.setValue
+import com.slack.circuit.retained.RetainedStateRegistry
+import com.slack.circuit.retained.RetainedValueProvider
 
-private class RestorationRegistryImpl(private val original: SaveableStateRegistry) :
-    RestorationRegistry {
+@Suppress("TooManyFunctions")
+private class RestorationRegistryImpl(
+    private val originalSaveableStateRegistry: SaveableStateRegistry,
+    private val retainedStateRegistry: RetainedStateRegistry,
+) : RestorationRegistry {
 
     override var shouldEmitChildren by mutableStateOf(true)
         private set
-    private var currentRegistry: SaveableStateRegistry = original
+    private var currentSaveableStateRegistry: SaveableStateRegistry = originalSaveableStateRegistry
     private lateinit var savedParcel: Parcel
 
     override fun saveStateAndDisposeChildren() {
         savedParcel = Parcel.obtain().also {
-            currentRegistry.performSave().toBundle().writeToParcel(it, Parcelable.PARCELABLE_WRITE_RETURN_VALUE)
+            currentSaveableStateRegistry
+                .performSave()
+                .toBundle()
+                .writeToParcel(it, Parcelable.PARCELABLE_WRITE_RETURN_VALUE)
         }
+        retainedStateRegistry.saveAll()
         shouldEmitChildren = false
     }
 
@@ -45,26 +54,40 @@ private class RestorationRegistryImpl(private val original: SaveableStateRegistr
             classLoader = this@RestorationRegistryImpl.javaClass.classLoader
         }.toMap()
         savedParcel.recycle()
-        currentRegistry = SaveableStateRegistry(
+        currentSaveableStateRegistry = SaveableStateRegistry(
             restoredValues = restoredValues,
-            canBeSaved = { original.canBeSaved(it) },
+            canBeSaved = { originalSaveableStateRegistry.canBeSaved(it) },
         )
         shouldEmitChildren = true
     }
 
-    override fun consumeRestored(key: String) = currentRegistry.consumeRestored(key)
+    override fun consumeRestored(key: String) = currentSaveableStateRegistry.consumeRestored(key)
 
     override fun registerProvider(key: String, valueProvider: () -> Any?) =
-        currentRegistry.registerProvider(key, valueProvider)
+        currentSaveableStateRegistry.registerProvider(key, valueProvider)
 
-    override fun canBeSaved(value: Any) = currentRegistry.canBeSaved(value)
+    override fun canBeSaved(value: Any) = currentSaveableStateRegistry.canBeSaved(value)
 
-    override fun performSave() = currentRegistry.performSave()
+    override fun performSave() = currentSaveableStateRegistry.performSave()
+
+    override fun consumeValue(key: String): Any? =
+        retainedStateRegistry.consumeValue(key)
+
+    override fun forgetUnclaimedValues() =
+        retainedStateRegistry.forgetUnclaimedValues()
+
+    override fun registerValue(key: String, valueProvider: RetainedValueProvider): RetainedStateRegistry.Entry =
+        retainedStateRegistry.registerValue(key, valueProvider)
+
+    override fun saveAll() = retainedStateRegistry.saveAll()
+
+    override fun saveValue(key: String) = retainedStateRegistry.saveValue(key)
 }
 
 internal actual fun RestorationRegistry(
-    original: SaveableStateRegistry,
-): RestorationRegistry = RestorationRegistryImpl(original)
+    originalSaveableStateRegistry: SaveableStateRegistry,
+    originalRetainedStateRegistry: RetainedStateRegistry,
+): RestorationRegistry = RestorationRegistryImpl(originalSaveableStateRegistry, originalRetainedStateRegistry)
 
 // Copied from DisposableSaveableStateRegistry.android.kt
 @Suppress("DEPRECATION", "UNCHECKED_CAST")

@@ -312,7 +312,7 @@ class AndroidParameterizedStringTests {
 
         assertNotNull(initial)
 
-        stateRestorationTester.emulateSavedInstanceStateRestore()
+        stateRestorationTester.emulateStateRestore()
 
         val restored = parameterizedString
 
@@ -336,7 +336,7 @@ class AndroidParameterizedStringTests {
 
         assertNotNull(initial)
 
-        stateRestorationTester.emulateSavedInstanceStateRestore()
+        stateRestorationTester.emulateStateRestore()
 
         val restored = parameterizedString
 
@@ -359,7 +359,7 @@ class AndroidParameterizedStringTests {
 
         assertNotNull(initial)
 
-        stateRestorationTester.emulateSavedInstanceStateRestore()
+        stateRestorationTester.emulateStateRestore()
 
         val restored = parameterizedString
 
@@ -406,7 +406,7 @@ class AndroidParameterizedStringTests {
 
         assertNotNull(initial)
 
-        stateRestorationTester.emulateSavedInstanceStateRestore()
+        stateRestorationTester.emulateStateRestore()
 
         val restored = parameterizedString
 

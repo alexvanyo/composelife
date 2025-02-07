@@ -127,7 +127,7 @@ class ParameterizedStringTests {
 
         assertNotNull(initial)
 
-        stateRestorationTester.emulateSavedInstanceStateRestore()
+        stateRestorationTester.emulateStateRestore()
 
         val restored = parameterizedString
 
@@ -174,7 +174,7 @@ class ParameterizedStringTests {
 
         assertNotNull(initial)
 
-        stateRestorationTester.emulateSavedInstanceStateRestore()
+        stateRestorationTester.emulateStateRestore()
 
         val restored = parameterizedString
 

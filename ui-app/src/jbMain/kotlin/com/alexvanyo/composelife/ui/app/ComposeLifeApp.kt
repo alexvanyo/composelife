@@ -82,7 +82,7 @@ interface ComposeLifeAppInjectEntryPoint :
 
 context(ComposeLifeAppInjectEntryPoint)
 @Suppress("LongMethod")
-@OptIn(ExperimentalAnimationApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun ComposeLifeApp(
     windowSizeClass: WindowSizeClass,

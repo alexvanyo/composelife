@@ -24,11 +24,8 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import com.slack.circuit.retained.CanRetainChecker
 import com.slack.circuit.retained.LocalCanRetainChecker
-import com.slack.circuit.retained.LocalRetainedStateRegistry
-import com.slack.circuit.retained.RetainedStateRegistry
-import com.slack.circuit.retained.rememberRetained
+import com.slack.circuit.retained.rememberRetainedStateHolder
 
 /**
  * Returns a [RenderableNavigationState] associating the entries for the [navigationState] with a lambda to
@@ -43,12 +40,7 @@ fun <T : NavigationEntry, S : NavigationState<T>> associateWithRenderablePanes(
     pane: @Composable (T) -> Unit,
 ): RenderableNavigationState<T, S> {
     val saveableStateHolder = rememberSaveableStateHolder()
-
-    /**
-     * Create a [RetainedStateRegistry] for the NavigationHost.
-     * This will keep all individual entry's [RetainedStateRegistry]s retained even if they are not composed.
-     */
-    val retainedStateRegistry = rememberRetained { RetainedStateRegistry() }
+    val retainedStateHolder = rememberRetainedStateHolder()
 
     val currentEntryKeySet by rememberUpdatedState(navigationState.entryMap.keys.toSet())
 
@@ -60,13 +52,16 @@ fun <T : NavigationEntry, S : NavigationState<T>> associateWithRenderablePanes(
         key(entryKey) {
             DisposableEffect(Unit) {
                 // Ordering notes
-                // This will happen _after_ the entryRetainedStateRegistry's onDispose in
-                // due to LIFO ordering of DisposableEffect, so any retained entry state saved there will be cleared.
+                // This will happen _after_ the RetainedStateProvider's onDispose in
+                // due to LIFO ordering of DisposableEffect, so any retained entry state that was saved will be cleared.
+                // If the entry is still visible, then the can retain checker below will avoiding retaining the state
+                // if saved by a parent.
                 // This will happen _after_ the content's onDispose in SaveableStateProvider due to
-                // LIFO ordering of DisposableEffect, so the removed entry state saving will be skipped.
+                // LIFO ordering of DisposableEffect, so any saved state will be cleared. If the entry is still visible,
+                // then removing this state will prevent the entry state from being saved when it disappears.
                 onDispose {
                     if (entryKey !in currentEntryKeySet) {
-                        retainedStateRegistry.consumeValue(entryKey.toString())
+                        retainedStateHolder.removeState(entryKey.toString())
                         saveableStateHolder.removeState(entryKey)
                     }
                 }
@@ -77,20 +72,16 @@ fun <T : NavigationEntry, S : NavigationState<T>> associateWithRenderablePanes(
     val wrappedPane: @Composable (T) -> Unit = { entry ->
         saveableStateHolder.SaveableStateProvider(key = entry.id) {
             CompositionLocalProvider(
-                LocalRetainedStateRegistry provides retainedStateRegistry,
-                /**
-                 * Only retain the entry [RetainedStateRegistry] when it is in the backstack.
-                 */
-                LocalCanRetainChecker provides { entry.id in currentEntryKeySet },
+                // Only retain the entry when it is in the backstack.
+                // Remember the CanRetainChecker lambda to avoid propagating changes through the tree
+                LocalCanRetainChecker provides remember(entry.id) {
+                    {
+                            _ ->
+                        entry.id in currentEntryKeySet
+                    }
+                },
             ) {
-                val entryRetainedStateRegistry = rememberRetained(key = entry.id.toString()) {
-                    RetainedStateRegistry()
-                }
-
-                CompositionLocalProvider(
-                    LocalRetainedStateRegistry provides entryRetainedStateRegistry,
-                    LocalCanRetainChecker provides CanRetainChecker.Always,
-                ) {
+                retainedStateHolder.RetainedStateProvider(key = entry.id.toString()) {
                     pane(entry)
                 }
             }

@@ -20,24 +20,31 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.setValue
+import com.slack.circuit.retained.RetainedStateRegistry
+import com.slack.circuit.retained.RetainedValueProvider
 
-private class RestorationRegistryImpl(private val original: SaveableStateRegistry) :
+@Suppress("TooManyFunctions")
+private class RestorationRegistryImpl(
+    private val originalSaveableStateRegistry: SaveableStateRegistry,
+    private val retainedStateRegistry: RetainedStateRegistry,
+) :
     RestorationRegistry {
 
     override var shouldEmitChildren by mutableStateOf(true)
         private set
-    private var currentRegistry: SaveableStateRegistry = original
+    private var currentRegistry: SaveableStateRegistry = originalSaveableStateRegistry
     private var savedMap: Map<String, List<Any?>> = emptyMap()
 
     override fun saveStateAndDisposeChildren() {
         savedMap = currentRegistry.performSave()
+        retainedStateRegistry.saveAll()
         shouldEmitChildren = false
     }
 
     override fun emitChildrenWithRestoredState() {
         currentRegistry = SaveableStateRegistry(
             restoredValues = savedMap,
-            canBeSaved = { original.canBeSaved(it) },
+            canBeSaved = { originalSaveableStateRegistry.canBeSaved(it) },
         )
         shouldEmitChildren = true
     }
@@ -50,8 +57,22 @@ private class RestorationRegistryImpl(private val original: SaveableStateRegistr
     override fun canBeSaved(value: Any) = currentRegistry.canBeSaved(value)
 
     override fun performSave() = currentRegistry.performSave()
+
+    override fun consumeValue(key: String): Any? =
+        retainedStateRegistry.consumeValue(key)
+
+    override fun forgetUnclaimedValues() =
+        retainedStateRegistry.forgetUnclaimedValues()
+
+    override fun registerValue(key: String, valueProvider: RetainedValueProvider): RetainedStateRegistry.Entry =
+        retainedStateRegistry.registerValue(key, valueProvider)
+
+    override fun saveAll() = retainedStateRegistry.saveAll()
+
+    override fun saveValue(key: String) = retainedStateRegistry.saveValue(key)
 }
 
 internal actual fun RestorationRegistry(
-    original: SaveableStateRegistry,
-): RestorationRegistry = RestorationRegistryImpl(original)
+    originalSaveableStateRegistry: SaveableStateRegistry,
+    originalRetainedStateRegistry: RetainedStateRegistry,
+): RestorationRegistry = RestorationRegistryImpl(originalSaveableStateRegistry, originalRetainedStateRegistry)
