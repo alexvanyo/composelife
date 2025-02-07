@@ -142,6 +142,9 @@ kotlin {
         val desktopTest by getting {
             dependsOn(jbTest)
             configurations["kspDesktopTest"].dependencies.add(libs.kotlinInject.ksp.get())
+            dependencies {
+                implementation(libs.kotlinx.coroutines.swing)
+            }
         }
         val androidSharedTest by getting {
             dependsOn(jbTest)
