@@ -44,6 +44,7 @@ kotlin {
         val jbMain by creating {
             dependsOn(commonMain)
             dependencies {
+                implementation(libs.circuit.retained)
                 implementation(libs.jetbrains.compose.uiTest)
             }
         }

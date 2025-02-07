@@ -18,20 +18,20 @@ package com.alexvanyo.composelife.kmpstaterestorationtester
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import com.slack.circuit.retained.LocalRetainedStateRegistry
+import com.slack.circuit.retained.RetainedStateRegistry
 
 /**
  * Helps to test the state restoration for your Composable component.
  *
  * Instead of calling [ComposeUiTest.setContent] you need to use [setContent] on this
  * object, then change your state so there is some change to be restored, then execute
- * [emulateSavedInstanceStateRestore] and assert your state is restored properly.
+ * [emulateStateRestore] and assert your state is restored properly.
  *
  * Note that this tests only the restoration of the local state of the composable you passed to
  * [setContent] and useful for testing [androidx.compose.runtime.saveable.rememberSaveable]
@@ -44,14 +44,18 @@ class KmpStateRestorationTester(private val composeUiTest: ComposeUiTest) {
 
     /**
      * This functions is a direct replacement for [ComposeUiTest.setContent] if you are
-     * going to use [emulateSavedInstanceStateRestore] in the test.
+     * going to use [emulateStateRestore] in the test.
      */
     fun setContent(composable: @Composable () -> Unit) {
         composeUiTest.setContent {
             // If there is no current saveable state registry, add one that can save anything for multiplatform use.
             val currentSaveableStateRegistry = LocalSaveableStateRegistry.current
             val resolvedSaveableStateRegistry = currentSaveableStateRegistry ?: SaveableStateRegistry(null) { true }
-            CompositionLocalProvider(LocalSaveableStateRegistry provides resolvedSaveableStateRegistry) {
+            CompositionLocalProvider(
+                LocalSaveableStateRegistry provides resolvedSaveableStateRegistry,
+                // Replace the default NoOpRetainedStateRegistry with one that will save.
+                LocalRetainedStateRegistry provides remember { RetainedStateRegistry() },
+            ) {
                 InjectRestorationRegistry { registry ->
                     this.registry = registry
                     composable()
@@ -61,12 +65,12 @@ class KmpStateRestorationTester(private val composeUiTest: ComposeUiTest) {
     }
 
     /**
-     * Saves all the state stored via [savedInstanceState] or [rememberSaveable],
+     * Saves all the state stored via [savedInstanceState], [rememberSaveable] and [rememberRetained],
      * disposes current composition, and composes again the content passed to [setContent].
      * Allows to test how your component behaves when the state restoration is happening.
      * Note that the state stored via regular state() or remember() will be lost.
      */
-    fun emulateSavedInstanceStateRestore() {
+    fun emulateStateRestore() {
         val registry = checkNotNull(registry) {
             "setContent should be called first!"
         }
@@ -83,12 +87,18 @@ class KmpStateRestorationTester(private val composeUiTest: ComposeUiTest) {
 
     @Composable
     private fun InjectRestorationRegistry(content: @Composable (RestorationRegistry) -> Unit) {
-        val original = requireNotNull(LocalSaveableStateRegistry.current) {
+        val originalSaveableStateRegistry = requireNotNull(LocalSaveableStateRegistry.current) {
             "StateRestorationTester requires composeTestRule.setContent() to provide " +
                 "a SaveableStateRegistry implementation via LocalSaveableStateRegistry"
         }
-        val restorationRegistry = remember { RestorationRegistry(original) }
-        CompositionLocalProvider(LocalSaveableStateRegistry provides restorationRegistry) {
+        val originalRetainedStateRegistry = LocalRetainedStateRegistry.current
+        val restorationRegistry = remember {
+            RestorationRegistry(originalSaveableStateRegistry, originalRetainedStateRegistry)
+        }
+        CompositionLocalProvider(
+            LocalSaveableStateRegistry provides restorationRegistry,
+            LocalRetainedStateRegistry provides restorationRegistry,
+        ) {
             if (restorationRegistry.shouldEmitChildren) {
                 content(restorationRegistry)
             }
@@ -96,7 +106,7 @@ class KmpStateRestorationTester(private val composeUiTest: ComposeUiTest) {
     }
 }
 
-internal interface RestorationRegistry : SaveableStateRegistry {
+internal interface RestorationRegistry : SaveableStateRegistry, RetainedStateRegistry {
     val shouldEmitChildren: Boolean
 
     fun saveStateAndDisposeChildren()
@@ -104,4 +114,7 @@ internal interface RestorationRegistry : SaveableStateRegistry {
     fun emitChildrenWithRestoredState()
 }
 
-internal expect fun RestorationRegistry(original: SaveableStateRegistry): RestorationRegistry
+internal expect fun RestorationRegistry(
+    originalSaveableStateRegistry: SaveableStateRegistry,
+    originalRetainedStateRegistry: RetainedStateRegistry,
+): RestorationRegistry

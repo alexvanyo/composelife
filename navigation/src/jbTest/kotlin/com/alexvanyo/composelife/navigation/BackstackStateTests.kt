@@ -78,7 +78,7 @@ class BackstackStateTests {
         assertNotNull(backstackMap)
         backstackMap = null
 
-        stateRestorationTester.emulateSavedInstanceStateRestore()
+        stateRestorationTester.emulateStateRestore()
 
         val restoredBackstackMap = assertNotNull(backstackMap)
         assertEquals(4, restoredBackstackMap.size)
@@ -152,7 +152,7 @@ class BackstackStateTests {
         assertNotNull(backstackMap)
         backstackMap = null
 
-        stateRestorationTester.emulateSavedInstanceStateRestore()
+        stateRestorationTester.emulateStateRestore()
 
         val restoredBackstackMap = assertNotNull(backstackMap)
         assertEquals(4, restoredBackstackMap.size)
