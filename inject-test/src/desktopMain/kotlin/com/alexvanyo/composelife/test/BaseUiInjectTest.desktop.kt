@@ -27,7 +27,6 @@ import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalTestApi::class)
 actual fun <T, U> BaseUiInjectTest<T, U>.runUiTest(
