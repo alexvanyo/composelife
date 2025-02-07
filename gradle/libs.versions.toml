@@ -72,7 +72,7 @@ keeper = "0.16.1"
 #kermit
 kermit = "2.0.5"
 #kotlin
-kotlin = "2.1.20-Beta1"
+kotlin = "2.1.20-Beta2"
 #kotlinInject
 kotlinInject = "0.7.2"
 #kotlinxCollectionsImmutable
@@ -84,7 +84,7 @@ kotlinxDatetime = "0.6.1"
 #kotlinxSerialization
 kotlinxSerialization = "1.8.0"
 #ksp
-ksp = "2.1.20-Beta1-1.0.29"
+ksp = "2.1.20-Beta2-1.0.29"
 #jacoco
 jacoco = "0.8.12"
 #jetbrainsCompose
