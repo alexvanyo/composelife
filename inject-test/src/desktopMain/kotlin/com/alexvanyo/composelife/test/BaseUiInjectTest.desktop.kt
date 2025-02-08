@@ -26,10 +26,12 @@ import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration
 
 @OptIn(ExperimentalTestApi::class)
 actual fun <T, U> BaseUiInjectTest<T, U>.runUiTest(
     appTestContext: CoroutineContext,
+    timeout: Duration,
     testBody: suspend context(ComposeUiTest, TestScope) UiTestScope<T, U>.() -> Unit,
 ): TestResult where T : ApplicationComponent<*>, T : UpdatableModule, U : UiComponent<T, *> =
     runComposeUiTest {
@@ -38,7 +40,10 @@ actual fun <T, U> BaseUiInjectTest<T, U>.runUiTest(
             object : UiComponentArguments {},
         )
 
-        runAppTest(appTestContext) {
+        runAppTest(
+            context = appTestContext,
+            timeout = timeout,
+        ) {
             testBody(
                 this,
                 object : UiTestScope<T, U> {
