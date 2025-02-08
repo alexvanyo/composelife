@@ -20,10 +20,13 @@ package com.alexvanyo.composelife.buildlogic
 
 import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.dsl.ManagedVirtualDevice
+import com.android.build.gradle.internal.tasks.ManagedDeviceInstrumentationTestSetupTask
 import com.android.build.gradle.internal.tasks.ManagedDeviceInstrumentationTestTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
+import org.gradle.api.services.BuildService
+import org.gradle.api.services.BuildServiceParameters
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.os.OperatingSystem
@@ -132,7 +135,7 @@ fun Project.configureGradleManagedDevices(
     commonExtension = commonExtension,
 )
 
-@Suppress("CyclomaticComplexMethod")
+@Suppress("CyclomaticComplexMethod", "LongMethod")
 @JvmName("configureGradleManagedDevicesDeviceConfig")
 fun Project.configureGradleManagedDevices(
     devices: Set<GradleManagedDeviceConfig>,
@@ -183,6 +186,15 @@ fun Project.configureGradleManagedDevices(
                         SystemImageSource.AndroidWear -> "android-wear"
                     }
                 }
+
+                // Create a limiting build service to only allow one setup task for each device configuration to run
+                // at a time
+                gradle.sharedServices.registerIfAbsent(
+                    LimitingBuildServiceGMDSetup.createKey(config),
+                    LimitingBuildServiceGMDSetup::class.java,
+                ) {
+                    maxParallelUsages.set(1)
+                }
             }
     }
 
@@ -196,6 +208,41 @@ fun Project.configureGradleManagedDevices(
                 },
             )
         }
+    }
+
+    // Create a limiting build service to only allow an maxConcurrentDevices amount of test tasks to run at a time
+    val runningLimitingService = gradle.sharedServices.registerIfAbsent(
+        LimitingBuildServiceGMDRunning.KEY,
+        LimitingBuildServiceGMDRunning::class.java,
+    ) {
+        maxParallelUsages.set(
+            providers.gradleProperty("android.experimental.testOptions.managedDevices.maxConcurrentDevices")
+                .map { value -> value.toIntOrNull() ?: 1 },
+        )
+    }
+    tasks.withType<ManagedDeviceInstrumentationTestTask> {
+        usesService(runningLimitingService)
+    }
+    tasks.withType<ManagedDeviceInstrumentationTestSetupTask> {
+        usesService(
+            gradle
+                .sharedServices
+                .registrations
+                .getByName("LimitingBuildServiceGMDSetup${name.substringBefore("Setup")}")
+                .service,
+        )
+    }
+}
+
+interface LimitingBuildServiceGMDRunning : BuildService<BuildServiceParameters.None> {
+    companion object {
+        const val KEY = "LimitingBuildServiceGMDRunning"
+    }
+}
+
+interface LimitingBuildServiceGMDSetup : BuildService<BuildServiceParameters.None> {
+    companion object {
+        fun createKey(config: GradleManagedDeviceConfig): String = "LimitingBuildServiceGMDSetup${config.taskPrefix}"
     }
 }
 
