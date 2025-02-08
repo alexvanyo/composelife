@@ -259,7 +259,7 @@ jobs:
     steps:
       - id: set-matrix
         run: |
-          if ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch') }}
+          if ${{ (github.event_name == 'schedule') || (github.event_name == 'workflow_dispatch') }}
           then
             MATRIX='
               {"api-level": "21", "target": "aosp", "device": "nexus4"},
@@ -351,14 +351,14 @@ jobs:
           echo "com.alexvanyo.composelife.enabledGradleManagedDevices=${{ matrix.target }}${{ matrix.device }}api${{ matrix.api-level }}" > ~/.gradle/gradle.properties
 
       - name: Cache AVD
-        if: false
+        if: ${{ (github.event_name != 'schedule') && (github.event_name != 'workflow_dispatch') }}
         uses: actions/cache@v4
         id: avd-cache
         with:
           path: |
             ${{ env.ANDROID_USER_HOME }}/avd/gradle-managed/*
             ${{ env.ANDROID_USER_HOME }}/adb*
-          key: v5-${{ runner.os }}-gmd-${{ matrix.device }}-${{ matrix.api-level }}-${{ matrix.target }}
+          key: v6-${{ runner.os }}-gmd-${{ matrix.device }}-${{ matrix.api-level }}-${{ matrix.target }}
 
       - name: Configure JDK
         uses: actions/setup-java@v4
