@@ -27,6 +27,8 @@ import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * A base class for testing components that depend on injected classes.
@@ -46,9 +48,11 @@ abstract class BaseInjectTest<T>(
 
     open fun runAppTest(
         context: CoroutineContext = EmptyCoroutineContext,
+        timeout: Duration = 60.seconds,
         testBody: suspend TestScope.() -> Unit,
     ): TestResult = runTest(
         context = context,
+        timeout = timeout,
     ) {
         updatables.forEach { updatable ->
             backgroundScope.launch {

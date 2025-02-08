@@ -26,6 +26,8 @@ import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * A base class for testing UI that depends on injected classes.
@@ -41,6 +43,7 @@ abstract class BaseUiInjectTest<T, U>(
 @OptIn(ExperimentalTestApi::class)
 expect fun <T, U> BaseUiInjectTest<T, U>.runUiTest(
     appTestContext: CoroutineContext = EmptyCoroutineContext,
+    timeout: Duration = 60.seconds,
     testBody: suspend context(ComposeUiTest, TestScope) UiTestScope<T, U>.() -> Unit,
 ): TestResult where T : ApplicationComponent<*>, T : UpdatableModule, U : UiComponent<T, *>
 

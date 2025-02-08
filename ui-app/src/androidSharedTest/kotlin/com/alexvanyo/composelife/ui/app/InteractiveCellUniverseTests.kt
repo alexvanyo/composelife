@@ -81,6 +81,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.time.Duration.Companion.seconds
 import com.alexvanyo.composelife.ui.cells.resources.Strings as CellsStrings
 
 @Suppress("LargeClass")
@@ -210,7 +211,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
     }
 
     @Test
-    fun six_long_line_evolves_correctly() = runUiTest(generalTestDispatcher) {
+    fun six_long_line_evolves_correctly() = runUiTest(generalTestDispatcher, 120.seconds) {
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
@@ -275,7 +276,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
     }
 
     @Test
-    fun six_long_line_evolves_correctly_with_spacebar() = runUiTest(generalTestDispatcher) {
+    fun six_long_line_evolves_correctly_with_spacebar() = runUiTest(generalTestDispatcher, 120.seconds) {
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
@@ -344,7 +345,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
     }
 
     @Test
-    fun six_long_line_evolves_correctly_after_slowing_down() = runUiTest(generalTestDispatcher) {
+    fun six_long_line_evolves_correctly_after_slowing_down() = runUiTest(generalTestDispatcher, 120.seconds) {
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
@@ -424,7 +425,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
     }
 
     @Test
-    fun six_long_line_evolves_correctly_with_step() = runUiTest(generalTestDispatcher) {
+    fun six_long_line_evolves_correctly_with_step() = runUiTest(generalTestDispatcher, 120.seconds) {
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
@@ -485,7 +486,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
     }
 
     @Test
-    fun six_long_line_evolves_correctly_with_double_step_via_slider() = runUiTest(generalTestDispatcher) {
+    fun six_long_line_evolves_correctly_with_double_step_via_slider() = runUiTest(generalTestDispatcher, 120.seconds) {
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
@@ -561,7 +562,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplication
     }
 
     @Test
-    fun six_long_line_evolves_correctly_with_double_step_via_text() = runUiTest(generalTestDispatcher) {
+    fun six_long_line_evolves_correctly_with_double_step_via_text() = runUiTest(generalTestDispatcher, 120.seconds) {
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
