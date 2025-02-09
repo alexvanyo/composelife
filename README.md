@@ -35,7 +35,7 @@ These include:
 ## Setup
 
 Requirements:
-- Android Studio Ladybug 2024.2.1
+- Android Studio Ladybug Feature Drop 2024.2.2
 - JDK 21+
 
 Clone the project, and build! (no API keys or other setup necessary)
