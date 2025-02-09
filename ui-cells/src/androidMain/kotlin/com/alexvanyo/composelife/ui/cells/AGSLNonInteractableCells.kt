@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.cells
 
-import android.graphics.Bitmap
 import android.graphics.BitmapShader
 import android.graphics.Color
 import android.graphics.RuntimeShader
@@ -32,6 +31,7 @@ import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.core.graphics.createBitmap
 import androidx.core.graphics.set
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
@@ -124,7 +124,7 @@ fun AGSLNonInteractableCells(
 
     val shader = remember { RuntimeShader(SHADER_SRC) }
     val cellBitmap = remember(cellWindow) {
-        Bitmap.createBitmap(cellWindow.width, cellWindow.height, Bitmap.Config.ARGB_8888)
+        createBitmap(cellWindow.width, cellWindow.height)
     }
     val cellBitmapShader = remember(cellBitmap) {
         BitmapShader(cellBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)

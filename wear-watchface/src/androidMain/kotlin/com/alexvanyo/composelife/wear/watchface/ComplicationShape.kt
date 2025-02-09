@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.wear.watchface
 
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -28,6 +27,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toIntRect
+import androidx.core.graphics.createBitmap
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.RenderParameters
 import com.alexvanyo.composelife.openglrenderer.checkOpenGLError
@@ -109,11 +109,7 @@ class ComplicationShape(
     /**
      * Prepare a bitmap with slightly larger bounds than the real bounds of the complication
      */
-    private val bitmap = Bitmap.createBitmap(
-        expandedBounds.width,
-        expandedBounds.height,
-        Bitmap.Config.ARGB_8888,
-    )
+    private val bitmap = createBitmap(expandedBounds.width, expandedBounds.height)
 
     /**
      * The [Canvas] backed by the [bitmap].
