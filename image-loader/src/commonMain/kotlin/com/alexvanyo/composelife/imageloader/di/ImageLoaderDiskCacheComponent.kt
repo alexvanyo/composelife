@@ -32,6 +32,6 @@ interface ImageLoaderDiskCacheComponent : FileSystemModule {
     ): DiskCache = DiskCache.Builder()
         .directory(FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "coil3_disk_cache")
         .fileSystem(fileSystem)
-        .cleanupDispatcher(dispatchers.IO)
+        .cleanupCoroutineContext(dispatchers.IO)
         .build()
 }
