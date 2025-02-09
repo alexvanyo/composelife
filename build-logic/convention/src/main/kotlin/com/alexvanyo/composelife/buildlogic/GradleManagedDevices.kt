@@ -142,7 +142,7 @@ fun Project.configureGradleManagedDevices(
     commonExtension: CommonExtension<*, *, *, *, *, *>,
     filterForTests: Boolean = true,
 ) {
-    commonExtension.testOptions.managedDevices.devices {
+    commonExtension.testOptions.managedDevices.allDevices {
         devices
             .filter { config ->
                 !filterForTests ||
