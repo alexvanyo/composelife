@@ -80,7 +80,7 @@ kotlinxCollectionsImmutable = "0.3.8"
 #kotlinxCoroutines
 kotlinxCoroutines = "1.10.1"
 #kotlinxDatetime
-kotlinxDatetime = "0.6.1"
+kotlinxDatetime = "0.6.2"
 #kotlinxSerialization
 kotlinxSerialization = "1.8.0"
 #ksp
