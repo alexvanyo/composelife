@@ -2,6 +2,7 @@ package: name='com.alexvanyo.composelife.algorithm.benchmark' versionCode='1' ve
 minSdkVersion:'30'
 targetSdkVersion:'34'
 uses-permission: name='android.permission.WRITE_EXTERNAL_STORAGE'
+uses-permission: name='android.permission.INTERNET'
 uses-permission: name='android.permission.READ_EXTERNAL_STORAGE'
 application: label='' icon=''
 feature-group: label=''
