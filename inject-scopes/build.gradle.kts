@@ -35,7 +35,9 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.kotlinInject.runtime)
+                api(libs.kotlinInject.runtime)
+                api(libs.kotlinInjectAnvil.runtime)
+                api(libs.kotlinInjectAnvil.runtimeOptional)
             }
         }
         val jbMain by creating {

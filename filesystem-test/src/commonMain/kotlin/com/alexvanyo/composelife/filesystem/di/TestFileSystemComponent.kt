@@ -16,13 +16,16 @@
 
 package com.alexvanyo.composelife.filesystem.di
 
-import com.alexvanyo.composelife.scopes.Singleton
 import me.tatarka.inject.annotations.Provides
 import okio.FileSystem
 import okio.fakefilesystem.FakeFileSystem
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-interface TestFileSystemComponent : FileSystemModule {
+@ContributesTo(AppScope::class, replaces = [FileSystemComponent::class])
+interface TestFileSystemComponent {
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     fun providesFileSystem(): FileSystem = FakeFileSystem()
 }

@@ -27,9 +27,14 @@ import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.collectLatest
 import me.tatarka.inject.annotations.Inject
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 import kotlin.system.exitProcess
 
 @Inject
+@ContributesBinding(AppScope::class, boundType = Updatable::class, multibinding = true)
+@SingleIn(AppScope::class)
 class DoNotKeepProcess(
     private val lifecycleOwner: @ProcessLifecycleOwner LifecycleOwner,
     private val composeLifePreferences: ComposeLifePreferences,

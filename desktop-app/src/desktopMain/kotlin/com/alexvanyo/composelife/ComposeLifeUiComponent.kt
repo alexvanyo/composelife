@@ -16,20 +16,41 @@
 
 package com.alexvanyo.composelife
 
-import com.alexvanyo.composelife.scopes.UiComponent
-import me.tatarka.inject.annotations.Component
+import coil3.ImageLoader
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
+import com.alexvanyo.composelife.data.CellStateRepository
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.model.CellStateParser
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.scopes.UiScope
+import kotlinx.datetime.Clock
+import me.tatarka.inject.annotations.Inject
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesSubcomponent
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import kotlin.random.Random
 
-@Suppress("UnnecessaryAbstractClass")
-@Component
-abstract class ComposeLifeUiComponent(
-    @Component override val applicationComponent: ComposeLifeApplicationComponent,
-) : UiComponent<ComposeLifeApplicationComponent, ComposeLifeUiEntryPoint>(applicationComponent) {
-    override val entryPoint: ComposeLifeUiEntryPoint get() =
-        object :
-            ComposeLifeUiEntryPoint,
-            ComposeLifeApplicationEntryPoint by applicationComponent.entryPoint {}
+@ContributesSubcomponent(UiScope::class)
+@SingleIn(UiScope::class)
+interface ComposeLifeUiComponent {
+    val entryPoint: ComposeLifeUiEntryPoint
+
+    @ContributesSubcomponent.Factory(AppScope::class)
+    interface Factory {
+        fun createComponent(): ComposeLifeUiComponent
+    }
 }
 
-interface ComposeLifeUiEntryPoint :
-    ComposeLifeApplicationEntryPoint,
-    MainInjectEntryPoint
+@Suppress("LongParameterList")
+@SingleIn(UiScope::class)
+@Inject
+class ComposeLifeUiEntryPoint(
+    override val gameOfLifeAlgorithm: GameOfLifeAlgorithm,
+    override val composeLifePreferences: ComposeLifePreferences,
+    override val cellStateRepository: CellStateRepository,
+    override val clock: Clock,
+    override val dispatchers: ComposeLifeDispatchers,
+    override val random: Random,
+    override val imageLoader: ImageLoader,
+    override val cellStateParser: CellStateParser,
+) : MainInjectEntryPoint

@@ -51,13 +51,19 @@ import kotlin.test.assertNull
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
+class CellStateDragAndDropTests : BaseUiInjectTest<
+    TestComposeLifeApplicationComponent,
+    TestComposeLifeApplicationEntryPoint,
+    TestComposeLifeUiComponent,
+    >(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {
 
     @Test
-    fun drag_and_drop_works_correctly_when_dropped() = runUiTest(applicationComponent.generalTestDispatcher) {
+    fun drag_and_drop_works_correctly_when_dropped() = runUiTest(
+        applicationComponent.entryPoint.generalTestDispatcher,
+    ) {
         val cellStateParserProvider: CellStateParserProvider = uiComponent.entryPoint
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
@@ -180,7 +186,9 @@ class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationCom
     }
 
     @Test
-    fun drag_and_drop_works_correctly_when_ended() = runUiTest(applicationComponent.generalTestDispatcher) {
+    fun drag_and_drop_works_correctly_when_ended() = runUiTest(
+        applicationComponent.entryPoint.generalTestDispatcher,
+    ) {
         val cellStateParserProvider: CellStateParserProvider = uiComponent.entryPoint
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder

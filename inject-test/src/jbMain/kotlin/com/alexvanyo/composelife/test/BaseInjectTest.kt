@@ -37,14 +37,13 @@ import kotlin.time.Duration.Companion.seconds
  */
 @Suppress("UnnecessaryAbstractClass")
 @RunWith(KmpAndroidJUnit4::class)
-abstract class BaseInjectTest<T>(
+abstract class BaseInjectTest<T : ApplicationComponent<E>, E : UpdatableModule>(
     applicationComponentCreator: () -> T,
-) where T : ApplicationComponent<*>, T : UpdatableModule {
-
+) {
     val applicationComponent: T = applicationComponentCreator()
 
     private val updatables: Set<Updatable>
-        get() = applicationComponent.updatables
+        get() = applicationComponent.entryPoint.updatables
 
     open fun runAppTest(
         context: CoroutineContext = EmptyCoroutineContext,

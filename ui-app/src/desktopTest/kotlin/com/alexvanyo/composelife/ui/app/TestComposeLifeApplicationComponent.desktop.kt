@@ -17,59 +17,20 @@
 
 package com.alexvanyo.composelife.ui.app
 
-import com.alexvanyo.composelife.algorithm.di.AlgorithmComponent
-import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
-import com.alexvanyo.composelife.clock.di.ClockComponent
-import com.alexvanyo.composelife.clock.di.ClockModule
-import com.alexvanyo.composelife.data.di.RepositoryComponent
-import com.alexvanyo.composelife.data.di.RepositoryModule
-import com.alexvanyo.composelife.database.di.TestDatabaseComponent
-import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
-import com.alexvanyo.composelife.filesystem.di.TestFileSystemComponent
-import com.alexvanyo.composelife.imageloader.di.ImageLoaderComponent
-import com.alexvanyo.composelife.imageloader.di.ImageLoaderModule
-import com.alexvanyo.composelife.model.di.CellStateParserModule
-import com.alexvanyo.composelife.preferences.di.PreferencesModule
-import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
-import com.alexvanyo.composelife.random.di.RandomComponent
-import com.alexvanyo.composelife.random.di.RandomModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.ui.cells.di.CellsImageLoadingComponent
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
-import me.tatarka.inject.annotations.Component
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-@Component
+@MergeComponent(AppScope::class)
+@SingleIn(AppScope::class)
 actual abstract class TestComposeLifeApplicationComponent :
-    ApplicationComponent<TestComposeLifeApplicationEntryPoint>(),
-    AlgorithmComponent,
-    RepositoryComponent,
-    TestDatabaseComponent,
-    TestDispatchersComponent,
-    TestPreferencesComponent,
-    RandomComponent,
-    ClockComponent,
-    ImageLoaderComponent,
-    CellsImageLoadingComponent,
-    TestFileSystemComponent,
-    UpdatableModule,
-    CellStateParserModule {
+    ApplicationComponent<TestComposeLifeApplicationEntryPoint>() {
 
-    actual override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
-        object :
-            TestComposeLifeApplicationEntryPoint,
-            AlgorithmModule by this,
-            RepositoryModule by this,
-            ClockModule by this,
-            RandomModule by this,
-            DispatchersModule by this,
-            PreferencesModule by this,
-            UpdatableModule by this,
-            CellStateParserModule by this,
-            ImageLoaderModule by this {}
+    actual abstract override val entryPoint: TestComposeLifeApplicationEntryPoint
 
     actual companion object
 }
 
 actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent =
-    TestComposeLifeApplicationComponent.create()
+    TestComposeLifeApplicationComponent::class.create()

@@ -86,17 +86,21 @@ import com.alexvanyo.composelife.ui.cells.resources.Strings as CellsStrings
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
-class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
+class InteractiveCellUniverseTests : BaseUiInjectTest<
+    TestComposeLifeApplicationComponent,
+    TestComposeLifeApplicationEntryPoint,
+    TestComposeLifeUiComponent,
+    >(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {
-    private val generalTestDispatcher get() = applicationComponent.generalTestDispatcher
+    private val generalTestDispatcher get() = applicationComponent.entryPoint.generalTestDispatcher
 
-    private val cellTickerTestDispatcher get() = applicationComponent.cellTickerTestDispatcher
+    private val cellTickerTestDispatcher get() = applicationComponent.entryPoint.cellTickerTestDispatcher
 
-    private val gameOfLifeAlgorithm get() = applicationComponent.gameOfLifeAlgorithm
+    private val gameOfLifeAlgorithm get() = applicationComponent.entryPoint.gameOfLifeAlgorithm
 
-    private val dispatchers get() = applicationComponent.dispatchers
+    private val dispatchers get() = applicationComponent.entryPoint.dispatchers
 
     private val interactiveCellUniverseLocalEntryPoint = object : InteractiveCellUniverseLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults

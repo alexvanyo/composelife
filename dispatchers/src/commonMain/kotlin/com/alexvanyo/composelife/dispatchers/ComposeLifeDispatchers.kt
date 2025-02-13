@@ -18,6 +18,9 @@ package com.alexvanyo.composelife.dispatchers
 
 import kotlinx.coroutines.Dispatchers
 import me.tatarka.inject.annotations.Inject
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -57,6 +60,8 @@ interface ComposeLifeDispatchers {
  */
 @Suppress("InjectDispatcher")
 @Inject
+@ContributesBinding(AppScope::class)
+@SingleIn(AppScope::class)
 class DefaultComposeLifeDispatchers : ComposeLifeDispatchers {
     override val Default: CoroutineContext = Dispatchers.Default
     override val Main: CoroutineContext = Dispatchers.Main

@@ -17,11 +17,14 @@
 package com.alexvanyo.composelife.imageloader.di
 
 import coil3.fetch.Fetcher
-import com.alexvanyo.composelife.scopes.Singleton
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 import kotlin.reflect.KClass
 
+@ContributesTo(AppScope::class)
 interface ImageLoaderFetcherFactoryComponent {
-    @get:Singleton
+    @get:SingleIn(AppScope::class)
     val fetcherFactoriesWithType: Set<FetcherFactoryWithType<out Any>>
 }
 
