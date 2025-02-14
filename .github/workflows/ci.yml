@@ -10,13 +10,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-cfg:
+  config:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      build-matrix: ${{ steps.set-build-matrix.outputs.matrix }}
+      android-test-gmd-matrix: ${{ steps.set-android-test-gmd-matrix.outputs.matrix }}
 
     steps:
-      - id: set-matrix
+      - id: set-build-matrix
         run: |
           if ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch') }}
           then
@@ -45,18 +46,68 @@ jobs:
           fi
           echo "matrix={\"include\":[${MATRIX//$'\n'/}]}" >> $GITHUB_OUTPUT
 
-  build-cfg-check:
-    needs: build-cfg
+      - id: set-android-test-gmd-matrix
+        run: |
+          if ${{ (github.event_name == 'schedule') || (github.event_name == 'workflow_dispatch') }}
+          then
+            MATRIX='
+              {"api-level": "21", "target": "aosp", "device": "nexus4"},
+              {"api-level": "22", "target": "aosp", "device": "nexus4"},
+              {"api-level": "23", "target": "aosp", "device": "nexus4"},
+              {"api-level": "24", "target": "aosp", "device": "nexus4"},
+              {"api-level": "25", "target": "aosp", "device": "nexus4"},
+              {"api-level": "26", "target": "aosp", "device": "nexus4"},
+              {"api-level": "27", "target": "aosp", "device": "pixel2"},
+              {"api-level": "28", "target": "aosp", "device": "pixel2"},
+              {"api-level": "28", "target": "wear", "device": "wearoslargeround"},
+              {"api-level": "28", "target": "wear", "device": "wearossquare"},
+              {"api-level": "29", "target": "aosp", "device": "pixel2"},
+              {"api-level": "30", "target": "aosp", "device": "pixel3xl"},
+              {"api-level": "30", "target": "aospatd", "device": "pixel2"},
+              {"api-level": "30", "target": "wear", "device": "wearoslargeround"},
+              {"api-level": "30", "target": "wear", "device": "wearossquare"},
+              {"api-level": "31", "target": "aospatd", "device": "pixel2"},
+              {"api-level": "32", "target": "aospatd", "device": "pixel6pro"},
+              {"api-level": "32", "target": "aospatd", "device": "pixeltablet"},
+              {"api-level": "32", "target": "desktop", "device": "mediumdesktop"},
+              {"api-level": "33", "target": "aospatd", "device": "pixel6pro"},
+              {"api-level": "33", "target": "aospatd", "device": "pixeltablet"},
+              {"api-level": "33", "target": "wear", "device": "wearoslargeround"},
+              {"api-level": "33", "target": "wear", "device": "wearossquare"},
+              {"api-level": "34", "target": "aospatd", "device": "pixel6pro"},
+              {"api-level": "34", "target": "aosptablet", "device": "pixeltablet"},
+              {"api-level": "34", "target": "wear", "device": "wearoslargeround"},
+              {"api-level": "34", "target": "wear", "device": "wearossquare"},
+              {"api-level": "35", "target": "google", "device": "pixel6pro"},
+              {"api-level": "35", "target": "googletablet", "device": "pixeltablet"}
+            '
+          else
+            MATRIX='
+              {"api-level": "26", "target": "aosp", "device": "nexus4"},
+              {"api-level": "34", "target": "aosp", "device": "pixel2"},
+              {"api-level": "30", "target": "wear", "device": "wearoslargeround"}
+            '
+          fi
+          echo "matrix={\"include\":[${MATRIX//$'\n'/}]}" >> $GITHUB_OUTPUT
+
+  config-check:
+    needs: config
     runs-on: ubuntu-latest
     steps:
-      - name: Check matrix configuration
+      - name: Check build-matrix configuration
         run: |
-          matrix='${{ needs.build-cfg.outputs.matrix }}'
+          matrix='${{ needs.config.outputs.build-matrix }}'
+          echo $matrix
+          echo $matrix | jq .
+
+      - name: Check android-test-gmd-matrix configuration
+        run: |
+          matrix='${{ needs.config.outputs.android-test-gmd-matrix }}'
           echo $matrix
           echo $matrix | jq .
 
   build:
-    needs: build-cfg
+    needs: config
     runs-on: ubuntu-latest
 
     concurrency:
@@ -65,7 +116,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.build-cfg.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.config.outputs.build-matrix) }}
 
     steps:
       - name: Set ANDROID_USER_HOME
@@ -190,13 +241,13 @@ jobs:
           path: "**/build/outputs/apk/**/*.apk"
 
   codecov-unit-coverage-upload:
-    needs: [build, build-cfg]
+    needs: [build, config]
     if: always()
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.build-cfg.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.config.outputs.build-matrix) }}
 
     steps:
       - name: Checkout
@@ -220,13 +271,13 @@ jobs:
           flags: unit,${{ matrix.sdk }}
 
   codecov-unit-test-upload:
-    needs: [build, build-cfg]
+    needs: [build, config]
     if: always()
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.build-cfg.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.config.outputs.build-matrix) }}
 
     steps:
       - name: Checkout
@@ -251,68 +302,8 @@ jobs:
           files: ${{ steps.test-result-files.outputs.files }}
           flags: unit,${{ matrix.sdk }}
 
-  android-test-gmd-cfg:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-
-    steps:
-      - id: set-matrix
-        run: |
-          if ${{ (github.event_name == 'schedule') || (github.event_name == 'workflow_dispatch') }}
-          then
-            MATRIX='
-              {"api-level": "21", "target": "aosp", "device": "nexus4"},
-              {"api-level": "22", "target": "aosp", "device": "nexus4"},
-              {"api-level": "23", "target": "aosp", "device": "nexus4"},
-              {"api-level": "24", "target": "aosp", "device": "nexus4"},
-              {"api-level": "25", "target": "aosp", "device": "nexus4"},
-              {"api-level": "26", "target": "aosp", "device": "nexus4"},
-              {"api-level": "27", "target": "aosp", "device": "pixel2"},
-              {"api-level": "28", "target": "aosp", "device": "pixel2"},
-              {"api-level": "28", "target": "wear", "device": "wearoslargeround"},
-              {"api-level": "28", "target": "wear", "device": "wearossquare"},
-              {"api-level": "29", "target": "aosp", "device": "pixel2"},
-              {"api-level": "30", "target": "aosp", "device": "pixel3xl"},
-              {"api-level": "30", "target": "aospatd", "device": "pixel2"},
-              {"api-level": "30", "target": "wear", "device": "wearoslargeround"},
-              {"api-level": "30", "target": "wear", "device": "wearossquare"},
-              {"api-level": "31", "target": "aospatd", "device": "pixel2"},
-              {"api-level": "32", "target": "aospatd", "device": "pixel6pro"},
-              {"api-level": "32", "target": "aospatd", "device": "pixeltablet"},
-              {"api-level": "32", "target": "desktop", "device": "mediumdesktop"},
-              {"api-level": "33", "target": "aospatd", "device": "pixel6pro"},
-              {"api-level": "33", "target": "aospatd", "device": "pixeltablet"},
-              {"api-level": "33", "target": "wear", "device": "wearoslargeround"},
-              {"api-level": "33", "target": "wear", "device": "wearossquare"},
-              {"api-level": "34", "target": "aospatd", "device": "pixel6pro"},
-              {"api-level": "34", "target": "aosptablet", "device": "pixeltablet"},
-              {"api-level": "34", "target": "wear", "device": "wearoslargeround"},
-              {"api-level": "34", "target": "wear", "device": "wearossquare"},
-              {"api-level": "35", "target": "google", "device": "pixel6pro"},
-              {"api-level": "35", "target": "googletablet", "device": "pixeltablet"}
-            '
-          else
-            MATRIX='
-              {"api-level": "26", "target": "aosp", "device": "nexus4"},
-              {"api-level": "34", "target": "aosp", "device": "pixel2"},
-              {"api-level": "30", "target": "wear", "device": "wearoslargeround"}
-            '
-          fi
-          echo "matrix={\"include\":[${MATRIX//$'\n'/}]}" >> $GITHUB_OUTPUT
-
-  android-test-gmd-cfg-check:
-    needs: android-test-gmd-cfg
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check matrix configuration
-        run: |
-          matrix='${{ needs.android-test-gmd-cfg.outputs.matrix }}'
-          echo $matrix
-          echo $matrix | jq .
-
   android-test-gmd:
-    needs: android-test-gmd-cfg
+    needs: config
     runs-on: ubuntu-latest
     timeout-minutes: 120
 
@@ -322,7 +313,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.android-test-gmd-cfg.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.config.outputs.android-test-gmd-matrix) }}
 
     steps:
       - name: Set ANDROID_USER_HOME
@@ -399,14 +390,14 @@ jobs:
           path: build/reports/jacoco/**/*.xml
 
   codecov-device-coverage-upload:
-    needs: [android-test-gmd, android-test-gmd-cfg]
+    needs: [android-test-gmd, config]
     # TODO: Re-enable with device code coverage: https://github.com/alexvanyo/composelife/issues/2257
     if: false
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.android-test-gmd-cfg.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.config.outputs.android-test-gmd-matrix) }}
 
     steps:
       - name: Checkout
@@ -430,13 +421,13 @@ jobs:
           flags: device,${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
 
   codecov-device-test-upload:
-    needs: [android-test-gmd, android-test-gmd-cfg]
+    needs: [android-test-gmd, config]
     if: always()
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.android-test-gmd-cfg.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.config.outputs.android-test-gmd-matrix) }}
 
     steps:
       - name: Checkout
