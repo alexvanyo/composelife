@@ -114,9 +114,9 @@ androidx.vectordrawable:vectordrawable-animated:1.1.0
 androidx.vectordrawable:vectordrawable:1.1.0
 androidx.versionedparcelable:versionedparcelable:1.1.1
 androidx.viewpager:viewpager:1.0.0
-androidx.window:window-core-android:1.4.0-beta01
-androidx.window:window-core:1.4.0-beta01
-androidx.window:window:1.4.0-beta01
+androidx.window:window-core-android:1.4.0-beta02
+androidx.window:window-core:1.4.0-beta02
+androidx.window:window:1.4.0-beta02
 app.cash.sqldelight:android-driver:2.0.2
 app.cash.sqldelight:async-extensions-jvm:2.0.2
 app.cash.sqldelight:async-extensions:2.0.2
