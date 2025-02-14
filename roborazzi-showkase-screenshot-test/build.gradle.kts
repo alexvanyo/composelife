@@ -27,6 +27,7 @@ android {
     defaultConfig {
         minSdk = 21
     }
+    packagingOptions.resources.excludes.add("META-INF/versions/9/OSGI-INF/MANIFEST.MF")
 }
 
 kotlin {
