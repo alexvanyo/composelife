@@ -18,15 +18,16 @@ package com.alexvanyo.composelife.database.di
 
 import com.alexvanyo.composelife.database.CellStateQueries
 import com.alexvanyo.composelife.database.ComposeLifeDatabase
-import com.alexvanyo.composelife.scopes.Singleton
 import me.tatarka.inject.annotations.Provides
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
+@ContributesTo(AppScope::class)
 interface QueriesComponent {
 
-    val cellStateQueries: CellStateQueries
-
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     fun providesCellStateQueries(
         composeLifeDatabase: ComposeLifeDatabase,
     ): CellStateQueries = composeLifeDatabase.cellStateQueries

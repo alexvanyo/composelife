@@ -17,15 +17,13 @@
 package com.alexvanyo.composelife.preferences
 
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
-import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 
 expect abstract class TestComposeLifeApplicationComponent :
     ApplicationComponent<TestComposeLifeApplicationEntryPoint>,
-    TestPreferencesComponent,
-    TestDispatchersComponent {
+    PreferencesModule,
+    DispatchersModule {
 
     override val entryPoint: TestComposeLifeApplicationEntryPoint
 

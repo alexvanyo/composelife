@@ -16,7 +16,4 @@
 
 package com.alexvanyo.composelife.preferences.di
 
-import com.alexvanyo.composelife.filesystem.di.FileSystemModule
-
-expect interface PreferencesDataStoreComponent :
-    PreferencesDataStoreModule, FileSystemModule
+expect interface PreferencesDataStoreComponent

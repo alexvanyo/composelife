@@ -43,5 +43,21 @@ kotlin {
                 implementation(projects.injectScopes)
             }
         }
+        val desktopMain by getting {
+            configurations["kspDesktop"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                )
+            )
+        }
+        val androidMain by getting {
+            configurations["kspAndroid"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                )
+            )
+        }
     }
 }

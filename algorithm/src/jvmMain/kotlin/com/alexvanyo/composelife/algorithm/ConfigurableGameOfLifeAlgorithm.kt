@@ -35,8 +35,11 @@ import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.selects.select
 import me.tatarka.inject.annotations.Inject
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
 
 @Inject
+@ContributesBinding(AppScope::class)
 class ConfigurableGameOfLifeAlgorithm(
     private val preferences: ComposeLifePreferences,
     private val naiveGameOfLifeAlgorithm: NaiveGameOfLifeAlgorithm,
