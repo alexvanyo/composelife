@@ -231,7 +231,7 @@ jobs:
       - name: Assemble
         if: matrix.sdk == '35'
         # Assemble with running benchmarks and generating baseline profile to ensure those compile
-        run: ./gradlew assemble -Pcom.alexvanyo.composelife.runBenchmarks=true -Pandroidx.baselineprofile.skipgeneration
+        run: ./gradlew assemble assembleAndroidTest -Pcom.alexvanyo.composelife.runBenchmarks=true -Pandroidx.baselineprofile.skipgeneration
 
       - name: Upload APKs
         if: matrix.sdk == '35'
