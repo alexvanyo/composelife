@@ -108,7 +108,8 @@ androidx.savedstate:savedstate:1.3.0-alpha08
 androidx.sqlite:sqlite-framework:2.4.0
 androidx.sqlite:sqlite:2.4.0
 androidx.startup:startup-runtime:1.1.1
-androidx.tracing:tracing:1.3.0-alpha02
+androidx.tracing:tracing-android:1.3.0-beta01
+androidx.tracing:tracing:1.3.0-beta01
 androidx.vectordrawable:vectordrawable-animated:1.1.0
 androidx.vectordrawable:vectordrawable:1.1.0
 androidx.versionedparcelable:versionedparcelable:1.1.1
