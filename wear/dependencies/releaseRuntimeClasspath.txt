@@ -155,8 +155,8 @@ com.slack.circuit:circuit-retained-android:0.26.1
 com.slack.circuit:circuit-retained:0.26.1
 com.squareup.okio:okio-jvm:3.10.2
 com.squareup.okio:okio:3.10.2
-com.squareup.wire:wire-runtime-jvm:5.2.1
-com.squareup.wire:wire-runtime:5.2.1
+com.squareup.wire:wire-runtime-jvm:5.3.0
+com.squareup.wire:wire-runtime:5.3.0
 me.tatarka.inject:kotlin-inject-runtime-jvm:0.7.2
 me.tatarka.inject:kotlin-inject-runtime:0.7.2
 org.checkerframework:checker-qual:3.33.0
