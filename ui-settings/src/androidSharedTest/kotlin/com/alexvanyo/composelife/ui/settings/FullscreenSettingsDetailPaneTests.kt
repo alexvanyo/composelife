@@ -17,18 +17,15 @@
 package com.alexvanyo.composelife.ui.settings
 
 import android.os.Build
-import android.view.WindowInsets
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.ForcedSize
+import androidx.compose.ui.test.WindowInsets
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasImeAction
@@ -42,10 +39,8 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.roundToIntRect
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.children
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
@@ -147,39 +142,3 @@ class FullscreenSettingsDetailPaneTests :
 
 private fun IntRect.toAndroidXInsets(): Insets =
     Insets.of(top, left, right, bottom)
-
-fun DeviceConfigurationOverride.Companion.WindowInsets(
-    windowInsets: WindowInsetsCompat,
-): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
-    val currentContentUnderTest by rememberUpdatedState(contentUnderTest)
-    val currentWindowInsets by rememberUpdatedState(windowInsets)
-    AndroidView(
-        factory = { context ->
-            object : AbstractComposeView(context) {
-                @Composable
-                override fun Content() {
-                    currentContentUnderTest()
-                }
-
-                override fun dispatchApplyWindowInsets(insets: WindowInsets): WindowInsets {
-                    children.forEach {
-                        it.dispatchApplyWindowInsets(
-                            WindowInsets(currentWindowInsets.toWindowInsets()),
-                        )
-                    }
-                    return WindowInsetsCompat.CONSUMED.toWindowInsets()!!
-                }
-
-                /**
-                 * Deprecated, but intercept the `requestApplyInsets` call via the deprecated
-                 * method.
-                 */
-                @Deprecated("Deprecated in Java")
-                override fun requestFitSystemWindows() {
-                    dispatchApplyWindowInsets(WindowInsets(currentWindowInsets.toWindowInsets()!!))
-                }
-            }
-        },
-        update = { with(currentWindowInsets) { it.requestApplyInsets() } },
-    )
-}
