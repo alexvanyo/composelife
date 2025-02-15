@@ -16,20 +16,29 @@
 
 package com.alexvanyo.composelife.ui.cells
 
+import coil3.ImageLoader
+import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
+import com.alexvanyo.composelife.scopes.UiScope
+import me.tatarka.inject.annotations.Inject
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-expect abstract class TestComposeLifeUiComponent :
-    UiComponent<TestComposeLifeApplicationComponent, TestComposeLifeUiEntryPoint> {
+expect interface TestComposeLifeUiComponent : UiComponent<TestComposeLifeUiEntryPoint> {
 
     override val entryPoint: TestComposeLifeUiEntryPoint
+
+    interface Factory
 
     companion object
 }
 
-interface TestComposeLifeUiEntryPoint :
-    TestComposeLifeApplicationEntryPoint,
-    CellWindowInjectEntryPoint
+@SingleIn(UiScope::class)
+@Inject
+class TestComposeLifeUiEntryPoint(
+    override val cellStateParser: CellStateParser,
+    override val imageLoader: ImageLoader
+) : CellWindowInjectEntryPoint
 
 expect fun TestComposeLifeUiComponent.Companion.createComponent(
     applicationComponent: TestComposeLifeApplicationComponent,

@@ -63,7 +63,10 @@ kotlin {
             }
         }
         val androidMain by getting {
-            configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
+            configurations["kspAndroid"].dependencies.addAll(listOf(
+                libs.kotlinInject.ksp.get(),
+                libs.kotlinInjectAnvil.ksp.get(),
+            ))
             configurations["baselineProfile"].dependencies.add(projects.wearBaselineProfileGenerator)
             dependencies {
                 implementation(libs.androidx.activityCompose)

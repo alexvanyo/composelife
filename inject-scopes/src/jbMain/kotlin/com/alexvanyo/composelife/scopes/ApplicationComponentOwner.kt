@@ -19,7 +19,7 @@ package com.alexvanyo.composelife.scopes
 interface ApplicationComponentOwner {
     val applicationComponent: ApplicationComponent<*>
 
-    val uiComponentFactory: (UiComponentArguments) -> UiComponent<*, *>
+    val uiComponentFactory: (UiComponentArguments) -> UiComponent<*>
 }
 
 expect interface UiComponentArguments

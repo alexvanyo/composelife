@@ -24,7 +24,6 @@ import com.alexvanyo.composelife.model.HashLifeCellState
 import com.alexvanyo.composelife.model.MacroCell
 import com.alexvanyo.composelife.model.expandCentered
 import com.alexvanyo.composelife.model.toHashLifeCellState
-import com.alexvanyo.composelife.scopes.Singleton
 import com.google.common.base.Equivalence
 import com.google.common.base.Ticker
 import com.google.common.cache.CacheBuilder
@@ -32,9 +31,11 @@ import com.google.common.cache.CacheLoader
 import com.google.common.cache.LoadingCache
 import kotlinx.coroutines.withContext
 import me.tatarka.inject.annotations.Inject
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 import java.util.concurrent.TimeUnit
 
-@Singleton
+@SingleIn(AppScope::class)
 @Inject
 class HashLifeAlgorithm(
     private val dispatchers: ComposeLifeDispatchers,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,26 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.donotkeepprocess.di
+package com.alexvanyo.composelife.updatable.di
 
-import com.alexvanyo.composelife.donotkeepprocess.DoNotKeepProcess
 import com.alexvanyo.composelife.updatable.Updatable
+import kotlinx.coroutines.awaitCancellation
 import me.tatarka.inject.annotations.IntoSet
 import me.tatarka.inject.annotations.Provides
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-interface DoNotKeepProcessComponent {
+@ContributesTo(AppScope::class)
+interface UpdatableComponent {
 
-    val DoNotKeepProcess.bind: Updatable
-        @Provides
-        @IntoSet
-        get() = this
+    @get:SingleIn(AppScope::class)
+    val updatables: Set<Updatable>
+
+    @Provides
+    @SingleIn(AppScope::class)
+    @IntoSet
+    fun providesEmptyUpdatable(): Updatable = object : Updatable {
+        override suspend fun update(): Nothing = awaitCancellation()
+    }
 }

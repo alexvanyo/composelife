@@ -17,13 +17,10 @@
 
 package com.alexvanyo.composelife.scopes
 
-import me.tatarka.inject.annotations.Component
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-@Suppress("UnnecessaryAbstractClass")
-@Ui
-actual abstract class UiComponent<T : ApplicationComponent<*>, E>(
-    @Component open val applicationComponent: T,
-) {
+@SingleIn(UiScope::class)
+actual interface UiComponent<E> {
 
-    actual abstract val entryPoint: E
+    actual val entryPoint: E
 }
