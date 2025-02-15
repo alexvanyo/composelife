@@ -15,13 +15,10 @@
  */
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
-import com.alexvanyo.composelife.buildlogic.configureKsp
 
 class AndroidApplicationKspConventionPlugin : ConventionPlugin({
     with(pluginManager) {
         apply("com.android.application")
         apply("com.google.devtools.ksp")
     }
-
-    configureKsp()
 })

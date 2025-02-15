@@ -84,17 +84,27 @@ kotlin {
         }
         val desktopMain by getting {
             dependsOn(jbMain)
-            configurations["kspDesktop"].dependencies.add(libs.kotlinInject.ksp.get())
-            configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
+            configurations["kspDesktop"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                    libs.sealedEnum.ksp.get(),
+                )
+            )
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
         }
         val androidMain by getting {
             dependsOn(jbMain)
-            configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
-            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
-            configurations["kspAndroid"].dependencies.add(libs.showkase.processor.get())
+            configurations["kspAndroid"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                    libs.sealedEnum.ksp.get(),
+                    libs.showkase.processor.get(),
+                )
+            )
             dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.animation)
@@ -141,7 +151,12 @@ kotlin {
         }
         val desktopTest by getting {
             dependsOn(jbTest)
-            configurations["kspDesktopTest"].dependencies.add(libs.kotlinInject.ksp.get())
+            configurations["kspDesktopTest"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                )
+            )
             dependencies {
                 implementation(libs.kotlinx.coroutines.swing)
             }
@@ -156,14 +171,24 @@ kotlin {
             }
         }
         val androidUnitTest by getting {
-            configurations["kspAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
-            configurations["kspAndroidTest"].dependencies.add(libs.showkase.processor.get())
+            configurations["kspAndroidTest"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                    libs.showkase.processor.get(),
+                )
+            )
             dependencies {
                 implementation(projects.roborazziShowkaseScreenshotTest)
             }
         }
         val androidInstrumentedTest by getting {
-            configurations["kspAndroidAndroidTest"].dependencies.add(libs.kotlinInject.ksp.get())
+            configurations["kspAndroidAndroidTest"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                )
+            )
         }
     }
 }

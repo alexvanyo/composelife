@@ -18,12 +18,15 @@ package com.alexvanyo.composelife.processlifecycle.di
 
 import androidx.lifecycle.LifecycleOwner
 import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
-import com.alexvanyo.composelife.scopes.Singleton
 import me.tatarka.inject.annotations.Provides
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-interface ProcessLifecycleComponent : ProcessLifecycleModule {
+@ContributesTo(AppScope::class)
+interface ProcessLifecycleComponent {
 
-    @Singleton
+    @SingleIn(AppScope::class)
     @Provides
     @ProcessLifecycleOwner
     fun providesProcessLifecycleOwner(): LifecycleOwner =

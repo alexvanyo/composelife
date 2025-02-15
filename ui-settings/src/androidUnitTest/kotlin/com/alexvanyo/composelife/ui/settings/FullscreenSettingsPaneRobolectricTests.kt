@@ -67,11 +67,14 @@ import kotlin.test.assertNull
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalTestApi::class)
-class FullscreenSettingsPaneRobolectricTests :
-    BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
-        TestComposeLifeApplicationComponent::createComponent,
-        TestComposeLifeUiComponent.Companion::createComponent,
-    ) {
+class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<
+    TestComposeLifeApplicationComponent,
+    TestComposeLifeApplicationEntryPoint,
+    TestComposeLifeUiComponent,
+    >(
+    TestComposeLifeApplicationComponent::createComponent,
+    TestComposeLifeUiComponent.Companion::createComponent,
+) {
     private val fullscreenSettingsDetailPaneLocalEntryPoint = object : FullscreenSettingsDetailPaneLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults
     }
