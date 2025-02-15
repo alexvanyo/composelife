@@ -17,34 +17,20 @@
 
 package com.alexvanyo.composelife.data
 
-import com.alexvanyo.composelife.data.di.RepositoryComponent
-import com.alexvanyo.composelife.data.di.RepositoryModule
-import com.alexvanyo.composelife.database.di.DatabaseModule
-import com.alexvanyo.composelife.database.di.TestDatabaseComponent
-import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
-import me.tatarka.inject.annotations.Component
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-@Component
+@MergeComponent(AppScope::class)
+@SingleIn(AppScope::class)
 actual abstract class TestComposeLifeApplicationComponent :
-    ApplicationComponent<TestComposeLifeApplicationEntryPoint>(),
-    RepositoryComponent,
-    TestDatabaseComponent,
-    TestDispatchersComponent,
-    UpdatableModule {
+    ApplicationComponent<TestComposeLifeApplicationEntryPoint>() {
 
-    actual override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
-        object :
-            TestComposeLifeApplicationEntryPoint,
-            RepositoryModule by this,
-            DatabaseModule by this,
-            DispatchersModule by this,
-            UpdatableModule by this {}
+    actual abstract override val entryPoint: TestComposeLifeApplicationEntryPoint
 
     actual companion object
 }
 
 actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent =
-    TestComposeLifeApplicationComponent.create()
+    TestComposeLifeApplicationComponent::class.create()

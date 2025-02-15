@@ -44,6 +44,7 @@ import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
+import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationEntryPoint
 import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
 import com.alexvanyo.composelife.ui.app.createComponent
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
@@ -55,7 +56,11 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
-class LoadedCellStatePreviewTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
+class LoadedCellStatePreviewTests : BaseUiInjectTest<
+    TestComposeLifeApplicationComponent,
+    TestComposeLifeApplicationEntryPoint,
+    TestComposeLifeUiComponent,
+    >(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {
@@ -64,7 +69,7 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<TestComposeLifeApplicationC
     }
 
     @Test
-    fun drag_and_drop_works_correctly() = runUiTest(applicationComponent.generalTestDispatcher) {
+    fun drag_and_drop_works_correctly() = runUiTest(applicationComponent.entryPoint.generalTestDispatcher) {
         val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
         val cellStateParserProvider: CellStateParserProvider = uiComponent.entryPoint
 

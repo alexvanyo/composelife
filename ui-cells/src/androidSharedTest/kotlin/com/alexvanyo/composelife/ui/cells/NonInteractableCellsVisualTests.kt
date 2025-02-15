@@ -41,7 +41,11 @@ import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
 class NonInteractableCellsVisualTests :
-    BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
+    BaseUiInjectTest<
+        TestComposeLifeApplicationComponent,
+        TestComposeLifeApplicationEntryPoint,
+        TestComposeLifeUiComponent,
+        >(
         TestComposeLifeApplicationComponent::createComponent,
         TestComposeLifeUiComponent::createComponent,
     ) {

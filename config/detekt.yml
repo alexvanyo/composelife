@@ -95,6 +95,8 @@ formatting:
     excludes: [ '**/generated/**' ]
   ParameterListWrapping:
     excludes: [ '**/generated/**' ]
+  PropertyWrapping:
+    excludes: [ '**/generated/**' ]
   SpacingAroundAngleBrackets:
     active: true
   SpacingAroundCurly:
@@ -174,5 +176,7 @@ style:
     ignoreAnnotated:
       - "com.alexvanyo.composelife.ui.util.*Previews"
       - "androidx.compose.ui.tooling.preview.Preview"
+  UseArrayLiteralsInAnnotations:
+    excludes: [ '**/generated/**' ]
   VarCouldBeVal:
     excludes: [ '**/generated/**' ]

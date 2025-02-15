@@ -44,8 +44,11 @@ kotlin {
             }
         }
         val desktopMain by getting {
-            configurations["kspDesktop"].dependencies.add(libs.kotlinInject.ksp.get())
-            configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
+            configurations["kspDesktop"].dependencies.addAll(listOf(
+                libs.kotlinInject.ksp.get(),
+                libs.kotlinInjectAnvil.ksp.get(),
+                libs.sealedEnum.ksp.get(),
+            ))
             dependencies {
                 implementation(compose.desktop.currentOs)
                 implementation(libs.sqldelight.sqliteDriver)

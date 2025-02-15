@@ -16,31 +16,44 @@
 
 package com.alexvanyo.composelife.data
 
-import com.alexvanyo.composelife.data.di.RepositoryComponent
 import com.alexvanyo.composelife.data.di.RepositoryModule
+import com.alexvanyo.composelife.database.CellStateQueries
+import com.alexvanyo.composelife.database.ComposeLifeDatabase
 import com.alexvanyo.composelife.database.di.DatabaseModule
-import com.alexvanyo.composelife.database.di.TestDatabaseComponent
+import com.alexvanyo.composelife.database.di.QueriesModule
+import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.dispatchers.di.TestDispatchersComponent
+import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import kotlinx.coroutines.test.TestDispatcher
+import me.tatarka.inject.annotations.Inject
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-expect abstract class TestComposeLifeApplicationComponent :
-    ApplicationComponent<TestComposeLifeApplicationEntryPoint>,
-    RepositoryComponent,
-    TestDatabaseComponent,
-    TestDispatchersComponent,
-    UpdatableModule {
+expect abstract class TestComposeLifeApplicationComponent : ApplicationComponent<TestComposeLifeApplicationEntryPoint> {
 
-    override val entryPoint: TestComposeLifeApplicationEntryPoint
+    abstract override val entryPoint: TestComposeLifeApplicationEntryPoint
 
     companion object
 }
 
-interface TestComposeLifeApplicationEntryPoint :
-    RepositoryModule,
-    DatabaseModule,
+@SingleIn(AppScope::class)
+@Inject
+class TestComposeLifeApplicationEntryPoint(
+    override val cellStateRepository: CellStateRepository,
+    override val cellStateQueries: CellStateQueries,
+    override val dispatchers: ComposeLifeDispatchers,
+    override val updatables: Set<Updatable>,
+    override val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher,
+    override val cellTickerTestDispatcher: @CellTickerTestDispatcher TestDispatcher,
+) : RepositoryModule,
+    QueriesModule,
     DispatchersModule,
+    TestDispatcherModule,
     UpdatableModule
 
 expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent
