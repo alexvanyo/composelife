@@ -19,23 +19,26 @@ package com.alexvanyo.composelife.ui.cells.di
 import com.alexvanyo.composelife.imageloader.di.FetcherFactoryWithType
 import com.alexvanyo.composelife.imageloader.di.KeyerWithType
 import com.alexvanyo.composelife.imageloader.di.withType
-import com.alexvanyo.composelife.scopes.Singleton
 import com.alexvanyo.composelife.ui.cells.CellsFetcher
 import com.alexvanyo.composelife.ui.cells.CellsKeyer
 import me.tatarka.inject.annotations.IntoSet
 import me.tatarka.inject.annotations.Provides
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
+@ContributesTo(AppScope::class)
 interface CellsImageLoadingComponent {
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     @IntoSet
     fun providesCellsFetcherFactoryIntoFetcherFactories(
         cellsFetcherFactory: CellsFetcher.Factory,
     ): FetcherFactoryWithType<out Any> = cellsFetcherFactory.withType()
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     @IntoSet
     fun providesCellsKeyerIntoKeyers(
         cellsKeyer: CellsKeyer,

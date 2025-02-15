@@ -59,13 +59,17 @@ import kotlin.test.assertNotNull
 import com.alexvanyo.composelife.ui.app.R as uiAppR
 import com.alexvanyo.composelife.ui.settings.R as uiSettingsR
 
-class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationComponent, MainActivity>(
+class ComposeLifeAppTests : BaseActivityInjectTest<
+    TestComposeLifeApplicationComponent,
+    TestComposeLifeApplicationEntryPoint,
+    MainActivity,
+    >(
     { TestComposeLifeApplicationComponent.createComponent() },
     MainActivity::class.java,
 ) {
-    private val testDispatcher get() = applicationComponent.generalTestDispatcher
+    private val testDispatcher get() = applicationComponent.entryPoint.generalTestDispatcher
 
-    private val preferences get() = applicationComponent.composeLifePreferences
+    private val preferences get() = applicationComponent.entryPoint.composeLifePreferences
 
     @SkipLeakDetection("recomposer", "Outer")
     @Test

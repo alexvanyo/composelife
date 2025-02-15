@@ -33,7 +33,7 @@ import kotlinx.coroutines.supervisorScope
 fun main() = application {
     val applicationComponent = ComposeLifeApplicationComponent::class.create()
 
-    val updatables = applicationComponent.updatables
+    val updatables = applicationComponent.entryPoint.updatables
 
     LaunchedEffect(Unit) {
         supervisorScope {
@@ -53,9 +53,8 @@ fun main() = application {
         state = windowState,
     ) {
         CompositionLocalProvider(LocalRetainedStateRegistry provides continuityRetainedStateRegistry()) {
-            val uiComponent = ComposeLifeUiComponent::class.create(applicationComponent)
-            val mainInjectEntryPoint = uiComponent.entryPoint as MainInjectEntryPoint
-
+            val uiComponent = applicationComponent.entryPoint.uiComponentFactory.createComponent()
+            val mainInjectEntryPoint: MainInjectEntryPoint = uiComponent.entryPoint
             with(mainInjectEntryPoint) {
                 ComposeLifeTheme(shouldUseDarkTheme()) {
                     ComposeLifeApp(
