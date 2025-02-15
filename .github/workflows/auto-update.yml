@@ -1,5 +1,12 @@
 name: auto-update
-on: push
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/baseline-prof.txt'
+      - '**/startup-prof.txt'
 
 jobs:
   Auto:

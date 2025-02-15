@@ -65,12 +65,14 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Generate baseline profile for app
+        id: app-baseline-profile
         run: |
           # generate the baseline profile, with one retry attempt
           generate_profile () { ./gradlew :app:generateBaselineProfile --stacktrace; }
           (echo "==== Attempt 1 ====" && generate_profile) || (echo "==== Attempt 2 ====" && generate_profile) || (echo "==== Both attempts failed ====" && exit 1)
 
       - name: Generate baseline profile for wear
+        id: wear-baseline-profile
         run: |
           # generate the baseline profile, with one retry attempt
           generate_profile () { ./gradlew :wear:generateBaselineProfile --stacktrace; }
@@ -82,3 +84,12 @@ jobs:
         with:
           commit_message: Auto update app baseline profile
           push_options: --force-with-lease
+
+      # If updating the baseline profile failed for both app and wear, then we have nothing to auto-commit,
+      # so auto-update won't run. Therefore, trigger auto-update now instead to update PRs without an
+      # update to the baseline profile
+      - name: Auto-update
+        if: ${{ steps.app-baseline-profile.conclusion == 'failure' && steps.wear-baseline-profile.conclusion == 'failure' }}
+        uses: tibdex/auto-update@v2
+        with:
+          github_token: ${{ secrets.PAT }}
