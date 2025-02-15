@@ -19,8 +19,11 @@ package com.alexvanyo.composelife.logging.di
 import com.alexvanyo.composelife.logging.Logger
 import com.alexvanyo.composelife.logging.SingletonSystemLogger
 import me.tatarka.inject.annotations.Provides
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 
-interface LoggerComponent : LoggerModule {
+@ContributesTo(AppScope::class)
+interface LoggerComponent {
     @Provides
     fun providesFileSystem(): Logger = SingletonSystemLogger
 }

@@ -16,13 +16,16 @@
 
 package com.alexvanyo.composelife.random.di
 
-import com.alexvanyo.composelife.scopes.Singleton
 import me.tatarka.inject.annotations.Provides
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 import kotlin.random.Random
 
-interface RandomComponent : RandomModule {
+@ContributesTo(AppScope::class)
+interface RandomComponent {
 
-    @Singleton
+    @SingleIn(AppScope::class)
     @Provides
     fun providesRandom(): Random = Random
 }

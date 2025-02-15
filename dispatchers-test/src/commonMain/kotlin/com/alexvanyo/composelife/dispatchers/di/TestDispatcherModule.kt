@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.data.di
+package com.alexvanyo.composelife.dispatchers.di
 
-import com.alexvanyo.composelife.data.CellStateRepository
-import com.alexvanyo.composelife.data.CellStateRepositoryImpl
-import me.tatarka.inject.annotations.Provides
+import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
 
-interface RepositoryComponent : RepositoryModule {
+interface TestDispatcherModule {
 
-    val CellStateRepositoryImpl.bind: CellStateRepository
-        @Provides get() = this
+    @GeneralTestDispatcher
+    val generalTestDispatcher: TestDispatcher
+
+    @CellTickerTestDispatcher
+    val cellTickerTestDispatcher: TestDispatcher
 }

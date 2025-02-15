@@ -34,11 +34,11 @@ import org.junit.rules.TestRule
  * Subclasses must call [runAppTest] instead of [runTest] to properly initialize dependencies.
  */
 @Suppress("UnnecessaryAbstractClass")
-abstract class BaseActivityInjectTest<T, A>(
+abstract class BaseActivityInjectTest<T : ApplicationComponent<E>, E : UpdatableModule, A>(
     applicationComponentCreator: () -> T,
     clazz: Class<A>,
-) : BaseInjectTest<T>(applicationComponentCreator)
-    where T : ApplicationComponent<*>, T : UpdatableModule, A : ComponentActivity, A : UiComponentOwner {
+) : BaseInjectTest<T, E>(applicationComponentCreator)
+    where A : ComponentActivity, A : UiComponentOwner {
 
     @get:Rule(order = 0)
     val outerLeakRule = createLeakRule("Outer")

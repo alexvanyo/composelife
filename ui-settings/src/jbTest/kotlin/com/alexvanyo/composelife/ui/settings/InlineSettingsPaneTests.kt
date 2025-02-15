@@ -53,11 +53,15 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalTestApi::class)
-class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
+class InlineSettingsPaneTests : BaseUiInjectTest<
+    TestComposeLifeApplicationComponent,
+    TestComposeLifeApplicationEntryPoint,
+    TestComposeLifeUiComponent
+    >(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {
-    private val composeLifePreferences get() = applicationComponent.composeLifePreferences
+    private val composeLifePreferences get() = applicationComponent.entryPoint.composeLifePreferences
 
     private val testComposeLifePreferences: TestComposeLifePreferences get() = assertIs(composeLifePreferences)
 

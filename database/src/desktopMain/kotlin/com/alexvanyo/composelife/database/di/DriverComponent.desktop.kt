@@ -20,21 +20,24 @@ package com.alexvanyo.composelife.database.di
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.alexvanyo.composelife.database.ComposeLifeDatabase
-import com.alexvanyo.composelife.scopes.Singleton
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.awaitCancellation
 import me.tatarka.inject.annotations.IntoSet
 import me.tatarka.inject.annotations.Provides
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
+@ContributesTo(AppScope::class)
 actual interface DriverComponent {
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     fun providesDriver(): SqlDriver =
         JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY).also { ComposeLifeDatabase.Schema.create(it) }
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     @IntoSet
     fun providesDriverClosingIntoUpdatable(
         driver: SqlDriver,

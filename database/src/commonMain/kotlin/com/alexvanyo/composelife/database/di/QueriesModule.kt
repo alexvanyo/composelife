@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.algorithm.di
+package com.alexvanyo.composelife.database.di
 
-import com.alexvanyo.composelife.algorithm.ConfigurableGameOfLifeAlgorithm
-import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
-import me.tatarka.inject.annotations.Provides
+import com.alexvanyo.composelife.database.CellStateQueries
 
-interface AlgorithmComponent : AlgorithmModule {
-
-    val ConfigurableGameOfLifeAlgorithm.bind: GameOfLifeAlgorithm
-        @Provides get() = this
+interface QueriesModule {
+    val cellStateQueries: CellStateQueries
 }

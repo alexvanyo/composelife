@@ -19,18 +19,14 @@ package com.alexvanyo.composelife.scopes
 
 import android.app.Activity
 import android.content.Context
-import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.Provides
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-@Suppress("UnnecessaryAbstractClass")
-@Ui
-actual abstract class UiComponent<T : ApplicationComponent<*>, E>(
-    @get:Provides val activity: Activity,
-    @Component open val applicationComponent: T,
-) {
+@SingleIn(UiScope::class)
+actual interface UiComponent<E> {
     @Provides
     @ActivityContext
     fun bindActivity(activity: Activity): Context = activity
 
-    actual abstract val entryPoint: E
+    actual val entryPoint: E
 }
