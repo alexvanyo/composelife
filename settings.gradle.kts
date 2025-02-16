@@ -27,6 +27,7 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
+        maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap")
     }
 }
 
@@ -46,6 +47,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
+        maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap")
     }
 }
 
