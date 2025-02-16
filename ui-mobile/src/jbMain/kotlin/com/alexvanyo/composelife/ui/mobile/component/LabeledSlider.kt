@@ -193,30 +193,30 @@ val Float.Companion.IdentitySliderBijection get(): SliderBijection<Float> = obje
 /**
  * Converts the value [T] into the slider [Float] space using the [SliderBijection].
  */
-context(SliderBijection<T>)
-fun <T : Comparable<T>> T.toSlider(): Float = valueToSlider(this)
+context(sliderBijection: SliderBijection<T>)
+fun <T : Comparable<T>> T.toSlider(): Float = sliderBijection.valueToSlider(this)
 
 /**
  * Converts the value in the slider [Float] space into the type [T] using the [SliderBijection].
  */
-context(SliderBijection<T>)
-fun <T : Comparable<T>> Float.toValue(): T = sliderToValue(this)
+context(sliderBijection: SliderBijection<T>)
+fun <T : Comparable<T>> Float.toValue(): T = sliderBijection.sliderToValue(this)
 
 /**
  * Converts the [ClosedRange] of type [T] into a [ClosedFloatingPointRange] in the slider [Float] space using the
  * [SliderBijection].
  */
-context(SliderBijection<T>)
+context(_: SliderBijection<T>)
 fun <T : Comparable<T>> ClosedRange<T>.toSlider(): ClosedFloatingPointRange<Float> =
-    valueToSlider(start)..valueToSlider(endInclusive)
+    start.toSlider()..endInclusive.toSlider()
 
 /**
  * Converts the [ClosedFloatingPointRange] in the slider [Float] space into a [ClosedRange] of type [T] using the
  * [SliderBijection].
  */
-context(SliderBijection<T>)
+context(_: SliderBijection<T>)
 fun <T : Comparable<T>> ClosedFloatingPointRange<Float>.toValue(): ClosedRange<T> =
-    sliderToValue(start)..sliderToValue(endInclusive)
+    start.toValue()..endInclusive.toValue()
 
 private fun stepsToTickFractions(steps: Int): List<Float> =
     if (steps == 0) emptyList() else List(steps + 2) { it.toFloat() / (steps + 1) }

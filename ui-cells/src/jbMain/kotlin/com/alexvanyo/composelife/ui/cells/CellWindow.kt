@@ -91,7 +91,7 @@ interface CellWindowLocalEntryPoint :
 /**
  * A cell window that displays the given [gameOfLifeState] in an immutable fashion for a thumbnail.
  */
-context(CellWindowInjectEntryPoint, CellWindowLocalEntryPoint)
+context(_: CellWindowInjectEntryPoint, _: CellWindowLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun ThumbnailImmutableCellWindow(
@@ -117,7 +117,7 @@ fun ThumbnailImmutableCellWindow(
 /**
  * A cell window that displays the given [gameOfLifeState] in an immutable fashion.
  */
-context(CellWindowInjectEntryPoint, CellWindowLocalEntryPoint)
+context(_: CellWindowInjectEntryPoint, _: CellWindowLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun ImmutableCellWindow(
@@ -145,7 +145,7 @@ fun ImmutableCellWindow(
  *
  * The cells will be editable if and only if [isEditable] returns true.
  */
-context(CellWindowInjectEntryPoint, CellWindowLocalEntryPoint)
+context(_: CellWindowInjectEntryPoint, _: CellWindowLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun MutableCellWindow(
@@ -170,7 +170,7 @@ fun MutableCellWindow(
     )
 }
 
-context(CellWindowInjectEntryPoint, CellWindowLocalEntryPoint)
+context(_: CellWindowInjectEntryPoint, localEntryPoint: CellWindowLocalEntryPoint)
 @Suppress("LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 @Composable
 private fun CellWindowImpl(
@@ -202,9 +202,9 @@ private fun CellWindowImpl(
 
     val panExcludedPointerTypes =
         setOfNotNull(
-            PointerType.Touch.takeUnless { preferences.touchToolConfig == ToolConfig.Pan },
-            PointerType.Stylus.takeUnless { preferences.stylusToolConfig == ToolConfig.Pan },
-            PointerType.Mouse.takeUnless { preferences.mouseToolConfig == ToolConfig.Pan },
+            PointerType.Touch.takeUnless { localEntryPoint.preferences.touchToolConfig == ToolConfig.Pan },
+            PointerType.Stylus.takeUnless { localEntryPoint.preferences.stylusToolConfig == ToolConfig.Pan },
+            PointerType.Mouse.takeUnless { localEntryPoint.preferences.mouseToolConfig == ToolConfig.Pan },
             PointerType.Eraser,
         )
 

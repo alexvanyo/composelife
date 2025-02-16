@@ -27,38 +27,38 @@ import com.alexvanyo.composelife.geometry.centerStart
 import com.alexvanyo.composelife.geometry.topEnd
 import com.alexvanyo.composelife.geometry.topStart
 
-context(LayoutDirectionAwareScope)
-val Rect.topStart get(): Offset = topStart(layoutDirection)
+context(layoutDirectionAwareScope: LayoutDirectionAwareScope)
+val Rect.topStart get(): Offset = topStart(layoutDirectionAwareScope.layoutDirection)
 
-context(LayoutDirectionAwareScope)
-val Rect.topEnd get(): Offset = topEnd(layoutDirection)
+context(layoutDirectionAwareScope: LayoutDirectionAwareScope)
+val Rect.topEnd get(): Offset = topEnd(layoutDirectionAwareScope.layoutDirection)
 
-context(LayoutDirectionAwareScope)
-val Rect.centerStart get(): Offset = centerStart(layoutDirection)
+context(layoutDirectionAwareScope: LayoutDirectionAwareScope)
+val Rect.centerStart get(): Offset = centerStart(layoutDirectionAwareScope.layoutDirection)
 
-context(LayoutDirectionAwareScope)
-val Rect.centerEnd get(): Offset = centerEnd(layoutDirection)
+context(layoutDirectionAwareScope: LayoutDirectionAwareScope)
+val Rect.centerEnd get(): Offset = centerEnd(layoutDirectionAwareScope.layoutDirection)
 
-context(LayoutDirectionAwareScope)
-val Rect.bottomStart get(): Offset = bottomStart(layoutDirection)
+context(layoutDirectionAwareScope: LayoutDirectionAwareScope)
+val Rect.bottomStart get(): Offset = bottomStart(layoutDirectionAwareScope.layoutDirection)
 
-context(LayoutDirectionAwareScope)
-val Rect.bottomEnd get(): Offset = bottomEnd(layoutDirection)
+context(layoutDirectionAwareScope: LayoutDirectionAwareScope)
+val Rect.bottomEnd get(): Offset = bottomEnd(layoutDirectionAwareScope.layoutDirection)
 
-context(LayoutDirectionAwareScope)
-val IntRect.topStart get(): IntOffset = topStart(layoutDirection)
+context(layoutDirectionAwareScope: LayoutDirectionAwareScope)
+val IntRect.topStart get(): IntOffset = topStart(layoutDirectionAwareScope.layoutDirection)
 
-context(LayoutDirectionAwareScope)
-val IntRect.topEnd get(): IntOffset = topEnd(layoutDirection)
+context(layoutDirectionAwareScope: LayoutDirectionAwareScope)
+val IntRect.topEnd get(): IntOffset = topEnd(layoutDirectionAwareScope.layoutDirection)
 
-context(LayoutDirectionAwareScope)
-val IntRect.centerStart get(): IntOffset = centerStart(layoutDirection)
+context(layoutDirectionAwareScope: LayoutDirectionAwareScope)
+val IntRect.centerStart get(): IntOffset = centerStart(layoutDirectionAwareScope.layoutDirection)
 
-context(LayoutDirectionAwareScope)
-val IntRect.centerEnd get(): IntOffset = centerEnd(layoutDirection)
+context(layoutDirectionAwareScope: LayoutDirectionAwareScope)
+val IntRect.centerEnd get(): IntOffset = centerEnd(layoutDirectionAwareScope.layoutDirection)
 
-context(LayoutDirectionAwareScope)
-val IntRect.bottomStart get(): IntOffset = bottomStart(layoutDirection)
+context(layoutDirectionAwareScope: LayoutDirectionAwareScope)
+val IntRect.bottomStart get(): IntOffset = bottomStart(layoutDirectionAwareScope.layoutDirection)
 
-context(LayoutDirectionAwareScope)
-val IntRect.bottomEnd get(): IntOffset = bottomEnd(layoutDirection)
+context(layoutDirectionAwareScope: LayoutDirectionAwareScope)
+val IntRect.bottomEnd get(): IntOffset = bottomEnd(layoutDirectionAwareScope.layoutDirection)

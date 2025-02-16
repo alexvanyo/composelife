@@ -27,8 +27,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.setCurrentShapeType
@@ -41,6 +43,12 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
+
+interface CellShapeConfigUiInjectEntryPoint :
+    ComposeLifePreferencesProvider
+
+interface CellShapeConfigUiLocalEntryPoint :
+    LoadedComposeLifePreferencesProvider
 
 interface CellShapeConfigUiState {
     val currentShapeDropdownOption: ShapeDropdownOption
@@ -63,10 +71,20 @@ sealed interface CurrentShapeConfigUiState {
     }
 }
 
-context(ComposeLifePreferencesProvider, LoadedComposeLifePreferencesProvider)
+context(injectEntryPoint: CellShapeConfigUiInjectEntryPoint, localEntryPoint: CellShapeConfigUiLocalEntryPoint)
+@Composable
+fun rememberCellShapeConfigUiState(): CellShapeConfigUiState =
+    rememberCellShapeConfigUiState(
+        composeLifePreferences = injectEntryPoint.composeLifePreferences,
+        preferences = localEntryPoint.preferences,
+    )
+
 @Suppress("LongMethod")
 @Composable
-fun rememberCellShapeConfigUiState(): CellShapeConfigUiState {
+fun rememberCellShapeConfigUiState(
+    composeLifePreferences: ComposeLifePreferences,
+    preferences: LoadedComposeLifePreferences,
+): CellShapeConfigUiState {
     val currentShapeType: CurrentShapeType = preferences.currentShapeType
     val coroutineScope = rememberCoroutineScope()
     val roundRectangleUpdates = remember {
@@ -78,7 +96,10 @@ fun rememberCellShapeConfigUiState(): CellShapeConfigUiState {
     LaunchedEffect(roundRectangleUpdates, composeLifePreferences) {
         while (true) {
             val pendingUpdates = roundRectangleUpdates.receiveBatch()
-            composeLifePreferences.setRoundRectangleConfig(pendingUpdates.first().first, pendingUpdates.last().second)
+            composeLifePreferences.setRoundRectangleConfig(
+                pendingUpdates.first().first,
+                pendingUpdates.last().second,
+            )
         }
     }
 

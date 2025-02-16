@@ -63,7 +63,7 @@ import com.livefront.sealedenum.SealedEnum
 import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
 
-context(InteractiveCellUniverseOverlayInjectEntryPoint, InteractiveCellUniverseOverlayLocalEntryPoint)
+context(_: InteractiveCellUniverseOverlayInjectEntryPoint, _: InteractiveCellUniverseOverlayLocalEntryPoint)
 @Suppress("LongMethod", "ComplexMethod", "LongParameterList")
 @Composable
 fun InteractiveCellUniverseOverlay(
