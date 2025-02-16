@@ -76,7 +76,7 @@ interface FullscreenSettingsDetailPaneInjectEntryPoint :
 interface FullscreenSettingsDetailPaneLocalEntryPoint :
     SettingUiLocalEntryPoint
 
-context(FullscreenSettingsDetailPaneInjectEntryPoint, FullscreenSettingsDetailPaneLocalEntryPoint)
+context(_: FullscreenSettingsDetailPaneInjectEntryPoint, _: FullscreenSettingsDetailPaneLocalEntryPoint)
 @Composable
 fun FullscreenSettingsDetailPane(
     fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
@@ -97,7 +97,7 @@ fun FullscreenSettingsDetailPane(
     )
 }
 
-context(SettingUiInjectEntryPoint, SettingUiLocalEntryPoint)
+context(_: SettingUiInjectEntryPoint, _: SettingUiLocalEntryPoint)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod", "LongParameterList")
 @Composable

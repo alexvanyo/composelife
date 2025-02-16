@@ -35,14 +35,14 @@ interface DisableAGSLUiInjectEntryPoint :
 interface DisableAGSLUiLocalEntryPoint :
     LoadedComposeLifePreferencesProvider
 
-context(DisableAGSLUiInjectEntryPoint, DisableAGSLUiLocalEntryPoint)
+context(injectEntryPoint: DisableAGSLUiInjectEntryPoint, localEntryPoint: DisableAGSLUiLocalEntryPoint)
 @Composable
 fun DisableAGSLUi(
     modifier: Modifier = Modifier,
 ) {
     DisableAGSLUi(
-        disableAGSL = preferences.disableAGSL,
-        setDisableAGSL = composeLifePreferences::setDisabledAGSL,
+        disableAGSL = localEntryPoint.preferences.disableAGSL,
+        setDisableAGSL = injectEntryPoint.composeLifePreferences::setDisabledAGSL,
         modifier = modifier,
     )
 }

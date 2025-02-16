@@ -104,7 +104,7 @@ sealed interface TemporalGameOfLifeState : MutableGameOfLifeState {
     /**
      * Evolves the cell state using the given [GameOfLifeAlgorithm] automatically through time
      */
-    context(GameOfLifeAlgorithm, Clock, ComposeLifeDispatchers)
+    context(_: GameOfLifeAlgorithm, _: Clock, _: ComposeLifeDispatchers)
     suspend fun evolve(): Nothing
 
     /**
@@ -275,7 +275,7 @@ private class TemporalGameOfLifeStateImpl(
         stepManualTicker.send(Unit)
     }
 
-    context(GameOfLifeAlgorithm, Clock, ComposeLifeDispatchers)
+    context(algorithm: GameOfLifeAlgorithm, clock: Clock, dispatchers: ComposeLifeDispatchers)
     override suspend fun evolve(): Nothing {
         evolveMutex.withLock {
             try {
@@ -294,7 +294,7 @@ private class TemporalGameOfLifeStateImpl(
     /**
      * The implementation of [evolve] guarded by [evolveMutex].
      */
-    context(GameOfLifeAlgorithm, Clock, ComposeLifeDispatchers)
+    context(algorithm: GameOfLifeAlgorithm, clock: Clock, dispatchers: ComposeLifeDispatchers)
     @Suppress("LongMethod")
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun evolveImpl(): Nothing {
@@ -315,7 +315,7 @@ private class TemporalGameOfLifeStateImpl(
                     emptyFlow()
                 }
             }
-            .flowOn(CellTicker)
+            .flowOn(dispatchers.CellTicker)
             .buffer(0) // No buffer, so the ticks are only consumed upon a cell state being computed
 
         val stepTicker = merge(
@@ -329,25 +329,25 @@ private class TemporalGameOfLifeStateImpl(
                 .conflate()
                 .produceIn(this)
 
-            withContext(Default) {
+            withContext(dispatchers.Default) {
                 currentCellStateGenealogy
                     .consumeAsFlow()
                     .collectLatest { cellStateGenealogy ->
                         Snapshot.withMutableSnapshot {
                             completedGenerationTracker = completedGenerationTracker + ComputationRecord(
                                 computedGenerations = 0,
-                                computedTime = now(),
+                                computedTime = clock.now(),
                             )
                         }
 
-                        computeGenerationsWithStep(
+                        algorithm.computeGenerationsWithStep(
                             originalCellState = cellStateGenealogy.seedCellState,
                             step = cellStateGenealogy.generationsPerStep,
                         )
                             .buffer()
                             .zip(stepTicker) { newCellState, _ -> newCellState }
                             .collect { cellState ->
-                                val lastTick = now()
+                                val lastTick = clock.now()
                                 Snapshot.withMutableSnapshot {
                                     cellStateGenealogy.computedCellState = cellState
                                     val newRecord = ComputationRecord(

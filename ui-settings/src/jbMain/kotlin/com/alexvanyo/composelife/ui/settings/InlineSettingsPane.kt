@@ -64,7 +64,7 @@ interface InlineSettingsPaneLocalEntryPoint :
     LoadedComposeLifePreferencesProvider,
     SettingUiLocalEntryPoint
 
-context(InlineSettingsPaneInjectEntryPoint, InlineSettingsPaneLocalEntryPoint)
+context(_: InlineSettingsPaneInjectEntryPoint, localEntryPoint: InlineSettingsPaneLocalEntryPoint)
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod")
 @Composable
@@ -84,7 +84,7 @@ fun InlineSettingsPane(
             .padding(vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val quickAccessSettings = preferences.quickAccessSettings
+        val quickAccessSettings = localEntryPoint.preferences.quickAccessSettings
 
         /**
          * The list of previously known animatable quick access settings, used to smoothly animate out upon

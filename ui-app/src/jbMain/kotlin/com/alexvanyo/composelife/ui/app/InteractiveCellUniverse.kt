@@ -52,7 +52,7 @@ import kotlin.uuid.Uuid
  * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
  * evolves.
  */
-context(InteractiveCellUniverseInjectEntryPoint, InteractiveCellUniverseLocalEntryPoint)
+context(_: InteractiveCellUniverseInjectEntryPoint, _: InteractiveCellUniverseLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun InteractiveCellUniverse(
