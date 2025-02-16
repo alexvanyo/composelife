@@ -34,7 +34,9 @@ android {
     namespace = "com.alexvanyo.composelife"
     defaultConfig {
         applicationId = "com.alexvanyo.composelife"
-        minSdk = 21
+        // TODO: Revert back to 21 once spaces aren't in method names
+        // minSdk = 21
+        minSdk = 30
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
