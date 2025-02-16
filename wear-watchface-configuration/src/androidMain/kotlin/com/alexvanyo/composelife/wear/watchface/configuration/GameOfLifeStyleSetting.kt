@@ -48,77 +48,77 @@ sealed interface GameOfLifeStyleSetting {
         override val id = UserStyleSetting.Id("game_of_life_color_red_value")
 
         override fun createUserStyleSetting(resources: Resources): UserStyleSetting.LongRangeUserStyleSetting =
-            UserStyleSetting.LongRangeUserStyleSetting(
+            UserStyleSetting.LongRangeUserStyleSetting.Builder(
                 id = id,
-                resources = resources,
-                displayNameResourceId = R.string.color_red_value,
-                descriptionResourceId = R.string.color_red_value_description,
-                icon = null,
                 minimumValue = 0,
                 maximumValue = 255,
+                defaultValue = 255,
                 affectsWatchFaceLayers = listOf(
                     WatchFaceLayer.BASE,
                     WatchFaceLayer.COMPLICATIONS,
                 ),
-                defaultValue = 255,
+                resources = resources,
+                displayNameResourceId = R.string.color_red_value,
+                descriptionResourceId = R.string.color_red_value_description,
             )
+                .build()
     }
 
     data object ColorGreenValue : GameOfLifeStyleSetting {
         override val id = UserStyleSetting.Id("game_of_life_color_green_value")
 
         override fun createUserStyleSetting(resources: Resources): UserStyleSetting.LongRangeUserStyleSetting =
-            UserStyleSetting.LongRangeUserStyleSetting(
+            UserStyleSetting.LongRangeUserStyleSetting.Builder(
                 id = id,
-                resources = resources,
-                displayNameResourceId = R.string.color_green_value,
-                descriptionResourceId = R.string.color_green_value_description,
-                icon = null,
                 minimumValue = 0,
                 maximumValue = 255,
+                defaultValue = 255,
                 affectsWatchFaceLayers = listOf(
                     WatchFaceLayer.BASE,
                     WatchFaceLayer.COMPLICATIONS,
                 ),
-                defaultValue = 255,
+                resources = resources,
+                displayNameResourceId = R.string.color_green_value,
+                descriptionResourceId = R.string.color_green_value_description,
             )
+                .build()
     }
 
     data object ColorBlueValue : GameOfLifeStyleSetting {
         override val id = UserStyleSetting.Id("game_of_life_color_blue_value")
 
         override fun createUserStyleSetting(resources: Resources): UserStyleSetting.LongRangeUserStyleSetting =
-            UserStyleSetting.LongRangeUserStyleSetting(
+            UserStyleSetting.LongRangeUserStyleSetting.Builder(
                 id = id,
-                resources = resources,
-                displayNameResourceId = R.string.color_blue_value,
-                descriptionResourceId = R.string.color_blue_value_description,
-                icon = null,
                 minimumValue = 0,
                 maximumValue = 255,
+                defaultValue = 255,
                 affectsWatchFaceLayers = listOf(
                     WatchFaceLayer.BASE,
                     WatchFaceLayer.COMPLICATIONS,
                 ),
-                defaultValue = 255,
+                resources = resources,
+                displayNameResourceId = R.string.color_blue_value,
+                descriptionResourceId = R.string.color_blue_value_description,
             )
+                .build()
     }
 
     data object ShowComplicationsInAmbient : GameOfLifeStyleSetting {
         override val id = UserStyleSetting.Id("show_complications_in_ambient")
 
         override fun createUserStyleSetting(resources: Resources): UserStyleSetting.BooleanUserStyleSetting =
-            UserStyleSetting.BooleanUserStyleSetting(
+            UserStyleSetting.BooleanUserStyleSetting.Builder(
                 id = id,
-                resources = resources,
-                displayNameResourceId = R.string.show_complications_in_ambient,
-                descriptionResourceId = R.string.show_complications_in_ambient_description,
-                icon = null,
                 affectsWatchFaceLayers = listOf(
                     WatchFaceLayer.COMPLICATIONS,
                 ),
                 defaultValue = true,
+                resources = resources,
+                displayNameResourceId = R.string.show_complications_in_ambient,
+                descriptionResourceId = R.string.show_complications_in_ambient_description,
             )
+                .build()
     }
 
     @GenSealedEnum
