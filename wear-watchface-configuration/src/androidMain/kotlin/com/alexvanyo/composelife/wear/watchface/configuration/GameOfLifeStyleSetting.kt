@@ -130,15 +130,15 @@ sealed interface GameOfLifeStyleSetting {
  *
  * The color is stored as 3 underlying [Long] settings representing the RGB color components.
  */
-context(UserStyleSchema)
+context(userStyleSchema: UserStyleSchema)
 fun UserStyle.getGameOfLifeColor(): Color {
-    val colorRedValueUserSetting = rootUserStyleSettings.find {
+    val colorRedValueUserSetting = userStyleSchema.rootUserStyleSettings.find {
         it.id == GameOfLifeStyleSetting.ColorRedValue.id
     } as UserStyleSetting.LongRangeUserStyleSetting
-    val colorGreenValueUserSetting = rootUserStyleSettings.find {
+    val colorGreenValueUserSetting = userStyleSchema.rootUserStyleSettings.find {
         it.id == GameOfLifeStyleSetting.ColorGreenValue.id
     } as UserStyleSetting.LongRangeUserStyleSetting
-    val colorBlueValueUserSetting = rootUserStyleSettings.find {
+    val colorBlueValueUserSetting = userStyleSchema.rootUserStyleSettings.find {
         it.id == GameOfLifeStyleSetting.ColorBlueValue.id
     } as UserStyleSetting.LongRangeUserStyleSetting
 
@@ -163,15 +163,15 @@ fun UserStyle.getGameOfLifeColor(): Color {
  *
  * The color is stored as 3 underlying [Long] settings representing the RGB color components.
  */
-context(UserStyleSchema)
+context(userStyleSchema: UserStyleSchema)
 fun MutableUserStyle.setGameOfLifeColor(color: Color) {
-    val colorRedValueUserSetting = rootUserStyleSettings.find {
+    val colorRedValueUserSetting = userStyleSchema.rootUserStyleSettings.find {
         it.id == GameOfLifeStyleSetting.ColorRedValue.id
     } as UserStyleSetting.LongRangeUserStyleSetting
-    val colorGreenValueUserSetting = rootUserStyleSettings.find {
+    val colorGreenValueUserSetting = userStyleSchema.rootUserStyleSettings.find {
         it.id == GameOfLifeStyleSetting.ColorGreenValue.id
     } as UserStyleSetting.LongRangeUserStyleSetting
-    val colorBlueValueUserSetting = rootUserStyleSettings.find {
+    val colorBlueValueUserSetting = userStyleSchema.rootUserStyleSettings.find {
         it.id == GameOfLifeStyleSetting.ColorBlueValue.id
     } as UserStyleSetting.LongRangeUserStyleSetting
 
@@ -192,9 +192,9 @@ fun MutableUserStyle.setGameOfLifeColor(color: Color) {
 /**
  * Gets the preferred setting to show complications in ambient from the [UserStyle] given the [UserStyleSchema].
  */
-context(UserStyleSchema)
+context(userStyleSchema: UserStyleSchema)
 fun UserStyle.getShowComplicationsInAmbient(): Boolean {
-    val showComplicationsInAmbientSetting = rootUserStyleSettings.find {
+    val showComplicationsInAmbientSetting = userStyleSchema.rootUserStyleSettings.find {
         it.id == GameOfLifeStyleSetting.ShowComplicationsInAmbient.id
     } as UserStyleSetting.BooleanUserStyleSetting
     return (this[showComplicationsInAmbientSetting] as UserStyleSetting.BooleanUserStyleSetting.BooleanOption).value
@@ -203,9 +203,9 @@ fun UserStyle.getShowComplicationsInAmbient(): Boolean {
 /**
  * Sets the preferred setting to show complications in ambient to the [MutableUserStyle] given the [UserStyleSchema].
  */
-context(UserStyleSchema)
+context(userStyleSchema: UserStyleSchema)
 fun MutableUserStyle.setShowComplicationsInAmbient(value: Boolean) {
-    val showComplicationsInAmbientSetting = rootUserStyleSettings.find {
+    val showComplicationsInAmbientSetting = userStyleSchema.rootUserStyleSettings.find {
         it.id == GameOfLifeStyleSetting.ShowComplicationsInAmbient.id
     } as UserStyleSetting.BooleanUserStyleSetting
     this[showComplicationsInAmbientSetting] = if (value) {

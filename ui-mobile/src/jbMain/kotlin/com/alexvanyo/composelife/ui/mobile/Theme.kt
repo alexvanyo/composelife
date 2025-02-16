@@ -42,7 +42,7 @@ private val LocalAppliedComposeLifeTheme = compositionLocalOf { false }
  *
  * If [ComposeLifeTheme] is applied multiple times, only the outer one takes effect.
  */
-context(ComposeLifePreferencesProvider)
+context(_: ComposeLifePreferencesProvider)
 @Composable
 fun ComposeLifeTheme(
     content: @Composable () -> Unit,
@@ -116,11 +116,11 @@ internal expect val ComposeLifeTheme.lightColorScheme: ColorScheme
 @get:ReadOnlyComposable
 internal expect val ComposeLifeTheme.darkColorScheme: ColorScheme
 
-context(ComposeLifePreferencesProvider)
+context(preferencesProvider: ComposeLifePreferencesProvider)
 @Composable
 fun shouldUseDarkTheme(): Boolean =
     when (
-        val darkThemeConfigState = composeLifePreferences.darkThemeConfigState
+        val darkThemeConfigState = preferencesProvider.composeLifePreferences.darkThemeConfigState
     ) {
         ResourceState.Loading,
         is ResourceState.Failure,

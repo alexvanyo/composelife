@@ -49,6 +49,8 @@ import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
@@ -91,7 +93,7 @@ interface InlineEditPaneLocalEntryPoint :
     LoadedComposeLifePreferencesProvider,
     ClipboardCellStatePreviewLocalEntryPoint
 
-context(InlineEditPaneInjectEntryPoint, InlineEditPaneLocalEntryPoint)
+context(_: InlineEditPaneInjectEntryPoint, _: InlineEditPaneLocalEntryPoint)
 @Composable
 fun InlineEditPane(
     setSelectionToCellState: (CellState) -> Unit,
@@ -104,7 +106,7 @@ fun InlineEditPane(
     scrollState = scrollState,
 )
 
-context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
+context(_: ClipboardCellStatePreviewInjectEntryPoint, _: ClipboardCellStatePreviewLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 fun InlineEditPane(
@@ -306,20 +308,33 @@ interface PinnedClipboardPreviewState {
     fun onViewDeserializationInfo()
 }
 
-context(
-    ComposeLifePreferencesProvider,
-    LoadedComposeLifePreferencesProvider,
-    CellStateParserProvider
-)
+context(injectEntryPoint: InlineEditPaneInjectEntryPoint, localEntryPoint: InlineEditPaneLocalEntryPoint)
 @Composable
 fun rememberInlineEditPaneState(
+    setSelectionToCellState: (CellState) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
+): InlineEditPaneState = rememberInlineEditPaneState(
+    composeLifePreferences = injectEntryPoint.composeLifePreferences,
+    preferences = localEntryPoint.preferences,
+    cellStateParser = injectEntryPoint.cellStateParser,
+    setSelectionToCellState = setSelectionToCellState,
+    onViewDeserializationInfo = onViewDeserializationInfo,
+)
+
+@Composable
+fun rememberInlineEditPaneState(
+    composeLifePreferences: ComposeLifePreferences,
+    preferences: LoadedComposeLifePreferences,
+    cellStateParser: CellStateParser,
     setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
 ): InlineEditPaneState {
     val coroutineScope = rememberCoroutineScope()
 
     val clipboardWatchingState = rememberClipboardWatchingState(
-        coroutineScope = coroutineScope,
+        composeLifePreferences = composeLifePreferences,
+        preferences = preferences,
+        cellStateParser = cellStateParser,
         setSelectionToCellState = setSelectionToCellState,
         onViewDeserializationInfo = onViewDeserializationInfo,
     )
@@ -358,30 +373,33 @@ fun rememberInlineEditPaneState(
     }
 }
 
-context(
-    ComposeLifePreferencesProvider,
-    LoadedComposeLifePreferencesProvider,
-    CellStateParserProvider
-)
 @Composable
 fun rememberClipboardWatchingState(
+    composeLifePreferences: ComposeLifePreferences,
+    preferences: LoadedComposeLifePreferences,
+    cellStateParser: CellStateParser,
     setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ): ClipboardWatchingState =
     if (preferences.completedClipboardWatchingOnboarding) {
         if (preferences.enableClipboardWatching) {
-            rememberClipboardWatchingEnabledState(setSelectionToCellState, onViewDeserializationInfo)
+            rememberClipboardWatchingEnabledState(
+                cellStateParser = cellStateParser,
+                preferences = preferences,
+                setSelectionToCellState = setSelectionToCellState,
+                onViewDeserializationInfo = onViewDeserializationInfo,
+            )
         } else {
             ClipboardWatchingState.ClipboardWatchingDisabled
         }
     } else {
-        rememberClipboardWatchingOnboardingState(coroutineScope)
+        rememberClipboardWatchingOnboardingState(composeLifePreferences, coroutineScope)
     }
 
-context(ComposeLifePreferencesProvider)
 @Composable
 fun rememberClipboardWatchingOnboardingState(
+    composeLifePreferences: ComposeLifePreferences,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ): ClipboardWatchingState.Onboarding =
     remember(coroutineScope, composeLifePreferences) {
@@ -406,21 +424,24 @@ fun rememberClipboardWatchingOnboardingState(
         }
     }
 
-context(CellStateParserProvider, LoadedComposeLifePreferencesProvider)
 @Composable
 fun rememberClipboardWatchingEnabledState(
+    cellStateParser: CellStateParser,
+    preferences: LoadedComposeLifePreferences,
     setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
 ): ClipboardWatchingState.ClipboardWatchingEnabled =
     rememberClipboardWatchingEnabledState(
-        useSharedElementForCellStatePreviews = isSharedElementForCellsSupported(isThumbnail = true),
+        useSharedElementForCellStatePreviews = isSharedElementForCellsSupported(
+            preferences = preferences,
+            isThumbnail = true,
+        ),
         clipboardReader = rememberClipboardReader(),
         parser = cellStateParser,
         setSelectionToCellState = setSelectionToCellState,
         onViewDeserializationInfo = onViewDeserializationInfo,
     )
 
-context(LoadedComposeLifePreferencesProvider)
 @Suppress("LongMethod")
 @Composable
 fun rememberClipboardWatchingEnabledState(

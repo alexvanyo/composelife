@@ -63,13 +63,13 @@ interface GameOfLifeProgressIndicatorLocalEntryPoint :
  * A progress indicator that displays progress via an embedded set of cells displaying an
  * oscillating pattern.
  */
-context(GameOfLifeProgressIndicatorInjectEntryPoint, GameOfLifeProgressIndicatorLocalEntryPoint)
+context(injectEntryPoint: GameOfLifeProgressIndicatorInjectEntryPoint, _: GameOfLifeProgressIndicatorLocalEntryPoint)
 @Composable
 fun GameOfLifeProgressIndicator(
     modifier: Modifier = Modifier,
 ) {
     val patternIndex = remember(OscillatorPattern.values.size) {
-        random.nextInt(OscillatorPattern.values.size)
+        injectEntryPoint.random.nextInt(OscillatorPattern.values.size)
     }
     val pattern = OscillatorPattern.values[patternIndex]
     val temporalGameOfLifeState = key(pattern) {
@@ -82,9 +82,9 @@ fun GameOfLifeProgressIndicator(
 
     val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
         temporalGameOfLifeState = temporalGameOfLifeState,
-        gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-        dispatchers = dispatchers,
-        clock = clock,
+        gameOfLifeAlgorithm = injectEntryPoint.gameOfLifeAlgorithm,
+        dispatchers = injectEntryPoint.dispatchers,
+        clock = injectEntryPoint.clock,
     )
 
     LaunchedEffect(temporalGameOfLifeStateMutator) {
@@ -105,7 +105,7 @@ expect fun GameOfLifeProgressIndicatorForegroundEffect(
     temporalGameOfLifeState: TemporalGameOfLifeState,
 )
 
-context(GameOfLifeProgressIndicatorInjectEntryPoint, GameOfLifeProgressIndicatorLocalEntryPoint)
+context(_: GameOfLifeProgressIndicatorInjectEntryPoint, _: GameOfLifeProgressIndicatorLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun GameOfLifeProgressIndicator(
