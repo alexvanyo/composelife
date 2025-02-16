@@ -60,7 +60,7 @@ class CellWindowTests : BaseUiInjectTest<
 ) {
 
     @Test
-    fun cells_are_displayed_correctly() = runUiTest {
+    fun cells_are_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
         val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
@@ -94,7 +94,7 @@ class CellWindowTests : BaseUiInjectTest<
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             with(entryPoint) {
                 resolver = parameterizedStringResolver()
 
@@ -117,44 +117,44 @@ class CellWindowTests : BaseUiInjectTest<
             }
         }
 
-        onNodeWithContentDescription(
+        composeUiTest.onNodeWithContentDescription(
             resolver(Strings.InteractableCellContentDescription(0, 0)),
         )
             .assertIsOn()
 
-        onNodeWithContentDescription(
+        composeUiTest.onNodeWithContentDescription(
             resolver(Strings.InteractableCellContentDescription(0, 1)),
         )
             .assertIsOff()
 
-        onNodeWithContentDescription(
+        composeUiTest.onNodeWithContentDescription(
             resolver(Strings.InteractableCellContentDescription(0, 2)),
         )
             .assertIsOn()
 
-        onNodeWithContentDescription(
+        composeUiTest.onNodeWithContentDescription(
             resolver(Strings.InteractableCellContentDescription(0, 4)),
         )
             .assertDoesNotExist()
 
-        onNodeWithContentDescription(
+        composeUiTest.onNodeWithContentDescription(
             resolver(Strings.InteractableCellContentDescription(2, 0)),
         )
             .assertIsOn()
 
-        onNodeWithContentDescription(
+        composeUiTest.onNodeWithContentDescription(
             resolver(Strings.InteractableCellContentDescription(2, 1)),
         )
             .assertIsOff()
 
-        onNodeWithContentDescription(
+        composeUiTest.onNodeWithContentDescription(
             resolver(Strings.InteractableCellContentDescription(2, 2)),
         )
             .assertIsOn()
     }
 
     @Test
-    fun cells_are_displayed_correctly_after_scrolling() = runUiTest {
+    fun cells_are_displayed_correctly_after_scrolling() = runUiTest { uiComponent, composeUiTest ->
         val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
@@ -189,7 +189,7 @@ class CellWindowTests : BaseUiInjectTest<
 
         lateinit var density: Density
 
-        setContent {
+        composeUiTest.setContent {
             density = LocalDensity.current
 
             with(
@@ -213,7 +213,7 @@ class CellWindowTests : BaseUiInjectTest<
             }
         }
 
-        onRoot().performTouchInput {
+        composeUiTest.onRoot().performTouchInput {
             with(density) {
                 swipe(
                     Offset(135.dp.toPx(), 135.dp.toPx()),
@@ -227,7 +227,7 @@ class CellWindowTests : BaseUiInjectTest<
     }
 
     @Test
-    fun cells_are_not_scrolled_with_none_touch_tool_config() = runUiTest {
+    fun cells_are_not_scrolled_with_none_touch_tool_config() = runUiTest { uiComponent, composeUiTest ->
         val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
@@ -262,7 +262,7 @@ class CellWindowTests : BaseUiInjectTest<
 
         lateinit var density: Density
 
-        setContent {
+        composeUiTest.setContent {
             density = LocalDensity.current
 
             with(
@@ -286,7 +286,7 @@ class CellWindowTests : BaseUiInjectTest<
             }
         }
 
-        onRoot().performTouchInput {
+        composeUiTest.onRoot().performTouchInput {
             with(density) {
                 swipe(
                     Offset(135.dp.toPx(), 135.dp.toPx()),
@@ -302,7 +302,7 @@ class CellWindowTests : BaseUiInjectTest<
     }
 
     @Test
-    fun cells_are_displayed_correctly_after_zooming_in_with_mouse_wheel() = runUiTest {
+    fun cells_are_displayed_correctly_after_zooming_in_with_mouse_wheel() = runUiTest { uiComponent, composeUiTest ->
         val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
@@ -335,7 +335,7 @@ class CellWindowTests : BaseUiInjectTest<
             ),
         )
 
-        setContent {
+        composeUiTest.setContent {
             with(entryPoint) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
@@ -351,7 +351,7 @@ class CellWindowTests : BaseUiInjectTest<
             }
         }
 
-        onRoot().performMouseInput {
+        composeUiTest.onRoot().performMouseInput {
             scroll(-1f, ScrollWheel.Vertical)
         }
 
@@ -359,7 +359,7 @@ class CellWindowTests : BaseUiInjectTest<
     }
 
     @Test
-    fun cells_are_displayed_correctly_after_zooming_out_with_mouse_wheel() = runUiTest {
+    fun cells_are_displayed_correctly_after_zooming_out_with_mouse_wheel() = runUiTest { uiComponent, composeUiTest ->
         val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
@@ -392,7 +392,7 @@ class CellWindowTests : BaseUiInjectTest<
             ),
         )
 
-        setContent {
+        composeUiTest.setContent {
             with(entryPoint) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
@@ -408,7 +408,7 @@ class CellWindowTests : BaseUiInjectTest<
             }
         }
 
-        onRoot().performMouseInput {
+        composeUiTest.onRoot().performMouseInput {
             scroll(1f, ScrollWheel.Vertical)
         }
 
