@@ -57,7 +57,7 @@ class NonInteractableCellsVisualTests :
     }
 
     @Test
-    fun non_interactable_cells_draws_correctly_dark_mode() = runUiTest {
+    fun non_interactable_cells_draws_correctly_dark_mode() = runUiTest { uiComponent, composeUiTest ->
         assumeTrue(Build.VERSION.SDK_INT >= 28)
         if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
@@ -78,7 +78,7 @@ class NonInteractableCellsVisualTests :
         var aliveCellColor: Color? = null
         var deadCellColor: Color? = null
 
-        setContent {
+        composeUiTest.setContent {
             ComposeLifeTheme(darkTheme = true) {
                 with(nonInteractableCellsInjectEntryPoint) {
                     with(nonInteractableCellsLocalEntryPoint) {
@@ -115,7 +115,7 @@ class NonInteractableCellsVisualTests :
             }
         }
 
-        onRoot().captureToImage().assertPixels(
+        composeUiTest.onRoot().captureToImage().assertPixels(
             IntSize(10, 10),
         ) {
             if (it in cellState.aliveCells) {
@@ -129,7 +129,7 @@ class NonInteractableCellsVisualTests :
     }
 
     @Test
-    fun non_interactable_cells_draws_correctly_light_mode() = runUiTest {
+    fun non_interactable_cells_draws_correctly_light_mode() = runUiTest { uiComponent, composeUiTest ->
         assumeTrue(Build.VERSION.SDK_INT >= 28)
         if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
@@ -150,7 +150,7 @@ class NonInteractableCellsVisualTests :
         var aliveCellColor: Color? = null
         var deadCellColor: Color? = null
 
-        setContent {
+        composeUiTest.setContent {
             ComposeLifeTheme(darkTheme = false) {
                 with(nonInteractableCellsInjectEntryPoint) {
                     with(nonInteractableCellsLocalEntryPoint) {
@@ -187,7 +187,7 @@ class NonInteractableCellsVisualTests :
             }
         }
 
-        onRoot().captureToImage().assertPixels(
+        composeUiTest.onRoot().captureToImage().assertPixels(
             IntSize(10, 10),
         ) {
             if (it in cellState.aliveCells) {
