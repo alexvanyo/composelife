@@ -453,7 +453,7 @@ enum class Colors {
 
 @Composable
 fun ComposableThatFits(
-    vararg contents: @Composable ComposableThatFitsScope.() -> Unit,
+    contents: List<@Composable ComposableThatFitsScope.() -> Unit>,
     modifier: Modifier = Modifier,
 ) {
     var placedContentIndex by remember(contents) { mutableIntStateOf(-1) }
@@ -615,38 +615,40 @@ private fun MovableContentAnimateAfter() {
 
     SharedTransitionScope {
         ComposableThatFits(
-            {
-                Box(
-                    modifier = Modifier
-                        .requiredSizeIn(minWidth = 800.dp, minHeight = 400.dp)
-                        .fillMaxSize()
-                        .background(Color.Yellow),
-                    contentAlignment = Alignment.BottomCenter,
-                ) {
-                    textField()
-                }
-            },
-            {
-                Box(
-                    modifier = Modifier
-                        .requiredSizeIn(minWidth = 400.dp, minHeight = 400.dp)
-                        .fillMaxSize()
-                        .background(Color.Blue),
-                    contentAlignment = Alignment.BottomCenter,
-                ) {
-                    textField()
-                }
-            },
-            {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Red),
-                    contentAlignment = Alignment.BottomCenter,
-                ) {
-                    textField()
-                }
-            },
+            listOf(
+                {
+                    Box(
+                        modifier = Modifier
+                            .requiredSizeIn(minWidth = 800.dp, minHeight = 400.dp)
+                            .fillMaxSize()
+                            .background(Color.Yellow),
+                        contentAlignment = Alignment.BottomCenter,
+                    ) {
+                        textField()
+                    }
+                },
+                {
+                    Box(
+                        modifier = Modifier
+                            .requiredSizeIn(minWidth = 400.dp, minHeight = 400.dp)
+                            .fillMaxSize()
+                            .background(Color.Blue),
+                        contentAlignment = Alignment.BottomCenter,
+                    ) {
+                        textField()
+                    }
+                },
+                {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Red),
+                        contentAlignment = Alignment.BottomCenter,
+                    ) {
+                        textField()
+                    }
+                },
+            ),
             modifier = it,
         )
     }

@@ -76,7 +76,7 @@ class CellShapeConfigUiTests {
             resolver = parameterizedStringResolver()
 
             val cellShapeConfigUiState = with(
-                object : LoadedComposeLifePreferencesProvider, ComposeLifePreferencesProvider {
+                object : CellShapeConfigUiInjectEntryPoint, CellShapeConfigUiLocalEntryPoint {
                     override val composeLifePreferences = composeLifePreferences
                     override val preferences = preferences
                 },
@@ -129,7 +129,7 @@ class CellShapeConfigUiTests {
             resolver = parameterizedStringResolver()
 
             val cellShapeConfigUiState = with(
-                object : LoadedComposeLifePreferencesProvider, ComposeLifePreferencesProvider {
+                object : CellShapeConfigUiInjectEntryPoint, CellShapeConfigUiLocalEntryPoint {
                     override val composeLifePreferences = composeLifePreferences
                     override val preferences = preferences
                 },
@@ -168,7 +168,7 @@ class CellShapeConfigUiTests {
             resolver = parameterizedStringResolver()
 
             val cellShapeConfigUiState = with(
-                object : LoadedComposeLifePreferencesProvider, ComposeLifePreferencesProvider {
+                object : CellShapeConfigUiInjectEntryPoint, CellShapeConfigUiLocalEntryPoint {
                     override val composeLifePreferences = composeLifePreferences
                     override val preferences = preferences
                 },
@@ -207,7 +207,7 @@ class CellShapeConfigUiTests {
             resolver = parameterizedStringResolver()
 
             val cellShapeConfigUiState = with(
-                object : LoadedComposeLifePreferencesProvider, ComposeLifePreferencesProvider {
+                object : CellShapeConfigUiInjectEntryPoint, CellShapeConfigUiLocalEntryPoint {
                     override val composeLifePreferences = composeLifePreferences
                     override val preferences = preferences
                 },
