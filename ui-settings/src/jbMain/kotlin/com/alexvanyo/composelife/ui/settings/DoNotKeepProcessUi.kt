@@ -35,14 +35,14 @@ interface DoNotKeepProcessUiInjectEntryPoint :
 interface DoNotKeepProcessUiLocalEntryPoint :
     LoadedComposeLifePreferencesProvider
 
-context(DoNotKeepProcessUiInjectEntryPoint, DoNotKeepProcessUiLocalEntryPoint)
+context(injectEntryPoint: DoNotKeepProcessUiInjectEntryPoint, localEntryPoint: DoNotKeepProcessUiLocalEntryPoint)
 @Composable
 fun DoNotKeepProcessUi(
     modifier: Modifier = Modifier,
 ) {
     DoNotKeepProcessUi(
-        doNotKeepProcess = preferences.doNotKeepProcess,
-        setDoNotKeepProcess = composeLifePreferences::setDoNotKeepProcess,
+        doNotKeepProcess = localEntryPoint.preferences.doNotKeepProcess,
+        setDoNotKeepProcess = injectEntryPoint.composeLifePreferences::setDoNotKeepProcess,
         modifier = modifier,
     )
 }

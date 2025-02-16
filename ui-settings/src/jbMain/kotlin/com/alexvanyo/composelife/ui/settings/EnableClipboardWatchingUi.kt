@@ -35,14 +35,14 @@ interface EnableClipboardWatchingUiInjectEntryPoint :
 interface EnableClipboardWatchingUiLocalEntryPoint :
     LoadedComposeLifePreferencesProvider
 
-context(EnableClipboardWatchingUiInjectEntryPoint, EnableClipboardWatchingUiLocalEntryPoint)
+context(injectEntryPoint: EnableClipboardWatchingUiInjectEntryPoint, localEntryPoint: EnableClipboardWatchingUiLocalEntryPoint)
 @Composable
 fun EnableClipboardWatchingUi(
     modifier: Modifier = Modifier,
 ) {
     EnableClipboardWatchingUi(
-        enableClipboardWatching = preferences.enableClipboardWatching,
-        setEnableClipboardWatching = composeLifePreferences::setEnableClipboardWatching,
+        enableClipboardWatching = localEntryPoint.preferences.enableClipboardWatching,
+        setEnableClipboardWatching = injectEntryPoint.composeLifePreferences::setEnableClipboardWatching,
         modifier = modifier,
     )
 }

@@ -57,7 +57,7 @@ import kotlin.uuid.Uuid
 /**
  * The overlay based on the [selectionSessionState].
  */
-context(CellWindowInjectEntryPoint, CellWindowLocalEntryPoint)
+context(_: CellWindowInjectEntryPoint, _: CellWindowLocalEntryPoint)
 @Suppress("LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 @Composable
 fun SelectionOverlay(

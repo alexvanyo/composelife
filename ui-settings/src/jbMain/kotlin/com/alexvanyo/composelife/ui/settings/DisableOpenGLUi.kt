@@ -35,14 +35,14 @@ interface DisableOpenGLUiInjectEntryPoint :
 interface DisableOpenGLUiLocalEntryPoint :
     LoadedComposeLifePreferencesProvider
 
-context(DisableOpenGLUiInjectEntryPoint, DisableOpenGLUiLocalEntryPoint)
+context(injectEntryPoint: DisableOpenGLUiInjectEntryPoint, localEntryPoint: DisableOpenGLUiLocalEntryPoint)
 @Composable
 fun DisableOpenGLUi(
     modifier: Modifier = Modifier,
 ) {
     DisableOpenGLUi(
-        disableOpenGL = preferences.disableOpenGL,
-        setDisableOpenGL = composeLifePreferences::setDisableOpenGL,
+        disableOpenGL = localEntryPoint.preferences.disableOpenGL,
+        setDisableOpenGL = injectEntryPoint.composeLifePreferences::setDisableOpenGL,
         modifier = modifier,
     )
 }

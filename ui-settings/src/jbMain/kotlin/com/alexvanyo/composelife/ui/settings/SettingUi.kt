@@ -62,7 +62,7 @@ interface SettingUiLocalEntryPoint :
  * If [onOpenInSettingsClicked] is not null, then a button will be displayed to open the given
  * setting that will invoke [onOpenInSettingsClicked].
  */
-context(SettingUiInjectEntryPoint, SettingUiLocalEntryPoint)
+context(injectEntryPoint: SettingUiInjectEntryPoint, localEntryPoint: SettingUiLocalEntryPoint)
 @Composable
 fun SettingUi(
     setting: Setting,
@@ -78,13 +78,13 @@ fun SettingUi(
             if (quickAccessSetting != null) {
                 val coroutineScope = rememberCoroutineScope()
                 QuickAccessSettingHeader(
-                    isFavorite = quickAccessSetting in preferences.quickAccessSettings,
+                    isFavorite = quickAccessSetting in localEntryPoint.preferences.quickAccessSettings,
                     setIsFavorite = { isFavorite ->
                         coroutineScope.launch {
                             if (isFavorite) {
-                                composeLifePreferences.addQuickAccessSetting(quickAccessSetting)
+                                injectEntryPoint.composeLifePreferences.addQuickAccessSetting(quickAccessSetting)
                             } else {
-                                composeLifePreferences.removeQuickAccessSetting(quickAccessSetting)
+                                injectEntryPoint.composeLifePreferences.removeQuickAccessSetting(quickAccessSetting)
                             }
                         }
                     },

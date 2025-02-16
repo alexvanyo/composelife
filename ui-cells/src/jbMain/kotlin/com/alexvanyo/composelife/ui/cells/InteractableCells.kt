@@ -74,7 +74,7 @@ interface InteractableCellsLocalEntryPoint : LoadedComposeLifePreferencesProvide
  *
  * The [GameOfLifeState] is interactable, so each cell is displayed by a unique [InteractableCell].
  */
-context(InteractableCellsLocalEntryPoint)
+context(localEntryPoint: InteractableCellsLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 fun InteractableCells(
@@ -105,21 +105,21 @@ fun InteractableCells(
 
         val drawingPointerTypes =
             setOfNotNull(
-                PointerType.Touch.takeIf { preferences.touchToolConfig == ToolConfig.Draw },
-                PointerType.Stylus.takeIf { preferences.stylusToolConfig == ToolConfig.Draw },
-                PointerType.Mouse.takeIf { preferences.mouseToolConfig == ToolConfig.Draw },
+                PointerType.Touch.takeIf { localEntryPoint.preferences.touchToolConfig == ToolConfig.Draw },
+                PointerType.Stylus.takeIf { localEntryPoint.preferences.stylusToolConfig == ToolConfig.Draw },
+                PointerType.Mouse.takeIf { localEntryPoint.preferences.mouseToolConfig == ToolConfig.Draw },
             )
         val erasingPointerTypes =
             setOfNotNull(
-                PointerType.Touch.takeIf { preferences.touchToolConfig == ToolConfig.Erase },
-                PointerType.Stylus.takeIf { preferences.stylusToolConfig == ToolConfig.Erase },
-                PointerType.Mouse.takeIf { preferences.mouseToolConfig == ToolConfig.Erase },
+                PointerType.Touch.takeIf { localEntryPoint.preferences.touchToolConfig == ToolConfig.Erase },
+                PointerType.Stylus.takeIf { localEntryPoint.preferences.stylusToolConfig == ToolConfig.Erase },
+                PointerType.Mouse.takeIf { localEntryPoint.preferences.mouseToolConfig == ToolConfig.Erase },
             )
         val selectingPointerTypes =
             setOfNotNull(
-                PointerType.Touch.takeIf { preferences.touchToolConfig == ToolConfig.Select },
-                PointerType.Stylus.takeIf { preferences.stylusToolConfig == ToolConfig.Select },
-                PointerType.Mouse.takeIf { preferences.mouseToolConfig == ToolConfig.Select },
+                PointerType.Touch.takeIf { localEntryPoint.preferences.touchToolConfig == ToolConfig.Select },
+                PointerType.Stylus.takeIf { localEntryPoint.preferences.stylusToolConfig == ToolConfig.Select },
+                PointerType.Mouse.takeIf { localEntryPoint.preferences.mouseToolConfig == ToolConfig.Select },
             )
 
         Box(
@@ -158,7 +158,7 @@ fun InteractableCells(
                                     true -> if (isAliveInState) DrawState.Alive else DrawState.PendingAlive
                                     null -> if (isAliveInState) DrawState.Alive else DrawState.Dead
                                 },
-                                shape = preferences.currentShape,
+                                shape = localEntryPoint.preferences.currentShape,
                                 contentDescription = parameterizedStringResource(
                                     Strings.InteractableCellContentDescription(
                                         x = cell.x,

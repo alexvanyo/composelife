@@ -41,6 +41,8 @@ import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.ui.app.resources.Draw
 import com.alexvanyo.composelife.ui.app.resources.Erase
@@ -130,7 +132,7 @@ private fun ToolConfig.toToolDropdownOption(): ToolDropdownOption =
         ToolConfig.Select -> ToolDropdownOption.Select
     }
 
-context(InlineEditPaneInjectEntryPoint, InlineEditPaneLocalEntryPoint)
+context(_: InlineEditPaneInjectEntryPoint, _: InlineEditPaneLocalEntryPoint)
 @Composable
 fun InlineEditPane(
     setSelectionToCellState: (CellState) -> Unit,
@@ -143,7 +145,7 @@ fun InlineEditPane(
     scrollState = scrollState,
 )
 
-context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
+context(_: ClipboardCellStatePreviewInjectEntryPoint, _: ClipboardCellStatePreviewLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 fun InlineEditPane(

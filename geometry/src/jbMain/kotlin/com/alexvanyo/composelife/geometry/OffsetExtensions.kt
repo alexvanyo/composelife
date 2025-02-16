@@ -56,9 +56,9 @@ fun IntOffset.manhattanDistance(): Int =
 fun IntOffset.euclideanDistance(): Float =
     toOffset().getDistance()
 
-context(Density)
+context(density: Density)
 fun DpOffset.toPx(): Offset =
-    Offset(x.toPx(), y.toPx())
+    with(density) { Offset(x.toPx(), y.toPx()) }
 
 /**
  * Maps an [IntOffset] into an [Int] to enumerate the 2d plane.

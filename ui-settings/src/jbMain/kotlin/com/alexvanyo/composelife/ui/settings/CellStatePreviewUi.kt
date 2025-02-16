@@ -40,7 +40,7 @@ interface CellStatePreviewUiInjectEntryPoint :
 interface CellStatePreviewUiLocalEntryPoint :
     CellWindowLocalEntryPoint
 
-context(CellStatePreviewUiInjectEntryPoint, CellStatePreviewUiLocalEntryPoint)
+context(_: CellStatePreviewUiInjectEntryPoint, _: CellStatePreviewUiLocalEntryPoint)
 @Suppress("LongMethod")
 @Composable
 fun CellStatePreviewUi(
