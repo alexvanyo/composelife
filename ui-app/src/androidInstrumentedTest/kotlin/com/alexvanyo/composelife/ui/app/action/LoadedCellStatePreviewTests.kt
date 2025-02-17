@@ -51,11 +51,12 @@ import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropTarget
 import com.alexvanyo.composelife.ui.cells.rememberMutableCellStateDropStateHolder
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runCurrent
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@OptIn(ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 class LoadedCellStatePreviewTests : BaseUiInjectTest<
     TestComposeLifeApplicationComponent,
     TestComposeLifeApplicationEntryPoint,
