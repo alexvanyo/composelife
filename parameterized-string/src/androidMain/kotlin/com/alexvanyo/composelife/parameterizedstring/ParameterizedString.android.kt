@@ -36,12 +36,16 @@ actual sealed class ParameterizedString {
     internal abstract val args: List<Any>
 
     internal data class NormalString(
-        @StringRes val stringRes: Int,
+        @field:StringRes
+        @param:StringRes
+        val stringRes: Int,
         override val args: List<Any>,
     ) : ParameterizedString()
 
     internal data class QuantityString(
-        @PluralsRes val pluralsRes: Int,
+        @field:PluralsRes
+        @param:PluralsRes
+        val pluralsRes: Int,
         val quantity: Int,
         override val args: List<Any>,
     ) : ParameterizedString()
