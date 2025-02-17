@@ -103,7 +103,7 @@ class GameOfLifeAlgorithmBenchmarks {
 
         benchmarkRule.measureRepeated {
             runBlocking {
-                val algorithm = runWithTimingDisabled {
+                val algorithm = runWithMeasurementDisabled {
                     algorithmFactory.factory(
                         TestComposeLifeDispatchers(
                             generalTestDispatcher = testDispatcher,
@@ -111,7 +111,7 @@ class GameOfLifeAlgorithmBenchmarks {
                         ),
                     )
                 }
-                val originalCellState = runWithTimingDisabled {
+                val originalCellState = runWithMeasurementDisabled {
                     cellStateMapper.mapper(testPattern.seedCellState)
                 }
 
