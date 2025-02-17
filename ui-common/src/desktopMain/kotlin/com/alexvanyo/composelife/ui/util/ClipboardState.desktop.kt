@@ -43,6 +43,7 @@ actual fun ClipboardWriter.setText(value: String): Unit = setText(AnnotatedStrin
 
 @Composable
 actual fun rememberClipboardReader(): ClipboardReader {
+    @Suppress("DEPRECATION")
     val clipboardManager = LocalClipboardManager.current
     return remember(clipboardManager) {
         object : ClipboardReader {
@@ -53,6 +54,7 @@ actual fun rememberClipboardReader(): ClipboardReader {
 
 @Composable
 actual fun rememberClipboardWriter(): ClipboardWriter {
+    @Suppress("DEPRECATION")
     val clipboardManager = LocalClipboardManager.current
     return remember(clipboardManager) {
         object : ClipboardWriter {
