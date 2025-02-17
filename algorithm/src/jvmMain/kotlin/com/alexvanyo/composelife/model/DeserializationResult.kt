@@ -91,8 +91,8 @@ sealed interface DeserializationResult {
                     }
                 },
                 restore = {
-                    val type = it[0] as Int
-                    when (type) {
+                    @Suppress("UNCHECKED_CAST")
+                    when (val type = it[0] as Int) {
                         0 -> {
                             Successful(
                                 format =
