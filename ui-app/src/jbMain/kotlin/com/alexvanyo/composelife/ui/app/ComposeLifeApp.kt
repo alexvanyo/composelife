@@ -36,9 +36,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.unit.DpSize
 import androidx.window.core.layout.WindowSizeClass
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.clock.di.ClockProvider
+import com.alexvanyo.composelife.data.CellStateRepository
 import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.navigation.BackstackEntry
@@ -52,6 +55,7 @@ import com.alexvanyo.composelife.navigation.popUpTo
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.segmentingNavigationTransform
 import com.alexvanyo.composelife.navigation.withExpectedActor
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
@@ -71,6 +75,7 @@ import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.ReportDrawn
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
+import kotlinx.datetime.Clock
 
 interface ComposeLifeAppInjectEntryPoint :
     ComposeLifePreferencesProvider,
@@ -80,7 +85,7 @@ interface ComposeLifeAppInjectEntryPoint :
     CellUniversePaneInjectEntryPoint,
     FullscreenSettingsDetailPaneInjectEntryPoint
 
-context(ComposeLifeAppInjectEntryPoint)
+context(_: ComposeLifeAppInjectEntryPoint)
 @Suppress("LongMethod")
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalAnimationApi::class)
 @Composable
@@ -203,13 +208,29 @@ fun ComposeLifeApp(
     }
 }
 
-context(
-    ComposeLifePreferencesProvider, CellStateRepositoryProvider, GameOfLifeAlgorithmProvider,
-    ComposeLifeDispatchersProvider, ClockProvider
-)
-@Suppress("LongMethod")
+context(injectEntryPoint: ComposeLifeAppInjectEntryPoint)
 @Composable
 fun rememberComposeLifeAppState(
+    windowSizeClass: WindowSizeClass,
+    windowSize: DpSize,
+): ComposeLifeAppState = rememberComposeLifeAppState(
+    composeLifePreferences = injectEntryPoint.composeLifePreferences,
+    cellStateRepository = injectEntryPoint.cellStateRepository,
+    gameOfLifeAlgorithm = injectEntryPoint.gameOfLifeAlgorithm,
+    dispatchers = injectEntryPoint.dispatchers,
+    clock = injectEntryPoint.clock,
+    windowSizeClass = windowSizeClass,
+    windowSize = windowSize,
+)
+
+@Suppress("LongMethod", "LongParameterList")
+@Composable
+fun rememberComposeLifeAppState(
+    composeLifePreferences: ComposeLifePreferences,
+    cellStateRepository: CellStateRepository,
+    gameOfLifeAlgorithm: GameOfLifeAlgorithm,
+    dispatchers: ComposeLifeDispatchers,
+    clock: Clock,
     windowSizeClass: WindowSizeClass,
     windowSize: DpSize,
 ): ComposeLifeAppState {

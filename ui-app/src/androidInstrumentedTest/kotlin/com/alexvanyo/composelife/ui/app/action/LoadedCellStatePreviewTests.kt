@@ -69,7 +69,9 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<
     }
 
     @Test
-    fun drag_and_drop_works_correctly() = runUiTest(applicationComponent.entryPoint.generalTestDispatcher) {
+    fun drag_and_drop_works_correctly() = runUiTest(
+        applicationComponent.entryPoint.generalTestDispatcher,
+    ) { uiComponent, composeUiTest ->
         val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
         val cellStateParserProvider: CellStateParserProvider = uiComponent.entryPoint
 
@@ -77,7 +79,7 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<
 
         lateinit var viewConfiguration: ViewConfiguration
 
-        setContent {
+        composeUiTest.setContent {
             viewConfiguration = LocalViewConfiguration.current
 
             Column {
@@ -120,11 +122,11 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<
         val downTime = SystemClock.uptimeMillis()
 
         val loadedCellStatePreviewCenter =
-            onNodeWithTag("LoadedCellStatePreview").fetchSemanticsNode().let { node ->
+            composeUiTest.onNodeWithTag("LoadedCellStatePreview").fetchSemanticsNode().let { node ->
                 node.positionOnScreen + node.size.center.toOffset()
             }
         val testDropTargetCenter =
-            onNodeWithTag("TestDropTarget").fetchSemanticsNode().let { node ->
+            composeUiTest.onNodeWithTag("TestDropTarget").fetchSemanticsNode().let { node ->
                 node.positionOnScreen + node.size.center.toOffset()
             }
 
@@ -141,7 +143,7 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<
         automation.injectInputEvent(down, true)
         down.recycle()
 
-        mainClock.advanceTimeBy(viewConfiguration.longPressTimeoutMillis + 100)
+        composeUiTest.mainClock.advanceTimeBy(viewConfiguration.longPressTimeoutMillis + 100)
 
         val move = MotionEvent.obtain(
             downTime,
@@ -156,7 +158,7 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<
         automation.injectInputEvent(move, true)
         move.recycle()
 
-        waitForIdle()
+        composeUiTest.waitForIdle()
 
         val up = MotionEvent.obtain(
             downTime,
@@ -171,7 +173,7 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<
         automation.injectInputEvent(up, true)
         up.recycle()
 
-        waitForIdle()
+        composeUiTest.waitForIdle()
         runCurrent()
 
         assertEquals(GliderPattern.seedCellState, droppedCellState)

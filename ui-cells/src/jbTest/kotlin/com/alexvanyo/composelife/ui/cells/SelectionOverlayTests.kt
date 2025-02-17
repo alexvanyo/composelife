@@ -59,10 +59,10 @@ class SelectionOverlayTests : BaseUiInjectTest<
     private val cellStateParserProvider: CellStateParserProvider = applicationComponent.entryPoint
 
     @Test
-    fun no_selection_is_displayed_correctly() = runUiTest {
+    fun no_selection_is_displayed_correctly() = runUiTest { _, composeUiTest ->
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
 
             with(cellStateParserProvider) {
@@ -86,17 +86,17 @@ class SelectionOverlayTests : BaseUiInjectTest<
             }
         }
 
-        onNodeWithContentDescription(
+        composeUiTest.onNodeWithContentDescription(
             resolver(Strings.SelectingBoxHandle(0, 0)).substringBefore(":"),
         )
             .assertDoesNotExist()
     }
 
     @Test
-    fun selecting_box_is_displayed_correctly() = runUiTest {
+    fun selecting_box_is_displayed_correctly() = runUiTest { _, composeUiTest ->
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
 
             with(cellStateParserProvider) {
@@ -125,29 +125,29 @@ class SelectionOverlayTests : BaseUiInjectTest<
             }
         }
 
-        onNodeWithContentDescription(
+        composeUiTest.onNodeWithContentDescription(
             resolver(Strings.SelectingBoxHandle(1, 1)),
         )
             .assertIsDisplayed()
 
-        onNodeWithContentDescription(
+        composeUiTest.onNodeWithContentDescription(
             resolver(Strings.SelectingBoxHandle(3, 1)),
         )
             .assertIsDisplayed()
 
-        onNodeWithContentDescription(
+        composeUiTest.onNodeWithContentDescription(
             resolver(Strings.SelectingBoxHandle(1, 4)),
         )
             .assertIsDisplayed()
 
-        onNodeWithContentDescription(
+        composeUiTest.onNodeWithContentDescription(
             resolver(Strings.SelectingBoxHandle(3, 4)),
         )
             .assertIsDisplayed()
     }
 
     @Test
-    fun dragging_selecting_box_is_displayed_correctly() = runUiTest {
+    fun dragging_selecting_box_is_displayed_correctly() = runUiTest { _, composeUiTest ->
         // TODO: This test tends to deadlock on desktop
         assumeTrue(isAndroid())
 
@@ -166,7 +166,7 @@ class SelectionOverlayTests : BaseUiInjectTest<
             ),
         )
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
 
             with(cellStateParserProvider) {
@@ -186,7 +186,7 @@ class SelectionOverlayTests : BaseUiInjectTest<
             }
         }
 
-        onNodeWithContentDescription(
+        composeUiTest.onNodeWithContentDescription(
             resolver(Strings.SelectingBoxHandle(2, 2)),
         )
             .performMouseInput {

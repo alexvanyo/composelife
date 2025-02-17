@@ -35,14 +35,14 @@ interface ClipboardWatchingOnboardingCompletedUiInjectEntryPoint :
 interface ClipboardWatchingOnboardingCompletedUiLocalEntryPoint :
     LoadedComposeLifePreferencesProvider
 
-context(ClipboardWatchingOnboardingCompletedUiInjectEntryPoint, ClipboardWatchingOnboardingCompletedUiLocalEntryPoint)
+context(injectEntryPoint: ClipboardWatchingOnboardingCompletedUiInjectEntryPoint, localEntryPoint: ClipboardWatchingOnboardingCompletedUiLocalEntryPoint)
 @Composable
 fun ClipboardWatchingOnboardingCompletedUi(
     modifier: Modifier = Modifier,
 ) {
     ClipboardWatchingOnboardingCompletedUi(
-        completedClipboardWatchingOnboarding = preferences.completedClipboardWatchingOnboarding,
-        setCompletedClipboardWatchingOnboarding = composeLifePreferences::setCompletedClipboardWatchingOnboarding,
+        completedClipboardWatchingOnboarding = localEntryPoint.preferences.completedClipboardWatchingOnboarding,
+        setCompletedClipboardWatchingOnboarding = injectEntryPoint.composeLifePreferences::setCompletedClipboardWatchingOnboarding,
         modifier = modifier,
     )
 }

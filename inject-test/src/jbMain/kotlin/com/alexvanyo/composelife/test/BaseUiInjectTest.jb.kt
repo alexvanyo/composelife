@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.test
 
@@ -43,9 +44,5 @@ abstract class BaseUiInjectTest<T : ApplicationComponent<E>, E : UpdatableModule
 expect fun <T : ApplicationComponent<E>, E : UpdatableModule, U : UiComponent<*>> BaseUiInjectTest<T, E, U>.runUiTest(
     appTestContext: CoroutineContext = EmptyCoroutineContext,
     timeout: Duration = 60.seconds,
-    testBody: suspend context(ComposeUiTest, TestScope) UiTestScope<T, E, U>.() -> Unit,
+    testBody: suspend TestScope.(uiComponent: U, composeUiTest: ComposeUiTest) -> Unit,
 ): TestResult
-
-interface UiTestScope<T : ApplicationComponent<E>, E : UpdatableModule, U : UiComponent<*>> {
-    val uiComponent: U
-}

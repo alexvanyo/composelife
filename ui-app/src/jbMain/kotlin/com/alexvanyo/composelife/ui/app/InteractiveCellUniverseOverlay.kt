@@ -72,7 +72,7 @@ interface InteractiveCellUniverseOverlayInjectEntryPoint :
 interface InteractiveCellUniverseOverlayLocalEntryPoint :
     CellUniverseActionCardLocalEntryPoint
 
-context(InteractiveCellUniverseOverlayInjectEntryPoint, InteractiveCellUniverseOverlayLocalEntryPoint)
+context(_: InteractiveCellUniverseOverlayInjectEntryPoint, _: InteractiveCellUniverseOverlayLocalEntryPoint)
 @Suppress("LongMethod", "ComplexMethod", "LongParameterList")
 @Composable
 fun InteractiveCellUniverseOverlay(

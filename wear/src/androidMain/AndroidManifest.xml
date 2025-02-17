@@ -41,7 +41,8 @@
 
         <profileable
             android:shell="true"
-            tools:targetApi="29" />
+            tools:targetApi="29"
+            tools:ignore="ObsoleteSdkInt" />
 
         <activity
             android:name="androidx.compose.ui.tooling.PreviewActivity"

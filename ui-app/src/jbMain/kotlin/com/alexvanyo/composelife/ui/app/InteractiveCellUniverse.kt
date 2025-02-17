@@ -94,7 +94,7 @@ interface InteractiveCellUniverseLocalEntryPoint :
  * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
  * evolves.
  */
-context(InteractiveCellUniverseInjectEntryPoint, InteractiveCellUniverseLocalEntryPoint)
+context(_: InteractiveCellUniverseInjectEntryPoint, _: InteractiveCellUniverseLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun InteractiveCellUniverse(
@@ -279,7 +279,7 @@ interface InteractiveCellUniverseState {
     fun onClearSelection()
 }
 
-context(CellStateParserProvider)
+context(cellStateParserProvider: CellStateParserProvider)
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun rememberInteractiveCellUniverseState(
@@ -398,7 +398,7 @@ fun rememberInteractiveCellUniverseState(
         infoCardState,
         actionCardState,
         clipboardReaderWriter,
-        cellStateParser,
+        cellStateParserProvider.cellStateParser,
         coroutineScope,
     ) {
         object : InteractiveCellUniverseState {
@@ -467,7 +467,8 @@ fun rememberInteractiveCellUniverseState(
             override fun onPaste() {
                 coroutineScope.launch {
                     when (
-                        val deserializationResult = cellStateParser.parseCellState(clipboardReaderWriter)
+                        val deserializationResult =
+                            cellStateParserProvider.cellStateParser.parseCellState(clipboardReaderWriter)
                     ) {
                         is DeserializationResult.Successful -> {
                             setSelectionToCellState(deserializationResult.cellState)

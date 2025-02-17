@@ -31,7 +31,8 @@
 
         <profileable
             android:shell="true"
-            tools:targetApi="29" />
+            tools:targetApi="29"
+            tools:ignore="ObsoleteSdkInt" />
 
         <activity-alias
             android:name="Launcher"

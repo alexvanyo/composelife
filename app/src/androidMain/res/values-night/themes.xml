@@ -16,7 +16,7 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Theme.SplashScreen.NightAdjusted" parent="Theme.SplashScreen">
-        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
-        <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23" tools:ignore="ObsoleteSdkInt">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27" tools:ignore="ObsoleteSdkInt">false</item>
     </style>
 </resources>
