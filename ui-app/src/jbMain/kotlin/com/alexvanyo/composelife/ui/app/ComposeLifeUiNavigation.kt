@@ -170,7 +170,8 @@ fun BackstackState<ComposeLifeNavigation>.toComposeLifeUiNavigation(
                             id = nav.id,
                         )
                         if (!isDetailPresent &&
-                            windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+                            windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
+                        ) {
                             map.put(
                                 value.transientDetailId,
                                 BackstackEntry(
