@@ -24,9 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.window.core.layout.WindowHeightSizeClass
 import androidx.window.core.layout.WindowSizeClass
-import androidx.window.core.layout.WindowWidthSizeClass
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackState
@@ -61,14 +59,14 @@ sealed interface ComposeLifeUiNavigation {
             get() = nav.settingsCategory
 
         override val isDetailVisible: Boolean =
-            isDetailPresent || windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT
+            isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
 
         override val isListVisible: Boolean =
-            !isDetailPresent || windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT
+            !isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
 
         override val isDialog =
             windowSize.width >= 1200.dp &&
-                windowSizeClass.windowHeightSizeClass != WindowHeightSizeClass.COMPACT
+                windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND)
     }
 
     class FullscreenSettingsDetail(
@@ -90,7 +88,7 @@ sealed interface ComposeLifeUiNavigation {
 
         override val isDialog =
             windowSize.width >= 1200.dp &&
-                windowSizeClass.windowHeightSizeClass != WindowHeightSizeClass.COMPACT
+                windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND)
     }
 
     class DeserializationInfo(
@@ -98,8 +96,8 @@ sealed interface ComposeLifeUiNavigation {
         val windowSizeClass: WindowSizeClass,
     ) : ComposeLifeUiNavigation, DialogableEntry {
         override val isDialog =
-            windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT ||
-                windowSizeClass.windowHeightSizeClass != WindowHeightSizeClass.COMPACT
+            windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) ||
+                windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND)
     }
 }
 
@@ -171,7 +169,9 @@ fun BackstackState<ComposeLifeNavigation>.toComposeLifeUiNavigation(
                             previous = nav.previous?.let(::createEntry),
                             id = nav.id,
                         )
-                        if (!isDetailPresent && windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT) {
+                        if (!isDetailPresent &&
+                            windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
+                        ) {
                             map.put(
                                 value.transientDetailId,
                                 BackstackEntry(
