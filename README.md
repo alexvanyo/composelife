@@ -19,13 +19,15 @@ These include:
   - Mobile Android app and desktop app for exploring Game of Life patterns.
   - Watchface for Wear OS with configuration
   - Custom [adaptive navigation library][navigation]
-- [Dependency injection][dependency-injection] using [kotlin-inject][kotlin_inject] and [context receivers][context_receivers]
+- [Dependency injection][dependency-injection] using [kotlin-inject][kotlin_inject],
+  [kotlin-inject-anvil][kotlin_inject_anvil] and [context parameters][context_parameters]
 - [AGSL][agsl], [OpenGL](https://developer.android.com/develop/ui/views/graphics/opengl/about-opengl) and [SKSL][sksl] rendering
 - Fully functional CI system with GitHub Actions with:
     - Comprehensive automated tests
       - Hierarchical KMP tests shared across platforms
       - Shared [Robolectric][robolectric] and instrumentation tests
-      - Minified instrumentation tests with the help of [Keeper][keeper], memory leak checking with [LeakCanary][leakcanary])
+      - Minified instrumentation tests with the help of [Keeper][keeper], memory leak checking with
+        [LeakCanary][leakcanary])
       - Screenshot tests with [Roborazzi][roborazzi] with automatic updates on CI
       - Code coverage with [JaCoCo][jacoco] (reporting done with [Codecov][codecov])
     - Linting, with android/lint and [detekt][detekt] with automatic updates on CI
@@ -79,7 +81,7 @@ limitations under the License.
 [codecov]: https://about.codecov.io/
 [codecov_badge]: https://codecov.io/gh/alexvanyo/composelife/branch/main/graph/badge.svg?token=z7yP8Z8xqC
 [codecov_project]: https://codecov.io/gh/alexvanyo/composelife
-[context_receivers]: https://github.com/Kotlin/KEEP/blob/master/proposals/context-receivers.md
+[context_receivers]: https://github.com/Kotlin/KEEP/blob/master/proposals/context-parameters.md
 [detekt]: https://detekt.dev/
 [icon]: app/src/androidMain/ic_launcher-playstore.png
 [jacoco]: https://github.com/jacoco/jacoco
@@ -87,6 +89,7 @@ limitations under the License.
 [keeper]: https://slackhq.github.io/keeper/
 [kotlin]: https://kotlinlang.org/
 [kotlin_inject]: https://github.com/evant/kotlin-inject
+[kotlin_inject_anvil]: https://github.com/amzn/kotlin-inject-anvil
 [leakcanary]: https://square.github.io/leakcanary/
 [opengl]: https://developer.android.com/develop/ui/views/graphics/opengl/about-opengl
 [renovate]: https://docs.renovatebot.com/
