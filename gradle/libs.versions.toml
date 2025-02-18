@@ -177,6 +177,7 @@ androidx-wear-watchface-data = { group = "androidx.wear.watchface", name = "watc
 androidx-wear-watchface-editor = { group = "androidx.wear.watchface", name = "watchface-editor", version.ref = "androidxWearWatchface" }
 androidx-wear-watchface-style = { group = "androidx.wear.watchface", name = "watchface-style", version.ref = "androidxWearWatchface" }
 androidx-window = { group = "androidx.window", name = "window", version.ref = "androidxWindow" }
+androidx-window-core = { group = "androidx.window", name = "window-core", version.ref = "androidxWindow" }
 apiGuardian-api = { group = "org.apiguardian", name = "apiguardian-api", version.ref = "apiGuardian" }
 circuit-retained = { group = "com.slack.circuit", name = "circuit-retained", version.ref = "circuit" }
 coil-core = { group = "io.coil-kt.coil3", name = "coil-core", version.ref = "coil" }
