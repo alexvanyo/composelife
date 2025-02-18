@@ -32,7 +32,7 @@ import kotlin.time.Duration
 actual fun <T : ApplicationComponent<E>, E : UpdatableModule, U : UiComponent<*>> BaseUiInjectTest<T, E, U>.runUiTest(
     appTestContext: CoroutineContext,
     timeout: Duration,
-    testBody: suspend context(ComposeUiTest, TestScope) UiTestScope<T, E, U>.() -> Unit,
+    testBody: suspend TestScope.(uiComponent: U, composeUiTest: ComposeUiTest) -> Unit,
 ): TestResult =
     runComposeUiTest {
         val uiComponent = uiComponentCreator(
@@ -45,10 +45,9 @@ actual fun <T : ApplicationComponent<E>, E : UpdatableModule, U : UiComponent<*>
             timeout = timeout,
         ) {
             testBody(
-                this,
-                object : UiTestScope<T, E, U> {
-                    override val uiComponent = uiComponent
-                },
+                this@runAppTest,
+                uiComponent,
+                this@runComposeUiTest,
             )
         }
     }

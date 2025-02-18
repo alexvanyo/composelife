@@ -63,7 +63,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest<
     @Test
     fun drag_and_drop_works_correctly_when_dropped() = runUiTest(
         applicationComponent.entryPoint.generalTestDispatcher,
-    ) {
+    ) { uiComponent, composeUiTest ->
         val cellStateParserProvider: CellStateParserProvider = uiComponent.entryPoint
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
@@ -71,7 +71,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest<
         var droppedOffset: Offset? = null
         var droppedCellState: CellState? = null
 
-        setContent {
+        composeUiTest.setContent {
             with(cellStateParserProvider) {
                 mutableCellStateDropStateHolder = rememberMutableCellStateDropStateHolder { dropOffset, cellState ->
                     droppedOffset = dropOffset
@@ -107,17 +107,17 @@ class CellStateDragAndDropTests : BaseUiInjectTest<
         val downTime = SystemClock.uptimeMillis()
 
         val testDropSourceCenterScreenCoordinates: Offset =
-            onNodeWithTag("TestDropSource").fetchSemanticsNode().let { node ->
+            composeUiTest.onNodeWithTag("TestDropSource").fetchSemanticsNode().let { node ->
                 node.positionOnScreen + node.size.center.toOffset()
             }
         val testDropTargetCenterScreenCoordinates: Offset
         val testDropTargetCenterLocalCoordinates: Offset
-        onNodeWithTag("TestDropTarget").fetchSemanticsNode().let { node ->
+        composeUiTest.onNodeWithTag("TestDropTarget").fetchSemanticsNode().let { node ->
             testDropTargetCenterLocalCoordinates = node.size.center.toOffset()
             testDropTargetCenterScreenCoordinates = node.positionOnScreen + testDropTargetCenterLocalCoordinates
         }
 
-        onNodeWithTag("TestDropSource").performTouchInput {
+        composeUiTest.onNodeWithTag("TestDropSource").performTouchInput {
             longClick()
             val down = MotionEvent.obtain(
                 downTime,
@@ -133,7 +133,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest<
             down.recycle()
         }
 
-        waitForIdle()
+        composeUiTest.waitForIdle()
         runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
@@ -153,7 +153,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest<
         automation.injectInputEvent(move, true)
         move.recycle()
 
-        waitForIdle()
+        composeUiTest.waitForIdle()
         runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
@@ -175,7 +175,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest<
         automation.injectInputEvent(up, true)
         up.recycle()
 
-        waitForIdle()
+        composeUiTest.waitForIdle()
         runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
@@ -188,7 +188,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest<
     @Test
     fun drag_and_drop_works_correctly_when_ended() = runUiTest(
         applicationComponent.entryPoint.generalTestDispatcher,
-    ) {
+    ) { uiComponent, composeUiTest ->
         val cellStateParserProvider: CellStateParserProvider = uiComponent.entryPoint
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
@@ -196,7 +196,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest<
         var droppedOffset: Offset? = null
         var droppedCellState: CellState? = null
 
-        setContent {
+        composeUiTest.setContent {
             with(cellStateParserProvider) {
                 mutableCellStateDropStateHolder = rememberMutableCellStateDropStateHolder { dropOffset, cellState ->
                     droppedOffset = dropOffset
@@ -232,17 +232,17 @@ class CellStateDragAndDropTests : BaseUiInjectTest<
         val downTime = SystemClock.uptimeMillis()
 
         val testDropSourceCenterScreenCoordinates: Offset =
-            onNodeWithTag("TestDropSource").fetchSemanticsNode().let { node ->
+            composeUiTest.onNodeWithTag("TestDropSource").fetchSemanticsNode().let { node ->
                 node.positionOnScreen + node.size.center.toOffset()
             }
         val testDropTargetCenterScreenCoordinates: Offset
         val testDropTargetCenterLocalCoordinates: Offset
-        onNodeWithTag("TestDropTarget").fetchSemanticsNode().let { node ->
+        composeUiTest.onNodeWithTag("TestDropTarget").fetchSemanticsNode().let { node ->
             testDropTargetCenterLocalCoordinates = node.size.center.toOffset()
             testDropTargetCenterScreenCoordinates = node.positionOnScreen + testDropTargetCenterLocalCoordinates
         }
 
-        onNodeWithTag("TestDropSource").performTouchInput {
+        composeUiTest.onNodeWithTag("TestDropSource").performTouchInput {
             longClick()
             val down = MotionEvent.obtain(
                 downTime,
@@ -258,7 +258,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest<
             down.recycle()
         }
 
-        waitForIdle()
+        composeUiTest.waitForIdle()
         runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
@@ -278,7 +278,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest<
         automation.injectInputEvent(move1, true)
         move1.recycle()
 
-        waitForIdle()
+        composeUiTest.waitForIdle()
         runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
@@ -300,7 +300,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest<
         automation.injectInputEvent(move2, true)
         move2.recycle()
 
-        waitForIdle()
+        composeUiTest.waitForIdle()
         runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
@@ -323,7 +323,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest<
         // Give time for the drag event to end
         SystemClock.sleep(500)
 
-        waitForIdle()
+        composeUiTest.waitForIdle()
         runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
