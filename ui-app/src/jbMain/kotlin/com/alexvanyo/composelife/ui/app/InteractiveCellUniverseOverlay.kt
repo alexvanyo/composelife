@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.window.core.layout.WindowSizeClass
-import androidx.window.core.layout.WindowWidthSizeClass
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.sessionvalue.SessionValue
@@ -198,10 +197,12 @@ fun InteractiveCellUniverseOverlay(
 
                 infoCardPlaceable.place(0, lerp(infoCardYOnscreen, infoCardYOffscreen, infoAnim.value))
 
-                val actionCardX = if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT) {
-                    (constraints.maxWidth - actionCardPlaceable.width) / 2
-                } else {
+                val actionCardX = if (
+                    windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
+                ) {
                     constraints.maxWidth - actionCardPlaceable.width
+                } else {
+                    (constraints.maxWidth - actionCardPlaceable.width) / 2
                 }
 
                 val actionCardYOffscreen = constraints.maxHeight - topInsetsPlaceable.height
