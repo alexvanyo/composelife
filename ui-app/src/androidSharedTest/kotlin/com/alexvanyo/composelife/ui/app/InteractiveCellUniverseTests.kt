@@ -107,12 +107,12 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
     }
 
     @Test
-    fun info_card_closes_upon_back_press() = runUiTest(generalTestDispatcher) {
+    fun info_card_closes_upon_back_press() = runUiTest(generalTestDispatcher) { uiComponent, composeUiTest ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 isRunning = false,
@@ -145,28 +145,28 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
             }
         }
 
-        onNode(
+        composeUiTest.onNode(
             hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
                 hasContentDescription(resolver.invoke(Strings.Expand)),
         )
             .performClick()
 
         advanceUntilIdle()
-        waitForIdle()
+        composeUiTest.waitForIdle()
 
         Espresso.pressBack()
 
-        onNodeWithContentDescription(resolver.invoke(Strings.Collapse))
+        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.Collapse))
             .assertDoesNotExist()
     }
 
     @Test
-    fun action_card_closes_upon_back_press() = runUiTest(generalTestDispatcher) {
+    fun action_card_closes_upon_back_press() = runUiTest(generalTestDispatcher) { uiComponent, composeUiTest ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 isRunning = false,
@@ -199,28 +199,31 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
             }
         }
 
-        onNode(
+        composeUiTest.onNode(
             hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
                 hasContentDescription(resolver.invoke(Strings.Expand)),
         )
             .performClick()
 
         advanceUntilIdle()
-        waitForIdle()
+        composeUiTest.waitForIdle()
 
         Espresso.pressBack()
 
-        onNodeWithContentDescription(resolver.invoke(Strings.Collapse))
+        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.Collapse))
             .assertDoesNotExist()
     }
 
     @Test
-    fun six_long_line_evolves_correctly() = runUiTest(generalTestDispatcher, 120.seconds) {
+    fun six_long_line_evolves_correctly() = runUiTest(
+        generalTestDispatcher,
+        120.seconds,
+    ) { uiComponent, composeUiTest ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 60.0,
@@ -252,40 +255,43 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
             }
         }
 
-        onNodeWithContentDescription(resolver.invoke(Strings.Pause))
+        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.Pause))
             .performClick()
 
         SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
-            scrollToCell(cell)
+            composeUiTest.scrollToCell(cell)
 
-            onNodeWithContentDescription(
+            composeUiTest.onNodeWithContentDescription(
                 resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
             )
                 .performTouchInput { click(topLeft) }
         }
 
-        onNodeWithContentDescription(resolver.invoke(Strings.Play))
+        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.Play))
             .performClick()
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
             advanceUntilIdle()
-            waitForIdle()
+            composeUiTest.waitForIdle()
             cellTickerTestDispatcher.scheduler.advanceTimeBy(17)
             cellTickerTestDispatcher.scheduler.runCurrent()
             advanceUntilIdle()
-            waitForIdle()
+            composeUiTest.waitForIdle()
 
-            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            composeUiTest.assertNodesAreAlive(resolver, expectedCellState.aliveCells)
         }
     }
 
     @Test
-    fun six_long_line_evolves_correctly_with_spacebar() = runUiTest(generalTestDispatcher, 120.seconds) {
+    fun six_long_line_evolves_correctly_with_spacebar() = runUiTest(
+        generalTestDispatcher,
+        120.seconds,
+    ) { uiComponent, composeUiTest ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 60.0,
@@ -317,44 +323,47 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
             }
         }
 
-        onRoot()
+        composeUiTest.onRoot()
             .performKeyInput {
                 pressKey(Key.Spacebar)
             }
 
         SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
-            scrollToCell(cell)
+            composeUiTest.scrollToCell(cell)
 
-            onNodeWithContentDescription(
+            composeUiTest.onNodeWithContentDescription(
                 resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
             )
                 .performTouchInput { click(topLeft) }
         }
 
-        onRoot()
+        composeUiTest.onRoot()
             .performKeyInput {
                 pressKey(Key.Spacebar)
             }
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
             advanceUntilIdle()
-            waitForIdle()
+            composeUiTest.waitForIdle()
             cellTickerTestDispatcher.scheduler.advanceTimeBy(17)
             cellTickerTestDispatcher.scheduler.runCurrent()
             advanceUntilIdle()
-            waitForIdle()
+            composeUiTest.waitForIdle()
 
-            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            composeUiTest.assertNodesAreAlive(resolver, expectedCellState.aliveCells)
         }
     }
 
     @Test
-    fun six_long_line_evolves_correctly_after_slowing_down() = runUiTest(generalTestDispatcher, 120.seconds) {
+    fun six_long_line_evolves_correctly_after_slowing_down() = runUiTest(
+        generalTestDispatcher,
+        120.seconds,
+    ) { uiComponent, composeUiTest ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 60.0,
@@ -386,31 +395,31 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
             }
         }
 
-        onNodeWithContentDescription(resolver.invoke(Strings.Pause))
+        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.Pause))
             .performClick()
 
         SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
-            scrollToCell(cell)
+            composeUiTest.scrollToCell(cell)
 
-            onNodeWithContentDescription(
+            composeUiTest.onNodeWithContentDescription(
                 resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
             )
                 .performTouchInput { click(topLeft) }
         }
 
-        onNode(
+        composeUiTest.onNode(
             hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
                 hasContentDescription(resolver.invoke(Strings.Expand)),
         )
             .performClick()
 
-        onNodeWithContentDescription(resolver.invoke(Strings.TargetStepsPerSecondLabelAndValue(60.0)))
+        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.TargetStepsPerSecondLabelAndValue(60.0)))
             .performSemanticsAction(SemanticsActions.SetProgress) { it(0f) }
 
-        onNodeWithContentDescription(resolver.invoke(Strings.Play))
+        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.Play))
             .performClick()
 
-        onNode(
+        composeUiTest.onNode(
             hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
                 hasContentDescription(resolver.invoke(Strings.Collapse)),
         )
@@ -418,23 +427,26 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
             advanceUntilIdle()
-            waitForIdle()
+            composeUiTest.waitForIdle()
             cellTickerTestDispatcher.scheduler.advanceTimeBy(1000)
             cellTickerTestDispatcher.scheduler.runCurrent()
             advanceUntilIdle()
-            waitForIdle()
+            composeUiTest.waitForIdle()
 
-            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            composeUiTest.assertNodesAreAlive(resolver, expectedCellState.aliveCells)
         }
     }
 
     @Test
-    fun six_long_line_evolves_correctly_with_step() = runUiTest(generalTestDispatcher, 120.seconds) {
+    fun six_long_line_evolves_correctly_with_step() = runUiTest(
+        generalTestDispatcher,
+        120.seconds,
+    ) { uiComponent, composeUiTest ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 0.001,
@@ -466,36 +478,39 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
             }
         }
 
-        onNodeWithContentDescription(resolver.invoke(Strings.Pause))
+        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.Pause))
             .performClick()
 
         SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
-            scrollToCell(cell)
+            composeUiTest.scrollToCell(cell)
 
-            onNodeWithContentDescription(
+            composeUiTest.onNodeWithContentDescription(
                 resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
             )
                 .performTouchInput { click(topLeft) }
         }
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
-            onNodeWithContentDescription(resolver.invoke(Strings.Step))
+            composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.Step))
                 .performClick()
 
             advanceUntilIdle()
-            waitForIdle()
+            composeUiTest.waitForIdle()
 
-            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            composeUiTest.assertNodesAreAlive(resolver, expectedCellState.aliveCells)
         }
     }
 
     @Test
-    fun six_long_line_evolves_correctly_with_double_step_via_slider() = runUiTest(generalTestDispatcher, 120.seconds) {
+    fun six_long_line_evolves_correctly_with_double_step_via_slider() = runUiTest(
+        generalTestDispatcher,
+        120.seconds,
+    ) { uiComponent, composeUiTest ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 0.001,
@@ -527,51 +542,54 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
             }
         }
 
-        onNodeWithContentDescription(resolver.invoke(Strings.Pause))
+        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.Pause))
             .performClick()
 
         SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
-            scrollToCell(cell)
+            composeUiTest.scrollToCell(cell)
 
-            onNodeWithContentDescription(
+            composeUiTest.onNodeWithContentDescription(
                 resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
             )
                 .performTouchInput { click(topLeft) }
         }
 
-        onNode(
+        composeUiTest.onNode(
             hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
                 hasContentDescription(resolver.invoke(Strings.Expand)),
         )
             .performClick()
 
-        onNodeWithContentDescription(resolver.invoke(Strings.GenerationsPerStepLabelAndValue(1)))
+        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.GenerationsPerStepLabelAndValue(1)))
             .performSemanticsAction(SemanticsActions.SetProgress) { it(1f) }
 
-        onNode(
+        composeUiTest.onNode(
             hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
                 hasContentDescription(resolver.invoke(Strings.Collapse)),
         )
             .performClick()
 
         SixLongLinePattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 }.forEach { expectedCellState ->
-            onNodeWithContentDescription(resolver.invoke(Strings.Step))
+            composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.Step))
                 .performClick()
 
             advanceUntilIdle()
-            waitForIdle()
+            composeUiTest.waitForIdle()
 
-            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            composeUiTest.assertNodesAreAlive(resolver, expectedCellState.aliveCells)
         }
     }
 
     @Test
-    fun six_long_line_evolves_correctly_with_double_step_via_text() = runUiTest(generalTestDispatcher, 120.seconds) {
+    fun six_long_line_evolves_correctly_with_double_step_via_text() = runUiTest(
+        generalTestDispatcher,
+        120.seconds,
+    ) { uiComponent, composeUiTest ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 0.001,
@@ -603,60 +621,62 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
             }
         }
 
-        onNodeWithContentDescription(resolver.invoke(Strings.Pause))
+        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.Pause))
             .performClick()
 
         SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
-            scrollToCell(cell)
+            composeUiTest.scrollToCell(cell)
 
-            onNodeWithContentDescription(
+            composeUiTest.onNodeWithContentDescription(
                 resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
             )
                 .performTouchInput { click(topLeft) }
         }
 
-        onNode(
+        composeUiTest.onNode(
             hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
                 hasContentDescription(resolver.invoke(Strings.Expand)),
         )
             .performClick()
 
-        onNode(
+        composeUiTest.onNode(
             hasSetTextAction() and hasImeAction(ImeAction.Done) and
                 hasText(resolver.invoke(Strings.GenerationsPerStepLabel)),
         )
             .performTextReplacement("2")
-        onNode(
+        composeUiTest.onNode(
             hasSetTextAction() and hasImeAction(ImeAction.Done) and
                 hasText(resolver.invoke(Strings.GenerationsPerStepLabel)),
         )
             .performImeAction()
 
-        onNode(
+        composeUiTest.onNode(
             hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
                 hasContentDescription(resolver.invoke(Strings.Collapse)),
         )
             .performClick()
 
         SixLongLinePattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 }.forEach { expectedCellState ->
-            onNodeWithContentDescription(resolver.invoke(Strings.Step))
+            composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.Step))
                 .performClick()
 
             advanceUntilIdle()
-            waitForIdle()
+            composeUiTest.waitForIdle()
 
-            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            composeUiTest.assertNodesAreAlive(resolver, expectedCellState.aliveCells)
         }
     }
 
     @Test
-    fun glider_is_copied_correctly_with_keyboard_shortcuts() = runUiTest(generalTestDispatcher) {
+    fun glider_is_copied_correctly_with_keyboard_shortcuts() = runUiTest(
+        generalTestDispatcher,
+    ) { uiComponent, composeUiTest ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
         lateinit var clipboardReaderWriter: ClipboardReaderWriter
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 60.0,
@@ -696,7 +716,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
             }
         }
 
-        onRoot()
+        composeUiTest.onRoot()
             .performKeyInput {
                 pressKey(Key.Spacebar)
             }
@@ -708,22 +728,22 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
             IntOffset(1, 2),
             IntOffset(2, 2),
         ).forEach { cell ->
-            scrollToCell(cell)
+            composeUiTest.scrollToCell(cell)
 
-            onNodeWithContentDescription(
+            composeUiTest.onNodeWithContentDescription(
                 resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
             )
                 .performTouchInput { click(topLeft) }
         }
 
-        onRoot()
+        composeUiTest.onRoot()
             .performKeyInput {
                 keyDown(Key.CtrlLeft)
                 pressKey(Key.A)
                 keyUp(Key.CtrlLeft)
             }
 
-        onRoot()
+        composeUiTest.onRoot()
             .performKeyInput {
                 keyDown(Key.CtrlLeft)
                 keyDown(Key.C)
@@ -740,7 +760,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
             clipData.getItemAt(0).text,
         )
 
-        onRoot()
+        composeUiTest.onRoot()
             .performKeyInput {
                 keyUp(Key.CtrlLeft)
                 keyUp(Key.C)
@@ -748,12 +768,14 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
     }
 
     @Test
-    fun selection_is_cleared_correctly_with_keyboard_shortcuts() = runUiTest(generalTestDispatcher) {
+    fun selection_is_cleared_correctly_with_keyboard_shortcuts() = runUiTest(
+        generalTestDispatcher,
+    ) { uiComponent, composeUiTest ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 60.0,
@@ -785,7 +807,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
             }
         }
 
-        onRoot()
+        composeUiTest.onRoot()
             .performKeyInput {
                 pressKey(Key.Spacebar)
             }
@@ -797,41 +819,43 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
             IntOffset(1, 2),
             IntOffset(2, 2),
         ).forEach { cell ->
-            scrollToCell(cell)
+            composeUiTest.scrollToCell(cell)
 
-            onNodeWithContentDescription(
+            composeUiTest.onNodeWithContentDescription(
                 resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
             )
                 .performTouchInput { click(topLeft) }
         }
 
-        onRoot()
+        composeUiTest.onRoot()
             .performKeyInput {
                 keyDown(Key.CtrlLeft)
                 pressKey(Key.A)
                 keyUp(Key.CtrlLeft)
             }
 
-        onNodeWithContentDescription(resolver.invoke(Strings.Copy))
+        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.Copy))
             .assertExists()
 
-        onRoot()
+        composeUiTest.onRoot()
             .performKeyInput {
                 pressKey(Key.Escape)
             }
 
-        onNodeWithContentDescription(resolver.invoke(Strings.Copy))
+        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.Copy))
             .assertDoesNotExist()
     }
 
     @Test
-    fun glider_is_pasted_correctly_with_keyboard_shortcuts() = runUiTest(generalTestDispatcher) {
+    fun glider_is_pasted_correctly_with_keyboard_shortcuts() = runUiTest(
+        generalTestDispatcher,
+    ) { uiComponent, composeUiTest ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint = uiComponent.entryPoint
 
         lateinit var clipboardReaderWriter: ClipboardReaderWriter
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                 targetStepsPerSecond = 60.0,
@@ -874,7 +898,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
             }
         }
 
-        onRoot()
+        composeUiTest.onRoot()
             .performKeyInput {
                 pressKey(Key.Spacebar)
             }
@@ -887,7 +911,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
             """.trimIndent(),
         )
 
-        onRoot()
+        composeUiTest.onRoot()
             .performKeyInput {
                 keyDown(Key.CtrlLeft)
                 pressKey(Key.V)
@@ -895,12 +919,12 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
             }
 
         advanceUntilIdle()
-        waitForIdle()
+        composeUiTest.waitForIdle()
 
-        onNodeWithContentDescription(resolver.invoke(Strings.ApplyPaste))
+        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.ApplyPaste))
             .performClick()
 
-        assertNodesAreAlive(
+        composeUiTest.assertNodesAreAlive(
             resolver = resolver,
             cells = setOf(
                 IntOffset(31, -19),
