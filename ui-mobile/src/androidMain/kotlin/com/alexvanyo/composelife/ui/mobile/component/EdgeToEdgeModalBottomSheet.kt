@@ -457,6 +457,7 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
  * expand to the [Expanded] state and move to the [PartiallyExpanded] if available, either
  * programmatically or by user interaction.
  */
+@Suppress("DEPRECATION")
 @Stable
 @ExperimentalMaterial3Api
 @OptIn(ExperimentalFoundationApi::class)
