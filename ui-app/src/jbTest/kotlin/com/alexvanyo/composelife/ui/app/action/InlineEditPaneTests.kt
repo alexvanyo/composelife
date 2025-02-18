@@ -75,11 +75,11 @@ class InlineEditPaneTests : BaseUiInjectTest<
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun clipboard_cell_state_preview_loading_is_displayed_correctly() = runUiTest {
+    fun clipboard_cell_state_preview_loading_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
             uiComponent.entryPoint
 
-        setContent {
+        composeUiTest.setContent {
             with(
                 object :
                     ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
@@ -114,18 +114,18 @@ class InlineEditPaneTests : BaseUiInjectTest<
             }
         }
 
-        onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+        composeUiTest.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
     }
 
     @Test
-    fun clipboard_cell_state_preview_success_is_displayed_correctly() = runUiTest {
+    fun clipboard_cell_state_preview_success_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
             uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             with(
                 object :
@@ -182,20 +182,20 @@ class InlineEditPaneTests : BaseUiInjectTest<
             }
         }
 
-        onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+        composeUiTest.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
             .assertDoesNotExist()
 
-        onNodeWithContentDescription(resolver(Strings.Paste))
+        composeUiTest.onNodeWithContentDescription(resolver(Strings.Paste))
             .assertExists()
             .assertHasClickAction()
 
-        onNodeWithContentDescription(resolver(Strings.Pin))
+        composeUiTest.onNodeWithContentDescription(resolver(Strings.Pin))
             .assertExists()
             .assertHasClickAction()
     }
 
     @Test
-    fun clipboard_cell_state_preview_success_paste_is_handled_correctly() = runUiTest {
+    fun clipboard_cell_state_preview_success_paste_is_handled_correctly() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
             uiComponent.entryPoint
 
@@ -203,7 +203,7 @@ class InlineEditPaneTests : BaseUiInjectTest<
 
         var onPasteClipboardClickedCount = 0
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             with(
                 object :
@@ -262,14 +262,14 @@ class InlineEditPaneTests : BaseUiInjectTest<
             }
         }
 
-        onNodeWithContentDescription(resolver(Strings.Paste))
+        composeUiTest.onNodeWithContentDescription(resolver(Strings.Paste))
             .performClick()
 
         assertEquals(1, onPasteClipboardClickedCount)
     }
 
     @Test
-    fun clipboard_cell_state_preview_success_pin_is_handled_correctly() = runUiTest {
+    fun clipboard_cell_state_preview_success_pin_is_handled_correctly() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
             uiComponent.entryPoint
 
@@ -277,7 +277,7 @@ class InlineEditPaneTests : BaseUiInjectTest<
 
         var onPinClipboardClickedCount = 0
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             with(
                 object :
@@ -335,20 +335,20 @@ class InlineEditPaneTests : BaseUiInjectTest<
             }
         }
 
-        onNodeWithContentDescription(resolver(Strings.Pin))
+        composeUiTest.onNodeWithContentDescription(resolver(Strings.Pin))
             .performClick()
 
         assertEquals(1, onPinClipboardClickedCount)
     }
 
     @Test
-    fun touch_config_pan_is_displayed_correctly() = runUiTest {
+    fun touch_config_pan_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
             uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             with(
                 object :
@@ -384,19 +384,19 @@ class InlineEditPaneTests : BaseUiInjectTest<
             }
         }
 
-        onNodeWithText(resolver(Strings.Pan))
+        composeUiTest.onNodeWithText(resolver(Strings.Pan))
             .assertExists()
             .assertHasClickAction()
     }
 
     @Test
-    fun touch_config_draw_is_displayed_correctly() = runUiTest {
+    fun touch_config_draw_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
             uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             with(
                 object :
@@ -432,19 +432,19 @@ class InlineEditPaneTests : BaseUiInjectTest<
             }
         }
 
-        onNodeWithText(resolver(Strings.Draw))
+        composeUiTest.onNodeWithText(resolver(Strings.Draw))
             .assertExists()
             .assertHasClickAction()
     }
 
     @Test
-    fun touch_config_erase_is_displayed_correctly() = runUiTest {
+    fun touch_config_erase_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
             uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             with(
                 object :
@@ -480,19 +480,19 @@ class InlineEditPaneTests : BaseUiInjectTest<
             }
         }
 
-        onNodeWithText(resolver(Strings.Erase))
+        composeUiTest.onNodeWithText(resolver(Strings.Erase))
             .assertExists()
             .assertHasClickAction()
     }
 
     @Test
-    fun touch_config_select_is_displayed_correctly() = runUiTest {
+    fun touch_config_select_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
             uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             with(
                 object :
@@ -528,19 +528,19 @@ class InlineEditPaneTests : BaseUiInjectTest<
             }
         }
 
-        onNodeWithText(resolver(Strings.Select))
+        composeUiTest.onNodeWithText(resolver(Strings.Select))
             .assertExists()
             .assertHasClickAction()
     }
 
     @Test
-    fun touch_config_none_is_displayed_correctly() = runUiTest {
+    fun touch_config_none_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
             uiComponent.entryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             with(
                 object :
@@ -576,13 +576,13 @@ class InlineEditPaneTests : BaseUiInjectTest<
             }
         }
 
-        onNodeWithText(resolver(Strings.None))
+        composeUiTest.onNodeWithText(resolver(Strings.None))
             .assertExists()
             .assertHasClickAction()
     }
 
     @Test
-    fun touch_config_popup_displays_options() = runUiTest {
+    fun touch_config_popup_displays_options() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
             uiComponent.entryPoint
 
@@ -590,7 +590,7 @@ class InlineEditPaneTests : BaseUiInjectTest<
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
+        composeUiTest.setContent {
             resolver = parameterizedStringResolver()
             with(
                 object :
@@ -628,19 +628,19 @@ class InlineEditPaneTests : BaseUiInjectTest<
             }
         }
 
-        onNodeWithText(resolver(Strings.Pan))
+        composeUiTest.onNodeWithText(resolver(Strings.Pan))
             .performClick()
 
-        onNode(hasAnyAncestor(isPopup()) and hasText(resolver(Strings.Draw)))
+        composeUiTest.onNode(hasAnyAncestor(isPopup()) and hasText(resolver(Strings.Draw)))
             .assertHasClickAction()
             .performClick()
 
         assertEquals(ToolDropdownOption.Draw, touchToolDropdownOption)
 
-        onNode(isPopup())
+        composeUiTest.onNode(isPopup())
             .assertDoesNotExist()
 
-        onNodeWithText(resolver(Strings.Draw))
+        composeUiTest.onNodeWithText(resolver(Strings.Draw))
             .assertExists()
             .assertHasClickAction()
     }

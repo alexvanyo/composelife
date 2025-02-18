@@ -45,11 +45,11 @@ class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<
     }
 
     @Test
-    fun progress_indicator_is_displayed_correctly() = runUiTest {
+    fun progress_indicator_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
         val gameOfLifeProgressIndicatorInjectEntryPoint: GameOfLifeProgressIndicatorInjectEntryPoint =
             uiComponent.entryPoint
 
-        setContent {
+        composeUiTest.setContent {
             with(gameOfLifeProgressIndicatorInjectEntryPoint) {
                 with(gameOfLifeProgressIndicatorLocalEntryPoint) {
                     GameOfLifeProgressIndicator()
@@ -57,7 +57,7 @@ class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<
             }
         }
 
-        onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+        composeUiTest.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
     }
 }
