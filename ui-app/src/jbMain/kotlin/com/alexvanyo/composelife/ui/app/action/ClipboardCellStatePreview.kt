@@ -79,7 +79,7 @@ interface ClipboardCellStatePreviewLocalEntryPoint :
 /**
  * Renders the current clipboard as a cell-state, if possible.
  */
-context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
+context(_: ClipboardCellStatePreviewInjectEntryPoint, _: ClipboardCellStatePreviewLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun ClipboardCellStatePreview(
@@ -141,7 +141,7 @@ fun ClipboardCellStatePreview(
     }
 }
 
-context(CellWindowInjectEntryPoint, CellWindowLocalEntryPoint)
+context(_: CellWindowInjectEntryPoint, _: CellWindowLocalEntryPoint)
 @Suppress("LongMethod", "LongParameterList")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

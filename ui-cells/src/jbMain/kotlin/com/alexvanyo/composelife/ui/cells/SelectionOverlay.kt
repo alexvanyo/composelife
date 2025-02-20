@@ -58,7 +58,7 @@ import kotlin.uuid.Uuid
 /**
  * The overlay based on the [selectionSessionState].
  */
-context(CellStateParserProvider)
+context(_: CellStateParserProvider)
 @Suppress("LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 @Composable
 fun SelectionOverlay(

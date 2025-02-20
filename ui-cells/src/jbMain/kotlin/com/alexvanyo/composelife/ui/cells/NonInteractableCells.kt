@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.Dp
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderProvider
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 
 interface NonInteractableCellsInjectEntryPoint :
@@ -39,7 +40,7 @@ interface NonInteractableCellsLocalEntryPoint :
  * The [GameOfLifeState] is not interactable, so for efficiency the cell window is represented
  * by a single [Canvas], where each cell is drawn individually.
  */
-context(NonInteractableCellsInjectEntryPoint, NonInteractableCellsLocalEntryPoint)
+context(_: NonInteractableCellsInjectEntryPoint, localEntryPoint: NonInteractableCellsLocalEntryPoint)
 @Composable
 @Suppress("LongParameterList")
 expect fun NonInteractableCells(
@@ -52,6 +53,8 @@ expect fun NonInteractableCells(
     inOverlay: Boolean = false,
 )
 
-context(LoadedComposeLifePreferencesProvider)
 @Composable
-expect fun isSharedElementForCellsSupported(isThumbnail: Boolean): Boolean
+expect fun isSharedElementForCellsSupported(
+    preferences: LoadedComposeLifePreferences,
+    isThumbnail: Boolean,
+): Boolean

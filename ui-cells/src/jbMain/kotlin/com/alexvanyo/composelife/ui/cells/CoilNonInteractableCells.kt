@@ -62,7 +62,7 @@ import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import me.tatarka.inject.annotations.Inject
 import kotlin.math.roundToInt
 
-context(ImageLoaderProvider)
+context(imageLoaderProvider: ImageLoaderProvider)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 fun CoilNonInteractableCells(
@@ -105,7 +105,7 @@ fun CoilNonInteractableCells(
             .placeholderMemoryCacheKey(previousCacheKey)
             .build(),
         contentDescription = null,
-        imageLoader = imageLoader,
+        imageLoader = imageLoaderProvider.imageLoader,
         contentScale = ContentScale.None,
         onState = {
             state = it

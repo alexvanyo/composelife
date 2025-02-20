@@ -28,11 +28,14 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.window.core.layout.WindowSizeClass
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.clock.di.ClockProvider
+import com.alexvanyo.composelife.data.CellStateRepository
 import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
 import com.alexvanyo.composelife.data.model.CellStateMetadata
 import com.alexvanyo.composelife.data.model.SaveableCellState
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
@@ -49,6 +52,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.transform
+import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.seconds
 
 interface CellUniversePaneInjectEntryPoint :
@@ -63,7 +67,7 @@ interface CellUniversePaneLocalEntryPoint :
     GameOfLifeProgressIndicatorLocalEntryPoint,
     InteractiveCellUniverseLocalEntryPoint
 
-context(CellUniversePaneInjectEntryPoint, CellUniversePaneLocalEntryPoint)
+context(_: CellUniversePaneInjectEntryPoint, _: CellUniversePaneLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun CellUniversePane(
@@ -100,10 +104,28 @@ fun CellUniversePane(
     }
 }
 
-context(CellStateRepositoryProvider, GameOfLifeAlgorithmProvider, ComposeLifeDispatchersProvider, ClockProvider)
+context(
+    cellStateRepositoryProvider: CellStateRepositoryProvider,
+    gameOfLifeAlgorithmProvider: GameOfLifeAlgorithmProvider,
+    dispatchersProvider: ComposeLifeDispatchersProvider,
+    clockProvider: ClockProvider,
+)
+@Composable
+fun rememberCellUniversePaneState(): CellUniversePaneState = rememberCellUniversePaneState(
+    cellStateRepository = cellStateRepositoryProvider.cellStateRepository,
+    gameOfLifeAlgorithm = gameOfLifeAlgorithmProvider.gameOfLifeAlgorithm,
+    dispatchers = dispatchersProvider.dispatchers,
+    clock = clockProvider.clock,
+)
+
 @Suppress("LongMethod")
 @Composable
-fun rememberCellUniversePaneState(): CellUniversePaneState {
+fun rememberCellUniversePaneState(
+    cellStateRepository: CellStateRepository,
+    gameOfLifeAlgorithm: GameOfLifeAlgorithm,
+    dispatchers: ComposeLifeDispatchers,
+    clock: Clock,
+): CellUniversePaneState {
     var retainedInitialSaveableCellState: SaveableCellState? by rememberRetained { mutableStateOf(null) }
     var retainedTemporalGameOfLifeState: TemporalGameOfLifeState? by rememberRetained { mutableStateOf(null) }
 

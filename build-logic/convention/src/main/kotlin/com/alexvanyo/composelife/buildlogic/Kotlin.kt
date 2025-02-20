@@ -30,9 +30,7 @@ fun Project.configureKotlin() {
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
-            // TODO: Currently disabled due to warning for usage of context receivers
-            //       https://github.com/Kotlin/KEEP/issues/367#issuecomment-2075034205
-            // allWarningsAsErrors.set(true)
+            allWarningsAsErrors.set(true)
         }
     }
 
@@ -43,7 +41,7 @@ fun Project.configureKotlin() {
                     languageSettings {
                         // TODO: Remove when out of beta: https://youtrack.jetbrains.com/issue/KT-61573
                         enableLanguageFeature("ExpectActualClasses")
-                        enableLanguageFeature("ContextReceivers")
+                        enableLanguageFeature("ContextParameters")
                         enableLanguageFeature("MultiDollarInterpolation")
                         optIn("kotlin.uuid.ExperimentalUuidApi")
                     }

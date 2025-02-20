@@ -42,14 +42,14 @@ interface AlgorithmImplementationUiInjectEntryPoint :
 interface AlgorithmImplementationUiLocalEntryPoint :
     LoadedComposeLifePreferencesProvider
 
-context(AlgorithmImplementationUiInjectEntryPoint, AlgorithmImplementationUiLocalEntryPoint)
+context(injectEntryPoint: AlgorithmImplementationUiInjectEntryPoint, localEntryPoint: AlgorithmImplementationUiLocalEntryPoint)
 @Composable
 fun AlgorithmImplementationUi(
     modifier: Modifier = Modifier,
 ) {
     AlgorithmImplementationUi(
-        algorithmChoice = preferences.algorithmChoice,
-        setAlgorithmChoice = composeLifePreferences::setAlgorithmChoice,
+        algorithmChoice = localEntryPoint.preferences.algorithmChoice,
+        setAlgorithmChoice = injectEntryPoint.composeLifePreferences::setAlgorithmChoice,
         modifier = modifier,
     )
 }
