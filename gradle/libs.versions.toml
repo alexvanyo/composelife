@@ -86,7 +86,7 @@ kotlinxDatetime = "0.6.2"
 #kotlinxSerialization
 kotlinxSerialization = "1.8.0"
 #ksp
-ksp = "2.1.20-Beta2-1.0.30"
+ksp = "2.1.20-RC-1.0.30"
 #jacoco
 jacoco = "0.8.13-SNAPSHOT"
 #jetbrainsCompose
