@@ -35,7 +35,7 @@ These include:
 ## Setup
 
 Requirements:
-- Android Studio Meerkat 2024.3.1
+- Android Studio Meerkat Feature Drop 2024.3.2
 - JDK 21+
 
 Clone the project, and build! (no API keys or other setup necessary)
