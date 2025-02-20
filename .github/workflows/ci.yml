@@ -220,7 +220,11 @@ jobs:
           path: '**/build/test-results/*Test/**.xml'
 
       - name: Generate code coverage
-        run: ./gradlew jacocoUnitTestCoverageReport --stacktrace
+        run: |
+          # generate coverage, with one retry attempt
+          run () { ./gradlew jacocoUnitTestCoverageReport --stacktrace; }
+          (echo "==== Attempt 1 ====" && run) || (echo "==== Attempt 2 ====" && run) || (echo "==== Both attempts failed ====" && exit 1)
+
 
       - name: Upload code coverage to GitHub
         uses: actions/upload-artifact@v4
@@ -368,8 +372,8 @@ jobs:
       - name: Run device checks
         run: |
           # run the tests, with one retry attempt
-          run_tests () { ./gradlew ${{ matrix.target }}${{ matrix.device }}api${{ matrix.api-level }}Check --no-parallel -Dorg.gradle.workers.max=1 --stacktrace; }
-          (echo "==== Attempt 1 ====" && run_tests) || (echo "==== Attempt 2 ====" && run_tests) || (echo "==== Both attempts failed ====" && exit 1)
+          run () { ./gradlew ${{ matrix.target }}${{ matrix.device }}api${{ matrix.api-level }}Check --no-parallel -Dorg.gradle.workers.max=1 --stacktrace; }
+          (echo "==== Attempt 1 ====" && run) || (echo "==== Attempt 2 ====" && run) || (echo "==== Both attempts failed ====" && exit 1)
 
       - name: Upload device test results
         if: ${{ !cancelled() }}
@@ -380,8 +384,8 @@ jobs:
 
       - name: Generate coverage report
         run: |
-          run_tests () { ./gradlew jacocoAndroidTestCoverageReport --stacktrace; }
-          (echo "==== Attempt 1 ====" && run_tests) || (echo "==== Attempt 2 ====" && run_tests) || (echo "==== Both attempts failed ====" && exit 1)
+          run () { ./gradlew jacocoAndroidTestCoverageReport --stacktrace; }
+          (echo "==== Attempt 1 ====" && run) || (echo "==== Attempt 2 ====" && run) || (echo "==== Both attempts failed ====" && exit 1)
 
       - name: Upload code coverage to GitHub
         uses: actions/upload-artifact@v4
