@@ -16,6 +16,9 @@
 
 package com.alexvanyo.composelife.ui.cells
 
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.spring
+
 /**
  * The configuration type for the viewport of an interactive cell universe.
  */
@@ -47,9 +50,13 @@ sealed interface ViewportInteractionConfig {
      * The viewport is tracking the pattern in an auto-fit manner driven by [trackingCellWindowViewportState].
      * The resulting offset and scale will be synced back to [syncableMutableCellWindowViewportStates] to keep
      * consistency.
+     *
+     * As the [trackingCellWindowViewportState] returns a different [CellWindowViewport], the [trackingAnimationSpec]
+     * will be used to animate to the new [CellWindowViewport].
      */
     class Tracking(
         val trackingCellWindowViewportState: TrackingCellWindowViewportState,
+        val trackingAnimationSpec: AnimationSpec<CellWindowViewport> = spring(),
         override val syncableMutableCellWindowViewportStates: List<MutableCellWindowViewportState> = emptyList(),
     ) : ViewportInteractionConfig
 }
