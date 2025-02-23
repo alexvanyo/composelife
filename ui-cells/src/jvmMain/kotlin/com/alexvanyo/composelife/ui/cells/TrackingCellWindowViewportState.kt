@@ -128,8 +128,8 @@ fun rememberTrackingCellWindowViewportState(
              * Compute the scale as the smallest (more zoomed out) to show the necessary height and width.
              */
             val scale = min(
-                baseCellHeight / (boundingBox.height - 1),
-                baseCellWidth / (boundingBox.width - 1),
+                baseCellHeight / boundingBox.height,
+                baseCellWidth / boundingBox.width,
             )
 
             /**
