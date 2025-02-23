@@ -31,7 +31,6 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
@@ -43,7 +42,6 @@ import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.cells.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.cells.resources.Strings
-import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -106,7 +104,7 @@ class CellWindowTests : BaseUiInjectTest<
                         MutableSelectionStateHolder by selectionStateHolder {
                         override val viewportInteractionConfig: ViewportInteractionConfig
                             get() = ViewportInteractionConfig.Fixed(
-                                CellWindowState(
+                                CellWindowViewportState(
                                     offset = Offset(-0.5f, -0.5f),
                                     scale = 1f,
                                 ),

@@ -30,7 +30,7 @@ import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
-import com.alexvanyo.composelife.ui.cells.CellWindowState
+import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindow
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
 
@@ -62,7 +62,7 @@ fun CellStatePreviewUi(
             ),
             modifier = Modifier.size(96.dp).clipToBounds(),
             viewportInteractionConfig = ViewportInteractionConfig.Fixed(
-                CellWindowState(
+                CellWindowViewportState(
                     offset = Offset(2f, 2f),
                     scale = 1f,
                 ),

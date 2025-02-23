@@ -42,7 +42,7 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
-import com.alexvanyo.composelife.ui.cells.CellWindowState
+import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.ImmutableCellWindow
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
@@ -129,7 +129,7 @@ fun GameOfLifeProgressIndicator(
             .clearAndSetSemantics {},
         cellWindowInteractionState = CellWindowInteractionState(
             viewportInteractionConfig = ViewportInteractionConfig.Fixed(
-                cellWindowViewportState = CellWindowState(
+                cellWindowViewportState = CellWindowViewportState(
                     offset = Offset(
                         (pattern.boundingBox.width - 1) / 2f,
                         (pattern.boundingBox.height - 1) / 2f,
