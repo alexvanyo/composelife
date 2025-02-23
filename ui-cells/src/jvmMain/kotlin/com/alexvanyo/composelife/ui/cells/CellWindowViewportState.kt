@@ -46,17 +46,23 @@ val CellWindowViewportState.offset: Offset
 val CellWindowViewportState.scale: Float
     get() = cellWindowViewport.scale
 
-fun CellWindowState(
+/**
+ * Returns a fixed [CellWindowViewportState] from the given [offset] and [scale].
+ */
+fun CellWindowViewportState(
     offset: Offset,
     scale: Float,
-): CellWindowViewportState = CellWindowState(
+): CellWindowViewportState = CellWindowViewportState(
     cellWindowViewport = CellWindowViewport(
         offset = offset,
         scale = scale,
     ),
 )
 
-fun CellWindowState(
+/**
+ * Returns a fixed [CellWindowViewportState] from the given [cellWindowViewport].
+ */
+fun CellWindowViewportState(
     cellWindowViewport: CellWindowViewport,
 ): CellWindowViewportState = object : CellWindowViewportState {
     override val cellWindowViewport = cellWindowViewport
