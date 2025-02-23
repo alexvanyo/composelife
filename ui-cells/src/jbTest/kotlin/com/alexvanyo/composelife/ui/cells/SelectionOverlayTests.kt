@@ -21,6 +21,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.dragAndDrop
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
@@ -28,12 +29,12 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.geometry.toPx
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.model.CellWindow
-import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.model.emptyCellState
+import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
@@ -41,7 +42,6 @@ import com.alexvanyo.composelife.ui.cells.resources.SelectingBoxHandle
 import com.alexvanyo.composelife.ui.cells.resources.Strings
 import com.alexvanyo.composelife.ui.cells.util.isAndroid
 import org.junit.Assume.assumeTrue
-import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.uuid.Uuid
@@ -56,16 +56,23 @@ class SelectionOverlayTests : BaseUiInjectTest<
     TestComposeLifeUiComponent::createComponent,
 ) {
 
-    private val cellStateParserProvider: CellStateParserProvider = applicationComponent.entryPoint
-
     @Test
-    fun no_selection_is_displayed_correctly() = runUiTest { _, composeUiTest ->
+    fun no_selection_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
+        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
+        val localEntryPoint = object : CellWindowLocalEntryPoint {
+            override val preferences = LoadedComposeLifePreferences.Defaults
+        }
+
+        val entryPoint = object :
+            CellWindowInjectEntryPoint by injectEntryPoint,
+            CellWindowLocalEntryPoint by localEntryPoint {}
+
         lateinit var resolver: (ParameterizedString) -> String
 
         composeUiTest.setContent {
             resolver = parameterizedStringResolver()
 
-            with(cellStateParserProvider) {
+            with(entryPoint) {
                 SelectionOverlay(
                     selectionSessionState = SessionValue(
                         sessionId = Uuid.random(),
@@ -93,13 +100,22 @@ class SelectionOverlayTests : BaseUiInjectTest<
     }
 
     @Test
-    fun selecting_box_is_displayed_correctly() = runUiTest { _, composeUiTest ->
+    fun selecting_box_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
+        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
+        val localEntryPoint = object : CellWindowLocalEntryPoint {
+            override val preferences = LoadedComposeLifePreferences.Defaults
+        }
+
+        val entryPoint = object :
+            CellWindowInjectEntryPoint by injectEntryPoint,
+            CellWindowLocalEntryPoint by localEntryPoint {}
+
         lateinit var resolver: (ParameterizedString) -> String
 
         composeUiTest.setContent {
             resolver = parameterizedStringResolver()
 
-            with(cellStateParserProvider) {
+            with(entryPoint) {
                 SelectionOverlay(
                     selectionSessionState = SessionValue(
                         sessionId = Uuid.random(),
@@ -147,9 +163,18 @@ class SelectionOverlayTests : BaseUiInjectTest<
     }
 
     @Test
-    fun dragging_selecting_box_is_displayed_correctly() = runUiTest { _, composeUiTest ->
+    fun dragging_selecting_box_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
         // TODO: This test tends to deadlock on desktop
         assumeTrue(isAndroid())
+
+        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
+        val localEntryPoint = object : CellWindowLocalEntryPoint {
+            override val preferences = LoadedComposeLifePreferences.Defaults
+        }
+
+        val entryPoint = object :
+            CellWindowInjectEntryPoint by injectEntryPoint,
+            CellWindowLocalEntryPoint by localEntryPoint {}
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -169,7 +194,7 @@ class SelectionOverlayTests : BaseUiInjectTest<
         composeUiTest.setContent {
             resolver = parameterizedStringResolver()
 
-            with(cellStateParserProvider) {
+            with(entryPoint) {
                 SelectionOverlay(
                     selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
                     setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
@@ -201,6 +226,117 @@ class SelectionOverlayTests : BaseUiInjectTest<
                 width = 2,
                 height = 1,
                 previousTransientSelectingBox = null,
+            ),
+            mutableSelectionStateHolder.selectionSessionState.value,
+        )
+    }
+
+
+    @Test
+    fun selection_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
+        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
+        val localEntryPoint = object : CellWindowLocalEntryPoint {
+            override val preferences = LoadedComposeLifePreferences.Defaults
+        }
+
+        val entryPoint = object :
+            CellWindowInjectEntryPoint by injectEntryPoint,
+            CellWindowLocalEntryPoint by localEntryPoint {}
+
+        composeUiTest.setContent {
+            with(entryPoint) {
+                SelectionOverlay(
+                    selectionSessionState = SessionValue(
+                        sessionId = Uuid.random(),
+                        valueId = Uuid.random(),
+                        value = SelectionState.Selection(
+                            cellState = """
+                                |.O.
+                                |..O
+                                |OOO
+                            """.toCellState(),
+                            offset = IntOffset(1, 1),
+                        ),
+                    ),
+                    setSelectionSessionState = {},
+                    getSelectionCellState = { emptyCellState() },
+                    scaledCellDpSize = 50.dp,
+                    cellWindow = CellWindow(
+                        IntRect(
+                            IntOffset(0, 0),
+                            IntSize(9, 9),
+                        ),
+                    ),
+                    pixelOffsetFromCenter = Offset.Zero,
+                )
+            }
+        }
+
+        composeUiTest.onNodeWithTag("SelectionBox").assertIsDisplayed()
+    }
+
+    @Test
+    fun dragging_selection_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
+        // TODO: This test tends to deadlock on desktop
+        assumeTrue(isAndroid())
+
+        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
+        val localEntryPoint = object : CellWindowLocalEntryPoint {
+            override val preferences = LoadedComposeLifePreferences.Defaults
+        }
+
+        val entryPoint = object :
+            CellWindowInjectEntryPoint by injectEntryPoint,
+            CellWindowLocalEntryPoint by localEntryPoint {}
+
+        val mutableSelectionStateHolder = MutableSelectionStateHolder(
+            SessionValue(
+                sessionId = Uuid.random(),
+                valueId = Uuid.random(),
+                value = SelectionState.Selection(
+                    cellState = """
+                        |.O.
+                        |..O
+                        |OOO
+                    """.trimIndent().toCellState(),
+                    offset = IntOffset(1, 1),
+                ),
+            ),
+        )
+
+        composeUiTest.setContent {
+            with(entryPoint) {
+                SelectionOverlay(
+                    selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
+                    setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
+                    getSelectionCellState = { emptyCellState() },
+                    scaledCellDpSize = 50.dp,
+                    cellWindow = CellWindow(
+                        IntRect(
+                            IntOffset(0, 0),
+                            IntSize(9, 9),
+                        ),
+                    ),
+                    pixelOffsetFromCenter = Offset.Zero,
+                )
+            }
+        }
+
+        composeUiTest.onNodeWithTag("SelectionBox")
+            .performMouseInput {
+                val start = center
+                val end = center + with(density) { DpOffset(200.dp, 200.dp).toPx() }
+                dragAndDrop(start, end, durationMillis = 1_000)
+            }
+
+        assertEquals(
+            SelectionState.Selection(
+                cellState = """
+                    |.O.
+                    |..O
+                    |OOO
+                """.toCellState(),
+                offset = IntOffset(5, 5),
             ),
             mutableSelectionStateHolder.selectionSessionState.value,
         )
