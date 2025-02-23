@@ -32,15 +32,27 @@ import com.alexvanyo.composelife.serialization.saver
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import kotlinx.serialization.Serializable
 
+/**
+ * A hierarchy of possible states for a selection of cells.
+ */
 @Serializable
 sealed interface SelectionState {
 
+    /**
+     * No selection.
+     */
     @Serializable
     data object NoSelection : SelectionState
 
+    /**
+     * A selecting box that describes a rectangle of some size and location in the cell universe.
+     */
     @Serializable
     sealed interface SelectingBox : SelectionState {
 
+        /**
+         * A cell-grid-aligned selecting box.
+         */
         @Serializable
         data class FixedSelectingBox(
             /**
@@ -61,6 +73,10 @@ sealed interface SelectionState {
             val previousTransientSelectingBox: TransientSelectingBox?,
         ) : SelectingBox
 
+        /**
+         * An intermediate selecting box that is being driven by an external input and may not be aligned to
+         * the cell grid.
+         */
         @Serializable
         data class TransientSelectingBox(
             /**
@@ -71,6 +87,9 @@ sealed interface SelectionState {
         ) : SelectingBox
     }
 
+    /**
+     * A selection that includes a specific [CellState]
+     */
     @Serializable
     data class Selection(
         val cellState: CellState,
