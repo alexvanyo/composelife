@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -164,7 +165,11 @@ fun LoadedCellStatePreview(
         ThumbnailImmutableCellWindow(
             gameOfLifeState = gameOfLifeState,
             viewportInteractionConfig = ViewportInteractionConfig.Tracking(
-                rememberTrackingCellWindowViewportState(gameOfLifeState),
+                trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(
+                    gameOfLifeState = gameOfLifeState,
+                    trackingWindowSize = 1,
+                ),
+                trackingAnimationSpec = snap(),
             ),
             modifier = Modifier
                 .weight(1f)
