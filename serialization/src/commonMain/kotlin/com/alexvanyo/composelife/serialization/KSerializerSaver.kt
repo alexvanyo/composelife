@@ -23,7 +23,7 @@ import androidx.savedstate.serialization.encodeToSavedState
 import kotlinx.serialization.KSerializer
 
 /**
- * A [Saver] for a [T] using [Json] to encode and decode with the given [KSerializer].
+ * A [Saver] for a [T] to encode and decode with the given [KSerializer].
  */
 val <T : Any> KSerializer<T>.saver: Saver<T, SavedState> get() = Saver(
     save = { encodeToSavedState(this@saver, it) },
