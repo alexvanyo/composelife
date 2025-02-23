@@ -244,7 +244,7 @@ private fun CellWindowImpl(
                         baseCellHeight = maxHeight / cellDpSize,
                         centerOffset = centerOffset,
                     )
-                cellWindowViewportAnimationSpec = spring()
+                cellWindowViewportAnimationSpec = viewportInteractionConfig.trackingAnimationSpec
             }
         }
 
