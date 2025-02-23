@@ -15,7 +15,9 @@
  */
 
 package com.alexvanyo.composelife.ui.cells
+
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
@@ -33,19 +35,21 @@ internal fun NavigableImmutableCellWindowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             ImmutableCellWindow(
-                gameOfLifeState = GameOfLifeState(
-                    setOf(
-                        0 to 0,
-                        0 to 2,
-                        0 to 4,
-                        2 to 0,
-                        2 to 2,
-                        2 to 4,
-                        4 to 0,
-                        4 to 2,
-                        4 to 4,
-                    ).toCellState(),
-                ),
+                gameOfLifeState = remember {
+                    GameOfLifeState(
+                        setOf(
+                            0 to 0,
+                            0 to 2,
+                            0 to 4,
+                            2 to 0,
+                            2 to 2,
+                            2 to 4,
+                            4 to 0,
+                            4 to 2,
+                            4 to 4,
+                        ).toCellState(),
+                    )
+                },
                 cellWindowInteractionState = CellWindowInteractionState(
                     viewportInteractionConfig = ViewportInteractionConfig.Navigable(
                         mutableCellWindowViewportState = rememberMutableCellWindowViewportState(),
@@ -67,19 +71,21 @@ internal fun NavigableImmutableCellWindowPreview() {
 internal fun TrackingImmutableCellWindowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            val gameOfLifeState = GameOfLifeState(
-                setOf(
-                    0 to 0,
-                    0 to 2,
-                    0 to 4,
-                    2 to 0,
-                    2 to 2,
-                    2 to 4,
-                    4 to 0,
-                    4 to 2,
-                    4 to 4,
-                ).toCellState(),
-            )
+            val gameOfLifeState = remember {
+                GameOfLifeState(
+                    setOf(
+                        0 to 0,
+                        0 to 2,
+                        0 to 4,
+                        2 to 0,
+                        2 to 2,
+                        2 to 4,
+                        4 to 0,
+                        4 to 2,
+                        4 to 4,
+                    ).toCellState(),
+                )
+            }
             val trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(gameOfLifeState)
 
             ImmutableCellWindow(
@@ -116,19 +122,21 @@ internal fun NavigableMutableCellWindowPreview() {
             )
 
             MutableCellWindow(
-                gameOfLifeState = MutableGameOfLifeState(
-                    setOf(
-                        0 to 0,
-                        0 to 2,
-                        0 to 4,
-                        2 to 0,
-                        2 to 2,
-                        2 to 4,
-                        4 to 0,
-                        4 to 2,
-                        4 to 4,
-                    ).toCellState(),
-                ),
+                gameOfLifeState = remember {
+                    MutableGameOfLifeState(
+                        setOf(
+                            0 to 0,
+                            0 to 2,
+                            0 to 4,
+                            2 to 0,
+                            2 to 2,
+                            2 to 4,
+                            4 to 0,
+                            4 to 2,
+                            4 to 4,
+                        ).toCellState(),
+                    )
+                },
                 cellWindowInteractionState = object :
                     MutableCellWindowInteractionState,
                     MutableSelectionStateHolder by selectionStateHolder {
@@ -147,31 +155,8 @@ internal fun NavigableMutableCellWindowPreview() {
 internal fun TrackingMutableCellWindowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            val gameOfLifeState = GameOfLifeState(
-                setOf(
-                    0 to 0,
-                    0 to 2,
-                    0 to 4,
-                    2 to 0,
-                    2 to 2,
-                    2 to 4,
-                    4 to 0,
-                    4 to 2,
-                    4 to 4,
-                ).toCellState(),
-            )
-            val trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(gameOfLifeState)
-
-            val selectionStateHolder = rememberMutableSelectionStateHolder(
-                SessionValue(
-                    sessionId = Uuid.random(),
-                    valueId = Uuid.random(),
-                    value = SelectionState.NoSelection,
-                ),
-            )
-
-            MutableCellWindow(
-                gameOfLifeState = MutableGameOfLifeState(
+            val gameOfLifeState = remember {
+                MutableGameOfLifeState(
                     setOf(
                         0 to 0,
                         0 to 2,
@@ -183,7 +168,20 @@ internal fun TrackingMutableCellWindowPreview() {
                         4 to 2,
                         4 to 4,
                     ).toCellState(),
+                )
+            }
+            val trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(gameOfLifeState)
+
+            val selectionStateHolder = rememberMutableSelectionStateHolder(
+                SessionValue(
+                    sessionId = Uuid.random(),
+                    valueId = Uuid.random(),
+                    value = SelectionState.NoSelection,
                 ),
+            )
+
+            MutableCellWindow(
+                gameOfLifeState = gameOfLifeState,
                 cellWindowInteractionState = object :
                     MutableCellWindowInteractionState,
                     MutableSelectionStateHolder by selectionStateHolder {

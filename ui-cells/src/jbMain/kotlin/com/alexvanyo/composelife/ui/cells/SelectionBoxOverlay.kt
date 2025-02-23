@@ -16,7 +16,9 @@
 
 package com.alexvanyo.composelife.ui.cells
 
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -28,19 +30,24 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
 import androidx.compose.ui.util.unpackInt2
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellWindow
+import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.util.AnchoredDraggable2DState
 import com.alexvanyo.composelife.ui.util.anchoredDraggable2D
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 
+context(CellWindowInjectEntryPoint, CellWindowLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 internal fun SelectionBoxOverlay(
@@ -110,7 +117,7 @@ internal fun SelectionBoxOverlay(
 
     val boundingBox = selectionSessionState.value.cellState.boundingBox
 
-    SelectingBox(
+    Box(
         modifier = modifier
             .fillMaxSize()
             .boxLayoutByHandles(
@@ -137,7 +144,30 @@ internal fun SelectionBoxOverlay(
                 },
             )
             .cellStateDragAndDropSource(getSelectionCellState)
-            .anchoredDraggable2D(draggable2DState),
-        selectionColor = MaterialTheme.colorScheme.tertiary,
-    )
+            .anchoredDraggable2D(draggable2DState)
+            .testTag("SelectionBox"),
+    ) {
+        val gameOfLifeState = remember(selectionSessionState.valueId) {
+            GameOfLifeState(selectionSessionState.value.cellState)
+        }
+        ThumbnailImmutableCellWindow(
+            gameOfLifeState = gameOfLifeState,
+            viewportInteractionConfig = ViewportInteractionConfig.Tracking(
+                trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(
+                    gameOfLifeState = gameOfLifeState,
+                    trackingWindowSize = 1,
+                    cellPadding = 0f,
+                ),
+                trackingAnimationSpec = snap(),
+            ),
+            modifier = Modifier
+                .matchParentSize()
+                .clipToBounds()
+                .alpha(0.2f),
+        )
+        SelectingBox(
+            modifier = Modifier.matchParentSize(),
+            selectionColor = MaterialTheme.colorScheme.tertiary,
+        )
+    }
 }
