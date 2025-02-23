@@ -50,6 +50,7 @@ kotlin {
                 api(projects.dispatchers)
                 api(projects.imageLoader)
 
+                implementation(libs.androidx.annotation)
                 implementation(libs.coil.compose.core)
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.collections.immutable)
