@@ -36,6 +36,8 @@
     <string name="disable_autofit">Disable autofit</string>
     <string name="enable_immersive_mode">Enable immersive mode</string>
     <string name="disable_immersive_mode">Disable immersive mode</string>
+    <string name="enter_home_space_mode">Enter home space mode</string>
+    <string name="enter_full_space_mode">Enter full space mode</string>
     <string name="offset">Offset: x = %1$.1f, y = %2$.1f</string>
     <string name="scale">Scale: %1$.2f</string>
     <string name="paused">Paused</string>

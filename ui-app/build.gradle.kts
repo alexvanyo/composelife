@@ -123,6 +123,7 @@ kotlin {
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.lifecycle.runtime)
                 implementation(libs.androidx.poolingContainer)
+                implementation(libs.androidx.xr.compose)
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.sealedEnum.runtime)
                 implementation(libs.showkase.runtime)

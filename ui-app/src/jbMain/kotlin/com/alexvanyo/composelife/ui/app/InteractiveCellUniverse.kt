@@ -49,6 +49,7 @@ import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.model.isRunning
+import com.alexvanyo.composelife.sessionvalue.LocalSessionInfo
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardState
 import com.alexvanyo.composelife.ui.app.action.rememberCellUniverseActionCardState
@@ -199,10 +200,16 @@ interface InteractiveCellUniverseState {
      */
     var isViewportTracking: Boolean
 
+    val showImmersiveModeControl: Boolean
+
     /**
      * `true` if immersive mode is enabled.
      */
     var isImmersiveMode: Boolean
+
+    val showFullSpaceModeControl: Boolean
+
+    var isFullSpaceMode: Boolean
 
     /**
      * The [MutableCellWindowViewportState] for use when [isViewportTracking] is `false`.
@@ -306,6 +313,8 @@ fun rememberInteractiveCellUniverseState(
         }
     }
 
+    val spatialController = rememberSpatialController()
+
     var isActionCardTopCard by rememberSaveable { mutableStateOf(true) }
 
     val isInfoCardExpandedState = rememberSaveable { mutableStateOf(false) }
@@ -400,6 +409,7 @@ fun rememberInteractiveCellUniverseState(
         clipboardReaderWriter,
         cellStateParser,
         coroutineScope,
+        spatialController,
     ) {
         object : InteractiveCellUniverseState {
             override var isViewportTracking: Boolean
@@ -408,10 +418,22 @@ fun rememberInteractiveCellUniverseState(
                     isViewportTracking = value
                 }
 
+            override val showImmersiveModeControl: Boolean
+                get() = !spatialController.hasXrSpatialFeature
+
             override var isImmersiveMode: Boolean
                 get() = isImmersiveMode
                 set(value) {
                     isImmersiveMode = value
+                }
+
+            override val showFullSpaceModeControl: Boolean
+                get() = spatialController.hasXrSpatialFeature
+
+            override var isFullSpaceMode: Boolean
+                get() = spatialController.isFullSpaceMode
+                set(value) {
+                    spatialController.isFullSpaceMode = value
                 }
 
             override val mutableCellWindowViewportState: MutableCellWindowViewportState =
@@ -538,3 +560,14 @@ fun rememberInteractiveCellUniverseState(
         }
     }
 }
+
+interface SpatialController {
+    val hasXrSpatialFeature: Boolean
+
+    val isSpatialUiEnabled: Boolean
+
+    var isFullSpaceMode: Boolean
+}
+
+@Composable
+expect fun rememberSpatialController(): SpatialController
