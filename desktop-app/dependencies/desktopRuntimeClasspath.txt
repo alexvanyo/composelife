@@ -114,7 +114,7 @@ org.jetbrains.compose.ui:ui:1.8.0-alpha03
 org.jetbrains.kotlin:kotlin-bom:2.1.10
 org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.10
 org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.10
-org.jetbrains.kotlin:kotlin-stdlib:2.2.0-dev-4719
+org.jetbrains.kotlin:kotlin-stdlib:2.2.0-dev-7255
 org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
 org.jetbrains.kotlinx:atomicfu:0.23.2
 org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.8
