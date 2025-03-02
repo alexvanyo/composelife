@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// TODO: Remove NoUnusedImports suppression when detekt handles org.gradle.kotlin.dsl.assign correctly
+@file:Suppress("NoUnusedImports")
 
 package com.alexvanyo.composelife.buildlogic
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 // TODO: https://github.com/gradle/gradle/issues/7735
-@file:Suppress("InternalAgpApiUsage", "InternalGradleApiUsage")
+@file:Suppress("InternalAgpApiUsage", "InternalGradleApiUsage", "NoUnusedImports")
 
 package com.alexvanyo.composelife.buildlogic
 

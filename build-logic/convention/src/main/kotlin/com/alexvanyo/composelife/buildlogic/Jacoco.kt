@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-@file:Suppress("InternalAgpApiUsage")
+// TODO: Remove NoUnusedImports suppression when detekt handles org.gradle.kotlin.dsl.assign correctly
+@file:Suppress("InternalAgpApiUsage", "NoUnusedImports")
 
 package com.alexvanyo.composelife.buildlogic
 
@@ -103,7 +103,8 @@ fun Project.configureJacocoMerge() {
                     it.getAndroidTestReportTasks()
                         .map(JacocoReportTask::jacocoConnectedTestsCoverageDir)
                         .map(::fileTree)
-                },
+                },// TODO: Remove NoUnusedImports suppression when detekt handles org.gradle.kotlin.dsl.assign correctly
+
         )
 
         reports {
