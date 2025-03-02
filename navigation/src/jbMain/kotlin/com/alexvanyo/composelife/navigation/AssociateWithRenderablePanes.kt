@@ -17,14 +17,12 @@
 package com.alexvanyo.composelife.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import com.slack.circuit.retained.LocalCanRetainChecker
 import com.slack.circuit.retained.rememberRetainedStateHolder
 
 /**
@@ -71,19 +69,8 @@ fun <T : NavigationEntry, S : NavigationState<T>> associateWithRenderablePanes(
 
     val wrappedPane: @Composable (T) -> Unit = { entry ->
         saveableStateHolder.SaveableStateProvider(key = entry.id) {
-            CompositionLocalProvider(
-                // Only retain the entry when it is in the backstack.
-                // Remember the CanRetainChecker lambda to avoid propagating changes through the tree
-                LocalCanRetainChecker provides remember(entry.id) {
-                    {
-                            _ ->
-                        entry.id in currentEntryKeySet
-                    }
-                },
-            ) {
-                retainedStateHolder.RetainedStateProvider(key = entry.id.toString()) {
-                    pane(entry)
-                }
+            retainedStateHolder.RetainedStateProvider(key = entry.id.toString()) {
+                pane(entry)
             }
         }
     }
