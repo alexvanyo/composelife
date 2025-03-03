@@ -40,6 +40,7 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.patterns.GliderPattern
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
@@ -87,17 +88,17 @@ class InlineEditPaneTests : BaseUiInjectTest<
             ) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
-                        override val touchToolDropdownOption = ToolDropdownOption.Pan
+                        override val touchToolConfig = ToolConfig.Pan
 
-                        override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val stylusToolDropdownOption = ToolDropdownOption.None
+                        override val stylusToolConfig = ToolConfig.None
 
-                        override fun setStylusToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val mouseToolDropdownOption = ToolDropdownOption.None
+                        override val mouseToolConfig = ToolConfig.None
 
-                        override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
@@ -155,17 +156,17 @@ class InlineEditPaneTests : BaseUiInjectTest<
 
                 InlineEditPane(
                     state = object : InlineEditPaneState {
-                        override val touchToolDropdownOption = ToolDropdownOption.Pan
+                        override val touchToolConfig = ToolConfig.Pan
 
-                        override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val stylusToolDropdownOption = ToolDropdownOption.None
+                        override val stylusToolConfig = ToolConfig.None
 
-                        override fun setStylusToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val mouseToolDropdownOption = ToolDropdownOption.None
+                        override val mouseToolConfig = ToolConfig.None
 
-                        override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
@@ -235,17 +236,17 @@ class InlineEditPaneTests : BaseUiInjectTest<
 
                 InlineEditPane(
                     state = object : InlineEditPaneState {
-                        override val touchToolDropdownOption = ToolDropdownOption.Pan
+                        override val touchToolConfig = ToolConfig.Pan
 
-                        override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val stylusToolDropdownOption = ToolDropdownOption.None
+                        override val stylusToolConfig = ToolConfig.None
 
-                        override fun setStylusToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val mouseToolDropdownOption = ToolDropdownOption.None
+                        override val mouseToolConfig = ToolConfig.None
 
-                        override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
@@ -308,17 +309,17 @@ class InlineEditPaneTests : BaseUiInjectTest<
 
                 InlineEditPane(
                     state = object : InlineEditPaneState {
-                        override val touchToolDropdownOption = ToolDropdownOption.Pan
+                        override val touchToolConfig = ToolConfig.Pan
 
-                        override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val stylusToolDropdownOption = ToolDropdownOption.None
+                        override val stylusToolConfig = ToolConfig.None
 
-                        override fun setStylusToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val mouseToolDropdownOption = ToolDropdownOption.None
+                        override val mouseToolConfig = ToolConfig.None
 
-                        override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
@@ -357,17 +358,17 @@ class InlineEditPaneTests : BaseUiInjectTest<
             ) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
-                        override val touchToolDropdownOption = ToolDropdownOption.Pan
+                        override val touchToolConfig = ToolConfig.Pan
 
-                        override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val stylusToolDropdownOption = ToolDropdownOption.None
+                        override val stylusToolConfig = ToolConfig.None
 
-                        override fun setStylusToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val mouseToolDropdownOption = ToolDropdownOption.None
+                        override val mouseToolConfig = ToolConfig.None
 
-                        override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
@@ -405,17 +406,17 @@ class InlineEditPaneTests : BaseUiInjectTest<
             ) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
-                        override val touchToolDropdownOption = ToolDropdownOption.Draw
+                        override val touchToolConfig = ToolConfig.Draw
 
-                        override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val stylusToolDropdownOption = ToolDropdownOption.None
+                        override val stylusToolConfig = ToolConfig.None
 
-                        override fun setStylusToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val mouseToolDropdownOption = ToolDropdownOption.None
+                        override val mouseToolConfig = ToolConfig.None
 
-                        override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
@@ -453,17 +454,17 @@ class InlineEditPaneTests : BaseUiInjectTest<
             ) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
-                        override val touchToolDropdownOption = ToolDropdownOption.Erase
+                        override val touchToolConfig = ToolConfig.Erase
 
-                        override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val stylusToolDropdownOption = ToolDropdownOption.None
+                        override val stylusToolConfig = ToolConfig.None
 
-                        override fun setStylusToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val mouseToolDropdownOption = ToolDropdownOption.None
+                        override val mouseToolConfig = ToolConfig.None
 
-                        override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
@@ -501,17 +502,17 @@ class InlineEditPaneTests : BaseUiInjectTest<
             ) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
-                        override val touchToolDropdownOption = ToolDropdownOption.Select
+                        override val touchToolConfig = ToolConfig.Select
 
-                        override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val stylusToolDropdownOption = ToolDropdownOption.None
+                        override val stylusToolConfig = ToolConfig.None
 
-                        override fun setStylusToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val mouseToolDropdownOption = ToolDropdownOption.None
+                        override val mouseToolConfig = ToolConfig.None
 
-                        override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
@@ -549,17 +550,17 @@ class InlineEditPaneTests : BaseUiInjectTest<
             ) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
-                        override val touchToolDropdownOption = ToolDropdownOption.None
+                        override val touchToolConfig = ToolConfig.None
 
-                        override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val stylusToolDropdownOption = ToolDropdownOption.Draw
+                        override val stylusToolConfig = ToolConfig.Draw
 
-                        override fun setStylusToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val mouseToolDropdownOption = ToolDropdownOption.Draw
+                        override val mouseToolConfig = ToolConfig.Draw
 
-                        override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
@@ -586,7 +587,7 @@ class InlineEditPaneTests : BaseUiInjectTest<
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
             uiComponent.entryPoint
 
-        var touchToolDropdownOption: ToolDropdownOption by mutableStateOf(ToolDropdownOption.Pan)
+        var touchToolConfig: ToolConfig by mutableStateOf(ToolConfig.Pan)
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -599,19 +600,19 @@ class InlineEditPaneTests : BaseUiInjectTest<
             ) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
-                        override val touchToolDropdownOption get() = touchToolDropdownOption
+                        override val touchToolConfig get() = touchToolConfig
 
-                        override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) {
-                            touchToolDropdownOption = toolDropdownOption
+                        override fun setTouchToolConfig(toolConfig: ToolConfig) {
+                            touchToolConfig = toolConfig
                         }
 
-                        override val stylusToolDropdownOption = ToolDropdownOption.None
+                        override val stylusToolConfig = ToolConfig.None
 
-                        override fun setStylusToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val mouseToolDropdownOption = ToolDropdownOption.None
+                        override val mouseToolConfig = ToolConfig.None
 
-                        override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) = Unit
+                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
 
                         override val clipboardWatchingState: ClipboardWatchingState
                             get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
@@ -635,7 +636,7 @@ class InlineEditPaneTests : BaseUiInjectTest<
             .assertHasClickAction()
             .performClick()
 
-        assertEquals(ToolDropdownOption.Draw, touchToolDropdownOption)
+        assertEquals(ToolConfig.Draw, touchToolConfig)
 
         composeUiTest.onNode(isPopup())
             .assertDoesNotExist()

@@ -48,8 +48,6 @@ import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPane
-import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneInjectEntryPoint
-import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneLocalEntryPoint
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavigationFrame
@@ -62,14 +60,6 @@ import com.livefront.sealedenum.SealedEnum
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.max
-
-interface CellUniverseActionCardInjectEntryPoint :
-    InlineEditPaneInjectEntryPoint,
-    InlineSettingsPaneInjectEntryPoint
-
-interface CellUniverseActionCardLocalEntryPoint :
-    InlineEditPaneLocalEntryPoint,
-    InlineSettingsPaneLocalEntryPoint
 
 context(CellUniverseActionCardInjectEntryPoint, CellUniverseActionCardLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod")

@@ -81,16 +81,16 @@ class InlineEditPaneStateTests : BaseUiInjectTest<
         }
 
         assertEquals(
-            ToolDropdownOption.Pan,
-            inlineEditPaneState.touchToolDropdownOption,
+            ToolConfig.Pan,
+            inlineEditPaneState.touchToolConfig,
         )
         assertEquals(
-            ToolDropdownOption.Draw,
-            inlineEditPaneState.stylusToolDropdownOption,
+            ToolConfig.Draw,
+            inlineEditPaneState.stylusToolConfig,
         )
         assertEquals(
-            ToolDropdownOption.Select,
-            inlineEditPaneState.mouseToolDropdownOption,
+            ToolConfig.Select,
+            inlineEditPaneState.mouseToolConfig,
         )
 
         val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
@@ -236,16 +236,16 @@ class InlineEditPaneStateTests : BaseUiInjectTest<
         }
 
         assertEquals(
-            ToolDropdownOption.Pan,
-            inlineEditPaneState.touchToolDropdownOption,
+            ToolConfig.Pan,
+            inlineEditPaneState.touchToolConfig,
         )
         assertEquals(
-            ToolDropdownOption.Draw,
-            inlineEditPaneState.stylusToolDropdownOption,
+            ToolConfig.Draw,
+            inlineEditPaneState.stylusToolConfig,
         )
         assertEquals(
-            ToolDropdownOption.Select,
-            inlineEditPaneState.mouseToolDropdownOption,
+            ToolConfig.Select,
+            inlineEditPaneState.mouseToolConfig,
         )
 
         val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
@@ -287,16 +287,16 @@ class InlineEditPaneStateTests : BaseUiInjectTest<
         }
 
         assertEquals(
-            ToolDropdownOption.Pan,
-            inlineEditPaneState.touchToolDropdownOption,
+            ToolConfig.Pan,
+            inlineEditPaneState.touchToolConfig,
         )
         assertEquals(
-            ToolDropdownOption.Draw,
-            inlineEditPaneState.stylusToolDropdownOption,
+            ToolConfig.Draw,
+            inlineEditPaneState.stylusToolConfig,
         )
         assertEquals(
-            ToolDropdownOption.Select,
-            inlineEditPaneState.mouseToolDropdownOption,
+            ToolConfig.Select,
+            inlineEditPaneState.mouseToolConfig,
         )
 
         val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState

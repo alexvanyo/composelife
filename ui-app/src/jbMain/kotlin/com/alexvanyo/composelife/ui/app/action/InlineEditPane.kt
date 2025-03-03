@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.ui.app.action
 
@@ -34,28 +35,13 @@ import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.CellState
-import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
-import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.ToolConfig
-import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
-import com.alexvanyo.composelife.preferences.setMouseToolConfig
-import com.alexvanyo.composelife.preferences.setStylusToolConfig
-import com.alexvanyo.composelife.preferences.setTouchToolConfig
-import com.alexvanyo.composelife.ui.app.parseCellState
 import com.alexvanyo.composelife.ui.app.resources.Draw
 import com.alexvanyo.composelife.ui.app.resources.Erase
 import com.alexvanyo.composelife.ui.app.resources.Mouse
@@ -68,115 +54,10 @@ import com.alexvanyo.composelife.ui.app.resources.Stylus
 import com.alexvanyo.composelife.ui.app.resources.StylusTool
 import com.alexvanyo.composelife.ui.app.resources.Touch
 import com.alexvanyo.composelife.ui.app.resources.TouchTool
-import com.alexvanyo.composelife.ui.cells.isSharedElementForCellsSupported
 import com.alexvanyo.composelife.ui.mobile.component.DropdownOption
 import com.alexvanyo.composelife.ui.mobile.component.TextFieldDropdown
-import com.alexvanyo.composelife.ui.util.ClipboardReader
-import com.alexvanyo.composelife.ui.util.clipboardStateKey
-import com.alexvanyo.composelife.ui.util.rememberClipboardReader
 import com.livefront.sealedenum.GenSealedEnum
-import com.slack.circuit.retained.rememberRetained
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import kotlin.uuid.Uuid
-import kotlin.collections.removeLast as removeLastKt
-
-interface InlineEditPaneInjectEntryPoint :
-    ComposeLifePreferencesProvider,
-    CellStateParserProvider,
-    ClipboardCellStatePreviewInjectEntryPoint
-
-interface InlineEditPaneLocalEntryPoint :
-    LoadedComposeLifePreferencesProvider,
-    ClipboardCellStatePreviewLocalEntryPoint
-
-context(InlineEditPaneInjectEntryPoint, InlineEditPaneLocalEntryPoint)
-@Composable
-fun InlineEditPane(
-    setSelectionToCellState: (CellState) -> Unit,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState(),
-) = InlineEditPane(
-    state = rememberInlineEditPaneState(setSelectionToCellState, onViewDeserializationInfo),
-    modifier = modifier,
-    scrollState = scrollState,
-)
-
-context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
-@Suppress("LongParameterList", "LongMethod")
-@Composable
-fun InlineEditPane(
-    state: InlineEditPaneState,
-    modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState(initial = Int.MAX_VALUE),
-) {
-    Column(
-        modifier
-            .verticalScroll(
-                state = scrollState,
-                reverseScrolling = true,
-            )
-            .padding(vertical = 8.dp),
-    ) {
-        ClipboardWatchingSection(
-            clipboardWatchingState = state.clipboardWatchingState,
-        )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.padding(horizontal = 16.dp),
-        ) {
-            Icon(
-                imageVector = Icons.Filled.TouchApp,
-                contentDescription = parameterizedStringResource(Strings.Touch),
-                modifier = Modifier.padding(top = 8.dp),
-            )
-            TextFieldDropdown(
-                label = parameterizedStringResource(Strings.TouchTool),
-                currentValue = state.touchToolDropdownOption,
-                allValues = ToolDropdownOption._values.toImmutableList(),
-                setValue = state::setTouchToolDropdownOption,
-            )
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.padding(horizontal = 16.dp),
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Brush,
-                contentDescription = parameterizedStringResource(Strings.Stylus),
-                modifier = Modifier.padding(top = 8.dp),
-            )
-            TextFieldDropdown(
-                label = parameterizedStringResource(Strings.StylusTool),
-                currentValue = state.stylusToolDropdownOption,
-                allValues = ToolDropdownOption._values.toImmutableList(),
-                setValue = state::setStylusToolDropdownOption,
-            )
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.padding(horizontal = 16.dp),
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Mouse,
-                contentDescription = parameterizedStringResource(Strings.Mouse),
-                modifier = Modifier.padding(top = 8.dp),
-            )
-            TextFieldDropdown(
-                label = parameterizedStringResource(Strings.MouseTool),
-                currentValue = state.mouseToolDropdownOption,
-                allValues = ToolDropdownOption._values.toImmutableList(),
-                setValue = state::setMouseToolDropdownOption,
-            )
-        }
-    }
-}
 
 sealed interface ToolDropdownOption : DropdownOption {
     data object Pan : ToolDropdownOption {
@@ -249,328 +130,89 @@ private fun ToolConfig.toToolDropdownOption(): ToolDropdownOption =
         ToolConfig.Select -> ToolDropdownOption.Select
     }
 
-interface InlineEditPaneState {
-    val touchToolDropdownOption: ToolDropdownOption
-    fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption)
-    val stylusToolDropdownOption: ToolDropdownOption
-    fun setStylusToolDropdownOption(toolDropdownOption: ToolDropdownOption)
-    val mouseToolDropdownOption: ToolDropdownOption
-    fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption)
-
-    val clipboardWatchingState: ClipboardWatchingState
-}
-
-sealed interface ClipboardWatchingState {
-
-    interface Onboarding : ClipboardWatchingState {
-
-        fun onAllowClipboardWatching()
-
-        fun onDisallowClipboardWatching()
-    }
-
-    data object ClipboardWatchingDisabled : ClipboardWatchingState
-
-    interface ClipboardWatchingEnabled : ClipboardWatchingState {
-        val useSharedElementForCellStatePreviews: Boolean
-
-        val isLoading: Boolean
-
-        val clipboardPreviewStates: List<ClipboardPreviewState>
-
-        val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState>
-    }
-}
-
-interface ClipboardPreviewState {
-    val id: Uuid
-    val deserializationResult: DeserializationResult
-
-    val isPinned: Boolean
-
-    fun onPaste()
-
-    fun onPinChanged()
-
-    fun onViewDeserializationInfo()
-}
-
-interface PinnedClipboardPreviewState {
-    val id: Uuid
-    val deserializationResult: DeserializationResult.Successful
-
-    fun onPaste()
-
-    fun onUnpin()
-
-    fun onViewDeserializationInfo()
-}
-
-context(
-    ComposeLifePreferencesProvider,
-    LoadedComposeLifePreferencesProvider,
-    CellStateParserProvider
+context(InlineEditPaneInjectEntryPoint, InlineEditPaneLocalEntryPoint)
+@Composable
+fun InlineEditPane(
+    setSelectionToCellState: (CellState) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(),
+) = InlineEditPane(
+    state = rememberInlineEditPaneState(setSelectionToCellState, onViewDeserializationInfo),
+    modifier = modifier,
+    scrollState = scrollState,
 )
+
+context(ClipboardCellStatePreviewInjectEntryPoint, ClipboardCellStatePreviewLocalEntryPoint)
+@Suppress("LongParameterList", "LongMethod")
 @Composable
-fun rememberInlineEditPaneState(
-    setSelectionToCellState: (CellState) -> Unit,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-): InlineEditPaneState {
-    val coroutineScope = rememberCoroutineScope()
+fun InlineEditPane(
+    state: InlineEditPaneState,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(initial = Int.MAX_VALUE),
+) {
+    Column(
+        modifier
+            .verticalScroll(
+                state = scrollState,
+                reverseScrolling = true,
+            )
+            .padding(vertical = 8.dp),
+    ) {
+        ClipboardWatchingSection(
+            clipboardWatchingState = state.clipboardWatchingState,
+        )
 
-    val clipboardWatchingState = rememberClipboardWatchingState(
-        coroutineScope = coroutineScope,
-        setSelectionToCellState = setSelectionToCellState,
-        onViewDeserializationInfo = onViewDeserializationInfo,
-    )
-
-    return remember(coroutineScope, composeLifePreferences, preferences, clipboardWatchingState) {
-        object : InlineEditPaneState {
-            override val touchToolDropdownOption: ToolDropdownOption get() =
-                preferences.touchToolConfig.toToolDropdownOption()
-
-            override fun setTouchToolDropdownOption(toolDropdownOption: ToolDropdownOption) {
-                coroutineScope.launch {
-                    composeLifePreferences.setTouchToolConfig(toolDropdownOption.toToolConfig())
-                }
-            }
-
-            override val stylusToolDropdownOption: ToolDropdownOption get() =
-                preferences.stylusToolConfig.toToolDropdownOption()
-
-            override fun setStylusToolDropdownOption(toolDropdownOption: ToolDropdownOption) {
-                coroutineScope.launch {
-                    composeLifePreferences.setStylusToolConfig(toolDropdownOption.toToolConfig())
-                }
-            }
-
-            override val mouseToolDropdownOption: ToolDropdownOption get() =
-                preferences.mouseToolConfig.toToolDropdownOption()
-
-            override fun setMouseToolDropdownOption(toolDropdownOption: ToolDropdownOption) {
-                coroutineScope.launch {
-                    composeLifePreferences.setMouseToolConfig(toolDropdownOption.toToolConfig())
-                }
-            }
-
-            override val clipboardWatchingState get() = clipboardWatchingState
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.padding(horizontal = 16.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.TouchApp,
+                contentDescription = parameterizedStringResource(Strings.Touch),
+                modifier = Modifier.padding(top = 8.dp),
+            )
+            TextFieldDropdown(
+                label = parameterizedStringResource(Strings.TouchTool),
+                currentValue = state.touchToolConfig.toToolDropdownOption(),
+                allValues = ToolDropdownOption._values.toImmutableList(),
+                setValue = { state.setTouchToolConfig(it.toToolConfig()) },
+            )
         }
-    }
-}
-
-context(
-    ComposeLifePreferencesProvider,
-    LoadedComposeLifePreferencesProvider,
-    CellStateParserProvider
-)
-@Composable
-fun rememberClipboardWatchingState(
-    setSelectionToCellState: (CellState) -> Unit,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    coroutineScope: CoroutineScope = rememberCoroutineScope(),
-): ClipboardWatchingState =
-    if (preferences.completedClipboardWatchingOnboarding) {
-        if (preferences.enableClipboardWatching) {
-            rememberClipboardWatchingEnabledState(setSelectionToCellState, onViewDeserializationInfo)
-        } else {
-            ClipboardWatchingState.ClipboardWatchingDisabled
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.padding(horizontal = 16.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Brush,
+                contentDescription = parameterizedStringResource(Strings.Stylus),
+                modifier = Modifier.padding(top = 8.dp),
+            )
+            TextFieldDropdown(
+                label = parameterizedStringResource(Strings.StylusTool),
+                currentValue = state.stylusToolConfig.toToolDropdownOption(),
+                allValues = ToolDropdownOption._values.toImmutableList(),
+                setValue = { state.setStylusToolConfig(it.toToolConfig()) },
+            )
         }
-    } else {
-        rememberClipboardWatchingOnboardingState(coroutineScope)
-    }
-
-context(ComposeLifePreferencesProvider)
-@Composable
-fun rememberClipboardWatchingOnboardingState(
-    coroutineScope: CoroutineScope = rememberCoroutineScope(),
-): ClipboardWatchingState.Onboarding =
-    remember(coroutineScope, composeLifePreferences) {
-        object : ClipboardWatchingState.Onboarding {
-            override fun onAllowClipboardWatching() {
-                coroutineScope.launch {
-                    composeLifePreferences.update {
-                        setEnableClipboardWatching(true)
-                        setCompletedClipboardWatchingOnboarding(true)
-                    }
-                }
-            }
-
-            override fun onDisallowClipboardWatching() {
-                coroutineScope.launch {
-                    composeLifePreferences.update {
-                        setEnableClipboardWatching(false)
-                        setCompletedClipboardWatchingOnboarding(true)
-                    }
-                }
-            }
-        }
-    }
-
-context(CellStateParserProvider, LoadedComposeLifePreferencesProvider)
-@Composable
-fun rememberClipboardWatchingEnabledState(
-    setSelectionToCellState: (CellState) -> Unit,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-): ClipboardWatchingState.ClipboardWatchingEnabled =
-    rememberClipboardWatchingEnabledState(
-        useSharedElementForCellStatePreviews = isSharedElementForCellsSupported(isThumbnail = true),
-        clipboardReader = rememberClipboardReader(),
-        parser = cellStateParser,
-        setSelectionToCellState = setSelectionToCellState,
-        onViewDeserializationInfo = onViewDeserializationInfo,
-    )
-
-context(LoadedComposeLifePreferencesProvider)
-@Suppress("LongMethod")
-@Composable
-fun rememberClipboardWatchingEnabledState(
-    useSharedElementForCellStatePreviews: Boolean,
-    clipboardReader: ClipboardReader,
-    parser: CellStateParser,
-    setSelectionToCellState: (CellState) -> Unit,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-): ClipboardWatchingState.ClipboardWatchingEnabled {
-    var isLoading by remember { mutableStateOf(false) }
-    var currentClipboardCellStateId: Uuid by rememberRetained {
-        mutableStateOf(Uuid.random())
-    }
-    var currentDeserializationResult: DeserializationResult? by rememberRetained {
-        mutableStateOf(null)
-    }
-    val previousClipboardCellStates: MutableList<Pair<Uuid, DeserializationResult.Successful>> = rememberRetained {
-        mutableStateListOf()
-    }
-    val pinnedClipboardCellStates: MutableList<Pair<Uuid, DeserializationResult.Successful>> = rememberRetained {
-        mutableStateListOf()
-    }
-
-    LaunchedEffect(clipboardReader, clipboardReader.clipboardStateKey, parser) {
-        // There is potentially a new cell state from the clipboard, mark for the UI that we are loading it
-        isLoading = true
-
-        // Parse the cell state
-        val newClipboardCellStateResourceState = parser.parseCellState(clipboardReader)
-
-        // Parsing has completed, we are no longer loading
-        isLoading = false
-
-        // If the newly parsed deserialization result is the same as the current one, then we don't
-        // have anything to do. In other words, after re-parsing we got the same cell state.
-        if (currentDeserializationResult != newClipboardCellStateResourceState) {
-            // Otherwise, we have a differing deserialization result
-            val previousDeserializationResult = currentDeserializationResult
-            if (
-                previousDeserializationResult != null &&
-                previousDeserializationResult is DeserializationResult.Successful
-            ) {
-                // If the previous deserialization result was successful, then we should save it to the
-                // clipboard history at the beginning of the list, keeping the old clipboard cell state id
-                previousClipboardCellStates.add(
-                    0,
-                    currentClipboardCellStateId to previousDeserializationResult,
-                )
-                // Trim the clipboard history down
-                while (previousClipboardCellStates.size > 4) {
-                    previousClipboardCellStates.removeLastKt()
-                }
-
-                // We have "locked" in a successful clipboard parsing result into history, so start creating
-                // a new one
-                currentClipboardCellStateId = Uuid.random()
-            }
-
-            // Bring the deserialization result up-to-date
-            currentDeserializationResult = newClipboardCellStateResourceState
-        }
-    }
-
-    return remember(setSelectionToCellState, useSharedElementForCellStatePreviews) {
-        object : ClipboardWatchingState.ClipboardWatchingEnabled {
-            override val isLoading: Boolean
-                get() = isLoading
-
-            override val useSharedElementForCellStatePreviews: Boolean = useSharedElementForCellStatePreviews
-
-            override val clipboardPreviewStates: List<ClipboardPreviewState>
-                get() = listOfNotNull(
-                    currentDeserializationResult?.let { deserializationResult ->
-                        object : ClipboardPreviewState {
-                            override val id = currentClipboardCellStateId
-                            override val deserializationResult = deserializationResult
-
-                            override val isPinned get() = pinnedClipboardCellStates.any { it.first == id }
-
-                            override fun onPaste() {
-                                when (deserializationResult) {
-                                    is DeserializationResult.Successful -> {
-                                        setSelectionToCellState(deserializationResult.cellState)
-                                    }
-                                    is DeserializationResult.Unsuccessful -> Unit
-                                }
-                            }
-
-                            override fun onPinChanged() {
-                                when (deserializationResult) {
-                                    is DeserializationResult.Successful -> {
-                                        if (isPinned) {
-                                            pinnedClipboardCellStates.removeIf { it.first == id }
-                                        } else {
-                                            pinnedClipboardCellStates.add(id to deserializationResult)
-                                        }
-                                    }
-                                    is DeserializationResult.Unsuccessful -> Unit
-                                }
-                            }
-
-                            override fun onViewDeserializationInfo() {
-                                onViewDeserializationInfo(deserializationResult)
-                            }
-                        }
-                    },
-                ) + previousClipboardCellStates.map { (id, deserializationResult) ->
-                    object : ClipboardPreviewState {
-                        override val id = id
-                        override val deserializationResult = deserializationResult
-
-                        override val isPinned get() = pinnedClipboardCellStates.any { it.first == id }
-
-                        override fun onPaste() {
-                            setSelectionToCellState(deserializationResult.cellState)
-                        }
-
-                        override fun onPinChanged() {
-                            if (isPinned) {
-                                pinnedClipboardCellStates.removeIf { it.first == id }
-                            } else {
-                                pinnedClipboardCellStates.add(id to deserializationResult)
-                            }
-                        }
-
-                        override fun onViewDeserializationInfo() {
-                            onViewDeserializationInfo(deserializationResult)
-                        }
-                    }
-                }
-
-            override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState>
-                get() = pinnedClipboardCellStates.map { (id, deserializationResult) ->
-                    object : PinnedClipboardPreviewState {
-                        override val id = id
-                        override val deserializationResult = deserializationResult
-
-                        override fun onPaste() {
-                            setSelectionToCellState(deserializationResult.cellState)
-                        }
-
-                        override fun onUnpin() {
-                            pinnedClipboardCellStates.removeIf { it.first == id }
-                        }
-
-                        override fun onViewDeserializationInfo() {
-                            onViewDeserializationInfo(deserializationResult)
-                        }
-                    }
-                }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.padding(horizontal = 16.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Mouse,
+                contentDescription = parameterizedStringResource(Strings.Mouse),
+                modifier = Modifier.padding(top = 8.dp),
+            )
+            TextFieldDropdown(
+                label = parameterizedStringResource(Strings.MouseTool),
+                currentValue = state.mouseToolConfig.toToolDropdownOption(),
+                allValues = ToolDropdownOption._values.toImmutableList(),
+                setValue = { state.setMouseToolConfig(it.toToolConfig()) },
+            )
         }
     }
 }

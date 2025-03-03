@@ -61,61 +61,8 @@ import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.offset
 import com.alexvanyo.composelife.ui.cells.scale
 import com.alexvanyo.composelife.ui.util.AnimatedContent
-import com.alexvanyo.composelife.ui.util.TargetState
-import com.alexvanyo.composelife.ui.util.or
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-
-/**
- * The persistable state describing the [CellUniverseInfoCard].
- */
-interface CellUniverseInfoCardState {
-
-    /**
-     * Sets if the card is expanded.
-     */
-    fun setIsExpanded(isExpanded: Boolean)
-
-    /**
-     * The target state for whether the card is expanded.
-     */
-    val expandedTargetState: TargetState<Boolean, *>
-}
-
-/**
- * Remembers the a default implementation of [CellUniverseInfoCardState].
- */
-@Composable
-fun rememberCellUniverseInfoCardState(
-    setIsExpanded: (Boolean) -> Unit,
-    expandedTargetState: TargetState<Boolean, *>,
-): CellUniverseInfoCardState =
-    object : CellUniverseInfoCardState {
-        override fun setIsExpanded(isExpanded: Boolean) {
-            setIsExpanded(isExpanded)
-        }
-
-        override val expandedTargetState: TargetState<Boolean, *>
-            get() = expandedTargetState
-    }
-
-class CellUniverseInfoCardContent(
-    private val cellUniverseInfoCardState: CellUniverseInfoCardState,
-    val cellUniverseInfoItemContents: List<CellUniverseInfoItemContent>,
-) {
-    fun setIsExpanded(isExpanded: Boolean) {
-        cellUniverseInfoCardState.setIsExpanded(isExpanded)
-    }
-
-    val expandedTargetState: TargetState<Boolean, *> get() =
-        cellUniverseInfoCardState.expandedTargetState
-
-    val editingTargetState: TargetState<Boolean, *> get() =
-        expandedTargetState or cellUniverseInfoItemContents.none { it.isChecked }
-
-    val showColumnTargetState: TargetState<Boolean, *> get() =
-        expandedTargetState or cellUniverseInfoItemContents.any { it.isChecked }
-}
 
 @Composable
 fun CellUniverseInfoCard(

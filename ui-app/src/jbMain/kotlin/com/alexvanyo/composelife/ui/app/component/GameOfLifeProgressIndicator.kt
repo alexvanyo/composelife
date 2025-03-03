@@ -28,36 +28,20 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
-import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
-import com.alexvanyo.composelife.clock.di.ClockProvider
-import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.patterns.OscillatorPattern
 import com.alexvanyo.composelife.patterns.values
-import com.alexvanyo.composelife.random.di.RandomProvider
 import com.alexvanyo.composelife.sessionvalue.SessionValue
-import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowInteractionState
-import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.ImmutableCellWindow
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
 import kotlin.math.max
 import kotlin.uuid.Uuid
-
-interface GameOfLifeProgressIndicatorInjectEntryPoint :
-    GameOfLifeAlgorithmProvider,
-    ComposeLifeDispatchersProvider,
-    RandomProvider,
-    ClockProvider,
-    CellWindowInjectEntryPoint
-
-interface GameOfLifeProgressIndicatorLocalEntryPoint :
-    CellWindowLocalEntryPoint
 
 /**
  * A progress indicator that displays progress via an embedded set of cells displaying an

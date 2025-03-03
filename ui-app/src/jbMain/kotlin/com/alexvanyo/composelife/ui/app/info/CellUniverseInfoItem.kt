@@ -27,12 +27,6 @@ import androidx.compose.foundation.selection.triStateToggleable
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
@@ -43,40 +37,6 @@ import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.AnimatedVisibility
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.or
-
-class CellUniverseInfoItemState(
-    isChecked: Boolean = defaultIsChecked,
-) {
-    var isChecked by mutableStateOf(isChecked)
-
-    companion object {
-        const val defaultIsChecked: Boolean = true
-
-        val Saver: Saver<CellUniverseInfoItemState, *> = listSaver(
-            { cellUniverseInfoItemState ->
-                listOf(cellUniverseInfoItemState.isChecked)
-            },
-            { list ->
-                CellUniverseInfoItemState(list[0])
-            },
-        )
-    }
-}
-
-@Composable
-fun rememberCellUniverseInfoItemState(
-    isChecked: Boolean = CellUniverseInfoItemState.defaultIsChecked,
-): CellUniverseInfoItemState =
-    rememberSaveable(saver = CellUniverseInfoItemState.Saver) {
-        CellUniverseInfoItemState(isChecked = isChecked)
-    }
-
-class CellUniverseInfoItemContent(
-    private val cellUniverseInfoCardState: CellUniverseInfoItemState,
-    val text: @Composable (isEditing: Boolean) -> String,
-) {
-    var isChecked by cellUniverseInfoCardState::isChecked
-}
 
 @Suppress("LongMethod")
 @Composable

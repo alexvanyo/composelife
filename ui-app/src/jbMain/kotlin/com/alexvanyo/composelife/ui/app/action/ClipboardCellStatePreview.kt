@@ -54,8 +54,6 @@ import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.resources.DeserializationFailed
 import com.alexvanyo.composelife.ui.app.resources.Paste
 import com.alexvanyo.composelife.ui.app.resources.Pin
@@ -68,14 +66,6 @@ import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindow
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
 import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropSource
 import com.alexvanyo.composelife.ui.cells.rememberTrackingCellWindowViewportState
-
-interface ClipboardCellStatePreviewInjectEntryPoint :
-    CellWindowInjectEntryPoint,
-    GameOfLifeProgressIndicatorInjectEntryPoint
-
-interface ClipboardCellStatePreviewLocalEntryPoint :
-    CellWindowLocalEntryPoint,
-    GameOfLifeProgressIndicatorLocalEntryPoint
 
 /**
  * Renders the current clipboard as a cell-state, if possible.
