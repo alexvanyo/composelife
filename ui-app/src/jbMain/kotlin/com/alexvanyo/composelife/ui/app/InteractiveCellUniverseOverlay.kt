@@ -53,8 +53,6 @@ import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutType
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.TopInsets
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCard
-import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.SelectionState
@@ -64,12 +62,6 @@ import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
 import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
-
-interface InteractiveCellUniverseOverlayInjectEntryPoint :
-    CellUniverseActionCardInjectEntryPoint
-
-interface InteractiveCellUniverseOverlayLocalEntryPoint :
-    CellUniverseActionCardLocalEntryPoint
 
 context(InteractiveCellUniverseOverlayInjectEntryPoint, InteractiveCellUniverseOverlayLocalEntryPoint)
 @Suppress("LongMethod", "ComplexMethod", "LongParameterList")
