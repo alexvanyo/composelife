@@ -30,7 +30,6 @@ import kotlin.coroutines.CoroutineContext
  *
  * [Unconfined] delegates to the default implementations, due to their custom behavior.
  */
-@Suppress("InjectDispatcher")
 @Inject
 @ContributesBinding(AppScope::class, replaces = [DefaultComposeLifeDispatchers::class])
 @SingleIn(AppScope::class)

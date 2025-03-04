@@ -58,7 +58,6 @@ interface ComposeLifeDispatchers {
 /**
  * The default implementation of [ComposeLifeDispatchers], which just delegates to the normal [Dispatchers] versions.
  */
-@Suppress("InjectDispatcher")
 @Inject
 @ContributesBinding(AppScope::class)
 @SingleIn(AppScope::class)
