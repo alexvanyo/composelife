@@ -47,7 +47,6 @@ class CellStateRepositoryImpl(
                 )
                 .joinToString("\n")
 
-        @Suppress("InjectDispatcher")
         val insertedId: CellStateId = withContext(dispatchers.IO) {
             cellStateQueries.transactionWithResult {
                 if (saveableCellState.cellStateMetadata.id == null) {
@@ -79,7 +78,6 @@ class CellStateRepositoryImpl(
     }
 
     override suspend fun getAutosavedCellState(): SaveableCellState? {
-        @Suppress("InjectDispatcher")
         val cellState = withContext(dispatchers.IO) {
             cellStateQueries.getMostRecentAutosavedCellState().executeAsOneOrNull()
         } ?: return null

@@ -38,7 +38,6 @@ class NaiveGameOfLifeAlgorithm(
         cellState: CellState,
         @IntRange(from = 0) step: Int,
     ): CellState =
-        @Suppress("InjectDispatcher") // Dispatchers are injected via dispatchers
         withContext(dispatchers.Default) {
             computeGenerationWithStepImpl(
                 cellState = cellState,

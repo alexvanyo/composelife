@@ -49,7 +49,6 @@ actual interface PreferencesDataStoreComponent {
     @Provides
     @SingleIn(AppScope::class)
     @PreferencesCoroutineScope
-    @Suppress("InjectDispatcher") // Dispatchers are injected via dispatchers
     fun providesPreferencesCoroutineScope(
         dispatchers: ComposeLifeDispatchers,
     ): CoroutineScope = CoroutineScope(
