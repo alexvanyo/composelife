@@ -122,7 +122,7 @@ testParameterInjector = "1.18"
 #turbine
 turbine = "1.2.0"
 #wire
-wire = "5.3.0"
+wire = "5.3.1"
 
 [libraries]
 android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "androidDesugarJdkLibs" }
