@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// TODO: Remove NoUnusedImports suppression when detekt handles org.gradle.kotlin.dsl.assign correctly
+@file:Suppress("NoUnusedImports")
 
 package com.alexvanyo.composelife.buildlogic
 
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
@@ -29,10 +32,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 fun Project.configureKotlin() {
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+            jvmTarget = JvmTarget.JVM_11
             // TODO: Currently disabled due to warning for usage of context receivers
             //       https://github.com/Kotlin/KEEP/issues/367#issuecomment-2075034205
-            // allWarningsAsErrors.set(true)
+            // allWarningsAsErrors = true
         }
     }
 
