@@ -60,7 +60,8 @@ sealed interface TargetState<T, out M> {
         /**
          * The progress from [current] to [provisional].
          */
-        @FloatRange(from = 0.0, to = 1.0)
+        @field:FloatRange(from = 0.0, to = 1.0)
+        @param:FloatRange(from = 0.0, to = 1.0)
         val progress: Float,
 
         /**

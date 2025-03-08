@@ -24,10 +24,11 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Dp
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.currentShape
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 
-context(NonInteractableCellsInjectEntryPoint, NonInteractableCellsLocalEntryPoint)
+context(_: NonInteractableCellsInjectEntryPoint, localEntryPoint: NonInteractableCellsLocalEntryPoint)
 @Composable
 @Suppress("LongParameterList")
 actual fun NonInteractableCells(
@@ -39,7 +40,7 @@ actual fun NonInteractableCells(
     modifier: Modifier,
     inOverlay: Boolean,
 ) {
-    when (computeImplementationType(isThumbnail)) {
+    when (computeImplementationType(localEntryPoint.preferences, isThumbnail)) {
         NonInteractableCellsImplementationType.AGSL -> {
             @Suppress("NewApi") // Checked by computeImplementationType
             (
@@ -47,7 +48,7 @@ actual fun NonInteractableCells(
                     gameOfLifeState = gameOfLifeState,
                     scaledCellDpSize = scaledCellDpSize,
                     cellWindow = cellWindow,
-                    shape = preferences.currentShape,
+                    shape = localEntryPoint.preferences.currentShape,
                     pixelOffsetFromCenter = pixelOffsetFromCenter,
                     modifier = modifier,
                 )
@@ -58,7 +59,7 @@ actual fun NonInteractableCells(
                 gameOfLifeState = gameOfLifeState,
                 scaledCellDpSize = scaledCellDpSize,
                 cellWindow = cellWindow,
-                shape = preferences.currentShape,
+                shape = localEntryPoint.preferences.currentShape,
                 pixelOffsetFromCenter = pixelOffsetFromCenter,
                 modifier = modifier,
             )
@@ -68,7 +69,7 @@ actual fun NonInteractableCells(
                 gameOfLifeState = gameOfLifeState,
                 scaledCellDpSize = scaledCellDpSize,
                 cellWindow = cellWindow,
-                shape = preferences.currentShape,
+                shape = localEntryPoint.preferences.currentShape,
                 pixelOffsetFromCenter = pixelOffsetFromCenter,
                 modifier = modifier,
             )
@@ -78,7 +79,7 @@ actual fun NonInteractableCells(
                 gameOfLifeState = gameOfLifeState,
                 scaledCellDpSize = scaledCellDpSize,
                 cellWindow = cellWindow,
-                shape = preferences.currentShape,
+                shape = localEntryPoint.preferences.currentShape,
                 pixelOffsetFromCenter = pixelOffsetFromCenter,
                 modifier = modifier,
                 inOverlay = inOverlay,
@@ -94,15 +95,17 @@ private sealed interface NonInteractableCellsImplementationType {
     data object Coil : NonInteractableCellsImplementationType
 }
 
-context(LoadedComposeLifePreferencesProvider)
 @Composable
 private fun computeImplementationType(
+    preferences: LoadedComposeLifePreferences,
     isThumbnail: Boolean,
 ): NonInteractableCellsImplementationType =
     when {
         isThumbnail ->
             NonInteractableCellsImplementationType.Coil
-        !preferences.disableAGSL && Build.VERSION.SDK_INT >= 33 && Build.FINGERPRINT?.lowercase() != "robolectric" ->
+        !preferences.disableAGSL &&
+                Build.VERSION.SDK_INT >= 33 &&
+                Build.FINGERPRINT?.lowercase() != "robolectric" ->
             NonInteractableCellsImplementationType.AGSL
         !preferences.disableOpenGL && !LocalInspectionMode.current && openGLSupported() ->
             NonInteractableCellsImplementationType.OpenGL
@@ -113,10 +116,12 @@ private fun computeImplementationType(
 /**
  * Returns `true` is shared elements are supported by the resulting implementation of [NonInteractableCells].
  */
-context(LoadedComposeLifePreferencesProvider)
 @Composable
-actual fun isSharedElementForCellsSupported(isThumbnail: Boolean): Boolean =
-    when (computeImplementationType(isThumbnail)) {
+actual fun isSharedElementForCellsSupported(
+    preferences: LoadedComposeLifePreferences,
+    isThumbnail: Boolean,
+): Boolean =
+    when (computeImplementationType(preferences, isThumbnail)) {
         NonInteractableCellsImplementationType.AGSL,
         NonInteractableCellsImplementationType.Canvas,
         NonInteractableCellsImplementationType.Coil,

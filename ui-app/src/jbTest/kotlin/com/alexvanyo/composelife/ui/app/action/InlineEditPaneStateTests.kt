@@ -60,24 +60,17 @@ class InlineEditPaneStateTests : BaseUiInjectTest<
         lateinit var inlineEditPaneState: InlineEditPaneState
 
         composeUiTest.setContent {
-            with(
-                object :
-                    ComposeLifePreferencesProvider,
-                    LoadedComposeLifePreferencesProvider,
-                    CellStateParserProvider by cellStateParserProvider {
-                    override val composeLifePreferences = composeLifePreferences
-                    override val preferences get(): LoadedComposeLifePreferences {
-                        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-                        assertTrue(loadedPreferencesState.isSuccess())
-                        return loadedPreferencesState.value
-                    }
-                },
-            ) {
-                inlineEditPaneState = rememberInlineEditPaneState(
-                    setSelectionToCellState = {},
-                    onViewDeserializationInfo = {},
-                )
-            }
+            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            val preferences = loadedPreferencesState.value
+
+            inlineEditPaneState = rememberInlineEditPaneState(
+                composeLifePreferences = composeLifePreferences,
+                preferences = preferences,
+                cellStateParser = cellStateParserProvider.cellStateParser,
+                setSelectionToCellState = {},
+                onViewDeserializationInfo = {},
+            )
         }
 
         assertEquals(
@@ -111,24 +104,17 @@ class InlineEditPaneStateTests : BaseUiInjectTest<
         lateinit var inlineEditPaneState: InlineEditPaneState
 
         composeUiTest.setContent {
-            with(
-                object :
-                    ComposeLifePreferencesProvider,
-                    LoadedComposeLifePreferencesProvider,
-                    CellStateParserProvider by cellStateParserProvider {
-                    override val composeLifePreferences = composeLifePreferences
-                    override val preferences get(): LoadedComposeLifePreferences {
-                        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-                        assertTrue(loadedPreferencesState.isSuccess())
-                        return loadedPreferencesState.value
-                    }
-                },
-            ) {
-                inlineEditPaneState = rememberInlineEditPaneState(
-                    setSelectionToCellState = {},
-                    onViewDeserializationInfo = {},
-                )
-            }
+            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            val preferences = loadedPreferencesState.value
+
+            inlineEditPaneState = rememberInlineEditPaneState(
+                composeLifePreferences = composeLifePreferences,
+                preferences = preferences,
+                cellStateParser = cellStateParserProvider.cellStateParser,
+                setSelectionToCellState = {},
+                onViewDeserializationInfo = {},
+            )
         }
 
         val initialClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
@@ -163,24 +149,17 @@ class InlineEditPaneStateTests : BaseUiInjectTest<
         lateinit var inlineEditPaneState: InlineEditPaneState
 
         composeUiTest.setContent {
-            with(
-                object :
-                    ComposeLifePreferencesProvider,
-                    LoadedComposeLifePreferencesProvider,
-                    CellStateParserProvider by cellStateParserProvider {
-                    override val composeLifePreferences = composeLifePreferences
-                    override val preferences get(): LoadedComposeLifePreferences {
-                        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-                        assertTrue(loadedPreferencesState.isSuccess())
-                        return loadedPreferencesState.value
-                    }
-                },
-            ) {
-                inlineEditPaneState = rememberInlineEditPaneState(
-                    setSelectionToCellState = {},
-                    onViewDeserializationInfo = {},
-                )
-            }
+            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            val preferences = loadedPreferencesState.value
+
+            inlineEditPaneState = rememberInlineEditPaneState(
+                composeLifePreferences = composeLifePreferences,
+                preferences = preferences,
+                cellStateParser = cellStateParserProvider.cellStateParser,
+                setSelectionToCellState = {},
+                onViewDeserializationInfo = {},
+            )
         }
 
         val initialClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
@@ -215,24 +194,17 @@ class InlineEditPaneStateTests : BaseUiInjectTest<
         lateinit var inlineEditPaneState: InlineEditPaneState
 
         composeUiTest.setContent {
-            with(
-                object :
-                    ComposeLifePreferencesProvider,
-                    LoadedComposeLifePreferencesProvider,
-                    CellStateParserProvider by cellStateParserProvider {
-                    override val composeLifePreferences = composeLifePreferences
-                    override val preferences get(): LoadedComposeLifePreferences {
-                        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-                        assertTrue(loadedPreferencesState.isSuccess())
-                        return loadedPreferencesState.value
-                    }
-                },
-            ) {
-                inlineEditPaneState = rememberInlineEditPaneState(
-                    setSelectionToCellState = {},
-                    onViewDeserializationInfo = {},
-                )
-            }
+            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            val preferences = loadedPreferencesState.value
+
+            inlineEditPaneState = rememberInlineEditPaneState(
+                composeLifePreferences = composeLifePreferences,
+                preferences = preferences,
+                cellStateParser = cellStateParserProvider.cellStateParser,
+                setSelectionToCellState = {},
+                onViewDeserializationInfo = {},
+            )
         }
 
         assertEquals(
@@ -266,24 +238,17 @@ class InlineEditPaneStateTests : BaseUiInjectTest<
         lateinit var inlineEditPaneState: InlineEditPaneState
 
         composeUiTest.setContent {
-            with(
-                object :
-                    ComposeLifePreferencesProvider,
-                    LoadedComposeLifePreferencesProvider,
-                    CellStateParserProvider by cellStateParserProvider {
-                    override val composeLifePreferences = composeLifePreferences
-                    override val preferences get(): LoadedComposeLifePreferences {
-                        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-                        assertTrue(loadedPreferencesState.isSuccess())
-                        return loadedPreferencesState.value
-                    }
-                },
-            ) {
-                inlineEditPaneState = rememberInlineEditPaneState(
-                    setSelectionToCellState = {},
-                    onViewDeserializationInfo = {},
-                )
-            }
+            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            val preferences = loadedPreferencesState.value
+
+            inlineEditPaneState = rememberInlineEditPaneState(
+                composeLifePreferences = composeLifePreferences,
+                preferences = preferences,
+                cellStateParser = cellStateParserProvider.cellStateParser,
+                setSelectionToCellState = {},
+                onViewDeserializationInfo = {},
+            )
         }
 
         assertEquals(

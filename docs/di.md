@@ -1,16 +1,17 @@
 # Dependency Injection
 
-This project uses a combination of [kotlin-inject][kotlin_inject] and
-[context receivers][context_receivers] to
+This project uses a combination of [kotlin-inject][kotlin_inject],
+[kotlin-inject-anvil][kotlin_inject_anvil] and
+[context parameters][context_parameters] to
 implement dependency injection.
 
-kotlin-inject is used to create a dependency graph of singleton and `Activity`-scoped classes
-(data layer, preferences, and algorithm configuration).
+kotlin-inject and kotlin-inject-anvil are used to create a dependency graph of singleton and
+`Activity`-scoped classes (data layer, preferences, and algorithm configuration).
 
-These dependencies are then provided to UI components via context receivers with the approach
+These dependencies are then provided to UI components via context parameters with the approach
 outlined below.
 
-## Context Receivers Step 0
+## Context Parameters Step 0
 
 The most basic approach to provide a `@Composable` method a dependency is directly passing it as
 an argument:
@@ -61,25 +62,26 @@ fun OuterComposable(
 }
 ```
 
-## Context Receivers Step 1
+## Context Parameters Step 1
 
-[Context receivers][context_receivers] are
+[Context parameters][context_parameters] are
 an experimental feature that allow an additional way to pass parameters to methods by adding
-additional receivers to methods. These are also experimentally supported by `@Composable` methods.
+additional context parameters to methods. These are also experimentally supported by
+`@Composable` methods.
 
-For example, passing the `Random` from before as a context receiver can be done like the following.
+For example, passing the `Random` from before as a context parameter can be done like the following.
 
 ```kotlin
-context(Random)
+context(random: Random)
 @Composable
 fun InnerComposable() {
     // use methods and properties in Random
 }
 
-context(Random)
+context(_: Random)
 @Composable
 fun OuterComposable() {
-    InnerComposable() // Random is passed as a context receiver
+    InnerComposable() // Random is passed as a context parameter
 }
 ```
 
@@ -88,31 +90,23 @@ the intermediate call sites.
 
 However, each additional dependency still requires changing the declaration site:
 
-
 ```kotlin
-context(Random, Clock)
+context(random: Random, clock: Clock)
 @Composable
 fun InnerComposable() {
     // use methods and properties in Random and Clock
 }
 
-context(Random, Clock)
+context(_: Random, _: Clock)
 @Composable
 fun OuterComposable() {
-    InnerComposable() // Random and Clock are passed as context receivers
+    InnerComposable() // Random and Clock are passed as context parameters
 }
 ```
 
-One addition issue is that `Random` and `Clock` are both implicit `this` targets throughout the
-call hierarchy, meaning that all layers have properties and methods of each dependency polluting
-the call space, potentially resulting in erroneous methods or introducing unclear usages of
-dependencies.
+## Context Parameters Step 2
 
-## Context Receivers Step 2
-
-We can make one refinement to this second issue first.
-
-Instead of using the dependency directly as a context receiver, we can define a canonical `Provider`
+Instead of using the dependency directly as a context parameter, we can define a canonical `Provider`
 interface for a dependency injected in this manner:
 
 ```kotlin
@@ -121,19 +115,19 @@ interface RandomProvider {
 }
 ```
 
-We can then use that provider interface as the context receiver:
+We can then use that provider interface as the context parameter:
 
 ```kotlin
-context(RandomProvider)
+context(randomProvider: RandomProvider)
 @Composable
 fun InnerComposable() {
-    random // from RandomProvider scope
+    randomProvider.random
 }
 
-context(RandomProvider)
+context(_: RandomProvider)
 @Composable
 fun OuterComposable() {
-    InnerComposable() // RandomProvider passed as context receiver
+    InnerComposable() // RandomProvider passed as context parameter
 }
 ```
 
@@ -144,17 +138,17 @@ interface ClockProvider {
     val clock: Clock
 }
 
-context(RandomProvider, ClockProvider)
+context(randomProvider: RandomProvider, clockProvider: ClockProvider)
 @Composable
 fun InnerComposable() {
-    random // from RandomProvider scope
-    clock // from ClockProvider scope
+    randomProvider.random // from RandomProvider scope
+    clockProvider.clock // from ClockProvider scope
 }
 
-context(RandomProvider, ClockProvider)
+context(_: RandomProvider, _: ClockProvider)
 @Composable
 fun OuterComposable() {
-    InnerComposable() // RandomProvider and ClockProvider are passed as context receivers
+    InnerComposable() // RandomProvider and ClockProvider are passed as context parameters
 }
 ```
 
@@ -163,11 +157,9 @@ use the same interface type to request being injected with a particular dependen
 using a provider interface specific to each dependency type (as opposed to using the Dagger
 `Provider<T>` interface) keeps the naming to retrieve each dependency.
 
-This avoids polluting the call-space too much, as only the dependencies themselves are available.
-However, they are still available throughout the entire call stack, and the declaration of each
-component in all layers has to change to inject a new dependency.
+However, the declaration of each component in all layers has to change to inject a new dependency.
 
-## Context Receivers Step 3
+## Context Parameters Step 3
 
 The next step is to collect these provider into a combined super-interface for each component.
 I've termed these "entry-point" interfaces for a component, and are the name of the component
@@ -177,18 +169,18 @@ point interfaces:
 ```kotlin
 interface InnerComposableEntryPoint : RandomProvider
 
-context(InnerComposableEntryPoint)
+context(entryPoint: InnerComposableEntryPoint)
 @Composable
 fun InnerComposable() {
-    random // from inherited RandomProvider scope
+    entryPoint.random // from inherited RandomProvider scope
 }
 
 interface OuterComposableEntryPoint : InnerComposableEntryPoint
 
-context(OuterComposableEntryPoint)
+context(_: OuterComposableEntryPoint)
 @Composable
 fun OuterComposable() {
-    InnerComposable() // InnerComposableEntryPoint passed as context receiver
+    InnerComposable() // InnerComposableEntryPoint passed as context parameter
 }
 ```
 
@@ -204,19 +196,19 @@ intermediate component changes in some way due to a new dependency introduced:
 ```kotlin
 interface InnerComposableEntryPoint : RandomProvider, ClockProvider
 
-context(InnerComposableEntryPoint)
+context(entryPoint: InnerComposableEntryPoint)
 @Composable
 fun InnerComposable() {
-    random // from inherited RandomProvider scope
-    clock // from inherited ClockProvider scope
+    entryPoint.random // from inherited RandomProvider scope
+    entryPoint.clock // from inherited ClockProvider scope
 }
 
 interface OuterComposableEntryPoint : InnerComposableEntryPoint
 
-context(OuterComposableEntryPoint)
+context(_: OuterComposableEntryPoint)
 @Composable
 fun OuterComposable() {
-    InnerComposable() // InnerComposableEntryPoint passed as context receiver
+    InnerComposable() // InnerComposableEntryPoint passed as context parameter
 }
 ```
 
@@ -226,7 +218,7 @@ instead of correctness. This should be fixable with a lint check of some sort, w
 component should only use dependencies that are from directly inherited interfaces, and not the
 transitively inherited interfaces.
 
-## Context Receivers Step 4
+## Context Parameters Step 4
 
 The final step is providing the actual implementations for the entry points.
 
@@ -241,22 +233,22 @@ interface InnerComposableInjectEntryPoint : RandomProvider, ClockProvider
 
 interface InnerComposableLocalEntryPoint : LoadedComposeLifePreferencesProvider
 
-context(InnerComposableInjectEntryPoint, InnerComposableLocalEntryPoint)
+context(injectEntryPoint: InnerComposableInjectEntryPoint, localEntryPoint: InnerComposableLocalEntryPoint)
 @Composable
 fun InnerComposable() {
-    random // from inherited RandomProvider scope
-    clock // from inherited ClockProvider scope
-    preferences // from inherited LoadedComposeLifePreferencesProvider scope
+    injectEntryPoint.random // from inherited RandomProvider scope
+    injectEntryPoint.clock // from inherited ClockProvider scope
+    localEntryPoint.preferences // from inherited LoadedComposeLifePreferencesProvider scope
 }
 
 interface OuterComposableInjectEntryPoint :
     InnerComposableInjectEntryPoint,
     ComposeLifePreferencesProvider
 
-context(OuterComposableInjectEntryPoint)
+context(injectEntryPoint: OuterComposableInjectEntryPoint)
 @Composable
 fun OuterComposable() {
-    val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+    val loadedPreferencesState = injectEntryPoint.composeLifePreferences.loadedPreferencesState
     
     when (loadedPreferencesState) {
         is ResourceState.Failure -> {
@@ -273,7 +265,7 @@ fun OuterComposable() {
                     }
                 }
             ) {
-                // InnerComposableInjectEntryPoint passed as context receiver
+                // InnerComposableInjectEntryPoint passed as context parameter
                 // InnerComposableLocalEntryPoint created in-scope
                 InnerComposable()
             }
@@ -294,8 +286,9 @@ fakes or mock values, as in `ui-app`'s
 
 [//]: # (website links)
 
-[context_receivers]: https://github.com/Kotlin/KEEP/blob/master/proposals/context-receivers.md
+[context_parameters]: https://github.com/Kotlin/KEEP/blob/master/proposals/context-parameters.md
 [kotlin_inject]: https://github.com/evant/kotlin-inject
+[kotlin_inject_anvil]: https://github.com/amzn/kotlin-inject-anvil
 
 [//]: # (relative links)
 

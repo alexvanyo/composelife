@@ -61,7 +61,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.max
 
-context(CellUniverseActionCardInjectEntryPoint, CellUniverseActionCardLocalEntryPoint)
+context(_: CellUniverseActionCardInjectEntryPoint, _: CellUniverseActionCardLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 fun CellUniverseActionCard(
@@ -118,7 +118,7 @@ fun CellUniverseActionCard(
     )
 }
 
-context(CellUniverseActionCardInjectEntryPoint, CellUniverseActionCardLocalEntryPoint)
+context(_: CellUniverseActionCardInjectEntryPoint, _: CellUniverseActionCardLocalEntryPoint)
 @Suppress("LongParameterList", "LongMethod", "ComplexMethod")
 @Composable
 fun CellUniverseActionCard(

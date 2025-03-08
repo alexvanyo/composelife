@@ -27,7 +27,7 @@ import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicator
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.ImmersiveModeManager
 
-context(CellUniversePaneInjectEntryPoint, CellUniversePaneLocalEntryPoint)
+context(_: CellUniversePaneInjectEntryPoint, _: CellUniversePaneLocalEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun CellUniversePane(

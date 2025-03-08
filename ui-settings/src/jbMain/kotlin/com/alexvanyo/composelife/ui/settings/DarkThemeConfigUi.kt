@@ -44,14 +44,14 @@ interface DarkThemeConfigUiInjectEntryPoint :
 interface DarkThemeConfigUiLocalEntryPoint :
     LoadedComposeLifePreferencesProvider
 
-context(DarkThemeConfigUiInjectEntryPoint, DarkThemeConfigUiLocalEntryPoint)
+context(injectEntryPoint: DarkThemeConfigUiInjectEntryPoint, localEntryPoint: DarkThemeConfigUiLocalEntryPoint)
 @Composable
 fun DarkThemeConfigUi(
     modifier: Modifier = Modifier,
 ) {
     DarkThemeConfigUi(
-        darkThemeConfig = preferences.darkThemeConfig,
-        setDarkThemeConfig = composeLifePreferences::setDarkThemeConfig,
+        darkThemeConfig = localEntryPoint.preferences.darkThemeConfig,
+        setDarkThemeConfig = injectEntryPoint.composeLifePreferences::setDarkThemeConfig,
         modifier = modifier,
     )
 }

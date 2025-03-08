@@ -159,7 +159,7 @@ interface InteractiveCellUniverseState {
     fun onClearSelection()
 }
 
-context(CellStateParserProvider)
+context(cellStateParserProvider: CellStateParserProvider)
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun rememberInteractiveCellUniverseState(
@@ -256,20 +256,20 @@ fun rememberInteractiveCellUniverseState(
     )
 
     val viewportInteractionConfig: ViewportInteractionConfig by
-        remember(mutableCellWindowViewportState, trackingCellWindowViewportState) {
-            derivedStateOf {
-                if (isViewportTracking) {
-                    ViewportInteractionConfig.Tracking(
-                        trackingCellWindowViewportState = trackingCellWindowViewportState,
-                        syncableMutableCellWindowViewportStates = listOf(mutableCellWindowViewportState),
-                    )
-                } else {
-                    ViewportInteractionConfig.Navigable(
-                        mutableCellWindowViewportState = mutableCellWindowViewportState,
-                    )
-                }
+    remember(mutableCellWindowViewportState, trackingCellWindowViewportState) {
+        derivedStateOf {
+            if (isViewportTracking) {
+                ViewportInteractionConfig.Tracking(
+                    trackingCellWindowViewportState = trackingCellWindowViewportState,
+                    syncableMutableCellWindowViewportStates = listOf(mutableCellWindowViewportState),
+                )
+            } else {
+                ViewportInteractionConfig.Navigable(
+                    mutableCellWindowViewportState = mutableCellWindowViewportState,
+                )
             }
         }
+    }
 
     return remember(
         temporalGameOfLifeState,
@@ -278,7 +278,7 @@ fun rememberInteractiveCellUniverseState(
         infoCardState,
         actionCardState,
         clipboardReaderWriter,
-        cellStateParser,
+        cellStateParserProvider.cellStateParser,
         coroutineScope,
     ) {
         object : InteractiveCellUniverseState {
@@ -321,7 +321,7 @@ fun rememberInteractiveCellUniverseState(
                     SelectionState.NoSelection,
                     is SelectionState.Selection,
                     is SelectionState.SelectingBox.TransientSelectingBox,
-                    -> false
+                        -> false
                     is SelectionState.SelectingBox.FixedSelectingBox -> {
                         if (currentSelectionState.width != 0 && currentSelectionState.height != 0) {
                             val selectedCellState =
@@ -347,7 +347,8 @@ fun rememberInteractiveCellUniverseState(
             override fun onPaste() {
                 coroutineScope.launch {
                     when (
-                        val deserializationResult = cellStateParser.parseCellState(clipboardReaderWriter)
+                        val deserializationResult =
+                            cellStateParserProvider.cellStateParser.parseCellState(clipboardReaderWriter)
                     ) {
                         is DeserializationResult.Successful -> {
                             setSelectionToCellState(deserializationResult.cellState)
@@ -363,7 +364,7 @@ fun rememberInteractiveCellUniverseState(
                 when (val currentSelectionState = selectionStateHolder.selectionSessionState.value) {
                     SelectionState.NoSelection,
                     is SelectionState.SelectingBox,
-                    -> false
+                        -> false
                     is SelectionState.Selection -> {
                         val selectionCellState = currentSelectionState.cellState
 
