@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.dispatchers
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
@@ -49,6 +50,8 @@ interface ComposeLifeDispatchers {
      */
     val IO: CoroutineContext
 
+    fun IOWithLimitedParallelism(parallelism: Int): CoroutineDispatcher
+
     /**
      * The [CoroutineContext] for driving cell state ticks, in response to time delays.
      */
@@ -66,5 +69,7 @@ class DefaultComposeLifeDispatchers : ComposeLifeDispatchers {
     override val Main: CoroutineContext = Dispatchers.Main
     override val Unconfined: CoroutineContext = Dispatchers.Unconfined
     override val IO: CoroutineContext = Dispatchers.IO
+    override fun IOWithLimitedParallelism(parallelism: Int): CoroutineDispatcher =
+        Dispatchers.IO.limitedParallelism(parallelism)
     override val CellTicker: CoroutineContext = EmptyCoroutineContext
 }
