@@ -102,7 +102,7 @@ fun PatternCollectionsUi(
                     key(patternCollection.id) {
                         PatternCollection(
                             patternCollection = patternCollection,
-                            onDelete = { coroutineScope.launch { deletePatternCollection(patternCollection.id) } }
+                            onDelete = { coroutineScope.launch { deletePatternCollection(patternCollection.id) } },
                         )
                     }
                 }
