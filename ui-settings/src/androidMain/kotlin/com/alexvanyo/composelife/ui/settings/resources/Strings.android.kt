@@ -109,3 +109,6 @@ internal actual val Strings.ClipboardWatchingOnboardingCompleted: ParameterizedS
 
 internal actual val Strings.EnableClipboardWatching: ParameterizedString get() =
     ParameterizedString(R.string.enable_clipboard_watching)
+
+internal actual val Strings.Delete: ParameterizedString get() =
+    ParameterizedString(R.string.delete)

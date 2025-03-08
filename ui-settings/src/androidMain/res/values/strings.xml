@@ -45,4 +45,5 @@
     <string name="do_not_keep_process">Do not keep process</string>
     <string name="clipboard_watching_onboarding_completed">Watch clipboard onboarding completed</string>
     <string name="enable_clipboard_watching">Enable clipboard watching</string>
+    <string name="delete">Delete</string>
 </resources>

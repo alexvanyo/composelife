@@ -17,7 +17,10 @@
 package com.alexvanyo.composelife.database.di
 
 import com.alexvanyo.composelife.database.CellStateQueries
+import com.alexvanyo.composelife.database.PatternCollectionQueries
 
 interface QueriesModule {
     val cellStateQueries: CellStateQueries
+
+    val patternCollectionQueries: PatternCollectionQueries
 }
