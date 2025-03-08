@@ -20,7 +20,7 @@ import app.cash.sqldelight.ColumnAdapter
 import me.tatarka.inject.annotations.Inject
 
 @JvmInline
-value class PatternCollectionId internal constructor(val value: Long)
+value class PatternCollectionId(val value: Long)
 
 @Inject
 class PatternCollectionIdAdapter : ColumnAdapter<PatternCollectionId, Long> {

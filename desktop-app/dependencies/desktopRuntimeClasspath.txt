@@ -3,6 +3,8 @@ androidx.annotation:annotation:1.9.1
 androidx.arch.core:core-common:2.2.0
 androidx.collection:collection-jvm:1.5.0-beta01
 androidx.collection:collection:1.5.0-beta01
+androidx.compose.runtime:runtime-jvmstubs:1.7.1
+androidx.compose.runtime:runtime:1.7.1
 androidx.datastore:datastore-core-jvm:1.1.3
 androidx.datastore:datastore-core-okio-jvm:1.1.3
 androidx.datastore:datastore-core-okio:1.1.3
@@ -13,6 +15,8 @@ androidx.graphics:graphics-shapes-desktop:1.0.1
 androidx.graphics:graphics-shapes:1.0.1
 androidx.lifecycle:lifecycle-common-jvm:2.9.0-alpha11
 androidx.lifecycle:lifecycle-common:2.9.0-alpha11
+androidx.lifecycle:lifecycle-runtime-compose-jvmstubs:2.9.0-alpha11
+androidx.lifecycle:lifecycle-runtime-compose:2.9.0-alpha11
 androidx.lifecycle:lifecycle-runtime-desktop:2.9.0-alpha11
 androidx.lifecycle:lifecycle-runtime:2.9.0-alpha11
 androidx.lifecycle:lifecycle-viewmodel-desktop:2.9.0-alpha11
@@ -153,6 +157,7 @@ org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.10.1
 org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.1
 org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1
 org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.10.1
+org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.1
 org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.6.2
 org.jetbrains.kotlinx:kotlinx-datetime:0.6.2
 org.jetbrains.kotlinx:kotlinx-io-bytestring-jvm:0.7.0
