@@ -2,6 +2,8 @@ package: name='com.alexvanyo.composelife' versionCode='1' versionName='1.0' plat
 minSdkVersion:'21'
 targetSdkVersion:'35'
 uses-permission: name='com.alexvanyo.composelife.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='android.permission.ACCESS_NETWORK_STATE'
 application-label:'ComposeLife'
 application-label-af:'ComposeLife'
 application-label-am:'ComposeLife'
