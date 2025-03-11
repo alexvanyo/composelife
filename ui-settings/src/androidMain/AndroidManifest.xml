@@ -14,4 +14,6 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest />
+<manifest xmlns:tools="http://schemas.android.com/tools">
+    <uses-sdk tools:overrideLibrary="androidx.xr.compose,androidx.xr.scenecore,com.google.ar.imp.apibindings" />
+</manifest>

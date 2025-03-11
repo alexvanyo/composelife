@@ -97,6 +97,12 @@ internal actual val Strings.DisableImmersiveMode: ParameterizedString get() =
 internal actual val Strings.EnableImmersiveMode: ParameterizedString get() =
     ParameterizedString("Enable immersive mode")
 
+internal actual val Strings.EnterHomeSpaceMode: ParameterizedString get() =
+    ParameterizedString("Enter home space")
+
+internal actual val Strings.EnterFullSpaceMode: ParameterizedString get() =
+    ParameterizedString("Enter full space")
+
 internal actual val Strings.Speed: ParameterizedString get() =
     ParameterizedString("Speed")
 

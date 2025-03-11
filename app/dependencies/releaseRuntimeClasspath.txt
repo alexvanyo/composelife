@@ -51,7 +51,7 @@ androidx.compose.ui:ui-util-android:1.8.0-beta02
 androidx.compose.ui:ui-util:1.8.0-beta02
 androidx.compose.ui:ui:1.8.0-beta02
 androidx.compose:compose-bom-alpha:2025.02.00
-androidx.concurrent:concurrent-futures:1.1.0
+androidx.concurrent:concurrent-futures:1.2.0
 androidx.core:core-ktx:1.16.0-alpha02
 androidx.core:core-splashscreen:1.2.0-beta01
 androidx.core:core-viewtree:1.0.0
@@ -119,6 +119,11 @@ androidx.viewpager:viewpager:1.0.0
 androidx.window:window-core-android:1.4.0-beta02
 androidx.window:window-core:1.4.0-beta02
 androidx.window:window:1.4.0-beta02
+androidx.xr.arcore:arcore:1.0.0-alpha03
+androidx.xr.compose:compose:1.0.0-alpha03
+androidx.xr.runtime:runtime-openxr:1.0.0-alpha03
+androidx.xr.runtime:runtime:1.0.0-alpha03
+androidx.xr.scenecore:scenecore:1.0.0-alpha03
 app.cash.sqldelight:android-driver:2.0.2
 app.cash.sqldelight:async-extensions-jvm:2.0.2
 app.cash.sqldelight:async-extensions:2.0.2
@@ -136,8 +141,9 @@ com.airbnb.android:showkase-annotation:1.0.3
 com.airbnb.android:showkase:1.0.3
 com.github.livefront.sealed-enum:runtime:0.7.0
 com.google.accompanist:accompanist-drawablepainter:0.36.0
+com.google.ar:impress:0.0.2
 com.google.code.findbugs:jsr305:3.0.2
-com.google.errorprone:error_prone_annotations:2.18.0
+com.google.errorprone:error_prone_annotations:2.30.0
 com.google.guava:failureaccess:1.0.1
 com.google.guava:guava:32.0.0-android
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
@@ -152,6 +158,7 @@ io.coil-kt.coil3:coil-compose-core-android:3.1.0
 io.coil-kt.coil3:coil-compose-core:3.1.0
 io.coil-kt.coil3:coil-core-android:3.1.0
 io.coil-kt.coil3:coil-core:3.1.0
+io.reactivex.rxjava3:rxjava:3.0.2
 me.tatarka.inject:kotlin-inject-runtime-jvm:0.7.2
 me.tatarka.inject:kotlin-inject-runtime:0.7.2
 org.checkerframework:checker-qual:3.33.0
@@ -198,6 +205,9 @@ org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1
 org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.10.1
 org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.1
 org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1
+org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.10.1
+org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.10.1
+org.jetbrains.kotlinx:kotlinx-coroutines-rx3:1.10.1
 org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.6.2
 org.jetbrains.kotlinx:kotlinx-datetime:0.6.2
 org.jetbrains.kotlinx:kotlinx-serialization-bom:1.8.0
@@ -207,6 +217,7 @@ org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.8.0
 org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0
 org.jetbrains:annotations:23.0.0
 org.jspecify:jspecify:1.0.0
+org.reactivestreams:reactive-streams:1.0.3
 software.amazon.lastmile.kotlin.inject.anvil:runtime-android:0.1.2
 software.amazon.lastmile.kotlin.inject.anvil:runtime-optional-android:0.1.2
 software.amazon.lastmile.kotlin.inject.anvil:runtime-optional:0.1.2
