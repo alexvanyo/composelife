@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoMode
 import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CloseFullscreen
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.ContentPaste
@@ -32,6 +33,7 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
+import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
@@ -63,6 +65,8 @@ import com.alexvanyo.composelife.ui.app.resources.DisableAutofit
 import com.alexvanyo.composelife.ui.app.resources.DisableImmersiveMode
 import com.alexvanyo.composelife.ui.app.resources.EnableAutofit
 import com.alexvanyo.composelife.ui.app.resources.EnableImmersiveMode
+import com.alexvanyo.composelife.ui.app.resources.EnterFullSpaceMode
+import com.alexvanyo.composelife.ui.app.resources.EnterHomeSpaceMode
 import com.alexvanyo.composelife.ui.app.resources.Expand
 import com.alexvanyo.composelife.ui.app.resources.Paste
 import com.alexvanyo.composelife.ui.app.resources.Pause
@@ -83,8 +87,12 @@ fun ActionControlRow(
     setIsExpanded: (Boolean) -> Unit,
     isViewportTracking: Boolean,
     setIsViewportTracking: (Boolean) -> Unit,
+    showImmersiveModeControl: Boolean,
     isImmersiveMode: Boolean,
     setIsImmersiveMode: (Boolean) -> Unit,
+    showFullSpaceModeControl: Boolean,
+    isFullSpaceMode: Boolean,
+    setIsFullSpaceMode: (Boolean) -> Unit,
     selectionState: SelectionState,
     onClearSelection: () -> Unit,
     onCopy: () -> Unit,
@@ -355,12 +363,35 @@ fun ActionControlRow(
                     }
                 }
 
-                TooltipBox(
-                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-                    tooltip = {
-                        PlainTooltip {
-                            Text(
-                                parameterizedStringResource(
+                AnimatedVisibility(showImmersiveModeControl) {
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = {
+                            PlainTooltip {
+                                Text(
+                                    parameterizedStringResource(
+                                        if (isImmersiveMode) {
+                                            Strings.DisableImmersiveMode
+                                        } else {
+                                            Strings.EnableImmersiveMode
+                                        },
+                                    ),
+                                )
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconToggleButton(
+                            checked = isImmersiveMode,
+                            onCheckedChange = setIsImmersiveMode,
+                        ) {
+                            Icon(
+                                imageVector = if (isImmersiveMode) {
+                                    Icons.Default.FullscreenExit
+                                } else {
+                                    Icons.Default.Fullscreen
+                                },
+                                contentDescription = parameterizedStringResource(
                                     if (isImmersiveMode) {
                                         Strings.DisableImmersiveMode
                                     } else {
@@ -369,27 +400,47 @@ fun ActionControlRow(
                                 ),
                             )
                         }
-                    },
-                    state = rememberTooltipState(),
-                ) {
-                    IconToggleButton(
-                        checked = isImmersiveMode,
-                        onCheckedChange = setIsImmersiveMode,
+                    }
+                }
+
+                AnimatedVisibility(showFullSpaceModeControl) {
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = {
+                            PlainTooltip {
+                                Text(
+                                    parameterizedStringResource(
+                                        if (isFullSpaceMode) {
+                                            Strings.EnterHomeSpaceMode
+                                        } else {
+                                            Strings.EnterFullSpaceMode
+                                        },
+                                    ),
+                                )
+                            }
+                        },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(
-                            imageVector = if (isImmersiveMode) {
-                                Icons.Default.FullscreenExit
-                            } else {
-                                Icons.Default.Fullscreen
+                        IconButton(
+                            onClick = {
+                                setIsFullSpaceMode(!isFullSpaceMode)
                             },
-                            contentDescription = parameterizedStringResource(
-                                if (isImmersiveMode) {
-                                    Strings.DisableImmersiveMode
+                        ) {
+                            Icon(
+                                imageVector = if (isFullSpaceMode) {
+                                    Icons.Default.CloseFullscreen
                                 } else {
-                                    Strings.EnableImmersiveMode
+                                    Icons.Default.OpenInFull
                                 },
-                            ),
-                        )
+                                contentDescription = parameterizedStringResource(
+                                    if (isFullSpaceMode) {
+                                        Strings.EnterHomeSpaceMode
+                                    } else {
+                                        Strings.EnterFullSpaceMode
+                                    },
+                                ),
+                            )
+                        }
                     }
                 }
 
