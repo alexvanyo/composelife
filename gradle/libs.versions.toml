@@ -51,6 +51,8 @@ androidxWearComposeMaterial3 = "1.0.0-alpha33"
 androidxWearWatchface = "1.3.0-alpha05"
 #androidxWindow
 androidxWindow = "1.4.0-beta02"
+#androidxXrCompose
+androidxXrCompose = "1.0.0-alpha03"
 #apiGuardian
 apiGuardian = "1.1.2"
 #circuit
@@ -178,6 +180,7 @@ androidx-wear-watchface-editor = { group = "androidx.wear.watchface", name = "wa
 androidx-wear-watchface-style = { group = "androidx.wear.watchface", name = "watchface-style", version.ref = "androidxWearWatchface" }
 androidx-window = { group = "androidx.window", name = "window", version.ref = "androidxWindow" }
 androidx-window-core = { group = "androidx.window", name = "window-core", version.ref = "androidxWindow" }
+androidx-xr-compose = { group = "androidx.xr.compose", name = "compose", version.ref = "androidxXrCompose" }
 apiGuardian-api = { group = "org.apiguardian", name = "apiguardian-api", version.ref = "apiGuardian" }
 circuit-retained = { group = "com.slack.circuit", name = "circuit-retained", version.ref = "circuit" }
 coil-core = { group = "io.coil-kt.coil3", name = "coil-core", version.ref = "coil" }

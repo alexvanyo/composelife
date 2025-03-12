@@ -79,6 +79,7 @@ kotlin {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.material3)
                 implementation(libs.androidx.compose.uiTooling)
+                implementation(libs.androidx.xr.compose)
             }
         }
         val commonTest by getting {

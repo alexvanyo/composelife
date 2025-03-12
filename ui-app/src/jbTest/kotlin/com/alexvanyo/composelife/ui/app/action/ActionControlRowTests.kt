@@ -37,7 +37,11 @@ import com.alexvanyo.composelife.ui.app.resources.Collapse
 import com.alexvanyo.composelife.ui.app.resources.Copy
 import com.alexvanyo.composelife.ui.app.resources.Cut
 import com.alexvanyo.composelife.ui.app.resources.DisableAutofit
+import com.alexvanyo.composelife.ui.app.resources.DisableImmersiveMode
 import com.alexvanyo.composelife.ui.app.resources.EnableAutofit
+import com.alexvanyo.composelife.ui.app.resources.EnableImmersiveMode
+import com.alexvanyo.composelife.ui.app.resources.EnterFullSpaceMode
+import com.alexvanyo.composelife.ui.app.resources.EnterHomeSpaceMode
 import com.alexvanyo.composelife.ui.app.resources.Expand
 import com.alexvanyo.composelife.ui.app.resources.Paste
 import com.alexvanyo.composelife.ui.app.resources.Pause
@@ -69,8 +73,12 @@ class ActionControlRowTests {
                 setIsExpanded = {},
                 isViewportTracking = false,
                 setIsViewportTracking = {},
+                showImmersiveModeControl = true,
                 isImmersiveMode = false,
                 setIsImmersiveMode = {},
+                showFullSpaceModeControl = false,
+                isFullSpaceMode = false,
+                setIsFullSpaceMode = {},
                 selectionState = SelectionState.NoSelection,
                 onClearSelection = {},
                 onCopy = {},
@@ -97,6 +105,16 @@ class ActionControlRowTests {
             .assertIsOff()
             .assertHasClickAction()
 
+        onNodeWithContentDescription(resolver(Strings.EnterFullSpaceMode))
+            .assertDoesNotExist()
+
+        onNodeWithContentDescription(resolver(Strings.EnterHomeSpaceMode))
+            .assertDoesNotExist()
+
+        onNodeWithContentDescription(resolver(Strings.EnableImmersiveMode))
+            .assertIsDisplayed()
+            .assertHasClickAction()
+
         onNodeWithContentDescription(resolver(Strings.Expand))
             .assertIsDisplayed()
             .assertHasClickAction()
@@ -117,8 +135,12 @@ class ActionControlRowTests {
                 setIsExpanded = {},
                 isViewportTracking = true,
                 setIsViewportTracking = {},
-                isImmersiveMode = false,
+                showImmersiveModeControl = true,
+                isImmersiveMode = true,
                 setIsImmersiveMode = {},
+                showFullSpaceModeControl = false,
+                isFullSpaceMode = false,
+                setIsFullSpaceMode = {},
                 selectionState = SelectionState.NoSelection,
                 onClearSelection = {},
                 onCopy = {},
@@ -154,7 +176,79 @@ class ActionControlRowTests {
             .assertIsOn()
             .assertHasClickAction()
 
+        onNodeWithContentDescription(resolver(Strings.EnterFullSpaceMode))
+            .assertDoesNotExist()
+
+        onNodeWithContentDescription(resolver(Strings.EnterHomeSpaceMode))
+            .assertDoesNotExist()
+
+        onNodeWithContentDescription(resolver(Strings.DisableImmersiveMode))
+            .assertIsDisplayed()
+            .assertHasClickAction()
+
         onNodeWithContentDescription(resolver(Strings.Collapse))
+            .assertIsDisplayed()
+            .assertHasClickAction()
+    }
+
+    @Test
+    fun no_selection_show_full_space_mode_control_is_displayed_correctly() = runComposeUiTest {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
+            ActionControlRow(
+                isElevated = false,
+                isRunning = false,
+                setIsRunning = {},
+                onStep = {},
+                isExpanded = false,
+                setIsExpanded = {},
+                isViewportTracking = false,
+                setIsViewportTracking = {},
+                showImmersiveModeControl = false,
+                isImmersiveMode = false,
+                setIsImmersiveMode = {},
+                showFullSpaceModeControl = true,
+                isFullSpaceMode = false,
+                setIsFullSpaceMode = {},
+                selectionState = SelectionState.NoSelection,
+                onClearSelection = {},
+                onCopy = {},
+                onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
+            )
+        }
+
+        onNodeWithContentDescription(resolver(Strings.Play))
+            .assertIsDisplayed()
+            .assertHasClickAction()
+
+        onNodeWithContentDescription(resolver(Strings.Step))
+            .assertIsDisplayed()
+            .assertHasClickAction()
+
+        onNodeWithContentDescription(resolver(Strings.Paste))
+            .assertIsDisplayed()
+            .assertHasClickAction()
+
+        onNodeWithContentDescription(resolver(Strings.EnableAutofit))
+            .assertIsDisplayed()
+            .assertIsOff()
+            .assertHasClickAction()
+
+        onNodeWithContentDescription(resolver(Strings.EnterFullSpaceMode))
+            .assertIsDisplayed()
+            .assertHasClickAction()
+
+        onNodeWithContentDescription(resolver(Strings.EnableImmersiveMode))
+            .assertDoesNotExist()
+
+        onNodeWithContentDescription(resolver(Strings.DisableImmersiveMode))
+            .assertDoesNotExist()
+
+        onNodeWithContentDescription(resolver(Strings.Expand))
             .assertIsDisplayed()
             .assertHasClickAction()
     }
@@ -174,8 +268,12 @@ class ActionControlRowTests {
                 setIsExpanded = {},
                 isViewportTracking = false,
                 setIsViewportTracking = {},
+                showImmersiveModeControl = true,
                 isImmersiveMode = false,
                 setIsImmersiveMode = {},
+                showFullSpaceModeControl = false,
+                isFullSpaceMode = false,
+                setIsFullSpaceMode = {},
                 selectionState = SelectionState.SelectingBox.FixedSelectingBox(
                     topLeft = IntOffset.Zero,
                     width = 1,
@@ -242,8 +340,12 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
+                showImmersiveModeControl = true,
                 isImmersiveMode = false,
                 setIsImmersiveMode = {},
+                showFullSpaceModeControl = false,
+                isFullSpaceMode = false,
+                setIsFullSpaceMode = {},
                 selectionState = SelectionState.NoSelection,
                 onClearSelection = {},
                 onCopy = {},
@@ -278,8 +380,12 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
+                showImmersiveModeControl = true,
                 isImmersiveMode = false,
                 setIsImmersiveMode = {},
+                showFullSpaceModeControl = false,
+                isFullSpaceMode = false,
+                setIsFullSpaceMode = {},
                 selectionState = SelectionState.NoSelection,
                 onClearSelection = {},
                 onCopy = {},
@@ -314,8 +420,12 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
+                showImmersiveModeControl = true,
                 isImmersiveMode = false,
                 setIsImmersiveMode = {},
+                showFullSpaceModeControl = false,
+                isFullSpaceMode = false,
+                setIsFullSpaceMode = {},
                 selectionState = SelectionState.NoSelection,
                 onClearSelection = {},
                 onCopy = {},
@@ -350,8 +460,12 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
+                showImmersiveModeControl = true,
                 isImmersiveMode = false,
                 setIsImmersiveMode = {},
+                showFullSpaceModeControl = false,
+                isFullSpaceMode = false,
+                setIsFullSpaceMode = {},
                 selectionState = SelectionState.NoSelection,
                 onClearSelection = {},
                 onCopy = {},
@@ -386,8 +500,12 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
+                showImmersiveModeControl = true,
                 isImmersiveMode = false,
                 setIsImmersiveMode = {},
+                showFullSpaceModeControl = false,
+                isFullSpaceMode = false,
+                setIsFullSpaceMode = {},
                 selectionState = SelectionState.NoSelection,
                 onClearSelection = {},
                 onCopy = {},
@@ -422,8 +540,12 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
+                showImmersiveModeControl = true,
                 isImmersiveMode = false,
                 setIsImmersiveMode = {},
+                showFullSpaceModeControl = false,
+                isFullSpaceMode = false,
+                setIsFullSpaceMode = {},
                 selectionState = SelectionState.NoSelection,
                 onClearSelection = {},
                 onCopy = {},
@@ -437,6 +559,47 @@ class ActionControlRowTests {
             .performClick()
 
         assertTrue(isViewportTracking)
+    }
+
+    @Test
+    fun enter_full_space_mode_updates_correctly() = runComposeUiTest {
+        var isRunning by mutableStateOf(false)
+        var isExpanded by mutableStateOf(false)
+        var isViewportTracking by mutableStateOf(false)
+        var isFullSpaceMode by mutableStateOf(false)
+
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
+            ActionControlRow(
+                isElevated = false,
+                isRunning = isRunning,
+                setIsRunning = { isRunning = it },
+                onStep = {},
+                isExpanded = isExpanded,
+                setIsExpanded = { isExpanded = it },
+                isViewportTracking = isViewportTracking,
+                setIsViewportTracking = { isViewportTracking = it },
+                showImmersiveModeControl = false,
+                isImmersiveMode = false,
+                setIsImmersiveMode = {},
+                showFullSpaceModeControl = true,
+                isFullSpaceMode = isFullSpaceMode,
+                setIsFullSpaceMode = { isFullSpaceMode = it },
+                selectionState = SelectionState.NoSelection,
+                onClearSelection = {},
+                onCopy = {},
+                onCut = {},
+                onPaste = {},
+                onApplyPaste = {},
+            )
+        }
+
+        onNodeWithContentDescription(resolver(Strings.EnterFullSpaceMode))
+            .performClick()
+
+        assertTrue(isFullSpaceMode)
     }
 
     @Test
@@ -458,8 +621,12 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
+                showImmersiveModeControl = true,
                 isImmersiveMode = false,
                 setIsImmersiveMode = {},
+                showFullSpaceModeControl = false,
+                isFullSpaceMode = false,
+                setIsFullSpaceMode = {},
                 selectionState = SelectionState.NoSelection,
                 onClearSelection = {},
                 onCopy = {},
@@ -495,8 +662,12 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
+                showImmersiveModeControl = true,
                 isImmersiveMode = false,
                 setIsImmersiveMode = {},
+                showFullSpaceModeControl = false,
+                isFullSpaceMode = false,
+                setIsFullSpaceMode = {},
                 selectionState = SelectionState.SelectingBox.FixedSelectingBox(
                     topLeft = IntOffset.Zero,
                     width = 1,
@@ -537,8 +708,12 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
+                showImmersiveModeControl = true,
                 isImmersiveMode = false,
                 setIsImmersiveMode = {},
+                showFullSpaceModeControl = false,
+                isFullSpaceMode = false,
+                setIsFullSpaceMode = {},
                 selectionState = SelectionState.SelectingBox.FixedSelectingBox(
                     topLeft = IntOffset.Zero,
                     width = 1,
@@ -579,8 +754,12 @@ class ActionControlRowTests {
                 setIsExpanded = { isExpanded = it },
                 isViewportTracking = isViewportTracking,
                 setIsViewportTracking = { isViewportTracking = it },
+                showImmersiveModeControl = true,
                 isImmersiveMode = false,
                 setIsImmersiveMode = {},
+                showFullSpaceModeControl = false,
+                isFullSpaceMode = false,
+                setIsFullSpaceMode = {},
                 selectionState = SelectionState.SelectingBox.FixedSelectingBox(
                     topLeft = IntOffset.Zero,
                     width = 1,

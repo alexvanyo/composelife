@@ -98,6 +98,12 @@ internal actual val Strings.DisableImmersiveMode: ParameterizedString get() =
 internal actual val Strings.EnableImmersiveMode: ParameterizedString get() =
     ParameterizedString(R.string.enable_immersive_mode)
 
+internal actual val Strings.EnterHomeSpaceMode: ParameterizedString get() =
+    ParameterizedString(R.string.enter_home_space_mode)
+
+internal actual val Strings.EnterFullSpaceMode: ParameterizedString get() =
+    ParameterizedString(R.string.enter_full_space_mode)
+
 internal actual val Strings.Speed: ParameterizedString get() =
     ParameterizedString(R.string.speed)
 

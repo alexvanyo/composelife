@@ -73,6 +73,10 @@ internal expect val Strings.DisableImmersiveMode: ParameterizedString
 
 internal expect val Strings.EnableImmersiveMode: ParameterizedString
 
+internal expect val Strings.EnterHomeSpaceMode: ParameterizedString
+
+internal expect val Strings.EnterFullSpaceMode: ParameterizedString
+
 internal expect val Strings.Speed: ParameterizedString
 
 internal expect val Strings.Edit: ParameterizedString
