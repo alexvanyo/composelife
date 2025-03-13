@@ -22,7 +22,7 @@ androidxCoreSplashscreen = "1.2.0-beta01"
 #androidxDataStore
 androidxDataStore = "1.1.3"
 #androidxLifecycle
-androidxLifecycle = "2.9.0-alpha11"
+androidxLifecycle = "2.9.0-alpha12"
 #androidxLintGradle
 androidxLintGradle = "1.0.0-alpha03"
 #androidxPoolingContainer
