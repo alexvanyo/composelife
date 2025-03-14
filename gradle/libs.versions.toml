@@ -12,7 +12,7 @@ androidxAnnotation = "1.9.1"
 #androidxAppcompat
 androidxAppcompat = "1.7.0"
 #androidxBenchmark
-androidxBenchmark = "1.4.0-alpha08"
+androidxBenchmark = "1.4.0-alpha09"
 #androidxComposeBomAlpha
 androidxComposeBomAlpha = "2025.02.00"
 #androidxCore
