@@ -45,10 +45,17 @@ kotlin {
                 api(libs.kotlinx.coroutines.core)
                 api(projects.database)
                 api(projects.dispatchers)
+                api(projects.network)
 
                 implementation(libs.kotlinInject.runtime)
+                implementation(libs.kotlinx.io.core)
+                implementation(libs.kotlinx.io.okio)
+                implementation(libs.okio)
                 implementation(projects.algorithm)
+                implementation(projects.clock)
+                implementation(projects.filesystem)
                 implementation(projects.injectScopes)
+                implementation(projects.logging)
                 implementation(projects.updatable)
             }
         }
@@ -80,9 +87,11 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
+                implementation(projects.dataTestResources)
                 implementation(projects.databaseTest)
                 implementation(projects.dispatchersTest)
                 implementation(projects.filesystemTest)
+                implementation(projects.networkTest)
             }
         }
         val jbTest by creating {

@@ -25,5 +25,5 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 @ContributesTo(AppScope::class)
 interface LoggerComponent {
     @Provides
-    fun providesFileSystem(): Logger = SingletonSystemLogger
+    fun providesLogger(): Logger = SingletonSystemLogger
 }

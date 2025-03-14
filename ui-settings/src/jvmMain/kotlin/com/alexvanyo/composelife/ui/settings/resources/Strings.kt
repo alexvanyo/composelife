@@ -80,3 +80,5 @@ internal expect val Strings.Visual: ParameterizedString
 internal expect val Strings.ClipboardWatchingOnboardingCompleted: ParameterizedString
 
 internal expect val Strings.EnableClipboardWatching: ParameterizedString
+
+internal expect val Strings.Delete: ParameterizedString

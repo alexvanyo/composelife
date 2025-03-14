@@ -108,3 +108,6 @@ internal actual val Strings.ClipboardWatchingOnboardingCompleted: ParameterizedS
 
 internal actual val Strings.EnableClipboardWatching: ParameterizedString get() =
     ParameterizedString("Enable clipboard watching")
+
+internal actual val Strings.Delete: ParameterizedString get() =
+    ParameterizedString("Delete")

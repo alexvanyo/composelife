@@ -29,6 +29,9 @@ import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
 import com.alexvanyo.composelife.database.CellState
 import com.alexvanyo.composelife.database.CellStateIdAdapter
 import com.alexvanyo.composelife.database.ComposeLifeDatabase
+import com.alexvanyo.composelife.database.InstantAdapter
+import com.alexvanyo.composelife.database.PatternCollection
+import com.alexvanyo.composelife.database.PatternCollectionIdAdapter
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.DefaultComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
@@ -169,6 +172,10 @@ internal fun WithPreviewDependencies(
         driver = driver,
         cellStateAdapter = CellState.Adapter(
             idAdapter = CellStateIdAdapter(),
+        ),
+        patternCollectionAdapter = PatternCollection.Adapter(
+            idAdapter = PatternCollectionIdAdapter(),
+            lastSuccessfulSynchronizationTimestampAdapter = InstantAdapter(),
         ),
     )
     val cellStateQueries = composeLifeDatabase.cellStateQueries

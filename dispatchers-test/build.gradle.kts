@@ -38,6 +38,7 @@ kotlin {
             dependencies {
                 api(libs.kotlinx.coroutines.test)
                 api(libs.kotlinx.datetime)
+                api(projects.clock)
                 api(projects.dispatchers)
 
                 implementation(libs.kotlinInject.runtime)
