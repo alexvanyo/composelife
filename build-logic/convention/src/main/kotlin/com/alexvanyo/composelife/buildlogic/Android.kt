@@ -42,7 +42,7 @@ fun Project.configureAndroid(
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
     commonExtension.apply {
-        compileSdk = 35
+        compileSdk = 36
 
         lint {
             warningsAsErrors = true
