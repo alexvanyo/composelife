@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// TODO: Remove NoUnusedImports suppression when detekt handles org.gradle.kotlin.dsl.assign correctly
+@file:Suppress("NoUnusedImports")
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureAndroidTesting
@@ -23,6 +25,7 @@ import com.android.build.gradle.TestedExtension
 import com.slack.keeper.KeeperExtension
 import com.slack.keeper.optInToKeeper
 import org.gradle.api.GradleException
+import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
 
@@ -73,7 +76,7 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
         }
 
         extensions.configure<KeeperExtension> {
-            automaticR8RepoManagement.set(false)
+            automaticR8RepoManagement = false
             traceReferences {}
         }
     }
