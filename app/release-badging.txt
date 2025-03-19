@@ -1,4 +1,4 @@
-package: name='com.alexvanyo.composelife' versionCode='1' versionName='1.0' platformBuildVersionName='15' platformBuildVersionCode='35' compileSdkVersion='35' compileSdkVersionCodename='15'
+package: name='com.alexvanyo.composelife' versionCode='1' versionName='1.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
 minSdkVersion:'21'
 targetSdkVersion:'35'
 uses-permission: name='com.alexvanyo.composelife.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
