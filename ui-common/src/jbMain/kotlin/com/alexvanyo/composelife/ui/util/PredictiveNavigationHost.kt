@@ -219,16 +219,17 @@ fun <T> MaterialPredictiveNavigationFrame(
                             0.dp,
                             8.dp,
                             it.progressToNotVisible,
-                        ) * when (metadata.swipeEdge) {
-                            SwipeEdge.Left -> -1f
-                            SwipeEdge.Right -> 1f
+                        ) * when (metadata.backEventEdge) {
+                            BackEventEdge.None -> 0f
+                            BackEventEdge.Left -> -1f
+                            BackEventEdge.Right -> 1f
                         }
                     }
                     ContentStatus.NotVisible -> {
-                        8.dp * when (lastDisappearingValue?.metadata?.swipeEdge) {
-                            null -> 0f
-                            SwipeEdge.Left -> -1f
-                            SwipeEdge.Right -> 1f
+                        8.dp * when (lastDisappearingValue?.metadata?.backEventEdge) {
+                            null, BackEventEdge.None -> 0f
+                            BackEventEdge.Left -> -1f
+                            BackEventEdge.Right -> 1f
                         }
                     }
                     ContentStatus.Visible -> 0.dp
@@ -250,16 +251,17 @@ fun <T> MaterialPredictiveNavigationFrame(
                 when (it) {
                     is ContentStatus.Appearing -> 0.5f
                     is ContentStatus.Disappearing -> {
-                        when (it.metadata.swipeEdge) {
-                            SwipeEdge.Left -> 1f
-                            SwipeEdge.Right -> 0f
+                        when (it.metadata.backEventEdge) {
+                            BackEventEdge.None -> 0.5f
+                            BackEventEdge.Left -> 1f
+                            BackEventEdge.Right -> 0f
                         }
                     }
                     ContentStatus.NotVisible -> {
-                        when (lastDisappearingValue?.metadata?.swipeEdge) {
-                            null -> 0.5f
-                            SwipeEdge.Left -> 1f
-                            SwipeEdge.Right -> 0f
+                        when (lastDisappearingValue?.metadata?.backEventEdge) {
+                            null, BackEventEdge.None -> 0.5f
+                            BackEventEdge.Left -> 1f
+                            BackEventEdge.Right -> 0f
                         }
                     }
                     ContentStatus.Visible -> 0.5f

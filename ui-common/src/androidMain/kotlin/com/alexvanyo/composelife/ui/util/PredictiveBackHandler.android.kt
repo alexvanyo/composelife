@@ -48,9 +48,10 @@ actual fun RepeatablePredictiveBackHandler(
                         backEvent.touchY,
                         backEvent.progress,
                         when (backEvent.swipeEdge) {
-                            BackEventCompat.EDGE_LEFT -> SwipeEdge.Left
-                            BackEventCompat.EDGE_RIGHT -> SwipeEdge.Right
-                            else -> error("Unknown swipe edge")
+                            BackEventCompat.EDGE_LEFT -> BackEventEdge.Left
+                            BackEventCompat.EDGE_RIGHT -> BackEventEdge.Right
+                            // TODO: Handle BackEventCompat.EDGE_NONE explicitly when available
+                            else -> BackEventEdge.None
                         },
                     )
                 }
@@ -88,9 +89,10 @@ actual fun CompletablePredictiveBackStateHandler(
                         backEvent.touchY,
                         backEvent.progress,
                         when (backEvent.swipeEdge) {
-                            BackEventCompat.EDGE_LEFT -> SwipeEdge.Left
-                            BackEventCompat.EDGE_RIGHT -> SwipeEdge.Right
-                            else -> error("Unknown swipe edge")
+                            BackEventCompat.EDGE_LEFT -> BackEventEdge.Left
+                            BackEventCompat.EDGE_RIGHT -> BackEventEdge.Right
+                            // TODO: Handle BackEventCompat.EDGE_NONE explicitly when available
+                            else -> BackEventEdge.None
                         },
                     )
                 }
