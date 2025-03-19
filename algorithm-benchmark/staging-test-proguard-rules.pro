@@ -23,6 +23,10 @@
 # Added due to dependency on Material via accessibility-test-framework
 -dontwarn androidx.appcompat.graphics.drawable.DrawableWrapper
 
+-dontwarn androidx.fragment.app.Fragment
+-dontwarn androidx.fragment.app.FragmentActivity
+-dontwarn androidx.fragment.app.FragmentManager$FragmentLifecycleCallbacks
+-dontwarn androidx.fragment.app.FragmentManager
 -dontwarn androidx.test.platform.app.AppComponentFactoryRegistry
 -dontwarn androidx.test.platform.concurrent.DirectExecutor
 -dontwarn androidx.work.Data$Builder
