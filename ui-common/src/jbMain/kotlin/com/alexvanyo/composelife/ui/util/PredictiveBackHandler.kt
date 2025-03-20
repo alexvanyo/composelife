@@ -46,7 +46,7 @@ sealed interface RepeatablePredictiveBackState {
         val touchX: Float,
         val touchY: Float,
         val progress: Float,
-        val swipeEdge: SwipeEdge,
+        val backEventEdge: BackEventEdge,
     ) : RepeatablePredictiveBackState
 }
 
@@ -73,7 +73,7 @@ sealed interface CompletablePredictiveBackState {
         val touchX: Float,
         val touchY: Float,
         val progress: Float,
-        val swipeEdge: SwipeEdge,
+        val backEventEdge: BackEventEdge,
     ) : CompletablePredictiveBackState
 
     /**
@@ -82,9 +82,10 @@ sealed interface CompletablePredictiveBackState {
     data object Completed : CompletablePredictiveBackState
 }
 
-sealed interface SwipeEdge {
-    data object Left : SwipeEdge
-    data object Right : SwipeEdge
+sealed interface BackEventEdge {
+    data object Left : BackEventEdge
+    data object Right : BackEventEdge
+    data object None : BackEventEdge
 }
 
 @Composable
