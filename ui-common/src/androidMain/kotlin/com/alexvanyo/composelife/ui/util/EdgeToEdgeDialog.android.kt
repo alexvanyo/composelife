@@ -306,15 +306,16 @@ fun PlatformEdgeToEdgeDialog(
                     0.dp,
                     8.dp,
                     predictiveBackState.progress,
-                ) * when (predictiveBackState.swipeEdge) {
-                    SwipeEdge.Left -> -1f
-                    SwipeEdge.Right -> 1f
+                ) * when (predictiveBackState.backEventEdge) {
+                    BackEventEdge.None -> 0f
+                    BackEventEdge.Left -> -1f
+                    BackEventEdge.Right -> 1f
                 }
                 CompletablePredictiveBackState.Completed -> {
-                    8.dp * when (lastRunningValue?.swipeEdge) {
-                        null -> 0f
-                        SwipeEdge.Left -> -1f
-                        SwipeEdge.Right -> 1f
+                    8.dp * when (lastRunningValue?.backEventEdge) {
+                        null, BackEventEdge.None -> 0f
+                        BackEventEdge.Left -> -1f
+                        BackEventEdge.Right -> 1f
                     }
                 }
             },
@@ -323,15 +324,16 @@ fun PlatformEdgeToEdgeDialog(
         val pivotFractionX by animateFloatAsState(
             targetValue = when (predictiveBackState) {
                 CompletablePredictiveBackState.NotRunning -> 0.5f
-                is CompletablePredictiveBackState.Running -> when (predictiveBackState.swipeEdge) {
-                    SwipeEdge.Left -> 1f
-                    SwipeEdge.Right -> 0f
+                is CompletablePredictiveBackState.Running -> when (predictiveBackState.backEventEdge) {
+                    BackEventEdge.None -> 0.5f
+                    BackEventEdge.Left -> 1f
+                    BackEventEdge.Right -> 0f
                 }
                 CompletablePredictiveBackState.Completed -> {
-                    when (lastRunningValue?.swipeEdge) {
-                        null -> 0.5f
-                        SwipeEdge.Left -> 1f
-                        SwipeEdge.Right -> 0f
+                    when (lastRunningValue?.backEventEdge) {
+                        null, BackEventEdge.None -> 0.5f
+                        BackEventEdge.Left -> 1f
+                        BackEventEdge.Right -> 0f
                     }
                 }
             },
