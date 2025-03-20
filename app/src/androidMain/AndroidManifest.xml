@@ -49,7 +49,7 @@
 
         <activity
             android:name=".MainActivity"
-            android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
+            android:configChanges="allKnown"
             android:exported="false" />
 
         <activity
