@@ -31,7 +31,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @ContributesTo(AppScope::class, replaces = [DriverComponent::class])
-actual interface TestDriverComponent {
+interface TestDriverComponent {
 
     @Provides
     @SingleIn(AppScope::class)

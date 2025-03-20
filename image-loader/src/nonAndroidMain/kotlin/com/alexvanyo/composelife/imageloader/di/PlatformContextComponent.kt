@@ -22,7 +22,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 
 @ContributesTo(AppScope::class)
-actual interface PlatformContextComponent {
+interface PlatformContextComponent {
     @Provides
     fun providesPlatformContext(): PlatformContext = PlatformContext.INSTANCE
 }
