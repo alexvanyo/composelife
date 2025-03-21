@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.dispatchers
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.TestDispatcher
 import me.tatarka.inject.annotations.Inject
@@ -34,12 +35,14 @@ import kotlin.coroutines.CoroutineContext
 @ContributesBinding(AppScope::class, replaces = [DefaultComposeLifeDispatchers::class])
 @SingleIn(AppScope::class)
 class TestComposeLifeDispatchers(
-    generalTestDispatcher: @GeneralTestDispatcher TestDispatcher,
+    private val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher,
     cellTickerTestDispatcher: @CellTickerTestDispatcher TestDispatcher,
 ) : ComposeLifeDispatchers {
     override val Default: CoroutineContext = generalTestDispatcher
     override val Main: CoroutineContext = generalTestDispatcher
     override val Unconfined: CoroutineContext = Dispatchers.Unconfined
     override val IO: CoroutineContext = generalTestDispatcher
+    override fun IOWithLimitedParallelism(parallelism: Int): CoroutineDispatcher =
+        generalTestDispatcher.limitedParallelism(parallelism)
     override val CellTicker: CoroutineContext = cellTickerTestDispatcher
 }
