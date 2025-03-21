@@ -16,12 +16,17 @@
 
 package com.alexvanyo.composelife.ui.app.component
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasProgressBarRangeInfo
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
@@ -50,9 +55,17 @@ class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<
             uiComponent.entryPoint
 
         composeUiTest.setContent {
-            with(gameOfLifeProgressIndicatorInjectEntryPoint) {
-                with(gameOfLifeProgressIndicatorLocalEntryPoint) {
-                    GameOfLifeProgressIndicator()
+            CompositionLocalProvider(
+                LocalLifecycleOwner provides object : LifecycleOwner {
+                    override val lifecycle = LifecycleRegistry(this).apply {
+                        currentState = Lifecycle.State.RESUMED
+                    }
+                }
+            ) {
+                with(gameOfLifeProgressIndicatorInjectEntryPoint) {
+                    with(gameOfLifeProgressIndicatorLocalEntryPoint) {
+                        GameOfLifeProgressIndicator()
+                    }
                 }
             }
         }
