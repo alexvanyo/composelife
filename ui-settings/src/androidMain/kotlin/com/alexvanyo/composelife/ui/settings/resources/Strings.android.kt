@@ -101,6 +101,9 @@ internal actual val Strings.Algorithm: ParameterizedString get() =
 internal actual val Strings.FeatureFlags: ParameterizedString get() =
     ParameterizedString(R.string.feature_flags)
 
+internal actual val Strings.PatternCollections: ParameterizedString get() =
+    ParameterizedString(R.string.pattern_collections)
+
 internal actual val Strings.Visual: ParameterizedString get() =
     ParameterizedString(R.string.visual)
 
@@ -109,3 +112,6 @@ internal actual val Strings.ClipboardWatchingOnboardingCompleted: ParameterizedS
 
 internal actual val Strings.EnableClipboardWatching: ParameterizedString get() =
     ParameterizedString(R.string.enable_clipboard_watching)
+
+internal actual val Strings.Delete: ParameterizedString get() =
+    ParameterizedString(R.string.delete)

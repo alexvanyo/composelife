@@ -63,6 +63,8 @@ kotlin {
                 implementation(projects.filesystem)
                 implementation(projects.imageLoader)
                 implementation(projects.injectScopes)
+                implementation(projects.logging)
+                implementation(projects.network)
                 implementation(projects.resourcesApp)
                 implementation(projects.strictMode)
                 implementation(projects.uiApp)

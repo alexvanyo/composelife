@@ -42,7 +42,8 @@ interface SettingUiInjectEntryPoint :
     DisableOpenGLUiInjectEntryPoint,
     DoNotKeepProcessUiInjectEntryPoint,
     EnableClipboardWatchingUiInjectEntryPoint,
-    ClipboardWatchingOnboardingCompletedUiInjectEntryPoint
+    ClipboardWatchingOnboardingCompletedUiInjectEntryPoint,
+    PatternCollectionsUiInjectEntryPoint
 
 interface SettingUiLocalEntryPoint :
     AlgorithmImplementationUiLocalEntryPoint,
@@ -54,7 +55,8 @@ interface SettingUiLocalEntryPoint :
     DoNotKeepProcessUiLocalEntryPoint,
     EnableClipboardWatchingUiLocalEntryPoint,
     ClipboardWatchingOnboardingCompletedUiLocalEntryPoint,
-    LoadedComposeLifePreferencesProvider
+    LoadedComposeLifePreferencesProvider,
+    PatternCollectionsUiLocalEntryPoint
 
 /**
  * Displays the setting UI for the given [setting].
@@ -97,6 +99,7 @@ fun SettingUi(
                 Setting.CellStatePreview -> CellStatePreviewUi()
                 Setting.DarkThemeConfig -> DarkThemeConfigUi()
                 Setting.CellShapeConfig -> CellShapeConfigUi()
+                Setting.PatternCollectionSources -> PatternCollectionsUi()
                 Setting.DisableAGSL -> DisableAGSLUi()
                 Setting.DisableOpenGL -> DisableOpenGLUi()
                 Setting.DoNotKeepProcess -> DoNotKeepProcessUi()

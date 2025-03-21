@@ -18,9 +18,11 @@ package com.alexvanyo.composelife.ui.settings
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Analytics
+import androidx.compose.material.icons.filled.Dataset
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.outlined.Analytics
+import androidx.compose.material.icons.outlined.Dataset
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.runtime.Composable
@@ -28,6 +30,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.settings.resources.Algorithm
 import com.alexvanyo.composelife.ui.settings.resources.FeatureFlags
+import com.alexvanyo.composelife.ui.settings.resources.PatternCollections
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.settings.resources.Visual
 
@@ -36,6 +39,7 @@ val SettingsCategory.title: String
     get() = when (this) {
         SettingsCategory.Algorithm -> parameterizedStringResource(Strings.Algorithm)
         SettingsCategory.FeatureFlags -> parameterizedStringResource(Strings.FeatureFlags)
+        SettingsCategory.PatternCollections -> parameterizedStringResource(Strings.PatternCollections)
         SettingsCategory.Visual -> parameterizedStringResource(Strings.Visual)
     }
 
@@ -44,6 +48,7 @@ val SettingsCategory.filledIcon: ImageVector
     get() = when (this) {
         SettingsCategory.Algorithm -> Icons.Filled.Analytics
         SettingsCategory.FeatureFlags -> Icons.Filled.Flag
+        SettingsCategory.PatternCollections -> Icons.Filled.Dataset
         SettingsCategory.Visual -> Icons.Filled.Palette
     }
 
@@ -52,5 +57,6 @@ val SettingsCategory.outlinedIcon: ImageVector
     get() = when (this) {
         SettingsCategory.Algorithm -> Icons.Outlined.Analytics
         SettingsCategory.FeatureFlags -> Icons.Outlined.Flag
+        SettingsCategory.PatternCollections -> Icons.Outlined.Dataset
         SettingsCategory.Visual -> Icons.Outlined.Palette
     }
