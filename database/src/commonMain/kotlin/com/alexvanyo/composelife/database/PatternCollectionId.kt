@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.database.di
+package com.alexvanyo.composelife.database
 
-import com.alexvanyo.composelife.database.CellStateQueries
-import com.alexvanyo.composelife.database.PatternCollectionQueries
+import app.cash.sqldelight.ColumnAdapter
+import me.tatarka.inject.annotations.Inject
 
-interface QueriesModule {
-    val cellStateQueries: CellStateQueries
+@JvmInline
+value class PatternCollectionId(val value: Long)
 
-    val patternCollectionQueries: PatternCollectionQueries
+@Inject
+class PatternCollectionIdAdapter : ColumnAdapter<PatternCollectionId, Long> {
+    override fun decode(databaseValue: Long): PatternCollectionId = PatternCollectionId(databaseValue)
+
+    override fun encode(value: PatternCollectionId): Long = value.value
 }

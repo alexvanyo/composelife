@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.database.di
+package com.alexvanyo.composelife.database
 
-import com.alexvanyo.composelife.database.CellStateQueries
-import com.alexvanyo.composelife.database.PatternCollectionQueries
-
-interface QueriesModule {
-    val cellStateQueries: CellStateQueries
-
-    val patternCollectionQueries: PatternCollectionQueries
-}
+fun CellStateQueries.executeLastInsertedId() =
+    CellStateId(lastInsertedRowId().executeAsOne())

@@ -42,16 +42,12 @@ expect abstract class TestComposeLifeApplicationComponent : ApplicationComponent
 @SingleIn(AppScope::class)
 @Inject
 class TestComposeLifeApplicationEntryPoint(
-    override val composeLifeDatabase: ComposeLifeDatabase,
-    override val dispatchers: ComposeLifeDispatchers,
+    val composeLifeDatabase: ComposeLifeDatabase,
+    val dispatchers: ComposeLifeDispatchers,
     override val updatables: Set<Updatable>,
-    override val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher,
-    override val cellTickerTestDispatcher: @CellTickerTestDispatcher TestDispatcher,
-    override val cellStateQueries: CellStateQueries
-) : DatabaseModule,
-    DispatchersModule,
-    TestDispatcherModule,
-    QueriesModule,
-    UpdatableModule
+    val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher,
+    val cellTickerTestDispatcher: @CellTickerTestDispatcher TestDispatcher,
+    val cellStateQueries: CellStateQueries
+) : UpdatableModule
 
 expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent
