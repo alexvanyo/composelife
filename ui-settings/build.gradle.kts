@@ -59,6 +59,8 @@ kotlin {
                 implementation(libs.kotlinx.collections.immutable)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)
+                implementation(projects.clock)
+                implementation(projects.data)
                 implementation(projects.injectScopes)
                 implementation(projects.logging)
                 implementation(projects.navigation)
@@ -77,6 +79,7 @@ kotlin {
             dependencies {
                 api(libs.jetbrains.compose.material3.adaptive)
 
+                implementation(libs.androidx.lifecycle.runtime.compose)
                 implementation(libs.jetbrains.compose.material3)
                 implementation(libs.jetbrains.compose.materialIconsExtended)
                 implementation(libs.jetbrains.compose.ui)

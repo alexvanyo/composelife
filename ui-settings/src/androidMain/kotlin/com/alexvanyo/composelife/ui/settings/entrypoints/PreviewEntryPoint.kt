@@ -19,6 +19,11 @@ package com.alexvanyo.composelife.ui.settings.entrypoints
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import coil3.ImageLoader
+import com.alexvanyo.composelife.clock.di.ClockProvider
+import com.alexvanyo.composelife.data.PatternCollectionRepository
+import com.alexvanyo.composelife.data.di.PatternCollectionRepositoryProvider
+import com.alexvanyo.composelife.data.model.PatternCollection
+import com.alexvanyo.composelife.database.PatternCollectionId
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.DefaultComposeLifeDispatchers
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderProvider
@@ -32,6 +37,7 @@ import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.currentShape
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
+import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellsFetcher
@@ -56,8 +62,11 @@ import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneInjectE
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneLocalEntryPoint
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneLocalEntryPoint
+import com.alexvanyo.composelife.ui.settings.PatternCollectionsUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.settings.PatternCollectionsUiLocalEntryPoint
 import com.alexvanyo.composelife.ui.settings.SettingUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.SettingUiLocalEntryPoint
+import kotlinx.datetime.Clock
 
 /**
  * The full super-interface implementing all entry points for rendering
@@ -86,6 +95,8 @@ internal interface PreviewEntryPoint :
     InlineSettingsPaneLocalEntryPoint,
     InteractableCellsLocalEntryPoint,
     NonInteractableCellsLocalEntryPoint,
+    PatternCollectionsUiInjectEntryPoint,
+    PatternCollectionsUiLocalEntryPoint,
     SettingUiInjectEntryPoint,
     SettingUiLocalEntryPoint,
     ComposeLifePreferencesProvider
@@ -100,6 +111,7 @@ internal interface PreviewEntryPoint :
 internal fun WithPreviewDependencies(
     dispatchers: ComposeLifeDispatchers = DefaultComposeLifeDispatchers(),
     loadedComposeLifePreferences: LoadedComposeLifePreferences = LoadedComposeLifePreferences.Defaults,
+    clock: Clock = Clock.System,
     composeLifePreferences: ComposeLifePreferences = TestComposeLifePreferences(
         algorithmChoice = loadedComposeLifePreferences.algorithmChoice,
         currentShapeType = loadedComposeLifePreferences.currentShape.type,
@@ -117,6 +129,15 @@ internal fun WithPreviewDependencies(
         dispatchers = dispatchers,
         context = LocalContext.current,
     ),
+    patternCollectionRepository: PatternCollectionRepository = object : PatternCollectionRepository {
+        override val collections: ResourceState<List<PatternCollection>>
+            get() = throw NotImplementedError()
+
+        override suspend fun observePatternCollections(): Nothing = throw NotImplementedError()
+        override suspend fun addPatternCollection(sourceUrl: String): PatternCollectionId = throw NotImplementedError()
+        override suspend fun deletePatternCollection(patternCollectionId: PatternCollectionId) = Unit
+        override suspend fun synchronizePatternCollections() = Unit
+    },
     content: @Composable context(PreviewEntryPoint) () -> Unit,
 ) {
     val preferencesProvider = object : ComposeLifePreferencesProvider {
@@ -136,13 +157,21 @@ internal fun WithPreviewDependencies(
             }
             .build()
     }
+    val clockProvider = object : ClockProvider {
+        override val clock: Clock = clock
+    }
+    val patternCollectionRepositoryProvider = object : PatternCollectionRepositoryProvider {
+        override val patternCollectionRepository = patternCollectionRepository
+    }
 
     val entryPoint = object :
         PreviewEntryPoint,
         ComposeLifePreferencesProvider by preferencesProvider,
         LoadedComposeLifePreferencesProvider by loadedPreferencesProvider,
         CellStateParserProvider by cellStateParserProvider,
-        ImageLoaderProvider by imageLoaderProvider {}
+        ImageLoaderProvider by imageLoaderProvider,
+        PatternCollectionRepositoryProvider by patternCollectionRepositoryProvider,
+        ClockProvider by clockProvider {}
 
     content(entryPoint)
 }

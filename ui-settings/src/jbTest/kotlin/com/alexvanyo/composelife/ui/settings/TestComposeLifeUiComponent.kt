@@ -17,12 +17,14 @@
 package com.alexvanyo.composelife.ui.settings
 
 import coil3.ImageLoader
+import com.alexvanyo.composelife.data.PatternCollectionRepository
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
+import kotlinx.datetime.Clock
 import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
@@ -40,7 +42,9 @@ expect interface TestComposeLifeUiComponent : UiComponent<TestComposeLifeUiEntry
 class TestComposeLifeUiEntryPoint(
     override val cellStateParser: CellStateParser,
     override val composeLifePreferences: ComposeLifePreferences,
-    override val imageLoader: ImageLoader
+    override val imageLoader: ImageLoader,
+    override val patternCollectionRepository: PatternCollectionRepository,
+    override val clock: Clock,
 ) : AlgorithmImplementationUiInjectEntryPoint,
     CellShapeConfigUiInjectEntryPoint,
     CellWindowInjectEntryPoint,
@@ -49,6 +53,7 @@ class TestComposeLifeUiEntryPoint(
     DisableOpenGLUiInjectEntryPoint,
     FullscreenSettingsDetailPaneInjectEntryPoint,
     InlineSettingsPaneInjectEntryPoint,
+    PatternCollectionsUiInjectEntryPoint,
     SettingUiInjectEntryPoint
 
 expect fun TestComposeLifeUiComponent.Companion.createComponent(

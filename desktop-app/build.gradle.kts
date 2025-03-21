@@ -1,6 +1,5 @@
-import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
+
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import kotlin.text.get
 
 /*
  * Copyright 2024 The Android Open Source Project
@@ -39,6 +38,8 @@ kotlin {
                 implementation(projects.filesystem)
                 implementation(projects.imageLoader)
                 implementation(projects.injectScopes)
+                implementation(projects.logging)
+                implementation(projects.network)
                 implementation(projects.uiApp)
                 implementation(projects.uiMobile)
             }
@@ -51,6 +52,7 @@ kotlin {
             ))
             dependencies {
                 implementation(compose.desktop.currentOs)
+                implementation(libs.kotlinx.coroutines.swing)
                 implementation(libs.sqldelight.sqliteDriver)
             }
         }
