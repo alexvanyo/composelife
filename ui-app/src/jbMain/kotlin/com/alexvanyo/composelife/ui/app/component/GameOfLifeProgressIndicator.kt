@@ -26,8 +26,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.InfiniteAnimationPolicy
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
@@ -40,6 +44,8 @@ import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.ImmutableCellWindow
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
+import kotlinx.coroutines.awaitCancellation
+import kotlin.coroutines.coroutineContext
 import kotlin.math.max
 import kotlin.uuid.Uuid
 
@@ -85,9 +91,33 @@ fun GameOfLifeProgressIndicator(
 }
 
 @Composable
-expect fun GameOfLifeProgressIndicatorForegroundEffect(
+fun GameOfLifeProgressIndicatorForegroundEffect(
     temporalGameOfLifeState: TemporalGameOfLifeState,
-)
+) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner, temporalGameOfLifeState) {
+        // If we are not visible, don't animate
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            try {
+                withInfiniteAnimationPolicy {
+                    temporalGameOfLifeState.setIsRunning(true)
+                    awaitCancellation()
+                }
+            } finally {
+                temporalGameOfLifeState.setIsRunning(false)
+            }
+        }
+    }
+}
+
+private suspend fun <R> withInfiniteAnimationPolicy(block: suspend () -> R): R {
+    val policy = coroutineContext[InfiniteAnimationPolicy]
+    return if (policy == null) {
+        block()
+    } else {
+        policy.onInfiniteOperation(block)
+    }
+}
 
 context(_: GameOfLifeProgressIndicatorInjectEntryPoint, _: GameOfLifeProgressIndicatorLocalEntryPoint)
 @Suppress("LongParameterList")

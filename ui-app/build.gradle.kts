@@ -82,6 +82,8 @@ kotlin {
             dependencies {
                 api(libs.jetbrains.compose.material3.adaptive)
 
+                implementation(libs.androidx.lifecycle.runtime)
+                implementation(libs.androidx.lifecycle.runtime.compose)
                 implementation(libs.androidx.window.core)
                 implementation(libs.jetbrains.compose.material3)
                 implementation(libs.jetbrains.compose.materialIconsExtended)
@@ -118,7 +120,6 @@ kotlin {
                 implementation(libs.androidx.compose.uiTooling)
                 implementation(libs.androidx.compose.uiUtil)
                 implementation(libs.androidx.core)
-                implementation(libs.androidx.lifecycle.runtime)
                 implementation(libs.androidx.poolingContainer)
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.sealedEnum.runtime)
