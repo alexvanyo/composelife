@@ -72,11 +72,8 @@ kotlin {
                 implementation(projects.uiToolingPreview)
             }
         }
-        val jvmMain by creating {
-            dependsOn(commonMain)
-        }
         val jbMain by creating {
-            dependsOn(jvmMain)
+            dependsOn(commonMain)
             dependencies {
                 api(libs.jetbrains.compose.material3.adaptive)
 
