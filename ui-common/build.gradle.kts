@@ -46,6 +46,7 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.annotation)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
                 implementation(projects.dispatchers)
                 implementation(projects.geometry)
                 implementation(projects.logging)
@@ -94,6 +95,8 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.molecule)
+                implementation(libs.turbine)
                 implementation(projects.dispatchersTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
