@@ -18,6 +18,9 @@ package com.alexvanyo.composelife.database.di
 
 import com.alexvanyo.composelife.database.CellState
 import com.alexvanyo.composelife.database.CellStateIdAdapter
+import com.alexvanyo.composelife.database.InstantAdapter
+import com.alexvanyo.composelife.database.PatternCollection
+import com.alexvanyo.composelife.database.PatternCollectionIdAdapter
 import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
@@ -31,5 +34,15 @@ interface AdapterComponent {
     ): CellState.Adapter =
         CellState.Adapter(
             idAdapter = cellStateIdAdapter,
+        )
+
+    @Provides
+    fun providesPatternCollectionAdapter(
+        patternCollectionIdAdapter: PatternCollectionIdAdapter,
+        instantAdapter: InstantAdapter,
+    ): PatternCollection.Adapter =
+        PatternCollection.Adapter(
+            idAdapter = patternCollectionIdAdapter,
+            lastSuccessfulSynchronizationTimestampAdapter = instantAdapter,
         )
 }

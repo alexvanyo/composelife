@@ -44,11 +44,12 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(libs.kotlinx.coroutines.core)
+                api(libs.kotlinx.datetime)
+                api(libs.sqldelight.coroutinesExtensions)
                 api(projects.dispatchers)
                 api(projects.updatable)
 
                 implementation(libs.kotlinInject.runtime)
-                implementation(libs.sqldelight.coroutinesExtensions)
                 implementation(libs.sqldelight.primitiveAdapters)
                 implementation(projects.injectScopes)
             }

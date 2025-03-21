@@ -1,0 +1,41 @@
+import com.alexvanyo.composelife.database.PatternCollectionId;
+import kotlinx.datetime.Instant;
+
+CREATE TABLE patternCollection (
+    id INTEGER AS PatternCollectionId NOT NULL PRIMARY KEY AUTOINCREMENT,
+    sourceUrl TEXT NOT NULL,
+    lastSuccessfulSynchronizationTimestamp TEXT AS Instant
+);
+
+getPatternCollections:
+SELECT *
+FROM patternCollection;
+
+getPatternCollectionById:
+SELECT *
+FROM patternCollection
+WHERE id=:id;
+
+insertPatternCollection:
+INSERT INTO patternCollection (
+    sourceUrl,
+    lastSuccessfulSynchronizationTimestamp
+)
+VALUES (
+    :sourceUrl,
+    :lastSuccessfulSynchronizationTimestamp
+);
+
+updatePatternCollection:
+UPDATE patternCollection
+SET
+    sourceUrl=:sourceUrl,
+    lastSuccessfulSynchronizationTimestamp=:lastSuccessfulSynchronizationTimestamp
+WHERE id=:id;
+
+lastInsertedRowId:
+SELECT last_insert_rowid();
+
+deletePatternCollection:
+DELETE FROM patternCollection
+WHERE id=:id;

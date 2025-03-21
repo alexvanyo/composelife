@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.database.di
+package com.alexvanyo.composelife.database
 
-import com.alexvanyo.composelife.database.CellStateQueries
-import com.alexvanyo.composelife.database.PatternCollectionQueries
+import app.cash.sqldelight.ColumnAdapter
+import kotlinx.datetime.Instant
+import me.tatarka.inject.annotations.Inject
 
-interface QueriesModule {
-    val cellStateQueries: CellStateQueries
+@Inject
+class InstantAdapter : ColumnAdapter<Instant, String> {
+    override fun decode(databaseValue: String): Instant = Instant.parse(databaseValue)
 
-    val patternCollectionQueries: PatternCollectionQueries
+    override fun encode(value: Instant): String = value.toString()
 }
