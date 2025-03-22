@@ -20,6 +20,7 @@ import com.alexvanyo.composelife.data.model.CellStateMetadata
 import com.alexvanyo.composelife.data.model.SaveableCellState
 import com.alexvanyo.composelife.database.CellStateId
 import com.alexvanyo.composelife.database.CellStateQueries
+import com.alexvanyo.composelife.database.executeLastInsertedId
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.CellStateFormat
 import com.alexvanyo.composelife.model.DeserializationResult
@@ -58,7 +59,7 @@ class CellStateRepositoryImpl(
                         generation = saveableCellState.cellStateMetadata.generation,
                         wasAutosaved = true,
                     )
-                    CellStateId(cellStateQueries.lastInsertedRowId().executeAsOne())
+                    cellStateQueries.executeLastInsertedId()
                 } else {
                     cellStateQueries.updateCellState(
                         id = saveableCellState.cellStateMetadata.id,

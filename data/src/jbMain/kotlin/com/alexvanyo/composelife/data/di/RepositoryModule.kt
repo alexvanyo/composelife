@@ -16,4 +16,4 @@
 
 package com.alexvanyo.composelife.data.di
 
-interface RepositoryModule : CellStateRepositoryProvider
+interface RepositoryModule : CellStateRepositoryProvider, PatternCollectionRepositoryProvider

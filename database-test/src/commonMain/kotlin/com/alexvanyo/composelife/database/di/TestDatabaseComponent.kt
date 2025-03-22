@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.database.di
 import app.cash.sqldelight.db.SqlDriver
 import com.alexvanyo.composelife.database.CellState
 import com.alexvanyo.composelife.database.ComposeLifeDatabase
+import com.alexvanyo.composelife.database.PatternCollection
 import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
@@ -32,9 +33,11 @@ interface TestDatabaseComponent {
     fun providesDatabase(
         driver: SqlDriver,
         cellStateAdapter: CellState.Adapter,
+        patternCollectionAdapter: PatternCollection.Adapter,
     ): ComposeLifeDatabase =
         ComposeLifeDatabase(
             driver = driver,
             cellStateAdapter = cellStateAdapter,
+            patternCollectionAdapter = patternCollectionAdapter,
         )
 }
