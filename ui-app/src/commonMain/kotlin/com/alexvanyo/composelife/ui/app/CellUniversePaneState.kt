@@ -62,7 +62,7 @@ context(
     cellStateRepositoryProvider: CellStateRepositoryProvider,
     gameOfLifeAlgorithmProvider: GameOfLifeAlgorithmProvider,
     dispatchersProvider: ComposeLifeDispatchersProvider,
-    clockProvider: ClockProvider,
+    clockProvider: ClockProvider
 )
 @Composable
 fun rememberCellUniversePaneState(): CellUniversePaneState = rememberCellUniversePaneState(
