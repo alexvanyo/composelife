@@ -68,7 +68,7 @@ coil = "3.2.0"
 #dependencyGuard
 dependencyGuard = "0.5.0"
 #detekt
-detekt = "1.23.8"
+detekt = "main-SNAPSHOT"
 #googleAutoValue
 googleAutoValue = "1.11.0"
 #gradleDependenciesSorter
