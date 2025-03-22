@@ -68,7 +68,11 @@ class DefaultComposeLifePreferences(
                 Snapshot.withMutableSnapshot {
                     loadedPreferencesState = it
                     if (it.isFailure()) {
-                        logger.e(it.throwable, "DefaultComposeLifePreferences", message = { "Error loading preferences" })
+                        logger.e(
+                            it.throwable,
+                            "DefaultComposeLifePreferences",
+                            message = { "Error loading preferences" },
+                        )
                         throw it.throwable
                     }
                 }

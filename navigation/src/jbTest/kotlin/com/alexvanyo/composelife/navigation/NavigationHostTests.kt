@@ -31,10 +31,10 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
-import kotlin.uuid.Uuid
 import com.slack.circuit.retained.rememberRetained
 import org.junit.runner.RunWith
 import kotlin.test.Test
+import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
@@ -235,6 +235,7 @@ class NavigationHostTests {
         onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
     }
 
+    @Suppress("LongMethod")
     @Test
     fun navigation_host_does_not_keep_state_for_entries_not_in_map_and_not_rendered() = runComposeUiTest {
         val id1 = Uuid.parse("00000000-0000-0000-0000-000000000000")

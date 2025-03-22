@@ -60,9 +60,9 @@ interface CellUniversePaneLocalEntryPoint :
 
 context(
     cellStateRepositoryProvider: CellStateRepositoryProvider,
-    gameOfLifeAlgorithmProvider: GameOfLifeAlgorithmProvider,
-    dispatchersProvider: ComposeLifeDispatchersProvider,
-    clockProvider: ClockProvider
+gameOfLifeAlgorithmProvider: GameOfLifeAlgorithmProvider,
+dispatchersProvider: ComposeLifeDispatchersProvider,
+clockProvider: ClockProvider
 )
 @Composable
 fun rememberCellUniversePaneState(): CellUniversePaneState = rememberCellUniversePaneState(

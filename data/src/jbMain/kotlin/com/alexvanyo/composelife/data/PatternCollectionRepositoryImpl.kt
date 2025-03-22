@@ -52,7 +52,6 @@ import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import kotlin.time.Clock
 import kotlinx.io.okio.asOkioSource
 import dev.zacsweers.metro.Inject
 import okio.ByteString.Companion.toByteString
@@ -88,7 +87,10 @@ class PatternCollectionRepositoryImpl(
     private val httpClient by httpClient
     private val persistedDataPath by persistedDataPath
 
-    private var databaseCollections: ResourceState<List<com.alexvanyo.composelife.database.PatternCollection>> by mutableStateOf(ResourceState.Loading)
+    private var databaseCollections:
+        ResourceState<List<com.alexvanyo.composelife.database.PatternCollection>> by mutableStateOf(
+            ResourceState.Loading,
+        )
 
     private val synchronizationInformation = mutableStateMapOf<PatternCollectionId, Boolean>()
 
@@ -99,11 +101,11 @@ class PatternCollectionRepositoryImpl(
                     id = databasePatternCollection.id,
                     sourceUrl = databasePatternCollection.sourceUrl,
                     lastSuccessfulSynchronizationTimestamp =
-                        databasePatternCollection.lastSuccessfulSynchronizationTimestamp,
+                    databasePatternCollection.lastSuccessfulSynchronizationTimestamp,
                     lastUnsuccessfulSynchronizationTimestamp =
-                        databasePatternCollection.lastUnsuccessfulSynchronizationTimestamp,
+                    databasePatternCollection.lastUnsuccessfulSynchronizationTimestamp,
                     synchronizationFailureMessage = databasePatternCollection.synchronizationFailureMessage,
-                    isSynchronizing = synchronizationInformation.getOrDefault(databasePatternCollection.id, false)
+                    isSynchronizing = synchronizationInformation.getOrDefault(databasePatternCollection.id, false),
                 )
             }
         }
@@ -195,8 +197,8 @@ class PatternCollectionRepositoryImpl(
     ): Boolean = withContext(dispatchers.IO) {
         val sourceUrl = databasePatternCollection.sourceUrl
         val archivePathParent = persistedDataPath /
-                collectionsFolder /
-                databasePatternCollection.id.value.toString()
+            collectionsFolder /
+            databasePatternCollection.id.value.toString()
 
         val archivePath = archivePathParent / archiveFileName
         val archiveHashPath = archivePathParent / archiveHashFileName
@@ -230,7 +232,7 @@ class PatternCollectionRepositoryImpl(
                 id = databasePatternCollection.id,
                 sourceUrl = databasePatternCollection.sourceUrl,
                 lastSuccessfulSynchronizationTimestamp =
-                    databasePatternCollection.lastSuccessfulSynchronizationTimestamp,
+                databasePatternCollection.lastSuccessfulSynchronizationTimestamp,
                 lastUnsuccessfulSynchronizationTimestamp = clock.now(),
                 synchronizationFailureMessage = "Failed fetching",
             )
@@ -295,7 +297,7 @@ class PatternCollectionRepositoryImpl(
                 id = databasePatternCollection.id,
                 sourceUrl = databasePatternCollection.sourceUrl,
                 lastSuccessfulSynchronizationTimestamp =
-                    databasePatternCollection.lastSuccessfulSynchronizationTimestamp,
+                databasePatternCollection.lastSuccessfulSynchronizationTimestamp,
                 lastUnsuccessfulSynchronizationTimestamp = clock.now(),
                 synchronizationFailureMessage = "Failed processing archive",
             )

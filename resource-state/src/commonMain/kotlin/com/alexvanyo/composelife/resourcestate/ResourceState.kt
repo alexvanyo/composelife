@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("TooManyFunctions")
 
 package com.alexvanyo.composelife.resourcestate
 
@@ -55,7 +56,6 @@ sealed interface ResourceState<out T : Any> {
         val throwable: Throwable,
     ) : ResourceState<T>
 }
-
 
 /**
  * Returns `true` if and only if this is loading.

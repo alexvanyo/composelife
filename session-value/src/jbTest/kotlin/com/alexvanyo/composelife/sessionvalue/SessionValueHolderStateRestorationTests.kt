@@ -20,7 +20,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
@@ -153,6 +152,7 @@ class SessionValueHolderStateRestorationTests {
         assertEquals(sessionId1, info2.preLocalSessionId)
     }
 
+    @Suppress("LongMethod")
     @Test
     fun whenSavedInstanceStateIsRestoredWithLocalSession_stateIsCorrect() = runComposeUiTest {
         val stateRestorationTester = KmpStateRestorationTester(this)
@@ -227,6 +227,7 @@ class SessionValueHolderStateRestorationTests {
         assertEquals(sessionId1, info3.preLocalSessionId)
     }
 
+    @Suppress("LongMethod")
     @Test
     fun upstreamSessionChanges_whenSavedInstanceStateIsRestoredWithLocalSession_resetsSession() = runComposeUiTest {
         val stateRestorationTester = KmpStateRestorationTester(this)

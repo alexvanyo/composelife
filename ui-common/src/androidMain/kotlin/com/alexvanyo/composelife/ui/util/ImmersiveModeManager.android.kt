@@ -86,6 +86,7 @@ private class AndroidImmersiveModeManager private constructor(
             suspendCancellableCoroutine { cont ->
                 activity.requestFullscreenMode(
                     Activity.FULLSCREEN_MODE_REQUEST_ENTER,
+                    @Suppress("ForbiddenVoid")
                     object : OutcomeReceiver<Void, Throwable> {
                         override fun onResult(result: Void?) {
                             cont.resume(Result.success(Unit)) { _, _, _ -> }
@@ -94,7 +95,7 @@ private class AndroidImmersiveModeManager private constructor(
                         override fun onError(error: Throwable) {
                             cont.resume(Result.failure(error)) { _, _, _ -> }
                         }
-                    }
+                    },
                 )
             }
         } else {
@@ -106,6 +107,7 @@ private class AndroidImmersiveModeManager private constructor(
             suspendCancellableCoroutine { cont ->
                 activity.requestFullscreenMode(
                     Activity.FULLSCREEN_MODE_REQUEST_EXIT,
+                    @Suppress("ForbiddenVoid")
                     object : OutcomeReceiver<Void, Throwable> {
                         override fun onResult(result: Void?) {
                             cont.resume(Result.success(Unit)) { _, _, _ -> }
@@ -114,7 +116,7 @@ private class AndroidImmersiveModeManager private constructor(
                         override fun onError(error: Throwable) {
                             cont.resume(Result.failure(error)) { _, _, _ -> }
                         }
-                    }
+                    },
                 )
             }
         } else {

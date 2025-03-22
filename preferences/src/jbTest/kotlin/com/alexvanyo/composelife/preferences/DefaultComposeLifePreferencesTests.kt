@@ -34,7 +34,7 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.uuid.Uuid
 
-@Suppress("LargeClass")
+@Suppress("LargeClass", "TooManyFunctions")
 class DefaultComposeLifePreferencesTests {
 
     private fun runPreferencesTest(testBody: suspend TestScope.(ComposeLifePreferences) -> Unit) = runTest {

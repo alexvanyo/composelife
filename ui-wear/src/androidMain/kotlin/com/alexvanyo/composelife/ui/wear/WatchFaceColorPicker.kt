@@ -92,7 +92,7 @@ fun WatchFaceColorPicker(
                                     ColorComponent.RgbIntComponent.Green -> resourcesWearR.string.color_green_value
                                     ColorComponent.RgbIntComponent.Blue -> resourcesWearR.string.color_blue_value
                                 },
-                            )
+                            ),
                         )
                     },
                     modifier = Modifier.weight(1f, fill = false).widthIn(max = 48.dp),

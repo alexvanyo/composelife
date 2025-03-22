@@ -104,8 +104,8 @@ private fun computeImplementationType(
         isThumbnail ->
             NonInteractableCellsImplementationType.Coil
         !preferences.disableAGSL &&
-                Build.VERSION.SDK_INT >= 33 &&
-                Build.FINGERPRINT?.lowercase() != "robolectric" ->
+            Build.VERSION.SDK_INT >= 33 &&
+            Build.FINGERPRINT?.lowercase() != "robolectric" ->
             NonInteractableCellsImplementationType.AGSL
         !preferences.disableOpenGL && !LocalInspectionMode.current && openGLSupported() ->
             NonInteractableCellsImplementationType.OpenGL

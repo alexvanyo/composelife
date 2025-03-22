@@ -23,10 +23,10 @@ import com.alexvanyo.composelife.database.PatternCollectionId
 import com.alexvanyo.composelife.ui.settings.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import kotlin.time.Clock
-import kotlin.time.Instant
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 @ShowkaseComposable
 @ThemePreviews

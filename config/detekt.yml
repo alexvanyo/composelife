@@ -91,6 +91,8 @@ formatting:
     excludes: [ '**/generated/**' ]
   NoUnitReturn:
     excludes: [ '**/generated/**' ]
+  NoUnusedImports:
+    active: false # TODO: Re-enable when context parameters are supported
   PackageName:
     excludes: [ '**/generated/**' ]
   ParameterListWrapping:
@@ -99,9 +101,11 @@ formatting:
     excludes: [ '**/generated/**' ]
   SpacingAroundAngleBrackets:
     active: true
-  SpacingAroundCurly:
-    excludes: [ '**/generated/**' ]
+  SpacingAroundColon:
+    active: false # TODO: Re-enable when context parameters are supported
   SpacingAroundComma:
+    excludes: [ '**/generated/**' ]
+  SpacingAroundCurly:
     excludes: [ '**/generated/**' ]
   SpacingAroundKeyword:
     excludes: [ '**/generated/**' ]
@@ -121,6 +125,7 @@ formatting:
     active: true
   Wrapping:
     excludes: [ '**/generated/**' ]
+    active: false # TODO: Re-enable when context parameters are supported
 
 naming:
   ConstructorParameterNaming:
@@ -172,10 +177,14 @@ style:
     active: false
   ObjectLiteralToLambda:
     excludes: [ '**/generated/**' ]
+  UnusedParameter:
+    excludes: [ '**/generated/**' ]
   UnusedPrivateMember:
     ignoreAnnotated:
       - "com.alexvanyo.composelife.ui.util.*Previews"
       - "androidx.compose.ui.tooling.preview.Preview"
+  UnusedPrivateProperty:
+    excludes: [ '**/generated/**' ]
   UseArrayLiteralsInAnnotations:
     excludes: [ '**/generated/**' ]
   VarCouldBeVal:

@@ -71,6 +71,7 @@ class CellStateRepositoryTests : BaseInjectTest(
         assertNull(cellStateRepository.getAutosavedCellState())
     }
 
+    @Suppress("LongMethod")
     @Test
     fun save_autosaved_cell_state_then_get_returns_new_cell_state() = runAppTest(testDispatcher) {
         val insertedId = cellStateRepository.autosaveCellState(

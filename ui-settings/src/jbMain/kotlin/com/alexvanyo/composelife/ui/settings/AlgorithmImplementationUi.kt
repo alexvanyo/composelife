@@ -42,7 +42,10 @@ interface AlgorithmImplementationUiInjectEntryPoint :
 interface AlgorithmImplementationUiLocalEntryPoint :
     LoadedComposeLifePreferencesProvider
 
-context(injectEntryPoint: AlgorithmImplementationUiInjectEntryPoint, localEntryPoint: AlgorithmImplementationUiLocalEntryPoint)
+context(
+    injectEntryPoint: AlgorithmImplementationUiInjectEntryPoint,
+localEntryPoint: AlgorithmImplementationUiLocalEntryPoint
+)
 @Composable
 fun AlgorithmImplementationUi(
     modifier: Modifier = Modifier,

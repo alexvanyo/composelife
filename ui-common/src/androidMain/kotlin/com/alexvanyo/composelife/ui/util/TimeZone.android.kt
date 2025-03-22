@@ -91,7 +91,6 @@ private object TimeZoneBroadcastReceiver : BroadcastReceiver() {
     }
 }
 
-
 private fun Context.registerReceiverCompat(
     receiver: BroadcastReceiver,
     filter: IntentFilter,
@@ -130,5 +129,4 @@ private fun Context.registerReceiverCompat(
             ContextCompat.RECEIVER_NOT_EXPORTED,
         )
     }
-
 }

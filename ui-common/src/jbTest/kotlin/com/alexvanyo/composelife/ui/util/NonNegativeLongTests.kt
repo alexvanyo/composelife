@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@Suppress("TooManyFunctions")
 class NonNegativeLongTests {
 
     private val textFieldState = TextFieldState()

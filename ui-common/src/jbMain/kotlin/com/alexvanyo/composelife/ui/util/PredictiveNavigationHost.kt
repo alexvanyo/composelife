@@ -301,7 +301,7 @@ fun <T> MaterialPredictiveNavigationFrame(
                         shape = if (clipUsingWindowShape) {
                             val cornerRadiusPath = Path().apply {
                                 addRoundRect(
-                                    RoundRect(size.toRect(), CornerRadius(cornerRadius.toPx()))
+                                    RoundRect(size.toRect(), CornerRadius(cornerRadius.toPx())),
                                 )
                             }
                             val clippingPath = cornerRadiusPath and windowShape.path.copy().apply {
