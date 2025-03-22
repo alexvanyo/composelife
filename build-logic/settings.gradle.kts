@@ -33,7 +33,6 @@ dependencyResolutionManagement {
         }
         google()
         mavenCentral()
-        maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap")
     }
     versionCatalogs {
         create("libs") {
