@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@Suppress("TooManyFunctions")
 class NonNegativeDoubleTests {
 
     private val textFieldState = TextFieldState()
@@ -151,7 +152,6 @@ class NonNegativeDoubleTests {
         assertEquals("", textFieldState.text)
         assertEquals(TextRange(0), textFieldState.selection)
     }
-
 
     @Test
     fun empty_string_with_prepending_number_and_positive() {

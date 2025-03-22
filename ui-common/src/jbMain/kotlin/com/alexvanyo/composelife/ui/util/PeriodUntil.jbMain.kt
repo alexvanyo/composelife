@@ -20,14 +20,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import kotlin.time.Clock
-import kotlin.time.Instant
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.datetime.DateTimePeriod
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 /**
  * Returns an observable [DateTimePeriod] of [unit]s since the given [Instant], using the [clock] to determine the

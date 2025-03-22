@@ -29,8 +29,8 @@ import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
-import com.alexvanyo.composelife.ui.settings.resources.SynchronizePatternCollectionsOnMeteredNetwork
 import com.alexvanyo.composelife.ui.settings.resources.Strings
+import com.alexvanyo.composelife.ui.settings.resources.SynchronizePatternCollectionsOnMeteredNetwork
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -68,7 +68,9 @@ class SynchronizePatternCollectionsOnMeteredNetworkUiTests {
             resolver = parameterizedStringResolver()
             SynchronizePatternCollectionsOnMeteredNetworkUi(
                 synchronizePatternCollectionsOnMeteredNetwork = synchronizePatternCollectionsOnMeteredNetwork,
-                setSynchronizePatternCollectionsOnMeteredNetwork = { synchronizePatternCollectionsOnMeteredNetwork = it },
+                setSynchronizePatternCollectionsOnMeteredNetwork = {
+                    synchronizePatternCollectionsOnMeteredNetwork = it
+                },
             )
         }
 
@@ -106,7 +108,9 @@ class SynchronizePatternCollectionsOnMeteredNetworkUiTests {
             resolver = parameterizedStringResolver()
             SynchronizePatternCollectionsOnMeteredNetworkUi(
                 synchronizePatternCollectionsOnMeteredNetwork = synchronizePatternCollectionsOnMeteredNetwork,
-                setSynchronizePatternCollectionsOnMeteredNetwork = { synchronizePatternCollectionsOnMeteredNetwork = it },
+                setSynchronizePatternCollectionsOnMeteredNetwork = {
+                    synchronizePatternCollectionsOnMeteredNetwork = it
+                },
             )
         }
 

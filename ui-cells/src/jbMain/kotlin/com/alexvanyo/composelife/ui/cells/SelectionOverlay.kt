@@ -56,10 +56,10 @@ import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.sessionvalue.preLocalSessionId
 import com.alexvanyo.composelife.sessionvalue.rememberSessionValueHolder
-import com.alexvanyo.composelife.ui.util.currentWindowShape
 import com.alexvanyo.composelife.ui.util.AnchoredDraggable2DState
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.TargetState
+import com.alexvanyo.composelife.ui.util.currentWindowShape
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -135,7 +135,7 @@ fun SelectionOverlay(
                 when (cellStateDropStateHolder.cellStateDropState) {
                     CellStateDropState.ApplicableDropAvailable,
                     is CellStateDropState.DropPreview,
-                        -> {
+                    -> {
                         val path = windowShape.path.copy().apply {
                             translate(-checkNotNull(relativeLayoutBounds).positionInWindow.toOffset())
                         } and Path().apply {

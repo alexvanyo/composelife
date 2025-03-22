@@ -44,8 +44,10 @@ import okio.use
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import kotlin.time.Duration
+import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
+@Suppress("LongParameterList")
 @Inject
 @ContributesBinding(AppScope::class)
 class CellStateRepositoryImpl(
@@ -82,7 +84,7 @@ class CellStateRepositoryImpl(
         }
 
     private suspend fun convertCellStateToSaveableCellState(
-        cellState: com.alexvanyo.composelife.database.CellState
+        cellState: com.alexvanyo.composelife.database.CellState,
     ): SaveableCellState? = withContext(dispatchers.IO) {
         val serializedCellStateFile = cellState.serializedCellStateFile
         val format = CellStateFormat.fromFileExtension(cellState.formatExtension)
@@ -194,6 +196,7 @@ class CellStateRepositoryImpl(
         fileSystem.listOrNull(persistedDataPath / autosavedCellStatesFolder)
             .orEmpty()
             .all { file ->
+                @Suppress("TooGenericExceptionCaught")
                 try {
                     if (file.relativeTo(persistedDataPath).toString() !in currentAutosavedCellStates) {
                         val lastModifiedTime = fileSystem
@@ -214,6 +217,7 @@ class CellStateRepositoryImpl(
     }
 }
 
+@Suppress("LongParameterList")
 private suspend fun writeCellStateToFile(
     fileSystem: FileSystem,
     dispatchers: ComposeLifeDispatchers,

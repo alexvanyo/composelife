@@ -35,7 +35,10 @@ interface EnableWindowShapeClippingUiInjectEntryPoint :
 interface EnableWindowShapeClippingUiLocalEntryPoint :
     LoadedComposeLifePreferencesProvider
 
-context(injectEntryPoint: EnableWindowShapeClippingUiInjectEntryPoint, localEntryPoint: EnableWindowShapeClippingUiLocalEntryPoint)
+context(
+    injectEntryPoint: EnableWindowShapeClippingUiInjectEntryPoint,
+localEntryPoint: EnableWindowShapeClippingUiLocalEntryPoint
+)
 @Composable
 fun EnableWindowShapeClippingUi(
     modifier: Modifier = Modifier,

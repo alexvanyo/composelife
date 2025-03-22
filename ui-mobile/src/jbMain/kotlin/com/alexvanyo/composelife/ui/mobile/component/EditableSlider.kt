@@ -206,6 +206,7 @@ private fun <T : Comparable<T>> rememberEditableSliderState(
         setUpstreamSessionValue = { expected, newValue -> onSessionValueChange(expected, newValue) },
         valueSerializer = valueSerializer,
     )
+
     /**
      * The transient [TextField] value that the user is editing.
      *
@@ -260,7 +261,7 @@ private fun <T : Comparable<T>> rememberEditableSliderState(
             override fun onSliderValueChange(value: T) {
                 onSessionValueChange(
                     textFieldSessionValueHolder.sessionValue,
-                    SessionValue(Uuid.random(), Uuid.random(), value)
+                    SessionValue(Uuid.random(), Uuid.random(), value),
                 )
             }
 
@@ -271,7 +272,7 @@ private fun <T : Comparable<T>> rememberEditableSliderState(
                     // listener.
                     onSessionValueChange(
                         textFieldSessionValueHolder.sessionValue,
-                        SessionValue(Uuid.random(), Uuid.random(), currentValue)
+                        SessionValue(Uuid.random(), Uuid.random(), currentValue),
                     )
                     onValueChangeFinished?.invoke()
                 }

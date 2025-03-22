@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.util
 
-import android.util.Log
 import android.view.View
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -61,7 +60,7 @@ actual fun ProvideLocalWindowInsetsHolder(
                     }
                 }
             },
-            modifier = Modifier.size(0.dp)
+            modifier = Modifier.size(0.dp),
         ) {
             it.requestApplyInsets()
         }

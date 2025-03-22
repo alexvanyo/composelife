@@ -55,7 +55,7 @@ class GameOfLifeProgressIndicatorTests : BaseUiInjectTest(
                     override val lifecycle = LifecycleRegistry(this).apply {
                         currentState = Lifecycle.State.RESUMED
                     }
-                }
+                },
             ) {
                 with(gameOfLifeProgressIndicatorInjectEntryPoint) {
                     with(gameOfLifeProgressIndicatorLocalEntryPoint) {

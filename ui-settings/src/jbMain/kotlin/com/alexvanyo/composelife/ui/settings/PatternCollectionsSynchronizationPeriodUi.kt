@@ -68,7 +68,7 @@ interface PatternCollectionsSynchronizationPeriodUiLocalEntryPoint :
 
 context(
     injectEntryPoint: PatternCollectionsSynchronizationPeriodUiInjectEntryPoint,
-    localEntryPoint: PatternCollectionsSynchronizationPeriodUiLocalEntryPoint
+localEntryPoint: PatternCollectionsSynchronizationPeriodUiLocalEntryPoint
 )
 @Composable
 fun PatternCollectionsSynchronizationPeriodUi(
@@ -76,9 +76,9 @@ fun PatternCollectionsSynchronizationPeriodUi(
 ) {
     PatternCollectionsSynchronizationPeriodUi(
         patternCollectionsSynchronizationPeriodSessionValue =
-            localEntryPoint.preferences.patternCollectionsSynchronizationPeriodSessionValue,
+        localEntryPoint.preferences.patternCollectionsSynchronizationPeriodSessionValue,
         setPatternCollectionsSynchronizationPeriodSessionValue =
-            injectEntryPoint.composeLifePreferences::setPatternCollectionsSynchronizationPeriod,
+        injectEntryPoint.composeLifePreferences::setPatternCollectionsSynchronizationPeriod,
         modifier = modifier,
     )
 }
@@ -86,7 +86,10 @@ fun PatternCollectionsSynchronizationPeriodUi(
 @Composable
 fun PatternCollectionsSynchronizationPeriodUi(
     patternCollectionsSynchronizationPeriodSessionValue: SessionValue<DateTimePeriod>,
-    setPatternCollectionsSynchronizationPeriodSessionValue: suspend (expected: SessionValue<DateTimePeriod>?, newValue: SessionValue<DateTimePeriod>) -> Unit,
+    setPatternCollectionsSynchronizationPeriodSessionValue: suspend (
+        expected: SessionValue<DateTimePeriod>?,
+        newValue: SessionValue<DateTimePeriod>,
+    ) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val resolver = parameterizedStringResolver()
@@ -102,18 +105,20 @@ fun PatternCollectionsSynchronizationPeriodUi(
         mutableStateOf(
             patternCollectionsSynchronizationPeriodSessionValueHolder.sessionValue.map { dateTimePeriod ->
                 (dateTimePeriod.nanoseconds.nanoseconds +
-                        dateTimePeriod.seconds.seconds +
-                        dateTimePeriod.minutes.minutes +
-                        dateTimePeriod.hours.hours +
-                        dateTimePeriod.days.days +
-                        ((dateTimePeriod.months / 12.0 + dateTimePeriod.years) * 365.2422).days).inWholeNanoseconds /
-                        1.minutes.inWholeNanoseconds.toDouble()
-            }
+                    dateTimePeriod.seconds.seconds +
+                    dateTimePeriod.minutes.minutes +
+                    dateTimePeriod.hours.hours +
+                    dateTimePeriod.days.days +
+                    ((dateTimePeriod.months / 12.0 + dateTimePeriod.years) * 365.2422).days).inWholeNanoseconds /
+                    1.minutes.inWholeNanoseconds.toDouble()
+            },
         )
     }
 
     EditableSlider(
-        labelAndValueText = { parameterizedStringResource(Strings.PatternCollectionsSynchronizationPeriodLabelAndValue(it)) },
+        labelAndValueText = { parameterizedStringResource(
+            Strings.PatternCollectionsSynchronizationPeriodLabelAndValue(it),
+        ) },
         valueText = { resolver(Strings.PatternCollectionsSynchronizationPeriodValue(it)) },
         labelText = parameterizedStringResource(Strings.PatternCollectionsSynchronizationPeriod),
         textToValue = { it.toDoubleOrNull() },
@@ -122,7 +127,7 @@ fun PatternCollectionsSynchronizationPeriodUi(
             synchronizationPeriodInMinutes = newValue
             patternCollectionsSynchronizationPeriodSessionValueHolder.setValue(
                 value = newValue.value.minutes.toDateTimePeriod(),
-                valueId = newValue.valueId
+                valueId = newValue.valueId,
             )
         },
         modifier = modifier,

@@ -31,9 +31,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
-import kotlin.uuid.Uuid
 import org.junit.runner.RunWith
 import kotlin.test.Test
+import kotlin.uuid.Uuid
 
 enum class BackstackType {
     First,
@@ -120,6 +120,7 @@ class MultipleMutableBackstackNavigationController(
 @RunWith(KmpAndroidJUnit4::class)
 class MultipleBackstackUseCaseTests {
 
+    @Suppress("LongMethod")
     @Test
     fun can_increment_count_on_previous_pane() = runComposeUiTest {
         setContent {

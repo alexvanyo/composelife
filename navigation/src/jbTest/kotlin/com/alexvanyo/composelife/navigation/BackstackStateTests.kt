@@ -88,6 +88,7 @@ class BackstackStateTests {
         assertEquals("d", restoredBackstackMap[id4]?.value)
     }
 
+    @Suppress("LongMethod")
     @Test
     fun backstack_state_with_saver_factory_is_saved_correctly() = runComposeUiTest {
         val stateRestorationTester = KmpStateRestorationTester(this)

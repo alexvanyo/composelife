@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.util
 
-import kotlin.time.Instant
 import kotlinx.datetime.DateTimePeriod
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
@@ -27,6 +26,7 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 class PeriodUntilTests {
 

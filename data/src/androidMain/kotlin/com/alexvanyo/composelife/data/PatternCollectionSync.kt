@@ -78,9 +78,9 @@ class PatternCollectionSync(
                                     NetworkType.CONNECTED
                                 } else {
                                     NetworkType.UNMETERED
-                                }
+                                },
                             )
-                            .build()
+                            .build(),
                     )
 
                 if (id == null) {
@@ -88,13 +88,13 @@ class PatternCollectionSync(
                     workManager.enqueueUniquePeriodicWork(
                         uniqueWorkName = PATTERN_COLLECTIONS_SYNC_NAME,
                         existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
-                        request = request
+                        request = request,
                     )
                         .await()
                     id = request.id
                 } else {
                     workManager.updateWork(
-                        request = requestBuilderWithoutId.setId(id).build()
+                        request = requestBuilderWithoutId.setId(id).build(),
                     )
                         .await()
                 }

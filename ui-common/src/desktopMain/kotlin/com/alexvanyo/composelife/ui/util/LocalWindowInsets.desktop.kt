@@ -47,6 +47,7 @@ actual interface WindowInsetsHolder
  * Use [ProvideLocalWindowInsets] to update the [WindowInsetsCompat] appropriately.
  * If not used, the default [WindowShape] will be a simple rectangle path that matches the size of the window.
  */
-actual val LocalWindowInsetsHolder: ProvidableCompositionLocal<WindowInsetsHolder> = compositionLocalWithComputedDefaultOf {
-    object : WindowInsetsHolder {}
-}
+actual val LocalWindowInsetsHolder: ProvidableCompositionLocal<WindowInsetsHolder> =
+    compositionLocalWithComputedDefaultOf {
+        object : WindowInsetsHolder {}
+    }

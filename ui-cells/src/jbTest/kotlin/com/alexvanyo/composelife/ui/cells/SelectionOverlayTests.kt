@@ -228,7 +228,6 @@ class SelectionOverlayTests : BaseUiInjectTest(
         )
     }
 
-
     @Test
     fun selection_is_displayed_correctly() = runUiTest { uiGraph ->
         val injectEntryPoint = uiGraph.testComposeLifeUiEntryPoint

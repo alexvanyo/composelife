@@ -25,7 +25,6 @@ import com.alexvanyo.composelife.scopes.UiGraphArguments
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runCurrent
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 
