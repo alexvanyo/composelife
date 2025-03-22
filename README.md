@@ -37,7 +37,7 @@ These include:
 ## Setup
 
 Requirements:
-- Android Studio Meerkat Feature Drop 2024.3.2
+- Android Studio Narwhal 2025.1.1
 - JDK 21+
 
 Clone the project, and build! (no API keys or other setup necessary)
