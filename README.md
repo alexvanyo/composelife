@@ -81,7 +81,7 @@ limitations under the License.
 [codecov]: https://about.codecov.io/
 [codecov_badge]: https://codecov.io/gh/alexvanyo/composelife/branch/main/graph/badge.svg?token=z7yP8Z8xqC
 [codecov_project]: https://codecov.io/gh/alexvanyo/composelife
-[context_receivers]: https://github.com/Kotlin/KEEP/blob/master/proposals/context-parameters.md
+[context_parameters]: https://github.com/Kotlin/KEEP/blob/master/proposals/context-parameters.md
 [detekt]: https://detekt.dev/
 [icon]: app/src/androidMain/ic_launcher-playstore.png
 [jacoco]: https://github.com/jacoco/jacoco
