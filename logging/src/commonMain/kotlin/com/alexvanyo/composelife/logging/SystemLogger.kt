@@ -57,19 +57,19 @@ internal class SystemLogger(
         kermitLogger.v(messageString, throwable, tag)
 
     override fun d(messageString: String, throwable: Throwable?, tag: String) =
-        kermitLogger.v(messageString, throwable, tag)
+        kermitLogger.d(messageString, throwable, tag)
 
     override fun i(messageString: String, throwable: Throwable?, tag: String) =
-        kermitLogger.v(messageString, throwable, tag)
+        kermitLogger.i(messageString, throwable, tag)
 
     override fun w(messageString: String, throwable: Throwable?, tag: String) =
-        kermitLogger.v(messageString, throwable, tag)
+        kermitLogger.w(messageString, throwable, tag)
 
     override fun e(messageString: String, throwable: Throwable?, tag: String) =
-        kermitLogger.v(messageString, throwable, tag)
+        kermitLogger.e(messageString, throwable, tag)
 
     override fun a(messageString: String, throwable: Throwable?, tag: String) =
-        kermitLogger.v(messageString, throwable, tag)
+        kermitLogger.a(messageString, throwable, tag)
 }
 
 internal val SingletonSystemLogger = SystemLogger()
