@@ -90,6 +90,10 @@ compose.desktop {
     }
 }
 
+tasks.withType<JavaExec>().named { it == "run" }.configureEach {
+    systemProperty("debug", "true")
+}
+
 dependencyGuard {
     configuration("desktopRuntimeClasspath")
 }

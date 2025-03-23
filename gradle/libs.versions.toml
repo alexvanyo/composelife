@@ -117,6 +117,8 @@ robolectric = "4.14.1"
 roborazzi = "1.43.1"
 #sealedEnum
 sealedEnum = "0.7.0"
+#slf4j
+slf4j = "2.0.17"
 #showkase
 showkase = "1.0.3"
 #slackComposeLintChecks
@@ -232,8 +234,8 @@ kotlinx-io-okio = { group = "org.jetbrains.kotlinx", name = "kotlinx-io-okio", v
 kotlinx-serialization-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
-ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
 ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock", version.ref = "ktor" }
 ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
 leakCanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakCanary" }
@@ -250,6 +252,7 @@ showkase-annotation = { group = "com.airbnb.android", name = "showkase-annotatio
 showkase-processor = { group = "com.airbnb.android", name = "showkase-processor", version.ref = "showkase" }
 showkase-runtime = { group = "com.airbnb.android", name = "showkase", version.ref = "showkase" }
 slackComposeLintChecks = { group = "com.slack.lint.compose", name = "compose-lint-checks", version.ref = "slackComposeLintChecks" }
+slf4j-nop = { group = "org.slf4j", name = "slf4j-nop", version.ref = "slf4j" }
 sqldelight-androidDriver = { group = "app.cash.sqldelight", name = "android-driver", version.ref = "sqldelight" }
 sqldelight-coroutinesExtensions = { group = "app.cash.sqldelight", name = "coroutines-extensions", version.ref = "sqldelight" }
 sqldelight-primitiveAdapters = { group = "app.cash.sqldelight", name = "primitive-adapters", version.ref = "sqldelight" }
