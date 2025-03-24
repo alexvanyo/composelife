@@ -82,6 +82,10 @@ kotlin {
             )
             dependencies {
                 api(libs.kotlinx.coroutines.android)
+
+                implementation(libs.androidx.work.runtime)
+                implementation(libs.guava.android)
+                implementation(libs.kotlinx.coroutines.guava)
             }
         }
         val commonTest by getting {
