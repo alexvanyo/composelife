@@ -57,6 +57,7 @@ kotlin {
                 implementation(projects.injectScopes)
                 implementation(projects.logging)
                 implementation(projects.updatable)
+                implementation(projects.work)
             }
         }
         val jbMain by creating {
@@ -92,6 +93,7 @@ kotlin {
                 implementation(projects.dispatchersTest)
                 implementation(projects.filesystemTest)
                 implementation(projects.networkTest)
+                implementation(projects.workTest)
             }
         }
         val jbTest by creating {
