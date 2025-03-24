@@ -24,6 +24,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.firstSuccess
 import com.alexvanyo.composelife.sessionvalue.SessionValue
+import kotlinx.datetime.DateTimePeriod
 import kotlin.uuid.Uuid
 
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -47,6 +48,8 @@ class TestComposeLifePreferences(
     mouseToolConfig: ToolConfig = ToolConfig.Draw,
     completedClipboardWatchingOnboarding: Boolean = false,
     enableClipboardWatching: Boolean = false,
+    synchronizePatternCollectionsOnMeteredNetwork: Boolean = false,
+    patternCollectionsSynchronizationPeriod: DateTimePeriod = DateTimePeriod(hours = 24),
 ) : ComposeLifePreferences {
     var quickAccessSettings: Set<QuickAccessSetting> by mutableStateOf(quickAccessSettings)
 
@@ -80,6 +83,12 @@ class TestComposeLifePreferences(
     var enableClipboardWatching:
         Boolean by mutableStateOf(enableClipboardWatching)
 
+    var synchronizePatternCollectionsOnMeteredNetwork:
+        Boolean by mutableStateOf(synchronizePatternCollectionsOnMeteredNetwork)
+
+    var patternCollectionsSynchronizationPeriod:
+        DateTimePeriod by mutableStateOf(patternCollectionsSynchronizationPeriod)
+
     var isLoaded by mutableStateOf(isLoaded)
 
     override val loadedPreferencesState: ResourceState<LoadedComposeLifePreferences>
@@ -103,6 +112,8 @@ class TestComposeLifePreferences(
                     mouseToolConfig = mouseToolConfig,
                     completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
                     enableClipboardWatching = enableClipboardWatching,
+                    synchronizePatternCollectionsOnMeteredNetwork = synchronizePatternCollectionsOnMeteredNetwork,
+                    patternCollectionsSynchronizationPeriod = patternCollectionsSynchronizationPeriod,
                 ),
             )
         } else {
@@ -189,6 +200,14 @@ class TestComposeLifePreferences(
 
                 override fun setEnableClipboardWatching(enabled: Boolean) {
                     enableClipboardWatching = enabled
+                }
+
+                override fun setSynchronizePatternCollectionsOnMeteredNetwork(enabled: Boolean) {
+                    synchronizePatternCollectionsOnMeteredNetwork = enabled
+                }
+
+                override fun setPatternCollectionsSynchronizationPeriod(period: DateTimePeriod) {
+                    patternCollectionsSynchronizationPeriod = period
                 }
             }.run(block)
         }

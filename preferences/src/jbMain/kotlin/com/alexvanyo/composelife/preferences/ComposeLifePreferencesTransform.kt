@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.preferences
 
 import com.alexvanyo.composelife.sessionvalue.SessionValue
+import kotlinx.datetime.DateTimePeriod
 
 @Suppress("TooManyFunctions")
 interface ComposeLifePreferencesTransform {
@@ -57,4 +58,8 @@ interface ComposeLifePreferencesTransform {
     fun setCompletedClipboardWatchingOnboarding(completed: Boolean)
 
     fun setEnableClipboardWatching(enabled: Boolean)
+
+    fun setSynchronizePatternCollectionsOnMeteredNetwork(enabled: Boolean)
+
+    fun setPatternCollectionsSynchronizationPeriod(period: DateTimePeriod)
 }
