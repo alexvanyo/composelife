@@ -75,6 +75,7 @@ kotlin {
                 implementation(projects.uiCommon)
                 implementation(projects.uiMobile)
                 implementation(projects.uiToolingPreview)
+                implementation(projects.work)
             }
         }
         val jbMain by creating {
@@ -140,6 +141,7 @@ kotlin {
                 implementation(projects.preferencesTest)
                 implementation(projects.screenshotTest)
                 implementation(projects.testActivity)
+                implementation(projects.workTest)
             }
         }
         val jvmTest by creating {

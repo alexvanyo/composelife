@@ -69,6 +69,7 @@ kotlin {
                 implementation(projects.strictMode)
                 implementation(projects.uiApp)
                 implementation(projects.uiMobile)
+                implementation(projects.work)
             }
         }
         val androidMain by getting {
@@ -107,6 +108,7 @@ kotlin {
                 implementation(projects.patterns)
                 implementation(projects.preferencesTest)
                 implementation(projects.uiCommon)
+                implementation(projects.workTest)
             }
         }
         val androidSharedTest by getting {

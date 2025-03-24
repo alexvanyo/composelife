@@ -1,9 +1,12 @@
 package: name='com.alexvanyo.composelife' versionCode='1' versionName='1.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
 minSdkVersion:'21'
 targetSdkVersion:'35'
+uses-permission: name='android.permission.WAKE_LOCK'
+uses-permission: name='android.permission.ACCESS_NETWORK_STATE'
+uses-permission: name='android.permission.RECEIVE_BOOT_COMPLETED'
+uses-permission: name='android.permission.FOREGROUND_SERVICE'
 uses-permission: name='com.alexvanyo.composelife.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
 uses-permission: name='android.permission.INTERNET'
-uses-permission: name='android.permission.ACCESS_NETWORK_STATE'
 application-label:'ComposeLife'
 application-label-af:'ComposeLife'
 application-label-am:'ComposeLife'
@@ -107,6 +110,7 @@ feature-group: label=''
   uses-implied-feature: name='android.hardware.faketouch' reason='default feature for all apps'
 other-activities
 other-receivers
+other-services
 supports-screens: 'small' 'normal' 'large' 'xlarge'
 supports-any-density: 'true'
 locales: '--_--' 'af' 'am' 'ar' 'as' 'az' 'be' 'bg' 'bn' 'bs' 'ca' 'cs' 'da' 'de' 'el' 'en-AU' 'en-CA' 'en-GB' 'en-IN' 'en-XC' 'es' 'es-US' 'et' 'eu' 'fa' 'fi' 'fr' 'fr-CA' 'gl' 'gu' 'hi' 'hr' 'hu' 'hy' 'in' 'is' 'it' 'iw' 'ja' 'ka' 'kk' 'km' 'kn' 'ko' 'ky' 'lo' 'lt' 'lv' 'mk' 'ml' 'mn' 'mr' 'ms' 'my' 'nb' 'ne' 'nl' 'or' 'pa' 'pl' 'pt' 'pt-BR' 'pt-PT' 'ro' 'ru' 'si' 'sk' 'sl' 'sq' 'sr' 'sr-Latn' 'sv' 'sw' 'ta' 'te' 'th' 'tl' 'tr' 'uk' 'ur' 'uz' 'vi' 'zh-CN' 'zh-HK' 'zh-TW' 'zu'
