@@ -19,6 +19,7 @@ syntax = "proto3";
 import "com/alexvanyo/composelife/preferences/proto/algorithm.proto";
 import "com/alexvanyo/composelife/preferences/proto/current_shape_type.proto";
 import "com/alexvanyo/composelife/preferences/proto/dark_theme_config.proto";
+import "com/alexvanyo/composelife/preferences/proto/date_time_period.proto";
 import "com/alexvanyo/composelife/preferences/proto/quick_access_setting.proto";
 import "com/alexvanyo/composelife/preferences/proto/shapes.proto";
 import "com/alexvanyo/composelife/preferences/proto/tool_config.proto";
@@ -43,4 +44,6 @@ message PreferencesProto {
   ToolConfigProto mouse_tool_config = 11;
   bool completed_clipboard_watching_onboarding = 12;
   bool enable_clipboard_watching = 13;
+  bool synchronize_pattern_collections_on_metered_network = 16;
+  DateTimePeriodProto pattern_collections_synchronization_period = 17;
 }
