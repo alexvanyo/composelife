@@ -37,6 +37,8 @@ import io.ktor.client.plugins.onDownload
 import io.ktor.client.request.prepareGet
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.utils.io.readBuffer
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.catch
@@ -44,7 +46,10 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retry
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.io.okio.asOkioSource
@@ -112,6 +117,8 @@ class PatternCollectionRepositoryImpl(
         error("getPatternCollections can not complete normally")
     }
 
+    private val synchronizeMutex = Mutex()
+
     override suspend fun update(): Nothing = powerableUpdatable.update()
 
     override suspend fun observePatternCollections(): Nothing = powerableUpdatable.press()
@@ -136,26 +143,29 @@ class PatternCollectionRepositoryImpl(
         }
     }
 
-    override suspend fun synchronizePatternCollections() {
-        // Fetch the current list of pattern collections
-        val patternCollections = withContext(dispatchers.IO) {
-            patternCollectionQueries.getPatternCollections().executeAsList()
-        }
+    override suspend fun synchronizePatternCollections(): Boolean =
+        synchronizeMutex.withLock {
+            // Fetch the current list of pattern collections
+            val patternCollections = withContext(dispatchers.IO) {
+                patternCollectionQueries.getPatternCollections().executeAsList()
+            }
 
-        // In parallel, synchronize each of the pattern collections we have
-        coroutineScope {
-            patternCollections.forEach { patternCollection ->
-                launch {
-                    synchronizePatternCollection(patternCollection)
+            // In parallel, synchronize each of the pattern collections we have
+            return coroutineScope {
+                patternCollections.map { patternCollection ->
+                    async {
+                        synchronizePatternCollection(patternCollection)
+                    }
                 }
+                    .awaitAll()
+                    .all { it }
             }
         }
-    }
 
     @Suppress("ThrowsCount", "TooGenericExceptionCaught", "LongMethod", "CyclomaticComplexMethod")
     private suspend fun synchronizePatternCollection(
         patternCollection: com.alexvanyo.composelife.database.PatternCollection,
-    ) = withContext(dispatchers.IO) {
+    ): Boolean = withContext(dispatchers.IO) {
         val sourceUrl = patternCollection.sourceUrl
         val archivePathParent = persistedDataPath /
                 collectionsFolder /
@@ -167,12 +177,10 @@ class PatternCollectionRepositoryImpl(
         try {
             fileSystem.createDirectories(archivePathParent)
         } catch (exception: Exception) {
-            // TODO: handle I/O exceptions
-            logger.e(exception) { "Failed to create directories" }
-            throw exception
-        } catch (throwable: Throwable) {
             coroutineContext.ensureActive()
-            throw throwable
+            // TODO: record I/O exceptions
+            logger.e(exception) { "Failed to create directories" }
+            return@withContext false
         }
 
         try {
@@ -195,12 +203,10 @@ class PatternCollectionRepositoryImpl(
                     }
                 }
         } catch (exception: Exception) {
-            // TODO: handle I/O exceptions
-            logger.e(exception) { "Failed fetching" }
-            throw exception
-        } catch (throwable: Throwable) {
             coroutineContext.ensureActive()
-            throw throwable
+            // TODO: record I/O exceptions
+            logger.e(exception) { "Failed fetching" }
+            return@withContext false
         }
 
         val hashingSink = HashingSink.sha256(blackholeSink())
@@ -231,12 +237,10 @@ class PatternCollectionRepositoryImpl(
                     logger.d("Found file: ${file.name}")
                 }
             } catch (exception: Exception) {
-                // TODO: handle I/O exceptions
-                logger.e(exception) { "Failed fetching" }
-                throw exception
-            } catch (throwable: Throwable) {
                 coroutineContext.ensureActive()
-                throw throwable
+                // TODO: record I/O exceptions
+                logger.e(exception) { "Failed fetching" }
+                return@withContext false
             }
         }
 
@@ -245,6 +249,8 @@ class PatternCollectionRepositoryImpl(
             sourceUrl = patternCollection.sourceUrl,
             lastSuccessfulSynchronizationTimestamp = clock.now(),
         )
+
+        true
     }
 }
 

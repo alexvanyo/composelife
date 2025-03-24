@@ -53,7 +53,7 @@ interface PatternCollectionRepository {
      * Attempts to fetch and synchronize all pattern collections, and extract the patterns from the downloaded
      * archives.
      *
-     * This method returns when all synchronization has finished, either successfully or unsuccessfully.
+     * This method returns `true` when all synchronization has finished successfully, otherwise it returns `false`.
      */
-    suspend fun synchronizePatternCollections()
+    suspend fun synchronizePatternCollections(): Boolean
 }

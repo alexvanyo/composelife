@@ -27,6 +27,7 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.datetime.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PatternCollectionRepositoryTests : BaseInjectTest<
@@ -103,11 +104,9 @@ class PatternCollectionRepositoryTests : BaseInjectTest<
             )
         }
 
-        patternCollectionRepository.synchronizePatternCollections()
+        assertTrue(patternCollectionRepository.synchronizePatternCollections())
 
         runCurrent()
-
-        val collections = patternCollectionRepository.collections
 
         assertEquals(
             ResourceState.Success(

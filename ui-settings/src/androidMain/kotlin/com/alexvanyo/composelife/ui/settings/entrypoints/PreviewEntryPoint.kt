@@ -136,7 +136,7 @@ internal fun WithPreviewDependencies(
         override suspend fun observePatternCollections(): Nothing = throw NotImplementedError()
         override suspend fun addPatternCollection(sourceUrl: String): PatternCollectionId = throw NotImplementedError()
         override suspend fun deletePatternCollection(patternCollectionId: PatternCollectionId) = Unit
-        override suspend fun synchronizePatternCollections() = Unit
+        override suspend fun synchronizePatternCollections() = true
     },
     content: @Composable context(PreviewEntryPoint) () -> Unit,
 ) {

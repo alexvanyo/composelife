@@ -185,7 +185,6 @@ internal fun WithPreviewDependencies(
         ),
     )
     val cellStateQueries = composeLifeDatabase.cellStateQueries
-    val patternCollectionQueries = composeLifeDatabase.patternCollectionQueries
 
     val dispatchersProvider = object : ComposeLifeDispatchersProvider {
         override val dispatchers = dispatchers
@@ -212,7 +211,7 @@ internal fun WithPreviewDependencies(
             override suspend fun addPatternCollection(sourceUrl: String): PatternCollectionId =
                 throw NotImplementedError()
             override suspend fun deletePatternCollection(patternCollectionId: PatternCollectionId) = Unit
-            override suspend fun synchronizePatternCollections() = Unit
+            override suspend fun synchronizePatternCollections() = true
         }
     }
     val loadedPreferencesProvider = object : LoadedComposeLifePreferencesProvider {
