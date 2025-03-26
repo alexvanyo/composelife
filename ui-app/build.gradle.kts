@@ -123,6 +123,8 @@ kotlin {
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.poolingContainer)
                 implementation(libs.kotlinx.coroutines.android)
+                implementation(libs.ktor.client.mock)
+                implementation(libs.okio.fakefilesystem)
                 implementation(libs.sealedEnum.runtime)
                 implementation(libs.showkase.runtime)
                 implementation(libs.sqldelight.androidDriver)
