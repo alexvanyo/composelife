@@ -115,3 +115,6 @@ internal actual val Strings.EnableClipboardWatching: ParameterizedString get() =
 
 internal actual val Strings.Delete: ParameterizedString get() =
     ParameterizedString(R.string.delete)
+
+internal actual val Strings.SynchronizePatternCollectionsOnMeteredNetwork: ParameterizedString get() =
+    ParameterizedString(R.string.synchronize_pattern_collections_on_metered_network)
