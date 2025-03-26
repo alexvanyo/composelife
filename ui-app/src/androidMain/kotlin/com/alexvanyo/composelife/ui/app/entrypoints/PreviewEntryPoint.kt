@@ -182,6 +182,7 @@ internal fun WithPreviewDependencies(
         patternCollectionAdapter = PatternCollection.Adapter(
             idAdapter = PatternCollectionIdAdapter(),
             lastSuccessfulSynchronizationTimestampAdapter = InstantAdapter(),
+            lastUnsuccessfulSynchronizationTimestampAdapter = InstantAdapter(),
         ),
     )
     val cellStateQueries = composeLifeDatabase.cellStateQueries

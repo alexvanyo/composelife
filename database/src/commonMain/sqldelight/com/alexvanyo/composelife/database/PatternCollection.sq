@@ -4,7 +4,9 @@ import kotlinx.datetime.Instant;
 CREATE TABLE patternCollection (
     id INTEGER AS PatternCollectionId NOT NULL PRIMARY KEY AUTOINCREMENT,
     sourceUrl TEXT NOT NULL,
-    lastSuccessfulSynchronizationTimestamp TEXT AS Instant
+    lastSuccessfulSynchronizationTimestamp TEXT AS Instant,
+    lastUnsuccessfulSynchronizationTimestamp TEXT AS Instant,
+    synchronizationFailureMessage TEXT
 );
 
 getPatternCollections:
@@ -19,18 +21,24 @@ WHERE id=:id;
 insertPatternCollection:
 INSERT INTO patternCollection (
     sourceUrl,
-    lastSuccessfulSynchronizationTimestamp
+    lastSuccessfulSynchronizationTimestamp,
+    lastUnsuccessfulSynchronizationTimestamp,
+    synchronizationFailureMessage
 )
 VALUES (
     :sourceUrl,
-    :lastSuccessfulSynchronizationTimestamp
+    :lastSuccessfulSynchronizationTimestamp,
+    :lastUnsuccessfulSynchronizationTimestamp,
+    :synchronizationFailureMessage
 );
 
 updatePatternCollection:
 UPDATE patternCollection
 SET
     sourceUrl=:sourceUrl,
-    lastSuccessfulSynchronizationTimestamp=:lastSuccessfulSynchronizationTimestamp
+    lastSuccessfulSynchronizationTimestamp=:lastSuccessfulSynchronizationTimestamp,
+    lastUnsuccessfulSynchronizationTimestamp=:lastUnsuccessfulSynchronizationTimestamp,
+    synchronizationFailureMessage=:synchronizationFailureMessage
 WHERE id=:id;
 
 lastInsertedRowId:

@@ -4,5 +4,7 @@ import kotlinx.datetime.Instant;
 CREATE TABLE patternCollection (
     id INTEGER AS PatternCollectionId NOT NULL PRIMARY KEY AUTOINCREMENT,
     sourceUrl TEXT NOT NULL,
-    lastSuccessfulSynchronizationTimestamp TEXT AS Instant
+    lastSuccessfulSynchronizationTimestamp TEXT AS Instant,
+    lastUnsuccessfulSynchronizationTimestamp TEXT AS Instant,
+    synchronizationFailureMessage TEXT
 );

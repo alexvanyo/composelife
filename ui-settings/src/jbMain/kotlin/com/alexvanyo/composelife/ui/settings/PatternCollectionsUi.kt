@@ -17,9 +17,14 @@
 
 package com.alexvanyo.composelife.ui.settings
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
@@ -27,9 +32,13 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -37,14 +46,21 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
@@ -57,12 +73,19 @@ import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProv
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.settings.resources.Delete
 import com.alexvanyo.composelife.ui.settings.resources.Strings
+import com.alexvanyo.composelife.ui.util.AnimatedContent
+import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.currentTimeZone
 import com.alexvanyo.composelife.ui.util.dateComponentInWholeUnits
 import com.alexvanyo.composelife.ui.util.progressivePeriodUntil
 import com.alexvanyo.composelife.ui.util.timeComponentInWholeUnits
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
+import kotlin.collections.component1
+import kotlin.collections.component2
 
 interface PatternCollectionsUiInjectEntryPoint :
     PatternCollectionRepositoryProvider,
@@ -84,7 +107,7 @@ fun PatternCollectionsUi(
     }
 
     PatternCollectionsUi(
-        patternCollections = injectEntryPoint.patternCollectionRepository.collections,
+        patternCollectionsState = injectEntryPoint.patternCollectionRepository.collections,
         addPatternCollection = injectEntryPoint.patternCollectionRepository::addPatternCollection,
         deletePatternCollection = injectEntryPoint.patternCollectionRepository::deletePatternCollection,
         modifier = modifier,
@@ -95,14 +118,28 @@ context(_: ClockProvider)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatternCollectionsUi(
-    patternCollections: ResourceState<List<PatternCollection>>,
+    patternCollectionsState: ResourceState<List<PatternCollection>>,
     addPatternCollection: suspend (String) -> Unit,
     deletePatternCollection: suspend (PatternCollectionId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
     Column(modifier = modifier) {
-        when (patternCollections) {
+        HorizontalDivider(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+        )
+
+        Text(
+            "Sources",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(
+                top = 8.dp,
+                bottom = 12.dp,
+            )
+        )
+
+        when (patternCollectionsState) {
             is ResourceState.Failure -> {
                 // TODO
             }
@@ -110,17 +147,79 @@ fun PatternCollectionsUi(
                 // TODO
             }
             is ResourceState.Success -> {
-                patternCollections.value.forEach { patternCollection ->
-                    key(patternCollection.id) {
-                        PatternCollection(
-                            patternCollection = patternCollection,
-                            onDelete = {
-                                coroutineScope.launch {
-                                    deletePatternCollection(patternCollection.id)
-                                }
-                            },
-                        )
+                val patternCollections = patternCollectionsState.value.associateBy { it.id }
+
+                /**
+                 * The list of previously known animatable pattern collections, used to smoothly animate out upon
+                 * removing and in upon appearing.
+                 *
+                 * These are initialized to be visible, with no appearing animation
+                 */
+                var previouslyAnimatablePatternCollections by remember {
+                    mutableStateOf(
+                        patternCollections.keys.associateWith { MutableTransitionState(true) },
+                    )
+                }
+
+                /**
+                 * The list of currently animatable pattern collections. The order of the [Map.plus] is important
+                 * here, to preserve any ongoing animation state.
+                 */
+                val animatablePatternCollections =
+                    patternCollections.keys.associateWith {
+                        MutableTransitionState(false).apply { targetState = true }
+                    } + previouslyAnimatablePatternCollections
+
+                DisposableEffect(animatablePatternCollections, patternCollections) {
+                    animatablePatternCollections.forEach { (patternCollectionId, visibleState) ->
+                        // Update the target state based on whether the pattern collection should currently be visible
+                        visibleState.targetState = patternCollectionId in patternCollections
                     }
+                    onDispose {}
+                }
+
+                val animatingPatternCollection = animatablePatternCollections
+
+                animatingPatternCollection.forEach { (patternCollectionId, visibleState) ->
+                    key(patternCollectionId) {
+                        AnimatedVisibility(
+                            visibleState = visibleState,
+                        ) {
+                            PatternCollection(
+                                patternCollection = remember {
+                                    mutableStateOf(patternCollections.getValue(patternCollectionId))
+                                }.apply {
+                                    patternCollections[patternCollectionId]?.let { value = it }
+                                }.value,
+                                onDelete = {
+                                    coroutineScope.launch {
+                                        deletePatternCollection(patternCollectionId)
+                                    }
+                                },
+                                modifier = Modifier.padding(vertical = 4.dp),
+                            )
+                        }
+                    }
+                }
+
+                // Sync all of the known pattern collections back to `previouslyAnimatablePatternCollections`,
+                // removing any that have finished disappearing
+                LaunchedEffect(animatablePatternCollections) {
+                    snapshotFlow {
+                        animatablePatternCollections.values.firstOrNull {
+                            it.isIdle && !it.targetState
+                        }
+                    }
+                        // Intentionally ignore the pattern collection that has animated out, we're just using it to
+                        // trigger updating `previouslyAnimatablePatternCollections` in its entirety.
+                        .map {}
+                        .onEach {
+                            previouslyAnimatablePatternCollections = animatablePatternCollections.filterValues {
+                                // Only keep those that are visible, or are currently animating
+                                !it.isIdle || it.targetState
+                            }
+                        }
+                        .collect()
                 }
             }
         }
@@ -138,59 +237,110 @@ fun PatternCollection(
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
+    Card(
         modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text("Source:")
-            Text(patternCollection.sourceUrl)
-            Text("Last successful sync:")
-
-            val lastSuccessfulSynchronizationTimestamp = patternCollection.lastSuccessfulSynchronizationTimestamp
-            if (lastSuccessfulSynchronizationTimestamp == null) {
-                Text("Never")
-            } else {
-                val (unit, period) = lastSuccessfulSynchronizationTimestamp.progressivePeriodUntil(
-                    clock = clockProvider.clock,
-                    unitProgression = listOf(
-                        DateTimeUnit.DAY,
-                        DateTimeUnit.HOUR,
-                        DateTimeUnit.MINUTE,
-                        DateTimeUnit.SECOND,
-                    ),
-                    timeZone = currentTimeZone(),
-                )
-                val amountOfUnit = when (unit) {
-                    is DateTimeUnit.DateBased -> period.dateComponentInWholeUnits(unit).toLong()
-                    is DateTimeUnit.TimeBased -> period.timeComponentInWholeUnits(unit)
-                }
-                val unitName = when (unit) {
-                    DateTimeUnit.DAY -> "day(s)"
-                    DateTimeUnit.HOUR -> "hour(s)"
-                    DateTimeUnit.MINUTE -> "minute(s)"
-                    DateTimeUnit.SECOND -> "second(s)"
-                    else -> error("Unknown unit")
-                }
-                Text("$amountOfUnit $unitName ago")
-            }
-        }
-
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-            tooltip = {
-                PlainTooltip {
-                    Text(parameterizedStringResource(Strings.Delete))
-                }
-            },
-            state = rememberTooltipState(),
-        ) {
-            IconButton(
-                onClick = onDelete,
+        Box {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(8.dp),
             ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = parameterizedStringResource(Strings.Delete),
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(patternCollection.sourceUrl)
+                    Text("Last successful sync:")
+
+                    val lastSuccessfulSynchronizationTimestamp =
+                        patternCollection.lastSuccessfulSynchronizationTimestamp
+                    if (lastSuccessfulSynchronizationTimestamp == null) {
+                        Text("Never")
+                    } else {
+                        val (unit, period) = lastSuccessfulSynchronizationTimestamp.progressivePeriodUntil(
+                            clock = clockProvider.clock,
+                            unitProgression = listOf(
+                                DateTimeUnit.DAY,
+                                DateTimeUnit.HOUR,
+                                DateTimeUnit.MINUTE,
+                                DateTimeUnit.SECOND,
+                            ),
+                            timeZone = currentTimeZone(),
+                        )
+                        val amountOfUnit = when (unit) {
+                            is DateTimeUnit.DateBased -> period.dateComponentInWholeUnits(unit).toLong()
+                            is DateTimeUnit.TimeBased -> period.timeComponentInWholeUnits(unit)
+                        }
+                        val unitName = when (unit) {
+                            DateTimeUnit.DAY -> "day(s)"
+                            DateTimeUnit.HOUR -> "hour(s)"
+                            DateTimeUnit.MINUTE -> "minute(s)"
+                            DateTimeUnit.SECOND -> "second(s)"
+                            else -> error("Unknown unit")
+                        }
+                        Text("$amountOfUnit $unitName ago")
+                    }
+
+                    AnimatedContent(
+                        targetState = TargetState.Single(patternCollection.lastUnsuccessfulSynchronizationTimestamp),
+                    ) { lastUnsuccessfulSynchronizationTimestamp ->
+                        if (lastUnsuccessfulSynchronizationTimestamp != null) {
+                            Column {
+                                Text("Last unsuccessful sync:")
+                                val (unit, period) = lastUnsuccessfulSynchronizationTimestamp.progressivePeriodUntil(
+                                    clock = clockProvider.clock,
+                                    unitProgression = listOf(
+                                        DateTimeUnit.DAY,
+                                        DateTimeUnit.HOUR,
+                                        DateTimeUnit.MINUTE,
+                                        DateTimeUnit.SECOND,
+                                    ),
+                                    timeZone = currentTimeZone(),
+                                )
+                                val amountOfUnit = when (unit) {
+                                    is DateTimeUnit.DateBased -> period.dateComponentInWholeUnits(unit).toLong()
+                                    is DateTimeUnit.TimeBased -> period.timeComponentInWholeUnits(unit)
+                                }
+                                val unitName = when (unit) {
+                                    DateTimeUnit.DAY -> "day(s)"
+                                    DateTimeUnit.HOUR -> "hour(s)"
+                                    DateTimeUnit.MINUTE -> "minute(s)"
+                                    DateTimeUnit.SECOND -> "second(s)"
+                                    else -> error("Unknown unit")
+                                }
+                                Text("$amountOfUnit $unitName ago")
+                                val synchronizationFailureMessage = patternCollection.synchronizationFailureMessage
+                                if (synchronizationFailureMessage != null) {
+                                    Text(synchronizationFailureMessage)
+                                }
+                            }
+                        } else {
+                            Spacer(Modifier.fillMaxWidth())
+                        }
+                    }
+                }
+
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    tooltip = {
+                        PlainTooltip {
+                            Text(parameterizedStringResource(Strings.Delete))
+                        }
+                    },
+                    state = rememberTooltipState(),
+                ) {
+                    IconButton(
+                        onClick = onDelete,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = parameterizedStringResource(Strings.Delete),
+                        )
+                    }
+                }
+            }
+            if (patternCollection.isSynchronizing) {
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth(),
                 )
             }
         }
@@ -210,9 +360,10 @@ fun AddPatternCollection(
         val textFieldState = rememberSaveable(saver = TextFieldState.Saver) { TextFieldState() }
 
         val add = {
+            val text = textFieldState.text.toString()
             textFieldState.clearText()
             coroutineScope.launch {
-                addPatternCollection(textFieldState.text.toString())
+                addPatternCollection(text)
             }
         }
 
@@ -229,9 +380,10 @@ fun AddPatternCollection(
         )
 
         Button(
+            enabled = textFieldState.text.isNotBlank(),
             onClick = { add() },
         ) {
-            Text("Add pattern collection")
+            Text("Add pattern collection source")
         }
     }
 }
