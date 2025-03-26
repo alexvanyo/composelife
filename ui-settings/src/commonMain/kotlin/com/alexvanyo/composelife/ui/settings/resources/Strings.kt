@@ -75,8 +75,14 @@ internal expect val Strings.Algorithm: ParameterizedString
 
 internal expect val Strings.FeatureFlags: ParameterizedString
 
+internal expect val Strings.PatternCollections: ParameterizedString
+
 internal expect val Strings.Visual: ParameterizedString
 
 internal expect val Strings.ClipboardWatchingOnboardingCompleted: ParameterizedString
 
 internal expect val Strings.EnableClipboardWatching: ParameterizedString
+
+internal expect val Strings.Delete: ParameterizedString
+
+internal expect val Strings.SynchronizePatternCollectionsOnMeteredNetwork: ParameterizedString

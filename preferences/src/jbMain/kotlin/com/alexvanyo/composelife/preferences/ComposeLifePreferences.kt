@@ -21,6 +21,7 @@ package com.alexvanyo.composelife.preferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.map
 import com.alexvanyo.composelife.sessionvalue.SessionValue
+import kotlinx.datetime.DateTimePeriod
 
 interface ComposeLifePreferences {
     val loadedPreferencesState: ResourceState<LoadedComposeLifePreferences>
@@ -75,6 +76,12 @@ val ComposeLifePreferences.completedClipboardWatchingOnboardingState: ResourceSt
 val ComposeLifePreferences.enableClipboardWatchingState: ResourceState<Boolean>
     get() = loadedPreferencesState.map(LoadedComposeLifePreferences::enableClipboardWatching)
 
+val ComposeLifePreferences.synchronizePatternCollectionsOnMeteredNetwork: ResourceState<Boolean>
+    get() = loadedPreferencesState.map(LoadedComposeLifePreferences::synchronizePatternCollectionsOnMeteredNetwork)
+
+val ComposeLifePreferences.patternCollectionsSynchronizationPeriod: ResourceState<DateTimePeriod>
+    get() = loadedPreferencesState.map(LoadedComposeLifePreferences::patternCollectionsSynchronizationPeriod)
+
 suspend fun ComposeLifePreferences.setAlgorithmChoice(algorithm: AlgorithmType) =
     update { setAlgorithmChoice(algorithm) }
 
@@ -118,3 +125,9 @@ suspend fun ComposeLifePreferences.setCompletedClipboardWatchingOnboarding(compl
 
 suspend fun ComposeLifePreferences.setEnableClipboardWatching(enabled: Boolean) =
     update { setEnableClipboardWatching(enabled) }
+
+suspend fun ComposeLifePreferences.setSynchronizePatternCollectionsOnMeteredNetwork(enabled: Boolean) =
+    update { setSynchronizePatternCollectionsOnMeteredNetwork(enabled) }
+
+suspend fun ComposeLifePreferences.setPatternCollectionsSynchronizationPeriod(period: DateTimePeriod) =
+    update { setPatternCollectionsSynchronizationPeriod(period) }

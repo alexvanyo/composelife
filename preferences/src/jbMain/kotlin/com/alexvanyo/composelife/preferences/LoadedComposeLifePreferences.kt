@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.preferences
 
 import com.alexvanyo.composelife.sessionvalue.SessionValue
+import kotlinx.datetime.DateTimePeriod
 import kotlin.uuid.Uuid
 
 data class LoadedComposeLifePreferences(
@@ -33,6 +34,8 @@ data class LoadedComposeLifePreferences(
     val mouseToolConfig: ToolConfig,
     val completedClipboardWatchingOnboarding: Boolean,
     val enableClipboardWatching: Boolean,
+    val synchronizePatternCollectionsOnMeteredNetwork: Boolean,
+    val patternCollectionsSynchronizationPeriod: DateTimePeriod,
 ) {
     companion object {
         internal val defaultRoundRectangleSessionId = Uuid.random()
@@ -60,6 +63,8 @@ data class LoadedComposeLifePreferences(
             mouseToolConfig = ToolConfig.Draw,
             completedClipboardWatchingOnboarding = false,
             enableClipboardWatching = false,
+            synchronizePatternCollectionsOnMeteredNetwork = false,
+            patternCollectionsSynchronizationPeriod = DateTimePeriod(hours = 24),
         )
     }
 }

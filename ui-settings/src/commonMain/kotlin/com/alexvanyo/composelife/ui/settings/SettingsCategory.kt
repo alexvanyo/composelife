@@ -37,6 +37,11 @@ sealed interface SettingsCategory {
     data object Visual : SettingsCategory
 
     /**
+     * A setting related to pattern collections.
+     */
+    data object PatternCollections : SettingsCategory
+
+    /**
      * A setting for some app feature flag.
      */
     data object FeatureFlags : SettingsCategory

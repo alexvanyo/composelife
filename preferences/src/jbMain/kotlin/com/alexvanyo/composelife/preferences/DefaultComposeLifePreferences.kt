@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retry
+import kotlinx.datetime.DateTimePeriod
 import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
@@ -144,6 +145,8 @@ private class PreferencesProtoTransform(
             QuickAccessSetting.EnableClipboardWatching -> QuickAccessSettingProto.ENABLE_CLIPBOARD_WATCHING
             QuickAccessSetting.ClipboardWatchingOnboardingCompleted ->
                 QuickAccessSettingProto.CLIPBOARD_WATCHING_ONBOARDING_COMPLETED
+            QuickAccessSetting.SynchronizePatternCollectionsOnMeteredNetwork ->
+                QuickAccessSettingProto.SYNCHRONIZE_PATTERN_COLLECTION_ON_METERED_NETWORK
         }
 
         val oldQuickAccessSettings = newPreferencesProto.quick_access_settings.toSet()
@@ -205,6 +208,18 @@ private class PreferencesProtoTransform(
             enable_clipboard_watching = enabled,
         )
     }
+
+    override fun setSynchronizePatternCollectionsOnMeteredNetwork(enabled: Boolean) {
+        newPreferencesProto = newPreferencesProto.copy(
+            synchronize_pattern_collections_on_metered_network = enabled,
+        )
+    }
+
+    override fun setPatternCollectionsSynchronizationPeriod(period: DateTimePeriod) {
+        newPreferencesProto = newPreferencesProto.copy(
+            pattern_collections_synchronization_period = period.toProto(),
+        )
+    }
 }
 
 @Suppress("LongMethod", "ComplexMethod")
@@ -228,6 +243,8 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
                     QuickAccessSetting.EnableClipboardWatching
                 QuickAccessSettingProto.CLIPBOARD_WATCHING_ONBOARDING_COMPLETED ->
                     QuickAccessSetting.ClipboardWatchingOnboardingCompleted
+                QuickAccessSettingProto.SYNCHRONIZE_PATTERN_COLLECTION_ON_METERED_NETWORK ->
+                    QuickAccessSetting.SynchronizePatternCollectionsOnMeteredNetwork
                 QuickAccessSettingProto.SETTINGS_UNKNOWN,
                 -> null
             }
@@ -292,6 +309,9 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
         }
     val completedClipboardWatchingOnboarding = completed_clipboard_watching_onboarding
     val enableClipboardWatching = enable_clipboard_watching
+    val synchronizePatternCollectionsOnMeteredNetwork = synchronize_pattern_collections_on_metered_network
+    val patternCollectionsSynchronizationPeriod =
+        pattern_collections_synchronization_period.toResolved() ?: DateTimePeriod(hours = 24)
 
     return LoadedComposeLifePreferences(
         quickAccessSettings = quickAccessSettings,
@@ -307,6 +327,8 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
         mouseToolConfig = mouseToolConfig,
         completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
         enableClipboardWatching = enableClipboardWatching,
+        synchronizePatternCollectionsOnMeteredNetwork = synchronizePatternCollectionsOnMeteredNetwork,
+        patternCollectionsSynchronizationPeriod = patternCollectionsSynchronizationPeriod,
     )
 }
 

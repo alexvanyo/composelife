@@ -139,13 +139,12 @@ abstract class BaseRoborazziTest(
             val semanticsNodeInteraction = onNodeWithTag("contentContainer")
             semanticsNodeInteraction.captureRoboImage(
                 file = File(
-                    "src/androidUnitTest/snapshots",
-                    "${parameterization.showkaseBrowserComponent.componentKey}." +
-                        "${parameterization.size}." +
-                        "${ if (parameterization.darkTheme) "dark" else "light" }." +
-                        "${ if (parameterization.isScreenRound) "round" else "notRound" }." +
-                        "font-${parameterization.fontScale}." +
-                        "png",
+                    "src/androidUnitTest/snapshots/${parameterization.showkaseBrowserComponent.componentKey}",
+                    "${parameterization.size}." +
+                            "${ if (parameterization.darkTheme) "dark" else "light" }." +
+                            "${ if (parameterization.isScreenRound) "round" else "notRound" }." +
+                            "font-${parameterization.fontScale}." +
+                            "png",
                 ),
             )
         }

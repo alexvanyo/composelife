@@ -19,7 +19,6 @@ package com.alexvanyo.composelife
 import android.app.Application
 import androidx.lifecycle.LifecycleOwner
 import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
-import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
@@ -42,8 +41,7 @@ abstract class ComposeLifeApplicationComponent(
 @SingleIn(AppScope::class)
 @Inject
 class ComposeLifeApplicationEntryPoint(
-    override val processLifecycleOwner: @ProcessLifecycleOwner LifecycleOwner,
     override val updatables: Set<Updatable>,
+    val processLifecycleOwner: @ProcessLifecycleOwner LifecycleOwner,
     val uiComponentFactory: ComposeLifeUiComponent.Factory,
-) : ProcessLifecycleModule,
-    UpdatableModule
+) : UpdatableModule

@@ -45,6 +45,7 @@ kotlin {
                 api(libs.androidx.dataStore)
                 api(libs.jetbrains.compose.runtime)
                 api(libs.kotlinx.coroutines.core)
+                api(libs.kotlinx.datetime)
                 api(projects.dispatchers)
                 api(projects.resourceState)
                 api(projects.sessionValue)

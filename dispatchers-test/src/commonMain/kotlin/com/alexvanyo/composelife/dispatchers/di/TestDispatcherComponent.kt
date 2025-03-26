@@ -16,23 +16,42 @@
 
 package com.alexvanyo.composelife.dispatchers.di
 
+import com.alexvanyo.composelife.clock.di.ClockComponent
 import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
 import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
+import com.alexvanyo.composelife.dispatchers.clock
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.datetime.Clock
 import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-@ContributesTo(AppScope::class)
+@ContributesTo(AppScope::class, replaces = [ClockComponent::class])
 interface TestDispatcherComponent {
 
     @Provides
     @SingleIn(AppScope::class)
     @GeneralTestDispatcher
-    fun providesGeneralTestDispatcher(): TestDispatcher =
-        StandardTestDispatcher()
+    fun providesGeneralTestCoroutineScheduler(): TestCoroutineScheduler =
+        TestCoroutineScheduler()
+
+    @Provides
+    @SingleIn(AppScope::class)
+    @GeneralTestDispatcher
+    fun providesGeneralTestDispatcher(
+        testCoroutineScheduler: @GeneralTestDispatcher TestCoroutineScheduler,
+    ): TestDispatcher =
+        StandardTestDispatcher(
+            scheduler = testCoroutineScheduler,
+        )
+
+    @Provides
+    fun providesClock(
+        testCoroutineScheduler: @GeneralTestDispatcher TestCoroutineScheduler,
+    ): Clock = testCoroutineScheduler.clock
 
     @Provides
     @SingleIn(AppScope::class)

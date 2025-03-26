@@ -64,6 +64,16 @@ sealed interface Setting {
         override val quickAccessSetting = QuickAccessSetting.CellShapeConfig
     }
 
+    data object SynchronizePatternCollectionsOnMeteredNetwork : Setting {
+        override val category = SettingsCategory.PatternCollections
+        override val quickAccessSetting = QuickAccessSetting.SynchronizePatternCollectionsOnMeteredNetwork
+    }
+
+    data object PatternCollectionSources : Setting {
+        override val category = SettingsCategory.PatternCollections
+        override val quickAccessSetting = null
+    }
+
     data object DisableAGSL : Setting {
         override val category = SettingsCategory.FeatureFlags
         override val quickAccessSetting = QuickAccessSetting.DisableAGSL

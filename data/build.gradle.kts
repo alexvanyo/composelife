@@ -45,11 +45,19 @@ kotlin {
                 api(libs.kotlinx.coroutines.core)
                 api(projects.database)
                 api(projects.dispatchers)
+                api(projects.network)
 
                 implementation(libs.kotlinInject.runtime)
+                implementation(libs.kotlinx.io.core)
+                implementation(libs.kotlinx.io.okio)
+                implementation(libs.okio)
                 implementation(projects.algorithm)
+                implementation(projects.clock)
+                implementation(projects.filesystem)
                 implementation(projects.injectScopes)
+                implementation(projects.logging)
                 implementation(projects.updatable)
+                implementation(projects.work)
             }
         }
         val jbMain by creating {
@@ -74,15 +82,22 @@ kotlin {
             )
             dependencies {
                 api(libs.kotlinx.coroutines.android)
+
+                implementation(libs.androidx.work.runtime)
+                implementation(libs.guava.android)
+                implementation(libs.kotlinx.coroutines.guava)
             }
         }
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
+                implementation(projects.dataTestResources)
                 implementation(projects.databaseTest)
                 implementation(projects.dispatchersTest)
                 implementation(projects.filesystemTest)
+                implementation(projects.networkTest)
+                implementation(projects.workTest)
             }
         }
         val jbTest by creating {

@@ -20,6 +20,7 @@ import android.app.Activity
 import coil3.ImageLoader
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.data.CellStateRepository
+import com.alexvanyo.composelife.data.PatternCollectionRepository
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
@@ -52,6 +53,7 @@ class ComposeLifeUiEntryPoint(
     override val gameOfLifeAlgorithm: GameOfLifeAlgorithm,
     override val composeLifePreferences: ComposeLifePreferences,
     override val cellStateRepository: CellStateRepository,
+    override val patternCollectionRepository: PatternCollectionRepository,
     override val clock: Clock,
     override val dispatchers: ComposeLifeDispatchers,
     override val random: Random,

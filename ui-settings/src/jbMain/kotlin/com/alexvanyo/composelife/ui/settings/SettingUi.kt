@@ -42,7 +42,9 @@ interface SettingUiInjectEntryPoint :
     DisableOpenGLUiInjectEntryPoint,
     DoNotKeepProcessUiInjectEntryPoint,
     EnableClipboardWatchingUiInjectEntryPoint,
-    ClipboardWatchingOnboardingCompletedUiInjectEntryPoint
+    ClipboardWatchingOnboardingCompletedUiInjectEntryPoint,
+    PatternCollectionsUiInjectEntryPoint,
+    SynchronizePatternCollectionsOnMeteredNetworkUiInjectEntryPoint
 
 interface SettingUiLocalEntryPoint :
     AlgorithmImplementationUiLocalEntryPoint,
@@ -54,7 +56,9 @@ interface SettingUiLocalEntryPoint :
     DoNotKeepProcessUiLocalEntryPoint,
     EnableClipboardWatchingUiLocalEntryPoint,
     ClipboardWatchingOnboardingCompletedUiLocalEntryPoint,
-    LoadedComposeLifePreferencesProvider
+    LoadedComposeLifePreferencesProvider,
+    PatternCollectionsUiLocalEntryPoint,
+    SynchronizePatternCollectionsOnMeteredNetworkUiLocalEntryPoint
 
 /**
  * Displays the setting UI for the given [setting].
@@ -97,6 +101,9 @@ fun SettingUi(
                 Setting.CellStatePreview -> CellStatePreviewUi()
                 Setting.DarkThemeConfig -> DarkThemeConfigUi()
                 Setting.CellShapeConfig -> CellShapeConfigUi()
+                Setting.SynchronizePatternCollectionsOnMeteredNetwork ->
+                    SynchronizePatternCollectionsOnMeteredNetworkUi()
+                Setting.PatternCollectionSources -> PatternCollectionsUi()
                 Setting.DisableAGSL -> DisableAGSLUi()
                 Setting.DisableOpenGL -> DisableOpenGLUi()
                 Setting.DoNotKeepProcess -> DoNotKeepProcessUi()
@@ -112,6 +119,8 @@ val QuickAccessSetting.setting: Setting
         when (this) {
             QuickAccessSetting.AlgorithmImplementation -> Setting.AlgorithmImplementation
             QuickAccessSetting.CellShapeConfig -> Setting.CellShapeConfig
+            QuickAccessSetting.SynchronizePatternCollectionsOnMeteredNetwork ->
+                Setting.SynchronizePatternCollectionsOnMeteredNetwork
             QuickAccessSetting.DarkThemeConfig -> Setting.DarkThemeConfig
             QuickAccessSetting.DisableAGSL -> Setting.DisableAGSL
             QuickAccessSetting.DisableOpenGL -> Setting.DisableOpenGL

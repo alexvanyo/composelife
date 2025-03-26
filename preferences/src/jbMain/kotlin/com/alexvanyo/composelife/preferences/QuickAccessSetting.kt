@@ -22,6 +22,7 @@ sealed interface QuickAccessSetting {
     data object AlgorithmImplementation : QuickAccessSetting
     data object DarkThemeConfig : QuickAccessSetting
     data object CellShapeConfig : QuickAccessSetting
+    data object SynchronizePatternCollectionsOnMeteredNetwork : QuickAccessSetting
     data object DisableAGSL : QuickAccessSetting
     data object DisableOpenGL : QuickAccessSetting
     data object DoNotKeepProcess : QuickAccessSetting

@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.database.di
 
 import com.alexvanyo.composelife.database.CellStateQueries
 import com.alexvanyo.composelife.database.ComposeLifeDatabase
+import com.alexvanyo.composelife.database.PatternCollectionQueries
 import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
@@ -31,4 +32,10 @@ interface QueriesComponent {
     fun providesCellStateQueries(
         composeLifeDatabase: ComposeLifeDatabase,
     ): CellStateQueries = composeLifeDatabase.cellStateQueries
+
+    @Provides
+    @SingleIn(AppScope::class)
+    fun providesPatternCollectionQueries(
+        composeLifeDatabase: ComposeLifeDatabase,
+    ): PatternCollectionQueries = composeLifeDatabase.patternCollectionQueries
 }

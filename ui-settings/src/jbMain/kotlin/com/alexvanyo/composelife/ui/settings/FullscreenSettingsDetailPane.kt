@@ -48,12 +48,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -68,6 +70,8 @@ import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
 import com.alexvanyo.composelife.ui.settings.resources.Back
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.util.trySharedBounds
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 interface FullscreenSettingsDetailPaneInjectEntryPoint :
@@ -102,6 +106,47 @@ context(_: SettingUiInjectEntryPoint, _: SettingUiLocalEntryPoint)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
 private fun SettingsCategoryDetail(
+    settingsCategory: SettingsCategory,
+    detailScrollState: ScrollState,
+    showAppBar: Boolean,
+    onBackButtonPressed: () -> Unit,
+    settingToScrollTo: Setting?,
+    onFinishedScrollingToSetting: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    when (settingsCategory) {
+        SettingsCategory.Algorithm,
+        SettingsCategory.FeatureFlags,
+        SettingsCategory.Visual,
+        -> {
+            StandardSettingsCategoryDetail(
+                settingsCategory = settingsCategory,
+                detailScrollState = detailScrollState,
+                showAppBar = showAppBar,
+                onBackButtonPressed = onBackButtonPressed,
+                settingToScrollTo = settingToScrollTo,
+                onFinishedScrollingToSetting = onFinishedScrollingToSetting,
+                modifier = modifier,
+            )
+        }
+        SettingsCategory.PatternCollections -> {
+            PatternCollectionsDetail(
+                detailScrollState = detailScrollState,
+                showAppBar = showAppBar,
+                onBackButtonPressed = onBackButtonPressed,
+                settingToScrollTo = settingToScrollTo,
+                onFinishedScrollingToSetting = onFinishedScrollingToSetting,
+                modifier = modifier,
+            )
+        }
+    }
+}
+
+context(_: SettingUiInjectEntryPoint, _: SettingUiLocalEntryPoint)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@Suppress("LongMethod", "LongParameterList")
+@Composable
+private fun StandardSettingsCategoryDetail(
     settingsCategory: SettingsCategory,
     detailScrollState: ScrollState,
     showAppBar: Boolean,
@@ -209,6 +254,143 @@ private fun SettingsCategoryDetail(
                                 currentLayoutCoordinates.boundsInParent().top.roundToInt(),
                             )
                             currentOnFinishedScrollingToSetting()
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+context(injectEntryPoint: SettingUiInjectEntryPoint, _: SettingUiLocalEntryPoint)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@Suppress("LongMethod", "LongParameterList")
+@Composable
+private fun PatternCollectionsDetail(
+    detailScrollState: ScrollState,
+    showAppBar: Boolean,
+    onBackButtonPressed: () -> Unit,
+    settingToScrollTo: Setting?,
+    onFinishedScrollingToSetting: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier,
+        color = LocalBackgroundColor.current ?: MaterialTheme.colorScheme.surface,
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            if (showAppBar) {
+                val isElevated = detailScrollState.canScrollBackward
+                val elevation by animateDpAsState(targetValue = if (isElevated) 3.dp else 0.dp)
+
+                Surface(
+                    tonalElevation = elevation,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .windowInsetsPadding(
+                                WindowInsets.safeDrawing.only(
+                                    WindowInsetsSides.Horizontal + WindowInsetsSides.Top,
+                                ),
+                            )
+                            .height(64.dp),
+                    ) {
+                        Box(
+                            modifier = Modifier.align(Alignment.CenterStart),
+                        ) {
+                            TooltipBox(
+                                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                                tooltip = {
+                                    PlainTooltip {
+                                        Text(parameterizedStringResource(Strings.Back))
+                                    }
+                                },
+                                state = rememberTooltipState(),
+                            ) {
+                                IconButton(
+                                    onClick = onBackButtonPressed,
+                                ) {
+                                    Icon(
+                                        Icons.AutoMirrored.Default.ArrowBack,
+                                        contentDescription = parameterizedStringResource(Strings.Back),
+                                    )
+                                }
+                            }
+                        }
+
+                        Text(
+                            text = SettingsCategory.PatternCollections.title,
+                            modifier = Modifier.align(Alignment.Center),
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                    }
+                }
+            }
+
+            var isRefreshing by remember { mutableStateOf(false) }
+            val coroutineScope = rememberCoroutineScope()
+
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = {
+                    coroutineScope.launch {
+                        isRefreshing = true
+                        try {
+                            injectEntryPoint.patternCollectionRepository.synchronizePatternCollections()
+                        } finally {
+                            isRefreshing = false
+                        }
+                    }
+                },
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .then(
+                            if (showAppBar) {
+                                Modifier.consumeWindowInsets(
+                                    WindowInsets.safeDrawing.only(
+                                        WindowInsetsSides.Horizontal + WindowInsetsSides.Top,
+                                    ),
+                                )
+                            } else {
+                                Modifier
+                            },
+                        )
+                        .safeDrawingPadding()
+                        .verticalScroll(detailScrollState)
+                        .padding(vertical = 16.dp),
+                ) {
+                    SettingsCategory.PatternCollections.settings.forEach { setting ->
+                        var layoutCoordinates: LayoutCoordinates? by remember { mutableStateOf(null) }
+
+                        SettingUi(
+                            setting = setting,
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .onPlaced {
+                                    layoutCoordinates = it
+                                }
+                                .trySharedBounds(
+                                    key = "SettingUi-$setting",
+                                    resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
+                                ),
+                        )
+
+                        val currentOnFinishedScrollingToSetting by rememberUpdatedState(onFinishedScrollingToSetting)
+
+                        LaunchedEffect(settingToScrollTo, layoutCoordinates) {
+                            val currentLayoutCoordinates = layoutCoordinates
+                            if (currentLayoutCoordinates != null && settingToScrollTo == setting) {
+                                detailScrollState.animateScrollTo(
+                                    currentLayoutCoordinates.boundsInParent().top.roundToInt(),
+                                )
+                                currentOnFinishedScrollingToSetting()
+                            }
                         }
                     }
                 }
