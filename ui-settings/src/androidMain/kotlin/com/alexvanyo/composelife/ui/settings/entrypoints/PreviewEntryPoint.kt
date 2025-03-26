@@ -18,15 +18,21 @@ package com.alexvanyo.composelife.ui.settings.entrypoints
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import coil3.ImageLoader
 import com.alexvanyo.composelife.clock.di.ClockProvider
-import com.alexvanyo.composelife.data.PatternCollectionRepository
+import com.alexvanyo.composelife.data.PatternCollectionRepositoryImpl
 import com.alexvanyo.composelife.data.di.PatternCollectionRepositoryProvider
-import com.alexvanyo.composelife.data.model.PatternCollection
-import com.alexvanyo.composelife.database.PatternCollectionId
+import com.alexvanyo.composelife.database.CellState
+import com.alexvanyo.composelife.database.CellStateIdAdapter
+import com.alexvanyo.composelife.database.ComposeLifeDatabase
+import com.alexvanyo.composelife.database.InstantAdapter
+import com.alexvanyo.composelife.database.PatternCollectionIdAdapter
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.DefaultComposeLifeDispatchers
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderProvider
+import com.alexvanyo.composelife.logging.Logger
+import com.alexvanyo.composelife.logging.NoOpLogger
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.FlexibleCellStateSerializer
 import com.alexvanyo.composelife.model.di.CellStateParserProvider
@@ -37,7 +43,6 @@ import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.currentShape
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
-import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellsFetcher
@@ -66,7 +71,12 @@ import com.alexvanyo.composelife.ui.settings.PatternCollectionsUiInjectEntryPoin
 import com.alexvanyo.composelife.ui.settings.PatternCollectionsUiLocalEntryPoint
 import com.alexvanyo.composelife.ui.settings.SettingUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.SettingUiLocalEntryPoint
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
 import kotlinx.datetime.Clock
+import okio.FileSystem
+import okio.Path.Companion.toPath
+import okio.fakefilesystem.FakeFileSystem
 
 /**
  * The full super-interface implementing all entry points for rendering
@@ -129,17 +139,27 @@ internal fun WithPreviewDependencies(
         dispatchers = dispatchers,
         context = LocalContext.current,
     ),
-    patternCollectionRepository: PatternCollectionRepository = object : PatternCollectionRepository {
-        override val collections: ResourceState<List<PatternCollection>>
-            get() = throw NotImplementedError()
-
-        override suspend fun observePatternCollections(): Nothing = throw NotImplementedError()
-        override suspend fun addPatternCollection(sourceUrl: String): PatternCollectionId = throw NotImplementedError()
-        override suspend fun deletePatternCollection(patternCollectionId: PatternCollectionId) = Unit
-        override suspend fun synchronizePatternCollections() = true
-    },
+    logger: Logger = NoOpLogger,
+    fileSystem: FileSystem = FakeFileSystem(),
     content: @Composable context(PreviewEntryPoint) () -> Unit,
 ) {
+    val driver = AndroidSqliteDriver(
+        schema = ComposeLifeDatabase.Schema,
+        context = LocalContext.current,
+        name = null,
+    )
+    val composeLifeDatabase = ComposeLifeDatabase(
+        driver = driver,
+        cellStateAdapter = CellState.Adapter(
+            idAdapter = CellStateIdAdapter(),
+        ),
+        patternCollectionAdapter = com.alexvanyo.composelife.database.PatternCollection.Adapter(
+            idAdapter = PatternCollectionIdAdapter(),
+            lastSuccessfulSynchronizationTimestampAdapter = InstantAdapter(),
+            lastUnsuccessfulSynchronizationTimestampAdapter = InstantAdapter(),
+        ),
+    )
+    val patternCollectionQueries = composeLifeDatabase.patternCollectionQueries
     val preferencesProvider = object : ComposeLifePreferencesProvider {
         override val composeLifePreferences = composeLifePreferences
     }
@@ -161,7 +181,15 @@ internal fun WithPreviewDependencies(
         override val clock: Clock = clock
     }
     val patternCollectionRepositoryProvider = object : PatternCollectionRepositoryProvider {
-        override val patternCollectionRepository = patternCollectionRepository
+        override val patternCollectionRepository = PatternCollectionRepositoryImpl(
+            dispatchers = dispatchers,
+            patternCollectionQueries = patternCollectionQueries,
+            fileSystem = fileSystem,
+            httpClient = lazy { HttpClient(MockEngine) },
+            logger = logger,
+            clock = clock,
+            persistedDataPath = lazy { "persistedDataPath".toPath() }
+        )
     }
 
     val entryPoint = object :

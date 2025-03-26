@@ -124,8 +124,11 @@ kotlin {
                 implementation(libs.androidx.poolingContainer)
                 implementation(libs.androidx.window)
                 implementation(libs.kotlinx.coroutines.android)
+                implementation(libs.ktor.client.mock)
+                implementation(libs.okio.fakefilesystem)
                 implementation(libs.sealedEnum.runtime)
                 implementation(libs.showkase.runtime)
+                implementation(libs.sqldelight.androidDriver)
             }
         }
         val commonTest by getting {
