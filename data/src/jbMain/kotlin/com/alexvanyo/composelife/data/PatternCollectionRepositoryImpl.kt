@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.data
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
@@ -30,6 +31,7 @@ import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.filesystem.PersistedDataPath
 import com.alexvanyo.composelife.logging.Logger
 import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.resourcestate.map
 import com.alexvanyo.composelife.updatable.PowerableUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import io.ktor.client.HttpClient
@@ -43,11 +45,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retry
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -84,32 +83,39 @@ class PatternCollectionRepositoryImpl(
     private val httpClient by httpClient
     private val persistedDataPath by persistedDataPath
 
-    override var collections: ResourceState<List<PatternCollection>> by mutableStateOf(ResourceState.Loading)
-        private set
+    private var databaseCollections: ResourceState<List<com.alexvanyo.composelife.database.PatternCollection>> by mutableStateOf(ResourceState.Loading)
+
+    private val synchronizationInformation = mutableStateMapOf<PatternCollectionId, Boolean>()
+
+    override val collections: ResourceState<List<PatternCollection>> get() =
+        databaseCollections.map { databasePatternCollections ->
+            databasePatternCollections.map { databasePatternCollection ->
+                PatternCollection(
+                    id = databasePatternCollection.id,
+                    sourceUrl = databasePatternCollection.sourceUrl,
+                    lastSuccessfulSynchronizationTimestamp =
+                        databasePatternCollection.lastSuccessfulSynchronizationTimestamp,
+                    lastUnsuccessfulSynchronizationTimestamp =
+                        databasePatternCollection.lastUnsuccessfulSynchronizationTimestamp,
+                    synchronizationFailureMessage = databasePatternCollection.synchronizationFailureMessage,
+                    isSynchronizing = synchronizationInformation.getOrDefault(databasePatternCollection.id, false)
+                )
+            }
+        }
 
     private val powerableUpdatable = PowerableUpdatable {
         patternCollectionQueries.getPatternCollections()
             .asFlow()
             .mapToList(dispatchers.IO)
             .retry()
-            .map { patternCollections ->
-                patternCollections.map { patternCollection ->
-                    PatternCollection(
-                        id = patternCollection.id,
-                        sourceUrl = patternCollection.sourceUrl,
-                        lastSuccessfulSynchronizationTimestamp =
-                            patternCollection.lastSuccessfulSynchronizationTimestamp,
-                    )
-                }
-            }
-            .onEach { patternCollections ->
+            .onEach { databasePatternCollections ->
                 Snapshot.withMutableSnapshot {
-                    collections = ResourceState.Success(patternCollections)
+                    databaseCollections = ResourceState.Success(databasePatternCollections)
                 }
             }
             .catch { throwable ->
                 Snapshot.withMutableSnapshot {
-                    collections = ResourceState.Failure(throwable)
+                    databaseCollections = ResourceState.Failure(throwable)
                 }
             }
             .collect()
@@ -130,6 +136,8 @@ class PatternCollectionRepositoryImpl(
             patternCollectionQueries.insertPatternCollection(
                 sourceUrl = sourceUrl,
                 lastSuccessfulSynchronizationTimestamp = null,
+                lastUnsuccessfulSynchronizationTimestamp = null,
+                synchronizationFailureMessage = null,
             )
             patternCollectionQueries.executeLastInsertedId()
         }
@@ -145,45 +153,48 @@ class PatternCollectionRepositoryImpl(
 
     override suspend fun synchronizePatternCollections(): Boolean =
         synchronizeMutex.withLock {
-            // Fetch the current list of pattern collections
-            val patternCollections = withContext(dispatchers.IO) {
-                patternCollectionQueries.getPatternCollections().executeAsList()
-            }
-
-            // In parallel, synchronize each of the pattern collections we have
-            return coroutineScope {
-                patternCollections.map { patternCollection ->
-                    async {
-                        synchronizePatternCollection(patternCollection)
-                    }
+            try {
+                synchronizationInformation.clear()
+                // Fetch the current list of pattern collections
+                val databasePatternCollections = withContext(dispatchers.IO) {
+                    patternCollectionQueries.getPatternCollections().executeAsList()
                 }
-                    .awaitAll()
-                    .all { it }
+                databasePatternCollections.forEach { databasePatternCollection ->
+                    synchronizationInformation[databasePatternCollection.id] = true
+                }
+
+                // In parallel, synchronize each of the pattern collections we have
+                return coroutineScope {
+                    databasePatternCollections.map { databasePatternCollection ->
+                        async {
+                            synchronizePatternCollection(databasePatternCollection).also {
+                                synchronizationInformation[databasePatternCollection.id] = false
+                            }
+                        }
+                    }
+                        .awaitAll()
+                        .all { it }
+                }
+            } finally {
+                synchronizationInformation.clear()
             }
         }
 
     @Suppress("ThrowsCount", "TooGenericExceptionCaught", "LongMethod", "CyclomaticComplexMethod")
     private suspend fun synchronizePatternCollection(
-        patternCollection: com.alexvanyo.composelife.database.PatternCollection,
+        databasePatternCollection: com.alexvanyo.composelife.database.PatternCollection,
     ): Boolean = withContext(dispatchers.IO) {
-        val sourceUrl = patternCollection.sourceUrl
+        val sourceUrl = databasePatternCollection.sourceUrl
         val archivePathParent = persistedDataPath /
                 collectionsFolder /
-                patternCollection.id.value.toString()
+                databasePatternCollection.id.value.toString()
 
         val archivePath = archivePathParent / archiveFileName
         val archiveHashPath = archivePathParent / archiveHashFileName
 
         try {
             fileSystem.createDirectories(archivePathParent)
-        } catch (exception: Exception) {
-            coroutineContext.ensureActive()
-            // TODO: record I/O exceptions
-            logger.e(exception) { "Failed to create directories" }
-            return@withContext false
-        }
 
-        try {
             httpClient
                 .prepareGet(sourceUrl) {
                     onDownload { bytesSentTotal: Long, contentLength: Long? ->
@@ -204,50 +215,70 @@ class PatternCollectionRepositoryImpl(
                 }
         } catch (exception: Exception) {
             coroutineContext.ensureActive()
-            // TODO: record I/O exceptions
             logger.e(exception) { "Failed fetching" }
+
+            patternCollectionQueries.updatePatternCollection(
+                id = databasePatternCollection.id,
+                sourceUrl = databasePatternCollection.sourceUrl,
+                lastSuccessfulSynchronizationTimestamp =
+                    databasePatternCollection.lastSuccessfulSynchronizationTimestamp,
+                lastUnsuccessfulSynchronizationTimestamp = clock.now(),
+                synchronizationFailureMessage = "Failed fetching",
+            )
+
             return@withContext false
         }
 
-        val hashingSink = HashingSink.sha256(blackholeSink())
-        val hash = hashingSink.buffer().use { sink ->
-            fileSystem.source(archivePath).buffer().use { source ->
-                source.readAll(sink)
-                hashingSink.hash
+        try {
+            val hashingSink = HashingSink.sha256(blackholeSink())
+            val hash = hashingSink.buffer().use { sink ->
+                fileSystem.source(archivePath).buffer().use { source ->
+                    source.readAll(sink)
+                    hashingSink.hash
+                }
             }
-        }
-        val oldHash = if (fileSystem.exists(archiveHashPath)) {
-            fileSystem.source(archiveHashPath).buffer().use { source ->
-                source.readByteArray().toByteString()
-            }
-        } else {
-            null
-        }
-
-        if (hash == oldHash) {
-            logger.d("Archive file had same hash")
-        } else {
-            fileSystem.sink(archiveHashPath).buffer().use { sink ->
-                sink.write(hash)
+            val oldHash = if (fileSystem.exists(archiveHashPath)) {
+                fileSystem.source(archiveHashPath).buffer().use { source ->
+                    source.readByteArray().toByteString()
+                }
+            } else {
+                null
             }
 
-            try {
+            if (hash == oldHash) {
+                logger.d("Archive file had same hash")
+            } else {
+                fileSystem.sink(archiveHashPath).buffer().use { sink ->
+                    sink.write(hash)
+                }
+
                 val archiveFileSystem = fileSystem.openZip(archivePath)
                 archiveFileSystem.listRecursively("/".toPath()).forEach { file ->
                     logger.d("Found file: ${file.name}")
                 }
-            } catch (exception: Exception) {
-                coroutineContext.ensureActive()
-                // TODO: record I/O exceptions
-                logger.e(exception) { "Failed fetching" }
-                return@withContext false
             }
+        } catch (exception: Exception) {
+            coroutineContext.ensureActive()
+            logger.e(exception) { "Failed processing archive" }
+
+            patternCollectionQueries.updatePatternCollection(
+                id = databasePatternCollection.id,
+                sourceUrl = databasePatternCollection.sourceUrl,
+                lastSuccessfulSynchronizationTimestamp =
+                    databasePatternCollection.lastSuccessfulSynchronizationTimestamp,
+                lastUnsuccessfulSynchronizationTimestamp = clock.now(),
+                synchronizationFailureMessage = "Failed processing archive",
+            )
+
+            return@withContext false
         }
 
         patternCollectionQueries.updatePatternCollection(
-            id = patternCollection.id,
-            sourceUrl = patternCollection.sourceUrl,
+            id = databasePatternCollection.id,
+            sourceUrl = databasePatternCollection.sourceUrl,
             lastSuccessfulSynchronizationTimestamp = clock.now(),
+            lastUnsuccessfulSynchronizationTimestamp = null,
+            synchronizationFailureMessage = null,
         )
 
         true

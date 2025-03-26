@@ -44,5 +44,6 @@ interface AdapterComponent {
         PatternCollection.Adapter(
             idAdapter = patternCollectionIdAdapter,
             lastSuccessfulSynchronizationTimestampAdapter = instantAdapter,
+            lastUnsuccessfulSynchronizationTimestampAdapter = instantAdapter,
         )
 }

@@ -21,6 +21,7 @@ import com.alexvanyo.composelife.network.FakeRequestHandler
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.test.BaseInjectTest
 import io.ktor.client.engine.mock.respond
+import kotlinx.coroutines.async
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runCurrent
@@ -78,6 +79,9 @@ class PatternCollectionRepositoryTests : BaseInjectTest<
                         id = patternCollectionId,
                         sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
                         lastSuccessfulSynchronizationTimestamp = null,
+                        lastUnsuccessfulSynchronizationTimestamp = null,
+                        synchronizationFailureMessage = null,
+                        isSynchronizing = false,
                     )
                 )
             ),
@@ -95,16 +99,10 @@ class PatternCollectionRepositoryTests : BaseInjectTest<
             sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
         )
 
-        fakeRequestHandler.addRequestHandler { request ->
-            assertEquals("https://alex.vanyo.dev/composelife/patterns.zip", request.url.toString())
-            respond(
-                this::class.java
-                    .getResource("/patternfiles/patterns.zip")!!
-                    .readBytes()
-            )
-        }
 
-        assertTrue(patternCollectionRepository.synchronizePatternCollections())
+        val synchronizationJob = async {
+            patternCollectionRepository.synchronizePatternCollections()
+        }
 
         runCurrent()
 
@@ -114,7 +112,37 @@ class PatternCollectionRepositoryTests : BaseInjectTest<
                     PatternCollection(
                         id = patternCollectionId,
                         sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                        lastSuccessfulSynchronizationTimestamp = null,
+                        lastUnsuccessfulSynchronizationTimestamp = null,
+                        synchronizationFailureMessage = null,
+                        isSynchronizing = true,
+                    )
+                )
+            ),
+            patternCollectionRepository.collections,
+        )
+
+        fakeRequestHandler.addRequestHandler { request ->
+            assertEquals("https://alex.vanyo.dev/composelife/patterns.zip", request.url.toString())
+            respond(
+                this::class.java
+                    .getResource("/patternfiles/patterns.zip")!!
+                    .readBytes()
+            )
+        }
+
+        assertTrue(synchronizationJob.await())
+
+        assertEquals(
+            ResourceState.Success(
+                listOf(
+                    PatternCollection(
+                        id = patternCollectionId,
+                        sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
                         lastSuccessfulSynchronizationTimestamp = Instant.fromEpochSeconds(0),
+                        lastUnsuccessfulSynchronizationTimestamp = null,
+                        synchronizationFailureMessage = null,
+                        isSynchronizing = false,
                     )
                 )
             ),

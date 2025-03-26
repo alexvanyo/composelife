@@ -23,4 +23,7 @@ data class PatternCollection(
     val id: PatternCollectionId,
     val sourceUrl: String,
     val lastSuccessfulSynchronizationTimestamp: Instant?,
+    val lastUnsuccessfulSynchronizationTimestamp: Instant?,
+    val synchronizationFailureMessage: String?,
+    val isSynchronizing: Boolean,
 )

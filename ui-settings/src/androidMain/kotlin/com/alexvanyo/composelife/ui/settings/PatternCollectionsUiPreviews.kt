@@ -38,6 +38,28 @@ internal fun PatternCollectionPreviewNoSuccessfulSynchronization() {
                 id = PatternCollectionId(0),
                 sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
                 lastSuccessfulSynchronizationTimestamp = null,
+                lastUnsuccessfulSynchronizationTimestamp = null,
+                synchronizationFailureMessage = null,
+                isSynchronizing = false,
+            ),
+            onDelete = {},
+        )
+    }
+}
+
+@ShowkaseComposable
+@ThemePreviews
+@Composable
+internal fun PatternCollectionPreviewSynchronizing() {
+    WithPreviewDependencies {
+        PatternCollection(
+            patternCollection = PatternCollection(
+                id = PatternCollectionId(0),
+                sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                lastSuccessfulSynchronizationTimestamp = null,
+                lastUnsuccessfulSynchronizationTimestamp = null,
+                synchronizationFailureMessage = null,
+                isSynchronizing = true,
             ),
             onDelete = {},
         )
@@ -59,6 +81,9 @@ internal fun PatternCollectionPreviewSuccessfulSynchronizationNow() {
                 id = PatternCollectionId(0),
                 sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
                 lastSuccessfulSynchronizationTimestamp = referenceInstant,
+                lastUnsuccessfulSynchronizationTimestamp = null,
+                synchronizationFailureMessage = null,
+                isSynchronizing = false,
             ),
             onDelete = {},
         )
@@ -80,6 +105,9 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization55SecondsAgo() {
                 id = PatternCollectionId(0),
                 sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
                 lastSuccessfulSynchronizationTimestamp = referenceInstant - 55.seconds,
+                lastUnsuccessfulSynchronizationTimestamp = null,
+                synchronizationFailureMessage = null,
+                isSynchronizing = false,
             ),
             onDelete = {},
         )
@@ -101,6 +129,9 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization60SecondsAgo() {
                 id = PatternCollectionId(0),
                 sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
                 lastSuccessfulSynchronizationTimestamp = referenceInstant - 60.seconds,
+                lastUnsuccessfulSynchronizationTimestamp = null,
+                synchronizationFailureMessage = null,
+                isSynchronizing = false,
             ),
             onDelete = {},
         )
@@ -122,6 +153,9 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization65SecondsAgo() {
                 id = PatternCollectionId(0),
                 sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
                 lastSuccessfulSynchronizationTimestamp = referenceInstant - 65.seconds,
+                lastUnsuccessfulSynchronizationTimestamp = null,
+                synchronizationFailureMessage = null,
+                isSynchronizing = false,
             ),
             onDelete = {},
         )
@@ -143,6 +177,9 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization65MinutesAgo() {
                 id = PatternCollectionId(0),
                 sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
                 lastSuccessfulSynchronizationTimestamp = referenceInstant - 65.minutes,
+                lastUnsuccessfulSynchronizationTimestamp = null,
+                synchronizationFailureMessage = null,
+                isSynchronizing = false,
             ),
             onDelete = {},
         )
@@ -164,6 +201,9 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization25HoursAgo() {
                 id = PatternCollectionId(0),
                 sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
                 lastSuccessfulSynchronizationTimestamp = referenceInstant - 25.hours,
+                lastUnsuccessfulSynchronizationTimestamp = null,
+                synchronizationFailureMessage = null,
+                isSynchronizing = false,
             ),
             onDelete = {},
         )
