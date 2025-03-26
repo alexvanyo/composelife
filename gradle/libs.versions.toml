@@ -16,7 +16,7 @@ androidxBenchmark = "1.4.0-alpha09"
 #androidxComposeBomAlpha
 androidxComposeBomAlpha = "2025.03.00"
 #androidxCore
-androidxCore = "1.16.0-beta01"
+androidxCore = "1.16.0-rc01"
 #androidxCoreSplashscreen
 androidxCoreSplashscreen = "1.2.0-beta01"
 #androidxDataStore
