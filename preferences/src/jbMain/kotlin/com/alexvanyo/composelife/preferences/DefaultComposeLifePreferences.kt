@@ -145,6 +145,8 @@ private class PreferencesProtoTransform(
             QuickAccessSetting.EnableClipboardWatching -> QuickAccessSettingProto.ENABLE_CLIPBOARD_WATCHING
             QuickAccessSetting.ClipboardWatchingOnboardingCompleted ->
                 QuickAccessSettingProto.CLIPBOARD_WATCHING_ONBOARDING_COMPLETED
+            QuickAccessSetting.SynchronizePatternCollectionsOnMeteredNetwork ->
+                QuickAccessSettingProto.SYNCHRONIZE_PATTERN_COLLECTION_ON_METERED_NETWORK
         }
 
         val oldQuickAccessSettings = newPreferencesProto.quick_access_settings.toSet()
@@ -241,6 +243,8 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
                     QuickAccessSetting.EnableClipboardWatching
                 QuickAccessSettingProto.CLIPBOARD_WATCHING_ONBOARDING_COMPLETED ->
                     QuickAccessSetting.ClipboardWatchingOnboardingCompleted
+                QuickAccessSettingProto.SYNCHRONIZE_PATTERN_COLLECTION_ON_METERED_NETWORK ->
+                    QuickAccessSetting.SynchronizePatternCollectionsOnMeteredNetwork
                 QuickAccessSettingProto.SETTINGS_UNKNOWN,
                 -> null
             }
