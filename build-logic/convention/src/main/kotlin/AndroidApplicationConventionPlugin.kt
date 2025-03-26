@@ -59,7 +59,11 @@ class AndroidApplicationConventionPlugin : ConventionPlugin({
                 isMinifyEnabled = true
                 isShrinkResources = true
                 matchingFallbacks.add("debug") // fallback to debug for dependencies
-                proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+                proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro",
+                    "release-proguard-rules.pro",
+                )
             }
 
             // Create a build type for the purposes of testing a minified build (like release is)

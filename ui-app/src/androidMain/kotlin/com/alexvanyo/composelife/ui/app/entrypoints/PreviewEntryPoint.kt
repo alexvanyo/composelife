@@ -25,7 +25,6 @@ import com.alexvanyo.composelife.algorithm.NaiveGameOfLifeAlgorithm
 import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.clock.di.ClockProvider
 import com.alexvanyo.composelife.data.CellStateRepositoryImpl
-import com.alexvanyo.composelife.data.PatternCollectionRepository
 import com.alexvanyo.composelife.data.PatternCollectionRepositoryImpl
 import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
 import com.alexvanyo.composelife.data.di.PatternCollectionRepositoryProvider
@@ -34,12 +33,13 @@ import com.alexvanyo.composelife.database.CellStateIdAdapter
 import com.alexvanyo.composelife.database.ComposeLifeDatabase
 import com.alexvanyo.composelife.database.InstantAdapter
 import com.alexvanyo.composelife.database.PatternCollection
-import com.alexvanyo.composelife.database.PatternCollectionId
 import com.alexvanyo.composelife.database.PatternCollectionIdAdapter
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.DefaultComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.imageloader.di.ImageLoaderProvider
+import com.alexvanyo.composelife.logging.Logger
+import com.alexvanyo.composelife.logging.NoOpLogger
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.FlexibleCellStateSerializer
 import com.alexvanyo.composelife.model.di.CellStateParserProvider
@@ -51,7 +51,6 @@ import com.alexvanyo.composelife.preferences.currentShape
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.random.di.RandomProvider
-import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.app.CellUniversePaneInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.CellUniversePaneLocalEntryPoint
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
@@ -90,8 +89,12 @@ import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneLocalEntryPoint
 import com.alexvanyo.composelife.ui.settings.SettingUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.SettingUiLocalEntryPoint
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
 import kotlinx.datetime.Clock
 import okio.FileSystem
+import okio.Path.Companion.toPath
+import okio.fakefilesystem.FakeFileSystem
 import kotlin.random.Random
 
 /**
@@ -160,6 +163,8 @@ internal fun WithPreviewDependencies(
     ),
     random: Random = Random(1),
     clock: Clock = Clock.System,
+    logger: Logger = NoOpLogger,
+    fileSystem: FileSystem = FakeFileSystem(),
     cellStateParser: CellStateParser = CellStateParser(
         flexibleCellStateSerializer = FlexibleCellStateSerializer(
             dispatchers = dispatchers,
@@ -186,6 +191,7 @@ internal fun WithPreviewDependencies(
         ),
     )
     val cellStateQueries = composeLifeDatabase.cellStateQueries
+    val patternCollectionQueries = composeLifeDatabase.patternCollectionQueries
 
     val dispatchersProvider = object : ComposeLifeDispatchersProvider {
         override val dispatchers = dispatchers
@@ -204,16 +210,15 @@ internal fun WithPreviewDependencies(
         )
     }
     val patternCollectionRepositoryProvider = object : PatternCollectionRepositoryProvider {
-        override val patternCollectionRepository = object : PatternCollectionRepository {
-            override val collections: ResourceState<List<com.alexvanyo.composelife.data.model.PatternCollection>>
-                get() = throw NotImplementedError()
-
-            override suspend fun observePatternCollections(): Nothing = throw NotImplementedError()
-            override suspend fun addPatternCollection(sourceUrl: String): PatternCollectionId =
-                throw NotImplementedError()
-            override suspend fun deletePatternCollection(patternCollectionId: PatternCollectionId) = Unit
-            override suspend fun synchronizePatternCollections() = true
-        }
+        override val patternCollectionRepository = PatternCollectionRepositoryImpl(
+            dispatchers = dispatchers,
+            patternCollectionQueries = patternCollectionQueries,
+            fileSystem = fileSystem,
+            httpClient = lazy { HttpClient(MockEngine) },
+            logger = logger,
+            clock = clock,
+            persistedDataPath = lazy { "persistedDataPath".toPath() }
+        )
     }
     val loadedPreferencesProvider = object : LoadedComposeLifePreferencesProvider {
         override val preferences: LoadedComposeLifePreferences = loadedComposeLifePreferences
