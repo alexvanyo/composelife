@@ -43,7 +43,8 @@ interface SettingUiInjectEntryPoint :
     DoNotKeepProcessUiInjectEntryPoint,
     EnableClipboardWatchingUiInjectEntryPoint,
     ClipboardWatchingOnboardingCompletedUiInjectEntryPoint,
-    PatternCollectionsUiInjectEntryPoint
+    PatternCollectionsUiInjectEntryPoint,
+    SynchronizePatternCollectionsOnMeteredNetworkUiInjectEntryPoint
 
 interface SettingUiLocalEntryPoint :
     AlgorithmImplementationUiLocalEntryPoint,
@@ -56,7 +57,8 @@ interface SettingUiLocalEntryPoint :
     EnableClipboardWatchingUiLocalEntryPoint,
     ClipboardWatchingOnboardingCompletedUiLocalEntryPoint,
     LoadedComposeLifePreferencesProvider,
-    PatternCollectionsUiLocalEntryPoint
+    PatternCollectionsUiLocalEntryPoint,
+    SynchronizePatternCollectionsOnMeteredNetworkUiLocalEntryPoint
 
 /**
  * Displays the setting UI for the given [setting].
@@ -99,6 +101,8 @@ fun SettingUi(
                 Setting.CellStatePreview -> CellStatePreviewUi()
                 Setting.DarkThemeConfig -> DarkThemeConfigUi()
                 Setting.CellShapeConfig -> CellShapeConfigUi()
+                Setting.SynchronizePatternCollectionsOnMeteredNetwork ->
+                    SynchronizePatternCollectionsOnMeteredNetworkUi()
                 Setting.PatternCollectionSources -> PatternCollectionsUi()
                 Setting.DisableAGSL -> DisableAGSLUi()
                 Setting.DisableOpenGL -> DisableOpenGLUi()
@@ -115,6 +119,8 @@ val QuickAccessSetting.setting: Setting
         when (this) {
             QuickAccessSetting.AlgorithmImplementation -> Setting.AlgorithmImplementation
             QuickAccessSetting.CellShapeConfig -> Setting.CellShapeConfig
+            QuickAccessSetting.SynchronizePatternCollectionsOnMeteredNetwork ->
+                Setting.SynchronizePatternCollectionsOnMeteredNetwork
             QuickAccessSetting.DarkThemeConfig -> Setting.DarkThemeConfig
             QuickAccessSetting.DisableAGSL -> Setting.DisableAGSL
             QuickAccessSetting.DisableOpenGL -> Setting.DisableOpenGL

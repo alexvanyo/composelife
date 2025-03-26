@@ -47,4 +47,5 @@
     <string name="clipboard_watching_onboarding_completed">Watch clipboard onboarding completed</string>
     <string name="enable_clipboard_watching">Enable clipboard watching</string>
     <string name="delete">Delete</string>
+    <string name="synchronize_pattern_collections_on_metered_network">Synchronize pattern collections on metered network</string>
 </resources>
