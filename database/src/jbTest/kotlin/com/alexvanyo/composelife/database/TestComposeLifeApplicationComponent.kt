@@ -18,19 +18,12 @@ package com.alexvanyo.composelife.database
 
 import com.alexvanyo.composelife.database.di.DatabaseModule
 import com.alexvanyo.composelife.database.di.QueriesModule
-import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
-import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
+import com.alexvanyo.composelife.entrypoint.EntryPoint
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.UiScope
-import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
-import kotlinx.coroutines.test.TestDispatcher
-import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 expect abstract class TestComposeLifeApplicationComponent : ApplicationComponent<TestComposeLifeApplicationEntryPoint> {
 
@@ -39,15 +32,12 @@ expect abstract class TestComposeLifeApplicationComponent : ApplicationComponent
     companion object
 }
 
-@SingleIn(AppScope::class)
-@Inject
-class TestComposeLifeApplicationEntryPoint(
-    val composeLifeDatabase: ComposeLifeDatabase,
-    val dispatchers: ComposeLifeDispatchers,
-    override val updatables: Set<Updatable>,
-    val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher,
-    val cellTickerTestDispatcher: @CellTickerTestDispatcher TestDispatcher,
-    val cellStateQueries: CellStateQueries
-) : UpdatableModule
+@EntryPoint(AppScope::class)
+interface TestComposeLifeApplicationEntryPoint :
+    UpdatableModule,
+    DatabaseModule,
+    QueriesModule,
+    DispatchersModule,
+    TestDispatcherModule
 
 expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent

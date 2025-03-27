@@ -16,19 +16,16 @@
 
 package com.alexvanyo.composelife.data
 
-import com.alexvanyo.composelife.database.CellStateQueries
-import com.alexvanyo.composelife.database.PatternCollectionQueries
-import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
-import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
+import com.alexvanyo.composelife.data.di.RepositoryModule
+import com.alexvanyo.composelife.database.di.DatabaseModule
+import com.alexvanyo.composelife.database.di.QueriesModule
+import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
+import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
+import com.alexvanyo.composelife.entrypoint.EntryPoint
 import com.alexvanyo.composelife.network.FakeRequestHandler
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
-import kotlinx.coroutines.test.TestDispatcher
-import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 expect abstract class TestComposeLifeApplicationComponent : ApplicationComponent<TestComposeLifeApplicationEntryPoint> {
 
@@ -37,18 +34,15 @@ expect abstract class TestComposeLifeApplicationComponent : ApplicationComponent
     companion object
 }
 
-@SingleIn(AppScope::class)
-@Inject
-class TestComposeLifeApplicationEntryPoint(
-    val cellStateRepository: CellStateRepository,
-    val cellStateQueries: CellStateQueries,
-    val patternCollectionRepository: PatternCollectionRepository,
-    val patternCollectionQueries: PatternCollectionQueries,
-    val dispatchers: ComposeLifeDispatchers,
-    override val updatables: Set<Updatable>,
-    val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher,
-    val cellTickerTestDispatcher: @CellTickerTestDispatcher TestDispatcher,
-    val fakeRequestHandler: FakeRequestHandler,
-) : UpdatableModule
+@EntryPoint(AppScope::class)
+interface TestComposeLifeApplicationEntryPoint :
+    UpdatableModule,
+    RepositoryModule,
+    DatabaseModule,
+    QueriesModule,
+    DispatchersModule,
+    TestDispatcherModule {
+    val fakeRequestHandler: FakeRequestHandler
+}
 
 expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent

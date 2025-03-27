@@ -135,6 +135,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
                 implementation(projects.dispatchersTest)
+                implementation(projects.entryPointRuntime)
                 implementation(projects.filesystemTest)
                 implementation(projects.injectTestActivity)
                 implementation(projects.kmpAndroidRunner)
@@ -163,6 +164,7 @@ kotlin {
             configurations["kspDesktopTest"].dependencies.addAll(listOf(
                 libs.kotlinInject.ksp.get(),
                 libs.kotlinInjectAnvil.ksp.get(),
+                projects.entryPointSymbolProcessor,
             ))
             dependencies {
                 implementation(libs.kotlinx.coroutines.swing)
@@ -182,6 +184,7 @@ kotlin {
                 libs.kotlinInject.ksp.get(),
                 libs.kotlinInjectAnvil.ksp.get(),
                 libs.showkase.processor.get(),
+                projects.entryPointSymbolProcessor,
             ))
             dependencies {
                 implementation(projects.roborazziShowkaseScreenshotTest)
@@ -191,6 +194,7 @@ kotlin {
             configurations["kspAndroidAndroidTest"].dependencies.addAll(listOf(
                 libs.kotlinInject.ksp.get(),
                 libs.kotlinInjectAnvil.ksp.get(),
+                projects.entryPointSymbolProcessor,
             ))
             dependencies {
                 implementation(libs.androidx.test.uiAutomator)

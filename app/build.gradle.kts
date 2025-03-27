@@ -60,6 +60,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.core)
                 implementation(projects.appCompatSync)
                 implementation(projects.doNotKeepProcess)
+                implementation(projects.entryPointRuntime)
                 implementation(projects.filesystem)
                 implementation(projects.imageLoader)
                 implementation(projects.injectScopes)
@@ -76,6 +77,7 @@ kotlin {
             configurations["kspAndroid"].dependencies.addAll(listOf(
                 libs.kotlinInject.ksp.get(),
                 libs.kotlinInjectAnvil.ksp.get(),
+                projects.entryPointSymbolProcessor,
             ))
             configurations["baselineProfile"].dependencies.add(projects.appBaselineProfileGenerator)
             dependencies {
@@ -123,12 +125,14 @@ kotlin {
             configurations["kspAndroidTest"].dependencies.addAll(listOf(
                 libs.kotlinInject.ksp.get(),
                 libs.kotlinInjectAnvil.ksp.get(),
+                projects.entryPointSymbolProcessor,
             ))
         }
         val androidInstrumentedTest by getting {
             configurations["kspAndroidAndroidTest"].dependencies.addAll(listOf(
                 libs.kotlinInject.ksp.get(),
                 libs.kotlinInjectAnvil.ksp.get(),
+                projects.entryPointSymbolProcessor,
             ))
             dependencies {
                 compileOnly(libs.apiGuardian.api)

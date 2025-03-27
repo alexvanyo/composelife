@@ -16,22 +16,20 @@
 
 package com.alexvanyo.composelife
 
-import com.alexvanyo.composelife.updatable.Updatable
+import com.alexvanyo.composelife.entrypoint.EntryPoint
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
-import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @MergeComponent(AppScope::class)
 @SingleIn(AppScope::class)
-interface ComposeLifeApplicationComponent {
-    val entryPoint: ComposeLifeApplicationEntryPoint
+abstract class ComposeLifeApplicationComponent : ApplicationComponent<ComposeLifeApplicationEntryPoint>() {
+    abstract override val entryPoint: ComposeLifeApplicationEntryPoint
 }
 
-@SingleIn(AppScope::class)
-@Inject
-class ComposeLifeApplicationEntryPoint(
-    override val updatables: Set<Updatable>,
-    val uiComponentFactory: ComposeLifeUiComponent.Factory,
-) : UpdatableModule
+@EntryPoint(AppScope::class)
+interface ComposeLifeApplicationEntryPoint : UpdatableModule {
+    val uiComponentFactory: ComposeLifeUiComponent.Factory
+}
