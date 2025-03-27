@@ -17,9 +17,9 @@
 package com.alexvanyo.composelife.wear
 
 import android.app.Activity
+import com.alexvanyo.composelife.entrypoint.EntryPoint
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiScope
-import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesSubcomponent
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
@@ -37,6 +37,5 @@ interface ComposeLifeUiComponent : UiComponent<ComposeLifeUiEntryPoint> {
     companion object
 }
 
-@SingleIn(UiScope::class)
-@Inject
-class ComposeLifeUiEntryPoint
+@EntryPoint(UiScope::class)
+interface ComposeLifeUiEntryPoint

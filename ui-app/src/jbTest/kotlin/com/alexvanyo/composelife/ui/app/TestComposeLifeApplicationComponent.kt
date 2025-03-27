@@ -16,24 +16,15 @@
 
 package com.alexvanyo.composelife.ui.app
 
-import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
-import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
-import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
-import com.alexvanyo.composelife.model.CellStateParser
+import com.alexvanyo.composelife.entrypoint.EntryPoint
 import com.alexvanyo.composelife.model.di.CellStateParserModule
-import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
-import kotlinx.coroutines.test.TestDispatcher
-import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 expect abstract class TestComposeLifeApplicationComponent :
     ApplicationComponent<TestComposeLifeApplicationEntryPoint> {
@@ -43,22 +34,15 @@ expect abstract class TestComposeLifeApplicationComponent :
     companion object
 }
 
-@SingleIn(AppScope::class)
-@Inject
-class TestComposeLifeApplicationEntryPoint(
-    override val updatables: Set<Updatable>,
-    override val cellStateParser: CellStateParser,
-    override val composeLifePreferences: ComposeLifePreferences,
-    override val gameOfLifeAlgorithm: GameOfLifeAlgorithm,
-    override val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher,
-    override val cellTickerTestDispatcher: @CellTickerTestDispatcher TestDispatcher,
-    override val dispatchers: ComposeLifeDispatchers,
-    val uiComponentFactory: TestComposeLifeUiComponent.Factory,
-) : UpdatableModule,
+@EntryPoint(AppScope::class)
+interface TestComposeLifeApplicationEntryPoint :
+    UpdatableModule,
     CellStateParserModule,
     PreferencesModule,
     AlgorithmModule,
     DispatchersModule,
-    TestDispatcherModule
+    TestDispatcherModule {
+    val uiComponentFactory: TestComposeLifeUiComponent.Factory
+}
 
 expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent

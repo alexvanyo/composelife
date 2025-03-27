@@ -16,14 +16,11 @@
 
 package com.alexvanyo.composelife.ui.settings
 
-import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.entrypoint.EntryPoint
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
-import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 expect abstract class TestComposeLifeApplicationComponent : ApplicationComponent<TestComposeLifeApplicationEntryPoint> {
 
@@ -32,13 +29,11 @@ expect abstract class TestComposeLifeApplicationComponent : ApplicationComponent
     companion object
 }
 
-@SingleIn(AppScope::class)
-@Inject
-class TestComposeLifeApplicationEntryPoint(
-    override val updatables: Set<Updatable>,
-    override val composeLifePreferences: ComposeLifePreferences,
-    val uiComponentFactory: TestComposeLifeUiComponent.Factory,
-) : UpdatableModule,
-    PreferencesModule
+@EntryPoint(AppScope::class)
+interface TestComposeLifeApplicationEntryPoint :
+    UpdatableModule,
+    PreferencesModule {
+    val uiComponentFactory: TestComposeLifeUiComponent.Factory
+}
 
 expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent

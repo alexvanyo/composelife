@@ -55,6 +55,7 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(projects.entryPointRuntime)
                 implementation(projects.filesystem)
                 implementation(projects.injectScopes)
                 implementation(projects.processLifecycle)
@@ -66,6 +67,7 @@ kotlin {
             configurations["kspAndroid"].dependencies.addAll(listOf(
                 libs.kotlinInject.ksp.get(),
                 libs.kotlinInjectAnvil.ksp.get(),
+                projects.entryPointSymbolProcessor,
             ))
             configurations["baselineProfile"].dependencies.add(projects.wearBaselineProfileGenerator)
             dependencies {
