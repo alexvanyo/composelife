@@ -123,7 +123,7 @@ androidx.versionedparcelable:versionedparcelable:1.1.1
 androidx.viewpager:viewpager:1.0.0
 androidx.wear.compose:compose-foundation:1.5.0-alpha12
 androidx.wear.compose:compose-material-core:1.5.0-alpha12
-androidx.wear.compose:compose-material3:1.0.0-alpha34
+androidx.wear.compose:compose-material3:1.0.0-alpha35
 androidx.wear.compose:compose-ui-tooling:1.5.0-alpha12
 androidx.wear.protolayout:protolayout-expression-pipeline:1.0.0
 androidx.wear.protolayout:protolayout-expression:1.0.0
