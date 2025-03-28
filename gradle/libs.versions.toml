@@ -73,8 +73,6 @@ detekt = "1.23.8"
 googleAutoValue = "1.11.0"
 #gradleDependenciesSorter
 gradleDependenciesSorter = "0.14"
-#guavaAndroid
-guavaAndroid = "32.0.0-android"
 #keeper
 keeper = "0.16.1"
 #kermit
@@ -207,7 +205,6 @@ dependencyGuard-gradlePlugin = { group = "com.dropbox.dependency-guard", name = 
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
 detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
 google-autoValue-annotations = { group = "com.google.auto.value", name = "auto-value-annotations", version.ref = "googleAutoValue" }
-guava-android = { group = "com.google.guava", name = "guava", version.ref = "guavaAndroid" }
 jetbrains-compose-animation = { group = "org.jetbrains.compose.animation", name = "animation", version.ref = "jetbrainsCompose" }
 jetbrains-compose-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "jetbrainsCompose" }
 jetbrains-compose-gradlePlugin = { group = "org.jetbrains.compose", name = "compose-gradle-plugin", version.ref = "jetbrainsCompose" }
