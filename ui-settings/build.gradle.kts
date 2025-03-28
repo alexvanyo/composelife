@@ -136,6 +136,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
                 implementation(projects.dispatchersTest)
+                implementation(projects.entryPointRuntime)
                 implementation(projects.filesystemTest)
                 implementation(projects.injectTestActivity)
                 implementation(projects.kmpAndroidRunner)
@@ -165,6 +166,7 @@ kotlin {
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
+                    projects.entryPointSymbolProcessor,
                 )
             )
             dependencies {
@@ -186,6 +188,7 @@ kotlin {
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
                     libs.showkase.processor.get(),
+                    projects.entryPointSymbolProcessor,
                 )
             )
             dependencies {
@@ -197,6 +200,7 @@ kotlin {
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
+                    projects.entryPointSymbolProcessor,
                 )
             )
         }

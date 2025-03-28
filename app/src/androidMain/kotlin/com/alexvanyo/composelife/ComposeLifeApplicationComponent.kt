@@ -17,12 +17,10 @@
 package com.alexvanyo.composelife
 
 import android.app.Application
-import androidx.lifecycle.LifecycleOwner
-import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
+import com.alexvanyo.composelife.entrypoint.EntryPoint
+import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
-import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
@@ -38,10 +36,7 @@ abstract class ComposeLifeApplicationComponent(
     companion object
 }
 
-@SingleIn(AppScope::class)
-@Inject
-class ComposeLifeApplicationEntryPoint(
-    override val updatables: Set<Updatable>,
-    val processLifecycleOwner: @ProcessLifecycleOwner LifecycleOwner,
-    val uiComponentFactory: ComposeLifeUiComponent.Factory,
-) : UpdatableModule
+@EntryPoint(AppScope::class)
+interface ComposeLifeApplicationEntryPoint : UpdatableModule, ProcessLifecycleModule {
+    val uiComponentFactory: ComposeLifeUiComponent.Factory
+}

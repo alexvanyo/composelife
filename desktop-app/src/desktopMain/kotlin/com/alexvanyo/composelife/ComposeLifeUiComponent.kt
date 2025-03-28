@@ -16,25 +16,17 @@
 
 package com.alexvanyo.composelife
 
-import coil3.ImageLoader
-import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
-import com.alexvanyo.composelife.data.CellStateRepository
-import com.alexvanyo.composelife.data.PatternCollectionRepository
-import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.model.CellStateParser
-import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.entrypoint.EntryPoint
+import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiScope
-import kotlinx.datetime.Clock
-import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesSubcomponent
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
-import kotlin.random.Random
 
 @ContributesSubcomponent(UiScope::class)
 @SingleIn(UiScope::class)
-interface ComposeLifeUiComponent {
-    val entryPoint: ComposeLifeUiEntryPoint
+interface ComposeLifeUiComponent : UiComponent<ComposeLifeUiEntryPoint> {
+    override val entryPoint: ComposeLifeUiEntryPoint
 
     @ContributesSubcomponent.Factory(AppScope::class)
     interface Factory {
@@ -42,17 +34,5 @@ interface ComposeLifeUiComponent {
     }
 }
 
-@Suppress("LongParameterList")
-@SingleIn(UiScope::class)
-@Inject
-class ComposeLifeUiEntryPoint(
-    override val gameOfLifeAlgorithm: GameOfLifeAlgorithm,
-    override val composeLifePreferences: ComposeLifePreferences,
-    override val cellStateRepository: CellStateRepository,
-    override val patternCollectionRepository: PatternCollectionRepository,
-    override val clock: Clock,
-    override val dispatchers: ComposeLifeDispatchers,
-    override val random: Random,
-    override val imageLoader: ImageLoader,
-    override val cellStateParser: CellStateParser,
-) : MainInjectEntryPoint
+@EntryPoint(UiScope::class)
+interface ComposeLifeUiEntryPoint : MainInjectEntryPoint

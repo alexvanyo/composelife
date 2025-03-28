@@ -95,6 +95,7 @@ kotlin {
                 implementation(projects.dataTestResources)
                 implementation(projects.databaseTest)
                 implementation(projects.dispatchersTest)
+                implementation(projects.entryPointRuntime)
                 implementation(projects.filesystemTest)
                 implementation(projects.networkTest)
                 implementation(projects.workTest)
@@ -109,6 +110,7 @@ kotlin {
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
+                    projects.entryPointSymbolProcessor,
                 )
             )
         }
@@ -125,6 +127,7 @@ kotlin {
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
+                    projects.entryPointSymbolProcessor,
                 )
             )
         }
@@ -133,6 +136,7 @@ kotlin {
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
+                    projects.entryPointSymbolProcessor,
                 )
             )
         }

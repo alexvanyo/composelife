@@ -35,6 +35,7 @@ kotlin {
                 implementation(libs.circuit.retained)
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.serialization.core)
+                implementation(projects.entryPointRuntime)
                 implementation(projects.filesystem)
                 implementation(projects.imageLoader)
                 implementation(projects.injectScopes)
@@ -49,6 +50,7 @@ kotlin {
                 libs.kotlinInject.ksp.get(),
                 libs.kotlinInjectAnvil.ksp.get(),
                 libs.sealedEnum.ksp.get(),
+                projects.entryPointSymbolProcessor,
             ))
             dependencies {
                 implementation(compose.desktop.currentOs)
