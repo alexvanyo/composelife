@@ -16,15 +16,11 @@
 
 package com.alexvanyo.composelife.entrypoint
 
-import kotlin.reflect.KClass
-
 /**
- * A provider of [EntryPoint]s scoped to [S].
- *
- * [EntryPoint]s should not be retrieved directly, and should only be retrieved through the `getEntryPoint()`
- * function for each [EntryPoint] type that are generated as extension functions on [EntryPointProvider] for the
- * correct scope.
+ * A marker class for the internal API of [EntryPointProvider]s that should only be used by generated code to
+ * preserve type safety.
  */
-interface EntryPointProvider<S : Any> {
-    val entryPoints: Map<KClass<*>, ScopedEntryPoint<S, *>>
-}
+@RequiresOptIn(
+    message = "This is an internal API and should never be used outside of the generated code to preserve type safety.",
+)
+annotation class InternalEntryPointProviderApi

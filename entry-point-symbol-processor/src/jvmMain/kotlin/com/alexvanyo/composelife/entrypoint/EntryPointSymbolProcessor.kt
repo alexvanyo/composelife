@@ -29,14 +29,13 @@ import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Visibility
 import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
-import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.WildcardTypeName
 import com.squareup.kotlinpoet.asTypeName
@@ -53,6 +52,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import kotlin.reflect.KClass
 
+@OptIn(InternalEntryPointProviderApi::class)
 class EntryPointSymbolProcessor(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
@@ -161,6 +161,11 @@ class EntryPointSymbolProcessor(
                         FunSpec.builder("provides${entryPoint.simpleName.asString()}IntoEntryPointMap")
                             .addAnnotation(Provides::class)
                             .addAnnotation(IntoMap::class)
+                            .addAnnotation(
+                                AnnotationSpec.builder(ClassName("kotlin", "OptIn"))
+                                    .addMember("%T::class", InternalEntryPointProviderApi::class)
+                                    .build(),
+                            )
                             .addParameter(
                                 ParameterSpec.builder("entryPoint", entryPoint.toClassName()).build()
                             )
@@ -192,6 +197,11 @@ class EntryPointSymbolProcessor(
             )
             .addFunction(
                 FunSpec.builder("getEntryPoint")
+                    .addAnnotation(
+                        AnnotationSpec.builder(ClassName("kotlin", "OptIn"))
+                            .addMember("%T::class", InternalEntryPointProviderApi::class)
+                            .build(),
+                    )
                     .receiver(
                         EntryPointProvider::class.asTypeName().parameterizedBy(scopeClassName)
                     )
