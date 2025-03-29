@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("MatchingDeclarationName")
 
-package com.alexvanyo.composelife.ui.app
+package com.alexvanyo.composelife
 
-import com.alexvanyo.composelife.scopes.UiComponentArguments
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
+import com.alexvanyo.composelife.scopes.UiScope
 
-actual fun TestComposeLifeUiComponent.Companion.createComponent(
-    applicationComponent: TestComposeLifeApplicationComponent,
-    uiComponentArguments: UiComponentArguments,
-): TestComposeLifeUiComponent =
-    applicationComponent.getEntryPoint().uiComponentFactory.createTestComponent(uiComponentArguments.activity)
+actual fun EntryPointProvider<UiScope>.kmpGetEntryPoint(): TestComposeLifeUiEntryPoint = getEntryPoint()

@@ -19,12 +19,14 @@ package com.alexvanyo.composelife.test
 
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
@@ -46,3 +48,5 @@ expect fun <T : ApplicationComponent<E>, E : UpdatableModule, U : UiComponent<*>
     timeout: Duration = 60.seconds,
     testBody: suspend TestScope.(uiComponent: U, composeUiTest: ComposeUiTest) -> Unit,
 ): TestResult
+
+expect fun EntryPointProvider<AppScope>.kmpGetEntryPoint(): BaseInjectTestEntryPoint

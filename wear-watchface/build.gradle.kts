@@ -55,8 +55,12 @@ kotlin {
             }
         }
         val androidMain by getting {
-            configurations["kspAndroid"].dependencies.add(libs.kotlinInject.ksp.get())
-            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
+            configurations["kspAndroid"].dependencies.addAll(listOf(
+                libs.kotlinInject.ksp.get(),
+                libs.kotlinInjectAnvil.ksp.get(),
+                libs.sealedEnum.ksp.get(),
+                projects.entryPointSymbolProcessor,
+            ))
             dependencies {
                 api(libs.androidx.wear.watchface)
 

@@ -67,9 +67,11 @@ class ComposeLifeAppTests : BaseActivityInjectTest<
     { TestComposeLifeApplicationComponent.createComponent() },
     MainActivity::class.java,
 ) {
-    private val testDispatcher get() = applicationComponent.entryPoint.generalTestDispatcher
+    private val entryPoint: TestComposeLifeApplicationEntryPoint get() = applicationComponent.kmpGetEntryPoint()
 
-    private val preferences get() = applicationComponent.entryPoint.composeLifePreferences
+    private val testDispatcher get() = entryPoint.generalTestDispatcher
+
+    private val preferences get() = entryPoint.composeLifePreferences
 
     @SkipLeakDetection("recomposer", "Outer")
     @Test

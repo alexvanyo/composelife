@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity(), UiComponentOwner {
                 override val activity: Activity = this@MainActivity
             },
         )
-        val mainActivityEntryPoint = uiComponent.entryPoint as MainActivityInjectEntryPoint
+        val mainActivityEntryPoint: MainActivityInjectEntryPoint = uiComponent.getEntryPoint()
 
         // Keep the splash screen on screen until we've loaded preferences
         splashScreen.setKeepOnScreenCondition {

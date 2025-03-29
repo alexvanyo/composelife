@@ -19,18 +19,23 @@ package com.alexvanyo.composelife.scopes
 
 import android.app.Application
 import android.content.Context
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
+import com.alexvanyo.composelife.entrypoint.ScopedEntryPoint
 import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import kotlin.reflect.KClass
 
 @Suppress("UnnecessaryAbstractClass")
 @SingleIn(AppScope::class)
 actual abstract class ApplicationComponent<E>(
     @get:Provides val application: Application,
-) {
+) : EntryPointProvider<AppScope> {
     @Provides
     @ApplicationContext
     fun bindApplication(application: Application): Context = application
 
     actual abstract val entryPoint: E
+
+    actual abstract override val entryPoints: Map<KClass<*>, ScopedEntryPoint<AppScope, *>>
 }

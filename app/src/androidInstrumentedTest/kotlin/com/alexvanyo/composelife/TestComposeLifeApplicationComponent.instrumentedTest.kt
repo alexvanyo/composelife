@@ -29,3 +29,5 @@ actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): Test
     }
     return applicationComponent
 }
+
+actual fun EntryPointProvider<AppScope>.kmpGetEntryPoint(): TestComposeLifeApplicationEntryPoint = getEntryPoint()

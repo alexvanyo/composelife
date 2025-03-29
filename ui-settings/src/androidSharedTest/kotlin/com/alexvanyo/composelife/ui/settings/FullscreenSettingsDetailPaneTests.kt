@@ -64,7 +64,9 @@ class FullscreenSettingsDetailPaneTests : BaseUiInjectTest<
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent.Companion::createComponent,
 ) {
-    private val composeLifePreferences get() = applicationComponent.entryPoint.composeLifePreferences
+    private val entryPoint: TestComposeLifeApplicationEntryPoint get() = applicationComponent.kmpGetEntryPoint()
+
+    private val composeLifePreferences get() = entryPoint.composeLifePreferences
 
     @Test
     fun visual_settings_category_keeps_scroll_position_with_ime() = runUiTest { uiComponent, composeUiTest ->

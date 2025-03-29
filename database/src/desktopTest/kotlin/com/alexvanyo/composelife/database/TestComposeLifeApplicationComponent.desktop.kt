@@ -17,6 +17,7 @@
 
 package com.alexvanyo.composelife.database
 
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
@@ -34,3 +35,5 @@ actual abstract class TestComposeLifeApplicationComponent :
 
 actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent =
     TestComposeLifeApplicationComponent::class.create()
+
+actual fun EntryPointProvider<AppScope>.kmpGetEntryPoint(): TestComposeLifeApplicationEntryPoint = getEntryPoint()

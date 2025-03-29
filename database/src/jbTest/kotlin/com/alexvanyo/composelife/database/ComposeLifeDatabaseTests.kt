@@ -26,7 +26,9 @@ class ComposeLifeDatabaseTests : BaseInjectTest<
     >(
     TestComposeLifeApplicationComponent::createComponent,
 ) {
-    private val composeLifeDatabase get() = applicationComponent.entryPoint.composeLifeDatabase
+    private val entryPoint: TestComposeLifeApplicationEntryPoint get() = applicationComponent.kmpGetEntryPoint()
+
+    private val composeLifeDatabase get() = entryPoint.composeLifeDatabase
 
     @Test
     fun cell_state_dao_returns_valid_instance() = runAppTest {
