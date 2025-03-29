@@ -174,8 +174,8 @@ org.jetbrains.skiko:skiko-awt:0.8.25
 org.jetbrains.skiko:skiko:0.8.25
 org.jetbrains:annotations:23.0.0
 org.jspecify:jspecify:1.0.0
-org.slf4j:slf4j-api:2.0.17
-org.slf4j:slf4j-nop:2.0.17
+org.slf4j:slf4j-api:2.1.0-alpha1
+org.slf4j:slf4j-nop:2.1.0-alpha1
 org.xerial:sqlite-jdbc:3.45.2.0
 software.amazon.lastmile.kotlin.inject.anvil:runtime-jvm:0.1.2
 software.amazon.lastmile.kotlin.inject.anvil:runtime-optional-jvm:0.1.2
