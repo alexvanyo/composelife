@@ -32,10 +32,10 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 
 @OptIn(ExperimentalTestApi::class)
-actual fun <T : ApplicationComponent<E>, E : UpdatableModule, U : UiComponent<*>> BaseUiInjectTest<T, E, U>.runUiTest(
+actual fun <AC : ApplicationComponent, UC : UiComponent<*>> BaseUiInjectTest<AC, UC>.runUiTest(
     appTestContext: CoroutineContext,
     timeout: Duration,
-    testBody: suspend TestScope.(uiComponent: U, composeUiTest: ComposeUiTest) -> Unit,
+    testBody: suspend TestScope.(uiComponent: UC, composeUiTest: ComposeUiTest) -> Unit,
 ): TestResult =
     runAndroidComposeUiTest<ComponentActivity> {
         val uiComponent = uiComponentCreator(

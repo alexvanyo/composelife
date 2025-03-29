@@ -40,15 +40,10 @@ import org.junit.Assume.assumeTrue
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-class NonInteractableCellsVisualTests :
-    BaseUiInjectTest<
-        TestComposeLifeApplicationComponent,
-        TestComposeLifeApplicationEntryPoint,
-        TestComposeLifeUiComponent,
-        >(
-        TestComposeLifeApplicationComponent::createComponent,
-        TestComposeLifeUiComponent::createComponent,
-    ) {
+class NonInteractableCellsVisualTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
+    TestComposeLifeApplicationComponent::createComponent,
+    TestComposeLifeUiComponent::createComponent,
+) {
     private val nonInteractableCellsLocalEntryPoint = object : NonInteractableCellsLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults.copy(
             disableAGSL = true,

@@ -38,11 +38,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-class InlineEditPaneStateTests : BaseUiInjectTest<
-        TestComposeLifeApplicationComponent,
-        TestComposeLifeApplicationEntryPoint,
-        TestComposeLifeUiComponent,
-        >(
+class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {

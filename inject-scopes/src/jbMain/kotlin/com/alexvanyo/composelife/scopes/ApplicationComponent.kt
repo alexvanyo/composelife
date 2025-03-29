@@ -24,9 +24,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 import kotlin.reflect.KClass
 
 @SingleIn(AppScope::class)
-expect abstract class ApplicationComponent<E> : EntryPointProvider<AppScope> {
-    abstract val entryPoint: E
-
+expect abstract class ApplicationComponent : EntryPointProvider<AppScope> {
     abstract override val entryPoints: Map<KClass<*>, ScopedEntryPoint<AppScope, *>>
 }
 

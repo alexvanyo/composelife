@@ -90,6 +90,7 @@ kotlin {
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
+                    projects.entryPointSymbolProcessor,
                 )
             )
         }
@@ -106,6 +107,7 @@ kotlin {
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
+                    projects.entryPointSymbolProcessor,
                 )
             )
         }
@@ -114,6 +116,7 @@ kotlin {
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
+                    projects.entryPointSymbolProcessor,
                 )
             )
         }
