@@ -94,13 +94,15 @@ class InteractiveCellUniverseTests : BaseUiInjectTest<
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {
-    private val generalTestDispatcher get() = applicationComponent.entryPoint.generalTestDispatcher
+    private val entryPoint get() = applicationComponent.kmpGetEntryPoint()
 
-    private val cellTickerTestDispatcher get() = applicationComponent.entryPoint.cellTickerTestDispatcher
+    private val generalTestDispatcher get() = entryPoint.generalTestDispatcher
 
-    private val gameOfLifeAlgorithm get() = applicationComponent.entryPoint.gameOfLifeAlgorithm
+    private val cellTickerTestDispatcher get() = entryPoint.cellTickerTestDispatcher
 
-    private val dispatchers get() = applicationComponent.entryPoint.dispatchers
+    private val gameOfLifeAlgorithm get() = entryPoint.gameOfLifeAlgorithm
+
+    private val dispatchers get() = entryPoint.dispatchers
 
     private val interactiveCellUniverseLocalEntryPoint = object : InteractiveCellUniverseLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults

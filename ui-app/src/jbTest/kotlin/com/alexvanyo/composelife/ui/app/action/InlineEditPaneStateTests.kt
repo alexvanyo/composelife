@@ -26,6 +26,7 @@ import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProv
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
+import com.alexvanyo.composelife.ui.app.kmpGetEntryPoint
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationEntryPoint
 import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
@@ -45,7 +46,9 @@ class InlineEditPaneStateTests : BaseUiInjectTest<
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {
-    private val cellStateParserProvider: CellStateParserProvider = applicationComponent.entryPoint
+    private val entryPoint: TestComposeLifeApplicationEntryPoint get() = applicationComponent.kmpGetEntryPoint()
+
+    private val cellStateParserProvider: CellStateParserProvider = entryPoint
 
     @Test
     fun initial_state_is_correct_when_onboarding() = runUiTest { _, composeUiTest ->

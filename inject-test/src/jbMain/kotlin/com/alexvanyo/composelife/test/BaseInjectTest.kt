@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.test
 
+import com.alexvanyo.composelife.entrypoint.EntryPoint
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.Updatable
@@ -25,10 +26,14 @@ import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+
+@EntryPoint(AppScope::class)
+interface BaseInjectTestEntryPoint : UpdatableModule
 
 /**
  * A base class for testing components that depend on injected classes.
@@ -42,8 +47,10 @@ abstract class BaseInjectTest<T : ApplicationComponent<E>, E : UpdatableModule>(
 ) {
     val applicationComponent: T = applicationComponentCreator()
 
+    private val entryPoint: BaseInjectTestEntryPoint get() = applicationComponent.kmpGetEntryPoint()
+
     private val updatables: Set<Updatable>
-        get() = applicationComponent.entryPoint.updatables
+        get() = entryPoint.updatables
 
     open fun runAppTest(
         context: CoroutineContext = EmptyCoroutineContext,

@@ -37,14 +37,16 @@ class PatternCollectionRepositoryTests : BaseInjectTest<
     >(
     TestComposeLifeApplicationComponent::createComponent,
 ) {
+    private val entryPoint: TestComposeLifeApplicationEntryPoint get() = applicationComponent.kmpGetEntryPoint()
+
     private val patternCollectionRepository: PatternCollectionRepository
-        get() = applicationComponent.entryPoint.patternCollectionRepository
+        get() = entryPoint.patternCollectionRepository
 
-    private val patternCollectionQueries get() = applicationComponent.entryPoint.patternCollectionQueries
+    private val patternCollectionQueries get() = entryPoint.patternCollectionQueries
 
-    private val testDispatcher get() = applicationComponent.entryPoint.generalTestDispatcher
+    private val testDispatcher get() = entryPoint.generalTestDispatcher
 
-    private val fakeRequestHandler: FakeRequestHandler get() = applicationComponent.entryPoint.fakeRequestHandler
+    private val fakeRequestHandler: FakeRequestHandler get() = entryPoint.fakeRequestHandler
 
     @Test
     fun pattern_collection_is_empty_initially() = runAppTest(testDispatcher) {

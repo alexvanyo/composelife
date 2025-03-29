@@ -31,6 +31,11 @@ expect interface TestComposeLifeUiComponent : UiComponent<TestComposeLifeUiEntry
     companion object
 }
 
+expect fun TestComposeLifeUiComponent.Companion.createComponent(
+    applicationComponent: TestComposeLifeApplicationComponent,
+    uiComponentArguments: UiComponentArguments,
+): TestComposeLifeUiComponent
+
 @EntryPoint(UiScope::class)
 interface TestComposeLifeUiEntryPoint :
     AlgorithmImplementationUiInjectEntryPoint,
@@ -43,8 +48,3 @@ interface TestComposeLifeUiEntryPoint :
     InlineSettingsPaneInjectEntryPoint,
     PatternCollectionsUiInjectEntryPoint,
     SettingUiInjectEntryPoint
-
-expect fun TestComposeLifeUiComponent.Companion.createComponent(
-    applicationComponent: TestComposeLifeApplicationComponent,
-    uiComponentArguments: UiComponentArguments,
-): TestComposeLifeUiComponent

@@ -41,4 +41,4 @@ actual fun TestComposeLifeUiComponent.Companion.createComponent(
     applicationComponent: TestComposeLifeApplicationComponent,
     uiComponentArguments: UiComponentArguments,
 ): TestComposeLifeUiComponent =
-    applicationComponent.entryPoint.uiComponentFactory.createTestComponent()
+    applicationComponent.getEntryPoint().uiComponentFactory.createTestComponent()

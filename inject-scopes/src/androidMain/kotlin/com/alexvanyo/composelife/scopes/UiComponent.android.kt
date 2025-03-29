@@ -19,14 +19,19 @@ package com.alexvanyo.composelife.scopes
 
 import android.app.Activity
 import android.content.Context
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
+import com.alexvanyo.composelife.entrypoint.ScopedEntryPoint
 import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import kotlin.reflect.KClass
 
 @SingleIn(UiScope::class)
-actual interface UiComponent<E> {
+actual interface UiComponent<E> : EntryPointProvider<UiScope> {
     @Provides
     @ActivityContext
     fun bindActivity(activity: Activity): Context = activity
 
     actual val entryPoint: E
+
+    actual abstract override val entryPoints: Map<KClass<*>, ScopedEntryPoint<UiScope, *>>
 }

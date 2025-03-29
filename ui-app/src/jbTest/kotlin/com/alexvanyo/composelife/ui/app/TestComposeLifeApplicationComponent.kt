@@ -20,6 +20,7 @@ import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
 import com.alexvanyo.composelife.entrypoint.EntryPoint
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.model.di.CellStateParserModule
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
@@ -34,6 +35,8 @@ expect abstract class TestComposeLifeApplicationComponent :
     companion object
 }
 
+expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent
+
 @EntryPoint(AppScope::class)
 interface TestComposeLifeApplicationEntryPoint :
     UpdatableModule,
@@ -45,4 +48,4 @@ interface TestComposeLifeApplicationEntryPoint :
     val uiComponentFactory: TestComposeLifeUiComponent.Factory
 }
 
-expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent
+expect fun EntryPointProvider<AppScope>.kmpGetEntryPoint(): TestComposeLifeApplicationEntryPoint

@@ -61,7 +61,9 @@ class InlineSettingsPaneTests : BaseUiInjectTest<
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {
-    private val composeLifePreferences get() = applicationComponent.entryPoint.composeLifePreferences
+    private val entryPoint: TestComposeLifeApplicationEntryPoint get() = applicationComponent.kmpGetEntryPoint()
+
+    private val composeLifePreferences get() = entryPoint.composeLifePreferences
 
     private val testComposeLifePreferences: TestComposeLifePreferences get() = assertIs(composeLifePreferences)
 
