@@ -31,9 +31,9 @@ import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
-import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationEntryPoint
 import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
 import com.alexvanyo.composelife.ui.app.createComponent
+import com.alexvanyo.composelife.ui.app.kmpGetEntryPoint
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
@@ -48,7 +48,7 @@ class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<TestComposeLifeApplica
     @Test
     fun progress_indicator_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
         val gameOfLifeProgressIndicatorInjectEntryPoint: GameOfLifeProgressIndicatorInjectEntryPoint =
-            uiComponent.entryPoint
+            uiComponent.kmpGetEntryPoint()
 
         composeUiTest.setContent {
             CompositionLocalProvider(

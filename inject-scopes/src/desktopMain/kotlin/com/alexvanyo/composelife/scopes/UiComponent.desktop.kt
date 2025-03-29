@@ -18,14 +18,7 @@
 package com.alexvanyo.composelife.scopes
 
 import com.alexvanyo.composelife.entrypoint.EntryPointProvider
-import com.alexvanyo.composelife.entrypoint.ScopedEntryPoint
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
-import kotlin.reflect.KClass
 
 @SingleIn(UiScope::class)
-actual interface UiComponent<E> : EntryPointProvider<UiScope> {
-
-    actual val entryPoint: E
-
-    actual abstract override val entryPoints: Map<KClass<*>, ScopedEntryPoint<UiScope, *>>
-}
+actual interface UiComponent : EntryPointProvider<UiScope>

@@ -18,16 +18,10 @@ package com.alexvanyo.composelife.scopes
 
 import com.alexvanyo.composelife.entrypoint.EntryPoint
 import com.alexvanyo.composelife.entrypoint.EntryPointProvider
-import com.alexvanyo.composelife.entrypoint.ScopedEntryPoint
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
-import kotlin.reflect.KClass
 
 @SingleIn(UiScope::class)
-expect interface UiComponent<E> : EntryPointProvider<UiScope> {
-    val entryPoint: E
-
-    override val entryPoints: Map<KClass<*>, ScopedEntryPoint<UiScope, *>>
-}
+expect interface UiComponent : EntryPointProvider<UiScope>
 
 // TODO: Remove when it is possible to declare an empty binding map
 //       https://github.com/evant/kotlin-inject/issues/249

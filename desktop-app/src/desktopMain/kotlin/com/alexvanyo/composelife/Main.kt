@@ -19,6 +19,7 @@ package com.alexvanyo.composelife
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
@@ -54,8 +55,12 @@ fun main() = application {
         state = windowState,
     ) {
         CompositionLocalProvider(LocalRetainedStateRegistry provides continuityRetainedStateRegistry()) {
-            val uiComponent = entryPoint.uiComponentFactory.createComponent()
-            val mainInjectEntryPoint: MainInjectEntryPoint = uiComponent.entryPoint
+            val uiComponent = remember(entryPoint.uiComponentFactory) {
+                entryPoint.uiComponentFactory.createComponent()
+            }
+            val mainInjectEntryPoint: MainInjectEntryPoint = remember(uiComponent) {
+                uiComponent.getEntryPoint()
+            }
             with(mainInjectEntryPoint) {
                 ComposeLifeTheme(shouldUseDarkTheme()) {
                     ComposeLifeApp(

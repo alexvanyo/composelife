@@ -43,7 +43,7 @@ import com.slack.circuit.retained.continuityRetainedStateRegistry
 
 class MainActivity : AppCompatActivity(), UiComponentOwner {
 
-    override lateinit var uiComponent: UiComponent<*>
+    override lateinit var uiComponent: UiComponent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()

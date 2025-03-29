@@ -71,8 +71,8 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<TestComposeLifeApplicationC
     fun drag_and_drop_works_correctly() = runUiTest(
         entryPoint.generalTestDispatcher,
     ) { uiComponent, composeUiTest ->
-        val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
-        val cellStateParserProvider: CellStateParserProvider = uiComponent.entryPoint
+        val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint()
+        val cellStateParserProvider: CellStateParserProvider = uiComponent.kmpGetEntryPoint()
 
         var droppedCellState: CellState? = null
 
