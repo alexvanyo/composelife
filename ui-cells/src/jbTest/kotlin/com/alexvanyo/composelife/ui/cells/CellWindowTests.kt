@@ -48,11 +48,7 @@ import kotlin.test.assertTrue
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTestApi::class)
-class CellWindowTests : BaseUiInjectTest<
-    TestComposeLifeApplicationComponent,
-    TestComposeLifeApplicationEntryPoint,
-    TestComposeLifeUiComponent
-    >(
+class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {

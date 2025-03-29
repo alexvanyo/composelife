@@ -26,10 +26,7 @@ import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 
-expect abstract class TestComposeLifeApplicationComponent : ApplicationComponent<TestComposeLifeApplicationEntryPoint> {
-
-    abstract override val entryPoint: TestComposeLifeApplicationEntryPoint
-
+expect abstract class TestComposeLifeApplicationComponent : ApplicationComponent {
     companion object
 }
 

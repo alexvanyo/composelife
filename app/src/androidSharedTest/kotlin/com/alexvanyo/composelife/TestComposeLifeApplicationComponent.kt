@@ -32,10 +32,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 @SingleIn(AppScope::class)
 abstract class TestComposeLifeApplicationComponent(
     application: Application,
-) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application) {
-
-    abstract override val entryPoint: TestComposeLifeApplicationEntryPoint
-
+) : ApplicationComponent(application) {
     companion object
 }
 

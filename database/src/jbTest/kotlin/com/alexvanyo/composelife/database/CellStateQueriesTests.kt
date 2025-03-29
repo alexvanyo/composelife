@@ -30,7 +30,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.time.Duration.Companion.seconds
 
-class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeApplicationEntryPoint>(
+class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
     TestComposeLifeApplicationComponent::createComponent,
 ) {
     private val entryPoint: TestComposeLifeApplicationEntryPoint get() = applicationComponent.kmpGetEntryPoint()

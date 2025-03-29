@@ -55,17 +55,12 @@ import com.alexvanyo.composelife.ui.app.resources.Paste
 import com.alexvanyo.composelife.ui.app.resources.Pin
 import com.alexvanyo.composelife.ui.app.resources.Select
 import com.alexvanyo.composelife.ui.app.resources.Strings
-import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTestApi::class)
-class InlineEditPaneTests : BaseUiInjectTest<
-        TestComposeLifeApplicationComponent,
-        TestComposeLifeApplicationEntryPoint,
-        TestComposeLifeUiComponent,
-        >(
+class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {

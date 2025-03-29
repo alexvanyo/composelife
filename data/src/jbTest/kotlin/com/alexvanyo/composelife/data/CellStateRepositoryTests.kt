@@ -26,10 +26,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class CellStateRepositoryTests : BaseInjectTest<
-    TestComposeLifeApplicationComponent,
-    TestComposeLifeApplicationEntryPoint
-    >(
+class CellStateRepositoryTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
     TestComposeLifeApplicationComponent::createComponent,
 ) {
     private val entryPoint: TestComposeLifeApplicationEntryPoint get() = applicationComponent.kmpGetEntryPoint()

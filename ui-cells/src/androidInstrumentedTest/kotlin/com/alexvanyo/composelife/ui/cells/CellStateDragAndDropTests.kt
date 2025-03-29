@@ -51,11 +51,7 @@ import kotlin.test.assertNull
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class CellStateDragAndDropTests : BaseUiInjectTest<
-    TestComposeLifeApplicationComponent,
-    TestComposeLifeApplicationEntryPoint,
-    TestComposeLifeUiComponent,
-    >(
+class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {

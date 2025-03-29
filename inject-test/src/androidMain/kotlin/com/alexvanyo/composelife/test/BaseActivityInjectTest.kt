@@ -34,10 +34,10 @@ import org.junit.rules.TestRule
  * Subclasses must call [runAppTest] instead of [runTest] to properly initialize dependencies.
  */
 @Suppress("UnnecessaryAbstractClass")
-abstract class BaseActivityInjectTest<T : ApplicationComponent<E>, E : UpdatableModule, A>(
-    applicationComponentCreator: () -> T,
+abstract class BaseActivityInjectTest<AC : ApplicationComponent, A>(
+    applicationComponentCreator: () -> AC,
     clazz: Class<A>,
-) : BaseInjectTest<T, E>(applicationComponentCreator)
+) : BaseInjectTest<AC>(applicationComponentCreator)
     where A : ComponentActivity, A : UiComponentOwner {
 
     @get:Rule(order = 0)

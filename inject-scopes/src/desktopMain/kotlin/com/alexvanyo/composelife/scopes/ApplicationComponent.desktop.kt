@@ -25,8 +25,6 @@ import kotlin.reflect.KClass
 
 @Suppress("UnnecessaryAbstractClass")
 @SingleIn(AppScope::class)
-actual abstract class ApplicationComponent<E> : EntryPointProvider<AppScope> {
-    actual abstract val entryPoint: E
-
+actual abstract class ApplicationComponent : EntryPointProvider<AppScope> {
     actual abstract override val entryPoints: Map<KClass<*>, ScopedEntryPoint<AppScope, *>>
 }

@@ -56,11 +56,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-class FullscreenSettingsDetailPaneTests : BaseUiInjectTest<
-    TestComposeLifeApplicationComponent,
-    TestComposeLifeApplicationEntryPoint,
-    TestComposeLifeUiComponent,
-    >(
+class FullscreenSettingsDetailPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent.Companion::createComponent,
 ) {

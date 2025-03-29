@@ -47,11 +47,7 @@ import kotlin.test.assertEquals
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTestApi::class)
-class SelectionOverlayTests : BaseUiInjectTest<
-    TestComposeLifeApplicationComponent,
-    TestComposeLifeApplicationEntryPoint,
-    TestComposeLifeUiComponent
-    >(
+class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {

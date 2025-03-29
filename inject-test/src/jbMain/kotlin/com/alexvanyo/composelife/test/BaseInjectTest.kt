@@ -42,10 +42,10 @@ interface BaseInjectTestEntryPoint : UpdatableModule
  */
 @Suppress("UnnecessaryAbstractClass")
 @RunWith(KmpAndroidJUnit4::class)
-abstract class BaseInjectTest<T : ApplicationComponent<E>, E : UpdatableModule>(
-    applicationComponentCreator: () -> T,
+abstract class BaseInjectTest<AC : ApplicationComponent>(
+    applicationComponentCreator: () -> AC,
 ) {
-    val applicationComponent: T = applicationComponentCreator()
+    val applicationComponent = applicationComponentCreator()
 
     private val entryPoint: BaseInjectTestEntryPoint get() = applicationComponent.kmpGetEntryPoint()
 

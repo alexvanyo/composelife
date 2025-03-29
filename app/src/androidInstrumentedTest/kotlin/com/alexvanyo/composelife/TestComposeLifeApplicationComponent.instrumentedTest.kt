@@ -18,14 +18,16 @@
 package com.alexvanyo.composelife
 
 import androidx.test.core.app.ApplicationProvider
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.test.TestInjectApplication
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 
 actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent {
     val application = ApplicationProvider.getApplicationContext<TestInjectApplication>()
     val applicationComponent = TestComposeLifeApplicationComponent::class.create(application)
     application.applicationComponent = applicationComponent
     application.uiComponentFactory = {
-        applicationComponent.entryPoint.uiComponentFactory.createTestComponent(it.activity)
+        applicationComponent.getEntryPoint().uiComponentFactory.createTestComponent(it.activity)
     }
     return applicationComponent
 }
