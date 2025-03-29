@@ -126,7 +126,7 @@ roborazzi = "1.43.1"
 #sealedEnum
 sealedEnum = "0.7.0"
 #slf4j
-slf4j = "2.0.17"
+slf4j = "2.1.0-alpha1"
 #showkase
 showkase = "1.0.3"
 #slackComposeLintChecks
