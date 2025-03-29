@@ -17,6 +17,7 @@
 
 package com.alexvanyo.composelife.ui.cells
 
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.scopes.UiScope
@@ -26,9 +27,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @ContributesSubcomponent(UiScope::class)
 @SingleIn(UiScope::class)
-actual interface TestComposeLifeUiComponent : UiComponent<TestComposeLifeUiEntryPoint> {
-    actual override val entryPoint: TestComposeLifeUiEntryPoint
-
+actual interface TestComposeLifeUiComponent : UiComponent {
     @ContributesSubcomponent.Factory(AppScope::class)
     actual interface Factory {
         fun createTestComponent(): TestComposeLifeUiComponent
@@ -42,3 +41,5 @@ actual fun TestComposeLifeUiComponent.Companion.createComponent(
     uiComponentArguments: UiComponentArguments,
 ): TestComposeLifeUiComponent =
     applicationComponent.getEntryPoint().uiComponentFactory.createTestComponent()
+
+actual fun EntryPointProvider<UiScope>.kmpGetEntryPoint(): TestComposeLifeUiEntryPoint = getEntryPoint()
