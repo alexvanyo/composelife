@@ -22,10 +22,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
+import androidx.savedstate.SavedState
+import com.alexvanyo.composelife.serialization.ClosedFloatRangeSerializer
+import com.alexvanyo.composelife.serialization.OffsetSerializer
+import com.alexvanyo.composelife.serialization.SurrogatingSerializer
+import com.alexvanyo.composelife.serialization.saver
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * A state holder describing a specific viewport into the cell universe.
@@ -70,7 +77,7 @@ fun rememberMutableCellWindowViewportState(
     scaleRange: ClosedRange<Float> = MutableCellWindowViewportState.defaultScaleRange,
 ): MutableCellWindowViewportState =
     rememberSaveable(saver = MutableCellWindowViewportStateImpl.Saver) {
-        MutableCellWindowViewportState(
+        MutableCellWindowViewportStateImpl(
             offset = offset,
             scale = scale,
             scaleRange = scaleRange,
@@ -87,11 +94,19 @@ fun MutableCellWindowViewportState(
     scaleRange = scaleRange,
 )
 
+@Serializable(with = MutableCellWindowViewportStateImpl.Serializer::class)
 private class MutableCellWindowViewportStateImpl(
     offset: Offset = Offset.Zero,
     scale: Float = 1f,
     scaleRange: ClosedRange<Float> = 0.1f..3f,
 ) : MutableCellWindowViewportState {
+
+    private constructor(surrogate: Surrogate) : this(
+        surrogate.offset,
+        surrogate.scale,
+        surrogate.scaleRange,
+    )
+
     private var _offset: Offset by mutableStateOf(offset)
 
     private var _scaleRange by mutableStateOf(scaleRange)
@@ -128,16 +143,29 @@ private class MutableCellWindowViewportStateImpl(
         _scale = scale.coerceIn(scaleRange)
     }
 
-    companion object {
-        val Saver: Saver<MutableCellWindowViewportState, *> = listSaver(
-            { listOf(it.offset.x, it.offset.y, it.scale, it.scaleRange.start, it.scaleRange.endInclusive) },
-            {
-                MutableCellWindowViewportStateImpl(
-                    offset = Offset(it[0], it[1]),
-                    scale = it[2],
-                    scaleRange = it[3]..it[4],
-                )
-            },
+    private val surrogate: Surrogate get() =
+        Surrogate(
+            offset = offset,
+            scale = scale,
+            scaleRange = scaleRange,
         )
+
+    @Serializable
+    @SerialName("MutableCellWindowViewportStateImpl")
+    private data class Surrogate(
+        @Serializable(with = OffsetSerializer::class)
+        val offset: Offset,
+        val scale: Float,
+        @Serializable(with = ClosedFloatRangeSerializer::class)
+        val scaleRange: ClosedRange<Float>,
+    )
+
+    private object Serializer : KSerializer<MutableCellWindowViewportStateImpl> by SurrogatingSerializer(
+        MutableCellWindowViewportStateImpl::surrogate,
+        ::MutableCellWindowViewportStateImpl,
+    )
+
+    companion object {
+        val Saver: Saver<MutableCellWindowViewportStateImpl, SavedState> = serializer().saver()
     }
 }
