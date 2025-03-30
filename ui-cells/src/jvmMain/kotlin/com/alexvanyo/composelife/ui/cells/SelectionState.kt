@@ -98,7 +98,7 @@ sealed interface SelectionState {
     ) : SelectionState
 
     companion object {
-        val Saver get() = serializer().saver
+        val Saver get() = serializer().saver()
     }
 }
 
