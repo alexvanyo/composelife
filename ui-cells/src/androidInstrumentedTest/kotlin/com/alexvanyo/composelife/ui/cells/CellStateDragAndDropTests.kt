@@ -51,20 +51,18 @@ import kotlin.test.assertNull
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class CellStateDragAndDropTests : BaseUiInjectTest<
-    TestComposeLifeApplicationComponent,
-    TestComposeLifeApplicationEntryPoint,
-    TestComposeLifeUiComponent,
-    >(
+class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {
 
+    private val entryPoint: TestComposeLifeApplicationEntryPoint get() = applicationComponent.getEntryPoint()
+
     @Test
     fun drag_and_drop_works_correctly_when_dropped() = runUiTest(
-        applicationComponent.entryPoint.generalTestDispatcher,
+        entryPoint.generalTestDispatcher,
     ) { uiComponent, composeUiTest ->
-        val cellStateParserProvider: CellStateParserProvider = uiComponent.entryPoint
+        val cellStateParserProvider: CellStateParserProvider = uiComponent.getEntryPoint()
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
 
@@ -188,9 +186,9 @@ class CellStateDragAndDropTests : BaseUiInjectTest<
 
     @Test
     fun drag_and_drop_works_correctly_when_ended() = runUiTest(
-        applicationComponent.entryPoint.generalTestDispatcher,
+        entryPoint.generalTestDispatcher,
     ) { uiComponent, composeUiTest ->
-        val cellStateParserProvider: CellStateParserProvider = uiComponent.entryPoint
+        val cellStateParserProvider: CellStateParserProvider = uiComponent.getEntryPoint()
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
 

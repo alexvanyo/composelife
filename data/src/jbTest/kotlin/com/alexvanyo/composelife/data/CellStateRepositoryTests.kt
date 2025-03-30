@@ -19,26 +19,23 @@ package com.alexvanyo.composelife.data
 import com.alexvanyo.composelife.data.model.CellStateMetadata
 import com.alexvanyo.composelife.data.model.SaveableCellState
 import com.alexvanyo.composelife.database.CellState
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.test.BaseInjectTest
-import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class CellStateRepositoryTests : BaseInjectTest<
-    TestComposeLifeApplicationComponent,
-    TestComposeLifeApplicationEntryPoint
-    >(
+class CellStateRepositoryTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
     TestComposeLifeApplicationComponent::createComponent,
 ) {
-    private val cellStateRepository get() = applicationComponent.entryPoint.cellStateRepository
+    private val entryPoint: TestComposeLifeApplicationEntryPoint get() = applicationComponent.kmpGetEntryPoint()
 
-    private val cellStateQueries get() = applicationComponent.entryPoint.cellStateQueries
+    private val cellStateRepository get() = entryPoint.cellStateRepository
 
-    private val testDispatcher get() = applicationComponent.entryPoint.generalTestDispatcher
+    private val cellStateQueries get() = entryPoint.cellStateQueries
+
+    private val testDispatcher get() = entryPoint.generalTestDispatcher
 
     @Test
     fun get_autosaved_cell_state_returns_null_initially() = runAppTest(testDispatcher) {

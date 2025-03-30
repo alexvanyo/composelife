@@ -17,9 +17,6 @@
 package com.alexvanyo.composelife.preferences
 
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
-import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.preferences.di.PreferencesModule
-import com.alexvanyo.composelife.preferences.di.TestPreferencesComponent
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertIs
@@ -29,13 +26,11 @@ class TestPreferencesComponentTest {
 
     private val composeLifeApplicationComponent = TestComposeLifeApplicationComponent.createComponent()
 
+    private val entryPoint: TestComposeLifeApplicationEntryPoint = composeLifeApplicationComponent.kmpGetEntryPoint()
+
     @Test
     fun checkType() {
-        assertIs<PreferencesModule>(composeLifeApplicationComponent)
-        assertIs<TestPreferencesComponent>(composeLifeApplicationComponent)
-        assertIs<ComposeLifePreferencesProvider>(composeLifeApplicationComponent)
-
-        assertIs<ComposeLifePreferences>(composeLifeApplicationComponent.composeLifePreferences)
-        assertIs<TestComposeLifePreferences>(composeLifeApplicationComponent.composeLifePreferences)
+        assertIs<ComposeLifePreferences>(entryPoint.composeLifePreferences)
+        assertIs<TestComposeLifePreferences>(entryPoint.composeLifePreferences)
     }
 }

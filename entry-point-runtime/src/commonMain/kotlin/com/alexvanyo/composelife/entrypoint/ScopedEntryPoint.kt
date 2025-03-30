@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.scopes
+package com.alexvanyo.composelife.entrypoint
 
-interface UiComponentOwner {
-    val uiComponent: UiComponent
-}
+/**
+ * A holder of a creator for an [EntryPoint] of type [E] for the scope [S].
+ */
+data class ScopedEntryPoint<S : Any, E> @InternalEntryPointProviderApi constructor(
+    @property:InternalEntryPointProviderApi
+    val entryPointCreator: () -> E,
+)

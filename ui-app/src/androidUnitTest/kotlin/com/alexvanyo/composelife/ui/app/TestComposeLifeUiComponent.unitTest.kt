@@ -17,10 +17,14 @@
 
 package com.alexvanyo.composelife.ui.app
 
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.scopes.UiComponentArguments
+import com.alexvanyo.composelife.scopes.UiScope
 
 actual fun TestComposeLifeUiComponent.Companion.createComponent(
     applicationComponent: TestComposeLifeApplicationComponent,
     uiComponentArguments: UiComponentArguments,
 ): TestComposeLifeUiComponent =
-    applicationComponent.entryPoint.uiComponentFactory.createTestComponent(uiComponentArguments.activity)
+    applicationComponent.getEntryPoint().uiComponentFactory.createTestComponent(uiComponentArguments.activity)
+
+actual fun EntryPointProvider<UiScope>.kmpGetEntryPoint(): TestComposeLifeUiEntryPoint = getEntryPoint()

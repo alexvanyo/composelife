@@ -20,6 +20,7 @@ package com.alexvanyo.composelife
 import android.app.Application
 import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
 import com.alexvanyo.composelife.entrypoint.EntryPoint
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
@@ -31,10 +32,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 @SingleIn(AppScope::class)
 abstract class TestComposeLifeApplicationComponent(
     application: Application,
-) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application) {
-
-    abstract override val entryPoint: TestComposeLifeApplicationEntryPoint
-
+) : ApplicationComponent(application) {
     companion object
 }
 
@@ -47,3 +45,5 @@ interface TestComposeLifeApplicationEntryPoint :
     PreferencesModule {
     val uiComponentFactory: TestComposeLifeUiComponent.Factory
 }
+
+expect fun EntryPointProvider<AppScope>.kmpGetEntryPoint(): TestComposeLifeApplicationEntryPoint

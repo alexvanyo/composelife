@@ -47,18 +47,14 @@ import kotlin.test.assertEquals
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTestApi::class)
-class SelectionOverlayTests : BaseUiInjectTest<
-    TestComposeLifeApplicationComponent,
-    TestComposeLifeApplicationEntryPoint,
-    TestComposeLifeUiComponent
-    >(
+class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {
 
     @Test
     fun no_selection_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
-        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
+        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint()
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -101,7 +97,7 @@ class SelectionOverlayTests : BaseUiInjectTest<
 
     @Test
     fun selecting_box_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
-        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
+        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint()
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -167,7 +163,7 @@ class SelectionOverlayTests : BaseUiInjectTest<
         // TODO: This test tends to deadlock on desktop
         assumeTrue(isAndroid())
 
-        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
+        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint()
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -234,7 +230,7 @@ class SelectionOverlayTests : BaseUiInjectTest<
 
     @Test
     fun selection_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
-        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
+        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint()
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -280,7 +276,7 @@ class SelectionOverlayTests : BaseUiInjectTest<
         // TODO: This test tends to deadlock on desktop
         assumeTrue(isAndroid())
 
-        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.entryPoint
+        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint()
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }

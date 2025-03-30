@@ -25,9 +25,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @ContributesSubcomponent(UiScope::class)
 @SingleIn(UiScope::class)
-interface ComposeLifeUiComponent : UiComponent<ComposeLifeUiEntryPoint> {
-    override val entryPoint: ComposeLifeUiEntryPoint
-
+interface ComposeLifeUiComponent : UiComponent {
     @ContributesSubcomponent.Factory(AppScope::class)
     interface Factory {
         fun createComponent(): ComposeLifeUiComponent

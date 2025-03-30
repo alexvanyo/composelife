@@ -19,6 +19,7 @@ package com.alexvanyo.composelife
 
 import android.app.Activity
 import com.alexvanyo.composelife.entrypoint.EntryPoint
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiScope
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
@@ -27,9 +28,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @ContributesSubcomponent(UiScope::class)
 @SingleIn(UiScope::class)
-interface TestComposeLifeUiComponent : UiComponent<TestComposeLifeUiEntryPoint> {
-    override val entryPoint: TestComposeLifeUiEntryPoint
-
+interface TestComposeLifeUiComponent : UiComponent {
     @ContributesSubcomponent.Factory(AppScope::class)
     interface Factory {
         fun createTestComponent(activity: Activity): TestComposeLifeUiComponent
@@ -40,3 +39,5 @@ interface TestComposeLifeUiComponent : UiComponent<TestComposeLifeUiEntryPoint> 
 
 @EntryPoint(UiScope::class)
 interface TestComposeLifeUiEntryPoint : MainActivityInjectEntryPoint
+
+expect fun EntryPointProvider<UiScope>.kmpGetEntryPoint(): TestComposeLifeUiEntryPoint

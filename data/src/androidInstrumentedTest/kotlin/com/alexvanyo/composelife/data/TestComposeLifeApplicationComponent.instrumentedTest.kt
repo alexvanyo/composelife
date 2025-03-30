@@ -18,7 +18,9 @@
 package com.alexvanyo.composelife.data
 
 import androidx.test.core.app.ApplicationProvider
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.test.TestInjectApplication
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 
 actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent {
     val application = ApplicationProvider.getApplicationContext<TestInjectApplication>()
@@ -26,3 +28,5 @@ actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): Test
     application.applicationComponent = applicationComponent
     return applicationComponent
 }
+
+actual fun EntryPointProvider<AppScope>.kmpGetEntryPoint(): TestComposeLifeApplicationEntryPoint = getEntryPoint()
