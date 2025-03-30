@@ -33,6 +33,7 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
@@ -167,7 +168,11 @@ class EntryPointSymbolProcessor(
                                     .build(),
                             )
                             .addParameter(
-                                ParameterSpec.builder("entryPoint", entryPoint.toClassName()).build()
+                                ParameterSpec.builder(
+                                    "entryPointCreator",
+                                    LambdaTypeName.get(returnType = entryPoint.toClassName())
+                                )
+                                    .build()
                             )
                             .returns(
                                 Pair::class.asTypeName()
@@ -187,7 +192,7 @@ class EntryPointSymbolProcessor(
                                     )
                             )
                             .addStatement(
-                                "return %T::class to %T(entryPoint)",
+                                "return %T::class to %T(entryPointCreator)",
                                 entryPoint.toClassName(),
                                 ScopedEntryPoint::class,
                             )
@@ -207,7 +212,7 @@ class EntryPointSymbolProcessor(
                     )
                     .returns(entryPoint.toClassName())
                     .addStatement(
-                        "return entryPoints.getValue(%T::class).entryPoint as %T",
+                        "return entryPoints.getValue(%T::class).entryPointCreator() as %T",
                         entryPoint.toClassName(),
                         entryPoint.toClassName(),
                     )
