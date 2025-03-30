@@ -22,121 +22,43 @@ import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.os.ConfigurationCompat
+import kotlinx.serialization.Serializable
 
 /**
  * A nestable representation of a string resource or a quantity string resource.
  */
+@Serializable
 actual sealed class ParameterizedString {
 
-    internal abstract val args: List<Any>
+    internal abstract val args: List<ParameterizedStringArgument>
 
+    @Serializable
     internal data class NormalString(
         @field:StringRes
         @param:StringRes
         val stringRes: Int,
-        override val args: List<Any>,
+        override val args: List<ParameterizedStringArgument>,
     ) : ParameterizedString()
 
+    @Serializable
     internal data class QuantityString(
         @field:PluralsRes
         @param:PluralsRes
         val pluralsRes: Int,
         val quantity: Int,
-        override val args: List<Any>,
+        override val args: List<ParameterizedStringArgument>,
     ) : ParameterizedString()
 
+    @Serializable
     internal data class BasicString(
         val value: String,
-        override val args: List<Any>,
+        override val args: List<ParameterizedStringArgument>,
     ) : ParameterizedString()
 
     actual companion object
-}
-
-actual val ParameterizedString.Companion.Saver: Saver<ParameterizedString, Any> get() =
-    listSaver(
-        save = { save(it) },
-        restore = { restore(it) },
-    )
-
-private fun save(parameterizedString: ParameterizedString): List<Any> =
-    when (parameterizedString) {
-        is ParameterizedString.NormalString -> listOf(
-            0,
-            parameterizedString.stringRes,
-        )
-        is ParameterizedString.QuantityString -> listOf(
-            1,
-            parameterizedString.pluralsRes,
-            parameterizedString.quantity,
-        )
-        is ParameterizedString.BasicString -> listOf(
-            2,
-            parameterizedString.value,
-        )
-    } + parameterizedString.args.map { arg ->
-        when (arg) {
-            is ParameterizedString -> listOf(
-                0,
-                save(arg),
-            )
-            else -> listOf(
-                1,
-                arg,
-            )
-        }
-    }
-
-private fun restore(list: List<Any>): ParameterizedString {
-    val type = list[0] as Int
-
-    @Suppress("UNCHECKED_CAST")
-    val args = list.drop(
-        when (type) {
-            0 -> 2
-            1 -> 3
-            2 -> 2
-            else -> error("Unexpected type $type")
-        },
-    ) as List<List<Any>>
-    val restoredArgs = args.map { arg ->
-        val argType = arg[0] as Int
-        when (argType) {
-            0 ->
-                @Suppress("UNCHECKED_CAST")
-                restore(arg[1] as List<Any>)
-            1 -> arg[1]
-            else -> error("Unexpected type $argType")
-        }
-    }
-
-    return when (type) {
-        0 -> {
-            ParameterizedString.NormalString(
-                list[1] as Int,
-                restoredArgs,
-            )
-        }
-        1 -> {
-            ParameterizedString.QuantityString(
-                list[1] as Int,
-                list[2] as Int,
-                restoredArgs,
-            )
-        }
-        2 -> {
-            ParameterizedString.BasicString(
-                list[1] as String,
-                restoredArgs,
-            )
-        }
-        else -> error("Unexpected type $type")
-    }
 }
 
 /**
@@ -144,7 +66,7 @@ private fun restore(list: List<Any>): ParameterizedString {
  */
 actual fun ParameterizedString(
     value: String,
-    vararg args: Any,
+    vararg args: ParameterizedStringArgument,
 ): ParameterizedString = ParameterizedString.BasicString(value, args.toList())
 
 /**
@@ -152,7 +74,7 @@ actual fun ParameterizedString(
  */
 fun ParameterizedString(
     @StringRes stringRes: Int,
-    vararg args: Any,
+    vararg args: ParameterizedStringArgument,
 ): ParameterizedString = ParameterizedString.NormalString(
     stringRes = stringRes,
     args = args.toList(),
@@ -164,7 +86,7 @@ fun ParameterizedString(
 fun ParameterizedQuantityString(
     @PluralsRes pluralsRes: Int,
     quantity: Int,
-    vararg args: Any,
+    vararg args: ParameterizedStringArgument,
 ): ParameterizedString = ParameterizedString.QuantityString(
     pluralsRes = pluralsRes,
     quantity = quantity,
@@ -177,10 +99,14 @@ fun ParameterizedQuantityString(
 fun Context.getParameterizedString(parameterizedString: ParameterizedString): String {
     val resolvedArgs = parameterizedString.args.map { arg ->
         when (arg) {
-            is ParameterizedString -> getParameterizedString(arg)
-            else -> arg
+            is ParameterizedStringArgument.FloatArg -> arg.value
+            is ParameterizedStringArgument.DoubleArg -> arg.value
+            is ParameterizedStringArgument.IntArg -> arg.value
+            is ParameterizedStringArgument.CharArg -> arg.value
+            is ParameterizedStringArgument.ParameterizedStringArg -> getParameterizedString(arg.value)
+            is ParameterizedStringArgument.StringArg -> arg.value
         }
-    }.toTypedArray()
+    }.toTypedArray<Any>()
 
     return when (parameterizedString) {
         is ParameterizedString.NormalString -> {

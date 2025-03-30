@@ -18,40 +18,66 @@
 package com.alexvanyo.composelife.ui.app.resources
 
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedStringArgument
 import com.alexvanyo.composelife.ui.app.R
 
 internal actual fun Strings.TargetStepsPerSecondLabelAndValue(targetStepsPerSecond: Double): ParameterizedString =
-    ParameterizedString(R.string.target_steps_per_second_label_and_value, targetStepsPerSecond)
+    ParameterizedString(
+        R.string.target_steps_per_second_label_and_value,
+        ParameterizedStringArgument(targetStepsPerSecond),
+    )
 
 internal actual fun Strings.TargetStepsPerSecondValue(targetStepsPerSecond: Double): ParameterizedString =
-    ParameterizedString(R.string.target_steps_per_second_value, targetStepsPerSecond)
+    ParameterizedString(
+        R.string.target_steps_per_second_value,
+        ParameterizedStringArgument(targetStepsPerSecond),
+    )
 
 internal actual val Strings.TargetStepsPerSecondLabel: ParameterizedString get() =
     ParameterizedString(R.string.target_steps_per_second_label)
 
 internal actual fun Strings.GenerationsPerStepLabelAndValue(generationsPerStep: Int): ParameterizedString =
-    ParameterizedString(R.string.generations_per_step_label_and_value, generationsPerStep)
+    ParameterizedString(
+        R.string.generations_per_step_label_and_value,
+        ParameterizedStringArgument(generationsPerStep),
+    )
 
 internal actual fun Strings.GenerationsPerStepValue(generationsPerStep: Int): ParameterizedString =
-    ParameterizedString(R.string.generations_per_step_value, generationsPerStep)
+    ParameterizedString(
+        R.string.generations_per_step_value,
+        ParameterizedStringArgument(generationsPerStep),
+    )
 
 internal actual val Strings.GenerationsPerStepLabel: ParameterizedString get() =
     ParameterizedString(R.string.generations_per_step_label)
 
 internal actual fun Strings.OffsetInfoMessage(x: Float, y: Float): ParameterizedString =
-    ParameterizedString(R.string.offset, x, y)
+    ParameterizedString(
+        R.string.offset,
+        ParameterizedStringArgument(x),
+        ParameterizedStringArgument(y),
+    )
 
 internal actual fun Strings.ScaleInfoMessage(scale: Float): ParameterizedString =
-    ParameterizedString(R.string.scale, scale)
+    ParameterizedString(
+        R.string.scale,
+        ParameterizedStringArgument(scale),
+    )
 
 internal actual val Strings.PausedMessage: ParameterizedString get() =
     ParameterizedString(R.string.paused)
 
 internal actual fun Strings.GenerationsPerSecondShortMessage(generationsPerSecond: Double): ParameterizedString =
-    ParameterizedString(R.string.generations_per_second_short, generationsPerSecond)
+    ParameterizedString(
+        R.string.generations_per_second_short,
+        ParameterizedStringArgument(generationsPerSecond),
+    )
 
 internal actual fun Strings.GenerationsPerSecondLongMessage(generationsPerSecond: Double): ParameterizedString =
-    ParameterizedString(R.string.generations_per_second_long, generationsPerSecond)
+    ParameterizedString(
+        R.string.generations_per_second_long,
+        ParameterizedStringArgument(generationsPerSecond),
+    )
 
 internal actual val Strings.Collapse: ParameterizedString get() =
     ParameterizedString(R.string.collapse)

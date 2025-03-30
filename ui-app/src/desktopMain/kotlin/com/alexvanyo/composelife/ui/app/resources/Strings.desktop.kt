@@ -18,12 +18,13 @@
 package com.alexvanyo.composelife.ui.app.resources
 
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedStringArgument
 
 internal actual fun Strings.TargetStepsPerSecondLabelAndValue(targetStepsPerSecond: Double): ParameterizedString =
-    ParameterizedString("Target steps per second: %.2f", targetStepsPerSecond)
+    ParameterizedString("Target steps per second: %.2f", ParameterizedStringArgument(targetStepsPerSecond))
 
 internal actual fun Strings.TargetStepsPerSecondValue(targetStepsPerSecond: Double): ParameterizedString =
-    ParameterizedString("%.2f", targetStepsPerSecond)
+    ParameterizedString("%.2f", ParameterizedStringArgument(targetStepsPerSecond))
 
 internal actual val Strings.TargetStepsPerSecondLabel: ParameterizedString get() =
     ParameterizedString("Target steps per second")
@@ -38,19 +39,19 @@ internal actual val Strings.GenerationsPerStepLabel: ParameterizedString get() =
     ParameterizedString("Generations per step")
 
 internal actual fun Strings.OffsetInfoMessage(x: Float, y: Float): ParameterizedString =
-    ParameterizedString("Offset: x = %.1f, y = %.1f", x, y)
+    ParameterizedString("Offset: x = %.1f, y = %.1f", ParameterizedStringArgument(x), ParameterizedStringArgument(y))
 
 internal actual fun Strings.ScaleInfoMessage(scale: Float): ParameterizedString =
-    ParameterizedString("Scale: %.2f", scale)
+    ParameterizedString("Scale: %.2f", ParameterizedStringArgument(scale))
 
 internal actual val Strings.PausedMessage: ParameterizedString get() =
     ParameterizedString("Paused")
 
 internal actual fun Strings.GenerationsPerSecondShortMessage(generationsPerSecond: Double): ParameterizedString =
-    ParameterizedString("GPS: %.2f", generationsPerSecond)
+    ParameterizedString("GPS: %.2f", ParameterizedStringArgument(generationsPerSecond))
 
 internal actual fun Strings.GenerationsPerSecondLongMessage(generationsPerSecond: Double): ParameterizedString =
-    ParameterizedString("Generations per second: %.2f", generationsPerSecond)
+    ParameterizedString("Generations per second: %.2f", ParameterizedStringArgument(generationsPerSecond))
 
 internal actual val Strings.Collapse: ParameterizedString get() =
     ParameterizedString("Collapse")

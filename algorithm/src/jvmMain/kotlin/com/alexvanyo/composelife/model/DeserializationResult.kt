@@ -17,17 +17,17 @@
 package com.alexvanyo.composelife.model
 
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
 import androidx.savedstate.SavedState
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
-import com.alexvanyo.composelife.parameterizedstring.Saver
 import com.alexvanyo.composelife.serialization.saver
+import kotlinx.serialization.Serializable
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 /**
  * A result of deserializing into a [CellState].
  */
+@Serializable
 sealed interface DeserializationResult {
 
     /**
@@ -38,6 +38,7 @@ sealed interface DeserializationResult {
     /**
      * A successful deserialization with [format] into the given [cellState].
      */
+    @Serializable
     data class Successful(
         override val warnings: List<ParameterizedString>,
         val cellState: CellState,
@@ -47,77 +48,14 @@ sealed interface DeserializationResult {
     /**
      * An unsuccessful deserialization, with the given [errors].
      */
+    @Serializable
     data class Unsuccessful(
         override val warnings: List<ParameterizedString>,
         val errors: List<ParameterizedString>,
     ) : DeserializationResult
 
     companion object {
-        val Saver: Saver<DeserializationResult, Any> =
-            listSaver(
-                save = {
-                    when (it) {
-                        is Successful -> {
-                            listOf(
-                                0,
-                                with(CellStateFormat.FixedFormat.serializer().saver) {
-                                    save(it.format)
-                                },
-                                with(CellState.serializer().saver) {
-                                    save(it.cellState)
-                                },
-                                it.warnings.map { warning ->
-                                    with(ParameterizedString.Saver) {
-                                        save(warning)
-                                    }
-                                },
-                            )
-                        }
-                        is Unsuccessful -> {
-                            listOf(
-                                1,
-                                it.warnings.map { warning ->
-                                    with(ParameterizedString.Saver) {
-                                        save(warning)
-                                    }
-                                },
-                                it.errors.map { error ->
-                                    with(ParameterizedString.Saver) {
-                                        save(error)
-                                    }
-                                },
-                            )
-                        }
-                    }
-                },
-                restore = {
-                    @Suppress("UNCHECKED_CAST")
-                    when (val type = it[0] as Int) {
-                        0 -> {
-                            Successful(
-                                format =
-                                CellStateFormat.FixedFormat.serializer().saver.restore(it[1] as SavedState)!!,
-                                cellState =
-                                CellState.serializer().saver.restore(it[2] as SavedState)!!,
-                                warnings = (it[3] as List<Any>).map {
-                                    ParameterizedString.Saver.restore(it)!!
-                                },
-                            )
-                        }
-                        1 -> {
-                            Unsuccessful(
-                                warnings = (it[1] as List<Any>).map {
-                                    ParameterizedString.Saver.restore(it)!!
-                                },
-                                errors = (it[2] as List<Any>).map {
-                                    ParameterizedString.Saver.restore(it)!!
-                                },
-                            )
-                        }
-                        else -> error("Unexpected type $type")
-                    }
-                },
-            )
+        val Saver: Saver<DeserializationResult, SavedState> = serializer().saver
     }
 }
 
