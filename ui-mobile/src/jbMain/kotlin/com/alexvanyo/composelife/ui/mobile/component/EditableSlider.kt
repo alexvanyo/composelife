@@ -48,7 +48,46 @@ import com.alexvanyo.composelife.sessionvalue.localSessionId
 import com.alexvanyo.composelife.sessionvalue.rememberSessionValueHolder
 import com.alexvanyo.composelife.ui.util.nonNegativeDouble
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.serializer
 import kotlin.uuid.Uuid
+
+@Suppress("LongParameterList")
+@Composable
+inline fun <reified T : Comparable<T>> EditableSlider(
+    noinline labelAndValueText: @Composable (T) -> String,
+    noinline valueText: (T) -> String,
+    labelText: String,
+    noinline textToValue: (String) -> T?,
+    sessionValue: SessionValue<T>,
+    noinline onSessionValueChange: (SessionValue<T>) -> Unit,
+    valueRange: ClosedRange<T>,
+    sliderBijection: SliderBijection<T>,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    steps: Int = 0,
+    noinline onValueChangeFinished: (() -> Unit)? = null,
+    colors: SliderColors = SliderDefaults.colors(),
+    noinline sliderOverlay: @Composable () -> Unit = {},
+    inputTransformation: InputTransformation = InputTransformation.nonNegativeDouble(),
+) = EditableSlider(
+    labelAndValueText = labelAndValueText,
+    valueText = valueText,
+    labelText = labelText,
+    textToValue = textToValue,
+    sessionValue = sessionValue,
+    onSessionValueChange = onSessionValueChange,
+    valueRange = valueRange,
+    sliderBijection = sliderBijection,
+    valueSerializer = serializer(),
+    modifier = modifier,
+    enabled = enabled,
+    steps = steps,
+    onValueChangeFinished = onValueChangeFinished,
+    colors = colors,
+    sliderOverlay = sliderOverlay,
+    inputTransformation = inputTransformation,
+)
 
 @Suppress("LongParameterList")
 @Composable
@@ -61,6 +100,7 @@ fun <T : Comparable<T>> EditableSlider(
     onSessionValueChange: (SessionValue<T>) -> Unit,
     valueRange: ClosedRange<T>,
     sliderBijection: SliderBijection<T>,
+    valueSerializer: KSerializer<T>,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     steps: Int = 0,
@@ -77,6 +117,7 @@ fun <T : Comparable<T>> EditableSlider(
         onSessionValueChange = onSessionValueChange,
         valueRange = valueRange,
         onValueChangeFinished = onValueChangeFinished,
+        valueSerializer = valueSerializer,
     )
 
     val sliderFocusRequester = remember { FocusRequester() }
@@ -134,6 +175,7 @@ private fun <T : Comparable<T>> rememberEditableSliderState(
     onSessionValueChange: (SessionValue<T>) -> Unit,
     valueRange: ClosedRange<T>,
     onValueChangeFinished: (() -> Unit)?,
+    valueSerializer: KSerializer<T>,
 ): EditableSliderState<T> {
     /**
      * True if this is the first invocation of [onFocusChanged].
@@ -148,6 +190,7 @@ private fun <T : Comparable<T>> rememberEditableSliderState(
     val textFieldSessionValueHolder = rememberSessionValueHolder(
         upstreamSessionValue = sessionValue,
         setUpstreamSessionValue = { _, newSessionValue -> onSessionValueChange(newSessionValue) },
+        valueSerializer = valueSerializer,
     )
 
     /**

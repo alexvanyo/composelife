@@ -17,8 +17,10 @@
 package com.alexvanyo.composelife.sessionvalue
 
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
-import com.alexvanyo.composelife.serialization.uuidSaver
+import androidx.savedstate.SavedState
+import com.alexvanyo.composelife.serialization.saver
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
 import kotlin.uuid.Uuid
 
 /**
@@ -28,30 +30,18 @@ import kotlin.uuid.Uuid
  *
  * Session values can be managed with a [SessionValueHolder] created with [rememberSessionValueHolder].
  */
+@Serializable
 data class SessionValue<out T>(
     val sessionId: Uuid,
     val valueId: Uuid,
     val value: T,
 ) {
     companion object {
-        fun <T, R : Any> Saver(
-            valueSaver: Saver<T, R>,
-        ): Saver<SessionValue<T>, Any> = listSaver(
-            save = {
-                listOf(
-                    with(uuidSaver) { save(it.sessionId) },
-                    with(uuidSaver) { save(it.valueId) },
-                    with(valueSaver) { save(it.value) },
-                )
-            },
-            restore = {
-                @Suppress("UNCHECKED_CAST")
-                SessionValue(
-                    sessionId = uuidSaver.restore(it[0]!! as String)!!,
-                    valueId = uuidSaver.restore(it[1]!! as String)!!,
-                    value = valueSaver.restore(it[2]!! as R)!!,
-                )
-            },
-        )
+        inline fun <reified T> Saver(): Saver<SessionValue<T>, SavedState> =
+            Saver(kotlinx.serialization.serializer())
+
+        fun <T> Saver(
+            valueSerializer: KSerializer<T>,
+        ): Saver<SessionValue<T>, SavedState> = serializer(valueSerializer).saver
     }
 }

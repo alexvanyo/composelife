@@ -26,6 +26,7 @@ import app.cash.molecule.moleculeFlow
 import app.cash.turbine.test
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.serializer
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

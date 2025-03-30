@@ -20,10 +20,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.autoSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.savedstate.SavedState
 import com.alexvanyo.composelife.serialization.uuidSaver
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.serializer
 import kotlin.uuid.Uuid
 
 /**
@@ -70,6 +72,39 @@ sealed interface SessionValueHolder<T> {
  * those cases, the internal state will be reset to match the [upstreamSessionValue].
  */
 @Composable
+inline fun <reified T> rememberSessionValueHolder(
+    /**
+     * The upstream [SessionValue].
+     */
+    upstreamSessionValue: SessionValue<T>,
+    /**
+     * Sets the upstream [SessionValue] to the given [SessionValue].
+     * The provided upstream session id is the known previous id, for a compare-and-set updating of the [SessionValue].
+     */
+    noinline setUpstreamSessionValue: (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
+): SessionValueHolder<T> =
+    rememberSessionValueHolder(upstreamSessionValue, setUpstreamSessionValue, serializer())
+
+/**
+ * A multiplexer for a [SessionValue] that can maintain the state for a local session that runs ahead of the
+ * upstream [SessionValue].
+ *
+ * The [SessionValueHolder.sessionValue] will match the [upstreamSessionValue] until [SessionValueHolder.setValue]
+ * is called.
+ *
+ * Once [SessionValueHolder.setValue] is called, the [SessionValueHolder.sessionValue] will be representing a local
+ * session that may be ahead of what the upstream value shows. [setUpstreamSessionValue] will be called from
+ * [SessionValueHolder.setValue], and begin updating the upstream value in tandem with keeping a local state in
+ * [SessionValueHolder.sessionValue].
+ *
+ * [SessionValueHolder.info] returns information about the current local session, if any.
+ * In particular [LocalSessionInfo.localSessionId] will returns the session id that will be used to represent
+ * the local session when [SessionValueHolder.setValue] is called.
+ *
+ * [SessionValueHolder] supports cases where the [upstreamSessionValue] changes independently from the local session. In
+ * those cases, the internal state will be reset to match the [upstreamSessionValue].
+ */
+@Composable
 fun <T> rememberSessionValueHolder(
     /**
      * The upstream [SessionValue].
@@ -80,12 +115,12 @@ fun <T> rememberSessionValueHolder(
      * The provided upstream session id is the known previous id, for a compare-and-set updating of the [SessionValue].
      */
     setUpstreamSessionValue: (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
-    valueSaver: Saver<T, *> = autoSaver(),
+    valueSerializer: KSerializer<T>,
 ): SessionValueHolder<T> =
     rememberSaveable(
         saver = SessionValueHolderImpl.Saver(
             initialSetUpstreamSessionValue = setUpstreamSessionValue,
-            valueSaver = valueSaver,
+            valueSerializer = valueSerializer,
         ),
     ) {
         SessionValueHolderImpl(
@@ -198,9 +233,9 @@ private class SessionValueHolderImpl<T>(
     companion object {
         fun <T> Saver(
             initialSetUpstreamSessionValue: (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
-            valueSaver: Saver<T, *>,
+            valueSerializer: KSerializer<T>,
         ): Saver<SessionValueHolderImpl<T>, *> {
-            val sessionValueSaver = SessionValue.Saver(valueSaver)
+            val sessionValueSaver = SessionValue.Saver(valueSerializer)
 
             return Saver(
                 save = {
@@ -222,10 +257,10 @@ private class SessionValueHolderImpl<T>(
                 restore = {
                     SessionValueHolderImpl(
                         initialUpstreamSessionIdBeforeLocalSession = uuidSaver.restore(it[3] as String)!!,
-                        initialUpstreamSessionValue = sessionValueSaver.restore(it[2]!!)!!,
+                        initialUpstreamSessionValue = sessionValueSaver.restore(it[2]!! as SavedState)!!,
                         initialSetUpstreamSessionValue = initialSetUpstreamSessionValue,
                         initialLocalSessionId = uuidSaver.restore(it[0] as String)!!,
-                        initialLocalSessionValue = it[1]?.let(sessionValueSaver::restore),
+                        initialLocalSessionValue = (it[1] as SavedState?)?.let(sessionValueSaver::restore),
                     )
                 },
             )
