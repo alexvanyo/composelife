@@ -23,6 +23,6 @@ import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
 
 class TestInjectApplication : Application(), ApplicationComponentOwner {
-    override lateinit var applicationComponent: ApplicationComponent<*>
-    override lateinit var uiComponentFactory: (UiComponentArguments) -> UiComponent<*>
+    override lateinit var applicationComponent: ApplicationComponent
+    override lateinit var uiComponentFactory: (UiComponentArguments) -> UiComponent
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.scopes
+package com.alexvanyo.composelife.entrypoint
 
-interface UiComponentOwner {
-    val uiComponent: UiComponent
-}
+/**
+ * A marker class for the internal API of [EntryPointProvider]s that should only be used by generated code to
+ * preserve type safety.
+ */
+@RequiresOptIn(
+    message = "This is an internal API and should never be used outside of the generated code to preserve type safety.",
+)
+annotation class InternalEntryPointProviderApi

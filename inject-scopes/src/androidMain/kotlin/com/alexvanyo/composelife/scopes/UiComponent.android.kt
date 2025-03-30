@@ -19,14 +19,13 @@ package com.alexvanyo.composelife.scopes
 
 import android.app.Activity
 import android.content.Context
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @SingleIn(UiScope::class)
-actual interface UiComponent<E> {
+actual interface UiComponent : EntryPointProvider<UiScope> {
     @Provides
     @ActivityContext
     fun bindActivity(activity: Activity): Context = activity
-
-    actual val entryPoint: E
 }

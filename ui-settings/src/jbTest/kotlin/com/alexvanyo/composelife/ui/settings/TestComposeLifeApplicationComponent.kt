@@ -17,17 +17,17 @@
 package com.alexvanyo.composelife.ui.settings
 
 import com.alexvanyo.composelife.entrypoint.EntryPoint
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 
-expect abstract class TestComposeLifeApplicationComponent : ApplicationComponent<TestComposeLifeApplicationEntryPoint> {
-
-    abstract override val entryPoint: TestComposeLifeApplicationEntryPoint
-
+expect abstract class TestComposeLifeApplicationComponent : ApplicationComponent {
     companion object
 }
+
+expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent
 
 @EntryPoint(AppScope::class)
 interface TestComposeLifeApplicationEntryPoint :
@@ -36,4 +36,4 @@ interface TestComposeLifeApplicationEntryPoint :
     val uiComponentFactory: TestComposeLifeUiComponent.Factory
 }
 
-expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent
+expect fun EntryPointProvider<AppScope>.kmpGetEntryPoint(): TestComposeLifeApplicationEntryPoint

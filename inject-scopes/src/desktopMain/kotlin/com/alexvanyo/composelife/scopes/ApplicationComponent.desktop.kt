@@ -17,11 +17,10 @@
 
 package com.alexvanyo.composelife.scopes
 
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @Suppress("UnnecessaryAbstractClass")
 @SingleIn(AppScope::class)
-actual abstract class ApplicationComponent<E> {
-    actual abstract val entryPoint: E
-}
+actual abstract class ApplicationComponent : EntryPointProvider<AppScope>

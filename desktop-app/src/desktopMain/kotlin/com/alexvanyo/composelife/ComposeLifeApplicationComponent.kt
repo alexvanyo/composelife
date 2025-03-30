@@ -25,9 +25,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @MergeComponent(AppScope::class)
 @SingleIn(AppScope::class)
-abstract class ComposeLifeApplicationComponent : ApplicationComponent<ComposeLifeApplicationEntryPoint>() {
-    abstract override val entryPoint: ComposeLifeApplicationEntryPoint
-}
+abstract class ComposeLifeApplicationComponent : ApplicationComponent()
 
 @EntryPoint(AppScope::class)
 interface ComposeLifeApplicationEntryPoint : UpdatableModule {

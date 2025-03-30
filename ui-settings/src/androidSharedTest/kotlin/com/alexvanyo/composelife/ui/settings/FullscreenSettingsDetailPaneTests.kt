@@ -56,21 +56,19 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-class FullscreenSettingsDetailPaneTests : BaseUiInjectTest<
-    TestComposeLifeApplicationComponent,
-    TestComposeLifeApplicationEntryPoint,
-    TestComposeLifeUiComponent,
-    >(
+class FullscreenSettingsDetailPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent.Companion::createComponent,
 ) {
-    private val composeLifePreferences get() = applicationComponent.entryPoint.composeLifePreferences
+    private val entryPoint: TestComposeLifeApplicationEntryPoint get() = applicationComponent.kmpGetEntryPoint()
+
+    private val composeLifePreferences get() = entryPoint.composeLifePreferences
 
     @Test
     fun visual_settings_category_keeps_scroll_position_with_ime() = runUiTest { uiComponent, composeUiTest ->
         assumeTrue(Build.VERSION.SDK_INT >= 30)
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
-            uiComponent.entryPoint
+            uiComponent.kmpGetEntryPoint()
 
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 

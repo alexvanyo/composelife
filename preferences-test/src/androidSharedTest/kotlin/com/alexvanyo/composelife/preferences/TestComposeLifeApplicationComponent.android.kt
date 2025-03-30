@@ -29,15 +29,6 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 @SingleIn(AppScope::class)
 actual abstract class TestComposeLifeApplicationComponent(
     application: Application,
-) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application),
-    PreferencesModule,
-    DispatchersModule {
-
-    actual override val entryPoint: TestComposeLifeApplicationEntryPoint get() =
-        object :
-            TestComposeLifeApplicationEntryPoint,
-            DispatchersModule by this,
-            PreferencesModule by this {}
-
+) : ApplicationComponent(application) {
     actual companion object
 }

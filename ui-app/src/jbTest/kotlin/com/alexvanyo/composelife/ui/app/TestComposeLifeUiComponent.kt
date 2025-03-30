@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.ui.app
 
 import com.alexvanyo.composelife.entrypoint.EntryPoint
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.scopes.UiScope
@@ -32,14 +33,16 @@ import com.alexvanyo.composelife.ui.settings.SettingUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 
-expect interface TestComposeLifeUiComponent : UiComponent<TestComposeLifeUiEntryPoint> {
-
-    override val entryPoint: TestComposeLifeUiEntryPoint
-
+expect interface TestComposeLifeUiComponent : UiComponent {
     interface Factory
 
     companion object
 }
+
+expect fun TestComposeLifeUiComponent.Companion.createComponent(
+    applicationComponent: TestComposeLifeApplicationComponent,
+    uiComponentArguments: UiComponentArguments,
+): TestComposeLifeUiComponent
 
 @EntryPoint(UiScope::class)
 interface TestComposeLifeUiEntryPoint :
@@ -58,7 +61,4 @@ interface TestComposeLifeUiEntryPoint :
     InteractiveCellUniverseOverlayInjectEntryPoint,
     SettingUiInjectEntryPoint
 
-expect fun TestComposeLifeUiComponent.Companion.createComponent(
-    applicationComponent: TestComposeLifeApplicationComponent,
-    uiComponentArguments: UiComponentArguments,
-): TestComposeLifeUiComponent
+expect fun EntryPointProvider<UiScope>.kmpGetEntryPoint(): TestComposeLifeUiEntryPoint
