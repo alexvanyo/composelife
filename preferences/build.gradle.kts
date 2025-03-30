@@ -24,6 +24,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
+    kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
@@ -57,6 +58,7 @@ kotlin {
                 implementation(projects.filesystem)
                 implementation(projects.injectScopes)
                 implementation(projects.preferencesProto)
+                implementation(projects.serialization)
             }
         }
         val jbMain by creating {

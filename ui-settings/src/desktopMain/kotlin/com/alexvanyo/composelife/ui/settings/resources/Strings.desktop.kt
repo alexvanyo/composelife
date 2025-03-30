@@ -18,6 +18,7 @@
 package com.alexvanyo.composelife.ui.settings.resources
 
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedStringArgument
 
 internal actual val Strings.Settings: ParameterizedString get() =
     ParameterizedString("Settings")
@@ -53,19 +54,19 @@ internal actual val Strings.Shape: ParameterizedString get() =
     ParameterizedString("Shape")
 
 internal actual fun Strings.SizeFractionLabelAndValue(sizeFraction: Float): ParameterizedString =
-    ParameterizedString("Size fraction: %.2f", sizeFraction)
+    ParameterizedString("Size fraction: %.2f", ParameterizedStringArgument(sizeFraction))
 
 internal actual fun Strings.SizeFractionValue(sizeFraction: Float): ParameterizedString =
-    ParameterizedString("%.2f", sizeFraction)
+    ParameterizedString("%.2f", ParameterizedStringArgument(sizeFraction))
 
 internal actual val Strings.SizeFractionLabel: ParameterizedString get() =
     ParameterizedString("Size fraction")
 
 internal actual fun Strings.CornerFractionLabelAndValue(cornerFraction: Float): ParameterizedString =
-    ParameterizedString("Corner fraction: %.2f", cornerFraction)
+    ParameterizedString("Corner fraction: %.2f", ParameterizedStringArgument(cornerFraction))
 
 internal actual fun Strings.CornerFractionValue(cornerFraction: Float): ParameterizedString =
-    ParameterizedString("%.2f", cornerFraction)
+    ParameterizedString("%.2f", ParameterizedStringArgument(cornerFraction))
 
 internal actual val Strings.CornerFractionLabel: ParameterizedString get() =
     ParameterizedString("Corner fraction")

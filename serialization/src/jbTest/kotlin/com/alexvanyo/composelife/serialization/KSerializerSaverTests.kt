@@ -71,7 +71,7 @@ class KSerializerSaverTests {
 @Serializable
 private sealed class SealedClass {
     companion object {
-        val Saver get() = serializer().saver
+        val Saver get() = serializer().saver()
     }
 }
 
@@ -84,7 +84,7 @@ private data class A(
     val rect: Rect,
 ) : SealedClass() {
     companion object {
-        val Saver get() = serializer().saver
+        val Saver get() = serializer().saver()
     }
 }
 
@@ -93,6 +93,6 @@ private data class B(
     val int: Int,
 ) : SealedClass() {
     companion object {
-        val Saver get() = serializer().saver
+        val Saver get() = serializer().saver()
     }
 }

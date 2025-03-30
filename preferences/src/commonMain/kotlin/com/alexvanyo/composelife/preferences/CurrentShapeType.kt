@@ -16,6 +16,10 @@
 
 package com.alexvanyo.composelife.preferences
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 sealed interface CurrentShapeType {
+    @Serializable
     data object RoundRectangle : CurrentShapeType
 }
