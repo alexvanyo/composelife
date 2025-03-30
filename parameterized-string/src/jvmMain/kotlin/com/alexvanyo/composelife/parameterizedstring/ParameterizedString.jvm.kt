@@ -66,7 +66,7 @@ fun ParameterizedStringArgument(value: Float): ParameterizedStringArgument =
 fun ParameterizedStringArgument(value: Double): ParameterizedStringArgument =
     ParameterizedStringArgument.DoubleArg(value)
 
-val ParameterizedString.Companion.Saver: Saver<ParameterizedString, SavedState> get() = serializer().saver
+val ParameterizedString.Companion.Saver: Saver<ParameterizedString, SavedState> get() = serializer().saver()
 
 /**
  * Creates a lambda to resolve the [ParameterizedString] to a [String].

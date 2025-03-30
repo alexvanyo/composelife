@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.serialization
 
 import androidx.compose.runtime.saveable.Saver
 import androidx.savedstate.SavedState
+import androidx.savedstate.serialization.SavedStateConfiguration
 import androidx.savedstate.serialization.decodeFromSavedState
 import androidx.savedstate.serialization.encodeToSavedState
 import kotlinx.serialization.KSerializer
@@ -25,7 +26,9 @@ import kotlinx.serialization.KSerializer
 /**
  * A [Saver] for a [T] to encode and decode with the given [KSerializer].
  */
-val <T : Any> KSerializer<T>.saver: Saver<T, SavedState> get() = Saver(
-    save = { encodeToSavedState(this@saver, it) },
-    restore = { decodeFromSavedState(this, it) },
+fun <T : Any> KSerializer<T>.saver(
+    savedStateConfiguration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
+): Saver<T, SavedState> = Saver(
+    save = { encodeToSavedState(this@saver, it, savedStateConfiguration) },
+    restore = { decodeFromSavedState(this, it, savedStateConfiguration) },
 )

@@ -42,6 +42,6 @@ data class SessionValue<out T>(
 
         fun <T> Saver(
             valueSerializer: KSerializer<T>,
-        ): Saver<SessionValue<T>, SavedState> = serializer(valueSerializer).saver
+        ): Saver<SessionValue<T>, SavedState> = serializer(valueSerializer).saver()
     }
 }

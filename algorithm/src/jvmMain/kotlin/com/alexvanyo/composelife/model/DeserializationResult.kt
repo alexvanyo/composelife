@@ -55,7 +55,7 @@ sealed interface DeserializationResult {
     ) : DeserializationResult
 
     companion object {
-        val Saver: Saver<DeserializationResult, SavedState> = serializer().saver
+        val Saver: Saver<DeserializationResult, SavedState> = serializer().saver()
     }
 }
 
