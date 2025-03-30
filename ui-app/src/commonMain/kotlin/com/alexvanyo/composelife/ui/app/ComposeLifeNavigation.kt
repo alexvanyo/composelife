@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
+import androidx.savedstate.SavedState
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackValueSaverFactory
@@ -151,7 +152,7 @@ sealed interface ComposeLifeNavigation {
                         }
                     },
                     restore = {
-                        DeserializationInfo(DeserializationResult.Saver.restore(it)!!)
+                        DeserializationInfo(DeserializationResult.Saver.restore(it as SavedState)!!)
                     },
                 )
         }

@@ -18,10 +18,19 @@
 package com.alexvanyo.composelife.ui.cells.resources
 
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedStringArgument
 import com.alexvanyo.composelife.ui.cells.R
 
 actual fun Strings.InteractableCellContentDescription(x: Int, y: Int): ParameterizedString =
-    ParameterizedString(R.string.cell_content_description, x, y)
+    ParameterizedString(
+        R.string.cell_content_description,
+        ParameterizedStringArgument(x),
+        ParameterizedStringArgument(y)
+    )
 
 internal actual fun Strings.SelectingBoxHandle(x: Int, y: Int): ParameterizedString =
-    ParameterizedString(R.string.selecting_box_handle, x, y)
+    ParameterizedString(
+        R.string.selecting_box_handle,
+        ParameterizedStringArgument(x),
+        ParameterizedStringArgument(y)
+    )

@@ -59,7 +59,13 @@ class AndroidParameterizedStringTests {
     fun quantity_arg_string_with_number_is_correct_for_zero() {
         assertEquals(
             "0 things",
-            context.getParameterizedString(ParameterizedQuantityString(R.plurals.plural_string_with_number, 0, 0)),
+            context.getParameterizedString(
+                ParameterizedQuantityString(
+                    R.plurals.plural_string_with_number,
+                    0,
+                    ParameterizedStringArgument(0)
+                )
+            ),
         )
     }
 
@@ -67,7 +73,13 @@ class AndroidParameterizedStringTests {
     fun quantity_arg_string_with_number_is_correct_for_one() {
         assertEquals(
             "1 thing",
-            context.getParameterizedString(ParameterizedQuantityString(R.plurals.plural_string_with_number, 1, 1)),
+            context.getParameterizedString(
+                ParameterizedQuantityString(
+                    R.plurals.plural_string_with_number,
+                    1,
+                    ParameterizedStringArgument(1)
+                )
+            ),
         )
     }
 
@@ -75,7 +87,13 @@ class AndroidParameterizedStringTests {
     fun quantity_arg_string_with_number_is_correct_for_two() {
         assertEquals(
             "2 things",
-            context.getParameterizedString(ParameterizedQuantityString(R.plurals.plural_string_with_number, 2, 2)),
+            context.getParameterizedString(
+                ParameterizedQuantityString(
+                    R.plurals.plural_string_with_number,
+                    2,
+                    ParameterizedStringArgument(2)
+                )
+            ),
         )
     }
 
@@ -107,7 +125,12 @@ class AndroidParameterizedStringTests {
     fun one_arg_string_is_correct() {
         assertEquals(
             "One: (a)",
-            context.getParameterizedString(ParameterizedString(R.string.one_arg_string, "a")),
+            context.getParameterizedString(
+                ParameterizedString(
+                    R.string.one_arg_string,
+                    ParameterizedStringArgument("a")
+                )
+            ),
         )
     }
 
@@ -115,7 +138,13 @@ class AndroidParameterizedStringTests {
     fun two_arg_string_is_correct() {
         assertEquals(
             "Two: (a) (b)",
-            context.getParameterizedString(ParameterizedString(R.string.two_arg_string, "a", "b")),
+            context.getParameterizedString(
+                ParameterizedString(
+                    R.string.two_arg_string,
+                    ParameterizedStringArgument("a"),
+                    ParameterizedStringArgument("b")
+                )
+            ),
         )
     }
 
@@ -123,7 +152,14 @@ class AndroidParameterizedStringTests {
     fun three_arg_string_is_correct() {
         assertEquals(
             "Three: (a) (b) (c)",
-            context.getParameterizedString(ParameterizedString(R.string.three_arg_string, "a", "b", "c")),
+            context.getParameterizedString(
+                ParameterizedString(
+                    R.string.three_arg_string,
+                    ParameterizedStringArgument("a"),
+                    ParameterizedStringArgument("b"),
+                    ParameterizedStringArgument("c")
+                )
+            ),
         )
     }
 
@@ -131,7 +167,7 @@ class AndroidParameterizedStringTests {
     fun one_arg_raw_string_is_correct() {
         assertEquals(
             "One: (a)",
-            context.getParameterizedString(ParameterizedString("One: (%s)", "a")),
+            context.getParameterizedString(ParameterizedString("One: (%s)", ParameterizedStringArgument("a"))),
         )
     }
 
@@ -139,7 +175,13 @@ class AndroidParameterizedStringTests {
     fun two_arg_raw_string_is_correct() {
         assertEquals(
             "Two: (a) (b)",
-            context.getParameterizedString(ParameterizedString("Two: (%s) (%s)", "a", "b")),
+            context.getParameterizedString(
+                ParameterizedString(
+                    "Two: (%s) (%s)",
+                    ParameterizedStringArgument("a"),
+                    ParameterizedStringArgument("b")
+                )
+            ),
         )
     }
 
@@ -147,18 +189,37 @@ class AndroidParameterizedStringTests {
     fun three_arg_raw_string_is_correct() {
         assertEquals(
             "Three: (a) (b) (c)",
-            context.getParameterizedString(ParameterizedString("Three: (%s) (%s) (%s)", "a", "b", "c")),
+            context.getParameterizedString(
+                ParameterizedString(
+                    "Three: (%s) (%s) (%s)",
+                    ParameterizedStringArgument("a"),
+                    ParameterizedStringArgument("b"),
+                    ParameterizedStringArgument("c")
+                )
+            ),
         )
     }
 
     @Test(expected = MissingFormatArgumentException::class)
     fun three_arg_string_with_two_args_throws() {
-        context.getParameterizedString(ParameterizedString(R.string.three_arg_string, "a", "b"))
+        context.getParameterizedString(
+            ParameterizedString(
+                R.string.three_arg_string,
+                ParameterizedStringArgument("a"),
+                ParameterizedStringArgument("b")
+            )
+        )
     }
 
     @Test(expected = MissingFormatArgumentException::class)
     fun three_arg_raw_string_with_two_args_throws() {
-        context.getParameterizedString(ParameterizedString("Three (%s) (%s) (%s)", "a", "b"))
+        context.getParameterizedString(
+            ParameterizedString(
+                "Three (%s) (%s) (%s)",
+                ParameterizedStringArgument("a"),
+                ParameterizedStringArgument("b")
+            )
+        )
     }
 
     @Test
@@ -168,13 +229,17 @@ class AndroidParameterizedStringTests {
             context.getParameterizedString(
                 ParameterizedString(
                     R.string.two_arg_string,
-                    ParameterizedString(
-                        R.string.one_arg_string,
-                        "a",
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            R.string.one_arg_string,
+                            ParameterizedStringArgument("a"),
+                        ),
                     ),
-                    ParameterizedString(
-                        R.string.one_arg_string,
-                        "b",
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            R.string.one_arg_string,
+                            ParameterizedStringArgument("b"),
+                        )
                     ),
                 ),
             ),
@@ -188,28 +253,40 @@ class AndroidParameterizedStringTests {
             context.getParameterizedString(
                 ParameterizedString(
                     R.string.three_arg_string,
-                    ParameterizedString(
-                        R.string.two_arg_string,
-                        "a",
-                        "b",
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            R.string.two_arg_string,
+                            ParameterizedStringArgument("a"),
+                            ParameterizedStringArgument("b"),
+                        )
                     ),
-                    ParameterizedString(
-                        R.string.one_arg_string,
+                    ParameterizedStringArgument(
                         ParameterizedString(
                             R.string.one_arg_string,
-                            "c",
-                        ),
-                    ),
-                    ParameterizedString(
-                        R.string.one_arg_string,
-                        ParameterizedString(
-                            R.string.one_arg_string,
-                            ParameterizedQuantityString(
-                                R.plurals.plural_string_with_number,
-                                2,
-                                2,
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    R.string.one_arg_string,
+                                    ParameterizedStringArgument("c"),
+                                )
                             ),
-                        ),
+                        )
+                    ),
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            R.string.one_arg_string,
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    R.string.one_arg_string,
+                                    ParameterizedStringArgument(
+                                        ParameterizedQuantityString(
+                                            R.plurals.plural_string_with_number,
+                                            2,
+                                            ParameterizedStringArgument(2),
+                                        ),
+                                    ),
+                                )
+                            ),
+                        )
                     ),
                 ),
             ),
@@ -224,27 +301,39 @@ class AndroidParameterizedStringTests {
             string = parameterizedStringResource(
                 parameterizedString = ParameterizedString(
                     R.string.three_arg_string,
-                    ParameterizedString(
-                        R.string.two_arg_string,
-                        "a",
-                        "b",
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            R.string.two_arg_string,
+                            ParameterizedStringArgument("a"),
+                            ParameterizedStringArgument("b"),
+                        )
                     ),
-                    ParameterizedString(
-                        R.string.one_arg_string,
+                    ParameterizedStringArgument(
                         ParameterizedString(
                             R.string.one_arg_string,
-                            "c",
-                        ),
-                    ),
-                    ParameterizedString(
-                        R.string.one_arg_string,
-                        ParameterizedString(
-                            R.string.one_arg_string,
-                            ParameterizedString(
-                                R.string.one_arg_string,
-                                "d",
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    R.string.one_arg_string,
+                                    ParameterizedStringArgument("c"),
+                                )
                             ),
-                        ),
+                        )
+                    ),
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            R.string.one_arg_string,
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    R.string.one_arg_string,
+                                    ParameterizedStringArgument(
+                                        ParameterizedString(
+                                            R.string.one_arg_string,
+                                            ParameterizedStringArgument("d"),
+                                        )
+                                    ),
+                                )
+                            ),
+                        )
                     ),
                 ),
             )
@@ -269,27 +358,39 @@ class AndroidParameterizedStringTests {
             resolver.invoke(
                 ParameterizedString(
                     R.string.three_arg_string,
-                    ParameterizedString(
-                        R.string.two_arg_string,
-                        "a",
-                        "b",
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            R.string.two_arg_string,
+                            ParameterizedStringArgument("a"),
+                            ParameterizedStringArgument("b"),
+                        )
                     ),
-                    ParameterizedString(
-                        R.string.one_arg_string,
+                    ParameterizedStringArgument(
                         ParameterizedString(
                             R.string.one_arg_string,
-                            "c",
-                        ),
-                    ),
-                    ParameterizedString(
-                        R.string.one_arg_string,
-                        ParameterizedString(
-                            R.string.one_arg_string,
-                            ParameterizedString(
-                                R.string.one_arg_string,
-                                "d",
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    R.string.one_arg_string,
+                                    ParameterizedStringArgument("c"),
+                                )
                             ),
-                        ),
+                        )
+                    ),
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            R.string.one_arg_string,
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    R.string.one_arg_string,
+                                    ParameterizedStringArgument(
+                                        ParameterizedString(
+                                            R.string.one_arg_string,
+                                            ParameterizedStringArgument("d"),
+                                        )
+                                    ),
+                                )
+                            ),
+                        )
                     ),
                 ),
             ),
@@ -304,7 +405,11 @@ class AndroidParameterizedStringTests {
 
         stateRestorationTester.setContent {
             parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
-                ParameterizedString(R.string.two_arg_string, Random.nextInt().toString(), Random.nextInt().toString())
+                ParameterizedString(
+                    R.string.two_arg_string,
+                    ParameterizedStringArgument(Random.nextInt().toString()),
+                    ParameterizedStringArgument(Random.nextInt().toString())
+                )
             }
         }
 
@@ -328,7 +433,11 @@ class AndroidParameterizedStringTests {
         stateRestorationTester.setContent {
             parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
                 val value = Random.nextInt()
-                ParameterizedQuantityString(R.plurals.plural_string_with_number, value, value)
+                ParameterizedQuantityString(
+                    R.plurals.plural_string_with_number,
+                    value,
+                    ParameterizedStringArgument(value)
+                )
             }
         }
 
@@ -351,7 +460,11 @@ class AndroidParameterizedStringTests {
 
         stateRestorationTester.setContent {
             parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
-                ParameterizedString("Two: (%s) (%s)", Random.nextInt().toString(), Random.nextInt().toString())
+                ParameterizedString(
+                    "Two: (%s) (%s)",
+                    ParameterizedStringArgument(Random.nextInt().toString()),
+                    ParameterizedStringArgument(Random.nextInt().toString())
+                )
             }
         }
 
@@ -376,27 +489,39 @@ class AndroidParameterizedStringTests {
             parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
                 ParameterizedString(
                     R.string.three_arg_string,
-                    ParameterizedString(
-                        R.string.two_arg_string,
-                        Random.nextInt().toString(),
-                        Random.nextInt().toString(),
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            R.string.two_arg_string,
+                            ParameterizedStringArgument(Random.nextInt().toString()),
+                            ParameterizedStringArgument(Random.nextInt().toString()),
+                        )
                     ),
-                    ParameterizedString(
-                        R.string.one_arg_string,
+                    ParameterizedStringArgument(
                         ParameterizedString(
                             R.string.one_arg_string,
-                            Random.nextInt().toString(),
-                        ),
-                    ),
-                    ParameterizedString(
-                        R.string.one_arg_string,
-                        ParameterizedString(
-                            R.string.one_arg_string,
-                            ParameterizedString(
-                                R.string.one_arg_string,
-                                Random.nextInt().toString(),
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    R.string.one_arg_string,
+                                    ParameterizedStringArgument(Random.nextInt().toString()),
+                                )
                             ),
-                        ),
+                        )
+                    ),
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            R.string.one_arg_string,
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    R.string.one_arg_string,
+                                    ParameterizedStringArgument(
+                                        ParameterizedString(
+                                            R.string.one_arg_string,
+                                            ParameterizedStringArgument(Random.nextInt().toString()),
+                                        )
+                                    ),
+                                )
+                            ),
+                        )
                     ),
                 )
             }

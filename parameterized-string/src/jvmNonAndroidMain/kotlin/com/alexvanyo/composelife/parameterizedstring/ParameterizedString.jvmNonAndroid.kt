@@ -16,69 +16,31 @@
 
 package com.alexvanyo.composelife.parameterizedstring
 
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
+import kotlinx.serialization.Serializable
 
 /**
  * A nestable representation of a string resource or a quantity string resource.
  */
+@Serializable
 actual sealed class ParameterizedString {
 
-    internal abstract val args: List<Any>
+    internal abstract val args: List<ParameterizedStringArgument>
 
+    @Serializable
     internal data class BasicString(
         val value: String,
-        override val args: List<Any>,
+        override val args: List<ParameterizedStringArgument>,
     ) : ParameterizedString()
 
     actual companion object
 }
-
-actual val ParameterizedString.Companion.Saver: Saver<ParameterizedString, Any> get() =
-    listSaver(
-        save = { save(it) },
-        restore = { restore(it) },
-    )
-
-private fun save(parameterizedString: ParameterizedString): List<Any> =
-    when (parameterizedString) {
-        is ParameterizedString.BasicString -> {
-            listOf(parameterizedString.value)
-        }
-    } + parameterizedString.args.map { arg ->
-        when (arg) {
-            is ParameterizedString -> listOf(
-                0,
-                save(arg),
-            )
-            else -> listOf(
-                1,
-                arg,
-            )
-        }
-    }
-
-private fun restore(list: List<Any>): ParameterizedString =
-    ParameterizedString.BasicString(
-        value = list[0] as String,
-        args = list.drop(1).map { arg ->
-            @Suppress("UNCHECKED_CAST")
-            arg as List<Any>
-            val type = arg[0] as Int
-            when (type) {
-                0 -> @Suppress("UNCHECKED_CAST") restore(arg[1] as List<Any>)
-                1 -> arg[1]
-                else -> error("Unexpected type $type")
-            }
-        }
-    )
 
 /**
  * Creates a representation of a plain-text string.
  */
 actual fun ParameterizedString(
     value: String,
-    vararg args: Any,
+    vararg args: ParameterizedStringArgument,
 ): ParameterizedString = ParameterizedString.BasicString(
     value = value,
     args = args.toList(),

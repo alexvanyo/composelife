@@ -74,7 +74,6 @@ fun SelectionOverlay(
         setUpstreamSessionValue = { _, sessionValue ->
             setSelectionSessionState(sessionValue)
         },
-        valueSaver = SelectionState.Saver,
     )
     val sessionValue = selectionSessionStateValueHolder.sessionValue
 

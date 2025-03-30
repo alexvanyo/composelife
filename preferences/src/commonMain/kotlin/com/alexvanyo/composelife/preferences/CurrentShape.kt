@@ -17,10 +17,13 @@
 package com.alexvanyo.composelife.preferences
 
 import com.alexvanyo.composelife.preferences.proto.RoundRectangleProto
+import kotlinx.serialization.Serializable
 
+@Serializable
 sealed interface CurrentShape {
     val type: CurrentShapeType
 
+    @Serializable
     data class RoundRectangle(
         val sizeFraction: Float,
         val cornerFraction: Float,

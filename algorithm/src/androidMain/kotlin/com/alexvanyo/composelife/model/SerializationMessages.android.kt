@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.model
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.algorithm.R
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedStringArgument
 
 actual fun UnexpectedInputMessage(
     input: String,
@@ -26,9 +27,9 @@ actual fun UnexpectedInputMessage(
     characterIndex: Int,
 ): ParameterizedString = ParameterizedString(
     R.string.unexpected_input,
-    input,
-    lineIndex,
-    characterIndex,
+    ParameterizedStringArgument(input),
+    ParameterizedStringArgument(lineIndex),
+    ParameterizedStringArgument(characterIndex),
 )
 
 actual fun UnexpectedCharacterMessage(
@@ -37,30 +38,30 @@ actual fun UnexpectedCharacterMessage(
     characterIndex: Int,
 ): ParameterizedString = ParameterizedString(
     R.string.unexpected_character,
-    character,
-    lineIndex,
-    characterIndex,
+    ParameterizedStringArgument(character),
+    ParameterizedStringArgument(lineIndex),
+    ParameterizedStringArgument(characterIndex),
 )
 
 actual fun UnexpectedHeaderMessage(
     header: String,
 ): ParameterizedString = ParameterizedString(
     R.string.unexpected_header,
-    header,
+    ParameterizedStringArgument(header),
 )
 
 actual fun UnexpectedShortLineMessage(
     lineIndex: Int,
 ): ParameterizedString = ParameterizedString(
     R.string.unexpected_short_line,
-    lineIndex,
+    ParameterizedStringArgument(lineIndex),
 )
 
 actual fun UnexpectedBlankLineMessage(
     lineIndex: Int,
 ): ParameterizedString = ParameterizedString(
     R.string.unexpected_blank_line,
-    lineIndex,
+    ParameterizedStringArgument(lineIndex),
 )
 
 actual val UnexpectedEmptyFileMessage: ParameterizedString =
@@ -72,7 +73,11 @@ actual val RuleNotSupportedMessage: ParameterizedString =
 actual fun DuplicateTopLeftCoordinateMessage(
     overwritingOffset: IntOffset,
 ): ParameterizedString =
-    ParameterizedString(R.string.duplicate_top_left_coordinate, overwritingOffset.x, overwritingOffset.y)
+    ParameterizedString(
+        R.string.duplicate_top_left_coordinate,
+        ParameterizedStringArgument(overwritingOffset.x),
+        ParameterizedStringArgument(overwritingOffset.y),
+    )
 
 actual val EmptyInput: ParameterizedString =
     ParameterizedString(R.string.empty_input)
@@ -83,7 +88,7 @@ actual fun UnexpectedNodeIdMessage(
 ): ParameterizedString =
     ParameterizedString(
         R.string.unexpected_node_id,
-        lineIndex,
-        characterIndices.first,
-        characterIndices.last,
+        ParameterizedStringArgument(lineIndex),
+        ParameterizedStringArgument(characterIndices.first),
+        ParameterizedStringArgument(characterIndices.last),
     )

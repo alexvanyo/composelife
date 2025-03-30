@@ -39,27 +39,39 @@ class ParameterizedStringTests {
             string = parameterizedStringResource(
                 parameterizedString = ParameterizedString(
                     "Three: (%s) (%s) (%s)",
-                    ParameterizedString(
-                        "Two: (%s) (%s)",
-                        "a",
-                        "b",
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            "Two: (%s) (%s)",
+                            ParameterizedStringArgument("a"),
+                            ParameterizedStringArgument("b"),
+                        )
                     ),
-                    ParameterizedString(
-                        "One: (%s)",
+                    ParameterizedStringArgument(
                         ParameterizedString(
                             "One: (%s)",
-                            "c",
-                        ),
-                    ),
-                    ParameterizedString(
-                        "One: (%s)",
-                        ParameterizedString(
-                            "One: (%s)",
-                            ParameterizedString(
-                                "One: (%s)",
-                                "d",
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    "One: (%s)",
+                                    ParameterizedStringArgument("c"),
+                                )
                             ),
-                        ),
+                        )
+                    ),
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            "One: (%s)",
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    "One: (%s)",
+                                    ParameterizedStringArgument(
+                                        ParameterizedString(
+                                            "One: (%s)",
+                                            ParameterizedStringArgument("d"),
+                                        )
+                                    ),
+                                )
+                            ),
+                        )
                     ),
                 ),
             )
@@ -84,27 +96,39 @@ class ParameterizedStringTests {
             resolver.invoke(
                 ParameterizedString(
                     "Three: (%s) (%s) (%s)",
-                    ParameterizedString(
-                        "Two: (%s) (%s)",
-                        "a",
-                        "b",
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            "Two: (%s) (%s)",
+                            ParameterizedStringArgument("a"),
+                            ParameterizedStringArgument("b"),
+                        )
                     ),
-                    ParameterizedString(
-                        "One: (%s)",
+                    ParameterizedStringArgument(
                         ParameterizedString(
                             "One: (%s)",
-                            "c",
-                        ),
-                    ),
-                    ParameterizedString(
-                        "One: (%s)",
-                        ParameterizedString(
-                            "One: (%s)",
-                            ParameterizedString(
-                                "One: (%s)",
-                                "d",
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    "One: (%s)",
+                                    ParameterizedStringArgument("c"),
+                                )
                             ),
-                        ),
+                        )
+                    ),
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            "One: (%s)",
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    "One: (%s)",
+                                    ParameterizedStringArgument(
+                                        ParameterizedString(
+                                            "One: (%s)",
+                                            ParameterizedStringArgument("d"),
+                                        )
+                                    ),
+                                )
+                            ),
+                        )
                     ),
                 ),
             ),
@@ -119,7 +143,11 @@ class ParameterizedStringTests {
 
         stateRestorationTester.setContent {
             parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
-                ParameterizedString("Two: (%s) (%s)", Random.nextInt().toString(), Random.nextInt().toString())
+                ParameterizedString(
+                    "Two: (%s) (%s)",
+                    ParameterizedStringArgument(Random.nextInt().toString()),
+                    ParameterizedStringArgument(Random.nextInt().toString())
+                )
             }
         }
 
@@ -144,27 +172,39 @@ class ParameterizedStringTests {
             parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
                 ParameterizedString(
                     "Three: (%s) (%s) (%s)",
-                    ParameterizedString(
-                        "Two: (%s) (%s)",
-                        "a",
-                        "b",
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            "Two: (%s) (%s)",
+                            ParameterizedStringArgument("a"),
+                            ParameterizedStringArgument("b"),
+                        )
                     ),
-                    ParameterizedString(
-                        "One: (%s)",
+                    ParameterizedStringArgument(
                         ParameterizedString(
                             "One: (%s)",
-                            "c",
-                        ),
-                    ),
-                    ParameterizedString(
-                        "One: (%s)",
-                        ParameterizedString(
-                            "One: (%s)",
-                            ParameterizedString(
-                                "One: (%s)",
-                                "d",
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    "One: (%s)",
+                                    ParameterizedStringArgument("c"),
+                                )
                             ),
-                        ),
+                        )
+                    ),
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            "One: (%s)",
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    "One: (%s)",
+                                    ParameterizedStringArgument(
+                                        ParameterizedString(
+                                            "One: (%s)",
+                                            ParameterizedStringArgument("d"),
+                                        )
+                                    ),
+                                )
+                            ),
+                        )
                     ),
                 )
             }
