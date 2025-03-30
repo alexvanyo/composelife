@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.model
 
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedStringArgument
 
 actual fun UnexpectedInputMessage(
     input: String,
@@ -26,9 +27,9 @@ actual fun UnexpectedInputMessage(
 ): ParameterizedString =
     ParameterizedString(
         "Unexpected input \"%s\" starting on line %d, character %d",
-        input,
-        lineIndex,
-        characterIndex,
+        ParameterizedStringArgument(input),
+        ParameterizedStringArgument(lineIndex),
+        ParameterizedStringArgument(characterIndex),
     )
 
 actual fun UnexpectedCharacterMessage(
@@ -38,25 +39,25 @@ actual fun UnexpectedCharacterMessage(
 ): ParameterizedString =
     ParameterizedString(
         "Unexpected character %c on line %d, offset %d interpreted as on",
-        character,
-        lineIndex,
-        characterIndex,
+        ParameterizedStringArgument(character),
+        ParameterizedStringArgument(lineIndex),
+        ParameterizedStringArgument(characterIndex),
     )
 
 actual fun UnexpectedHeaderMessage(
     header: String,
 ): ParameterizedString =
-    ParameterizedString("Unexpected header, found %s", header)
+    ParameterizedString("Unexpected header, found %s", ParameterizedStringArgument(header))
 
 actual fun UnexpectedShortLineMessage(
     lineIndex: Int,
 ): ParameterizedString =
-    ParameterizedString("Line %dx is unexpectedly short", lineIndex)
+    ParameterizedString("Line %dx is unexpectedly short", ParameterizedStringArgument(lineIndex))
 
 actual fun UnexpectedBlankLineMessage(
     lineIndex: Int,
 ): ParameterizedString =
-    ParameterizedString("Unexpected blank line at line %d", lineIndex)
+    ParameterizedString("Unexpected blank line at line %d", ParameterizedStringArgument(lineIndex))
 
 actual val UnexpectedEmptyFileMessage: ParameterizedString =
     ParameterizedString("Unexpected empty file, assuming blank pattern")
@@ -69,8 +70,8 @@ actual fun DuplicateTopLeftCoordinateMessage(
 ): ParameterizedString =
     ParameterizedString(
         "Duplicate top-left coordinate instruction, overwriting with (%d, %d)",
-        overwritingOffset.x,
-        overwritingOffset.y,
+        ParameterizedStringArgument(overwritingOffset.x),
+        ParameterizedStringArgument(overwritingOffset.y),
     )
 
 actual val EmptyInput: ParameterizedString =
@@ -82,7 +83,7 @@ actual fun UnexpectedNodeIdMessage(
 ): ParameterizedString =
     ParameterizedString(
         "Invalid node id on line %d, characters %d-%d",
-        lineIndex,
-        characterIndices.first,
-        characterIndices.last,
+        ParameterizedStringArgument(lineIndex),
+        ParameterizedStringArgument(characterIndices.first),
+        ParameterizedStringArgument(characterIndices.last),
     )

@@ -26,10 +26,14 @@ import androidx.compose.ui.text.intl.Locale
 fun getParameterizedString(locale: Locale, parameterizedString: ParameterizedString): String {
     val resolvedArgs = parameterizedString.args.map { arg ->
         when (arg) {
-            is ParameterizedString -> getParameterizedString(locale, arg)
-            else -> arg
+            is ParameterizedStringArgument.FloatArg -> arg.value
+            is ParameterizedStringArgument.DoubleArg -> arg.value
+            is ParameterizedStringArgument.IntArg -> arg.value
+            is ParameterizedStringArgument.CharArg -> arg.value
+            is ParameterizedStringArgument.ParameterizedStringArg -> getParameterizedString(locale, arg.value)
+            is ParameterizedStringArgument.StringArg -> arg.value
         }
-    }.toTypedArray()
+    }.toTypedArray<Any>()
 
     return when (parameterizedString) {
         is ParameterizedString.BasicString -> {
