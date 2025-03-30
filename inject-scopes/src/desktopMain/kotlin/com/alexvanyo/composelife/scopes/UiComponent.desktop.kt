@@ -17,10 +17,8 @@
 
 package com.alexvanyo.composelife.scopes
 
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @SingleIn(UiScope::class)
-actual interface UiComponent<E> {
-
-    actual val entryPoint: E
-}
+actual interface UiComponent : EntryPointProvider<UiScope>

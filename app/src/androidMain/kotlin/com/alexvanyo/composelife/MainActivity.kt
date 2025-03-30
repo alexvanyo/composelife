@@ -43,7 +43,7 @@ import com.slack.circuit.retained.continuityRetainedStateRegistry
 
 class MainActivity : AppCompatActivity(), UiComponentOwner {
 
-    override lateinit var uiComponent: UiComponent<*>
+    override lateinit var uiComponent: UiComponent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity(), UiComponentOwner {
                 override val activity: Activity = this@MainActivity
             },
         )
-        val mainActivityEntryPoint = uiComponent.entryPoint as MainActivityInjectEntryPoint
+        val mainActivityEntryPoint: MainActivityInjectEntryPoint = uiComponent.getEntryPoint()
 
         // Keep the splash screen on screen until we've loaded preferences
         splashScreen.setKeepOnScreenCondition {

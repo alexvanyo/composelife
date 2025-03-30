@@ -17,23 +17,23 @@
 package com.alexvanyo.composelife.ui.cells
 
 import com.alexvanyo.composelife.entrypoint.EntryPoint
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.scopes.UiScope
 
-expect interface TestComposeLifeUiComponent : UiComponent<TestComposeLifeUiEntryPoint> {
-
-    override val entryPoint: TestComposeLifeUiEntryPoint
-
+expect interface TestComposeLifeUiComponent : UiComponent {
     interface Factory
 
     companion object
 }
 
-@EntryPoint(UiScope::class)
-interface TestComposeLifeUiEntryPoint : CellWindowInjectEntryPoint
-
 expect fun TestComposeLifeUiComponent.Companion.createComponent(
     applicationComponent: TestComposeLifeApplicationComponent,
     uiComponentArguments: UiComponentArguments,
 ): TestComposeLifeUiComponent
+
+@EntryPoint(UiScope::class)
+interface TestComposeLifeUiEntryPoint : CellWindowInjectEntryPoint
+
+expect fun EntryPointProvider<UiScope>.kmpGetEntryPoint(): TestComposeLifeUiEntryPoint

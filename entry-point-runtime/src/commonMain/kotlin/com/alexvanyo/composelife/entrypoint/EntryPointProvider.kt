@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,17 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.scopes
+package com.alexvanyo.composelife.entrypoint
 
-interface UiComponentOwner {
-    val uiComponent: UiComponent
+import kotlin.reflect.KClass
+
+/**
+ * A provider of [EntryPoint]s scoped to [S].
+ *
+ * [EntryPoint]s should not be retrieved directly, and should only be retrieved through the `getEntryPoint()`
+ * function for each [EntryPoint] type that are generated as extension functions on [EntryPointProvider] for the
+ * correct scope.
+ */
+interface EntryPointProvider<S : Any> {
+    val entryPoints: Map<KClass<*>, ScopedEntryPoint<S, *>>
 }

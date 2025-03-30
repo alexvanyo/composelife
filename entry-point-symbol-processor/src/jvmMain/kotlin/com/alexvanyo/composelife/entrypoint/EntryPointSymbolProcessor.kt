@@ -29,12 +29,16 @@ import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Visibility
 import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.WildcardTypeName
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import com.squareup.kotlinpoet.ksp.toAnnotationSpec
@@ -43,8 +47,13 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.toTypeParameterResolver
 import com.squareup.kotlinpoet.ksp.writeTo
 import me.tatarka.inject.annotations.Inject
+import me.tatarka.inject.annotations.IntoMap
+import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import kotlin.reflect.KClass
 
+@OptIn(InternalEntryPointProviderApi::class)
 class EntryPointSymbolProcessor(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
@@ -67,10 +76,15 @@ class EntryPointSymbolProcessor(
     private fun generateEntryPointImplementation(entryPoint: KSClassDeclaration) {
         val entryPointImplClassName =
             entryPoint.toClassName().peerClass(entryPoint.simpleName.asString() + "Impl")
-        val scope = entryPoint.annotations.first { it.annotationType.toTypeName() == EntryPoint::class.asTypeName() }
-            .arguments
-            .first()
-            .value as KSType?
+        val scopeClassName =
+            requireNotNull(
+                entryPoint
+                    .annotations
+                    .first { it.annotationType.toTypeName() == EntryPoint::class.asTypeName() }
+                    .arguments
+                    .first()
+                    .value as KSType?
+            ).toClassName()
 
         val fileSpec = FileSpec.builder(entryPointImplClassName)
             .addType(
@@ -80,7 +94,7 @@ class EntryPointSymbolProcessor(
                     .addAnnotation(Inject::class)
                     .addAnnotation(
                         AnnotationSpec.builder(ContributesBinding::class)
-                            .addMember("scope = %T::class", requireNotNull(scope).toClassName())
+                            .addMember("scope = %T::class", scopeClassName)
                             .build(),
                     )
                     .addSuperinterface(entryPoint.toClassName())
@@ -135,6 +149,74 @@ class EntryPointSymbolProcessor(
                             .toList()
                     )
                     .build(),
+            )
+            .addType(
+                TypeSpec
+                    .interfaceBuilder(entryPointImplClassName.peerClass(entryPointImplClassName.simpleName + "BindingComponent"))
+                    .addAnnotation(
+                        AnnotationSpec.builder(ContributesTo::class)
+                            .addMember("scope = %T::class", scopeClassName)
+                            .build(),
+                    )
+                    .addFunction(
+                        FunSpec.builder("provides${entryPoint.simpleName.asString()}IntoEntryPointMap")
+                            .addAnnotation(Provides::class)
+                            .addAnnotation(IntoMap::class)
+                            .addAnnotation(
+                                AnnotationSpec.builder(ClassName("kotlin", "OptIn"))
+                                    .addMember("%T::class", InternalEntryPointProviderApi::class)
+                                    .build(),
+                            )
+                            .addParameter(
+                                ParameterSpec.builder(
+                                    "entryPointCreator",
+                                    LambdaTypeName.get(returnType = entryPoint.toClassName())
+                                )
+                                    .build()
+                            )
+                            .returns(
+                                Pair::class.asTypeName()
+                                    .parameterizedBy(
+                                        KClass::class.asTypeName().parameterizedBy(
+                                            WildcardTypeName.producerOf(
+                                                Any::class.asTypeName().copy(nullable = true)
+                                            )
+                                        ),
+                                        ScopedEntryPoint::class.asTypeName()
+                                            .parameterizedBy(
+                                                scopeClassName,
+                                                WildcardTypeName.producerOf(
+                                                    Any::class.asTypeName().copy(nullable = true)
+                                                )
+                                            )
+                                    )
+                            )
+                            .addStatement(
+                                "return %T::class to %T(entryPointCreator)",
+                                entryPoint.toClassName(),
+                                ScopedEntryPoint::class,
+                            )
+                            .build()
+                    )
+                    .build()
+            )
+            .addFunction(
+                FunSpec.builder("getEntryPoint")
+                    .addAnnotation(
+                        AnnotationSpec.builder(ClassName("kotlin", "OptIn"))
+                            .addMember("%T::class", InternalEntryPointProviderApi::class)
+                            .build(),
+                    )
+                    .receiver(
+                        EntryPointProvider::class.asTypeName().parameterizedBy(scopeClassName)
+                    )
+                    .returns(entryPoint.toClassName())
+                    .addStatement(
+                        "return entryPoints.getValue(%T::class).entryPointCreator() as %T",
+                        entryPoint.toClassName(),
+                        entryPoint.toClassName(),
+                    )
+                    .build()
             )
             .build()
 

@@ -30,6 +30,8 @@ interface UpdatableComponent {
     @get:SingleIn(AppScope::class)
     val updatables: Set<Updatable>
 
+    // TODO: Remove when it is possible to declare an empty binding set
+    //       https://github.com/evant/kotlin-inject/issues/249
     @Provides
     @SingleIn(AppScope::class)
     @IntoSet

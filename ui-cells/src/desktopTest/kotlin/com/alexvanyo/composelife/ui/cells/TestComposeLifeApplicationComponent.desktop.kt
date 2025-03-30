@@ -24,11 +24,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @MergeComponent(AppScope::class)
 @SingleIn(AppScope::class)
-actual abstract class TestComposeLifeApplicationComponent :
-    ApplicationComponent<TestComposeLifeApplicationEntryPoint>() {
-
-    actual abstract override val entryPoint: TestComposeLifeApplicationEntryPoint
-
+actual abstract class TestComposeLifeApplicationComponent : ApplicationComponent() {
     actual companion object
 }
 

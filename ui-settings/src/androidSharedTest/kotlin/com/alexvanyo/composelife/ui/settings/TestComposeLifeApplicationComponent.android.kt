@@ -18,6 +18,7 @@
 package com.alexvanyo.composelife.ui.settings
 
 import android.app.Application
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
@@ -27,9 +28,6 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 @SingleIn(AppScope::class)
 actual abstract class TestComposeLifeApplicationComponent(
     application: Application,
-) : ApplicationComponent<TestComposeLifeApplicationEntryPoint>(application) {
-
-    actual abstract override val entryPoint: TestComposeLifeApplicationEntryPoint
-
+) : ApplicationComponent(application) {
     actual companion object
 }

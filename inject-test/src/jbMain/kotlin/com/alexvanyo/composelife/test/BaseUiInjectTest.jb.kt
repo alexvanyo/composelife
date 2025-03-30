@@ -19,12 +19,14 @@ package com.alexvanyo.composelife.test
 
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
@@ -35,14 +37,16 @@ import kotlin.time.Duration.Companion.seconds
  *
  * Subclasses must call [runUiTest] instead of [runAppTest] or [runAppTest] to properly initialize dependencies.
  */
-abstract class BaseUiInjectTest<T : ApplicationComponent<E>, E : UpdatableModule, U : UiComponent<*>>(
-    applicationComponentCreator: () -> T,
-    internal val uiComponentCreator: (T, UiComponentArguments) -> U,
-) : BaseInjectTest<T, E>(applicationComponentCreator)
+abstract class BaseUiInjectTest<AC : ApplicationComponent, UC : UiComponent>(
+    applicationComponentCreator: () -> AC,
+    internal val uiComponentCreator: (AC, UiComponentArguments) -> UC,
+) : BaseInjectTest<AC>(applicationComponentCreator)
 
 @OptIn(ExperimentalTestApi::class)
-expect fun <T : ApplicationComponent<E>, E : UpdatableModule, U : UiComponent<*>> BaseUiInjectTest<T, E, U>.runUiTest(
+expect fun <AC : ApplicationComponent, UC : UiComponent> BaseUiInjectTest<AC, UC>.runUiTest(
     appTestContext: CoroutineContext = EmptyCoroutineContext,
     timeout: Duration = 60.seconds,
-    testBody: suspend TestScope.(uiComponent: U, composeUiTest: ComposeUiTest) -> Unit,
+    testBody: suspend TestScope.(uiComponent: UC, composeUiTest: ComposeUiTest) -> Unit,
 ): TestResult
+
+expect fun EntryPointProvider<AppScope>.kmpGetEntryPoint(): BaseInjectTestEntryPoint
