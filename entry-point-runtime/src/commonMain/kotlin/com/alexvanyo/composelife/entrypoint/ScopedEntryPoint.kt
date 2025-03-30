@@ -17,9 +17,9 @@
 package com.alexvanyo.composelife.entrypoint
 
 /**
- * A holder of the [EntryPoint] of type [E] for the scope [S].
+ * A holder of a creator for an [EntryPoint] of type [E] for the scope [S].
  */
 data class ScopedEntryPoint<S : Any, E> @InternalEntryPointProviderApi constructor(
     @property:InternalEntryPointProviderApi
-    val entryPoint: E,
+    val entryPointCreator: () -> E,
 )
