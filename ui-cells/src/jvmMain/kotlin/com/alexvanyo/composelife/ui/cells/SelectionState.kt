@@ -25,6 +25,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntOffset
+import androidx.savedstate.SavedState
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.serialization.IntOffsetSerializer
 import com.alexvanyo.composelife.serialization.RectSerializer
@@ -135,9 +136,9 @@ private class MutableSelectionStateHolderImpl(
     override var selectionSessionState by mutableStateOf(initialSelectionSessionState)
 
     companion object {
-        private val sessionValueSaver = SessionValue.Saver(SelectionState.Saver)
+        private val sessionValueSaver = SessionValue.Saver<SelectionState>()
 
-        val Saver: Saver<MutableSelectionStateHolder, Any> = Saver(
+        val Saver: Saver<MutableSelectionStateHolder, SavedState> = Saver(
             save = {
                 with(sessionValueSaver) {
                     save(it.selectionSessionState)

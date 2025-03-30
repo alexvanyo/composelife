@@ -115,10 +115,6 @@ class SessionValueHolderStateRestorationTests {
                 setUpstreamSessionValue = { upstreamSessionId, sessionValue ->
                     pendingUpstreamSessionValues.add(upstreamSessionId to sessionValue)
                 },
-                valueSaver = Saver(
-                    save = { it.toString() },
-                    restore = Uuid::parse,
-                ),
             )
         }
 

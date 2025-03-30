@@ -24,7 +24,6 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
@@ -110,17 +109,6 @@ fun rememberCellShapeConfigUiState(
                 setUpstreamSessionValue = { expected, newValue ->
                     roundRectangleUpdates.trySend(expected to newValue)
                 },
-                valueSaver = listSaver(
-                    save = {
-                        listOf(it.sizeFraction, it.cornerFraction)
-                    },
-                    restore = {
-                        CurrentShape.RoundRectangle(
-                            it[0],
-                            it[1],
-                        )
-                    },
-                ),
             )
 
             val localSessionId = roundRectangleSessionValueHolder.info.localSessionId
