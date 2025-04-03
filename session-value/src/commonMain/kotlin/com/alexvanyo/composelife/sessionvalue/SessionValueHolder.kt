@@ -267,3 +267,22 @@ private class SessionValueHolderImpl<T>(
         }
     }
 }
+
+private class MappedSessionValueHolder<T, R>(
+    private val sessionValueHolder: SessionValueHolder<T>,
+    private val transform: (T) -> R,
+    private val inverseTransform: (R) -> T,
+) : SessionValueHolder<R> {
+    override val sessionValue: SessionValue<R>
+        get() = sessionValueHolder.sessionValue.map(transform)
+    override val info: LocalSessionInfo
+        get() = sessionValueHolder.info
+    override fun setValue(value: R, valueId: Uuid) {
+        sessionValueHolder.setValue(inverseTransform(value))
+    }
+}
+
+fun <T, R> SessionValueHolder<T>.map(
+    transform: (T) -> R,
+    inverseTransform: (R) -> T,
+): SessionValueHolder<R> = MappedSessionValueHolder(this, transform, inverseTransform)

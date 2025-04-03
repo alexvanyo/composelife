@@ -73,7 +73,7 @@ class PatternCollectionSync(
             .successes()
             .map { loadedPreferences ->
                 loadedPreferences.value.synchronizePatternCollectionsOnMeteredNetwork to
-                    loadedPreferences.value.patternCollectionsSynchronizationPeriod
+                    loadedPreferences.value.patternCollectionsSynchronizationPeriodSessionValue.value
             }
             .distinctUntilChanged()
             .onEach { (synchronizePatternCollectionsOnMeteredNetwork, patternCollectionsSynchronizationPeriod) ->

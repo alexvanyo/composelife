@@ -86,3 +86,9 @@ internal expect val Strings.EnableClipboardWatching: ParameterizedString
 internal expect val Strings.Delete: ParameterizedString
 
 internal expect val Strings.SynchronizePatternCollectionsOnMeteredNetwork: ParameterizedString
+
+internal expect val Strings.PatternCollectionsSynchronizationPeriod: ParameterizedString
+
+internal expect fun Strings.PatternCollectionsSynchronizationPeriodLabelAndValue(period: Float): ParameterizedString
+
+internal expect fun Strings.PatternCollectionsSynchronizationPeriodValue(period: Float): ParameterizedString

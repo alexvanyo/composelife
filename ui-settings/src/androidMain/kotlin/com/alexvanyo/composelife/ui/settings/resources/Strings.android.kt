@@ -131,3 +131,18 @@ internal actual val Strings.Delete: ParameterizedString get() =
 
 internal actual val Strings.SynchronizePatternCollectionsOnMeteredNetwork: ParameterizedString get() =
     ParameterizedString(R.string.synchronize_pattern_collections_on_metered_network)
+
+internal actual val Strings.PatternCollectionsSynchronizationPeriod: ParameterizedString get() =
+    ParameterizedString(R.string.pattern_collection_synchronization_period)
+
+internal actual fun Strings.PatternCollectionsSynchronizationPeriodLabelAndValue(period: Float): ParameterizedString =
+    ParameterizedString(
+        R.string.pattern_collection_synchronization_period_label_and_value,
+        ParameterizedStringArgument(period),
+    )
+
+internal actual fun Strings.PatternCollectionsSynchronizationPeriodValue(period: Float): ParameterizedString =
+    ParameterizedString(
+        R.string.pattern_collection_synchronization_period_value,
+        ParameterizedStringArgument(period),
+    )

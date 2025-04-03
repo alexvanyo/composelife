@@ -37,6 +37,7 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.serialization.uuidSaver
 import com.alexvanyo.composelife.sessionvalue.SessionValue
+import com.alexvanyo.composelife.sessionvalue.rememberSessionValueHolder
 import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepLabel
 import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepLabelAndValue
 import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepValue
@@ -114,10 +115,10 @@ fun TargetStepsPerSecondControl(
         labelText = parameterizedStringResource(Strings.TargetStepsPerSecondLabel),
         textToValue = { it.toDoubleOrNull() },
         sessionValue = SessionValue(sessionId, valueId, targetStepsPerSecond),
-        onSessionValueChange = {
-            sessionId = it.sessionId
-            valueId = it.valueId
-            setTargetStepsPerSecond(it.value)
+        onSessionValueChange = { _, newValue ->
+            sessionId = newValue.sessionId
+            valueId = newValue.valueId
+            setTargetStepsPerSecond(newValue.value)
         },
         valueRange = valueRange,
         sliderBijection = TargetStepsPerSecondSliderBijection,
@@ -176,10 +177,10 @@ fun GenerationsPerStepControl(
         valueRange = valueRange,
         sliderBijection = GenerationsPerStepSliderBijection,
         steps = maxGenerationsPerStepPowerOfTwo - minGenerationsPerStepPowerOfTwo - 1,
-        onSessionValueChange = {
-            sessionId = it.sessionId
-            valueId = it.valueId
-            setGenerationsPerStep(it.value)
+        onSessionValueChange = { _, newValue ->
+            sessionId = newValue.sessionId
+            valueId = newValue.valueId
+            setGenerationsPerStep(newValue.value)
         },
         inputTransformation = InputTransformation.nonNegativeLong(),
         modifier = modifier,

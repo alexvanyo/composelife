@@ -71,6 +71,20 @@ fun <T : Any> ResourceState<T>.isSuccess(): Boolean {
 }
 
 /**
+ * Returns `true` if and only if this is a failure.
+ */
+@OptIn(ExperimentalContracts::class)
+fun <T : Any> ResourceState<T>.isFailure(): Boolean {
+    contract { returns(true) implies (this@isFailure is Failure) }
+
+    return when (this) {
+        Loading -> false
+        is Success -> false
+        is Failure -> true
+    }
+}
+
+/**
  * Returns a filtered [Flow] of only the successful [ResourceState]s.
  */
 fun <T : Any> Flow<ResourceState<T>>.successes(): Flow<Success<T>> =

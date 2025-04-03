@@ -64,9 +64,9 @@ sealed interface CurrentShapeConfigUiState {
 
         val cornerFractionSessionValue: SessionValue<Float>
 
-        fun onSizeFractionSessionValueChange(value: SessionValue<Float>)
+        fun onSizeFractionSessionValueChange(expected: SessionValue<Float>, newValue: SessionValue<Float>)
 
-        fun onCornerFractionSessionValueChange(value: SessionValue<Float>)
+        fun onCornerFractionSessionValueChange(expected: SessionValue<Float>, newValue: SessionValue<Float>)
     }
 }
 
@@ -164,17 +164,31 @@ fun rememberCellShapeConfigUiState(
                             value = cornerFraction,
                         )
 
-                override fun onSizeFractionSessionValueChange(value: SessionValue<Float>) {
-                    sizeFractionSessionId = value.sessionId
-                    sizeFractionValueId = value.valueId
-                    sizeFraction = value.value
+                override fun onSizeFractionSessionValueChange(
+                    expected: SessionValue<Float>,
+                    newValue: SessionValue<Float>,
+                ) {
+                    check(expected.sessionId == sizeFractionSessionId)
+                    check(expected.valueId == sizeFractionValueId)
+                    check(expected.value == sizeFraction)
+
+                    sizeFractionSessionId = newValue.sessionId
+                    sizeFractionValueId = newValue.valueId
+                    sizeFraction = newValue.value
                     launchRoundRectangleConfigUpdate()
                 }
 
-                override fun onCornerFractionSessionValueChange(value: SessionValue<Float>) {
-                    cornerFractionSessionId = value.sessionId
-                    cornerFractionValueId = value.valueId
-                    cornerFraction = value.value
+                override fun onCornerFractionSessionValueChange(
+                    expected: SessionValue<Float>,
+                    newValue: SessionValue<Float>,
+                ) {
+                    check(expected.sessionId == cornerFractionSessionId)
+                    check(expected.valueId == cornerFractionValueId)
+                    check(expected.value == cornerFraction)
+
+                    cornerFractionSessionId = newValue.sessionId
+                    cornerFractionValueId = newValue.valueId
+                    cornerFraction = newValue.value
                     launchRoundRectangleConfigUpdate()
                 }
 
@@ -217,7 +231,7 @@ fun rememberCellShapeConfigUiState(
  *
  * The returned batch is guaranteed to contain at least one element.
  */
-private suspend fun <T> ReceiveChannel<T>.receiveBatch(): List<T> {
+suspend fun <T> ReceiveChannel<T>.receiveBatch(): List<T> {
     val buffer = mutableListOf<T>()
     val suspendedElement = receive()
     buffer.add(suspendedElement)

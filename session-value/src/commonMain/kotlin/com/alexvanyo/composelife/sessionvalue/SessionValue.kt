@@ -45,3 +45,10 @@ data class SessionValue<out T>(
         ): Saver<SessionValue<T>, SavedState> = serializer(valueSerializer).saver()
     }
 }
+
+fun <T, R> SessionValue<T>.map(transform: (T) -> R): SessionValue<R> =
+    SessionValue(
+        sessionId = sessionId,
+        valueId = valueId,
+        value = transform(value),
+    )
