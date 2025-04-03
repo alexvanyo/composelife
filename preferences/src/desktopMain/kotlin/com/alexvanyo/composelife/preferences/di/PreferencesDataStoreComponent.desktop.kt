@@ -34,9 +34,6 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 @ContributesTo(AppScope::class)
 interface PreferencesDataStoreComponent {
 
-    val DiskPreferencesDataStore.bind: PreferencesDataStore
-        @Provides get() = this
-
     @Provides
     @PreferencesProtoPath
     fun providesDataStorePath(): Path =
