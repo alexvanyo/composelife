@@ -29,7 +29,6 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 @ContributesTo(AppScope::class)
 interface WorkManagerComponent {
 
-    @get:SingleIn(AppScope::class)
     val workerFactoryMap: Map<String, AssistedWorkerFactory>
 
     @Provides
