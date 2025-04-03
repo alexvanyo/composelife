@@ -31,6 +31,7 @@ import okio.BufferedSource
 import okio.FileSystem
 import okio.Path
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 import java.io.IOException
 
@@ -43,6 +44,7 @@ annotation class PreferencesProtoPath
 annotation class PreferencesCoroutineScope
 
 @SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
 @Inject
 class DiskPreferencesDataStore(
     fileSystem: FileSystem,
