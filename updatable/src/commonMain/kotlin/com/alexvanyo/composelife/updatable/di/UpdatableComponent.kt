@@ -27,7 +27,6 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 @ContributesTo(AppScope::class)
 interface UpdatableComponent {
 
-    @get:SingleIn(AppScope::class)
     val updatables: Set<Updatable>
 
     // TODO: Remove when it is possible to declare an empty binding set

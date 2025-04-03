@@ -20,12 +20,10 @@ import coil3.ComponentRegistry
 import coil3.key.Keyer
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 import kotlin.reflect.KClass
 
 @ContributesTo(AppScope::class)
 interface ImageLoaderKeyerComponent {
-    @get:SingleIn(AppScope::class)
     val keyers: Set<KeyerWithType<out Any>>
 }
 
