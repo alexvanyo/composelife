@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.preferences
 
-import androidx.test.core.app.ApplicationProvider
-import com.alexvanyo.composelife.test.TestInjectApplication
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 
-actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent {
-    val application = ApplicationProvider.getApplicationContext<TestInjectApplication>()
-    val applicationComponent = TestComposeLifeApplicationComponent::class.create(application)
-    application.applicationComponent = applicationComponent
-    return applicationComponent
-}
+actual fun EntryPointProvider<AppScope>.kmpGetEntryPoint(): TestPreferencesComponentTestsEntryPoint = getEntryPoint()
