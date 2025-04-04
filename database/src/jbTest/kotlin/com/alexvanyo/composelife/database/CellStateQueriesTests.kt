@@ -21,19 +21,29 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import app.cash.turbine.test
 import app.cash.turbine.withTurbineTimeout
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
+import com.alexvanyo.composelife.entrypoint.EntryPoint
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.test.BaseInjectTest
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.runner.RunWith
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.time.Duration.Companion.seconds
 
+@EntryPoint(AppScope::class)
+interface CellStateQueriesTestsEntryPoint {
+    val cellStateQueries: CellStateQueries
+    val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher
+}
+
 class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
     TestComposeLifeApplicationComponent::createComponent,
 ) {
-    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<TestComposeLifeApplicationEntryPoint>()
+    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<CellStateQueriesTestsEntryPoint>()
 
     private val cellStateQueries get() = entryPoint.cellStateQueries
 
@@ -331,3 +341,7 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
         }
     }
 }
+
+expect inline fun <reified T : CellStateQueriesTestsEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
+    unused: KClass<T> = T::class,
+): CellStateQueriesTestsEntryPoint
