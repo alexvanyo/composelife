@@ -16,33 +16,10 @@
 
 package com.alexvanyo.composelife.data
 
-import com.alexvanyo.composelife.data.di.RepositoryModule
-import com.alexvanyo.composelife.database.di.DatabaseModule
-import com.alexvanyo.composelife.database.di.QueriesModule
-import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
-import com.alexvanyo.composelife.entrypoint.EntryPoint
-import com.alexvanyo.composelife.entrypoint.EntryPointProvider
-import com.alexvanyo.composelife.network.FakeRequestHandler
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 
 expect abstract class TestComposeLifeApplicationComponent : ApplicationComponent {
     companion object
 }
 
 expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent
-
-@EntryPoint(AppScope::class)
-interface TestComposeLifeApplicationEntryPoint :
-    UpdatableModule,
-    RepositoryModule,
-    DatabaseModule,
-    QueriesModule,
-    DispatchersModule,
-    TestDispatcherModule {
-    val fakeRequestHandler: FakeRequestHandler
-}
-
-expect fun EntryPointProvider<AppScope>.kmpGetEntryPoint(): TestComposeLifeApplicationEntryPoint

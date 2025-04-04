@@ -35,9 +35,11 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.WildcardTypeName
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
@@ -202,6 +204,8 @@ class EntryPointSymbolProcessor(
             )
             .addFunction(
                 FunSpec.builder("getEntryPoint")
+                    .addModifiers(KModifier.INLINE)
+                    .addTypeVariable(TypeVariableName("T", entryPoint.toClassName()).copy(reified = true))
                     .addAnnotation(
                         AnnotationSpec.builder(ClassName("kotlin", "OptIn"))
                             .addMember("%T::class", InternalEntryPointProviderApi::class)
@@ -209,6 +213,11 @@ class EntryPointSymbolProcessor(
                     )
                     .receiver(
                         EntryPointProvider::class.asTypeName().parameterizedBy(scopeClassName)
+                    )
+                    .addParameter(
+                        ParameterSpec.builder("unused", KClass::class.asTypeName().parameterizedBy(TypeVariableName("T")))
+                            .defaultValue("%T::class", TypeVariableName("T"))
+                            .build()
                     )
                     .returns(entryPoint.toClassName())
                     .addStatement(

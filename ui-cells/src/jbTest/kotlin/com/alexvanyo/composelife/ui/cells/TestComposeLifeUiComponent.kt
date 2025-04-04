@@ -21,6 +21,7 @@ import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.scopes.UiScope
+import kotlin.reflect.KClass
 
 expect interface TestComposeLifeUiComponent : UiComponent {
     interface Factory
@@ -36,4 +37,6 @@ expect fun TestComposeLifeUiComponent.Companion.createComponent(
 @EntryPoint(UiScope::class)
 interface TestComposeLifeUiEntryPoint : CellWindowInjectEntryPoint
 
-expect fun EntryPointProvider<UiScope>.kmpGetEntryPoint(): TestComposeLifeUiEntryPoint
+expect inline fun <reified T : TestComposeLifeUiEntryPoint> EntryPointProvider<UiScope>.kmpGetEntryPoint(
+    unused: KClass<T> = T::class,
+): TestComposeLifeUiEntryPoint

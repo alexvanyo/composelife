@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife
 
-import com.alexvanyo.composelife.entrypoint.EntryPoint
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiScope
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
@@ -31,6 +30,3 @@ interface ComposeLifeUiComponent : UiComponent {
         fun createComponent(): ComposeLifeUiComponent
     }
 }
-
-@EntryPoint(UiScope::class)
-interface ComposeLifeUiEntryPoint : MainInjectEntryPoint

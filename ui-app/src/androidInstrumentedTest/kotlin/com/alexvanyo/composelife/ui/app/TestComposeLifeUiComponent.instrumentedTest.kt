@@ -20,11 +20,15 @@ package com.alexvanyo.composelife.ui.app
 import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.scopes.UiScope
+import kotlin.reflect.KClass
 
 actual fun TestComposeLifeUiComponent.Companion.createComponent(
     applicationComponent: TestComposeLifeApplicationComponent,
     uiComponentArguments: UiComponentArguments,
 ): TestComposeLifeUiComponent =
-    applicationComponent.getEntryPoint().uiComponentFactory.createTestComponent(uiComponentArguments.activity)
+    applicationComponent.getEntryPoint<TestComposeLifeApplicationEntryPoint>()
+        .uiComponentFactory.createTestComponent(uiComponentArguments.activity)
 
-actual fun EntryPointProvider<UiScope>.kmpGetEntryPoint(): TestComposeLifeUiEntryPoint = getEntryPoint()
+actual inline fun <reified T : TestComposeLifeUiEntryPoint> EntryPointProvider<UiScope>.kmpGetEntryPoint(
+    unused: KClass<T>,
+): TestComposeLifeUiEntryPoint = getEntryPoint<TestComposeLifeUiEntryPoint>()

@@ -56,13 +56,13 @@ class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationCom
     TestComposeLifeUiComponent::createComponent,
 ) {
 
-    private val entryPoint: TestComposeLifeApplicationEntryPoint get() = applicationComponent.getEntryPoint()
+    private val entryPoint get() = applicationComponent.getEntryPoint<TestComposeLifeApplicationEntryPoint>()
 
     @Test
     fun drag_and_drop_works_correctly_when_dropped() = runUiTest(
         entryPoint.generalTestDispatcher,
     ) { uiComponent, composeUiTest ->
-        val cellStateParserProvider: CellStateParserProvider = uiComponent.getEntryPoint()
+        val cellStateParserProvider: CellStateParserProvider = uiComponent.getEntryPoint<TestComposeLifeUiEntryPoint>()
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
 
@@ -187,8 +187,8 @@ class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationCom
     @Test
     fun drag_and_drop_works_correctly_when_ended() = runUiTest(
         entryPoint.generalTestDispatcher,
-    ) { uiComponent, composeUiTest ->
-        val cellStateParserProvider: CellStateParserProvider = uiComponent.getEntryPoint()
+    ) { uiComponent, composeUiTest ->        val cellStateParserProvider: CellStateParserProvider = uiComponent.getEntryPoint<TestComposeLifeUiEntryPoint>()
+
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
 

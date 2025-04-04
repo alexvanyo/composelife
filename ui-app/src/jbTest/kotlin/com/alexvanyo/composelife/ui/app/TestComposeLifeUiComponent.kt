@@ -32,6 +32,7 @@ import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.SettingUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
+import kotlin.reflect.KClass
 
 expect interface TestComposeLifeUiComponent : UiComponent {
     interface Factory
@@ -61,4 +62,6 @@ interface TestComposeLifeUiEntryPoint :
     InteractiveCellUniverseOverlayInjectEntryPoint,
     SettingUiInjectEntryPoint
 
-expect fun EntryPointProvider<UiScope>.kmpGetEntryPoint(): TestComposeLifeUiEntryPoint
+expect inline fun <reified T : TestComposeLifeUiEntryPoint> EntryPointProvider<UiScope>.kmpGetEntryPoint(
+    unused: KClass<T> = T::class,
+): TestComposeLifeUiEntryPoint
