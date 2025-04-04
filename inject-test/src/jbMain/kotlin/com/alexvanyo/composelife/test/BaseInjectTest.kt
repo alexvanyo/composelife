@@ -47,7 +47,7 @@ abstract class BaseInjectTest<AC : ApplicationComponent>(
 ) {
     val applicationComponent = applicationComponentCreator()
 
-    private val entryPoint: BaseInjectTestEntryPoint get() = applicationComponent.kmpGetEntryPoint()
+    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<BaseInjectTestEntryPoint>()
 
     private val updatables: Set<Updatable>
         get() = entryPoint.updatables

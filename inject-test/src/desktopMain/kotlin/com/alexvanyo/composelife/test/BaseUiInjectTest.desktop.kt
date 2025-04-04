@@ -27,6 +27,7 @@ import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import kotlin.coroutines.CoroutineContext
+import kotlin.reflect.KClass
 import kotlin.time.Duration
 
 @OptIn(ExperimentalTestApi::class)
@@ -53,4 +54,6 @@ actual fun <AC : ApplicationComponent, UC : UiComponent> BaseUiInjectTest<AC, UC
         }
     }
 
-actual fun EntryPointProvider<AppScope>.kmpGetEntryPoint(): BaseInjectTestEntryPoint = getEntryPoint()
+actual inline fun <reified T : BaseInjectTestEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
+    unused: KClass<T>,
+): BaseInjectTestEntryPoint = getEntryPoint<BaseInjectTestEntryPoint>()

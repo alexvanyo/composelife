@@ -44,6 +44,7 @@ import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
+import com.alexvanyo.composelife.ui.app.TestComposeLifeUiEntryPoint
 import com.alexvanyo.composelife.ui.app.createComponent
 import com.alexvanyo.composelife.ui.app.kmpGetEntryPoint
 import com.alexvanyo.composelife.ui.app.resources.Draw
@@ -72,7 +73,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
     @Test
     fun clipboard_cell_state_preview_loading_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiComponent.kmpGetEntryPoint()
+            uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
         composeUiTest.setContent {
             with(
@@ -116,7 +117,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
     @Test
     fun clipboard_cell_state_preview_success_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiComponent.kmpGetEntryPoint()
+            uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -192,7 +193,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
     @Test
     fun clipboard_cell_state_preview_success_paste_is_handled_correctly() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiComponent.kmpGetEntryPoint()
+            uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -266,7 +267,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
     @Test
     fun clipboard_cell_state_preview_success_pin_is_handled_correctly() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiComponent.kmpGetEntryPoint()
+            uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -339,7 +340,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
     @Test
     fun touch_config_pan_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiComponent.kmpGetEntryPoint()
+            uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -387,7 +388,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
     @Test
     fun touch_config_draw_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiComponent.kmpGetEntryPoint()
+            uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -435,7 +436,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
     @Test
     fun touch_config_erase_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiComponent.kmpGetEntryPoint()
+            uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -483,7 +484,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
     @Test
     fun touch_config_select_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiComponent.kmpGetEntryPoint()
+            uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -531,7 +532,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
     @Test
     fun touch_config_none_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiComponent.kmpGetEntryPoint()
+            uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -579,7 +580,7 @@ class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent
     @Test
     fun touch_config_popup_displays_options() = runUiTest { uiComponent, composeUiTest ->
         val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiComponent.kmpGetEntryPoint()
+            uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
         var touchToolConfig: ToolConfig by mutableStateOf(ToolConfig.Pan)
 
