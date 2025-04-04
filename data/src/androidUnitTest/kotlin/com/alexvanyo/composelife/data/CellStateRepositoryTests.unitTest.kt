@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife
+package com.alexvanyo.composelife.data
 
 import com.alexvanyo.composelife.entrypoint.EntryPointProvider
-import com.alexvanyo.composelife.scopes.UiScope
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import kotlin.reflect.KClass
 
-actual fun EntryPointProvider<UiScope>.kmpGetEntryPoint(): TestComposeLifeUiEntryPoint = getEntryPoint()
+actual inline fun <reified T : CellStateRepositoryTestsEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
+    unused: KClass<T>,
+): CellStateRepositoryTestsEntryPoint = getEntryPoint<CellStateRepositoryTestsEntryPoint>()

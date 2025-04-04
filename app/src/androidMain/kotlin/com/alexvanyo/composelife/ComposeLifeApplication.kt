@@ -20,17 +20,26 @@ import android.app.Application
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.alexvanyo.composelife.entrypoint.EntryPoint
+import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleModule
 import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
 import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.strictmode.initStrictModeIfNeeded
+import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+
+@EntryPoint(AppScope::class)
+interface ComposeLifeApplicationEntryPoint : UpdatableModule, ProcessLifecycleModule {
+    val uiComponentFactory: ComposeLifeUiComponent.Factory
+}
 
 class ComposeLifeApplication : Application(), ApplicationComponentOwner {
 
     override lateinit var applicationComponent: ComposeLifeApplicationComponent
 
-    private val entryPoint: ComposeLifeApplicationEntryPoint get() = applicationComponent.getEntryPoint()
+    private val entryPoint get() = applicationComponent.getEntryPoint<ComposeLifeApplicationEntryPoint>()
 
     override val uiComponentFactory: (UiComponentArguments) -> ComposeLifeUiComponent =
         { entryPoint.uiComponentFactory.createComponent(it.activity) }

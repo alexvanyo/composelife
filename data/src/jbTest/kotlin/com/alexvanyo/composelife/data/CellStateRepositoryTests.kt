@@ -19,17 +19,31 @@ package com.alexvanyo.composelife.data
 import com.alexvanyo.composelife.data.model.CellStateMetadata
 import com.alexvanyo.composelife.data.model.SaveableCellState
 import com.alexvanyo.composelife.database.CellState
+import com.alexvanyo.composelife.database.CellStateQueries
+import com.alexvanyo.composelife.entrypoint.EntryPoint
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.test.BaseInjectTest
+import kotlinx.coroutines.test.TestDispatcher
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
+@EntryPoint(AppScope::class)
+interface CellStateRepositoryTestsEntryPoint {
+    val cellStateRepository: CellStateRepository
+    val cellStateQueries: CellStateQueries
+    val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher
+}
+
 class CellStateRepositoryTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
     TestComposeLifeApplicationComponent::createComponent,
 ) {
-    private val entryPoint: TestComposeLifeApplicationEntryPoint get() = applicationComponent.kmpGetEntryPoint()
+    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<CellStateRepositoryTestsEntryPoint>()
 
     private val cellStateRepository get() = entryPoint.cellStateRepository
 
@@ -95,3 +109,7 @@ class CellStateRepositoryTests : BaseInjectTest<TestComposeLifeApplicationCompon
         )
     }
 }
+
+expect inline fun <reified T : CellStateRepositoryTestsEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
+    unused: KClass<T> = T::class,
+): CellStateRepositoryTestsEntryPoint

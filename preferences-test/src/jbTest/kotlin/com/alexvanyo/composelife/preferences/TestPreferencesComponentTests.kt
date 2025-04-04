@@ -22,6 +22,7 @@ import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import org.junit.runner.RunWith
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertIs
 
@@ -33,7 +34,7 @@ class TestPreferencesComponentTests {
 
     private val composeLifeApplicationComponent = TestComposeLifeApplicationComponent.createComponent()
 
-    private val entryPoint: TestPreferencesComponentTestsEntryPoint = composeLifeApplicationComponent.kmpGetEntryPoint()
+    private val entryPoint = composeLifeApplicationComponent.kmpGetEntryPoint<TestPreferencesComponentTestsEntryPoint>()
 
     @Test
     fun checkType() {
@@ -42,4 +43,6 @@ class TestPreferencesComponentTests {
     }
 }
 
-expect fun EntryPointProvider<AppScope>.kmpGetEntryPoint(): TestPreferencesComponentTestsEntryPoint
+expect inline fun <reified T : TestPreferencesComponentTestsEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
+    unused: KClass<T> = T::class,
+): TestPreferencesComponentTestsEntryPoint

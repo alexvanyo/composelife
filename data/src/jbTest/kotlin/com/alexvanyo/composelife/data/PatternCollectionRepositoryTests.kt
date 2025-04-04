@@ -34,7 +34,7 @@ import kotlin.test.assertTrue
 class PatternCollectionRepositoryTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
     TestComposeLifeApplicationComponent::createComponent,
 ) {
-    private val entryPoint: TestComposeLifeApplicationEntryPoint get() = applicationComponent.kmpGetEntryPoint()
+    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<TestComposeLifeApplicationEntryPoint>()
 
     private val patternCollectionRepository: PatternCollectionRepository
         get() = entryPoint.patternCollectionRepository

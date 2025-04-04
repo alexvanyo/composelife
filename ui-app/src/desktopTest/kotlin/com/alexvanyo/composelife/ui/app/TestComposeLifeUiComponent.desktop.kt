@@ -24,6 +24,7 @@ import com.alexvanyo.composelife.scopes.UiScope
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesSubcomponent
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import kotlin.reflect.KClass
 
 @ContributesSubcomponent(UiScope::class)
 @SingleIn(UiScope::class)
@@ -40,6 +41,8 @@ actual fun TestComposeLifeUiComponent.Companion.createComponent(
     applicationComponent: TestComposeLifeApplicationComponent,
     uiComponentArguments: UiComponentArguments,
 ): TestComposeLifeUiComponent =
-    applicationComponent.getEntryPoint().uiComponentFactory.createTestComponent()
+    applicationComponent.getEntryPoint<TestComposeLifeApplicationEntryPoint>().uiComponentFactory.createTestComponent()
 
-actual fun EntryPointProvider<UiScope>.kmpGetEntryPoint(): TestComposeLifeUiEntryPoint = getEntryPoint()
+actual inline fun <reified T : TestComposeLifeUiEntryPoint> EntryPointProvider<UiScope>.kmpGetEntryPoint(
+    unused: KClass<T>,
+): TestComposeLifeUiEntryPoint = getEntryPoint<TestComposeLifeUiEntryPoint>()

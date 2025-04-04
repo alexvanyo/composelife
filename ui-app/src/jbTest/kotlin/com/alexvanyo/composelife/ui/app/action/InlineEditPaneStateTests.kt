@@ -42,7 +42,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {
-    private val entryPoint: TestComposeLifeApplicationEntryPoint get() = applicationComponent.kmpGetEntryPoint()
+    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<TestComposeLifeApplicationEntryPoint>()
 
     private val cellStateParserProvider: CellStateParserProvider = entryPoint
 

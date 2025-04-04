@@ -22,6 +22,7 @@ import com.alexvanyo.composelife.scopes.ApplicationComponent
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import kotlin.reflect.KClass
 
 @MergeComponent(AppScope::class)
 @SingleIn(AppScope::class)
@@ -32,4 +33,6 @@ actual abstract class TestComposeLifeApplicationComponent : ApplicationComponent
 actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent =
     TestComposeLifeApplicationComponent::class.create()
 
-actual fun EntryPointProvider<AppScope>.kmpGetEntryPoint(): TestComposeLifeApplicationEntryPoint = getEntryPoint()
+actual inline fun <reified T : TestComposeLifeApplicationEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
+    unused: KClass<T>,
+): TestComposeLifeApplicationEntryPoint = getEntryPoint<TestComposeLifeApplicationEntryPoint>()

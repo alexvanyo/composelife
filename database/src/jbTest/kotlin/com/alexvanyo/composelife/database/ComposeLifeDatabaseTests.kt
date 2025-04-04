@@ -23,7 +23,7 @@ import kotlin.test.assertIs
 class ComposeLifeDatabaseTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
     TestComposeLifeApplicationComponent::createComponent,
 ) {
-    private val entryPoint: TestComposeLifeApplicationEntryPoint get() = applicationComponent.kmpGetEntryPoint()
+    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<TestComposeLifeApplicationEntryPoint>()
 
     private val composeLifeDatabase get() = entryPoint.composeLifeDatabase
 

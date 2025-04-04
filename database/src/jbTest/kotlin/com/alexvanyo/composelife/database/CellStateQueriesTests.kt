@@ -33,7 +33,7 @@ import kotlin.time.Duration.Companion.seconds
 class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
     TestComposeLifeApplicationComponent::createComponent,
 ) {
-    private val entryPoint: TestComposeLifeApplicationEntryPoint get() = applicationComponent.kmpGetEntryPoint()
+    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<TestComposeLifeApplicationEntryPoint>()
 
     private val cellStateQueries get() = entryPoint.cellStateQueries
 

@@ -54,7 +54,7 @@ class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
     @Test
     fun no_selection_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
-        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint()
+        val injectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -97,7 +97,7 @@ class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
     @Test
     fun selecting_box_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
-        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint()
+        val injectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -163,7 +163,7 @@ class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
         // TODO: This test tends to deadlock on desktop
         assumeTrue(isAndroid())
 
-        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint()
+        val injectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -230,7 +230,7 @@ class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
 
     @Test
     fun selection_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
-        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint()
+        val injectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -276,7 +276,7 @@ class SelectionOverlayTests : BaseUiInjectTest<TestComposeLifeApplicationCompone
         // TODO: This test tends to deadlock on desktop
         assumeTrue(isAndroid())
 
-        val injectEntryPoint: CellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint()
+        val injectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
