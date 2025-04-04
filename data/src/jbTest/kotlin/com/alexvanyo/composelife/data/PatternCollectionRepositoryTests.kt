@@ -17,6 +17,10 @@
 package com.alexvanyo.composelife.data
 
 import com.alexvanyo.composelife.data.model.PatternCollection
+import com.alexvanyo.composelife.database.PatternCollectionQueries
+import com.alexvanyo.composelife.entrypoint.EntryPoint
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.network.FakeRequestHandler
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.test.BaseInjectTest
@@ -24,17 +28,28 @@ import io.ktor.client.engine.mock.respond
 import kotlinx.coroutines.async
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.datetime.Instant
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+
+@EntryPoint(AppScope::class)
+interface PatternCollectionRepositoryTestsEntryPoint {
+    val patternCollectionRepository: PatternCollectionRepository
+    val patternCollectionQueries: PatternCollectionQueries
+    val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher
+    val fakeRequestHandler: FakeRequestHandler
+}
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PatternCollectionRepositoryTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
     TestComposeLifeApplicationComponent::createComponent,
 ) {
-    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<TestComposeLifeApplicationEntryPoint>()
+    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<PatternCollectionRepositoryTestsEntryPoint>()
 
     private val patternCollectionRepository: PatternCollectionRepository
         get() = entryPoint.patternCollectionRepository
@@ -149,3 +164,7 @@ class PatternCollectionRepositoryTests : BaseInjectTest<TestComposeLifeApplicati
         )
     }
 }
+
+expect inline fun <reified T : PatternCollectionRepositoryTestsEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
+    unused: KClass<T> = T::class,
+): PatternCollectionRepositoryTestsEntryPoint

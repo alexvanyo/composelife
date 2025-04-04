@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.data
 
-import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import kotlin.reflect.KClass
 
-@MergeComponent(AppScope::class)
-@SingleIn(AppScope::class)
-actual abstract class TestComposeLifeApplicationComponent : ApplicationComponent() {
-    actual companion object
-}
-
-actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent =
-    TestComposeLifeApplicationComponent::class.create()
+actual inline fun <reified T : PatternCollectionRepositoryTestsEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
+    unused: KClass<T>,
+): PatternCollectionRepositoryTestsEntryPoint = getEntryPoint<PatternCollectionRepositoryTestsEntryPoint>()
