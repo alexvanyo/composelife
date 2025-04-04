@@ -16,14 +16,23 @@
 
 package com.alexvanyo.composelife.database
 
+import com.alexvanyo.composelife.entrypoint.EntryPoint
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.test.BaseInjectTest
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertIs
+
+@EntryPoint(AppScope::class)
+interface ComposeLifeDatabaseTestsEntryPoint {
+    val composeLifeDatabase: ComposeLifeDatabase
+}
 
 class ComposeLifeDatabaseTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
     TestComposeLifeApplicationComponent::createComponent,
 ) {
-    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<TestComposeLifeApplicationEntryPoint>()
+    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<ComposeLifeDatabaseTestsEntryPoint>()
 
     private val composeLifeDatabase get() = entryPoint.composeLifeDatabase
 
@@ -32,3 +41,7 @@ class ComposeLifeDatabaseTests : BaseInjectTest<TestComposeLifeApplicationCompon
         assertIs<CellStateQueries>(composeLifeDatabase.cellStateQueries)
     }
 }
+
+expect inline fun <reified T : ComposeLifeDatabaseTestsEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
+    unused: KClass<T> = T::class,
+): ComposeLifeDatabaseTestsEntryPoint
