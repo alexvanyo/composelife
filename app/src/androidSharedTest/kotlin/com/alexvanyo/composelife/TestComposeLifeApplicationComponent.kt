@@ -27,6 +27,7 @@ import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import kotlin.reflect.KClass
 
 @MergeComponent(AppScope::class)
 @SingleIn(AppScope::class)
@@ -46,4 +47,6 @@ interface TestComposeLifeApplicationEntryPoint :
     val uiComponentFactory: TestComposeLifeUiComponent.Factory
 }
 
-expect fun EntryPointProvider<AppScope>.kmpGetEntryPoint(): TestComposeLifeApplicationEntryPoint
+expect inline fun <reified T : TestComposeLifeApplicationEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
+    unused: KClass<T> = T::class,
+): TestComposeLifeApplicationEntryPoint

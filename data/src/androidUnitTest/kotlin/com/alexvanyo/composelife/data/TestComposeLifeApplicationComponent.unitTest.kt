@@ -21,6 +21,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.test.TestInjectApplication
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import kotlin.reflect.KClass
 
 actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent {
     val application = ApplicationProvider.getApplicationContext<TestInjectApplication>()
@@ -29,4 +30,6 @@ actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): Test
     return applicationComponent
 }
 
-actual fun EntryPointProvider<AppScope>.kmpGetEntryPoint(): TestComposeLifeApplicationEntryPoint = getEntryPoint()
+actual inline fun <reified T : TestComposeLifeApplicationEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
+    unused: KClass<T>,
+): TestComposeLifeApplicationEntryPoint = getEntryPoint<TestComposeLifeApplicationEntryPoint>()

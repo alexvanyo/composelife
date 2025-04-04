@@ -56,7 +56,8 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest<TestComposeLifeApplicat
         assumeTrue(Build.VERSION.SDK_INT >= 28)
         if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
-        val nonInteractableCellsInjectEntryPoint: NonInteractableCellsInjectEntryPoint = uiComponent.kmpGetEntryPoint()
+        val nonInteractableCellsInjectEntryPoint: NonInteractableCellsInjectEntryPoint =
+            uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
         val cellState = setOf(
             0 to 0,
@@ -128,7 +129,8 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest<TestComposeLifeApplicat
         assumeTrue(Build.VERSION.SDK_INT >= 28)
         if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
-        val nonInteractableCellsInjectEntryPoint: NonInteractableCellsInjectEntryPoint = uiComponent.kmpGetEntryPoint()
+        val nonInteractableCellsInjectEntryPoint: NonInteractableCellsInjectEntryPoint =
+            uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
         val cellState = setOf(
             0 to 0,

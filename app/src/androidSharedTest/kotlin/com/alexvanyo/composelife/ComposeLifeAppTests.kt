@@ -63,7 +63,7 @@ class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationCom
     { TestComposeLifeApplicationComponent.createComponent() },
     MainActivity::class.java,
 ) {
-    private val entryPoint: TestComposeLifeApplicationEntryPoint get() = applicationComponent.kmpGetEntryPoint()
+    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<TestComposeLifeApplicationEntryPoint>()
 
     private val testDispatcher get() = entryPoint.generalTestDispatcher
 

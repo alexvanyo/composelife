@@ -27,6 +27,7 @@ import com.alexvanyo.composelife.network.FakeRequestHandler
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import kotlin.reflect.KClass
 
 expect abstract class TestComposeLifeApplicationComponent : ApplicationComponent {
     companion object
@@ -45,4 +46,7 @@ interface TestComposeLifeApplicationEntryPoint :
     val fakeRequestHandler: FakeRequestHandler
 }
 
-expect fun EntryPointProvider<AppScope>.kmpGetEntryPoint(): TestComposeLifeApplicationEntryPoint
+
+expect inline fun <reified T : TestComposeLifeApplicationEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
+    unused: KClass<T> = T::class,
+): TestComposeLifeApplicationEntryPoint

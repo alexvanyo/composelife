@@ -18,5 +18,8 @@ package com.alexvanyo.composelife.preferences
 
 import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import kotlin.reflect.KClass
 
-actual fun EntryPointProvider<AppScope>.kmpGetEntryPoint(): TestPreferencesComponentTestsEntryPoint = getEntryPoint()
+actual inline fun <reified T : TestPreferencesComponentTestsEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
+    unused: KClass<T>,
+): TestPreferencesComponentTestsEntryPoint = getEntryPoint<TestPreferencesComponentTestsEntryPoint>()

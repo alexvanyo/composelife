@@ -16,9 +16,7 @@
 
 package com.alexvanyo.composelife
 
-import com.alexvanyo.composelife.entrypoint.EntryPoint
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
@@ -26,8 +24,3 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 @MergeComponent(AppScope::class)
 @SingleIn(AppScope::class)
 abstract class ComposeLifeApplicationComponent : ApplicationComponent()
-
-@EntryPoint(AppScope::class)
-interface ComposeLifeApplicationEntryPoint : UpdatableModule {
-    val uiComponentFactory: ComposeLifeUiComponent.Factory
-}

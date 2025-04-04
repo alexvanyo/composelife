@@ -79,7 +79,7 @@ class GameOfLifeWatchFaceService : WatchFaceService() {
         super.onCreate()
 
         val applicationComponent = (application as ApplicationComponentOwner).applicationComponent
-        val entryPoint: GameOfLifeWatchFaceServiceEntryPoint = applicationComponent.getEntryPoint()
+        val entryPoint = applicationComponent.getEntryPoint<GameOfLifeWatchFaceServiceEntryPoint>()
         gameOfLifeAlgorithm = entryPoint.gameOfLifeAlgorithm
         dispatchers = entryPoint.dispatchers
 

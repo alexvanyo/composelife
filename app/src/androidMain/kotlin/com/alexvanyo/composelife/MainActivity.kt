@@ -30,16 +30,25 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.toSize
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowInsetsControllerCompat
+import com.alexvanyo.composelife.entrypoint.EntryPoint
+import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.scopes.UiComponentOwner
+import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
+import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
 import com.slack.circuit.retained.LocalRetainedStateRegistry
 import com.slack.circuit.retained.continuityRetainedStateRegistry
+
+@EntryPoint(UiScope::class)
+interface MainActivityInjectEntryPoint :
+    ComposeLifePreferencesProvider,
+    ComposeLifeAppInjectEntryPoint
 
 class MainActivity : AppCompatActivity(), UiComponentOwner {
 
@@ -55,7 +64,7 @@ class MainActivity : AppCompatActivity(), UiComponentOwner {
                 override val activity: Activity = this@MainActivity
             },
         )
-        val mainActivityEntryPoint: MainActivityInjectEntryPoint = uiComponent.getEntryPoint()
+        val mainActivityEntryPoint = uiComponent.getEntryPoint<MainActivityInjectEntryPoint>()
 
         // Keep the splash screen on screen until we've loaded preferences
         splashScreen.setKeepOnScreenCondition {

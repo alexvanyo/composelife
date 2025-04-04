@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife
 
 import android.app.Activity
-import com.alexvanyo.composelife.entrypoint.EntryPoint
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiScope
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
@@ -34,6 +33,3 @@ interface ComposeLifeUiComponent : UiComponent {
 
     companion object
 }
-
-@EntryPoint(UiScope::class)
-interface ComposeLifeUiEntryPoint : MainActivityInjectEntryPoint

@@ -44,7 +44,9 @@ import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
+import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationEntryPoint
 import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
+import com.alexvanyo.composelife.ui.app.TestComposeLifeUiEntryPoint
 import com.alexvanyo.composelife.ui.app.createComponent
 import com.alexvanyo.composelife.ui.app.kmpGetEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
@@ -61,7 +63,7 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<TestComposeLifeApplicationC
     TestComposeLifeApplicationComponent::createComponent,
     TestComposeLifeUiComponent::createComponent,
 ) {
-    private val entryPoint get() = applicationComponent.kmpGetEntryPoint()
+    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<TestComposeLifeApplicationEntryPoint>()
 
     private val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults
@@ -71,8 +73,9 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<TestComposeLifeApplicationC
     fun drag_and_drop_works_correctly() = runUiTest(
         entryPoint.generalTestDispatcher,
     ) { uiComponent, composeUiTest ->
-        val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint()
-        val cellStateParserProvider: CellStateParserProvider = uiComponent.kmpGetEntryPoint()
+        val entryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
+        val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = entryPoint
+        val cellStateParserProvider: CellStateParserProvider = entryPoint
 
         var droppedCellState: CellState? = null
 
