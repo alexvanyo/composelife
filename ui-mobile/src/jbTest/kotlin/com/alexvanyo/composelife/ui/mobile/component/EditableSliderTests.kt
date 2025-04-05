@@ -62,8 +62,8 @@ class EditableSliderTests {
                 labelText = "float",
                 textToValue = String::toFloatOrNull,
                 sessionValue = sessionValue,
-                onSessionValueChange = {
-                    sessionValue = it
+                onSessionValueChange = { _, newValue ->
+                    sessionValue = newValue
                 },
                 valueRange = 0f..1f,
                 sliderBijection = Float.IdentitySliderBijection,
@@ -88,8 +88,8 @@ class EditableSliderTests {
                 labelText = "float",
                 textToValue = String::toFloatOrNull,
                 sessionValue = sessionValue,
-                onSessionValueChange = {
-                    sessionValue = it
+                onSessionValueChange = { _, newValue ->
+                    sessionValue = newValue
                 },
                 valueRange = 0f..1f,
                 sliderBijection = Float.IdentitySliderBijection,
@@ -121,8 +121,8 @@ class EditableSliderTests {
                 labelText = "float",
                 textToValue = String::toFloatOrNull,
                 sessionValue = sessionValue,
-                onSessionValueChange = {
-                    sessionValue = it
+                onSessionValueChange = { _, newValue ->
+                    sessionValue = newValue
                 },
                 valueRange = 0f..1f,
                 sliderBijection = Float.IdentitySliderBijection,
@@ -161,8 +161,8 @@ class EditableSliderTests {
                 labelText = "float",
                 textToValue = String::toFloatOrNull,
                 sessionValue = sessionValue,
-                onSessionValueChange = {
-                    sessionValue = it
+                onSessionValueChange = { _, newValue ->
+                    sessionValue = newValue
                 },
                 valueRange = 0f..1f,
                 sliderBijection = Float.IdentitySliderBijection,
@@ -201,8 +201,8 @@ class EditableSliderTests {
                 labelText = "float",
                 textToValue = String::toFloatOrNull,
                 sessionValue = sessionValue,
-                onSessionValueChange = {
-                    sessionValue = it
+                onSessionValueChange = { _, newValue ->
+                    sessionValue = newValue
                 },
                 valueRange = 0f..1f,
                 sliderBijection = Float.IdentitySliderBijection,
@@ -242,8 +242,8 @@ class EditableSliderTests {
                     labelText = "float 1",
                     textToValue = String::toFloatOrNull,
                     sessionValue = sessionValue,
-                    onSessionValueChange = {
-                        sessionValue = it
+                    onSessionValueChange = { _, newValue ->
+                        sessionValue = newValue
                     },
                     valueRange = 0f..1f,
                     sliderBijection = Float.IdentitySliderBijection,
@@ -254,8 +254,8 @@ class EditableSliderTests {
                     labelText = "float 2",
                     textToValue = String::toFloatOrNull,
                     sessionValue = sessionValue,
-                    onSessionValueChange = {
-                        sessionValue = it
+                    onSessionValueChange = { _, newValue ->
+                        sessionValue = newValue
                     },
                     valueRange = 0f..1f,
                     sliderBijection = Float.IdentitySliderBijection,
@@ -314,8 +314,8 @@ class EditableSliderTests {
                     labelText = "float 1",
                     textToValue = String::toFloatOrNull,
                     sessionValue = sessionValue,
-                    onSessionValueChange = {
-                        sessionValue = it
+                    onSessionValueChange = { _, newValue ->
+                        sessionValue = newValue
                     },
                     valueRange = 0f..1f,
                     sliderBijection = Float.IdentitySliderBijection,
@@ -326,8 +326,8 @@ class EditableSliderTests {
                     labelText = "float 2",
                     textToValue = String::toFloatOrNull,
                     sessionValue = sessionValue,
-                    onSessionValueChange = {
-                        sessionValue = it
+                    onSessionValueChange = { _, newValue ->
+                        sessionValue = newValue
                     },
                     valueRange = 0f..1f,
                     sliderBijection = Float.IdentitySliderBijection,

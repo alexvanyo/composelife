@@ -46,6 +46,7 @@ kotlin {
             dependencies {
                 api(libs.jetbrains.compose.runtime)
                 api(libs.jetbrains.compose.runtime.saveable)
+                implementation(projects.logging)
                 implementation(projects.serialization)
             }
         }

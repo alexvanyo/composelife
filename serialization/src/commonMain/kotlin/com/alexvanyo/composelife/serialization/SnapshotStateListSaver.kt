@@ -14,13 +14,23 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.preferences
+package com.alexvanyo.composelife.serialization
 
-import com.alexvanyo.composelife.preferences.proto.DateTimePeriodProto
-import kotlinx.datetime.DateTimePeriod
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import kotlinx.serialization.KSerializer
 
-internal fun DateTimePeriodProto?.toResolved(): DateTimePeriod =
-    this?.value_?.let(DateTimePeriod::parse) ?: DateTimePeriod(hours = 24)
-
-internal fun DateTimePeriod.toProto(): DateTimePeriodProto =
-    DateTimePeriodProto(toString())
+/**
+ * A [Saver] for a [T] to encode and decode with the given [KSerializer].
+ */
+fun <T, R : Any> SnapshotStateListSaver(
+    listSaver: Saver<List<T>, R>,
+): Saver<SnapshotStateList<T>, R> = Saver(
+    save = { with(listSaver) { save(it) } },
+    restore = {
+        mutableStateListOf<T>().apply {
+            listSaver.restore(it)?.let(::addAll)
+        }
+    },
+)

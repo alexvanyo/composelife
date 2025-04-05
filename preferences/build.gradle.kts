@@ -48,6 +48,7 @@ kotlin {
                 api(libs.kotlinx.coroutines.core)
                 api(libs.kotlinx.datetime)
                 api(projects.dispatchers)
+                api(projects.logging)
                 api(projects.resourceState)
                 api(projects.sessionValue)
                 api(projects.updatable)

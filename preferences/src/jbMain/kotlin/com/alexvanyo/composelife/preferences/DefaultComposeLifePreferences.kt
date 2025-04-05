@@ -20,6 +20,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import com.alexvanyo.composelife.logging.Logger
+import com.alexvanyo.composelife.logging.e
 import com.alexvanyo.composelife.preferences.CurrentShape.RoundRectangle
 import com.alexvanyo.composelife.preferences.proto.AlgorithmProto
 import com.alexvanyo.composelife.preferences.proto.CurrentShapeTypeProto
@@ -29,8 +31,10 @@ import com.alexvanyo.composelife.preferences.proto.QuickAccessSettingProto
 import com.alexvanyo.composelife.preferences.proto.ToolConfigProto
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.asResourceState
+import com.alexvanyo.composelife.resourcestate.isFailure
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.updatable.Updatable
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -47,6 +51,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 @SingleIn(AppScope::class)
 class DefaultComposeLifePreferences(
     preferencesDataStore: PreferencesDataStore,
+    private val logger: Logger,
 ) : ComposeLifePreferences, Updatable {
     private val dataStore = preferencesDataStore.dataStore
 
@@ -56,17 +61,21 @@ class DefaultComposeLifePreferences(
 
     override suspend fun update(): Nothing {
         dataStore.data
-            .retry()
             .map(PreferencesProto::toLoadedComposeLifePreferences)
             .asResourceState()
             .onEach {
                 Snapshot.withMutableSnapshot {
                     loadedPreferencesState = it
+                    if (it.isFailure()) {
+                        logger.e(it.throwable, "DefaultComposeLifePreferences", message = { "Error loading preferences" })
+                        throw it.throwable
+                    }
                 }
             }
+            .retry()
             .collect()
 
-        error("data can not complete normally")
+        awaitCancellation()
     }
 
     override suspend fun update(
@@ -147,6 +156,8 @@ private class PreferencesProtoTransform(
                 QuickAccessSettingProto.CLIPBOARD_WATCHING_ONBOARDING_COMPLETED
             QuickAccessSetting.SynchronizePatternCollectionsOnMeteredNetwork ->
                 QuickAccessSettingProto.SYNCHRONIZE_PATTERN_COLLECTION_ON_METERED_NETWORK
+            QuickAccessSetting.PatternCollectionsSynchronizationPeriod ->
+                QuickAccessSettingProto.PATTERN_COLLECTIONS_SYNCHRONIZATION_PERIOD
         }
 
         val oldQuickAccessSettings = newPreferencesProto.quick_access_settings.toSet()
@@ -215,10 +226,18 @@ private class PreferencesProtoTransform(
         )
     }
 
-    override fun setPatternCollectionsSynchronizationPeriod(period: DateTimePeriod) {
-        newPreferencesProto = newPreferencesProto.copy(
-            pattern_collections_synchronization_period = period.toProto(),
-        )
+    override fun setPatternCollectionsSynchronizationPeriod(
+        expected: SessionValue<DateTimePeriod>?,
+        newValue: SessionValue<DateTimePeriod>,
+    ) {
+        val oldValue = newPreferencesProto.patternCollectionsSynchronizationPeriodSessionValue
+        if (expected == null || expected == oldValue) {
+            newPreferencesProto = newPreferencesProto.copy(
+                pattern_collections_synchronization_period = newValue.value.toProto(),
+                pattern_collections_synchronization_period_session_id = newValue.sessionId.toProto(),
+                pattern_collections_synchronization_period_value_id = newValue.valueId.toProto(),
+            )
+        }
     }
 }
 
@@ -245,6 +264,8 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
                     QuickAccessSetting.ClipboardWatchingOnboardingCompleted
                 QuickAccessSettingProto.SYNCHRONIZE_PATTERN_COLLECTION_ON_METERED_NETWORK ->
                     QuickAccessSetting.SynchronizePatternCollectionsOnMeteredNetwork
+                QuickAccessSettingProto.PATTERN_COLLECTIONS_SYNCHRONIZATION_PERIOD ->
+                    QuickAccessSetting.PatternCollectionsSynchronizationPeriod
                 QuickAccessSettingProto.SETTINGS_UNKNOWN,
                 -> null
             }
@@ -310,8 +331,6 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
     val completedClipboardWatchingOnboarding = completed_clipboard_watching_onboarding
     val enableClipboardWatching = enable_clipboard_watching
     val synchronizePatternCollectionsOnMeteredNetwork = synchronize_pattern_collections_on_metered_network
-    val patternCollectionsSynchronizationPeriod =
-        pattern_collections_synchronization_period.toResolved() ?: DateTimePeriod(hours = 24)
 
     return LoadedComposeLifePreferences(
         quickAccessSettings = quickAccessSettings,
@@ -328,21 +347,36 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
         completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
         enableClipboardWatching = enableClipboardWatching,
         synchronizePatternCollectionsOnMeteredNetwork = synchronizePatternCollectionsOnMeteredNetwork,
-        patternCollectionsSynchronizationPeriod = patternCollectionsSynchronizationPeriod,
+        patternCollectionsSynchronizationPeriodSessionValue = patternCollectionsSynchronizationPeriodSessionValue,
     )
 }
 
 private val PreferencesProto.roundRectangleSessionValue: SessionValue<RoundRectangle> get() {
-    val roundRectangleConfig = round_rectangle.toResolved()
-    val roundRectangleSessionId = checkNotNull(round_rectangle_session_id.toResolved()) {
+    val value = round_rectangle.toResolved()
+    val sessionId = checkNotNull(round_rectangle_session_id.toResolved()) {
         "Round rectangle session id was null!"
     }
-    val roundRectangleValueId = checkNotNull(round_rectangle_value_id.toResolved()) {
+    val valueId = checkNotNull(round_rectangle_value_id.toResolved()) {
         "Round rectangle value id was null!"
     }
     return SessionValue(
-        sessionId = roundRectangleSessionId,
-        valueId = roundRectangleValueId,
-        value = roundRectangleConfig,
+        sessionId = sessionId,
+        valueId = valueId,
+        value = value,
+    )
+}
+
+private val PreferencesProto.patternCollectionsSynchronizationPeriodSessionValue: SessionValue<DateTimePeriod> get() {
+    val value = pattern_collections_synchronization_period.toResolved()
+    val sessionId = checkNotNull(pattern_collections_synchronization_period_session_id.toResolved()) {
+        "Pattern collections synchronization period session id was null!"
+    }
+    val valueId = checkNotNull(pattern_collections_synchronization_period_value_id.toResolved()) {
+        "Pattern collections synchronization period value id was null!"
+    }
+    return SessionValue(
+        sessionId = sessionId,
+        valueId = valueId,
+        value = value,
     )
 }

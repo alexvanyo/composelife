@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife.ui.settings
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
@@ -37,9 +36,7 @@ import com.alexvanyo.composelife.preferences.setRoundRectangleConfig
 import com.alexvanyo.composelife.serialization.uuidSaver
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.sessionvalue.localSessionId
-import com.alexvanyo.composelife.sessionvalue.rememberSessionValueHolder
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ReceiveChannel
+import com.alexvanyo.composelife.sessionvalue.rememberAsyncSessionValueHolder
 import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
 
@@ -64,9 +61,9 @@ sealed interface CurrentShapeConfigUiState {
 
         val cornerFractionSessionValue: SessionValue<Float>
 
-        fun onSizeFractionSessionValueChange(value: SessionValue<Float>)
+        fun onSizeFractionSessionValueChange(expected: SessionValue<Float>, newValue: SessionValue<Float>)
 
-        fun onCornerFractionSessionValueChange(value: SessionValue<Float>)
+        fun onCornerFractionSessionValueChange(expected: SessionValue<Float>, newValue: SessionValue<Float>)
     }
 }
 
@@ -86,31 +83,13 @@ fun rememberCellShapeConfigUiState(
 ): CellShapeConfigUiState {
     val currentShapeType: CurrentShapeType = preferences.currentShapeType
     val coroutineScope = rememberCoroutineScope()
-    val roundRectangleUpdates = remember {
-        Channel<Pair<SessionValue<CurrentShape.RoundRectangle>, SessionValue<CurrentShape.RoundRectangle>>>(
-            capacity = Channel.UNLIMITED,
-        )
-    }
-
-    LaunchedEffect(roundRectangleUpdates, composeLifePreferences) {
-        while (true) {
-            val pendingUpdates = roundRectangleUpdates.receiveBatch()
-            composeLifePreferences.setRoundRectangleConfig(
-                pendingUpdates.first().first,
-                pendingUpdates.last().second,
-            )
-        }
-    }
+    val roundRectangleSessionValueHolder = rememberAsyncSessionValueHolder(
+        upstreamSessionValue = preferences.roundRectangleSessionValue,
+        setUpstreamSessionValue = composeLifePreferences::setRoundRectangleConfig,
+    )
 
     val currentShapeConfigUiState = when (currentShapeType) {
         is CurrentShapeType.RoundRectangle -> {
-            val roundRectangleSessionValueHolder = rememberSessionValueHolder<CurrentShape.RoundRectangle>(
-                upstreamSessionValue = preferences.roundRectangleSessionValue,
-                setUpstreamSessionValue = { expected, newValue ->
-                    roundRectangleUpdates.trySend(expected to newValue)
-                },
-            )
-
             val localSessionId = roundRectangleSessionValueHolder.info.localSessionId
 
             val initialSizeFraction = remember(localSessionId) {
@@ -164,21 +143,35 @@ fun rememberCellShapeConfigUiState(
                             value = cornerFraction,
                         )
 
-                override fun onSizeFractionSessionValueChange(value: SessionValue<Float>) {
-                    sizeFractionSessionId = value.sessionId
-                    sizeFractionValueId = value.valueId
-                    sizeFraction = value.value
-                    launchRoundRectangleConfigUpdate()
+                override fun onSizeFractionSessionValueChange(
+                    expected: SessionValue<Float>,
+                    newValue: SessionValue<Float>,
+                ) {
+                    check(expected.sessionId == sizeFractionSessionId)
+                    check(expected.valueId == sizeFractionValueId)
+                    check(expected.value == sizeFraction)
+
+                    sizeFractionSessionId = newValue.sessionId
+                    sizeFractionValueId = newValue.valueId
+                    sizeFraction = newValue.value
+                    updateRoundRectangleConfig()
                 }
 
-                override fun onCornerFractionSessionValueChange(value: SessionValue<Float>) {
-                    cornerFractionSessionId = value.sessionId
-                    cornerFractionValueId = value.valueId
-                    cornerFraction = value.value
-                    launchRoundRectangleConfigUpdate()
+                override fun onCornerFractionSessionValueChange(
+                    expected: SessionValue<Float>,
+                    newValue: SessionValue<Float>,
+                ) {
+                    check(expected.sessionId == cornerFractionSessionId)
+                    check(expected.valueId == cornerFractionValueId)
+                    check(expected.value == cornerFraction)
+
+                    cornerFractionSessionId = newValue.sessionId
+                    cornerFractionValueId = newValue.valueId
+                    cornerFraction = newValue.value
+                    updateRoundRectangleConfig()
                 }
 
-                private fun launchRoundRectangleConfigUpdate() {
+                private fun updateRoundRectangleConfig() {
                     roundRectangleSessionValueHolder.setValue(
                         CurrentShape.RoundRectangle(
                             sizeFraction,
@@ -209,22 +202,4 @@ fun rememberCellShapeConfigUiState(
             }
         }
     }
-}
-
-/**
- * Suspends to receive an element from the [ReceiveChannel], and then opportunistically tries to receive any more
- * elements that are waiting in the channel to form a batch of elements.
- *
- * The returned batch is guaranteed to contain at least one element.
- */
-private suspend fun <T> ReceiveChannel<T>.receiveBatch(): List<T> {
-    val buffer = mutableListOf<T>()
-    val suspendedElement = receive()
-    buffer.add(suspendedElement)
-    var synchronousElement = tryReceive()
-    while (synchronousElement.isSuccess) {
-        buffer.add(synchronousElement.getOrThrow())
-        synchronousElement = tryReceive()
-    }
-    return buffer
 }
