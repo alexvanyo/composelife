@@ -43,6 +43,7 @@ interface SettingUiInjectEntryPoint :
     DoNotKeepProcessUiInjectEntryPoint,
     EnableClipboardWatchingUiInjectEntryPoint,
     ClipboardWatchingOnboardingCompletedUiInjectEntryPoint,
+    PatternCollectionsSynchronizationPeriodUiInjectEntryPoint,
     PatternCollectionsUiInjectEntryPoint,
     SynchronizePatternCollectionsOnMeteredNetworkUiInjectEntryPoint
 
@@ -57,6 +58,7 @@ interface SettingUiLocalEntryPoint :
     EnableClipboardWatchingUiLocalEntryPoint,
     ClipboardWatchingOnboardingCompletedUiLocalEntryPoint,
     LoadedComposeLifePreferencesProvider,
+    PatternCollectionsSynchronizationPeriodUiLocalEntryPoint,
     PatternCollectionsUiLocalEntryPoint,
     SynchronizePatternCollectionsOnMeteredNetworkUiLocalEntryPoint
 
@@ -103,6 +105,8 @@ fun SettingUi(
                 Setting.CellShapeConfig -> CellShapeConfigUi()
                 Setting.SynchronizePatternCollectionsOnMeteredNetwork ->
                     SynchronizePatternCollectionsOnMeteredNetworkUi()
+                Setting.PatternCollectionsSynchronizationPeriod ->
+                    PatternCollectionsSynchronizationPeriodUi()
                 Setting.PatternCollectionSources -> PatternCollectionsUi()
                 Setting.DisableAGSL -> DisableAGSLUi()
                 Setting.DisableOpenGL -> DisableOpenGLUi()
@@ -121,6 +125,8 @@ val QuickAccessSetting.setting: Setting
             QuickAccessSetting.CellShapeConfig -> Setting.CellShapeConfig
             QuickAccessSetting.SynchronizePatternCollectionsOnMeteredNetwork ->
                 Setting.SynchronizePatternCollectionsOnMeteredNetwork
+            QuickAccessSetting.PatternCollectionsSynchronizationPeriod ->
+                Setting.PatternCollectionsSynchronizationPeriod
             QuickAccessSetting.DarkThemeConfig -> Setting.DarkThemeConfig
             QuickAccessSetting.DisableAGSL -> Setting.DisableAGSL
             QuickAccessSetting.DisableOpenGL -> Setting.DisableOpenGL

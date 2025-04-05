@@ -43,8 +43,14 @@ internal fun CellShapeConfigUiRoundRectanglePreview(modifier: Modifier = Modifie
                                 override val cornerFractionSessionValue =
                                     SessionValue(Uuid.random(), Uuid.random(), 0.4f)
 
-                                override fun onSizeFractionSessionValueChange(value: SessionValue<Float>) = Unit
-                                override fun onCornerFractionSessionValueChange(value: SessionValue<Float>) = Unit
+                                override fun onSizeFractionSessionValueChange(
+                                    expected: SessionValue<Float>,
+                                    newValue: SessionValue<Float>,
+                                ) = Unit
+                                override fun onCornerFractionSessionValueChange(
+                                    expected: SessionValue<Float>,
+                                    newValue: SessionValue<Float>,
+                                ) = Unit
                             }
 
                         override fun setCurrentShapeType(option: ShapeDropdownOption) = Unit

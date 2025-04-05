@@ -79,8 +79,8 @@ val ComposeLifePreferences.enableClipboardWatchingState: ResourceState<Boolean>
 val ComposeLifePreferences.synchronizePatternCollectionsOnMeteredNetwork: ResourceState<Boolean>
     get() = loadedPreferencesState.map(LoadedComposeLifePreferences::synchronizePatternCollectionsOnMeteredNetwork)
 
-val ComposeLifePreferences.patternCollectionsSynchronizationPeriod: ResourceState<DateTimePeriod>
-    get() = loadedPreferencesState.map(LoadedComposeLifePreferences::patternCollectionsSynchronizationPeriod)
+val ComposeLifePreferences.patternCollectionsSynchronizationPeriodSessionValue: ResourceState<SessionValue<DateTimePeriod>>
+    get() = loadedPreferencesState.map(LoadedComposeLifePreferences::patternCollectionsSynchronizationPeriodSessionValue)
 
 suspend fun ComposeLifePreferences.setAlgorithmChoice(algorithm: AlgorithmType) =
     update { setAlgorithmChoice(algorithm) }
@@ -129,5 +129,7 @@ suspend fun ComposeLifePreferences.setEnableClipboardWatching(enabled: Boolean) 
 suspend fun ComposeLifePreferences.setSynchronizePatternCollectionsOnMeteredNetwork(enabled: Boolean) =
     update { setSynchronizePatternCollectionsOnMeteredNetwork(enabled) }
 
-suspend fun ComposeLifePreferences.setPatternCollectionsSynchronizationPeriod(period: DateTimePeriod) =
-    update { setPatternCollectionsSynchronizationPeriod(period) }
+suspend fun ComposeLifePreferences.setPatternCollectionsSynchronizationPeriod(
+    expected: SessionValue<DateTimePeriod>?,
+    newValue: SessionValue<DateTimePeriod>,
+) = update { setPatternCollectionsSynchronizationPeriod(expected, newValue) }

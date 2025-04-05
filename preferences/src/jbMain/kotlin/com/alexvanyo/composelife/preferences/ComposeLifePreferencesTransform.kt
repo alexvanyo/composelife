@@ -61,5 +61,8 @@ interface ComposeLifePreferencesTransform {
 
     fun setSynchronizePatternCollectionsOnMeteredNetwork(enabled: Boolean)
 
-    fun setPatternCollectionsSynchronizationPeriod(period: DateTimePeriod)
+    fun setPatternCollectionsSynchronizationPeriod(
+        expected: SessionValue<DateTimePeriod>?,
+        newValue: SessionValue<DateTimePeriod>,
+    )
 }
