@@ -35,12 +35,16 @@ data class LoadedComposeLifePreferences(
     val completedClipboardWatchingOnboarding: Boolean,
     val enableClipboardWatching: Boolean,
     val synchronizePatternCollectionsOnMeteredNetwork: Boolean,
-    val patternCollectionsSynchronizationPeriod: DateTimePeriod,
+    val patternCollectionsSynchronizationPeriodSessionValue: SessionValue<DateTimePeriod>,
 ) {
     companion object {
         internal val defaultRoundRectangleSessionId = Uuid.random()
 
         internal val defaultRoundRectangleValueId = Uuid.random()
+
+        internal val defaultPatternCollectionsSynchronizationPeriodSessionId = Uuid.random()
+
+        internal val defaultPatternCollectionsSynchronizationPeriodValueId = Uuid.random()
 
         val Defaults = LoadedComposeLifePreferences(
             quickAccessSettings = emptySet(),
@@ -64,7 +68,11 @@ data class LoadedComposeLifePreferences(
             completedClipboardWatchingOnboarding = false,
             enableClipboardWatching = false,
             synchronizePatternCollectionsOnMeteredNetwork = false,
-            patternCollectionsSynchronizationPeriod = DateTimePeriod(hours = 24),
+            patternCollectionsSynchronizationPeriodSessionValue = SessionValue(
+                sessionId = defaultPatternCollectionsSynchronizationPeriodSessionId,
+                valueId = defaultPatternCollectionsSynchronizationPeriodValueId,
+                value = DateTimePeriod(hours = 24),
+            ),
         )
     }
 }

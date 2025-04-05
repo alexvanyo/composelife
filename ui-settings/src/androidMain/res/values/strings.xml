@@ -48,4 +48,8 @@
     <string name="enable_clipboard_watching">Enable clipboard watching</string>
     <string name="delete">Delete</string>
     <string name="synchronize_pattern_collections_on_metered_network">Synchronize pattern collections on metered network</string>
+    <string name="pattern_collection_synchronization_period">Pattern collection synchronization period</string>
+    <string name="pattern_collection_synchronization_period_label_and_value">Period in minutes: %1$.1f</string>
+    <string name="pattern_collection_synchronization_period_value" translatable="false">%1$.1f</string>
+    <string name="pattern_collection_synchronization_period_suffix">minutes</string>
 </resources>

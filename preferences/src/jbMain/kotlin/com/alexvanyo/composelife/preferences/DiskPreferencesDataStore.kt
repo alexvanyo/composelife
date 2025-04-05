@@ -89,6 +89,22 @@ class DiskPreferencesDataStore(
 
                 override suspend fun cleanUp() = Unit
             },
+            object : DataMigration<PreferencesProto> {
+                override suspend fun shouldMigrate(currentData: PreferencesProto): Boolean =
+                    currentData.pattern_collections_synchronization_period_session_id == null
+
+                override suspend fun migrate(currentData: PreferencesProto): PreferencesProto =
+                    currentData.copy(
+                        pattern_collections_synchronization_period_session_id = LoadedComposeLifePreferences
+                            .defaultPatternCollectionsSynchronizationPeriodSessionId
+                            .toProto(),
+                        pattern_collections_synchronization_period_value_id = LoadedComposeLifePreferences
+                            .defaultPatternCollectionsSynchronizationPeriodValueId
+                            .toProto(),
+                    )
+
+                override suspend fun cleanUp() = Unit
+            },
         ),
         scope = scope,
     )

@@ -47,6 +47,8 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.sessionvalue.localSessionId
 import com.alexvanyo.composelife.sessionvalue.rememberSessionValueHolder
 import com.alexvanyo.composelife.ui.util.nonNegativeDouble
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
@@ -60,7 +62,7 @@ inline fun <reified T : Comparable<T>> EditableSlider(
     labelText: String,
     noinline textToValue: (String) -> T?,
     sessionValue: SessionValue<T>,
-    noinline onSessionValueChange: (SessionValue<T>) -> Unit,
+    noinline onSessionValueChange: (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
     valueRange: ClosedRange<T>,
     sliderBijection: SliderBijection<T>,
     modifier: Modifier = Modifier,
@@ -69,6 +71,9 @@ inline fun <reified T : Comparable<T>> EditableSlider(
     noinline onValueChangeFinished: (() -> Unit)? = null,
     colors: SliderColors = SliderDefaults.colors(),
     noinline sliderOverlay: @Composable () -> Unit = {},
+    noinline prefix: (@Composable () -> Unit)? = null,
+    noinline suffix: (@Composable () -> Unit)? = null,
+    noinline supportingText: (@Composable () -> Unit)? = null,
     inputTransformation: InputTransformation = InputTransformation.nonNegativeDouble(),
 ) = EditableSlider(
     labelAndValueText = labelAndValueText,
@@ -86,6 +91,9 @@ inline fun <reified T : Comparable<T>> EditableSlider(
     onValueChangeFinished = onValueChangeFinished,
     colors = colors,
     sliderOverlay = sliderOverlay,
+    prefix = prefix,
+    suffix = suffix,
+    supportingText = supportingText,
     inputTransformation = inputTransformation,
 )
 
@@ -97,7 +105,7 @@ fun <T : Comparable<T>> EditableSlider(
     labelText: String,
     textToValue: (String) -> T?,
     sessionValue: SessionValue<T>,
-    onSessionValueChange: (SessionValue<T>) -> Unit,
+    onSessionValueChange: (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
     valueRange: ClosedRange<T>,
     sliderBijection: SliderBijection<T>,
     valueSerializer: KSerializer<T>,
@@ -107,6 +115,9 @@ fun <T : Comparable<T>> EditableSlider(
     onValueChangeFinished: (() -> Unit)? = null,
     colors: SliderColors = SliderDefaults.colors(),
     sliderOverlay: @Composable () -> Unit = {},
+    prefix: (@Composable () -> Unit)? = null,
+    suffix: (@Composable () -> Unit)? = null,
+    supportingText: (@Composable () -> Unit)? = null,
     inputTransformation: InputTransformation = InputTransformation.nonNegativeDouble(),
 ) {
     val state = rememberEditableSliderState(
@@ -149,6 +160,9 @@ fun <T : Comparable<T>> EditableSlider(
                 placeholder = {
                     Text(state.placeholderText)
                 },
+                prefix = prefix,
+                suffix = suffix,
+                supportingText = supportingText,
                 isError = state.isError,
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Done,
@@ -172,7 +186,7 @@ private fun <T : Comparable<T>> rememberEditableSliderState(
     valueText: (T) -> String,
     textToValue: (String) -> T?,
     sessionValue: SessionValue<T>,
-    onSessionValueChange: (SessionValue<T>) -> Unit,
+    onSessionValueChange: (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
     valueRange: ClosedRange<T>,
     onValueChangeFinished: (() -> Unit)?,
     valueSerializer: KSerializer<T>,
@@ -189,10 +203,9 @@ private fun <T : Comparable<T>> rememberEditableSliderState(
 
     val textFieldSessionValueHolder = rememberSessionValueHolder(
         upstreamSessionValue = sessionValue,
-        setUpstreamSessionValue = { _, newSessionValue -> onSessionValueChange(newSessionValue) },
+        setUpstreamSessionValue = { expected, newValue -> onSessionValueChange(expected, newValue) },
         valueSerializer = valueSerializer,
     )
-
     /**
      * The transient [TextField] value that the user is editing.
      *
@@ -245,7 +258,10 @@ private fun <T : Comparable<T>> rememberEditableSliderState(
                 get() = transientValue == null
 
             override fun onSliderValueChange(value: T) {
-                onSessionValueChange(SessionValue(Uuid.random(), Uuid.random(), value))
+                onSessionValueChange(
+                    textFieldSessionValueHolder.sessionValue,
+                    SessionValue(Uuid.random(), Uuid.random(), value)
+                )
             }
 
             override fun onTextFieldFocusChanged(focusState: FocusState) {
@@ -253,7 +269,10 @@ private fun <T : Comparable<T>> rememberEditableSliderState(
                     // If we are no longer focused, the current editing session has ended, so update the
                     // value with the current value and a randomized session id and then invoke the finished
                     // listener.
-                    onSessionValueChange(SessionValue(Uuid.random(), Uuid.random(), currentValue))
+                    onSessionValueChange(
+                        textFieldSessionValueHolder.sessionValue,
+                        SessionValue(Uuid.random(), Uuid.random(), currentValue)
+                    )
                     onValueChangeFinished?.invoke()
                 }
                 isFirstFocusedChanged = false
@@ -266,6 +285,7 @@ private fun <T : Comparable<T>> rememberEditableSliderState(
     // Synchronize the transient value back to the session value holder, if it has changed
     LaunchedEffect(textFieldSessionValueHolder) {
         snapshotFlow { currentEditableSliderState.transientValue }
+            .buffer(Channel.CONFLATED)
             .filterNotNull()
             .collect { newTransientValue ->
                 if (textFieldSessionValueHolder.sessionValue.value != newTransientValue) {

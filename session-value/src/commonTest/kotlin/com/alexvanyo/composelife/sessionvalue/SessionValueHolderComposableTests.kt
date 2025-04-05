@@ -20,6 +20,7 @@ import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.moleculeFlow
@@ -67,6 +68,51 @@ class SessionValueHolderComposableTests {
                         sessionId1,
                         valueId1,
                         0f,
+                    ),
+                )
+                val info1 = sessionValueHolder.info
+                assertFalse(info1.isLocalSessionActive())
+                assertEquals(sessionId1, info1.currentUpstreamSessionId)
+                assertEquals(sessionId1, info1.preLocalSessionId)
+            }
+    }
+
+    @Test
+    fun withTransform_whenCreated_stateIsCorrect() = runTest(broadcastFrameClock) {
+        val sessionId1 = Uuid.random()
+        val valueId1 = Uuid.random()
+
+        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
+
+        val upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))
+
+        moleculeFlow(RecompositionMode.ContextClock) {
+            val floatSessionValueHolder = rememberSessionValueHolder(
+                upstreamSessionValue = upstreamSessionValue,
+                setUpstreamSessionValue = { expected, newValue ->
+                    pendingUpstreamSessionValues.add(expected to newValue)
+                },
+            )
+
+            val stringSessionValueHolder = remember(floatSessionValueHolder) {
+                floatSessionValueHolder.map(
+                    transformTo = Float::toString,
+                    transformFrom = String::toFloat,
+                )
+            }
+
+            stringSessionValueHolder
+        }
+            .distinctUntilChanged()
+            .test {
+                val sessionValueHolder = awaitItem()
+
+                assertEquals(
+                    sessionValueHolder.sessionValue,
+                    SessionValue(
+                        sessionId1,
+                        valueId1,
+                        "0.0",
                     ),
                 )
                 val info1 = sessionValueHolder.info
@@ -138,6 +184,76 @@ class SessionValueHolderComposableTests {
     }
 
     @Test
+    fun withTransform_whenUpstreamSessionValueUpdated_stateMatches() = runTest(broadcastFrameClock) {
+        val sessionId1 = Uuid.random()
+        val valueId1 = Uuid.random()
+        val valueId2 = Uuid.random()
+
+        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
+
+        var upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))
+
+        moleculeFlow(RecompositionMode.ContextClock) {
+            val floatSessionValueHolder = rememberSessionValueHolder(
+                upstreamSessionValue = upstreamSessionValue,
+                setUpstreamSessionValue = { expected, newValue ->
+                    pendingUpstreamSessionValues.add(expected to newValue)
+                },
+            )
+
+            val stringSessionValueHolder = remember(floatSessionValueHolder) {
+                floatSessionValueHolder.map(
+                    transformTo = Float::toString,
+                    transformFrom = String::toFloat,
+                )
+            }
+
+            stringSessionValueHolder
+        }
+            .distinctUntilChanged()
+            .test {
+                val sessionValueHolder = awaitItem()
+
+                assertEquals(
+                    sessionValueHolder.sessionValue,
+                    SessionValue(
+                        sessionId1,
+                        valueId1,
+                        "0.0",
+                    ),
+                )
+                val info1 = sessionValueHolder.info
+                assertFalse(info1.isLocalSessionActive())
+                val nextLocalSessionId1 = info1.nextLocalSessionId
+                assertEquals(nextLocalSessionId1, info1.localSessionId)
+                assertEquals(sessionId1, info1.currentUpstreamSessionId)
+                assertEquals(sessionId1, info1.preLocalSessionId)
+
+                upstreamSessionValue = SessionValue(sessionId1, valueId2, 1f)
+                broadcastFrameClock.sendFrame(1)
+
+                assertEquals(
+                    sessionValueHolder.sessionValue,
+                    SessionValue(
+                        sessionId1,
+                        valueId2,
+                        "1.0",
+                    ),
+                )
+                val info2 = sessionValueHolder.info
+                assertFalse(info2.isLocalSessionActive())
+                val nextLocalSessionId2 = info2.nextLocalSessionId
+                assertEquals(nextLocalSessionId2, info2.nextLocalSessionId)
+                assertEquals(nextLocalSessionId2, info2.localSessionId)
+                assertEquals(sessionId1, info2.currentUpstreamSessionId)
+                assertEquals(sessionId1, info2.preLocalSessionId)
+
+                // Updating the upstream session value should cycle the next session id
+                assertNotEquals(nextLocalSessionId1, nextLocalSessionId2)
+            }
+    }
+
+    @Test
     fun whenUpstreamSessionIdUpdated_stateMatches() = runTest(broadcastFrameClock) {
         val sessionId1 = Uuid.random()
         val sessionId2 = Uuid.random()
@@ -184,6 +300,77 @@ class SessionValueHolderComposableTests {
                         sessionId2,
                         valueId2,
                         1f,
+                    ),
+                )
+                val info2 = sessionValueHolder.info
+                assertFalse(info2.isLocalSessionActive())
+                val nextLocalSessionId2 = info2.nextLocalSessionId
+                assertEquals(nextLocalSessionId2, info2.nextLocalSessionId)
+                assertEquals(nextLocalSessionId2, info2.localSessionId)
+                assertEquals(sessionId2, info2.currentUpstreamSessionId)
+                assertEquals(sessionId2, info2.preLocalSessionId)
+
+                // Updating the upstream session value should cycle the next session id
+                assertNotEquals(nextLocalSessionId1, nextLocalSessionId2)
+            }
+    }
+
+    @Test
+    fun withTransform_whenUpstreamSessionIdUpdated_stateMatches() = runTest(broadcastFrameClock) {
+        val sessionId1 = Uuid.random()
+        val sessionId2 = Uuid.random()
+        val valueId1 = Uuid.random()
+        val valueId2 = Uuid.random()
+
+        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
+
+        var upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))
+
+        moleculeFlow(RecompositionMode.ContextClock) {
+            val floatSessionValueHolder = rememberSessionValueHolder(
+                upstreamSessionValue = upstreamSessionValue,
+                setUpstreamSessionValue = { expected, newValue ->
+                    pendingUpstreamSessionValues.add(expected to newValue)
+                },
+            )
+
+            val stringSessionValueHolder = remember(floatSessionValueHolder) {
+                floatSessionValueHolder.map(
+                    transformTo = Float::toString,
+                    transformFrom = String::toFloat,
+                )
+            }
+
+            stringSessionValueHolder
+        }
+            .distinctUntilChanged()
+            .test {
+                val sessionValueHolder = awaitItem()
+
+                assertEquals(
+                    sessionValueHolder.sessionValue,
+                    SessionValue(
+                        sessionId1,
+                        valueId1,
+                        "0.0",
+                    ),
+                )
+                val info1 = sessionValueHolder.info
+                assertFalse(info1.isLocalSessionActive())
+                val nextLocalSessionId1 = info1.nextLocalSessionId
+                assertEquals(nextLocalSessionId1, info1.localSessionId)
+                assertEquals(sessionId1, info1.currentUpstreamSessionId)
+                assertEquals(sessionId1, info1.preLocalSessionId)
+
+                upstreamSessionValue = SessionValue(sessionId2, valueId2, 1f)
+                broadcastFrameClock.sendFrame(1)
+
+                assertEquals(
+                    sessionValueHolder.sessionValue,
+                    SessionValue(
+                        sessionId2,
+                        valueId2,
+                        "1.0",
                     ),
                 )
                 val info2 = sessionValueHolder.info
