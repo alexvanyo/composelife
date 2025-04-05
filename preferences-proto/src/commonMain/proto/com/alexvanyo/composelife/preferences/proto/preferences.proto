@@ -46,4 +46,6 @@ message PreferencesProto {
   bool enable_clipboard_watching = 13;
   bool synchronize_pattern_collections_on_metered_network = 16;
   DateTimePeriodProto pattern_collections_synchronization_period = 17;
+  UUIDProto pattern_collections_synchronization_period_session_id = 18;
+  UUIDProto pattern_collections_synchronization_period_value_id = 19;
 }

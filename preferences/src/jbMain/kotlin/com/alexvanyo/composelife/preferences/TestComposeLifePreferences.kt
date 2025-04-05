@@ -50,6 +50,8 @@ class TestComposeLifePreferences(
     enableClipboardWatching: Boolean = false,
     synchronizePatternCollectionsOnMeteredNetwork: Boolean = false,
     patternCollectionsSynchronizationPeriod: DateTimePeriod = DateTimePeriod(hours = 24),
+    patternCollectionsSynchronizationPeriodSessionId: Uuid = Uuid.random(),
+    patternCollectionsSynchronizationPeriodValueId: Uuid = Uuid.random(),
 ) : ComposeLifePreferences {
     var quickAccessSettings: Set<QuickAccessSetting> by mutableStateOf(quickAccessSettings)
 
@@ -89,6 +91,12 @@ class TestComposeLifePreferences(
     var patternCollectionsSynchronizationPeriod:
         DateTimePeriod by mutableStateOf(patternCollectionsSynchronizationPeriod)
 
+    var patternCollectionsSynchronizationPeriodSessionId:
+        Uuid by mutableStateOf(patternCollectionsSynchronizationPeriodSessionId)
+
+    var patternCollectionsSynchronizationPeriodValueId:
+            Uuid by mutableStateOf(patternCollectionsSynchronizationPeriodValueId)
+
     var isLoaded by mutableStateOf(isLoaded)
 
     override val loadedPreferencesState: ResourceState<LoadedComposeLifePreferences>
@@ -113,7 +121,11 @@ class TestComposeLifePreferences(
                     completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
                     enableClipboardWatching = enableClipboardWatching,
                     synchronizePatternCollectionsOnMeteredNetwork = synchronizePatternCollectionsOnMeteredNetwork,
-                    patternCollectionsSynchronizationPeriod = patternCollectionsSynchronizationPeriod,
+                    patternCollectionsSynchronizationPeriodSessionValue = SessionValue(
+                        sessionId = patternCollectionsSynchronizationPeriodSessionId,
+                        valueId = patternCollectionsSynchronizationPeriodValueId,
+                        value = patternCollectionsSynchronizationPeriod,
+                    ),
                 ),
             )
         } else {
@@ -206,8 +218,20 @@ class TestComposeLifePreferences(
                     synchronizePatternCollectionsOnMeteredNetwork = enabled
                 }
 
-                override fun setPatternCollectionsSynchronizationPeriod(period: DateTimePeriod) {
-                    patternCollectionsSynchronizationPeriod = period
+                override fun setPatternCollectionsSynchronizationPeriod(
+                    expected: SessionValue<DateTimePeriod>?,
+                    newValue: SessionValue<DateTimePeriod>,
+                ) {
+                    if (expected == null || expected == SessionValue(
+                            sessionId = patternCollectionsSynchronizationPeriodSessionId,
+                            valueId = patternCollectionsSynchronizationPeriodValueId,
+                            value = patternCollectionsSynchronizationPeriod,
+                        )
+                    ) {
+                        patternCollectionsSynchronizationPeriod = newValue.value
+                        patternCollectionsSynchronizationPeriodSessionId = newValue.sessionId
+                        patternCollectionsSynchronizationPeriodValueId = newValue.valueId
+                    }
                 }
             }.run(block)
         }

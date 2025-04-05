@@ -114,10 +114,10 @@ fun TargetStepsPerSecondControl(
         labelText = parameterizedStringResource(Strings.TargetStepsPerSecondLabel),
         textToValue = { it.toDoubleOrNull() },
         sessionValue = SessionValue(sessionId, valueId, targetStepsPerSecond),
-        onSessionValueChange = {
-            sessionId = it.sessionId
-            valueId = it.valueId
-            setTargetStepsPerSecond(it.value)
+        onSessionValueChange = { _, newValue ->
+            sessionId = newValue.sessionId
+            valueId = newValue.valueId
+            setTargetStepsPerSecond(newValue.value)
         },
         valueRange = valueRange,
         sliderBijection = TargetStepsPerSecondSliderBijection,
@@ -176,10 +176,10 @@ fun GenerationsPerStepControl(
         valueRange = valueRange,
         sliderBijection = GenerationsPerStepSliderBijection,
         steps = maxGenerationsPerStepPowerOfTwo - minGenerationsPerStepPowerOfTwo - 1,
-        onSessionValueChange = {
-            sessionId = it.sessionId
-            valueId = it.valueId
-            setGenerationsPerStep(it.value)
+        onSessionValueChange = { _, newValue ->
+            sessionId = newValue.sessionId
+            valueId = newValue.valueId
+            setGenerationsPerStep(newValue.value)
         },
         inputTransformation = InputTransformation.nonNegativeLong(),
         modifier = modifier,

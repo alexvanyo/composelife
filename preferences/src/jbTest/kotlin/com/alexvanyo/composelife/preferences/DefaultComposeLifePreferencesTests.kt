@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.preferences
 
+import com.alexvanyo.composelife.logging.NoOpLogger
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.sessionvalue.SessionValue
@@ -38,11 +39,12 @@ class DefaultComposeLifePreferencesTests {
 
     private fun runPreferencesTest(testBody: suspend TestScope.(ComposeLifePreferences) -> Unit) = runTest {
         val composelifePreferences = DefaultComposeLifePreferences(
-            DiskPreferencesDataStore(
+            preferencesDataStore = DiskPreferencesDataStore(
                 fileSystem = FakeFileSystem(),
                 path = lazy { "/preferences.pb".toPath() },
                 scope = backgroundScope,
             ),
+            logger = NoOpLogger,
         )
         backgroundScope.launch {
             composelifePreferences.update()

@@ -69,6 +69,11 @@ sealed interface Setting {
         override val quickAccessSetting = QuickAccessSetting.SynchronizePatternCollectionsOnMeteredNetwork
     }
 
+    data object PatternCollectionsSynchronizationPeriod : Setting {
+        override val category = SettingsCategory.PatternCollections
+        override val quickAccessSetting = QuickAccessSetting.PatternCollectionsSynchronizationPeriod
+    }
+
     data object PatternCollectionSources : Setting {
         override val category = SettingsCategory.PatternCollections
         override val quickAccessSetting = null
