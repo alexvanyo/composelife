@@ -112,6 +112,21 @@ class ResourceStateTests {
     }
 
     @Test
+    fun loading_is_loading() {
+        assertTrue(ResourceState.Loading.isLoading())
+    }
+
+    @Test
+    fun failure_is_not_loading() {
+        assertFalse(ResourceState.Failure<String>(Exception()).isLoading())
+    }
+
+    @Test
+    fun success_is_not_loading() {
+        assertFalse(ResourceState.Success("a").isLoading())
+    }
+
+    @Test
     fun loading_is_not_a_success() {
         assertFalse(ResourceState.Loading.isSuccess())
     }
@@ -127,6 +142,25 @@ class ResourceStateTests {
         assertTrue(resourceState.isSuccess())
         // Check that type is inferred
         assertEquals("a", resourceState.value)
+    }
+
+    @Test
+    fun loading_is_not_a_failure() {
+        assertFalse(ResourceState.Loading.isFailure())
+    }
+
+    @Test
+    fun failure_is_a_failure() {
+        val exception = Exception()
+        val resourceState: ResourceState<String> = ResourceState.Failure(exception)
+        assertTrue(resourceState.isFailure())
+        // Check that type is inferred
+        assertEquals(exception, resourceState.throwable)
+    }
+
+    @Test
+    fun success_is_not_a_failure() {
+        assertFalse(ResourceState.Success("a").isFailure())
     }
 
     @Test

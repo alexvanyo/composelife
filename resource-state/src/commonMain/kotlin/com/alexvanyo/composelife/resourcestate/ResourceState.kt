@@ -56,17 +56,55 @@ sealed interface ResourceState<out T : Any> {
     ) : ResourceState<T>
 }
 
+
+/**
+ * Returns `true` if and only if this is loading.
+ */
+@OptIn(ExperimentalContracts::class)
+fun <T : Any> ResourceState<T>.isLoading(): Boolean {
+    contract {
+        returns(true) implies (this@isLoading is Loading)
+        returns(false) implies (this@isLoading !is Loading)
+    }
+
+    return when (this) {
+        Loading -> true
+        is Success -> false
+        is Failure -> false
+    }
+}
+
 /**
  * Returns `true` if and only if this is a success.
  */
 @OptIn(ExperimentalContracts::class)
 fun <T : Any> ResourceState<T>.isSuccess(): Boolean {
-    contract { returns(true) implies (this@isSuccess is Success) }
+    contract {
+        returns(true) implies (this@isSuccess is Success)
+        returns(false) implies (this@isSuccess !is Success)
+    }
 
     return when (this) {
         Loading -> false
         is Success -> true
         is Failure -> false
+    }
+}
+
+/**
+ * Returns `true` if and only if this is a failure.
+ */
+@OptIn(ExperimentalContracts::class)
+fun <T : Any> ResourceState<T>.isFailure(): Boolean {
+    contract {
+        returns(true) implies (this@isFailure is Failure)
+        returns(false) implies (this@isFailure !is Failure)
+    }
+
+    return when (this) {
+        Loading -> false
+        is Success -> false
+        is Failure -> true
     }
 }
 
