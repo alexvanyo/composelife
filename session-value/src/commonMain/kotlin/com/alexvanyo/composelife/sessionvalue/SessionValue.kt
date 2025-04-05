@@ -45,3 +45,15 @@ data class SessionValue<out T>(
         ): Saver<SessionValue<T>, SavedState> = serializer(valueSerializer).saver()
     }
 }
+
+/**
+ * Converts a [SessionValue] of type [T] to a [SessionValueHolder] of type [R] using [transform].
+ *
+ * This will preserve the [SessionValue.sessionId] and [SessionValue.valueId].
+ */
+fun <T, R> SessionValue<T>.map(transform: (T) -> R): SessionValue<R> =
+    SessionValue(
+        sessionId = sessionId,
+        valueId = valueId,
+        value = transform(value),
+    )

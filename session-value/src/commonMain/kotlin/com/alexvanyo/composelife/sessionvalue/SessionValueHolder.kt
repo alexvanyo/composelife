@@ -267,3 +267,26 @@ private class SessionValueHolderImpl<T>(
         }
     }
 }
+
+private class MappedSessionValueHolder<T, R>(
+    private val sessionValueHolder: SessionValueHolder<T>,
+    private val transformTo: (T) -> R,
+    private val transformFrom: (R) -> T,
+) : SessionValueHolder<R> {
+    override val sessionValue: SessionValue<R>
+        get() = sessionValueHolder.sessionValue.map(transformTo)
+    override val info: LocalSessionInfo
+        get() = sessionValueHolder.info
+    override fun setValue(value: R, valueId: Uuid) {
+        sessionValueHolder.setValue(transformFrom(value))
+    }
+}
+
+/**
+ * Converts a [SessionValueHolder] of type [T] to a [SessionValueHolder] of type [R] using [transformTo] and
+ * [transformFrom].
+ */
+fun <T, R> SessionValueHolder<T>.map(
+    transformTo: (T) -> R,
+    transformFrom: (R) -> T,
+): SessionValueHolder<R> = MappedSessionValueHolder(this, transformTo, transformFrom)
