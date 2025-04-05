@@ -17,15 +17,24 @@
 package com.alexvanyo.composelife.sessionvalue
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.savedstate.SavedState
+import com.alexvanyo.composelife.serialization.SnapshotStateListSaver
+import com.alexvanyo.composelife.serialization.saver
 import com.alexvanyo.composelife.serialization.uuidSaver
+import kotlinx.coroutines.flow.first
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.PairSerializer
 import kotlinx.serialization.serializer
+import kotlin.collections.removeFirst as removeFirstKt
 import kotlin.uuid.Uuid
 
 /**
@@ -266,6 +275,126 @@ private class SessionValueHolderImpl<T>(
             )
         }
     }
+}
+
+/**
+ * An async multiplexer for a [SessionValue] that can maintain the state for a local session that runs ahead of the
+ * upstream [SessionValue].
+ *
+ * The [SessionValueHolder.sessionValue] will match the [upstreamSessionValue] until [SessionValueHolder.setValue]
+ * is called.
+ *
+ * Once [SessionValueHolder.setValue] is called, the [SessionValueHolder.sessionValue] will be representing a local
+ * session that may be ahead of what the upstream value shows. [setUpstreamSessionValue] will be called and
+ * begin asynchronously updating the upstream value in tandem with keeping a local state in
+ * [SessionValueHolder.sessionValue].
+ *
+ * [SessionValueHolder.info] returns information about the current local session, if any.
+ * In particular [LocalSessionInfo.localSessionId] will returns the session id that will be used to represent
+ * the local session when [SessionValueHolder.setValue] is called.
+ *
+ * [SessionValueHolder] supports cases where the [upstreamSessionValue] changes independently from the local session. In
+ * those cases, the internal state will be reset to match the [upstreamSessionValue].
+ */
+@Composable
+inline fun <reified T> rememberAsyncSessionValueHolder(
+    /**
+     * The upstream [SessionValue].
+     */
+    upstreamSessionValue: SessionValue<T>,
+    /**
+     * Asynchronously sets the upstream [SessionValue] to the given [SessionValue].
+     * The provided upstream session id is the known previous id, for a compare-and-set updating of the [SessionValue].
+     */
+    noinline setUpstreamSessionValue: suspend (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
+): SessionValueHolder<T> =
+    rememberAsyncSessionValueHolder(upstreamSessionValue, setUpstreamSessionValue, serializer())
+
+/**
+ * An async multiplexer for a [SessionValue] that can maintain the state for a local session that runs ahead of the
+ * upstream [SessionValue].
+ *
+ * The [SessionValueHolder.sessionValue] will match the [upstreamSessionValue] until [SessionValueHolder.setValue]
+ * is called.
+ *
+ * Once [SessionValueHolder.setValue] is called, the [SessionValueHolder.sessionValue] will be representing a local
+ * session that may be ahead of what the upstream value shows. [setUpstreamSessionValue] will be called and
+ * begin asynchronously updating the upstream value in tandem with keeping a local state in
+ * [SessionValueHolder.sessionValue].
+ *
+ * [SessionValueHolder.info] returns information about the current local session, if any.
+ * In particular [LocalSessionInfo.localSessionId] will returns the session id that will be used to represent
+ * the local session when [SessionValueHolder.setValue] is called.
+ *
+ * [SessionValueHolder] supports cases where the [upstreamSessionValue] changes independently from the local session. In
+ * those cases, the internal state will be reset to match the [upstreamSessionValue].
+ */
+@Composable
+fun <T> rememberAsyncSessionValueHolder(
+    /**
+     * The upstream [SessionValue].
+     */
+    upstreamSessionValue: SessionValue<T>,
+    /**
+     * Asynchronously sets the upstream [SessionValue] to the given [SessionValue].
+     * The provided upstream session id is the known previous id, for a compare-and-set updating of the [SessionValue].
+     */
+    setUpstreamSessionValue: suspend (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
+    valueSerializer: KSerializer<T>,
+): SessionValueHolder<T> {
+    val updateList = rememberSaveable(
+        saver = SnapshotStateListSaver(
+            ListSerializer(
+                PairSerializer(
+                    SessionValue.serializer(valueSerializer),
+                    SessionValue.serializer(valueSerializer),
+                )
+            ).saver(),
+        )
+    ) {
+        mutableStateListOf()
+    }
+
+    val sessionValueHolder = rememberSessionValueHolder(
+        upstreamSessionValue = upstreamSessionValue,
+        setUpstreamSessionValue = { expected, newValue ->
+            updateList.add(expected to newValue)
+        },
+        valueSerializer = valueSerializer,
+    )
+
+    LaunchedEffect(sessionValueHolder.info.localSessionId) {
+        // Upon the local session id changing, clear out any updates that are no longer valid because they
+        // are not for the current local session id or the current pre local session id
+        while (
+            run {
+                val firstUpdate = updateList.firstOrNull()
+                firstUpdate != null &&
+                    firstUpdate.first.sessionId != sessionValueHolder.info.localSessionId &&
+                    firstUpdate.first.sessionId != sessionValueHolder.info.preLocalSessionId
+            }
+        ) {
+            updateList.removeFirstKt()
+        }
+
+        // All updates will now be for the current session
+        while (true) {
+            var firstUpdate = updateList.firstOrNull()
+            var lastUpdate = updateList.lastOrNull()
+            while (firstUpdate != null) {
+                checkNotNull(lastUpdate)
+                // Clear the update list, and batch the updates into a single update
+                updateList.clear()
+                setUpstreamSessionValue(firstUpdate.first, lastUpdate.second)
+                firstUpdate = updateList.firstOrNull()
+                lastUpdate = updateList.lastOrNull()
+            }
+            // Wait for the update list to become non-empty
+            snapshotFlow { updateList.size }.first { it > 0 }
+        }
+    }
+
+    return sessionValueHolder
 }
 
 private class MappedSessionValueHolder<T, R>(
