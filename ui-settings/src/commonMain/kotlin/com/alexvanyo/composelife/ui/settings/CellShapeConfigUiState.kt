@@ -147,28 +147,24 @@ fun rememberCellShapeConfigUiState(
                     expected: SessionValue<Float>,
                     newValue: SessionValue<Float>,
                 ) {
-                    check(expected.sessionId == sizeFractionSessionId)
-                    check(expected.valueId == sizeFractionValueId)
-                    check(expected.value == sizeFraction)
-
-                    sizeFractionSessionId = newValue.sessionId
-                    sizeFractionValueId = newValue.valueId
-                    sizeFraction = newValue.value
-                    updateRoundRectangleConfig()
+                    if (expected.sessionId == sizeFractionSessionId && expected.valueId == sizeFractionValueId) {
+                        sizeFractionSessionId = newValue.sessionId
+                        sizeFractionValueId = newValue.valueId
+                        sizeFraction = newValue.value
+                        updateRoundRectangleConfig()
+                    }
                 }
 
                 override fun onCornerFractionSessionValueChange(
                     expected: SessionValue<Float>,
                     newValue: SessionValue<Float>,
                 ) {
-                    check(expected.sessionId == cornerFractionSessionId)
-                    check(expected.valueId == cornerFractionValueId)
-                    check(expected.value == cornerFraction)
-
-                    cornerFractionSessionId = newValue.sessionId
-                    cornerFractionValueId = newValue.valueId
-                    cornerFraction = newValue.value
-                    updateRoundRectangleConfig()
+                    if (expected.sessionId == cornerFractionSessionId && expected.valueId == cornerFractionValueId) {
+                        cornerFractionSessionId = newValue.sessionId
+                        cornerFractionValueId = newValue.valueId
+                        cornerFraction = newValue.value
+                        updateRoundRectangleConfig()
+                    }
                 }
 
                 private fun updateRoundRectangleConfig() {
