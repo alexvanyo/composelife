@@ -43,7 +43,26 @@ import kotlin.reflect.KClass
  *     override val myDependency: MyDependency,
  *     override val myInheritedDependency: MyInheritedDependency // from MyInheritedInterface
  * ) : MyEntryPoint
+ *
+ * @ContributesTo(AppScope::class)
+ * interface MyEntryPointImplBindingComponent {
+ *     @Provides
+ *     @IntoMap
+ *     @OptIn(InternalEntryPointProviderApi::class)
+ *     fun providesMyEntryPointIntoEntryPointMap(
+ *         entryPointCreator: () -> MyEntryPoint
+ *     ): Pair<KClass<*>, ScopedEntryPoint<AppScope, *>> =
+ *         MyEntryPoint::class to ScopedEntryPoint(entryPointCreator)
+ * }
+ *
+ * @OptIn(InternalEntryPointProviderApi::class)
+ * inline fun <reified T : MyEntryPoint> EntryPointProvider<AppScope>.getEntryPoint(
+ *     unused: KClass<T> = T::class
+ * ): MyEntryPoint = entryPoints.getValue(MyEntryPoint::class).entryPointCreator() as MyEntryPoint
  * ```
+ *
+ * This allows safely retrieving an `MyEntryPoint` from the component that implements `EntryPointProvider<AppScope>`
+ * with `applicationComponent.getEntryPoint<MyEntryPoint>()`.
  */
 @Target(AnnotationTarget.CLASS)
 @ContributingAnnotation
