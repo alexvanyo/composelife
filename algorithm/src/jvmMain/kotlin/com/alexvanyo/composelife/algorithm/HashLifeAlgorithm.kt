@@ -24,16 +24,10 @@ import com.alexvanyo.composelife.model.HashLifeCellState
 import com.alexvanyo.composelife.model.MacroCell
 import com.alexvanyo.composelife.model.expandCentered
 import com.alexvanyo.composelife.model.toHashLifeCellState
-import com.google.common.base.Equivalence
-import com.google.common.base.Ticker
-import com.google.common.cache.CacheBuilder
-import com.google.common.cache.CacheLoader
-import com.google.common.cache.LoadingCache
 import kotlinx.coroutines.withContext
 import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
-import java.util.concurrent.TimeUnit
 
 @SingleIn(AppScope::class)
 @Inject
@@ -52,16 +46,6 @@ class HashLifeAlgorithm(
     private var computedGenerations = 0L
 
     /**
-     * An implementation of [Ticker] backed by [computedGenerations].
-     *
-     * This is a slight misuse of the [Ticker] API, since [computedGenerations] has no relation to nanoseconds.
-     * However, we can use this to expire entries after a set number of generations.
-     */
-    private val computedGenerationTicker = object : Ticker() {
-        override fun read(): Long = computedGenerations
-    }
-
-    /**
      * The map containing the "canonical" [MacroCell.CellNode]s. This ensures that there is exactly one instance of
      * each equivalent [MacroCell.CellNode] (which makes comparing [MacroCell.CellNode]s possible in O(1) with just
      * reference checking).
@@ -69,31 +53,18 @@ class HashLifeAlgorithm(
      * The keys of this map must already have canonical subnodes, which is ensured by the implementation of
      * [makeCanonical].
      */
-    private val canonicalCellMap:
-        LoadingCache<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode> =
-        CacheBuilder.newBuilder()
-            .ticker(computedGenerationTicker)
-            .expireAfterAccess(256, TimeUnit.NANOSECONDS)
-            .build(
-                object : CacheLoader<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode>() {
-                    override fun load(key: Equivalence.Wrapper<MacroCell.CellNode>): MacroCell.CellNode =
-                        key.get().makeCanonical(false)
-                },
-            )
+    private val canonicalCellMap: Cache<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode> = Cache(
+        load = { key -> key.value.makeCanonical(false) },
+        getGenerationIndex = { computedGenerations },
+    )
 
     /**
      * The memoization map for [MacroCell.CellNode.computeNextGeneration].
      */
-    private val cellMap: LoadingCache<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode> =
-        CacheBuilder.newBuilder()
-            .ticker(computedGenerationTicker)
-            .expireAfterAccess(256, TimeUnit.NANOSECONDS)
-            .build(
-                object : CacheLoader<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode>() {
-                    override fun load(key: Equivalence.Wrapper<MacroCell.CellNode>): MacroCell.CellNode =
-                        key.get().computeNextGeneration(false)
-                },
-            )
+    private val cellMap: Cache<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode> = Cache(
+        load = { key -> key.value.computeNextGeneration(false) },
+        getGenerationIndex = { computedGenerations },
+    )
 
     private fun MacroCell.makeCanonical(useMap: Boolean = true): MacroCell =
         when (this) {
@@ -102,7 +73,7 @@ class HashLifeAlgorithm(
         }
 
     private fun MacroCell.CellNode.makeCanonical(useMap: Boolean = true): MacroCell.CellNode {
-        val currentEntry = canonicalCellMap.asMap()[CanonicalMacroCellEquivalence.wrap(this)]
+        val currentEntry = canonicalCellMap.map[canonicalMacroCellEquivalence.wrap(this)]
 
         return if (currentEntry != null) {
             // Fast path: return the canonical cell if already in the map
@@ -131,7 +102,7 @@ class HashLifeAlgorithm(
 
             if (useMap) {
                 // If we're using the map, pull from it now with canonical cell nodes
-                canonicalCellMap[CanonicalMacroCellEquivalence.wrap(withCanonicalSubNodes)]
+                canonicalCellMap[canonicalMacroCellEquivalence.wrap(withCanonicalSubNodes)]
             } else {
                 // Otherwise, define the canonical cell
                 withCanonicalSubNodes
@@ -159,7 +130,7 @@ class HashLifeAlgorithm(
         // Ensure we are operating upon a canonical macro cell
         val canonicalMacroCell = makeCanonical()
         if (useMap) {
-            return cellMap[CanonicalMacroCellEquivalence.wrap(canonicalMacroCell)]
+            return cellMap[canonicalMacroCellEquivalence.wrap(canonicalMacroCell)]
         }
 
         val nw = canonicalMacroCell.nw as MacroCell.CellNode
@@ -307,6 +278,9 @@ class HashLifeAlgorithm(
         @IntRange(from = 0) step: Int,
     ): HashLifeCellState =
         if (step == 0) {
+            val oldestGenerationToKeep = computedGenerations - generationsToCache
+            cellMap.prune(oldestGenerationToKeep)
+            canonicalCellMap.prune(oldestGenerationToKeep)
             cellState
         } else {
             val nextGeneration = computeNextGeneration(cellState)
@@ -333,6 +307,10 @@ class HashLifeAlgorithm(
         // If our primary macro cell would be too small or the resulting macro cell wouldn't be the correct result
         // (due to an expanding pattern), expand the main macro cell and compute.
         return computeNextGeneration(cellState.expandCentered())
+    }
+
+    companion object {
+        private const val generationsToCache = 256L
     }
 }
 
@@ -398,6 +376,29 @@ private fun centeredSubSubnode(node: MacroCell.CellNode): MacroCell.CellNode {
     )
 }
 
+private fun interface Equivalence<T> {
+
+    fun isEquivalent(a: T, b: T): Boolean
+
+    fun hash(value: T): Int = value.hashCode()
+
+    class Wrapper<T>(
+        private val equivalence: Equivalence<T>,
+        val value: T,
+    ) {
+        @Suppress("UNCHECKED_CAST")
+        override fun equals(other: Any?): Boolean =
+            other is Wrapper<*> &&
+                other.equivalence === equivalence &&
+                equivalence.isEquivalent(value, (other as Wrapper<T>).value)
+
+        override fun hashCode(): Int = equivalence.hash(value)
+    }
+}
+
+private fun <T> Equivalence<T>.wrap(value: T): Equivalence.Wrapper<T> =
+    Equivalence.Wrapper(this, value)
+
 /**
  * An [Equivalence] describing a "canonical" [MacroCell.CellNode].
  *
@@ -416,9 +417,31 @@ private fun centeredSubSubnode(node: MacroCell.CellNode): MacroCell.CellNode {
  * Using this convention, we can compute equality of canonical cell nodes in O(1) time, by using referential equality
  * of the subnodes.
  */
-private object CanonicalMacroCellEquivalence : Equivalence<MacroCell.CellNode>() {
-    override fun doEquivalent(a: MacroCell.CellNode, b: MacroCell.CellNode): Boolean =
+private val canonicalMacroCellEquivalence =
+    Equivalence { a: MacroCell.CellNode, b: MacroCell.CellNode ->
         a.level == b.level && a.nw === b.nw && a.ne === b.ne && a.sw === b.sw && a.se === b.se
+    }
 
-    override fun doHash(t: MacroCell.CellNode): Int = t.hashCode()
+private class Cache<K, V>(
+    private val load: (K) -> V,
+    private val getGenerationIndex: () -> Long,
+) {
+    private val mutableMap: MutableMap<K, V> = mutableMapOf()
+    val map: Map<K, V> get() = mutableMap
+
+    private val lastAccessedGenerationMap: MutableMap<K, Long> = mutableMapOf()
+
+    operator fun get(key: K): V =
+        mutableMap.getOrPut(key) { load(key) }.also {
+            lastAccessedGenerationMap[key] = getGenerationIndex()
+        }
+
+    fun prune(oldestGenerationToKeep: Long) {
+        lastAccessedGenerationMap.forEach { key, lastAccessedGeneration ->
+            if (lastAccessedGeneration < oldestGenerationToKeep) {
+                mutableMap.remove(key)
+                lastAccessedGenerationMap.remove(key)
+            }
+        }
+    }
 }
