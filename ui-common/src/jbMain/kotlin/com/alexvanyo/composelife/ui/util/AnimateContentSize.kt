@@ -52,9 +52,11 @@ import kotlinx.coroutines.launch
 fun Modifier.animateContentSize(
     animationSpec: FiniteAnimationSpec<IntSize> = spring(),
     alignment: Alignment = Alignment.TopStart,
+    clip: Boolean = true,
     finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null,
-): Modifier =
-    this.clipToBounds() then SizeAnimationModifierElement(animationSpec, alignment, finishedListener)
+): Modifier = this
+    .then(if (clip) Modifier.clipToBounds() else Modifier)
+    .then(SizeAnimationModifierElement(animationSpec, alignment, finishedListener))
 
 private data class SizeAnimationModifierElement(
     val animationSpec: FiniteAnimationSpec<IntSize>,
@@ -136,11 +138,11 @@ private class SizeAnimationModifierNode(
             lookaheadSize = measuredSize
             measuredSize
         } else {
-            animateTo(if (lookaheadSize.isValid) lookaheadSize else measuredSize).let {
-                // Constrain the measure result to incoming constraints, so that parent doesn't
-                // force center this layout.
-                constraints.constrain(it)
-            }
+            animateTo(if (lookaheadSize.isValid) lookaheadSize else measuredSize) // .let {
+            // Constrain the measure result to incoming constraints, so that parent doesn't
+            // force center this layout.
+            // constraints.constrain(it)
+            // }
         }
         return layout(width, height) {
             placeable.place(
