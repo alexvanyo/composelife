@@ -36,13 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.unit.DpSize
 import androidx.window.core.layout.WindowSizeClass
-import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
-import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
-import com.alexvanyo.composelife.clock.di.ClockProvider
-import com.alexvanyo.composelife.data.CellStateRepository
-import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
-import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
@@ -75,12 +68,9 @@ import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.ReportDrawn
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
-import kotlinx.datetime.Clock
 
 interface ComposeLifeAppInjectEntryPoint :
     ComposeLifePreferencesProvider,
-    CellStateRepositoryProvider,
-    ClockProvider,
     GameOfLifeProgressIndicatorInjectEntryPoint,
     CellUniversePaneInjectEntryPoint,
     FullscreenSettingsDetailPaneInjectEntryPoint
@@ -215,10 +205,6 @@ fun rememberComposeLifeAppState(
     windowSize: DpSize,
 ): ComposeLifeAppState = rememberComposeLifeAppState(
     composeLifePreferences = injectEntryPoint.composeLifePreferences,
-    cellStateRepository = injectEntryPoint.cellStateRepository,
-    gameOfLifeAlgorithm = injectEntryPoint.gameOfLifeAlgorithm,
-    dispatchers = injectEntryPoint.dispatchers,
-    clock = injectEntryPoint.clock,
     windowSizeClass = windowSizeClass,
     windowSize = windowSize,
 )
@@ -227,10 +213,6 @@ fun rememberComposeLifeAppState(
 @Composable
 fun rememberComposeLifeAppState(
     composeLifePreferences: ComposeLifePreferences,
-    cellStateRepository: CellStateRepository,
-    gameOfLifeAlgorithm: GameOfLifeAlgorithm,
-    dispatchers: ComposeLifeDispatchers,
-    clock: Clock,
     windowSizeClass: WindowSizeClass,
     windowSize: DpSize,
 ): ComposeLifeAppState {
