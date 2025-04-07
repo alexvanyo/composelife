@@ -52,9 +52,11 @@ import kotlinx.coroutines.launch
 fun Modifier.animateContentSize(
     animationSpec: FiniteAnimationSpec<IntSize> = spring(),
     alignment: Alignment = Alignment.TopStart,
+    clip: Boolean = true,
     finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null,
-): Modifier =
-    this.clipToBounds() then SizeAnimationModifierElement(animationSpec, alignment, finishedListener)
+): Modifier = this
+    .then(if (clip) Modifier.clipToBounds() else Modifier)
+    .then(SizeAnimationModifierElement(animationSpec, alignment, finishedListener))
 
 private data class SizeAnimationModifierElement(
     val animationSpec: FiniteAnimationSpec<IntSize>,

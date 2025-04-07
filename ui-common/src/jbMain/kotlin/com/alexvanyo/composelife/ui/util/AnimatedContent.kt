@@ -91,6 +91,7 @@ fun <T, M> AnimatedContent(
     targetState: TargetState<T, M>,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
+    clip: Boolean = true,
     /**
      * A [Comparable] wrapper around a content, that is transitioning with the given [ContentStatus].
      *
@@ -540,6 +541,7 @@ fun <T, M> AnimatedContent(
                     contentSizeAnimationSpec
                 },
                 alignment = contentAlignment,
+                clip = clip,
                 finishedListener = { _, _ ->
                     completedTargetSizeAnimation = true
                 },

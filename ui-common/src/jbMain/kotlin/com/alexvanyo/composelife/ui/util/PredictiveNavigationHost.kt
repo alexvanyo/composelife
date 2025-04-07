@@ -125,6 +125,7 @@ fun <T> MaterialPredictiveNavigationFrame(
     repeatablePredictiveBackState: RepeatablePredictiveBackState,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
+    clip: Boolean = true,
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     animateInternalContentSizeChanges: Boolean = false,
 ) {
@@ -156,6 +157,7 @@ fun <T> MaterialPredictiveNavigationFrame(
     AnimatedContent(
         targetState = targetState,
         contentAlignment = contentAlignment,
+        clip = clip,
         transitionSpec = { contentWithStatus ->
             val contentStatusTargetState = this@AnimatedContent.targetState
 
@@ -278,7 +280,7 @@ fun <T> MaterialPredictiveNavigationFrame(
                         this.scaleY = scale
                         this.transformOrigin = TransformOrigin(pivotFractionX, 0.5f)
                         shape = RoundedCornerShape(cornerRadius)
-                        clip = true
+                        this.clip = translationX != 0.dp || scaleX < 1f || scaleY < 1f || cornerRadius > 0.dp
                     },
                 propagateMinConstraints = true,
             ) {
