@@ -91,6 +91,8 @@ sealed interface AndroidDevice {
         Pixel2,
         Pixel3XL,
         Pixel6Pro,
+        Pixel9Pro,
+        Pixel9ProFold,
     }
 
     enum class TabletDevice : AndroidDevice {
@@ -167,6 +169,8 @@ fun Project.configureGradleManagedDevices(
                         AndroidDevice.PhoneDevice.Pixel2 -> "Pixel 2"
                         AndroidDevice.PhoneDevice.Pixel3XL -> "Pixel 3 XL"
                         AndroidDevice.PhoneDevice.Pixel6Pro -> "Pixel 6 Pro"
+                        AndroidDevice.PhoneDevice.Pixel9Pro -> "Pixel 9 Pro"
+                        AndroidDevice.PhoneDevice.Pixel9ProFold -> "Pixel 9 Pro Fold"
                         AndroidDevice.TabletDevice.PixelTablet -> "Pixel Tablet"
                         AndroidDevice.WearDevice.WearOSSquare -> "Wear OS Square"
                         AndroidDevice.WearDevice.WearOSSmallRound -> "Wear OS Small Round"
@@ -282,7 +286,7 @@ abstract class KillEmulatorProcessesTask : DefaultTask() {
 
 private val phoneDevices = run {
     val deviceNames = enumValues<AndroidDevice.PhoneDevice>().toList()
-    val apiLevels = 21..35
+    val apiLevels = 21..36
     val systemImageSources = listOf(
         SystemImageSource.Aosp,
         SystemImageSource.AospAtd,
@@ -303,12 +307,17 @@ private val phoneDevices = run {
         }
     }
         .filterNot {
+            // API 36 doesn't support non-Google images
+            it.systemImageSource in setOf(SystemImageSource.Aosp, SystemImageSource.AospAtd) &&
+                it.apiLevel == 36
+        }
+        .filterNot {
             // aosp-atd is only supported on some versions
-            it.systemImageSource == SystemImageSource.AospAtd && it.apiLevel !in 30..34
+            it.systemImageSource == SystemImageSource.AospAtd && it.apiLevel !in 30..35
         }
         .filterNot {
             // google-atd is only supported on some versions
-            it.systemImageSource == SystemImageSource.GoogleAtd && it.apiLevel !in 30..34
+            it.systemImageSource == SystemImageSource.GoogleAtd && it.apiLevel !in 30..35
         }
 }
 
@@ -372,7 +381,7 @@ private val mobileDevices = phoneDevices + tabletDevices + desktopDevices
 
 private val wearDevices = run {
     val deviceNames = enumValues<AndroidDevice.WearDevice>()
-    val apiLevels = setOf(28, 30, 33, 34)
+    val apiLevels = setOf(28, 30, 33, 34, 35)
     val systemImageSources = listOf(
         SystemImageSource.AndroidWear,
     )
