@@ -159,10 +159,10 @@ com.slack.circuit:circuit-retained-android:0.27.0
 com.slack.circuit:circuit-retained:0.27.0
 com.squareup.okhttp3:okhttp-sse:4.12.0
 com.squareup.okhttp3:okhttp:4.12.0
-com.squareup.okio:okio-fakefilesystem-jvm:3.10.2
-com.squareup.okio:okio-fakefilesystem:3.10.2
-com.squareup.okio:okio-jvm:3.10.2
-com.squareup.okio:okio:3.10.2
+com.squareup.okio:okio-fakefilesystem-jvm:3.11.0
+com.squareup.okio:okio-fakefilesystem:3.11.0
+com.squareup.okio:okio-jvm:3.11.0
+com.squareup.okio:okio:3.11.0
 com.squareup.wire:wire-runtime-jvm:5.3.1
 com.squareup.wire:wire-runtime:5.3.1
 io.coil-kt.coil3:coil-compose-core-android:3.1.0
