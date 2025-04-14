@@ -78,13 +78,17 @@ jobs:
               {"api-level": "34", "target": "aosptablet", "device": "pixeltablet"},
               {"api-level": "34", "target": "wear", "device": "wearoslargeround"},
               {"api-level": "34", "target": "wear", "device": "wearossquare"},
-              {"api-level": "35", "target": "google", "device": "pixel6pro"},
-              {"api-level": "35", "target": "googletablet", "device": "pixeltablet"}
+              {"api-level": "35", "target": "aospatd", "device": "pixel6pro"},
+              {"api-level": "35", "target": "googletablet", "device": "pixeltablet"},
+              {"api-level": "35", "target": "wear", "device": "wearoslargeround"},
+              {"api-level": "35", "target": "wear", "device": "wearossquare"},
+              {"api-level": "36", "target": "google", "device": "pixel9profold"},
+              {"api-level": "36", "target": "googletablet", "device": "pixeltablet"}
             '
           else
             MATRIX='
               {"api-level": "26", "target": "aosp", "device": "nexus4"},
-              {"api-level": "34", "target": "aosp", "device": "pixel2"},
+              {"api-level": "35", "target": "aospatd", "device": "pixel6pro"},
               {"api-level": "30", "target": "wear", "device": "wearoslargeround"}
             '
           fi
