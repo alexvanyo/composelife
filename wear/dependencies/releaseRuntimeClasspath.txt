@@ -110,6 +110,8 @@ androidx.profileinstaller:profileinstaller:1.4.0
 androidx.recyclerview:recyclerview:1.0.0
 androidx.resourceinspection:resourceinspection-annotation:1.0.1
 androidx.savedstate:savedstate-android:1.3.0-beta01
+androidx.savedstate:savedstate-compose-android:1.3.0-beta01
+androidx.savedstate:savedstate-compose:1.3.0-beta01
 androidx.savedstate:savedstate-ktx:1.3.0-beta01
 androidx.savedstate:savedstate:1.3.0-beta01
 androidx.slidingpanelayout:slidingpanelayout:1.0.0

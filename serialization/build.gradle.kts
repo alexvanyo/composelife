@@ -45,6 +45,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(libs.androidx.savedState)
+                api(libs.androidx.savedState.compose)
                 api(libs.jetbrains.compose.runtime)
                 api(libs.jetbrains.compose.runtime.saveable)
                 api(libs.kotlinx.serialization.core)
