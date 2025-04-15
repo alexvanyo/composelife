@@ -26,12 +26,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.savedstate.SavedState
-import com.alexvanyo.composelife.serialization.SnapshotStateListSaver
+import androidx.savedstate.compose.serialization.serializers.SnapshotStateListSerializer
 import com.alexvanyo.composelife.serialization.saver
 import com.alexvanyo.composelife.serialization.uuidSaver
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.PairSerializer
 import kotlinx.serialization.serializer
 import kotlin.collections.removeFirst as removeFirstKt
@@ -343,14 +342,12 @@ fun <T> rememberAsyncSessionValueHolder(
     valueSerializer: KSerializer<T>,
 ): SessionValueHolder<T> {
     val updateList = rememberSaveable(
-        saver = SnapshotStateListSaver(
-            ListSerializer(
-                PairSerializer(
-                    SessionValue.serializer(valueSerializer),
-                    SessionValue.serializer(valueSerializer),
-                )
-            ).saver(),
-        )
+        saver = SnapshotStateListSerializer(
+            PairSerializer(
+                SessionValue.serializer(valueSerializer),
+                SessionValue.serializer(valueSerializer),
+            )
+        ).saver()
     ) {
         mutableStateListOf()
     }
