@@ -27,8 +27,7 @@ import com.slack.circuit.retained.RetainedValueProvider
 private class RestorationRegistryImpl(
     private val originalSaveableStateRegistry: SaveableStateRegistry,
     private val retainedStateRegistry: RetainedStateRegistry,
-) :
-    RestorationRegistry {
+) : RestorationRegistry {
 
     override var shouldEmitChildren by mutableStateOf(true)
         private set
