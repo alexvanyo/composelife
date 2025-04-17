@@ -130,3 +130,33 @@ internal actual fun Strings.PatternCollectionsSynchronizationPeriodValue(period:
 
 internal actual val Strings.PatternCollectionsSynchronizationPeriodSuffix: ParameterizedString get() =
     ParameterizedString("minutes")
+
+internal actual val Strings.AddPatternCollection: ParameterizedString get() =
+    ParameterizedString("Add pattern collection source")
+
+internal actual val Strings.LastSuccessfulSync: ParameterizedString get() =
+    ParameterizedString("Last successful sync:")
+
+internal actual val Strings.LastUnsuccessfulSync: ParameterizedString get() =
+    ParameterizedString("Last unsuccessful sync:")
+
+internal actual val Strings.DayUnit: ParameterizedString get() =
+    ParameterizedString("day(s)")
+
+internal actual val Strings.HourUnit: ParameterizedString get() =
+    ParameterizedString("hour(s)")
+
+internal actual val Strings.MinuteUnit: ParameterizedString get() =
+    ParameterizedString("minute(s)")
+
+internal actual val Strings.SecondUnit: ParameterizedString get() =
+    ParameterizedString("second(s)")
+
+internal actual val Strings.Never: ParameterizedString get() =
+    ParameterizedString("Never")
+
+internal actual val Strings.Sources: ParameterizedString get() =
+    ParameterizedString("Sources")
+
+internal actual val Strings.SourceUrlLabel: ParameterizedString get() =
+    ParameterizedString("Source URL")

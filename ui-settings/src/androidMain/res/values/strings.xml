@@ -52,4 +52,14 @@
     <string name="pattern_collection_synchronization_period_label_and_value">Period in minutes: %1$.1f</string>
     <string name="pattern_collection_synchronization_period_value" translatable="false">%1$.1f</string>
     <string name="pattern_collection_synchronization_period_suffix">minutes</string>
+    <string name="add_pattern_collection">Add pattern collection source</string>
+    <string name="source_url_label">Source URL</string>
+    <string name="last_successful_sync">Last successful sync:</string>
+    <string name="last_unsuccessful_sync">Last unsuccessful sync:</string>
+    <string name="day_unit">day(s)</string>
+    <string name="hour_unit">hour(s)</string>
+    <string name="minute_unit">minute(s)</string>
+    <string name="second_unit">second(s)</string>
+    <string name="never">Never</string>
+    <string name="sources">Sources</string>
 </resources>
