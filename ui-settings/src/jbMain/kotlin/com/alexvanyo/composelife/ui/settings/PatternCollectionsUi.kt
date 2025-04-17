@@ -71,8 +71,18 @@ import com.alexvanyo.composelife.database.PatternCollectionId
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.ui.settings.resources.AddPatternCollection
 import com.alexvanyo.composelife.ui.settings.resources.Delete
+import com.alexvanyo.composelife.ui.settings.resources.SourceUrlLabel
+import com.alexvanyo.composelife.ui.settings.resources.LastSuccessfulSync
+import com.alexvanyo.composelife.ui.settings.resources.LastUnsuccessfulSync
 import com.alexvanyo.composelife.ui.settings.resources.Strings
+import com.alexvanyo.composelife.ui.settings.resources.DayUnit
+import com.alexvanyo.composelife.ui.settings.resources.HourUnit
+import com.alexvanyo.composelife.ui.settings.resources.MinuteUnit
+import com.alexvanyo.composelife.ui.settings.resources.Never
+import com.alexvanyo.composelife.ui.settings.resources.SecondUnit
+import com.alexvanyo.composelife.ui.settings.resources.Sources
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.currentTimeZone
@@ -131,7 +141,7 @@ fun PatternCollectionsUi(
         )
 
         Text(
-            "Sources",
+            parameterizedStringResource(Strings.Sources),
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.padding(
                 top = 8.dp,
@@ -247,12 +257,12 @@ fun PatternCollection(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(patternCollection.sourceUrl)
-                    Text("Last successful sync:")
+                    Text(parameterizedStringResource(Strings.LastSuccessfulSync))
 
                     val lastSuccessfulSynchronizationTimestamp =
                         patternCollection.lastSuccessfulSynchronizationTimestamp
                     if (lastSuccessfulSynchronizationTimestamp == null) {
-                        Text("Never")
+                        Text(parameterizedStringResource(Strings.Never))
                     } else {
                         val (unit, period) = lastSuccessfulSynchronizationTimestamp.progressivePeriodUntil(
                             clock = clockProvider.clock,
@@ -269,10 +279,10 @@ fun PatternCollection(
                             is DateTimeUnit.TimeBased -> period.timeComponentInWholeUnits(unit)
                         }
                         val unitName = when (unit) {
-                            DateTimeUnit.DAY -> "day(s)"
-                            DateTimeUnit.HOUR -> "hour(s)"
-                            DateTimeUnit.MINUTE -> "minute(s)"
-                            DateTimeUnit.SECOND -> "second(s)"
+                            DateTimeUnit.DAY -> parameterizedStringResource(Strings.DayUnit)
+                            DateTimeUnit.HOUR -> parameterizedStringResource(Strings.HourUnit)
+                            DateTimeUnit.MINUTE -> parameterizedStringResource(Strings.MinuteUnit)
+                            DateTimeUnit.SECOND -> parameterizedStringResource(Strings.SecondUnit)
                             else -> error("Unknown unit")
                         }
                         Text("$amountOfUnit $unitName ago")
@@ -283,7 +293,7 @@ fun PatternCollection(
                     ) { lastUnsuccessfulSynchronizationTimestamp ->
                         if (lastUnsuccessfulSynchronizationTimestamp != null) {
                             Column {
-                                Text("Last unsuccessful sync:")
+                                Text(parameterizedStringResource(Strings.LastUnsuccessfulSync))
                                 val (unit, period) = lastUnsuccessfulSynchronizationTimestamp.progressivePeriodUntil(
                                     clock = clockProvider.clock,
                                     unitProgression = listOf(
@@ -369,7 +379,7 @@ fun AddPatternCollection(
 
         TextField(
             state = textFieldState,
-            label = { Text("Source URL") },
+            label = { Text(parameterizedStringResource(Strings.SourceUrlLabel)) },
             lineLimits = TextFieldLineLimits.SingleLine,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Uri,
@@ -383,7 +393,7 @@ fun AddPatternCollection(
             enabled = textFieldState.text.isNotBlank(),
             onClick = { add() },
         ) {
-            Text("Add pattern collection source")
+            Text(parameterizedStringResource(Strings.AddPatternCollection))
         }
     }
 }
