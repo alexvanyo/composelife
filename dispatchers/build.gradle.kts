@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -32,6 +33,10 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -42,7 +47,11 @@ kotlin {
                 implementation(projects.injectScopes)
             }
         }
+        val jvmMain by creating {
+            dependsOn(commonMain)
+        }
         val desktopMain by getting {
+            dependsOn(jvmMain)
             configurations["kspDesktop"].dependencies.addAll(
                 listOf(
                     libs.kotlinInject.ksp.get(),
@@ -51,6 +60,7 @@ kotlin {
             )
         }
         val androidMain by getting {
+            dependsOn(jvmMain)
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
                     libs.kotlinInject.ksp.get(),
@@ -60,6 +70,14 @@ kotlin {
             dependencies {
                 api(libs.kotlinx.coroutines.android)
             }
+        }
+        val wasmJsMain by getting {
+            configurations["kspWasmJs"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                )
+            )
         }
     }
 }
