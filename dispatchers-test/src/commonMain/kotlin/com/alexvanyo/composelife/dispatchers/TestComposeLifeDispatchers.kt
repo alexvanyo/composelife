@@ -16,33 +16,9 @@
 
 package com.alexvanyo.composelife.dispatchers
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.TestDispatcher
-import me.tatarka.inject.annotations.Inject
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
-import kotlin.coroutines.CoroutineContext
 
-/**
- * A test implementation of [ComposeLifeDispatchers], which delegates [Default], [Main] and [IO] to the provided
- * [TestDispatcher].
- *
- * [Unconfined] delegates to the default implementations, due to their custom behavior.
- */
-@Inject
-@ContributesBinding(AppScope::class, replaces = [DefaultComposeLifeDispatchers::class])
-@SingleIn(AppScope::class)
-class TestComposeLifeDispatchers(
-    private val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher,
-    cellTickerTestDispatcher: @CellTickerTestDispatcher TestDispatcher,
-) : ComposeLifeDispatchers {
-    override val Default: CoroutineContext = generalTestDispatcher
-    override val Main: CoroutineContext = generalTestDispatcher
-    override val Unconfined: CoroutineContext = Dispatchers.Unconfined
-    override val IO: CoroutineContext = generalTestDispatcher
-    override fun IOWithLimitedParallelism(parallelism: Int): CoroutineDispatcher =
-        generalTestDispatcher.limitedParallelism(parallelism)
-    override val CellTicker: CoroutineContext = cellTickerTestDispatcher
-}
+expect class TestComposeLifeDispatchers(
+    generalTestDispatcher: TestDispatcher,
+    cellTickerTestDispatcher: TestDispatcher,
+)
