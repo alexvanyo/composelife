@@ -84,7 +84,7 @@ kotlin = "2.2.0-Beta1"
 #kotlinInject
 kotlinInject = "0.7.2"
 #kotlinInjectAnvil
-kotlinInjectAnvil = "0.1.3"
+kotlinInjectAnvil = "0.1.4"
 #kotlinPoet
 kotlinPoet = "2.1.0"
 #kotlinxCollectionsImmutable
