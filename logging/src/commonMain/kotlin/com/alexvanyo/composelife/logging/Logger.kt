@@ -16,6 +16,8 @@
 
 package com.alexvanyo.composelife.logging
 
+import kotlin.jvm.JvmOverloads
+
 @Suppress("TooManyFunctions")
 interface Logger {
 

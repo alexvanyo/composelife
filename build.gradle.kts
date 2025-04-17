@@ -54,11 +54,11 @@ buildscript {
     }
 }
 
-tasks.register<Delete>("clean") {
+tasks.named { it == "clean" }.configureEach {
     delete(rootProject.layout.buildDirectory)
 }
 
-tasks.register("check") {
+tasks.named { it == "check" }.configureEach {
     dependsOn(
         gradle.includedBuilds.map {
             it.task(":check")
