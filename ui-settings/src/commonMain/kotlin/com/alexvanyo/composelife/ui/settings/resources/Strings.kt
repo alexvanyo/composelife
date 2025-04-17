@@ -94,3 +94,23 @@ internal expect fun Strings.PatternCollectionsSynchronizationPeriodLabelAndValue
 internal expect fun Strings.PatternCollectionsSynchronizationPeriodValue(period: Double): ParameterizedString
 
 internal expect val Strings.PatternCollectionsSynchronizationPeriodSuffix: ParameterizedString
+
+internal expect val Strings.AddPatternCollection: ParameterizedString
+
+internal expect val Strings.LastSuccessfulSync: ParameterizedString
+
+internal expect val Strings.LastUnsuccessfulSync: ParameterizedString
+
+internal expect val Strings.DayUnit: ParameterizedString
+
+internal expect val Strings.HourUnit: ParameterizedString
+
+internal expect val Strings.MinuteUnit: ParameterizedString
+
+internal expect val Strings.SecondUnit: ParameterizedString
+
+internal expect val Strings.Never: ParameterizedString
+
+internal expect val Strings.Sources: ParameterizedString
+
+internal expect val Strings.SourceUrlLabel: ParameterizedString
