@@ -23,9 +23,14 @@ import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.computeDirection
+import androidx.compose.ui.graphics.divide
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.reverse
 
 /**
  * Draws a dashed line rectangle, with intervals and phase applied symmetrically.
@@ -33,8 +38,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
  * The dashed line effect is drawn in 8 line segments: from the middle of each side,
  * to each corner.
  */
-internal fun DrawScope.drawDashedRect(
-    selectionColor: Color,
+internal fun DrawScope.drawSymmetricDashedRect(
+    color: Color,
     strokeWidth: Float,
     intervals: FloatArray,
     phase: Float = 0f,
@@ -53,7 +58,7 @@ internal fun DrawScope.drawDashedRect(
         rect.centerRight to rect.bottomRight,
     ).forEach { (start, end) ->
         drawDashedLine(
-            color = selectionColor,
+            color = color,
             start = start,
             end = end,
             strokeWidth = strokeWidth,
