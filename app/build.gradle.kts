@@ -69,6 +69,7 @@ kotlin {
                 implementation(projects.resourcesApp)
                 implementation(projects.strictMode)
                 implementation(projects.uiApp)
+                implementation(projects.uiCommon)
                 implementation(projects.uiMobile)
                 implementation(projects.work)
             }
