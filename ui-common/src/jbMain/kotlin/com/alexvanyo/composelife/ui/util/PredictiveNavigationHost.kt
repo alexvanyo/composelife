@@ -30,13 +30,28 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.toRect
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.copy
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onLayoutRectChanged
+import androidx.compose.ui.spatial.RelativeLayoutBounds
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
+import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.util.lerp
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
@@ -54,6 +69,7 @@ fun <T> MaterialPredictiveNavigationHost(
     contentAlignment: Alignment = Alignment.TopStart,
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     animateInternalContentSizeChanges: Boolean = false,
+    clipUsingWindowShape: Boolean = false,
     content: @Composable (BackstackEntry<T>) -> Unit,
 ) = MaterialPredictiveNavigationFrame(
     renderableNavigationState = associateWithRenderablePanes(backstackState, content),
@@ -62,6 +78,7 @@ fun <T> MaterialPredictiveNavigationHost(
     contentAlignment = contentAlignment,
     contentSizeAnimationSpec = contentSizeAnimationSpec,
     animateInternalContentSizeChanges = animateInternalContentSizeChanges,
+    clipUsingWindowShape = clipUsingWindowShape,
 )
 
 @Suppress("LongParameterList")
@@ -127,6 +144,7 @@ fun <T> MaterialPredictiveNavigationFrame(
     contentAlignment: Alignment = Alignment.TopStart,
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     animateInternalContentSizeChanges: Boolean = false,
+    clipUsingWindowShape: Boolean = false,
 ) {
     val rememberedPanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
         key(id) {
@@ -268,16 +286,43 @@ fun <T> MaterialPredictiveNavigationFrame(
                 }
             }
 
+            val windowShape = currentWindowShape()
+            var relativeLayoutBounds: RelativeLayoutBounds? by remember { mutableStateOf(null) }
+
             Box(
                 modifier = Modifier
+                    .onLayoutRectChanged(
+                        throttleMillis = 0,
+                        debounceMillis = 0,
+                    ) {
+                        relativeLayoutBounds = it
+                    }
                     .graphicsLayer {
+                        shape = if (clipUsingWindowShape) {
+                            val cornerRadiusPath = Path().apply {
+                                addRoundRect(
+                                    RoundRect(size.toRect(), CornerRadius(cornerRadius.toPx()))
+                                )
+                            }
+                            val clippingPath = cornerRadiusPath and windowShape.path.copy().apply {
+                                translate(-(relativeLayoutBounds?.positionInWindow?.toOffset() ?: Offset.Zero))
+                            }
+                            object : Shape {
+                                override fun createOutline(
+                                    size: Size,
+                                    layoutDirection: LayoutDirection,
+                                    density: Density,
+                                ): Outline = Outline.Generic(clippingPath)
+                            }
+                        } else {
+                            RoundedCornerShape(cornerRadius)
+                        }
                         shadowElevation = 6.dp.toPx()
                         this.translationX = translationX.toPx()
                         this.alpha = alpha
                         this.scaleX = scale
                         this.scaleY = scale
                         this.transformOrigin = TransformOrigin(pivotFractionX, 0.5f)
-                        shape = RoundedCornerShape(cornerRadius)
                         clip = true
                     },
                 propagateMinConstraints = true,
