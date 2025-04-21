@@ -18,14 +18,17 @@ package com.alexvanyo.composelife
 
 import android.app.Activity
 import android.os.Bundle
+import android.view.ViewGroup
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.toSize
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -42,6 +45,7 @@ import com.alexvanyo.composelife.ui.app.ComposeLifeApp
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
+import com.alexvanyo.composelife.ui.util.ProvideLocalWindowInsetsHolder
 import com.slack.circuit.retained.LocalRetainedStateRegistry
 import com.slack.circuit.retained.continuityRetainedStateRegistry
 
@@ -77,31 +81,34 @@ class MainActivity : AppCompatActivity(), UiComponentOwner {
 
         setContent {
             CompositionLocalProvider(LocalRetainedStateRegistry provides continuityRetainedStateRegistry()) {
-                with(mainActivityEntryPoint) {
-                    val darkTheme = shouldUseDarkTheme()
-                    DisposableEffect(darkTheme) {
-                        enableEdgeToEdge(
-                            statusBarStyle = SystemBarStyle.auto(
-                                android.graphics.Color.TRANSPARENT,
-                                android.graphics.Color.TRANSPARENT,
-                            ) { darkTheme },
-                            navigationBarStyle = SystemBarStyle.auto(
-                                lightScrim,
-                                darkScrim,
-                            ) { darkTheme },
-                        )
-                        onDispose {}
-                    }
+                ProvideLocalWindowInsetsHolder {
+                    with(mainActivityEntryPoint) {
+                        val darkTheme = shouldUseDarkTheme()
+                        DisposableEffect(darkTheme) {
+                            enableEdgeToEdge(
+                                statusBarStyle = SystemBarStyle.auto(
+                                    android.graphics.Color.TRANSPARENT,
+                                    android.graphics.Color.TRANSPARENT,
+                                ) { darkTheme },
+                                navigationBarStyle = SystemBarStyle.auto(
+                                    lightScrim,
+                                    darkScrim,
+                                ) { darkTheme },
+                            )
+                            onDispose {}
+                        }
 
-                    ComposeLifeTheme(darkTheme) {
-                        ComposeLifeApp(
-                            windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                            windowSize = with(LocalDensity.current) { currentWindowSize().toSize().toDpSize() },
-                        )
+                        ComposeLifeTheme(darkTheme) {
+                            ComposeLifeApp(
+                                windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                                windowSize = with(LocalDensity.current) { currentWindowSize().toSize().toDpSize() },
+                            )
+                        }
                     }
                 }
             }
         }
+        (findViewById<ViewGroup>(android.R.id.content).getChildAt(0) as ComposeView).consumeWindowInsets = false
     }
 }
 
