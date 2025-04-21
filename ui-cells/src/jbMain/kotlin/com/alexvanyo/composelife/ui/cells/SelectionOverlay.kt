@@ -21,17 +21,30 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.center
+import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.copy
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onLayoutRectChanged
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.spatial.RelativeLayoutBounds
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -46,6 +59,7 @@ import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.sessionvalue.preLocalSessionId
 import com.alexvanyo.composelife.sessionvalue.rememberSessionValueHolder
+import com.alexvanyo.composelife.ui.util.currentWindowShape
 import com.alexvanyo.composelife.ui.util.AnchoredDraggable2DState
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.TargetState
@@ -97,6 +111,8 @@ fun SelectionOverlay(
     val dropAvailableBorderColor = MaterialTheme.colorScheme.tertiary
     val dropPreviewCellStateBorderColor = MaterialTheme.colorScheme.secondary
 
+    val windowShape = currentWindowShape()
+    var relativeLayoutBounds: RelativeLayoutBounds? by remember { mutableStateOf(null) }
     AnimatedContent(
         targetState = TargetState.Single(
             sessionValue to selectionSessionStateValueHolder.info.preLocalSessionId,
@@ -110,21 +126,27 @@ fun SelectionOverlay(
             } to preLocalSessionId
         },
         modifier = modifier
+            .onLayoutRectChanged {
+                relativeLayoutBounds = it
+            }
             .drawWithContent {
                 drawContent()
 
                 when (cellStateDropStateHolder.cellStateDropState) {
                     CellStateDropState.ApplicableDropAvailable,
                     is CellStateDropState.DropPreview,
-                    -> {
-                        drawDashedRect(
-                            selectionColor = dropAvailableBorderColor,
-                            strokeWidth = 4.dp.toPx(),
-                            intervals = floatArrayOf(
-                                24.dp.toPx(),
-                                24.dp.toPx(),
+                        -> {
+                        val path = windowShape.path.copy().apply {
+                            translate(-checkNotNull(relativeLayoutBounds).positionInWindow.toOffset())
+                        } and Path().apply {
+                            addRect(size.toRect())
+                        }
+                        drawPath(
+                            path = path,
+                            color = dropAvailableBorderColor,
+                            style = Stroke(
+                                width = 4.dp.toPx(),
                             ),
-                            phase = 12.dp.toPx(),
                         )
                     }
                     CellStateDropState.None -> Unit
@@ -165,19 +187,17 @@ fun SelectionOverlay(
 
             is SelectionState.SelectingBox.FixedSelectingBox -> {
                 @Suppress("UNCHECKED_CAST")
-                (
-                    FixedSelectingBoxOverlay(
-                        selectionSessionState = targetSelectionSessionState as
-                            SessionValue<SelectionState.SelectingBox.FixedSelectingBox>,
-                        setSelectionState = selectionSessionStateValueHolder::setValue,
-                        getSelectionCellState = {
-                            getSelectionCellState(targetSelectionState)
-                        },
-                        scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() },
-                        cellWindow = cellWindow,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                    )
+                targetSelectionSessionState as SessionValue<SelectionState.SelectingBox.FixedSelectingBox>
+                FixedSelectingBoxOverlay(
+                    selectionSessionState = targetSelectionSessionState,
+                    setSelectionState = selectionSessionStateValueHolder::setValue,
+                    getSelectionCellState = {
+                        getSelectionCellState(targetSelectionState)
+                    },
+                    scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() },
+                    cellWindow = cellWindow,
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
 
             is SelectionState.SelectingBox.TransientSelectingBox -> {
@@ -211,8 +231,8 @@ private fun ContentDrawScope.drawDropPreview(
     scaledCellDpSize: Dp,
     cellStateOutlineColor: Color,
 ) {
-    drawDashedRect(
-        selectionColor = cellStateOutlineColor,
+    drawSymmetricDashedRect(
+        color = cellStateOutlineColor,
         strokeWidth = 2.dp.toPx(),
         intervals = floatArrayOf(
             24.dp.toPx(),
