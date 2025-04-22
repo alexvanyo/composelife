@@ -82,6 +82,9 @@ val ComposeLifePreferences.synchronizePatternCollectionsOnMeteredNetwork: Resour
 val ComposeLifePreferences.patternCollectionsSynchronizationPeriodSessionValue: ResourceState<SessionValue<DateTimePeriod>>
     get() = loadedPreferencesState.map(LoadedComposeLifePreferences::patternCollectionsSynchronizationPeriodSessionValue)
 
+val ComposeLifePreferences.enableWindowShapeClippingState: ResourceState<Boolean>
+    get() = loadedPreferencesState.map(LoadedComposeLifePreferences::enableWindowShapeClipping)
+
 suspend fun ComposeLifePreferences.setAlgorithmChoice(algorithm: AlgorithmType) =
     update { setAlgorithmChoice(algorithm) }
 
@@ -133,3 +136,6 @@ suspend fun ComposeLifePreferences.setPatternCollectionsSynchronizationPeriod(
     expected: SessionValue<DateTimePeriod>?,
     newValue: SessionValue<DateTimePeriod>,
 ) = update { setPatternCollectionsSynchronizationPeriod(expected, newValue) }
+
+suspend fun ComposeLifePreferences.setEnableWindowShapeClipping(enabled: Boolean) =
+    update { setEnableWindowShapeClipping(enabled) }

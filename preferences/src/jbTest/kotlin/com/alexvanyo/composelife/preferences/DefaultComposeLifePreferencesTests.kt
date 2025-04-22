@@ -833,4 +833,42 @@ class DefaultComposeLifePreferencesTests {
             loadedPreferencesState.value.enableClipboardWatching,
         )
     }
+
+    @Test
+    fun default_enable_window_shape_clipping_is_false() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.enableWindowShapeClippingState)
+
+        delay(1.milliseconds)
+
+        assertEquals(
+            ResourceState.Success(false),
+            composelifePreferences.enableWindowShapeClippingState,
+        )
+    }
+
+    @Test
+    fun setting_enable_window_shape_clipping_updates_value() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.enableWindowShapeClippingState)
+
+        delay(1.milliseconds)
+
+        assertEquals(
+            ResourceState.Success(false),
+            composelifePreferences.enableWindowShapeClippingState,
+        )
+
+        composelifePreferences.setEnableWindowShapeClipping(true)
+        delay(1.milliseconds)
+
+        assertEquals(
+            ResourceState.Success(true),
+            composelifePreferences.enableWindowShapeClippingState,
+        )
+
+        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertTrue(
+            loadedPreferencesState.value.enableWindowShapeClipping,
+        )
+    }
 }

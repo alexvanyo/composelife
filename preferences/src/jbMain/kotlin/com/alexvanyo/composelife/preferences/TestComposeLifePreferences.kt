@@ -52,6 +52,7 @@ class TestComposeLifePreferences(
     patternCollectionsSynchronizationPeriod: DateTimePeriod = DateTimePeriod(hours = 24),
     patternCollectionsSynchronizationPeriodSessionId: Uuid = Uuid.random(),
     patternCollectionsSynchronizationPeriodValueId: Uuid = Uuid.random(),
+    enableWindowShapeClipping: Boolean = false,
 ) : ComposeLifePreferences {
     var quickAccessSettings: Set<QuickAccessSetting> by mutableStateOf(quickAccessSettings)
 
@@ -97,6 +98,8 @@ class TestComposeLifePreferences(
     var patternCollectionsSynchronizationPeriodValueId:
             Uuid by mutableStateOf(patternCollectionsSynchronizationPeriodValueId)
 
+    var enableWindowShapeClipping: Boolean by mutableStateOf(enableWindowShapeClipping)
+
     var isLoaded by mutableStateOf(isLoaded)
 
     override val loadedPreferencesState: ResourceState<LoadedComposeLifePreferences>
@@ -126,6 +129,7 @@ class TestComposeLifePreferences(
                         valueId = patternCollectionsSynchronizationPeriodValueId,
                         value = patternCollectionsSynchronizationPeriod,
                     ),
+                    enableWindowShapeClipping = enableWindowShapeClipping,
                 ),
             )
         } else {
@@ -232,6 +236,10 @@ class TestComposeLifePreferences(
                         patternCollectionsSynchronizationPeriodSessionId = newValue.sessionId
                         patternCollectionsSynchronizationPeriodValueId = newValue.valueId
                     }
+                }
+
+                override fun setEnableWindowShapeClipping(enabled: Boolean) {
+                    enableWindowShapeClipping = enabled
                 }
             }.run(block)
         }

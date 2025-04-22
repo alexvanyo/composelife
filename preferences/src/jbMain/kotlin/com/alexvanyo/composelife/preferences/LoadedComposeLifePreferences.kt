@@ -36,6 +36,7 @@ data class LoadedComposeLifePreferences(
     val enableClipboardWatching: Boolean,
     val synchronizePatternCollectionsOnMeteredNetwork: Boolean,
     val patternCollectionsSynchronizationPeriodSessionValue: SessionValue<DateTimePeriod>,
+    val enableWindowShapeClipping: Boolean,
 ) {
     companion object {
         internal val defaultRoundRectangleSessionId = Uuid.random()
@@ -73,6 +74,7 @@ data class LoadedComposeLifePreferences(
                 valueId = defaultPatternCollectionsSynchronizationPeriodValueId,
                 value = DateTimePeriod(hours = 24),
             ),
+            enableWindowShapeClipping = false,
         )
     }
 }

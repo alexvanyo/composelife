@@ -160,3 +160,6 @@ internal actual val Strings.Sources: ParameterizedString get() =
 
 internal actual val Strings.SourceUrlLabel: ParameterizedString get() =
     ParameterizedString("Source URL")
+
+internal actual val Strings.EnableWindowShapeClipping: ParameterizedString get() =
+    ParameterizedString("Enable window shape clipping")

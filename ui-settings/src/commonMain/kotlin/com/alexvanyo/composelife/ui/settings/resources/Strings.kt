@@ -114,3 +114,5 @@ internal expect val Strings.Never: ParameterizedString
 internal expect val Strings.Sources: ParameterizedString
 
 internal expect val Strings.SourceUrlLabel: ParameterizedString
+
+internal expect val Strings.EnableWindowShapeClipping: ParameterizedString

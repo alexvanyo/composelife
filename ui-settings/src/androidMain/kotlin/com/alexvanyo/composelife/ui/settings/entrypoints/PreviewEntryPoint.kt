@@ -63,6 +63,8 @@ import com.alexvanyo.composelife.ui.settings.DisableOpenGLUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.DisableOpenGLUiLocalEntryPoint
 import com.alexvanyo.composelife.ui.settings.EnableClipboardWatchingUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.EnableClipboardWatchingUiLocalEntryPoint
+import com.alexvanyo.composelife.ui.settings.EnableWindowShapeClippingUiInjectEntryPoint
+import com.alexvanyo.composelife.ui.settings.EnableWindowShapeClippingUiLocalEntryPoint
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneLocalEntryPoint
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneInjectEntryPoint
@@ -99,6 +101,8 @@ internal interface PreviewEntryPoint :
     DisableOpenGLUiLocalEntryPoint,
     EnableClipboardWatchingUiInjectEntryPoint,
     EnableClipboardWatchingUiLocalEntryPoint,
+    EnableWindowShapeClippingUiInjectEntryPoint,
+    EnableWindowShapeClippingUiLocalEntryPoint,
     FullscreenSettingsDetailPaneInjectEntryPoint,
     FullscreenSettingsDetailPaneLocalEntryPoint,
     InlineSettingsPaneInjectEntryPoint,
