@@ -29,6 +29,7 @@ sealed interface QuickAccessSetting {
     data object DoNotKeepProcess : QuickAccessSetting
     data object EnableClipboardWatching : QuickAccessSetting
     data object ClipboardWatchingOnboardingCompleted : QuickAccessSetting
+    data object EnableWindowShapeClipping : QuickAccessSetting
 
     @GenSealedEnum
     companion object
