@@ -104,6 +104,11 @@ sealed interface Setting {
         override val quickAccessSetting = QuickAccessSetting.ClipboardWatchingOnboardingCompleted
     }
 
+    data object EnableWindowShapeClipping : Setting {
+        override val category = SettingsCategory.FeatureFlags
+        override val quickAccessSetting = QuickAccessSetting.EnableWindowShapeClipping
+    }
+
     @GenSealedEnum
     companion object {
         val Saver = sealedEnumSaver(_sealedEnum)
