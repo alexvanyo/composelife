@@ -158,6 +158,8 @@ private class PreferencesProtoTransform(
                 QuickAccessSettingProto.SYNCHRONIZE_PATTERN_COLLECTION_ON_METERED_NETWORK
             QuickAccessSetting.PatternCollectionsSynchronizationPeriod ->
                 QuickAccessSettingProto.PATTERN_COLLECTIONS_SYNCHRONIZATION_PERIOD
+            QuickAccessSetting.EnableWindowShapeClipping ->
+                QuickAccessSettingProto.ENABLE_WINDOW_SHAPE_CLIPPING
         }
 
         val oldQuickAccessSettings = newPreferencesProto.quick_access_settings.toSet()
@@ -239,6 +241,12 @@ private class PreferencesProtoTransform(
             )
         }
     }
+
+    override fun setEnableWindowShapeClipping(enabled: Boolean) {
+        newPreferencesProto = newPreferencesProto.copy(
+            enable_window_shape_clipping = enabled,
+        )
+    }
 }
 
 @Suppress("LongMethod", "ComplexMethod")
@@ -266,6 +274,8 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
                     QuickAccessSetting.SynchronizePatternCollectionsOnMeteredNetwork
                 QuickAccessSettingProto.PATTERN_COLLECTIONS_SYNCHRONIZATION_PERIOD ->
                     QuickAccessSetting.PatternCollectionsSynchronizationPeriod
+                QuickAccessSettingProto.ENABLE_WINDOW_SHAPE_CLIPPING ->
+                    QuickAccessSetting.EnableWindowShapeClipping
                 QuickAccessSettingProto.SETTINGS_UNKNOWN,
                 -> null
             }
@@ -331,6 +341,7 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
     val completedClipboardWatchingOnboarding = completed_clipboard_watching_onboarding
     val enableClipboardWatching = enable_clipboard_watching
     val synchronizePatternCollectionsOnMeteredNetwork = synchronize_pattern_collections_on_metered_network
+    val enableWindowShapeClipping = enable_window_shape_clipping
 
     return LoadedComposeLifePreferences(
         quickAccessSettings = quickAccessSettings,
@@ -348,6 +359,7 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
         enableClipboardWatching = enableClipboardWatching,
         synchronizePatternCollectionsOnMeteredNetwork = synchronizePatternCollectionsOnMeteredNetwork,
         patternCollectionsSynchronizationPeriodSessionValue = patternCollectionsSynchronizationPeriodSessionValue,
+        enableWindowShapeClipping = enableWindowShapeClipping,
     )
 }
 

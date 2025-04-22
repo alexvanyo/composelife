@@ -42,6 +42,7 @@ interface SettingUiInjectEntryPoint :
     DisableOpenGLUiInjectEntryPoint,
     DoNotKeepProcessUiInjectEntryPoint,
     EnableClipboardWatchingUiInjectEntryPoint,
+    EnableWindowShapeClippingUiInjectEntryPoint,
     ClipboardWatchingOnboardingCompletedUiInjectEntryPoint,
     PatternCollectionsSynchronizationPeriodUiInjectEntryPoint,
     PatternCollectionsUiInjectEntryPoint,
@@ -56,6 +57,7 @@ interface SettingUiLocalEntryPoint :
     DisableOpenGLUiLocalEntryPoint,
     DoNotKeepProcessUiLocalEntryPoint,
     EnableClipboardWatchingUiLocalEntryPoint,
+    EnableWindowShapeClippingUiLocalEntryPoint,
     ClipboardWatchingOnboardingCompletedUiLocalEntryPoint,
     LoadedComposeLifePreferencesProvider,
     PatternCollectionsSynchronizationPeriodUiLocalEntryPoint,
@@ -113,6 +115,7 @@ fun SettingUi(
                 Setting.DoNotKeepProcess -> DoNotKeepProcessUi()
                 Setting.EnableClipboardWatching -> EnableClipboardWatchingUi()
                 Setting.ClipboardWatchingOnboardingCompleted -> ClipboardWatchingOnboardingCompletedUi()
+                Setting.EnableWindowShapeClipping -> EnableWindowShapeClippingUi()
             }
         }
     }
@@ -133,4 +136,5 @@ val QuickAccessSetting.setting: Setting
             QuickAccessSetting.DoNotKeepProcess -> Setting.DoNotKeepProcess
             QuickAccessSetting.EnableClipboardWatching -> Setting.EnableClipboardWatching
             QuickAccessSetting.ClipboardWatchingOnboardingCompleted -> Setting.ClipboardWatchingOnboardingCompleted
+            QuickAccessSetting.EnableWindowShapeClipping -> Setting.EnableWindowShapeClipping
         }

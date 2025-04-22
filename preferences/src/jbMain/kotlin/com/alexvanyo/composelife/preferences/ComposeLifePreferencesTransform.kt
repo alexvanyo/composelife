@@ -65,4 +65,6 @@ interface ComposeLifePreferencesTransform {
         expected: SessionValue<DateTimePeriod>?,
         newValue: SessionValue<DateTimePeriod>,
     )
+
+    fun setEnableWindowShapeClipping(enabled: Boolean)
 }

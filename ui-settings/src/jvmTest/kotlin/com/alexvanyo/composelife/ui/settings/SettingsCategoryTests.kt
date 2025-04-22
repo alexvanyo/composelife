@@ -50,6 +50,7 @@ class SettingsCategoryTests {
                 Setting.DoNotKeepProcess,
                 Setting.EnableClipboardWatching,
                 Setting.ClipboardWatchingOnboardingCompleted,
+                Setting.EnableWindowShapeClipping,
             ),
             SettingsCategory.FeatureFlags.settings,
         )

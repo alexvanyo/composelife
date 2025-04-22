@@ -62,4 +62,5 @@
     <string name="second_unit">second(s)</string>
     <string name="never">Never</string>
     <string name="sources">Sources</string>
+    <string name="enable_window_shape_clipping">Enable window shape clipping</string>
 </resources>
