@@ -187,6 +187,7 @@ fun ComposeLifeApp(
                                             ),
                                         ),
                                         repeatablePredictiveBackState = predictiveBackStateHolder.value,
+                                        clipUsingWindowShape = localEntryPoint.preferences.enableWindowShapeClipping,
                                     )
                                 }
                             }
