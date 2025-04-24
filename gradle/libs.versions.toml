@@ -26,7 +26,7 @@ androidxLifecycle = "2.9.0-rc01"
 #androidxLintGradle
 androidxLintGradle = "1.0.0-alpha03"
 #androidxPoolingContainer
-androidxPoolingContainer = "1.1.0-rc01"
+androidxPoolingContainer = "1.1.0"
 #androidxProfileInstaller
 androidxProfileInstaller = "1.4.1"
 #androidxSavedState
