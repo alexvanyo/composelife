@@ -14,7 +14,7 @@ androidxAppcompat = "1.7.0"
 #androidxBenchmark
 androidxBenchmark = "1.4.0-alpha11"
 #androidxComposeBomAlpha
-androidxComposeBomAlpha = "2025.04.00"
+androidxComposeBomAlpha = "2025.04.01"
 #androidxCore
 androidxCore = "1.16.0"
 #androidxCoreSplashscreen
