@@ -30,7 +30,7 @@ androidxPoolingContainer = "1.1.0-rc01"
 #androidxProfileInstaller
 androidxProfileInstaller = "1.4.1"
 #androidxSavedState
-androidxSavedState = "1.3.0-beta01"
+androidxSavedState = "1.3.0-rc01"
 #androidxTestCore
 androidxTestCore = "1.7.0-alpha02"
 #androidxTestEspresso
