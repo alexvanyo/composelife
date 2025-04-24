@@ -54,7 +54,7 @@ androidx.compose:compose-bom-alpha:2025.04.00
 androidx.concurrent:concurrent-futures-ktx:1.2.0
 androidx.concurrent:concurrent-futures:1.2.0
 androidx.core:core-ktx:1.16.0
-androidx.core:core-splashscreen:1.2.0-beta01
+androidx.core:core-splashscreen:1.2.0-beta02
 androidx.core:core-viewtree:1.0.0
 androidx.core:core:1.16.0
 androidx.cursoradapter:cursoradapter:1.0.0
