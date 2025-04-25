@@ -40,6 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.airbnb.android.showkase.annotation.ShowkaseComposable
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
+import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.ui.util.ColorComponent
 import com.alexvanyo.composelife.ui.util.get
 import com.alexvanyo.composelife.ui.util.values
@@ -57,6 +59,7 @@ fun WatchFaceColorPicker(
     ) {
         mutableStateOf(ColorComponent.RgbIntComponent.Red)
     }
+    val parameterizedStringResolver = parameterizedStringResolver()
 
     Row(
         horizontalArrangement = Arrangement.Center,
@@ -81,13 +84,17 @@ fun WatchFaceColorPicker(
                     setComponentValue = {
                         setColor(color.withComponent(component, it))
                     },
-                    contentDescription = stringResource(
-                        when (component) {
-                            ColorComponent.RgbIntComponent.Red -> resourcesWearR.string.color_red_value
-                            ColorComponent.RgbIntComponent.Green -> resourcesWearR.string.color_green_value
-                            ColorComponent.RgbIntComponent.Blue -> resourcesWearR.string.color_blue_value
-                        },
-                    ),
+                    contentDescription = {
+                        parameterizedStringResolver(
+                            ParameterizedString(
+                                when (component) {
+                                    ColorComponent.RgbIntComponent.Red -> resourcesWearR.string.color_red_value
+                                    ColorComponent.RgbIntComponent.Green -> resourcesWearR.string.color_green_value
+                                    ColorComponent.RgbIntComponent.Blue -> resourcesWearR.string.color_blue_value
+                                },
+                            )
+                        )
+                    },
                     modifier = Modifier.weight(1f, fill = false).widthIn(max = 48.dp),
                 )
             }
