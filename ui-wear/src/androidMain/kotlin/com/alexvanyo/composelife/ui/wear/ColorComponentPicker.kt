@@ -43,7 +43,7 @@ fun ColorComponentPicker(
     onSelected: () -> Unit,
     initialComponentValue: Int,
     setComponentValue: (Int) -> Unit,
-    contentDescription: String,
+    contentDescription: () -> String,
     modifier: Modifier = Modifier,
 ) {
     val pickerState = rememberPickerState(
