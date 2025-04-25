@@ -43,7 +43,7 @@ class AndroidParameterizedStringTests {
     fun zero_arg_string_is_correct() {
         assertEquals(
             "Zero",
-            context.getParameterizedString(ParameterizedString(R.string.no_arg_string)),
+            context.resources.getParameterizedString(ParameterizedString(R.string.no_arg_string)),
         )
     }
 
@@ -51,7 +51,7 @@ class AndroidParameterizedStringTests {
     fun zero_arg_raw_string_is_correct() {
         assertEquals(
             "Zero",
-            context.getParameterizedString(ParameterizedString("Zero")),
+            context.resources.getParameterizedString(ParameterizedString("Zero")),
         )
     }
 
@@ -59,7 +59,7 @@ class AndroidParameterizedStringTests {
     fun quantity_arg_string_with_number_is_correct_for_zero() {
         assertEquals(
             "0 things",
-            context.getParameterizedString(
+            context.resources.getParameterizedString(
                 ParameterizedQuantityString(
                     R.plurals.plural_string_with_number,
                     0,
@@ -73,7 +73,7 @@ class AndroidParameterizedStringTests {
     fun quantity_arg_string_with_number_is_correct_for_one() {
         assertEquals(
             "1 thing",
-            context.getParameterizedString(
+            context.resources.getParameterizedString(
                 ParameterizedQuantityString(
                     R.plurals.plural_string_with_number,
                     1,
@@ -87,7 +87,7 @@ class AndroidParameterizedStringTests {
     fun quantity_arg_string_with_number_is_correct_for_two() {
         assertEquals(
             "2 things",
-            context.getParameterizedString(
+            context.resources.getParameterizedString(
                 ParameterizedQuantityString(
                     R.plurals.plural_string_with_number,
                     2,
@@ -101,7 +101,7 @@ class AndroidParameterizedStringTests {
     fun quantity_arg_string_without_number_is_correct_for_zero() {
         assertEquals(
             "things",
-            context.getParameterizedString(ParameterizedQuantityString(R.plurals.plural_string_without_number, 0)),
+            context.resources.getParameterizedString(ParameterizedQuantityString(R.plurals.plural_string_without_number, 0)),
         )
     }
 
@@ -109,7 +109,7 @@ class AndroidParameterizedStringTests {
     fun quantity_arg_string_without_number_is_correct_for_one() {
         assertEquals(
             "thing",
-            context.getParameterizedString(ParameterizedQuantityString(R.plurals.plural_string_without_number, 1)),
+            context.resources.getParameterizedString(ParameterizedQuantityString(R.plurals.plural_string_without_number, 1)),
         )
     }
 
@@ -117,7 +117,7 @@ class AndroidParameterizedStringTests {
     fun quantity_arg_string_without_number_is_correct_for_two() {
         assertEquals(
             "things",
-            context.getParameterizedString(ParameterizedQuantityString(R.plurals.plural_string_without_number, 2)),
+            context.resources.getParameterizedString(ParameterizedQuantityString(R.plurals.plural_string_without_number, 2)),
         )
     }
 
@@ -125,7 +125,7 @@ class AndroidParameterizedStringTests {
     fun one_arg_string_is_correct() {
         assertEquals(
             "One: (a)",
-            context.getParameterizedString(
+            context.resources.getParameterizedString(
                 ParameterizedString(
                     R.string.one_arg_string,
                     ParameterizedStringArgument("a")
@@ -138,7 +138,7 @@ class AndroidParameterizedStringTests {
     fun two_arg_string_is_correct() {
         assertEquals(
             "Two: (a) (b)",
-            context.getParameterizedString(
+            context.resources.getParameterizedString(
                 ParameterizedString(
                     R.string.two_arg_string,
                     ParameterizedStringArgument("a"),
@@ -152,7 +152,7 @@ class AndroidParameterizedStringTests {
     fun three_arg_string_is_correct() {
         assertEquals(
             "Three: (a) (b) (c)",
-            context.getParameterizedString(
+            context.resources.getParameterizedString(
                 ParameterizedString(
                     R.string.three_arg_string,
                     ParameterizedStringArgument("a"),
@@ -167,7 +167,7 @@ class AndroidParameterizedStringTests {
     fun one_arg_raw_string_is_correct() {
         assertEquals(
             "One: (a)",
-            context.getParameterizedString(ParameterizedString("One: (%s)", ParameterizedStringArgument("a"))),
+            context.resources.getParameterizedString(ParameterizedString("One: (%s)", ParameterizedStringArgument("a"))),
         )
     }
 
@@ -175,7 +175,7 @@ class AndroidParameterizedStringTests {
     fun two_arg_raw_string_is_correct() {
         assertEquals(
             "Two: (a) (b)",
-            context.getParameterizedString(
+            context.resources.getParameterizedString(
                 ParameterizedString(
                     "Two: (%s) (%s)",
                     ParameterizedStringArgument("a"),
@@ -189,7 +189,7 @@ class AndroidParameterizedStringTests {
     fun three_arg_raw_string_is_correct() {
         assertEquals(
             "Three: (a) (b) (c)",
-            context.getParameterizedString(
+            context.resources.getParameterizedString(
                 ParameterizedString(
                     "Three: (%s) (%s) (%s)",
                     ParameterizedStringArgument("a"),
@@ -202,7 +202,7 @@ class AndroidParameterizedStringTests {
 
     @Test(expected = MissingFormatArgumentException::class)
     fun three_arg_string_with_two_args_throws() {
-        context.getParameterizedString(
+        context.resources.getParameterizedString(
             ParameterizedString(
                 R.string.three_arg_string,
                 ParameterizedStringArgument("a"),
@@ -213,7 +213,7 @@ class AndroidParameterizedStringTests {
 
     @Test(expected = MissingFormatArgumentException::class)
     fun three_arg_raw_string_with_two_args_throws() {
-        context.getParameterizedString(
+        context.resources.getParameterizedString(
             ParameterizedString(
                 "Three (%s) (%s) (%s)",
                 ParameterizedStringArgument("a"),
@@ -226,7 +226,7 @@ class AndroidParameterizedStringTests {
     fun nested_two_arg_string_is_correct() {
         assertEquals(
             "Two: (One: (a)) (One: (b))",
-            context.getParameterizedString(
+            context.resources.getParameterizedString(
                 ParameterizedString(
                     R.string.two_arg_string,
                     ParameterizedStringArgument(
@@ -250,7 +250,7 @@ class AndroidParameterizedStringTests {
     fun nested_three_arg_string_is_correct() {
         assertEquals(
             "Three: (Two: (a) (b)) (One: (One: (c))) (One: (One: (2 things)))",
-            context.getParameterizedString(
+            context.resources.getParameterizedString(
                 ParameterizedString(
                     R.string.three_arg_string,
                     ParameterizedStringArgument(
