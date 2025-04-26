@@ -11,6 +11,8 @@ androidx.datastore:datastore-core-okio:1.2.0-alpha01
 androidx.datastore:datastore-core:1.2.0-alpha01
 androidx.datastore:datastore-jvm:1.2.0-alpha01
 androidx.datastore:datastore:1.2.0-alpha01
+androidx.graphics:graphics-shapes-desktop:1.0.1
+androidx.graphics:graphics-shapes:1.0.1
 androidx.lifecycle:lifecycle-common-jvm:2.9.0-rc01
 androidx.lifecycle:lifecycle-common:2.9.0-rc01
 androidx.lifecycle:lifecycle-runtime-compose-jvmstubs:2.9.0-rc01
@@ -80,6 +82,7 @@ io.ktor:ktor-websockets-jvm:3.1.2
 io.ktor:ktor-websockets:3.1.2
 me.tatarka.inject:kotlin-inject-runtime-jvm:0.7.2
 me.tatarka.inject:kotlin-inject-runtime:0.7.2
+org.jetbrains.androidx.graphics:graphics-shapes:1.0.0-alpha03
 org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4
 org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose-desktop:2.8.4
 org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.8.4
@@ -102,8 +105,8 @@ org.jetbrains.compose.foundation:foundation-layout:1.8.0-rc01
 org.jetbrains.compose.foundation:foundation:1.8.0-rc01
 org.jetbrains.compose.material3.adaptive:adaptive-desktop:1.1.0-alpha03
 org.jetbrains.compose.material3.adaptive:adaptive:1.1.0-alpha03
-org.jetbrains.compose.material3:material3-desktop:1.8.0-rc01
-org.jetbrains.compose.material3:material3:1.8.0-rc01
+org.jetbrains.compose.material3:material3-desktop:1.8.0-alpha03
+org.jetbrains.compose.material3:material3:1.8.0-alpha03
 org.jetbrains.compose.material:material-desktop:1.8.0-rc01
 org.jetbrains.compose.material:material-icons-core-desktop:1.7.3
 org.jetbrains.compose.material:material-icons-core:1.7.3
