@@ -70,7 +70,7 @@ private val Project.useSharedTest: Provider<SharedTestConfig> get() =
                 "true" -> SharedTestConfig.Both
                 "robolectric" -> SharedTestConfig.Robolectric
                 "android" -> SharedTestConfig.Instrumentation
-                else -> throw GradleException("Unexpected value $useSharedTest for useSharedTest!")
+                else -> throw GradleException("Unexpected value $it for useSharedTest!")
             }
         }
 
