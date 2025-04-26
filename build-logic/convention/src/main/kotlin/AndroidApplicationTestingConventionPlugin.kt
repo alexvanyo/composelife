@@ -35,7 +35,7 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
                 "true" -> true
                 "false" -> false
                 else ->
-                    throw GradleException("Unexpected value $enableKeeperProperty for enableKeeper!")
+                    throw GradleException("Unexpected value $it for enableKeeper!")
             }
         }
 
