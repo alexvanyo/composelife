@@ -50,6 +50,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.core)
                 implementation(projects.logging)
                 implementation(projects.navigation)
+                implementation(projects.parameterizedString)
                 implementation(projects.resourceState)
                 implementation(projects.resourcesWear)
                 implementation(projects.serialization)

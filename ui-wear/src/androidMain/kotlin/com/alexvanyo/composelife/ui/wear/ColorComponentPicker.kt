@@ -30,7 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
+import androidx.wear.compose.foundation.hierarchicalFocus
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Picker
 import androidx.wear.compose.material3.Text
@@ -43,7 +43,7 @@ fun ColorComponentPicker(
     onSelected: () -> Unit,
     initialComponentValue: Int,
     setComponentValue: (Int) -> Unit,
-    contentDescription: String,
+    contentDescription: () -> String,
     modifier: Modifier = Modifier,
 ) {
     val pickerState = rememberPickerState(
@@ -58,33 +58,29 @@ fun ColorComponentPicker(
                 currentSetComponentValue(it)
             }
     }
-
-    HierarchicalFocusCoordinator(
-        requiresFocus = { isSelected },
-    ) {
-        Picker(
-            state = pickerState,
-            contentDescription = contentDescription,
-            onSelected = onSelected,
-            modifier = modifier,
-        ) { optionIndex ->
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .pointerInput(Unit) {
-                        awaitEachGesture {
-                            awaitFirstDown()
-                            onSelected()
-                        }
-                    },
-            ) {
-                Text(
-                    text = "%02X".format(optionIndex),
-                    style = MaterialTheme.typography.displayMedium,
-                    modifier = Modifier.alpha(if (isSelected) 1f else 0.5f),
-                )
-            }
+    Picker(
+        state = pickerState,
+        contentDescription = contentDescription,
+        onSelected = onSelected,
+        modifier = modifier
+            .hierarchicalFocus(isSelected),
+    ) { optionIndex ->
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        awaitFirstDown()
+                        onSelected()
+                    }
+                },
+        ) {
+            Text(
+                text = "%02X".format(optionIndex),
+                style = MaterialTheme.typography.displayMedium,
+                modifier = Modifier.alpha(if (isSelected) 1f else 0.5f),
+            )
         }
     }
 }
