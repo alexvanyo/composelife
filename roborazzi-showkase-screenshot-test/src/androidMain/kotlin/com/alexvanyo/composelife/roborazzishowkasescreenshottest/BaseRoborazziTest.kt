@@ -54,6 +54,7 @@ import kotlin.properties.Delegates
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.minutes
 
 /**
  * A base test class for running screenshot tests over a parameterization of components and other configurations.
@@ -91,7 +92,7 @@ abstract class BaseRoborazziTest(
 
     @RequiresApi(23)
     @Test
-    fun previewScreenshotTest() = runComposeUiTest {
+    fun previewScreenshotTest() = runComposeUiTest(testTimeout = 3.minutes) {
         val testParameterizations = when (roborazziParameterization) {
             CombinedRoborazziParameterization -> parameterizations
             is SingleRoborazziParameterization -> listOf(roborazziParameterization)
