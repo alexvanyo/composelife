@@ -30,11 +30,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.DeferredTargetAnimation
 import androidx.compose.animation.core.ExperimentalAnimatableApi
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
@@ -42,17 +45,22 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.LookaheadScope
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toSize
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -68,14 +76,15 @@ import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiCtx
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
 import com.alexvanyo.composelife.ui.util.ProvideLocalWindowInsetsHolder
-import com.alexvanyo.composelife.ui.util.animateContentSize
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.ForScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
-import kotlin.math.abs
-import kotlin.math.floor
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.roundToInt
+import kotlin.math.sin
 
 @ContributesTo(UiScope::class)
 interface MainActivityInjectCtx : ComposeLifePreferencesProvider {
@@ -218,54 +227,103 @@ fun ComponentActivity.setFancyContent(
         }
     }
 
-    /**
-     * The rotation of the display relative to the natural orientation of the display.
-     * This will be an integer number from 0 to 3.
-     */
-    val displayRotation = remember(
+    val rotation = remember(
         context,
         LocalWindowInfo.current.containerSize,
         displayChanged,
     ) {
         ContextCompat.getDisplayOrDefault(context).rotation
     }
-    val anim = remember { Animatable(displayRotation * 90f) }
-    val targetRotation = remember(displayRotation) {
-        val currentTargetValue = anim.targetValue
-        val completeRotations = floor(currentTargetValue / 360f)
-        listOf(
-            (completeRotations - 1) * 360f + displayRotation * 90f,
-            completeRotations * 360f + displayRotation * 90f,
-            (completeRotations + 1) * 360f + displayRotation * 90f,
-        ).minBy {
-            abs(currentTargetValue - it)
-        }
-    }
-    val currentTargetRotation by rememberUpdatedState(targetRotation)
-
-    LaunchedEffect(Unit) {
-        snapshotFlow { currentTargetRotation }
-            .collect { newRotation ->
-                launch {
-                    anim.animateTo(
-                        targetValue = newRotation,
-                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-                    )
-                }
-            }
-    }
+    val scope = rememberCoroutineScope()
+    var orientationTarget by remember { mutableIntStateOf(rotation) }
+    val anim = remember { Animatable(rotation * 90f) }
+    val animSize = remember { DeferredTargetAnimation(Size.VectorConverter) }
+    val coroutineScope = rememberCoroutineScope()
+    var lookaheadSize by remember { mutableStateOf(IntSize.Zero) }
+    var size by remember { mutableStateOf(Size.Zero) }
     LookaheadScope {
         Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
+            Modifier
                 .graphicsLayer {
-                    rotationZ = (anim.value - targetRotation).mod(360f)
+                    val delta = (rotation - orientationTarget + 4) % 4
+                    if (delta != 0) {
+                        if (delta == 3) {
+                            orientationTarget -= 1
+                        } else
+                            orientationTarget += delta
+                        scope.launch {
+                            // Rotation animation looks best when resizing is no slower than
+                            // rotation.
+                            anim.animateTo(
+                                orientationTarget * 90f,
+                                animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+                            )
+                        }
+                    }
+                    rotationZ = (anim.value - rotation * 90f).let {
+                        if (it < -180f)
+                            it + 360f
+                        else if (it > 180f) it - 360f
+                        else it
+                    }
+                    val r = rotationZ * PI / 180f
+                    if (rotationZ != 0f) {
+                        // Rotate around the center of the screen
+                        translationY = (this.size.height - size.height * cos(r) - size.width * sin(r)).toFloat() / 2f
+                        translationX = (this.size.width + size.height * sin(r) - size.width * cos(r)).toFloat() / 2f
+                    }
+                    // First version of the rotation algorithm
+//                        if (rotationZ > 0f) {
+//                            val rSquared =
+//                                (size.width * size.width + size.height * size.height) / 4f
+//                            translationX = size.width * rotationZ / 90f
+//                            translationY =
+//                                -sqrt(rSquared - (translationX - size.width / 2) *
+//                                (translationX - size.width / 2)) + size.height / 2f
+//                        } else if (rotationZ < 0f) {
+//                            val rSquared =
+//                                (size.width * size.width + size.height * size.height) / 4f
+//                            translationY = -size.height * rotationZ / 90f
+//                            translationX =
+//                                -sqrt(rSquared - (translationY - size.height / 2) *
+//                                (translationY - size.height / 2)) + size.width / 2f
+//                        }
+                    transformOrigin = TransformOrigin(0f, 0f)
                 }
-                .animateContentSize(
-                    animationSpec = spring(stiffness = Spring.StiffnessMedium),
-                    alignment = Alignment.Center,
-                    clip = false,
-                ),
+                .layout { measurable, constraints ->
+                    val placeable: Placeable
+                    val width: Int
+                    val height: Int
+
+                    if (isLookingAhead) {
+                        placeable = measurable.measure(constraints)
+                        width = placeable.width
+                        height = placeable.height
+                        lookaheadSize = IntSize(width, height)
+                    } else {
+                        size = animSize.updateTarget(
+                            IntSize(constraints.maxWidth, constraints.maxHeight).toSize(),
+                            coroutineScope,
+                            animationSpec = spring(
+                                stiffness = Spring.StiffnessMediumLow,
+                                visibilityThreshold = Size(1f, 1f),
+                            )
+                        )
+                        width = lookaheadSize.width
+                        height = lookaheadSize.height
+                        placeable = measurable.measure(
+                            constraints.copy(
+                                maxWidth = size.width.roundToInt(),
+                                maxHeight = size.height.roundToInt(),
+                            )
+                        )
+                    }
+
+                    layout(width, height) {
+                        placeable.place(0, 0)
+                    }
+                }
+                .fillMaxSize()
         ) {
             content()
         }
