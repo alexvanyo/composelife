@@ -186,7 +186,6 @@ fun ComposeLifeApp(
                                 ),
                                 clip = false,
                                 repeatablePredictiveBackState = predictiveBackStateHolder.value,
-                                animateInternalContentSizeChanges = true,
                                 clipUsingWindowShape = localEntryPoint.preferences.enableWindowShapeClipping,
                             )
                         }
