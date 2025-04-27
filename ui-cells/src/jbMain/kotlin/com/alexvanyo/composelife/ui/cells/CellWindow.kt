@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerType
@@ -61,6 +62,7 @@ import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.sessionvalue.SessionValue
+import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.detectTransformGestures
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
@@ -208,8 +210,16 @@ private fun CellWindowImpl(
             PointerType.Eraser,
         )
 
+    val deadCellColor = ComposeLifeTheme.deadCellColor
     BoxWithConstraints(
-        modifier = modifier,
+        modifier = modifier
+            .drawBehind {
+                drawRect(
+                    color = deadCellColor,
+                    topLeft = -Offset(size.width, size.height),
+                    size = size * 3f,
+                )
+            },
     ) {
         /**
          * The target [CellWindowViewport] to use to display the cell universe.
