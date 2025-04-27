@@ -48,7 +48,9 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.TransformOrigin
@@ -82,7 +84,9 @@ import dev.zacsweers.metro.ForScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.cos
+import kotlin.math.floor
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
@@ -227,16 +231,42 @@ fun ComponentActivity.setFancyContent(
         }
     }
 
-    val rotation = remember(
+    /**
+     * The rotation of the display relative to the natural orientation of the display.
+     * This will be an integer number from 0 to 3.
+     */
+    val displayRotation = remember(
         context,
         LocalWindowInfo.current.containerSize,
         displayChanged,
     ) {
         ContextCompat.getDisplayOrDefault(context).rotation
     }
-    val scope = rememberCoroutineScope()
-    var orientationTarget by remember { mutableIntStateOf(rotation) }
-    val anim = remember { Animatable(rotation * 90f) }
+    val anim = remember { Animatable(displayRotation * 90f) }
+    val targetRotation = remember(displayRotation) {
+        val currentTargetValue = anim.targetValue
+        val completeRotations = floor(currentTargetValue / 360f)
+        listOf(
+            (completeRotations - 1) * 360f + displayRotation * 90f,
+            completeRotations * 360f + displayRotation * 90f,
+            (completeRotations + 1) * 360f + displayRotation * 90f,
+        ).minBy {
+            abs(currentTargetValue - it)
+        }
+    }
+    val currentTargetRotation by rememberUpdatedState(targetRotation)
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { currentTargetRotation }
+            .collect { newRotation ->
+                launch {
+                    anim.animateTo(
+                        targetValue = newRotation,
+                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+                    )
+                }
+            }
+    }
     val animSize = remember { DeferredTargetAnimation(Size.VectorConverter) }
     val coroutineScope = rememberCoroutineScope()
     var lookaheadSize by remember { mutableStateOf(IntSize.Zero) }
@@ -245,27 +275,7 @@ fun ComponentActivity.setFancyContent(
         Box(
             Modifier
                 .graphicsLayer {
-                    val delta = (rotation - orientationTarget + 4) % 4
-                    if (delta != 0) {
-                        if (delta == 3) {
-                            orientationTarget -= 1
-                        } else
-                            orientationTarget += delta
-                        scope.launch {
-                            // Rotation animation looks best when resizing is no slower than
-                            // rotation.
-                            anim.animateTo(
-                                orientationTarget * 90f,
-                                animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
-                            )
-                        }
-                    }
-                    rotationZ = (anim.value - rotation * 90f).let {
-                        if (it < -180f)
-                            it + 360f
-                        else if (it > 180f) it - 360f
-                        else it
-                    }
+                    rotationZ = (anim.value - targetRotation).mod(360f)
                     val r = rotationZ * PI / 180f
                     if (rotationZ != 0f) {
                         // Rotate around the center of the screen
