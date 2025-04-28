@@ -82,7 +82,7 @@ kermit = "2.0.5"
 #kotlin
 kotlin = "2.2.0-Beta1"
 #kotlinInject
-kotlinInject = "0.7.2"
+kotlinInject = "0.8.0"
 #kotlinInjectAnvil
 kotlinInjectAnvil = "0.1.4"
 #kotlinPoet
