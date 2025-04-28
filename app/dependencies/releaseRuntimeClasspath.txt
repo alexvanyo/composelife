@@ -198,8 +198,8 @@ io.ktor:ktor-websocket-serialization:3.1.2
 io.ktor:ktor-websockets-jvm:3.1.2
 io.ktor:ktor-websockets:3.1.2
 io.reactivex.rxjava3:rxjava:3.0.2
-me.tatarka.inject:kotlin-inject-runtime-jvm:0.7.2
-me.tatarka.inject:kotlin-inject-runtime:0.7.2
+me.tatarka.inject:kotlin-inject-runtime-jvm:0.8.0
+me.tatarka.inject:kotlin-inject-runtime:0.8.0
 org.checkerframework:checker-qual:3.37.0
 org.jetbrains.androidx.graphics:graphics-shapes:1.0.0-alpha03
 org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.0-alpha03
