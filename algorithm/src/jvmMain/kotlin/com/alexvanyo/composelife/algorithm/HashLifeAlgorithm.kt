@@ -437,10 +437,12 @@ private class Cache<K, V>(
         }
 
     fun prune(oldestGenerationToKeep: Long) {
-        lastAccessedGenerationMap.forEach { key, lastAccessedGeneration ->
-            if (lastAccessedGeneration < oldestGenerationToKeep) {
-                mutableMap.remove(key)
-                lastAccessedGenerationMap.remove(key)
+        val iterator = lastAccessedGenerationMap.iterator()
+        while (iterator.hasNext()) {
+            val mutableEntry = iterator.next()
+            if (mutableEntry.value < oldestGenerationToKeep) {
+                mutableMap.remove(mutableEntry.key)
+                iterator.remove()
             }
         }
     }
