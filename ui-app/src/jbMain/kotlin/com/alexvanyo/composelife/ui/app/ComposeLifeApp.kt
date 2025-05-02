@@ -62,6 +62,7 @@ import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneLocalEn
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsListPane
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.settings.SettingsCategory
+import com.alexvanyo.composelife.ui.util.ImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.LocalNavigationSharedTransitionScope
 import com.alexvanyo.composelife.ui.util.MaterialPredictiveNavigationFrame
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
@@ -84,9 +85,8 @@ fun ComposeLifeApp(
     windowSize: DpSize,
     modifier: Modifier = Modifier,
     composeLifeAppState: ComposeLifeAppState = rememberComposeLifeAppState(windowSizeClass, windowSize),
+    immersiveModeManager: ImmersiveModeManager = rememberImmersiveModeManager(),
 ) {
-    val immersiveModeManager = rememberImmersiveModeManager()
-
     Surface(modifier = modifier.fillMaxSize()) {
         LookaheadScope {
             val transition = updateTransition(composeLifeAppState, "ComposeLifeAppState Crossfade")

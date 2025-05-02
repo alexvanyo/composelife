@@ -57,6 +57,7 @@ kotlin {
                 api(projects.dispatchers)
                 api(projects.random)
                 api(projects.uiCells)
+                api(projects.uiCommon)
                 api(projects.uiSettings)
 
                 implementation(libs.kotlinInject.runtime)
@@ -72,7 +73,6 @@ kotlin {
                 implementation(projects.resourceState)
                 implementation(projects.serialization)
                 implementation(projects.sessionValue)
-                implementation(projects.uiCommon)
                 implementation(projects.uiMobile)
                 implementation(projects.uiToolingPreview)
                 implementation(projects.work)

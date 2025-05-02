@@ -18,13 +18,38 @@ package com.alexvanyo.composelife.ui.util
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.window.WindowPlacement
+import androidx.compose.ui.window.WindowState
 import kotlinx.coroutines.awaitCancellation
 
 @Suppress("ComposeNamingLowercase", "ComposableNaming")
 @Composable
 actual fun rememberImmersiveModeManager(): ImmersiveModeManager =
-    remember {
+    rememberImmersiveModeManager(null)
+
+@Suppress("ComposeNamingLowercase", "ComposableNaming")
+@Composable
+fun rememberImmersiveModeManager(
+    windowState: WindowState?,
+): ImmersiveModeManager =
+    remember(windowState) {
         object : ImmersiveModeManager {
             override suspend fun hideSystemUi() = awaitCancellation()
+
+            override suspend fun enterFullscreenMode(): Result<Unit> =
+                if (windowState == null) {
+                    Result.failure(IllegalStateException("No window state to control"))
+                } else {
+                    windowState.placement = WindowPlacement.Fullscreen
+                    Result.success(Unit)
+                }
+
+            override suspend fun exitFullscreenMode(): Result<Unit> =
+                if (windowState == null) {
+                    Result.failure(IllegalStateException("No window state to control"))
+                } else {
+                    windowState.placement = WindowPlacement.Floating
+                    Result.success(Unit)
+                }
         }
     }
