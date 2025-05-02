@@ -196,9 +196,16 @@ fun rememberInteractiveCellUniverseState(
 
     var isImmersiveMode by rememberSaveable { mutableStateOf(false) }
 
-    if (isImmersiveMode && !LocalGhostElement.current) {
-        LaunchedEffect(Unit) {
-            immersiveModeManager.hideSystemUi()
+    if (!LocalGhostElement.current) {
+        if (isImmersiveMode) {
+            LaunchedEffect(Unit) {
+                immersiveModeManager.enterFullscreenMode()
+                immersiveModeManager.hideSystemUi()
+            }
+        } else {
+            LaunchedEffect(Unit) {
+                immersiveModeManager.exitFullscreenMode()
+            }
         }
     }
 
