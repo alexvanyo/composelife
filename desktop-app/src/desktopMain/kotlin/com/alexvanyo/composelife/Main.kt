@@ -30,6 +30,7 @@ import com.alexvanyo.composelife.ui.app.ComposeLifeApp
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
+import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import com.slack.circuit.retained.LocalRetainedStateRegistry
 import com.slack.circuit.retained.continuityRetainedStateRegistry
@@ -54,6 +55,7 @@ fun main() = application {
     }
 
     val windowState = rememberWindowState()
+    val immersiveModeManager = rememberImmersiveModeManager(windowState)
 
     Window(
         onCloseRequest = ::exitApplication,
@@ -72,6 +74,7 @@ fun main() = application {
                     ComposeLifeApp(
                         windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                         windowSize = windowState.size,
+                        immersiveModeManager = immersiveModeManager,
                     )
                 }
             }

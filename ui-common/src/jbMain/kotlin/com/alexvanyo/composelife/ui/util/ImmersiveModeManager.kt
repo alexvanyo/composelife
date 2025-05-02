@@ -31,6 +31,20 @@ interface ImmersiveModeManager {
      * This method won't finish normally. To stop hiding the system UI, cancel calling this function.
      */
     suspend fun hideSystemUi(): Nothing
+
+    /**
+     * Enters fullscreen mode. This method suspends, and returns a [Result] for whether the request succeeded.
+     *
+     * If the request failed or isn't supported, the returned [Result] will be a failure.
+     */
+    suspend fun enterFullscreenMode(): Result<Unit>
+
+    /**
+     * Exits fullscreen mode. This method suspends, and returns a [Result] for whether the request succeeded.
+     *
+     * If the request failed or isn't supported, the returned [Result] will be a failure.
+     */
+    suspend fun exitFullscreenMode(): Result<Unit>
 }
 
 @Composable
