@@ -20,6 +20,8 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+-ignorewarnings
+
 -optimizations !method/*,class/*
 
 -dontwarn android.**
