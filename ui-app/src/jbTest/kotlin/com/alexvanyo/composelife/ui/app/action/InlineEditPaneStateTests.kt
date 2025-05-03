@@ -47,7 +47,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
     private val cellStateParserProvider: CellStateParserProvider = entryPoint
 
     @Test
-    fun initial_state_is_correct_when_onboarding() = runUiTest { _, composeUiTest ->
+    fun initial_state_is_correct_when_onboarding() = runUiTest {
         val composeLifePreferences = TestComposeLifePreferences(
             touchToolConfig = ToolConfig.Pan,
             mouseToolConfig = ToolConfig.Select,
@@ -58,7 +58,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
 
         lateinit var inlineEditPaneState: InlineEditPaneState
 
-        composeUiTest.setContent {
+        setContent {
             val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
             assertTrue(loadedPreferencesState.isSuccess())
             val preferences = loadedPreferencesState.value
@@ -91,7 +91,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
     }
 
     @Test
-    fun allowing_clipboard_watching_updates_state_correctly() = runUiTest { _, composeUiTest ->
+    fun allowing_clipboard_watching_updates_state_correctly() = runUiTest {
         val composeLifePreferences = TestComposeLifePreferences(
             touchToolConfig = ToolConfig.Pan,
             mouseToolConfig = ToolConfig.Select,
@@ -102,7 +102,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
 
         lateinit var inlineEditPaneState: InlineEditPaneState
 
-        composeUiTest.setContent {
+        setContent {
             val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
             assertTrue(loadedPreferencesState.isSuccess())
             val preferences = loadedPreferencesState.value
@@ -121,7 +121,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
 
         initialClipboardWatchingState.onAllowClipboardWatching()
 
-        composeUiTest.waitForIdle()
+        waitForIdle()
 
         val newPreferencesState = composeLifePreferences.loadedPreferencesState
         assertTrue(newPreferencesState.isSuccess())
@@ -136,7 +136,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
     }
 
     @Test
-    fun disallowing_clipboard_watching_updates_state_correctly() = runUiTest { _, composeUiTest ->
+    fun disallowing_clipboard_watching_updates_state_correctly() = runUiTest {
         val composeLifePreferences = TestComposeLifePreferences(
             touchToolConfig = ToolConfig.Pan,
             mouseToolConfig = ToolConfig.Select,
@@ -147,7 +147,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
 
         lateinit var inlineEditPaneState: InlineEditPaneState
 
-        composeUiTest.setContent {
+        setContent {
             val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
             assertTrue(loadedPreferencesState.isSuccess())
             val preferences = loadedPreferencesState.value
@@ -166,7 +166,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
 
         initialClipboardWatchingState.onDisallowClipboardWatching()
 
-        composeUiTest.waitForIdle()
+        waitForIdle()
 
         val newPreferencesState = composeLifePreferences.loadedPreferencesState
         assertTrue(newPreferencesState.isSuccess())
@@ -181,7 +181,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
     }
 
     @Test
-    fun initial_state_is_correct_when_clipboard_watching_enabled() = runUiTest { _, composeUiTest ->
+    fun initial_state_is_correct_when_clipboard_watching_enabled() = runUiTest {
         val composeLifePreferences = TestComposeLifePreferences(
             touchToolConfig = ToolConfig.Pan,
             mouseToolConfig = ToolConfig.Select,
@@ -192,7 +192,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
 
         lateinit var inlineEditPaneState: InlineEditPaneState
 
-        composeUiTest.setContent {
+        setContent {
             val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
             assertTrue(loadedPreferencesState.isSuccess())
             val preferences = loadedPreferencesState.value
@@ -225,7 +225,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
     }
 
     @Test
-    fun initial_state_is_correct_when_clipboard_watching_disabled() = runUiTest { _, composeUiTest ->
+    fun initial_state_is_correct_when_clipboard_watching_disabled() = runUiTest {
         val composeLifePreferences = TestComposeLifePreferences(
             touchToolConfig = ToolConfig.Pan,
             mouseToolConfig = ToolConfig.Select,
@@ -236,7 +236,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
 
         lateinit var inlineEditPaneState: InlineEditPaneState
 
-        composeUiTest.setContent {
+        setContent {
             val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
             assertTrue(loadedPreferencesState.isSuccess())
             val preferences = loadedPreferencesState.value

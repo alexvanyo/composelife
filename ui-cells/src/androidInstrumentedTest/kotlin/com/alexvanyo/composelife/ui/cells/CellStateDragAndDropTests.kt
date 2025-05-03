@@ -61,7 +61,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationCom
     @Test
     fun drag_and_drop_works_correctly_when_dropped() = runUiTest(
         entryPoint.generalTestDispatcher,
-    ) { uiComponent, composeUiTest ->
+    ) { uiComponent ->
         val cellStateParserProvider: CellStateParserProvider = uiComponent.getEntryPoint<TestComposeLifeUiEntryPoint>()
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
@@ -71,7 +71,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationCom
 
         lateinit var viewConfiguration: ViewConfiguration
 
-        composeUiTest.setContent {
+        setContent {
             viewConfiguration = LocalViewConfiguration.current
             with(cellStateParserProvider) {
                 mutableCellStateDropStateHolder = rememberMutableCellStateDropStateHolder { dropOffset, cellState ->
@@ -108,12 +108,12 @@ class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationCom
         val downTime = SystemClock.uptimeMillis()
 
         val testDropSourceCenterScreenCoordinates: Offset =
-            composeUiTest.onNodeWithTag("TestDropSource").fetchSemanticsNode().let { node ->
+            onNodeWithTag("TestDropSource").fetchSemanticsNode().let { node ->
                 node.positionOnScreen + node.size.center.toOffset()
             }
         val testDropTargetCenterScreenCoordinates: Offset
         val testDropTargetCenterLocalCoordinates: Offset
-        composeUiTest.onNodeWithTag("TestDropTarget").fetchSemanticsNode().let { node ->
+        onNodeWithTag("TestDropTarget").fetchSemanticsNode().let { node ->
             testDropTargetCenterLocalCoordinates = node.size.center.toOffset()
             testDropTargetCenterScreenCoordinates = node.positionOnScreen + testDropTargetCenterLocalCoordinates
         }
@@ -131,9 +131,9 @@ class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationCom
         automation.injectInputEvent(down, true)
         down.recycle()
 
-        composeUiTest.mainClock.advanceTimeBy(viewConfiguration.longPressTimeoutMillis + 100)
-        composeUiTest.waitForIdle()
-        runCurrent()
+        mainClock.advanceTimeBy(viewConfiguration.longPressTimeoutMillis + 100)
+        waitForIdle()
+        entryPoint.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
             assertIs<CellStateDropState.ApplicableDropAvailable>(cellStateDropState)
@@ -152,8 +152,8 @@ class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationCom
         automation.injectInputEvent(move, true)
         move.recycle()
 
-        composeUiTest.waitForIdle()
-        runCurrent()
+        waitForIdle()
+        entryPoint.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
             assertIs<CellStateDropState.DropPreview>(cellStateDropState)
@@ -174,8 +174,8 @@ class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationCom
         automation.injectInputEvent(up, true)
         up.recycle()
 
-        composeUiTest.waitForIdle()
-        runCurrent()
+        waitForIdle()
+        entryPoint.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
             assertIs<CellStateDropState.None>(cellStateDropState)
@@ -187,8 +187,8 @@ class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationCom
     @Test
     fun drag_and_drop_works_correctly_when_ended() = runUiTest(
         entryPoint.generalTestDispatcher,
-    ) { uiComponent, composeUiTest ->        val cellStateParserProvider: CellStateParserProvider = uiComponent.getEntryPoint<TestComposeLifeUiEntryPoint>()
-
+    ) { uiComponent ->
+        val cellStateParserProvider: CellStateParserProvider = uiComponent.getEntryPoint<TestComposeLifeUiEntryPoint>()
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
 
@@ -197,7 +197,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationCom
 
         lateinit var viewConfiguration: ViewConfiguration
 
-        composeUiTest.setContent {
+        setContent {
             viewConfiguration = LocalViewConfiguration.current
             with(cellStateParserProvider) {
                 mutableCellStateDropStateHolder = rememberMutableCellStateDropStateHolder { dropOffset, cellState ->
@@ -234,12 +234,12 @@ class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationCom
         val downTime = SystemClock.uptimeMillis()
 
         val testDropSourceCenterScreenCoordinates: Offset =
-            composeUiTest.onNodeWithTag("TestDropSource").fetchSemanticsNode().let { node ->
+            onNodeWithTag("TestDropSource").fetchSemanticsNode().let { node ->
                 node.positionOnScreen + node.size.center.toOffset()
             }
         val testDropTargetCenterScreenCoordinates: Offset
         val testDropTargetCenterLocalCoordinates: Offset
-        composeUiTest.onNodeWithTag("TestDropTarget").fetchSemanticsNode().let { node ->
+        onNodeWithTag("TestDropTarget").fetchSemanticsNode().let { node ->
             testDropTargetCenterLocalCoordinates = node.size.center.toOffset()
             testDropTargetCenterScreenCoordinates = node.positionOnScreen + testDropTargetCenterLocalCoordinates
         }
@@ -257,9 +257,9 @@ class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationCom
         automation.injectInputEvent(down, true)
         down.recycle()
 
-        composeUiTest.mainClock.advanceTimeBy(viewConfiguration.longPressTimeoutMillis + 100)
-        composeUiTest.waitForIdle()
-        runCurrent()
+        mainClock.advanceTimeBy(viewConfiguration.longPressTimeoutMillis + 100)
+        waitForIdle()
+        entryPoint.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
             assertIs<CellStateDropState.ApplicableDropAvailable>(cellStateDropState)
@@ -278,8 +278,8 @@ class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationCom
         automation.injectInputEvent(move1, true)
         move1.recycle()
 
-        composeUiTest.waitForIdle()
-        runCurrent()
+        waitForIdle()
+        entryPoint.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
             assertIs<CellStateDropState.DropPreview>(cellStateDropState)
@@ -300,8 +300,8 @@ class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationCom
         automation.injectInputEvent(move2, true)
         move2.recycle()
 
-        composeUiTest.waitForIdle()
-        runCurrent()
+        waitForIdle()
+        entryPoint.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
             assertIs<CellStateDropState.ApplicableDropAvailable>(cellStateDropState)
@@ -323,8 +323,8 @@ class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationCom
         // Give time for the drag event to end
         SystemClock.sleep(500)
 
-        composeUiTest.waitForIdle()
-        runCurrent()
+        waitForIdle()
+        entryPoint.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
             assertIs<CellStateDropState.None>(cellStateDropState)

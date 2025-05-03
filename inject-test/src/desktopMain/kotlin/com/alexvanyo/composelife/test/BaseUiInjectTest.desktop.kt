@@ -24,7 +24,6 @@ import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
 import kotlinx.coroutines.test.TestResult
-import kotlinx.coroutines.test.TestScope
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
@@ -34,7 +33,7 @@ import kotlin.time.Duration
 actual fun <AC : ApplicationComponent, UC : UiComponent> BaseUiInjectTest<AC, UC>.runUiTest(
     appTestContext: CoroutineContext,
     timeout: Duration,
-    testBody: suspend TestScope.(uiComponent: UC, composeUiTest: ComposeUiTest) -> Unit,
+    testBody: suspend ComposeUiTest.(uiComponent: UC) -> Unit,
 ): TestResult =
     runComposeUiTest {
         val uiComponent = uiComponentCreator(
@@ -42,14 +41,14 @@ actual fun <AC : ApplicationComponent, UC : UiComponent> BaseUiInjectTest<AC, UC
             object : UiComponentArguments {},
         )
 
+        // TODO: Replace with withAppTestDependencies when runComposeUiTest allows providing a suspend fun
         runAppTest(
             context = appTestContext,
             timeout = timeout,
         ) {
             testBody(
-                this@runAppTest,
-                uiComponent,
                 this@runComposeUiTest,
+                uiComponent,
             )
         }
     }

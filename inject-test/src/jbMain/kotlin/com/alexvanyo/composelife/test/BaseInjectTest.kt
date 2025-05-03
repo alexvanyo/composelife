@@ -21,6 +21,8 @@ import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
@@ -52,7 +54,7 @@ abstract class BaseInjectTest<AC : ApplicationComponent>(
     private val updatables: Set<Updatable>
         get() = entryPoint.updatables
 
-    open fun runAppTest(
+    fun runAppTest(
         context: CoroutineContext = EmptyCoroutineContext,
         timeout: Duration = 60.seconds,
         testBody: suspend TestScope.() -> Unit,
@@ -60,11 +62,25 @@ abstract class BaseInjectTest<AC : ApplicationComponent>(
         context = context,
         timeout = timeout,
     ) {
-        updatables.forEach { updatable ->
-            backgroundScope.launch {
-                updatable.update()
+        withAppTestDependencies {
+            testBody()
+        }
+    }
+
+    suspend fun withAppTestDependencies(
+        testBody: suspend () -> Unit,
+    ): Unit = coroutineScope {
+        val backgroundJob = launch {
+            updatables.forEach { updatable ->
+                launch {
+                    updatable.update()
+                }
             }
         }
-        testBody()
+        try {
+            testBody()
+        } finally {
+            backgroundJob.cancelAndJoin()
+        }
     }
 }
