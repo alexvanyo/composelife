@@ -77,7 +77,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
 
     @Config(qualifiers = "w500dp-h500dp")
     @Test
-    fun show_list_screen_is_displayed_correctly_with_compact_width() = runUiTest { uiComponent, composeUiTest ->
+    fun show_list_screen_is_displayed_correctly_with_compact_width() = runUiTest { uiComponent ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
             uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
@@ -92,7 +92,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        composeUiTest.setContent {
+        setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
                 val windowSize = DpSize(maxWidth, maxHeight)
@@ -143,28 +143,28 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
             }
         }
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.Algorithm))
+        onNodeWithText(resolver.invoke(Strings.Algorithm))
             .performScrollTo()
             .assertIsDisplayed()
             .assertHasClickAction()
             .assert(isSelectable().not())
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.Visual))
+        onNodeWithText(resolver.invoke(Strings.Visual))
             .performScrollTo()
             .assertIsDisplayed()
             .assertHasClickAction()
             .assert(isSelectable().not())
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.FeatureFlags))
+        onNodeWithText(resolver.invoke(Strings.FeatureFlags))
             .performScrollTo()
             .assertIsDisplayed()
             .assertHasClickAction()
             .assert(isSelectable().not())
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.HashLifeAlgorithm))
+        onNodeWithText(resolver.invoke(Strings.HashLifeAlgorithm))
             .assertDoesNotExist()
 
-        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.Back))
+        onNodeWithContentDescription(resolver.invoke(Strings.Back))
             .assertIsDisplayed()
             .assertHasClickAction()
             .performClick()
@@ -174,7 +174,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
 
     @Config(qualifiers = "w700dp-h500dp")
     @Test
-    fun show_list_screen_is_displayed_correctly_with_medium_width() = runUiTest { uiComponent, composeUiTest ->
+    fun show_list_screen_is_displayed_correctly_with_medium_width() = runUiTest { uiComponent ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
             uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
@@ -189,7 +189,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        composeUiTest.setContent {
+        setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
                 val windowSize = DpSize(maxWidth, maxHeight)
@@ -240,32 +240,32 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
             }
         }
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.Algorithm))
+        onNodeWithText(resolver.invoke(Strings.Algorithm))
             .performScrollTo()
             .assertIsDisplayed()
             .assertHasClickAction()
             .assertIsSelectable()
             .assertIsSelected()
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.Visual))
+        onNodeWithText(resolver.invoke(Strings.Visual))
             .performScrollTo()
             .assertIsDisplayed()
             .assertHasClickAction()
             .assertIsSelectable()
             .assertIsNotSelected()
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.FeatureFlags))
+        onNodeWithText(resolver.invoke(Strings.FeatureFlags))
             .performScrollTo()
             .assertIsDisplayed()
             .assertHasClickAction()
             .assertIsSelectable()
             .assertIsNotSelected()
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.HashLifeAlgorithm))
+        onNodeWithText(resolver.invoke(Strings.HashLifeAlgorithm))
             .assertExists()
             .assertHasClickAction()
 
-        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.Back))
+        onNodeWithContentDescription(resolver.invoke(Strings.Back))
             .assertIsDisplayed()
             .assertHasClickAction()
             .performClick()
@@ -275,7 +275,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
 
     @Config(qualifiers = "w500dp-h500dp")
     @Test
-    fun show_detail_screen_is_displayed_correctly_with_compact_width() = runUiTest { uiComponent, composeUiTest ->
+    fun show_detail_screen_is_displayed_correctly_with_compact_width() = runUiTest { uiComponent ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
             uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
@@ -290,7 +290,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        composeUiTest.setContent {
+        setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
                 val windowSize = DpSize(maxWidth, maxHeight)
@@ -341,16 +341,16 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
             }
         }
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.Visual))
+        onNodeWithText(resolver.invoke(Strings.Visual))
             .assertDoesNotExist()
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.FeatureFlags))
+        onNodeWithText(resolver.invoke(Strings.FeatureFlags))
             .assertDoesNotExist()
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.HashLifeAlgorithm))
+        onNodeWithText(resolver.invoke(Strings.HashLifeAlgorithm))
             .assertExists()
 
-        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.Back))
+        onNodeWithContentDescription(resolver.invoke(Strings.Back))
             .assertIsDisplayed()
             .assertHasClickAction()
             .performClick()
@@ -360,7 +360,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
 
     @Config(qualifiers = "w700dp-h500dp")
     @Test
-    fun show_detail_screen_is_displayed_correctly_with_medium_width() = runUiTest { uiComponent, composeUiTest ->
+    fun show_detail_screen_is_displayed_correctly_with_medium_width() = runUiTest { uiComponent ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
             uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
@@ -375,7 +375,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        composeUiTest.setContent {
+        setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
                 val windowSize = DpSize(maxWidth, maxHeight)
@@ -426,26 +426,26 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
             }
         }
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.Algorithm))
+        onNodeWithText(resolver.invoke(Strings.Algorithm))
             .performScrollTo()
             .assertIsDisplayed()
             .assertHasClickAction()
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.Visual))
+        onNodeWithText(resolver.invoke(Strings.Visual))
             .performScrollTo()
             .assertIsDisplayed()
             .assertHasClickAction()
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.FeatureFlags))
+        onNodeWithText(resolver.invoke(Strings.FeatureFlags))
             .performScrollTo()
             .assertIsDisplayed()
             .assertHasClickAction()
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.HashLifeAlgorithm))
+        onNodeWithText(resolver.invoke(Strings.HashLifeAlgorithm))
             .assertExists()
             .assertHasClickAction()
 
-        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.Back))
+        onNodeWithContentDescription(resolver.invoke(Strings.Back))
             .assertIsDisplayed()
             .assertHasClickAction()
             .performClick()
@@ -455,7 +455,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
 
     @Config(qualifiers = "w500dp-h500dp")
     @Test
-    fun click_on_detail_is_displayed_correctly_with_compact_width() = runUiTest { uiComponent, composeUiTest ->
+    fun click_on_detail_is_displayed_correctly_with_compact_width() = runUiTest { uiComponent ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
             uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
@@ -468,7 +468,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        composeUiTest.setContent {
+        setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
                 val windowSize = DpSize(maxWidth, maxHeight)
@@ -517,24 +517,24 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
             }
         }
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.FeatureFlags))
+        onNodeWithText(resolver.invoke(Strings.FeatureFlags))
             .performScrollTo()
             .performClick()
 
-        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.DoNotKeepProcess))
+        onNodeWithContentDescription(resolver.invoke(Strings.DoNotKeepProcess))
             .performScrollTo()
             .assertIsDisplayed()
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.Algorithm))
+        onNodeWithText(resolver.invoke(Strings.Algorithm))
             .assertDoesNotExist()
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.Visual))
+        onNodeWithText(resolver.invoke(Strings.Visual))
             .assertDoesNotExist()
     }
 
     @Config(qualifiers = "w700dp-h500dp")
     @Test
-    fun click_on_detail_is_displayed_correctly_with_medium_width() = runUiTest { uiComponent, composeUiTest ->
+    fun click_on_detail_is_displayed_correctly_with_medium_width() = runUiTest { uiComponent ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
             uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
@@ -547,7 +547,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        composeUiTest.setContent {
+        setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
                 val windowSize = DpSize(maxWidth, maxHeight)
@@ -596,27 +596,27 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
             }
         }
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.FeatureFlags))
+        onNodeWithText(resolver.invoke(Strings.FeatureFlags))
             .performScrollTo()
             .performClick()
 
-        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.DoNotKeepProcess))
+        onNodeWithContentDescription(resolver.invoke(Strings.DoNotKeepProcess))
             .performScrollTo()
             .assertIsDisplayed()
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.Algorithm))
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertIsSelectable()
-            .assertIsNotSelected()
-
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.Visual))
+        onNodeWithText(resolver.invoke(Strings.Algorithm))
             .performScrollTo()
             .assertIsDisplayed()
             .assertIsSelectable()
             .assertIsNotSelected()
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.FeatureFlags))
+        onNodeWithText(resolver.invoke(Strings.Visual))
+            .performScrollTo()
+            .assertIsDisplayed()
+            .assertIsSelectable()
+            .assertIsNotSelected()
+
+        onNodeWithText(resolver.invoke(Strings.FeatureFlags))
             .performScrollTo()
             .assertIsDisplayed()
             .assertIsSelectable()
@@ -625,7 +625,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
 
     @Config(qualifiers = "w300dp-h300dp")
     @Test
-    fun no_detail_to_scroll_to_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
+    fun no_detail_to_scroll_to_is_displayed_correctly() = runUiTest { uiComponent ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
             uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
@@ -639,7 +639,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        composeUiTest.setContent {
+        setContent {
             resolver = parameterizedStringResolver()
             with(entryPoint) {
                 FullscreenSettingsPane(
@@ -665,7 +665,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
             }
         }
 
-        composeUiTest.onNode(
+        onNode(
             hasScrollAction().and(
                 hasAnyDescendant(
                     hasContentDescription(
@@ -684,7 +684,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
 
     @Config(qualifiers = "w300dp-h300dp")
     @Test
-    fun detail_to_scroll_to_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
+    fun detail_to_scroll_to_is_displayed_correctly() = runUiTest { uiComponent ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
             uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
@@ -698,7 +698,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        composeUiTest.setContent {
+        setContent {
             resolver = parameterizedStringResolver()
             with(entryPoint) {
                 FullscreenSettingsPane(
@@ -724,11 +724,11 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
             }
         }
 
-        composeUiTest.waitForIdle()
+        waitForIdle()
 
         assertNull(settingToScrollTo)
 
-        composeUiTest.onNode(
+        onNode(
             hasScrollAction().and(
                 hasAnyDescendant(
                     hasContentDescription(
@@ -747,7 +747,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
 
     @Config(qualifiers = "w700dp-h500dp")
     @Test
-    fun reducing_size_keeps_selected_detail() = runUiTest { uiComponent, composeUiTest ->
+    fun reducing_size_keeps_selected_detail() = runUiTest { uiComponent ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
             uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
@@ -761,7 +761,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
         lateinit var view: View
         lateinit var resolver: (ParameterizedString) -> String
 
-        composeUiTest.setContent {
+        setContent {
             view = LocalView.current
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
@@ -811,14 +811,14 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
             }
         }
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.Visual))
+        onNodeWithText(resolver.invoke(Strings.Visual))
             .performClick()
 
         RuntimeEnvironment.setQualifiers("w500dp-h500dp")
         Shadow.extract<ShadowViewRootImpl>(view.rootView.parent).callDispatchResized()
-        composeUiTest.waitForIdle()
+        waitForIdle()
 
-        composeUiTest.onNodeWithContentDescription(
+        onNodeWithContentDescription(
             resolver.invoke(Strings.CornerFractionLabelAndValue(0f)),
         )
             .performScrollTo()
@@ -827,7 +827,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
 
     @Config(qualifiers = "w500dp-h500dp")
     @Test
-    fun expanding_size_keeps_selected_detail() = runUiTest { uiComponent, composeUiTest ->
+    fun expanding_size_keeps_selected_detail() = runUiTest { uiComponent ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
             uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
@@ -841,7 +841,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
         lateinit var view: View
         lateinit var resolver: (ParameterizedString) -> String
 
-        composeUiTest.setContent {
+        setContent {
             view = LocalView.current
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
@@ -891,20 +891,20 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeA
             }
         }
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.Visual))
+        onNodeWithText(resolver.invoke(Strings.Visual))
             .performClick()
 
         RuntimeEnvironment.setQualifiers("w700dp-h500dp")
         Shadow.extract<ShadowViewRootImpl>(view.rootView.parent).callDispatchResized()
-        composeUiTest.waitForIdle()
+        waitForIdle()
 
-        composeUiTest.onNodeWithContentDescription(
+        onNodeWithContentDescription(
             resolver.invoke(Strings.CornerFractionLabelAndValue(0f)),
         )
             .performScrollTo()
             .assertIsDisplayed()
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.Visual))
+        onNodeWithText(resolver.invoke(Strings.Visual))
             .performScrollTo()
             .assertIsDisplayed()
             .assertIsSelectable()
