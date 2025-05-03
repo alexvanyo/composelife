@@ -71,6 +71,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewRootForInspector
 import androidx.compose.ui.semantics.dialog
@@ -251,20 +252,19 @@ fun PlatformEdgeToEdgeDialog(
         val sizeModifier = if (properties.usePlatformDefaultWidth) {
             // This is a reimplementation of the intrinsic logic from
             // https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/com/android/internal/policy/DecorView.java;l=757;drc=e41472bd05b233b5946b30b3d862f043c30f54c7
-            val context = LocalContext.current
             val widthResource = if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 android.R.dimen.dialog_min_width_minor
             } else {
                 android.R.dimen.dialog_min_width_major
             }
             val typedValue = TypedValue().also {
-                context.resources.getValue(widthResource, it, true)
+                LocalResources.current.getValue(widthResource, it, true)
             }
             when (typedValue.type) {
                 TypedValue.TYPE_DIMENSION -> {
                     Modifier.widthIn(
                         min = with(LocalDensity.current) {
-                            typedValue.getDimension(context.resources.displayMetrics).toDp()
+                            typedValue.getDimension(LocalResources.current.displayMetrics).toDp()
                         },
                     )
                 }

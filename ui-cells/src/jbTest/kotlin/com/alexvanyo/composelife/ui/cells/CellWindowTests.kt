@@ -54,7 +54,7 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
 ) {
 
     @Test
-    fun cells_are_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
+    fun cells_are_displayed_correctly() = runUiTest { uiComponent ->
         val cellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
@@ -88,7 +88,7 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        composeUiTest.setContent {
+        setContent {
             with(entryPoint) {
                 resolver = parameterizedStringResolver()
 
@@ -111,44 +111,44 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
             }
         }
 
-        composeUiTest.onNodeWithContentDescription(
+        onNodeWithContentDescription(
             resolver(Strings.InteractableCellContentDescription(0, 0)),
         )
             .assertIsOn()
 
-        composeUiTest.onNodeWithContentDescription(
+        onNodeWithContentDescription(
             resolver(Strings.InteractableCellContentDescription(0, 1)),
         )
             .assertIsOff()
 
-        composeUiTest.onNodeWithContentDescription(
+        onNodeWithContentDescription(
             resolver(Strings.InteractableCellContentDescription(0, 2)),
         )
             .assertIsOn()
 
-        composeUiTest.onNodeWithContentDescription(
+        onNodeWithContentDescription(
             resolver(Strings.InteractableCellContentDescription(0, 4)),
         )
             .assertDoesNotExist()
 
-        composeUiTest.onNodeWithContentDescription(
+        onNodeWithContentDescription(
             resolver(Strings.InteractableCellContentDescription(2, 0)),
         )
             .assertIsOn()
 
-        composeUiTest.onNodeWithContentDescription(
+        onNodeWithContentDescription(
             resolver(Strings.InteractableCellContentDescription(2, 1)),
         )
             .assertIsOff()
 
-        composeUiTest.onNodeWithContentDescription(
+        onNodeWithContentDescription(
             resolver(Strings.InteractableCellContentDescription(2, 2)),
         )
             .assertIsOn()
     }
 
     @Test
-    fun cells_are_displayed_correctly_after_scrolling() = runUiTest { uiComponent, composeUiTest ->
+    fun cells_are_displayed_correctly_after_scrolling() = runUiTest { uiComponent ->
         val cellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
@@ -183,7 +183,7 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
 
         lateinit var density: Density
 
-        composeUiTest.setContent {
+        setContent {
             density = LocalDensity.current
 
             with(
@@ -207,7 +207,7 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
             }
         }
 
-        composeUiTest.onRoot().performTouchInput {
+        onRoot().performTouchInput {
             with(density) {
                 swipe(
                     Offset(135.dp.toPx(), 135.dp.toPx()),
@@ -221,7 +221,7 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
     }
 
     @Test
-    fun cells_are_not_scrolled_with_none_touch_tool_config() = runUiTest { uiComponent, composeUiTest ->
+    fun cells_are_not_scrolled_with_none_touch_tool_config() = runUiTest { uiComponent ->
         val cellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
@@ -256,7 +256,7 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
 
         lateinit var density: Density
 
-        composeUiTest.setContent {
+        setContent {
             density = LocalDensity.current
 
             with(
@@ -280,7 +280,7 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
             }
         }
 
-        composeUiTest.onRoot().performTouchInput {
+        onRoot().performTouchInput {
             with(density) {
                 swipe(
                     Offset(135.dp.toPx(), 135.dp.toPx()),
@@ -296,7 +296,7 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
     }
 
     @Test
-    fun cells_are_displayed_correctly_after_zooming_in_with_mouse_wheel() = runUiTest { uiComponent, composeUiTest ->
+    fun cells_are_displayed_correctly_after_zooming_in_with_mouse_wheel() = runUiTest { uiComponent ->
         val cellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
@@ -329,7 +329,7 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
             ),
         )
 
-        composeUiTest.setContent {
+        setContent {
             with(entryPoint) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
@@ -345,7 +345,7 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
             }
         }
 
-        composeUiTest.onRoot().performMouseInput {
+        onRoot().performMouseInput {
             scroll(-1f, ScrollWheel.Vertical)
         }
 
@@ -353,7 +353,7 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
     }
 
     @Test
-    fun cells_are_displayed_correctly_after_zooming_out_with_mouse_wheel() = runUiTest { uiComponent, composeUiTest ->
+    fun cells_are_displayed_correctly_after_zooming_out_with_mouse_wheel() = runUiTest { uiComponent ->
         val cellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
@@ -386,7 +386,7 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
             ),
         )
 
-        composeUiTest.setContent {
+        setContent {
             with(entryPoint) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
@@ -402,7 +402,7 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
             }
         }
 
-        composeUiTest.onRoot().performMouseInput {
+        onRoot().performMouseInput {
             scroll(1f, ScrollWheel.Vertical)
         }
 

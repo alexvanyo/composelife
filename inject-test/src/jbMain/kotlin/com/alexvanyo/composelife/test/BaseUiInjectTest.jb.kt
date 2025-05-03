@@ -24,7 +24,6 @@ import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
 import kotlinx.coroutines.test.TestResult
-import kotlinx.coroutines.test.TestScope
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -46,7 +45,7 @@ abstract class BaseUiInjectTest<AC : ApplicationComponent, UC : UiComponent>(
 expect fun <AC : ApplicationComponent, UC : UiComponent> BaseUiInjectTest<AC, UC>.runUiTest(
     appTestContext: CoroutineContext = EmptyCoroutineContext,
     timeout: Duration = 60.seconds,
-    testBody: suspend TestScope.(uiComponent: UC, composeUiTest: ComposeUiTest) -> Unit,
+    testBody: suspend ComposeUiTest.(uiComponent: UC) -> Unit,
 ): TestResult
 
 expect inline fun <reified T : BaseInjectTestEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
