@@ -65,7 +65,7 @@ class FullscreenSettingsDetailPaneTests : BaseUiInjectTest<TestComposeLifeApplic
     private val composeLifePreferences get() = entryPoint.composeLifePreferences
 
     @Test
-    fun visual_settings_category_keeps_scroll_position_with_ime() = runUiTest { uiComponent, composeUiTest ->
+    fun visual_settings_category_keeps_scroll_position_with_ime() = runUiTest { uiComponent ->
         assumeTrue(Build.VERSION.SDK_INT >= 30)
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
             uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
@@ -76,7 +76,7 @@ class FullscreenSettingsDetailPaneTests : BaseUiInjectTest<TestComposeLifeApplic
 
         var imeBottom by mutableStateOf(0.dp)
 
-        composeUiTest.setContent {
+        setContent {
             resolver = parameterizedStringResolver()
             with(fullscreenSettingsDetailPaneInjectEntryPoint) {
                 with(
@@ -119,7 +119,7 @@ class FullscreenSettingsDetailPaneTests : BaseUiInjectTest<TestComposeLifeApplic
             }
         }
 
-        composeUiTest.onNode(
+        onNode(
             hasSetTextAction() and hasImeAction(ImeAction.Done) and
                 hasText(resolver(Strings.CornerFractionLabel)),
         )
@@ -128,9 +128,9 @@ class FullscreenSettingsDetailPaneTests : BaseUiInjectTest<TestComposeLifeApplic
 
         imeBottom = 1000.dp
 
-        composeUiTest.waitForIdle()
+        waitForIdle()
 
-        val boundsInRoot = composeUiTest.onNode(
+        val boundsInRoot = onNode(
             hasSetTextAction() and hasImeAction(ImeAction.Done) and
                 hasText(resolver(Strings.CornerFractionLabel)),
         )

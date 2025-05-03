@@ -52,7 +52,7 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest<TestComposeLifeApplicat
     }
 
     @Test
-    fun non_interactable_cells_draws_correctly_dark_mode() = runUiTest { uiComponent, composeUiTest ->
+    fun non_interactable_cells_draws_correctly_dark_mode() = runUiTest { uiComponent ->
         assumeTrue(Build.VERSION.SDK_INT >= 28)
         if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
@@ -74,7 +74,7 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest<TestComposeLifeApplicat
         var aliveCellColor: Color? = null
         var deadCellColor: Color? = null
 
-        composeUiTest.setContent {
+        setContent {
             ComposeLifeTheme(darkTheme = true) {
                 with(nonInteractableCellsInjectEntryPoint) {
                     with(nonInteractableCellsLocalEntryPoint) {
@@ -111,7 +111,7 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest<TestComposeLifeApplicat
             }
         }
 
-        composeUiTest.onRoot().captureToImage().assertPixels(
+        onRoot().captureToImage().assertPixels(
             IntSize(10, 10),
         ) {
             if (it in cellState.aliveCells) {
@@ -125,7 +125,7 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest<TestComposeLifeApplicat
     }
 
     @Test
-    fun non_interactable_cells_draws_correctly_light_mode() = runUiTest { uiComponent, composeUiTest ->
+    fun non_interactable_cells_draws_correctly_light_mode() = runUiTest { uiComponent ->
         assumeTrue(Build.VERSION.SDK_INT >= 28)
         if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
@@ -147,7 +147,7 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest<TestComposeLifeApplicat
         var aliveCellColor: Color? = null
         var deadCellColor: Color? = null
 
-        composeUiTest.setContent {
+        setContent {
             ComposeLifeTheme(darkTheme = false) {
                 with(nonInteractableCellsInjectEntryPoint) {
                     with(nonInteractableCellsLocalEntryPoint) {
@@ -184,7 +184,7 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest<TestComposeLifeApplicat
             }
         }
 
-        composeUiTest.onRoot().captureToImage().assertPixels(
+        onRoot().captureToImage().assertPixels(
             IntSize(10, 10),
         ) {
             if (it in cellState.aliveCells) {
