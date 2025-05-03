@@ -47,11 +47,11 @@ class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<TestComposeLifeApplica
     }
 
     @Test
-    fun progress_indicator_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
+    fun progress_indicator_is_displayed_correctly() = runUiTest { uiComponent ->
         val gameOfLifeProgressIndicatorInjectEntryPoint: GameOfLifeProgressIndicatorInjectEntryPoint =
             uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
-        composeUiTest.setContent {
+        setContent {
             CompositionLocalProvider(
                 LocalLifecycleOwner provides object : LifecycleOwner {
                     override val lifecycle = LifecycleRegistry(this).apply {
@@ -67,7 +67,7 @@ class GameOfLifeProgressIndicatorTests : BaseUiInjectTest<TestComposeLifeApplica
             }
         }
 
-        composeUiTest.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+        onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
             .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
     }
 }

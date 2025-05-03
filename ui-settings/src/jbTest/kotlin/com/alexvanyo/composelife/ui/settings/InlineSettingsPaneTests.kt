@@ -64,7 +64,7 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
     private val testComposeLifePreferences: TestComposeLifePreferences get() = assertIs(composeLifePreferences)
 
     @Test
-    fun saving_settings_onboarding_is_shown_with_no_quick_access_settings_saved() = runUiTest { uiComponent, composeUiTest ->
+    fun saving_settings_onboarding_is_shown_with_no_quick_access_settings_saved() = runUiTest { uiComponent ->
         val inlineSettingsPaneInjectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
 
         testComposeLifePreferences.quickAccessSettings = emptySet()
@@ -74,7 +74,7 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        composeUiTest.setContent {
+        setContent {
             resolver = parameterizedStringResolver()
             with(inlineSettingsPaneInjectEntryPoint) {
                 with(
@@ -95,12 +95,12 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
             }
         }
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.QuickSettingsInfo))
+        onNodeWithText(resolver.invoke(Strings.QuickSettingsInfo))
             .performScrollTo()
             .assertIsDisplayed()
             .assertHasNoClickAction()
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.SeeAll))
+        onNodeWithText(resolver.invoke(Strings.SeeAll))
             .performScrollTo()
             .assertIsDisplayed()
             .assertHasClickAction()
@@ -110,14 +110,14 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
     }
 
     @Test
-    fun saved_opengl_setting_is_displayed_correctly() = runUiTest { uiComponent, composeUiTest ->
+    fun saved_opengl_setting_is_displayed_correctly() = runUiTest { uiComponent ->
         val inlineSettingsPaneInjectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
         testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        composeUiTest.setContent {
+        setContent {
             resolver = parameterizedStringResolver()
             with(inlineSettingsPaneInjectEntryPoint) {
                 with(
@@ -136,7 +136,7 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
             }
         }
 
-        composeUiTest.onNode(
+        onNode(
             hasContentDescription(resolver.invoke(Strings.RemoveSettingFromQuickAccess)) and
                 hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")),
         )
@@ -145,7 +145,7 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
             .assertIsOn()
             .assertHasClickAction()
 
-        composeUiTest.onNode(
+        onNode(
             hasContentDescription(resolver.invoke(Strings.OpenInSettings)) and
                 hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")),
         )
@@ -153,7 +153,7 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
             .assertIsDisplayed()
             .assertHasClickAction()
 
-        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.DisableOpenGL))
+        onNodeWithContentDescription(resolver.invoke(Strings.DisableOpenGL))
             .performScrollTo()
             .assertIsDisplayed()
             .assert(hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")))
@@ -162,7 +162,7 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
     }
 
     @Test
-    fun opening_saved_setting_functions_correctly() = runUiTest { uiComponent, composeUiTest ->
+    fun opening_saved_setting_functions_correctly() = runUiTest { uiComponent ->
         val inlineSettingsPaneInjectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
         testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
@@ -172,7 +172,7 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        composeUiTest.setContent {
+        setContent {
             resolver = parameterizedStringResolver()
             with(inlineSettingsPaneInjectEntryPoint) {
                 with(
@@ -194,7 +194,7 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
             }
         }
 
-        composeUiTest.onNode(
+        onNode(
             hasContentDescription(resolver.invoke(Strings.OpenInSettings)) and
                 hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")),
         )
@@ -207,14 +207,14 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
     }
 
     @Test
-    fun removing_saved_setting_functions_correctly() = runUiTest { uiComponent, composeUiTest ->
+    fun removing_saved_setting_functions_correctly() = runUiTest { uiComponent ->
         val inlineSettingsPaneInjectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
         testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
         lateinit var resolver: (ParameterizedString) -> String
 
-        composeUiTest.setContent {
+        setContent {
             resolver = parameterizedStringResolver()
             with(inlineSettingsPaneInjectEntryPoint) {
                 with(
@@ -233,7 +233,7 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
             }
         }
 
-        composeUiTest.onNode(
+        onNode(
             hasContentDescription(resolver.invoke(Strings.RemoveSettingFromQuickAccess)) and
                 hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")),
         )
@@ -241,12 +241,12 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
             .assertIsDisplayed()
             .performClick()
 
-        composeUiTest.onNodeWithText(resolver.invoke(Strings.QuickSettingsInfo))
+        onNodeWithText(resolver.invoke(Strings.QuickSettingsInfo))
             .performScrollTo()
             .assertIsDisplayed()
             .assertHasNoClickAction()
 
-        composeUiTest.onNodeWithContentDescription(resolver.invoke(Strings.DisableOpenGL))
+        onNodeWithContentDescription(resolver.invoke(Strings.DisableOpenGL))
             .assertDoesNotExist()
     }
 }
