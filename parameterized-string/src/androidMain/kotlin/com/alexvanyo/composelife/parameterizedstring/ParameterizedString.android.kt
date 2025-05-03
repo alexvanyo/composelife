@@ -18,12 +18,13 @@
 package com.alexvanyo.composelife.parameterizedstring
 
 import android.content.Context
+import android.content.res.Resources
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalResources
 import androidx.core.os.ConfigurationCompat
 import kotlinx.serialization.Serializable
 
@@ -94,9 +95,9 @@ fun ParameterizedQuantityString(
 )
 
 /**
- * Resolves the [ParameterizedString] to a [String] using the current [Context].
+ * Resolves the [ParameterizedString] to a [String] using the given [Resources].
  */
-fun Context.getParameterizedString(parameterizedString: ParameterizedString): String {
+internal fun Resources.getParameterizedString(parameterizedString: ParameterizedString): String {
     val resolvedArgs = parameterizedString.args.map { arg ->
         when (arg) {
             is ParameterizedStringArgument.FloatArg -> arg.value
@@ -118,7 +119,7 @@ fun Context.getParameterizedString(parameterizedString: ParameterizedString): St
         }
         is ParameterizedString.QuantityString -> {
             @Suppress("SpreadOperator")
-            resources.getQuantityString(
+            getQuantityString(
                 parameterizedString.pluralsRes,
                 parameterizedString.quantity,
                 *resolvedArgs,
@@ -127,7 +128,7 @@ fun Context.getParameterizedString(parameterizedString: ParameterizedString): St
         is ParameterizedString.BasicString -> {
             @Suppress("SpreadOperator")
             parameterizedString.value.format(
-                locale = ConfigurationCompat.getLocales(resources.configuration)[0],
+                locale = ConfigurationCompat.getLocales(configuration)[0],
                 *resolvedArgs,
             )
         }
@@ -139,10 +140,9 @@ fun Context.getParameterizedString(parameterizedString: ParameterizedString): St
  */
 @Composable
 actual fun parameterizedStringResolver(): (ParameterizedString) -> String {
-    LocalConfiguration.current
-    val context = LocalContext.current
-    return {
-        context.getParameterizedString(it)
+    val resources = LocalResources.current
+    return remember(resources) {
+        resources::getParameterizedString
     }
 }
 
@@ -151,7 +151,5 @@ actual fun parameterizedStringResolver(): (ParameterizedString) -> String {
  */
 @Composable
 @ReadOnlyComposable
-actual fun parameterizedStringResource(parameterizedString: ParameterizedString): String {
-    LocalConfiguration.current
-    return LocalContext.current.getParameterizedString(parameterizedString)
-}
+actual fun parameterizedStringResource(parameterizedString: ParameterizedString): String =
+    LocalResources.current.getParameterizedString(parameterizedString)
