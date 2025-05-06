@@ -90,6 +90,7 @@ kotlin {
         val jbTest by creating {
             dependsOn(jvmTest)
             dependencies {
+                implementation(compose.desktop.currentOs)
                 implementation(libs.jetbrains.compose.uiTest)
             }
         }
