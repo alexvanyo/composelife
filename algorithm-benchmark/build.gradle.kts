@@ -57,6 +57,7 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation(libs.androidx.benchmark.micro.junit4)
+                implementation(libs.androidx.test.runner)
             }
         }
         val commonTest by getting {
