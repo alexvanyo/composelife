@@ -137,11 +137,11 @@ androidx.window:window-core:1.5.0
 androidx.window:window:1.5.0
 androidx.work:work-runtime-ktx:2.11.0-beta01
 androidx.work:work-runtime:2.11.0-beta01
-androidx.xr.arcore:arcore:1.0.0-alpha03
-androidx.xr.compose:compose:1.0.0-alpha03
-androidx.xr.runtime:runtime-openxr:1.0.0-alpha03
-androidx.xr.runtime:runtime:1.0.0-alpha03
-androidx.xr.scenecore:scenecore:1.0.0-alpha03
+androidx.xr.arcore:arcore:1.0.0-alpha04
+androidx.xr.compose:compose:1.0.0-alpha04
+androidx.xr.runtime:runtime-openxr:1.0.0-alpha04
+androidx.xr.runtime:runtime:1.0.0-alpha04
+androidx.xr.scenecore:scenecore:1.0.0-alpha04
 app.cash.sqldelight:android-driver:2.1.0
 app.cash.sqldelight:async-extensions-jvm:2.1.0
 app.cash.sqldelight:async-extensions:2.1.0
@@ -157,7 +157,7 @@ co.touchlab:kermit-core:2.0.8
 co.touchlab:kermit:2.0.8
 com.github.livefront.sealed-enum:runtime:0.7.0
 com.google.accompanist:accompanist-drawablepainter:0.37.3
-com.google.ar:impress:0.0.2
+com.google.ar:impress:0.0.3
 com.google.code.findbugs:jsr305:3.0.2
 com.google.errorprone:error_prone_annotations:2.30.0
 com.google.guava:failureaccess:1.0.1
