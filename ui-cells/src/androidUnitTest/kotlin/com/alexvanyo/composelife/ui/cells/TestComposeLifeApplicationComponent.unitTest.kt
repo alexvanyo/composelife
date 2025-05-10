@@ -18,15 +18,8 @@
 package com.alexvanyo.composelife.ui.cells
 
 import androidx.test.core.app.ApplicationProvider
-import com.alexvanyo.composelife.test.TestInjectApplication
 
-actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent {
-    val application = ApplicationProvider.getApplicationContext<TestInjectApplication>()
-    val applicationComponent = TestComposeLifeApplicationComponent::class.create(application)
-    application.applicationComponent = applicationComponent
-    application.uiComponentFactory = {
-        applicationComponent.getEntryPoint<TestComposeLifeApplicationEntryPoint>()
-            .uiComponentFactory.createTestComponent(it.activity)
-    }
-    return applicationComponent
-}
+actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent =
+    TestComposeLifeApplicationComponent::class.create(
+        ApplicationProvider.getApplicationContext()
+    )
