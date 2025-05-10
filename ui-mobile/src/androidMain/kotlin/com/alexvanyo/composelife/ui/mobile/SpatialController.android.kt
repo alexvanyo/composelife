@@ -22,15 +22,18 @@ import androidx.compose.runtime.remember
 import androidx.xr.compose.platform.LocalHasXrSpatialFeature
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
+import androidx.xr.compose.platform.LocalSpatialConfiguration
+import androidx.xr.runtime.Config
+import androidx.xr.runtime.Session
 
 @Composable
 actual fun rememberSpatialController(): SpatialController =
     if (Build.VERSION.SDK_INT >= 34) {
         val hasXrSpatialFeature = LocalHasXrSpatialFeature.current
         val spatialCapabilities = LocalSpatialCapabilities.current
-        val xrSession = LocalSession.current
+        val spatialConfiguration = LocalSpatialConfiguration.current
 
-        remember(hasXrSpatialFeature, spatialCapabilities, xrSession) {
+        remember(hasXrSpatialFeature, spatialCapabilities, spatialConfiguration) {
             object : SpatialController {
                 override val hasXrSpatialFeature: Boolean get() = hasXrSpatialFeature
                 override val isSpatialUiEnabled: Boolean get() = spatialCapabilities.isSpatialUiEnabled
@@ -38,9 +41,9 @@ actual fun rememberSpatialController(): SpatialController =
                     get() = isSpatialUiEnabled
                     set(value) {
                         if (value) {
-                            xrSession?.spatialEnvironment?.requestFullSpaceMode()
+                            spatialConfiguration.requestFullSpaceMode()
                         } else {
-                            xrSession?.spatialEnvironment?.requestHomeSpaceMode()
+                            spatialConfiguration.requestHomeSpaceMode()
                         }
                     }
             }
