@@ -34,7 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.wear.compose.foundation.hierarchicalFocus
+import androidx.wear.compose.foundation.hierarchicalFocusGroup
 import androidx.wear.compose.material3.SwipeToDismissBox
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
@@ -151,8 +151,8 @@ fun <T> WearNavigationFrame(
         }
 
         Box(
-            modifier = paneModifier.hierarchicalFocus(
-                focusEnabled = currentEntry.id == entry.id,
+            modifier = paneModifier.hierarchicalFocusGroup(
+                active = currentEntry.id == entry.id,
             )
         ) {
             key(entry.id) {
