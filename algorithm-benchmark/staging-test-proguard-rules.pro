@@ -50,4 +50,6 @@
 -dontwarn java.beans.Introspector
 -dontwarn java.beans.PropertyDescriptor
 -dontwarn java.lang.reflect.AnnotatedType
+-dontwarn javax.inject.Qualifier
+-dontwarn javax.inject.Scope
 -dontwarn javax.lang.model.element.Modifier

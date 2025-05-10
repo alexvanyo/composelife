@@ -36,6 +36,7 @@ android {
     namespace = "com.alexvanyo.composelife.ui.settings"
     defaultConfig {
         minSdk = 21
+        testInstrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
     }
     configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
 }
@@ -138,6 +139,7 @@ kotlin {
                 implementation(projects.dispatchersTest)
                 implementation(projects.entryPointRuntime)
                 implementation(projects.filesystemTest)
+                implementation(projects.injectTest)
                 implementation(projects.injectTestActivity)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
