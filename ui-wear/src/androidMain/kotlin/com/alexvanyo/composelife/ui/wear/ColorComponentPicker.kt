@@ -30,7 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.wear.compose.foundation.hierarchicalFocus
+import androidx.wear.compose.foundation.hierarchicalFocusGroup
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Picker
 import androidx.wear.compose.material3.Text
@@ -63,7 +63,7 @@ fun ColorComponentPicker(
         contentDescription = contentDescription,
         onSelected = onSelected,
         modifier = modifier
-            .hierarchicalFocus(isSelected),
+            .hierarchicalFocusGroup(isSelected),
     ) { optionIndex ->
         Box(
             contentAlignment = Alignment.Center,
