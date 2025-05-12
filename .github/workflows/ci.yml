@@ -130,7 +130,7 @@ jobs:
           android: false
           dotnet: true
           haskell: true
-          large-packages: true
+          large-packages: false # removes libgl, which desktop tests need
           docker-images: true
           swap-storage: true
 
@@ -342,7 +342,7 @@ jobs:
           android: false
           dotnet: true
           haskell: true
-          large-packages: true
+          large-packages: false # removes libgl, which desktop tests need
           docker-images: true
           swap-storage: true
 
