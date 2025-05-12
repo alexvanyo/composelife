@@ -38,11 +38,8 @@ import androidx.compose.ui.graphics.copy
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onLayoutRectChanged
-import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.spatial.RelativeLayoutBounds
 import androidx.compose.ui.unit.Constraints
@@ -126,7 +123,10 @@ fun SelectionOverlay(
             } to preLocalSessionId
         },
         modifier = modifier
-            .onLayoutRectChanged {
+            .onLayoutRectChanged(
+                throttleMillis = 0,
+                debounceMillis = 0,
+            ) {
                 relativeLayoutBounds = it
             }
             .drawWithContent {
