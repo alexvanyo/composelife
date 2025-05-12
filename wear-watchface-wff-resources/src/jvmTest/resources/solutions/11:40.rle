@@ -1,0 +1,7 @@
+#R 16 -49
+x = 96, y = 130, rule = B3/S23
+70bo$70b2o$69bobo73$2o12b2o8b2o6b2o4b2ob2obob2o$2o12b2o8b2o6b2o4b2obob
+2ob2o3$2o12b2o8b2o6b2o4b2o6b2o$2o12b2o8b2o6b2o4b2o6b2o$19b2o$19b2o$2o
+12b2o8b2obob2ob2o4b2o6b2o$2o12b2o8b2ob2obob2o4b2o6b2o$19b2o$19b2o$2o
+12b2o16b2o4b2o6b2o$2o12b2o16b2o4b2o6b2o3$2o12b2o16b2o4b2ob2obob2o$2o
+12b2o16b2o4b2obob2ob2o35$93b3o$93bo$94bo!

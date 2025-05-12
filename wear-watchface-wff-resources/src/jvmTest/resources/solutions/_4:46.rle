@@ -1,0 +1,7 @@
+#R 22 -22
+x = 90, y = 118, rule = B3/S23
+88b2o$87b2o$89bo46$2o6b2o8b2o6b2o4b2ob2obob2o$2o6b2o8b2o6b2o4b2obob2ob
+2o3$2o6b2o8b2o6b2o4b2o$2o6b2o8b2o6b2o4b2o$13b2o$13b2o$2obob2ob2o8b2obo
+b2ob2o4b2obob2ob2o$2ob2obob2o8b2ob2obob2o4b2ob2obob2o$13b2o$13b2o$8b2o
+16b2o4b2o6b2o$8b2o16b2o4b2o6b2o3$8b2o16b2o4b2ob2obob2o$8b2o16b2o4b2obo
+b2ob2o50$78b2o$77b2o$79bo!

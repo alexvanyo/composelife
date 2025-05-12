@@ -1,0 +1,7 @@
+#R -6 -41
+x = 115, y = 85, rule = B3/S23
+112b2o$112bobo$112bo28$bo$2bo$3o96b2o$98bobo$100bo33$28b2ob2obob2o8b2o
+b2obob2o12b2o$28b2obob2ob2o8b2obob2ob2o12b2o3$36b2o8b2o20b2o$36b2o8b2o
+20b2o$41b2o$41b2o$28b2obob2ob2o8b2obob2ob2o12b2o$28b2ob2obob2o8b2ob2ob
+ob2o12b2o$41b2o$41b2o$36b2o16b2o12b2o$36b2o16b2o12b2o3$28b2ob2obob2o8b
+2ob2obob2o12b2o$28b2obob2ob2o8b2obob2ob2o12b2o!

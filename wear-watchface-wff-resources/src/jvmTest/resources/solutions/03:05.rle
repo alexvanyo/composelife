@@ -1,0 +1,10 @@
+#R -20 -48
+x = 134, y = 163, rule = B3/S23
+132bo$132b2o$131bobo30$111bo$110b2o$o109bobo$b2o$2o38$28b2ob2obob2o4b
+2ob2obob2o8b2ob2obob2o4b2ob2obob2o$28b2obob2ob2o4b2obob2ob2o8b2obob2ob
+2o4b2obob2ob2o3$28b2o6b2o12b2o8b2o6b2o4b2o$28b2o6b2o12b2o8b2o6b2o4b2o$
+55b2o$55b2o$28b2o6b2o4b2obob2ob2o8b2o6b2o4b2obob2ob2o$28b2o6b2o4b2ob2o
+bob2o8b2o6b2o4b2ob2obob2o$55b2o$55b2o$28b2o6b2o12b2o8b2o6b2o12b2o$28b
+2o6b2o12b2o8b2o6b2o12b2o3$28b2ob2obob2o4b2ob2obob2o8b2ob2obob2o4b2ob2o
+bob2o$28b2obob2ob2o4b2obob2ob2o8b2obob2ob2o4b2obob2ob2o33$106b2o$105b
+2o$107bo2$3bo$3b2o$2bobo12$4b3o$4bo$5bo16$10b3o$10bo$11bo!

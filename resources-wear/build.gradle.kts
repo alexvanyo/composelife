@@ -26,6 +26,10 @@ android {
     defaultConfig {
         minSdk = 26
     }
+    compileOptions {
+        // This library contains no code, so desugaring isn't needed
+        isCoreLibraryDesugaringEnabled = false
+    }
 }
 
 kotlin {
