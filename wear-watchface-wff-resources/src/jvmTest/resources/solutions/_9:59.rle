@@ -1,0 +1,9 @@
+#R -49 -58
+x = 169, y = 169, rule = B3/S23
+b2o$2o$2bo40$40b2o$39b2o$41bo40$71b2ob2obob2o8b2ob2obob2o4b2ob2obob2o$
+71b2obob2ob2o8b2obob2ob2o4b2obob2ob2o3$71b2o6b2o8b2o12b2o6b2o$71b2o6b
+2o8b2o12b2o6b2o$84b2o$84b2o$71b2obob2ob2o8b2obob2ob2o4b2obob2ob2o$71b
+2ob2obob2o8b2ob2obob2o4b2ob2obob2o$84b2o$84b2o$79b2o16b2o12b2o$79b2o
+16b2o12b2o3$71b2ob2obob2o8b2ob2obob2o4b2ob2obob2o$71b2obob2ob2o8b2obob
+2ob2o4b2obob2ob2o44$34bo$33b2o$33bobo4$167b2o$166b2o$168bo13$148bo$
+148b2o$147bobo!

@@ -1,0 +1,9 @@
+#R -23 26
+x = 128, y = 87, rule = B3/S23
+31b2ob2obob2o4b2ob2obob2o8b2ob2obob2o4b2ob2obob2o$31b2obob2ob2o4b2obob
+2ob2o8b2obob2ob2o4b2obob2ob2o3$31b2o6b2o4b2o16b2o12b2o6b2o$31b2o6b2o4b
+2o16b2o12b2o6b2o$58b2o$58b2o$31b2o6b2o4b2obob2ob2o8b2obob2ob2o4b2o6b2o
+$31b2o6b2o4b2ob2obob2o8b2ob2obob2o4b2o6b2o$58b2o$58b2o$31b2o6b2o4b2o6b
+2o16b2o4b2o6b2o$31b2o6b2o4b2o6b2o16b2o4b2o6b2o3$31b2ob2obob2o4b2ob2obo
+b2o8b2ob2obob2o4b2ob2obob2o$31b2obob2ob2o4b2obob2ob2o8b2obob2ob2o4b2ob
+ob2ob2o32$125b2o$125bobo$125bo5$bo$2o$obo26$15bo$14b2o$14bobo!

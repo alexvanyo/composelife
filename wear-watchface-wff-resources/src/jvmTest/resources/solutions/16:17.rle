@@ -1,0 +1,7 @@
+#R -27 -26
+x = 91, y = 127, rule = B3/S23
+bo$2bo$3o50$43b2o4b2ob2obob2o16b2o4b2ob2obob2o$43b2o4b2obob2ob2o16b2o
+4b2obob2ob2o3$43b2o4b2o24b2o12b2o$43b2o4b2o24b2o12b2o$62b2o$62b2o$43b
+2o4b2obob2ob2o16b2o12b2o$43b2o4b2ob2obob2o16b2o12b2o$62b2o$62b2o$43b2o
+4b2o6b2o16b2o12b2o$43b2o4b2o6b2o16b2o12b2o3$43b2o4b2ob2obob2o16b2o12b
+2o$43b2o4b2obob2ob2o16b2o12b2o55$22b2o$21b2o$23bo!

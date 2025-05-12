@@ -19,7 +19,7 @@ package com.alexvanyo.composelife.algorithm
 import androidx.annotation.IntRange
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.geometry.getNeighbors
+import com.alexvanyo.composelife.geometry.getMooreNeighbors
 import com.alexvanyo.composelife.model.CellState
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.withContext
@@ -62,13 +62,13 @@ class NaiveGameOfLifeAlgorithm(
         cellState
             .aliveCells
             // Get all neighbors of current living cells
-            .flatMap(IntOffset::getNeighbors)
+            .flatMap(IntOffset::getMooreNeighbors)
             .toSet()
             // Union those with all living cells, to get all cells that could be alive next round
             .union(cellState.aliveCells)
             // Filter to the living cells, based on the neighbor count from the previous generation
             .filter { cell ->
-                val neighborCount = cellState.aliveCells.intersect(cell.getNeighbors()).count()
+                val neighborCount = cellState.aliveCells.intersect(cell.getMooreNeighbors()).count()
                 neighborCount == 3 || (neighborCount == 2 && cell in cellState.aliveCells)
             }
             .toSet()

@@ -1,0 +1,8 @@
+#R -28 -56
+x = 159, y = 183, rule = B3/S23
+156b2o$156bobo$156bo18$151bo$151b2o$150bobo6$148bo$147b2o$147bobo7$
+132b2o$131b2o$133bo43$58b2o8b2ob2obob2o4b2o6b2o$58b2o8b2obob2ob2o4b2o
+6b2o3$58b2o16b2o4b2o6b2o$58b2o16b2o4b2o6b2o$63b2o$63b2o$58b2o8b2obob2o
+b2o4b2obob2ob2o$58b2o8b2ob2obob2o4b2ob2obob2o$63b2o$63b2o$58b2o8b2o20b
+2o$58b2o8b2o20b2o3$58b2o8b2ob2obob2o12b2o$58b2o8b2obob2ob2o12b2o49$
+124bo$123b2o$b2o120bobo$obo$2bo27$8b2o$7b2o129bo$9bo128b2o$137bobo!

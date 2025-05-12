@@ -53,7 +53,7 @@ class OffsetExtensionsTests {
                 IntOffset(-3, -5),
                 IntOffset(-2, -5),
             ),
-            IntOffset(-3, -6).getNeighbors(),
+            IntOffset(-3, -6).getMooreNeighbors(),
         )
     }
 
