@@ -22,13 +22,13 @@ jobs:
       - name: Free Disk Space
         uses: jlumbroso/free-disk-space@v1.3.1
         with:
-          tool-cache: true
+          tool-cache: false
           android: false
           dotnet: true
           haskell: true
           large-packages: false # removes libgl, which desktop tests need
           docker-images: true
-          swap-storage: true
+          swap-storage: false
 
       - name: Set ANDROID_USER_HOME
         run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
