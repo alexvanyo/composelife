@@ -138,6 +138,9 @@ kotlin {
         }
         val desktopTest by getting {
             dependsOn(jbTest)
+            dependencies {
+                implementation(compose.desktop.currentOs)
+            }
         }
         val androidSharedTest by getting {
             dependsOn(jbTest)
