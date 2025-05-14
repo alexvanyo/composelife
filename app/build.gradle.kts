@@ -38,6 +38,7 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+        testInstrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
     }
     configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
 }
@@ -108,6 +109,7 @@ kotlin {
                 implementation(projects.databaseTest)
                 implementation(projects.dispatchersTest)
                 implementation(projects.filesystemTest)
+                implementation(projects.injectTest)
                 implementation(projects.patterns)
                 implementation(projects.preferencesTest)
                 implementation(projects.uiCommon)

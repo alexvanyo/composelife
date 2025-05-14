@@ -80,7 +80,7 @@ fun Project.configureAndroidTesting(
 ) {
     testedExtension.apply {
         defaultConfig {
-            testInstrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
+            testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
 
         sourceSets {
@@ -117,11 +117,7 @@ fun Project.configureAndroidTesting(
 
         sourceSets.configure(
             closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
-                val commonTest = getByName("commonTest") {
-                    dependencies {
-                        implementation(project(":inject-test"))
-                    }
-                }
+                val commonTest = getByName("commonTest")
                 val androidSharedTest = create("androidSharedTest") {
                     dependsOn(commonTest)
                 }
@@ -136,6 +132,9 @@ fun Project.configureAndroidTesting(
                 getByName("androidInstrumentedTest") {
                     if (useSharedTest.get() != SharedTestConfig.Robolectric) {
                         dependsOn(androidSharedTest)
+                    }
+                    dependencies {
+                        implementation(libs.findLibrary("androidx-test-runner").get())
                     }
                 }
             },
