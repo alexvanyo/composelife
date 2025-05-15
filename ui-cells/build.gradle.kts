@@ -132,7 +132,6 @@ kotlin {
                 implementation(projects.entryPointRuntime)
                 implementation(projects.filesystemTest)
                 implementation(projects.injectTest)
-                implementation(projects.injectTestActivity)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.patterns)
