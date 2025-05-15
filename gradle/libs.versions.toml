@@ -64,7 +64,7 @@ autoServiceKsp = "1.2.0"
 #circuit
 circuit = "0.27.1"
 #coil
-coil = "3.2.0-rc02"
+coil = "3.2.0"
 #dependencyGuard
 dependencyGuard = "0.5.0"
 #detekt
