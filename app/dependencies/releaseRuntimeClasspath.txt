@@ -157,8 +157,8 @@ com.google.errorprone:error_prone_annotations:2.30.0
 com.google.guava:failureaccess:1.0.1
 com.google.guava:guava:32.1.3-android
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
-com.slack.circuit:circuit-retained-android:0.27.1
-com.slack.circuit:circuit-retained:0.27.1
+com.slack.circuit:circuit-retained-android:0.28.0
+com.slack.circuit:circuit-retained:0.28.0
 com.squareup.okhttp3:okhttp-sse:4.12.0
 com.squareup.okhttp3:okhttp:4.12.0
 com.squareup.okio:okio-fakefilesystem-jvm:3.11.0

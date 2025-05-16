@@ -42,8 +42,8 @@ co.touchlab:kermit-core:2.0.5
 co.touchlab:kermit-jvm:2.0.5
 co.touchlab:kermit:2.0.5
 com.github.livefront.sealed-enum:runtime:0.7.0
-com.slack.circuit:circuit-retained-jvm:0.27.1
-com.slack.circuit:circuit-retained:0.27.1
+com.slack.circuit:circuit-retained-jvm:0.28.0
+com.slack.circuit:circuit-retained:0.28.0
 com.squareup.okhttp3:okhttp-sse:4.12.0
 com.squareup.okhttp3:okhttp:4.12.0
 com.squareup.okio:okio-jvm:3.11.0
