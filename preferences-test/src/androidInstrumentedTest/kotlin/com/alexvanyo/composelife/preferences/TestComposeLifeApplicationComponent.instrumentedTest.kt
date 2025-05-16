@@ -18,11 +18,8 @@
 package com.alexvanyo.composelife.preferences
 
 import androidx.test.core.app.ApplicationProvider
-import com.alexvanyo.composelife.test.TestInjectApplication
 
-actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent {
-    val application = ApplicationProvider.getApplicationContext<TestInjectApplication>()
-    val applicationComponent = TestComposeLifeApplicationComponent::class.create(application)
-    application.applicationComponent = applicationComponent
-    return applicationComponent
-}
+actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent =
+    TestComposeLifeApplicationComponent::class.create(
+        ApplicationProvider.getApplicationContext()
+    )
