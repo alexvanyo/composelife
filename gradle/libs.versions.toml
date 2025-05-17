@@ -88,7 +88,7 @@ kotlinInjectAnvil = "0.1.5"
 #kotlinPoet
 kotlinPoet = "2.1.0"
 #kotlinxCollectionsImmutable
-kotlinxCollectionsImmutable = "0.3.8"
+kotlinxCollectionsImmutable = "0.4.0"
 #kotlinxCoroutines
 kotlinxCoroutines = "1.10.2"
 #kotlinxDatetime
