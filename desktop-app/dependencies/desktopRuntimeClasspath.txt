@@ -103,8 +103,8 @@ org.jetbrains.compose.foundation:foundation-desktop:1.8.0
 org.jetbrains.compose.foundation:foundation-layout-desktop:1.8.0
 org.jetbrains.compose.foundation:foundation-layout:1.8.0
 org.jetbrains.compose.foundation:foundation:1.8.0
-org.jetbrains.compose.material3.adaptive:adaptive-desktop:1.1.0-rc01
-org.jetbrains.compose.material3.adaptive:adaptive:1.1.0-rc01
+org.jetbrains.compose.material3.adaptive:adaptive-desktop:1.1.0
+org.jetbrains.compose.material3.adaptive:adaptive:1.1.0
 org.jetbrains.compose.material3:material3-desktop:1.8.0-alpha03
 org.jetbrains.compose.material3:material3:1.8.0-alpha03
 org.jetbrains.compose.material:material-desktop:1.8.0
