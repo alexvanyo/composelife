@@ -145,7 +145,7 @@ class PatternCollectionRepositoryImpl(
 
     override suspend fun deletePatternCollection(
         patternCollectionId: PatternCollectionId,
-    ) = withContext(dispatchers.IO) {
+    ): Unit = withContext(dispatchers.IO) {
         patternCollectionQueries.transactionWithResult {
             patternCollectionQueries.deletePatternCollection(patternCollectionId)
         }
