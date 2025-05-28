@@ -196,7 +196,7 @@ org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.8.1
 org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1
 org.jetbrains:annotations:23.0.0
 org.jspecify:jspecify:1.0.0
-software.amazon.lastmile.kotlin.inject.anvil:runtime-android:0.1.5
-software.amazon.lastmile.kotlin.inject.anvil:runtime-optional-android:0.1.5
-software.amazon.lastmile.kotlin.inject.anvil:runtime-optional:0.1.5
-software.amazon.lastmile.kotlin.inject.anvil:runtime:0.1.5
+software.amazon.lastmile.kotlin.inject.anvil:runtime-android:0.1.6
+software.amazon.lastmile.kotlin.inject.anvil:runtime-optional-android:0.1.6
+software.amazon.lastmile.kotlin.inject.anvil:runtime-optional:0.1.6
+software.amazon.lastmile.kotlin.inject.anvil:runtime:0.1.6
