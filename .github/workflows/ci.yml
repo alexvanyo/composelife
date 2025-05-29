@@ -130,9 +130,13 @@ jobs:
           android: false
           dotnet: true
           haskell: true
-          large-packages: false # removes libgl, which desktop tests need
+          large-packages: true
           docker-images: true
           swap-storage: false
+
+      - name: Re-install needed packages
+        run: |
+          sudo apt-get install -y libgl1
 
       - name: Set ANDROID_USER_HOME
         run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
@@ -342,7 +346,7 @@ jobs:
           android: false
           dotnet: true
           haskell: true
-          large-packages: false # removes libgl, which desktop tests need
+          large-packages: true
           docker-images: true
           swap-storage: false
 
