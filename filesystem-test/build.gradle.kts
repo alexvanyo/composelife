@@ -47,11 +47,13 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(libs.okio.fakefilesystem)
                 api(projects.filesystem)
 
                 implementation(libs.kotlinInject.runtime)
-                implementation(libs.okio.fakefilesystem)
+                implementation(libs.kotlinx.coroutines.core)
                 implementation(projects.injectScopes)
+                implementation(projects.updatable)
             }
         }
         val jvmMain by creating {
