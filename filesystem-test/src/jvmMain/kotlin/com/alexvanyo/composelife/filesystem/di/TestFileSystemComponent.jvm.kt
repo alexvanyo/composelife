@@ -16,6 +16,9 @@
 
 package com.alexvanyo.composelife.filesystem.di
 
+import com.alexvanyo.composelife.updatable.Updatable
+import kotlinx.coroutines.awaitCancellation
+import me.tatarka.inject.annotations.IntoSet
 import me.tatarka.inject.annotations.Provides
 import okio.FileSystem
 import okio.fakefilesystem.FakeFileSystem
@@ -27,5 +30,24 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 interface TestFileSystemComponent {
     @Provides
     @SingleIn(AppScope::class)
-    fun providesFileSystem(): FileSystem = FakeFileSystem()
+    fun providesFakeFileSystem(): FakeFileSystem = FakeFileSystem()
+
+    @Provides
+    fun providesFileSystem(
+        fakeFileSystem: FakeFileSystem,
+    ): FileSystem = fakeFileSystem
+
+    @Provides
+    @SingleIn(AppScope::class)
+    @IntoSet
+    fun providesFakeFileSystemIntoUpdatable(
+        fakeFileSystem: FakeFileSystem,
+    ): Updatable = object : Updatable {
+        override suspend fun update(): Nothing =
+            try {
+                awaitCancellation()
+            } finally {
+                fakeFileSystem.checkNoOpenFiles()
+            }
+    }
 }
