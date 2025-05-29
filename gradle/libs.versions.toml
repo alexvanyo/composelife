@@ -118,7 +118,7 @@ leakCanary = "3.0-alpha-8"
 #molecule
 molecule = "2.1.0"
 #okio
-okio = "3.11.0"
+okio = "3.12.0"
 #proguard
 proguard = "7.6.0"
 #robolectric
