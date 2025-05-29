@@ -27,6 +27,7 @@ import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import java.util.Properties
 
 @ContributesTo(AppScope::class, replaces = [DriverComponent::class])
 interface TestDriverComponent {
@@ -34,7 +35,11 @@ interface TestDriverComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun providesDriver(): SqlDriver =
-        JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY).also(ComposeLifeDatabase.Schema::create)
+        JdbcSqliteDriver(
+            JdbcSqliteDriver.IN_MEMORY,
+            Properties().apply { put("foreign_keys", "true") }
+        )
+            .also(ComposeLifeDatabase.Schema::create)
 
     @Provides
     @SingleIn(AppScope::class)

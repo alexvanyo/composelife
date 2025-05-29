@@ -20,24 +20,31 @@ import com.alexvanyo.composelife.data.model.CellStateMetadata
 import com.alexvanyo.composelife.data.model.SaveableCellState
 import com.alexvanyo.composelife.database.CellState
 import com.alexvanyo.composelife.database.CellStateQueries
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.entrypoint.EntryPoint
 import com.alexvanyo.composelife.entrypoint.EntryPointProvider
-import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
+import com.alexvanyo.composelife.filesystem.PersistedDataPath
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.test.BaseInjectTest
 import kotlinx.coroutines.test.TestDispatcher
+import okio.Path
+import okio.Path.Companion.toPath
+import okio.fakefilesystem.FakeFileSystem
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.uuid.Uuid
 
 @EntryPoint(AppScope::class)
 interface CellStateRepositoryTestsEntryPoint {
     val cellStateRepository: CellStateRepository
     val cellStateQueries: CellStateQueries
     val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher
+    val fakeFileSystem: FakeFileSystem
+    val persistedDataPath: @PersistedDataPath Path
 }
 
 class CellStateRepositoryTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
@@ -50,6 +57,10 @@ class CellStateRepositoryTests : BaseInjectTest<TestComposeLifeApplicationCompon
     private val cellStateQueries get() = entryPoint.cellStateQueries
 
     private val testDispatcher get() = entryPoint.generalTestDispatcher
+
+    private val fakeFileSystem get() = entryPoint.fakeFileSystem
+
+    private val persistedDataPath get() = entryPoint.persistedDataPath
 
     @Test
     fun get_autosaved_cell_state_returns_null_initially() = runAppTest(testDispatcher) {
@@ -67,6 +78,7 @@ class CellStateRepositoryTests : BaseInjectTest<TestComposeLifeApplicationCompon
                     description = "description",
                     generation = 123,
                     wasAutosaved = false,
+                    patternCollectionId = null,
                 ),
             ),
         )
@@ -83,6 +95,7 @@ class CellStateRepositoryTests : BaseInjectTest<TestComposeLifeApplicationCompon
                     description = "description",
                     generation = 123,
                     wasAutosaved = true,
+                    patternCollectionId = null,
                 ),
             ),
             actualCellState,
@@ -91,21 +104,42 @@ class CellStateRepositoryTests : BaseInjectTest<TestComposeLifeApplicationCompon
         val mostRecentCellStateEntity = cellStateQueries.getMostRecentAutosavedCellState().executeAsOne()
 
         assertNotNull(mostRecentCellStateEntity)
+        val serializedCellStateFile = mostRecentCellStateEntity.serializedCellStateFile
+        assertNotNull(serializedCellStateFile)
+        val match = Regex("AutosavedCellStates/(.*).rle").matchEntire(serializedCellStateFile)
+        assertNotNull(match)
+        val fileId = Uuid.parse(match.groupValues[1])
+        val expectedPath = "AutosavedCellStates/$fileId.rle".toPath()
         assertEquals(
             CellState(
                 id = insertedId,
                 name = "name",
                 description = "description",
                 formatExtension = "rle",
-                serializedCellState = """
-                |#R 0 0
-                |x = 1, y = 1, rule = B3/S23
-                |o!
-                """.trimMargin(),
+                serializedCellState = null,
+                serializedCellStateFile = expectedPath.toString(),
                 generation = 123,
                 wasAutosaved = true,
+                patternCollectionId = null,
             ),
             mostRecentCellStateEntity,
+        )
+        assertEquals(
+            setOf(
+                "AutosavedCellStates".toPath(),
+                expectedPath,
+            ),
+            fakeFileSystem.listRecursively(persistedDataPath)
+                .map { it.relativeTo(persistedDataPath) }
+                .toSet(),
+        )
+        assertEquals(
+            """
+            |#R 0 0
+            |x = 1, y = 1, rule = B3/S23
+            |o!
+            """.trimMargin(),
+            fakeFileSystem.read(persistedDataPath / expectedPath) { readUtf8() },
         )
     }
 }

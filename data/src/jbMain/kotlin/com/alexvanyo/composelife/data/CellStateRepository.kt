@@ -28,9 +28,26 @@ interface CellStateRepository {
     suspend fun getAutosavedCellState(): SaveableCellState?
 
     /**
+     * Returns all autosaved cell states.
+     */
+    suspend fun getAutosavedCellStates(): List<SaveableCellState>
+
+    /**
+     * Returns all cell states.
+     */
+    suspend fun getCellStates(): List<SaveableCellState>
+
+    /**
      * Saves the given [saveableCellState] as an autosaved cell state.
      *
      * @return the id of the saved entry.
      */
     suspend fun autosaveCellState(saveableCellState: SaveableCellState): CellStateId
+
+    /**
+     * Cleans out any cell state files that aren't referenced by the database.
+     *
+     * @return true if all unused cell states were removed successfully.
+     */
+    suspend fun pruneUnusedCellStates(): Boolean
 }

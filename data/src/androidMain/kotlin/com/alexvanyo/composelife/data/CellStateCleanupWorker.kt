@@ -17,19 +17,21 @@
 package com.alexvanyo.composelife.data
 
 import android.content.Context
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.alexvanyo.composelife.work.AssistedWorkerFactory
-import me.tatarka.inject.annotations.IntoMap
-import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import me.tatarka.inject.annotations.Assisted
+import me.tatarka.inject.annotations.Inject
 
-@ContributesTo(AppScope::class)
-interface PatternCollectionSyncComponent {
-    @Provides
-    @IntoMap
-    fun providesPatternCollectionSyncWorkerCreatorIntoWorkerFactoryMap(
-        patternCollectionSyncWorkerCreator: (Context, WorkerParameters) -> PatternCollectionSyncWorker,
-    ): Pair<String, AssistedWorkerFactory> =
-        PatternCollectionSyncWorker::class.java.name to patternCollectionSyncWorkerCreator
+@Inject
+class CellStateCleanupWorker(
+    @Assisted private val appContext: Context,
+    @Assisted private val workerParams: WorkerParameters,
+    private val cellStateRepository: CellStateRepository,
+) : CoroutineWorker(appContext, workerParams) {
+    override suspend fun doWork(): Result =
+        if (cellStateRepository.pruneUnusedCellStates()) {
+            Result.success()
+        } else {
+            Result.retry()
+        }
 }

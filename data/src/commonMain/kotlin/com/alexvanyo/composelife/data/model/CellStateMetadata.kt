@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.data.model
 
 import com.alexvanyo.composelife.database.CellStateId
+import com.alexvanyo.composelife.database.PatternCollectionId
 
 data class CellStateMetadata(
     val id: CellStateId?,
@@ -24,4 +25,5 @@ data class CellStateMetadata(
     val description: String?,
     val generation: Long,
     val wasAutosaved: Boolean,
+    val patternCollectionId: PatternCollectionId?,
 )

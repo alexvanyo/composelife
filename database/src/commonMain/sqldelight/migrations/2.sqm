@@ -1,0 +1,47 @@
+import com.alexvanyo.composelife.database.CellStateId;
+import com.alexvanyo.composelife.database.PatternCollectionId;
+import kotlin.Boolean;
+
+PRAGMA foreign_keys=off;
+BEGIN TRANSACTION;
+ALTER TABLE cellState RENAME TO _cellState_old;
+CREATE TABLE cellState (
+    id INTEGER AS CellStateId NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    description TEXT,
+    formatExtension TEXT,
+    serializedCellState TEXT,
+    serializedCellStateFile TEXT,
+    generation INTEGER NOT NULL,
+    wasAutosaved INTEGER AS Boolean NOT NULL,
+    patternCollectionId INTEGER AS PatternCollectionId,
+    CONSTRAINT patternCollection
+        FOREIGN KEY(patternCollectionId)
+        REFERENCES patternCollection(id)
+        ON DELETE CASCADE
+);
+INSERT INTO cellState (
+    id,
+    name,
+    description,
+    formatExtension,
+    serializedCellState,
+    serializedCellStateFile,
+    generation,
+    wasAutosaved,
+    patternCollectionId
+)
+SELECT
+    id,
+    name,
+    description,
+    formatExtension,
+    serializedCellState,
+    NULL,
+    generation,
+    wasAutosaved,
+    NULL
+FROM _cellState_old;
+DROP TABLE _cellState_old;
+COMMIT;
+PRAGMA foreign_keys=on;
