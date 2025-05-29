@@ -31,9 +31,11 @@ interface AdapterComponent {
     @Provides
     fun providesCellStateAdapter(
         cellStateIdAdapter: CellStateIdAdapter,
+        patternCollectionIdAdapter: PatternCollectionIdAdapter,
     ): CellState.Adapter =
         CellState.Adapter(
             idAdapter = cellStateIdAdapter,
+            patternCollectionIdAdapter = patternCollectionIdAdapter,
         )
 
     @Provides

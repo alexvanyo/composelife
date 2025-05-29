@@ -1,4 +1,5 @@
 import com.alexvanyo.composelife.database.CellStateId;
+import com.alexvanyo.composelife.database.PatternCollectionId;
 import kotlin.Boolean;
 
 CREATE TABLE cellState (
@@ -6,9 +7,15 @@ CREATE TABLE cellState (
     name TEXT,
     description TEXT,
     formatExtension TEXT,
-    serializedCellState TEXT NOT NULL,
+    serializedCellState TEXT,
+    serializedCellStateFile TEXT,
     generation INTEGER NOT NULL,
-    wasAutosaved INTEGER AS Boolean NOT NULL
+    wasAutosaved INTEGER AS Boolean NOT NULL,
+    patternCollectionId INTEGER AS PatternCollectionId,
+    CONSTRAINT patternCollection
+        FOREIGN KEY(patternCollectionId)
+        REFERENCES patternCollection(id)
+        ON DELETE CASCADE
 );
 
 getCellStates:
@@ -19,6 +26,18 @@ getCellStateById:
 SELECT *
 FROM cellState
 WHERE id=:id;
+
+getAutosavedCellStates:
+SELECT *
+FROM cellState
+WHERE wasAutosaved=1
+ORDER BY id DESC;
+
+getCellStatesByPatternCollectionId:
+SELECT *
+FROM cellState
+WHERE patternCollectionId=:patternCollectionId
+ORDER BY id DESC;
 
 getMostRecentAutosavedCellState:
 SELECT *
@@ -33,16 +52,20 @@ INSERT INTO cellState (
     description,
     formatExtension,
     serializedCellState,
+    serializedCellStateFile,
     generation,
-    wasAutosaved
+    wasAutosaved,
+    patternCollectionId
 )
 VALUES (
     :name,
     :description,
     :formatExtension,
     :serializedCellState,
+    :serializedCellStateFile,
     :generation,
-    :wasAutosaved
+    :wasAutosaved,
+    :patternCollectionId
 );
 
 updateCellState:
@@ -52,8 +75,10 @@ SET
     description=:description,
     formatExtension=:formatExtension,
     serializedCellState=:serializedCellState,
+    serializedCellStateFile=:serializedCellStateFile,
     generation=:generation,
-    wasAutosaved=:wasAutosaved
+    wasAutosaved=:wasAutosaved,
+    patternCollectionId=:patternCollectionId
 WHERE id=:id;
 
 lastInsertedRowId:

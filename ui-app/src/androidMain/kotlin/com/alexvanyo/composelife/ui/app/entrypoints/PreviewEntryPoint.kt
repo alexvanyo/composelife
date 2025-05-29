@@ -184,6 +184,7 @@ internal fun WithPreviewDependencies(
         driver = driver,
         cellStateAdapter = CellState.Adapter(
             idAdapter = CellStateIdAdapter(),
+            patternCollectionIdAdapter = PatternCollectionIdAdapter(),
         ),
         patternCollectionAdapter = PatternCollection.Adapter(
             idAdapter = PatternCollectionIdAdapter(),
@@ -208,11 +209,16 @@ internal fun WithPreviewDependencies(
             flexibleCellStateSerializer = FlexibleCellStateSerializer(dispatchers),
             cellStateQueries = cellStateQueries,
             dispatchers = dispatchers,
+            fileSystem = fileSystem,
+            persistedDataPath = lazy { "persistedDataPath".toPath() },
+            logger = logger,
+            clock = clock,
         )
     }
     val patternCollectionRepositoryProvider = object : PatternCollectionRepositoryProvider {
         override val patternCollectionRepository = PatternCollectionRepositoryImpl(
             dispatchers = dispatchers,
+            cellStateQueries = cellStateQueries,
             patternCollectionQueries = patternCollectionQueries,
             fileSystem = fileSystem,
             httpClient = lazy { HttpClient(MockEngine) },

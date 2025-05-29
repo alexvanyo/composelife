@@ -172,6 +172,7 @@ sqldelight {
             packageName.set("com.alexvanyo.composelife.database")
             schemaOutputDirectory.set(file("src/commonMain/sqldelight/databases"))
             verifyMigrations.set(true)
+            verifyDefinitions.set(true)
             generateAsync = true
         }
     }

@@ -25,6 +25,7 @@ import app.cash.sqldelight.async.coroutines.awaitAsList
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.alexvanyo.composelife.data.model.PatternCollection
+import com.alexvanyo.composelife.database.CellStateQueries
 import com.alexvanyo.composelife.database.PatternCollectionId
 import com.alexvanyo.composelife.database.PatternCollectionQueries
 import com.alexvanyo.composelife.database.awaitLastInsertedId
@@ -74,6 +75,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 @Suppress("LongParameterList")
 class PatternCollectionRepositoryImpl(
     private val dispatchers: ComposeLifeDispatchers,
+    private val cellStateQueries: CellStateQueries,
     private val patternCollectionQueries: PatternCollectionQueries,
     private val fileSystem: FileSystem,
     httpClient: Lazy<HttpClient>,
@@ -150,6 +152,10 @@ class PatternCollectionRepositoryImpl(
         patternCollectionQueries.transactionWithResult {
             patternCollectionQueries.deletePatternCollection(patternCollectionId)
         }
+        val archivePathParent = persistedDataPath /
+            collectionsFolder /
+            patternCollectionId.value.toString()
+        fileSystem.deleteRecursively(archivePathParent)
     }
 
     override suspend fun synchronizePatternCollections(): Boolean =
@@ -249,13 +255,34 @@ class PatternCollectionRepositoryImpl(
             if (hash == oldHash) {
                 logger.d("Archive file had same hash")
             } else {
+                // The hash has changed, extract all contained patterns
+                val archiveFileSystem = fileSystem.openZip(archivePath)
+                val filesToExtract = archiveFileSystem.listRecursively("/".toPath()).filterNot {
+                    it.toFile().isDirectory
+                }
+                filesToExtract.forEach { file ->
+                    logger.d("Found file: ${file.name}")
+                    val extractedFile = archivePathParent / extractedPatternsFolder / file.relativeTo("/".toPath())
+                    extractedFile.parent?.let(fileSystem::createDirectories)
+                    fileSystem.sink(extractedFile).buffer().use { sink ->
+                        archiveFileSystem.source(file).buffer().use { source ->
+                            source.readAll(sink)
+                        }
+                    }
+                }
+                val extractedFiles = filesToExtract.map { file ->
+                    archivePathParent / extractedPatternsFolder / file.relativeTo("/".toPath())
+                }.toSet()
+
+                // Synchronize the cell states with the updated pattern collection
+                synchronizeCellStateWithPatternCollection(
+                    patternCollectionId = databasePatternCollection.id,
+                    extractedFiles = extractedFiles,
+                )
+
+                // Update the hash after processing everything
                 fileSystem.sink(archiveHashPath).buffer().use { sink ->
                     sink.write(hash)
-                }
-
-                val archiveFileSystem = fileSystem.openZip(archivePath)
-                archiveFileSystem.listRecursively("/".toPath()).forEach { file ->
-                    logger.d("Found file: ${file.name}")
                 }
             }
         } catch (exception: Exception) {
@@ -284,8 +311,48 @@ class PatternCollectionRepositoryImpl(
 
         true
     }
+
+    private suspend fun synchronizeCellStateWithPatternCollection(
+        patternCollectionId: PatternCollectionId,
+        extractedFiles: Set<Path>,
+    ) = withContext(dispatchers.IO) {
+        logger.d {
+            "synchronizing cell states for pattern collection $patternCollectionId " +
+                "with extracted files $extractedFiles"
+        }
+        val cellStates =
+            cellStateQueries.getCellStatesByPatternCollectionId(patternCollectionId).executeAsList()
+        cellStates.forEach { databaseCellState ->
+            val serializedCellStateFile = databaseCellState.serializedCellStateFile?.toPath()
+            if (serializedCellStateFile != null) {
+                if (serializedCellStateFile !in extractedFiles) {
+                    logger.d { "$serializedCellStateFile was removed from archive, deleting from cell states" }
+                    // Delete the cell state before deleting the underlying file to avoid a race where the
+                    // file no longer exists
+                    cellStateQueries.deleteCellState(databaseCellState.id)
+                    fileSystem.delete(serializedCellStateFile)
+                } else {
+                    // TODO: Update metadata for updated pattern with the same file
+                }
+            }
+        }
+        val serializedCellStateFiles = cellStates.mapNotNull { it.serializedCellStateFile?.toPath() }.toSet()
+        (extractedFiles - serializedCellStateFiles).forEach { newlyExtractedFile ->
+            cellStateQueries.insertCellState(
+                name = null,
+                description = null,
+                formatExtension = newlyExtractedFile.toString().substringAfterLast(".", ""),
+                serializedCellState = null,
+                serializedCellStateFile = newlyExtractedFile.relativeTo(persistedDataPath).toString(),
+                generation = 0,
+                wasAutosaved = false,
+                patternCollectionId = patternCollectionId,
+            )
+        }
+    }
 }
 
 private const val collectionsFolder = "PatternCollections"
 private const val archiveFileName = "archive.zip"
 private const val archiveHashFileName = "archive.sha256"
+private const val extractedPatternsFolder = "extracted"

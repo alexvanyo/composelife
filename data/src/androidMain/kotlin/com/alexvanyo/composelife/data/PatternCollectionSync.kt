@@ -19,10 +19,7 @@ package com.alexvanyo.composelife.data
 import androidx.compose.runtime.snapshotFlow
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.ListenableWorker
 import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequest
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.await
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
@@ -34,17 +31,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.guava.await
-import kotlinx.datetime.DateTimePeriod
 import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
-import java.util.concurrent.TimeUnit
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.nanoseconds
-import kotlin.time.Duration.Companion.seconds
 
 @Inject
 @ContributesBinding(AppScope::class, boundType = Updatable::class, multibinding = true)
@@ -117,16 +107,3 @@ class PatternCollectionSync(
         private const val PATTERN_COLLECTIONS_SYNC_NAME = "PatternCollectionSync"
     }
 }
-
-inline fun <reified T : ListenableWorker> PeriodicWorkRequestBuilder(
-    repeatPeriod: DateTimePeriod,
-): PeriodicWorkRequest.Builder =
-    PeriodicWorkRequestBuilder<T>(
-        repeatInterval = (repeatPeriod.nanoseconds.nanoseconds +
-                repeatPeriod.seconds.seconds +
-                repeatPeriod.minutes.minutes +
-                repeatPeriod.hours.hours +
-                repeatPeriod.days.days +
-                ((repeatPeriod.months / 12.0 + repeatPeriod.years) * 365.2422).days).inWholeMilliseconds,
-        repeatIntervalTimeUnit = TimeUnit.MILLISECONDS,
-    )

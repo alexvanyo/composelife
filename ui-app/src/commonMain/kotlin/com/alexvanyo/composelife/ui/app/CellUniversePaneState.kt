@@ -91,7 +91,7 @@ fun rememberCellUniversePaneState(
             val newInitialSaveableCellState = cellStateRepository.getAutosavedCellState()
                 ?: SaveableCellState(
                     gosperGliderGun,
-                    CellStateMetadata(null, null, null, 0, false),
+                    CellStateMetadata(null, null, null, 0, false, null),
                 )
 
             retainedInitialSaveableCellState = newInitialSaveableCellState
@@ -143,6 +143,9 @@ fun rememberCellUniversePaneState(
                                 wasAutosaved = initialSaveableCellState
                                     .cellStateMetadata
                                     .wasAutosaved,
+                                patternCollectionId = initialSaveableCellState
+                                    .cellStateMetadata
+                                    .patternCollectionId,
                             ),
                         ),
                     )
