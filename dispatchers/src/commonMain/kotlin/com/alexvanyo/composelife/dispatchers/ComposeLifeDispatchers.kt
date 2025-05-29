@@ -60,19 +60,3 @@ interface ComposeLifeDispatchers {
      */
     val CellTicker: CoroutineContext
 }
-
-/**
- * The default implementation of [ComposeLifeDispatchers], which just delegates to the normal [Dispatchers] versions.
- */
-@Inject
-@ContributesBinding(AppScope::class)
-@SingleIn(AppScope::class)
-class DefaultComposeLifeDispatchers : ComposeLifeDispatchers {
-    override val Default: CoroutineContext = Dispatchers.Default
-    override val Main: CoroutineContext = Dispatchers.Main
-    override val Unconfined: CoroutineContext = Dispatchers.Unconfined
-    override val IO: CoroutineContext = Dispatchers.IO
-    override fun IOWithLimitedParallelism(parallelism: Int): CoroutineDispatcher =
-        Dispatchers.IO.limitedParallelism(parallelism)
-    override val CellTicker: CoroutineContext = EmptyCoroutineContext
-}
