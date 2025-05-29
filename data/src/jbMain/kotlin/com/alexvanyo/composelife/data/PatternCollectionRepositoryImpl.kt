@@ -255,7 +255,14 @@ class PatternCollectionRepositoryImpl(
                 val archiveFileSystem = fileSystem.openZip(archivePath)
                 archiveFileSystem.listRecursively("/".toPath()).forEach { file ->
                     logger.d("Found file: ${file.name}")
+                    val extractedFile = archivePathParent / extractedPatternsFolder / file
+                    fileSystem.sink(extractedFile).buffer().use { sink ->
+                        archiveFileSystem.source(file).buffer().use { source ->
+                            source.readAll(sink)
+                        }
+                    }
                 }
+                // TODO: If the archive no longer contains files, should we delete the old ones?
             }
         } catch (exception: Exception) {
             coroutineContext.ensureActive()
@@ -288,3 +295,4 @@ class PatternCollectionRepositoryImpl(
 private const val collectionsFolder = "PatternCollections"
 private const val archiveFileName = "archive.zip"
 private const val archiveHashFileName = "archive.sha256"
+private const val extractedPatternsFolder = "extracted"

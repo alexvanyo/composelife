@@ -1,0 +1,7 @@
+import com.alexvanyo.composelife.database.CellStateId;
+import com.alexvanyo.composelife.database.PatternCollectionId;
+import kotlinx.datetime.Instant;
+
+ALTER TABLE cellState ADD COLUMN serializedCellStateFile TEXT;
+ALTER TABLE cellState ADD COLUMN patternCollectionId INTEGER AS PatternCollectionId;
+ALTER TABLE cellState ADD FOREIGN KEY(patternCollectionId) REFERENCES patternCollection(id);
