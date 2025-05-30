@@ -20,14 +20,11 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runAndroidComposeUiTest
-import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
 import kotlinx.coroutines.test.TestResult
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import kotlin.coroutines.CoroutineContext
-import kotlin.reflect.KClass
 import kotlin.time.Duration
 
 @OptIn(ExperimentalTestApi::class)
@@ -54,7 +51,3 @@ actual fun <AC : ApplicationComponent, UC : UiComponent> BaseUiInjectTest<AC, UC
             )
         }
     }
-
-actual inline fun <reified T : BaseInjectTestEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
-    unused: KClass<T>,
-): BaseInjectTestEntryPoint = getEntryPoint<BaseInjectTestEntryPoint>()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,10 @@
 
 package com.alexvanyo.composelife.database.di
 
-import android.content.Context
-import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
-import app.cash.sqldelight.driver.android.AndroidSqliteDriver
+import app.cash.sqldelight.db.use
+import app.cash.sqldelight.driver.worker.createDefaultWebWorkerDriver
 import com.alexvanyo.composelife.database.ComposeLifeDatabase
-import com.alexvanyo.composelife.scopes.ApplicationContext
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.awaitCancellation
 import me.tatarka.inject.annotations.IntoSet
@@ -36,14 +34,8 @@ interface TestDriverComponent {
 
     @Provides
     @SingleIn(AppScope::class)
-    fun providesDriver(
-        context: @ApplicationContext Context,
-    ): SqlDriver =
-        AndroidSqliteDriver(
-            schema = ComposeLifeDatabase.Schema.synchronous(),
-            context = context,
-            name = null,
-        )
+    fun providesDriver(): SqlDriver =
+        createDefaultWebWorkerDriver().also(ComposeLifeDatabase.Schema::create)
 
     @Provides
     @SingleIn(AppScope::class)

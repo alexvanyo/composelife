@@ -135,10 +135,14 @@ showkase = "1.0.4"
 slackComposeLintChecks = "1.4.2"
 #sqldelight
 sqldelight = "2.1.0"
+#sqlJs
+sqlJs = "1.8.0"
 #testParameterInjector
 testParameterInjector = "1.18"
 #turbine
 turbine = "1.2.1"
+#webPackPlugin
+webPackPlugin = "9.1.0"
 #wire
 wire = "5.3.3"
 
