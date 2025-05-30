@@ -298,7 +298,6 @@ convention-dependencyGuard = { id = "com.alexvanyo.composelife.dependencyGuard" 
 convention-detekt = { id = "com.alexvanyo.composelife.detekt" }
 convention-kotlinMultiplatform = { id = "com.alexvanyo.composelife.kotlinMultiplatform" }
 convention-kotlinMultiplatformCompose = { id = "com.alexvanyo.composelife.kotlinMultiplatformCompose" }
-convention-mergeJacoco = { id = "com.alexvanyo.composelife.mergeJacoco" }
 android-lint = { id = "com.android.lint", version.ref = "androidGradlePlugin" }
 androidx-baselineProfile = { id = "androidx.baselineprofile", version.ref = "androidxBenchmark" }
 androidx-benchmark = { id = "androidx.benchmark", version.ref = "androidxBenchmark" }

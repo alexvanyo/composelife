@@ -139,9 +139,5 @@ gradlePlugin {
             id = "com.alexvanyo.composelife.kotlinMultiplatformCompose"
             implementationClass = "KotlinMultiplatformComposeConventionPlugin"
         }
-        register("mergeJacoco") {
-            id = "com.alexvanyo.composelife.mergeJacoco"
-            implementationClass = "MergeJacocoConventionPlugin"
-        }
     }
 }
