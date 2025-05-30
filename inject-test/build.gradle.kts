@@ -84,5 +84,14 @@ kotlin {
                 implementation(libs.leakCanary.android)
             }
         }
+        val wasmJsMain by getting {
+            configurations["kspWasmJs"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                    projects.entryPointSymbolProcessor,
+                )
+            )
+        }
     }
 }
