@@ -241,15 +241,14 @@ jobs:
       - name: Generate code coverage
         run: |
           # generate coverage, with one retry attempt
-          run () { ./gradlew jacocoUnitTestCoverageReport --stacktrace; }
+          run () { ./gradlew createUnitTestCoverageReport --stacktrace; }
           (echo "==== Attempt 1 ====" && run) || (echo "==== Attempt 2 ====" && run) || (echo "==== Both attempts failed ====" && exit 1)
-
 
       - name: Upload code coverage to GitHub
         uses: actions/upload-artifact@v4
         with:
           name: unit-code-coverage-${{ matrix.sdk }}
-          path: build/reports/jacoco/**/*.xml
+          path: build/reports/coverage/**/*.xml
 
       - name: Assemble
         if: matrix.sdk == '35'
@@ -414,14 +413,14 @@ jobs:
 
       - name: Generate coverage report
         run: |
-          run () { ./gradlew jacocoAndroidTestCoverageReport --stacktrace; }
+          run () { ./gradlew createAndroidTestCoverageReport --stacktrace; }
           (echo "==== Attempt 1 ====" && run) || (echo "==== Attempt 2 ====" && run) || (echo "==== Both attempts failed ====" && exit 1)
 
       - name: Upload code coverage to GitHub
         uses: actions/upload-artifact@v4
         with:
           name: device-code-coverage-${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
-          path: build/reports/jacoco/**/*.xml
+          path: build/reports/coverage/**/*.xml
 
   codecov-device-coverage-upload:
     needs: [android-test-gmd, config]

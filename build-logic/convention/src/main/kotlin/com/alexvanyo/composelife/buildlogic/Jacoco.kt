@@ -25,115 +25,8 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
-import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
-import org.gradle.testing.jacoco.tasks.JacocoReport
-
-@Suppress("LongMethod", "NoNameShadowing")
-fun Project.configureJacocoMerge() {
-    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-
-    configure<JacocoPluginExtension> {
-        toolVersion = libs.findVersion("jacoco").get().toString()
-    }
-
-    val variants = listOf("debug", "release")
-
-    val sourceDirectoryFiles = subprojects
-        .flatMap {
-            listOf(
-                it.layout.projectDirectory.dir("src/androidMain/kotlin"),
-                it.layout.projectDirectory.dir("src/commonMain/kotlin"),
-                it.layout.projectDirectory.dir("src/desktopMain/kotlin"),
-                it.layout.projectDirectory.dir("src/jbMain/kotlin"),
-                it.layout.projectDirectory.dir("src/jvmMain/kotlin"),
-                it.layout.projectDirectory.dir("src/jvmNonAndroidMain/kotlin"),
-            )
-        }
-
-    val createVariantUnitTestCoverageReports = variants.map { variant ->
-        tasks.register("jacoco${variant.capitalizeForTaskName()}UnitTestCoverageReport", JacocoReport::class) {
-            dependsOn(
-                subprojects.flatMap {
-                    it.getUnitTestReportTasks(variant)
-                },
-            )
-
-            classDirectories.setFrom(
-                subprojects.flatMap {
-                    it.getUnitTestReportTasks(variant)
-                        .map(JacocoReportTask::classFileCollection)
-                },
-            )
-            sourceDirectories.setFrom(sourceDirectoryFiles)
-            executionData.setFrom(
-                subprojects.flatMap {
-                    it.getUnitTestReportTasks(variant)
-                        .map(JacocoReportTask::jacocoHostTestCoverageFile)
-                },
-            )
-
-            reports {
-                html.required.set(true)
-                xml.required.set(true)
-            }
-        }
-    }
-    val createAndroidTestCoverageReport = tasks.register("jacocoAndroidTestCoverageReport", JacocoReport::class) {
-        dependsOn(
-            subprojects.flatMap {
-                it.getAndroidTestReportTasks()
-            },
-        )
-
-        classDirectories.setFrom(
-            subprojects
-                .map {
-                    it.getAndroidTestReportTasks()
-                        .map(JacocoReportTask::classFileCollection)
-                },
-        )
-        sourceDirectories.setFrom(sourceDirectoryFiles)
-        executionData.setFrom(
-            subprojects
-                .map {
-                    it.getAndroidTestReportTasks()
-                        .map(JacocoReportTask::jacocoConnectedTestsCoverageDir)
-                        .map(::fileTree)
-                },
-        )
-
-        reports {
-            html.required.set(true)
-            xml.required.set(true)
-        }
-    }
-
-    val createUnitTestCoverageReport = tasks.register("jacocoUnitTestCoverageReport") {
-        dependsOn(createVariantUnitTestCoverageReports)
-    }
-
-    tasks.register("jacocoTestCoverageReport") {
-        dependsOn(createUnitTestCoverageReport)
-        dependsOn(createAndroidTestCoverageReport)
-    }
-}
-
-private fun Project.getUnitTestReportTasks(variant: String) =
-    getTasksByName("create${variant.capitalizeForTaskName()}UnitTestCoverageReport", false)
-        .filterIsInstance<JacocoReportTask>()
-
-private fun Project.getAndroidTestReportTasks() =
-    listOf(
-        "debug",
-        "release",
-        "staging",
-    ).flatMap { variant ->
-        getTasksByName("createManagedDevice${variant.capitalizeForTaskName()}AndroidTestCoverageReport", false)
-            .filterIsInstance<JacocoReportTask>()
-    }
 
 fun Project.configureJacoco(
     commonExtension: CommonExtension<*, *, *, *, *, *>,
@@ -160,5 +53,24 @@ fun Project.configureJacoco(
             // https://github.com/gradle/gradle/issues/5184#issuecomment-391982009
             excludes = listOf("jdk.internal.*")
         }
+    }
+
+    tasks.register("createUnitTestCoverageReport") {
+        dependsOn(
+            project.provider {
+                tasks.withType<JacocoReportTask>().filter {
+                    it.name.contains("UnitTest", ignoreCase = true)
+                }
+            },
+        )
+    }
+    tasks.register("createAndroidTestCoverageReport") {
+        dependsOn(
+            project.provider {
+                tasks.withType<JacocoReportTask>().filter {
+                    it.name.contains("AndroidTest", ignoreCase = true)
+                }
+            },
+        )
     }
 }
