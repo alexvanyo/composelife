@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.database
+package com.alexvanyo.composelife.test
 
-import app.cash.sqldelight.ColumnAdapter
-import me.tatarka.inject.annotations.Inject
-import kotlin.jvm.JvmInline
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.scopes.ApplicationComponent
+import org.junit.runner.RunWith
 
-@JvmInline
-value class CellStateId(internal val value: Long)
-
-@Inject
-class CellStateIdAdapter : ColumnAdapter<CellStateId, Long> {
-    override fun decode(databaseValue: Long): CellStateId = CellStateId(databaseValue)
-
-    override fun encode(value: CellStateId): Long = value.value
-}
+@RunWith(KmpAndroidJUnit4::class)
+actual abstract class BaseInjectTest<AC : ApplicationComponent> actual constructor(
+    applicationComponentCreator: () -> AC,
+) : BaseInjectTestImpl<AC>(applicationComponentCreator)
