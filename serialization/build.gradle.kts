@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -40,12 +41,14 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.androidx.savedState)
-                api(libs.androidx.savedState.compose)
                 api(libs.jetbrains.compose.runtime)
                 api(libs.jetbrains.compose.runtime.saveable)
                 api(libs.kotlinx.serialization.core)
@@ -54,6 +57,8 @@ kotlin {
         val jvmMain by creating {
             dependsOn(commonMain)
             dependencies {
+                api(libs.androidx.savedState)
+                api(libs.androidx.savedState.compose)
                 api(libs.jetbrains.compose.uiGeometry)
                 api(libs.jetbrains.compose.uiUnit)
                 api(libs.sealedEnum.runtime)
