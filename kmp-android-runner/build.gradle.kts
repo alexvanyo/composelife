@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -31,6 +33,10 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
 
     sourceSets {
         val commonMain by getting {}
