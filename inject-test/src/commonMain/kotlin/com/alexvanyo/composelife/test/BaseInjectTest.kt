@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.test
 
 import com.alexvanyo.composelife.entrypoint.EntryPoint
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
@@ -27,15 +27,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.junit.runner.RunWith
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.reflect.KClass
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 @EntryPoint(AppScope::class)
 interface BaseInjectTestEntryPoint : UpdatableModule
+
+expect abstract class BaseInjectTest<AC : ApplicationComponent>(
+    applicationComponentCreator: () -> AC,
+) : BaseInjectTestImpl<AC>
 
 /**
  * A base class for testing components that depend on injected classes.
@@ -43,8 +47,7 @@ interface BaseInjectTestEntryPoint : UpdatableModule
  * Subclasses must call [runAppTest] instead of [runTest] to properly initialize dependencies.
  */
 @Suppress("UnnecessaryAbstractClass")
-@RunWith(KmpAndroidJUnit4::class)
-abstract class BaseInjectTest<AC : ApplicationComponent>(
+abstract class BaseInjectTestImpl<AC : ApplicationComponent>(
     applicationComponentCreator: () -> AC,
 ) {
     val applicationComponent = applicationComponentCreator()
@@ -84,3 +87,7 @@ abstract class BaseInjectTest<AC : ApplicationComponent>(
         }
     }
 }
+
+expect inline fun <reified T : BaseInjectTestEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
+    unused: KClass<T> = T::class,
+): BaseInjectTestEntryPoint

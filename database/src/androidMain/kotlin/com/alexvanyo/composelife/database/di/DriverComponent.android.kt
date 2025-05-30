@@ -18,6 +18,7 @@
 package com.alexvanyo.composelife.database.di
 
 import android.content.Context
+import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.alexvanyo.composelife.database.ComposeLifeDatabase
@@ -39,7 +40,7 @@ interface DriverComponent {
         context: @ApplicationContext Context,
     ): SqlDriver =
         AndroidSqliteDriver(
-            schema = ComposeLifeDatabase.Schema,
+            schema = ComposeLifeDatabase.Schema.synchronous(),
             context = context,
             name = "composelifedatabase.db",
         )

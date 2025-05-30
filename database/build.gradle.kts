@@ -93,6 +93,8 @@ kotlin {
             )
             dependencies {
                 implementation(libs.sqldelight.webDriver)
+                implementation(npm("@cashapp/sqldelight-sqljs-worker", libs.versions.sqldelight.get()))
+                implementation(npm("sql.js", libs.versions.sqlJs.get()))
             }
         }
         val commonTest by getting {
@@ -164,6 +166,7 @@ sqldelight {
             packageName.set("com.alexvanyo.composelife.database")
             schemaOutputDirectory.set(file("src/commonMain/sqldelight/databases"))
             verifyMigrations.set(true)
+            generateAsync = true
         }
     }
 }

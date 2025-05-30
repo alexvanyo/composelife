@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -15,6 +13,8 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -72,6 +72,21 @@ kotlin {
             )
             dependencies {
                 api(libs.sqldelight.sqliteDriver)
+            }
+        }
+        val wasmJsMain by getting {
+            configurations["kspWasmJs"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                )
+            )
+            dependencies {
+                api(libs.sqldelight.webDriver)
+
+                implementation(npm("@cashapp/sqldelight-sqljs-worker", libs.versions.sqldelight.get()))
+                implementation(npm("sql.js", libs.versions.sqlJs.get()))
+                implementation(devNpm("copy-webpack-plugin", libs.versions.webPackPlugin.get()))
             }
         }
     }
