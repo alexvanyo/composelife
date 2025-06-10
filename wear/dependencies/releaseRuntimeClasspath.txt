@@ -150,8 +150,8 @@ com.airbnb.android:showkase-annotation:1.0.3
 com.airbnb.android:showkase:1.0.3
 com.github.livefront.sealed-enum:runtime:0.7.0
 com.google.guava:listenablefuture:1.0
-com.slack.circuit:circuit-retained-android:0.28.0
-com.slack.circuit:circuit-retained:0.28.0
+com.slack.circuit:circuit-retained-android:0.28.1
+com.slack.circuit:circuit-retained:0.28.1
 com.squareup.okio:okio-jvm:3.12.0
 com.squareup.okio:okio:3.12.0
 com.squareup.wire:wire-runtime-jvm:5.4.0-SNAPSHOT
@@ -179,9 +179,9 @@ org.jetbrains.compose.ui:ui-tooling-preview:1.8.1
 org.jetbrains.compose.ui:ui-unit:1.8.1
 org.jetbrains.compose.ui:ui-util:1.8.1
 org.jetbrains.compose.ui:ui:1.8.1
-org.jetbrains.kotlin:kotlin-bom:2.1.10
-org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.10
-org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.10
+org.jetbrains.kotlin:kotlin-bom:2.1.21
+org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.21
+org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.21
 org.jetbrains.kotlin:kotlin-stdlib:2.2.0-Beta1
 org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2
 org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.10.2
