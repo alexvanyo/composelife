@@ -248,7 +248,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: unit-code-coverage-${{ matrix.sdk }}
-          path: build/reports/coverage/**/*.xml
+          path: "**/build/reports/coverage/**/*.xml"
 
       - name: Assemble
         if: matrix.sdk == '35'
@@ -420,7 +420,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: device-code-coverage-${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
-          path: build/reports/coverage/**/*.xml
+          path: "**/build/reports/coverage/**/*.xml"
 
   codecov-device-coverage-upload:
     needs: [android-test-gmd, config]
