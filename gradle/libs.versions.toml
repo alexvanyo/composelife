@@ -138,7 +138,7 @@ sqldelight = "2.1.0"
 #testParameterInjector
 testParameterInjector = "1.18"
 #turbine
-turbine = "1.2.0"
+turbine = "1.2.1"
 #wire
 wire = "5.4.0-SNAPSHOT"
 
