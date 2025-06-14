@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.database
+package com.alexvanyo.composelife.preferences.di
 
-import app.cash.sqldelight.ColumnAdapter
-import me.tatarka.inject.annotations.Inject
-import kotlin.jvm.JvmInline
+import com.alexvanyo.composelife.preferences.PreferencesDataStore
 
-@JvmInline
-value class CellStateId(internal val value: Long)
-
-@Inject
-class CellStateIdAdapter : ColumnAdapter<CellStateId, Long> {
-    override fun decode(databaseValue: Long): CellStateId = CellStateId(databaseValue)
-
-    override fun encode(value: CellStateId): Long = value.value
+interface PreferencesDataStoreModule {
+    val preferencesDataStore: PreferencesDataStore
 }

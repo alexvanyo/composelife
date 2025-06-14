@@ -135,10 +135,14 @@ showkase = "1.0.3"
 slackComposeLintChecks = "1.4.2"
 #sqldelight
 sqldelight = "2.1.0"
+#sqlJs
+sqlJs = "1.8.0"
 #testParameterInjector
 testParameterInjector = "1.18"
 #turbine
 turbine = "1.2.1"
+#webPackPlugin
+webPackPlugin = "9.1.0"
 #wire
 wire = "5.4.0-SNAPSHOT"
 
@@ -277,6 +281,7 @@ sqldelight-androidDriver = { group = "app.cash.sqldelight", name = "android-driv
 sqldelight-coroutinesExtensions = { group = "app.cash.sqldelight", name = "coroutines-extensions", version.ref = "sqldelight" }
 sqldelight-primitiveAdapters = { group = "app.cash.sqldelight", name = "primitive-adapters", version.ref = "sqldelight" }
 sqldelight-sqliteDriver = { group = "app.cash.sqldelight", name = "sqlite-driver", version.ref = "sqldelight" }
+sqldelight-webDriver = { group = "app.cash.sqldelight", name = "web-worker-driver", version.ref = "sqldelight" }
 testParameterInjector-junit4 = { group = "com.google.testparameterinjector", name = "test-parameter-injector", version.ref = "testParameterInjector" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 wire-runtime = { group = "com.squareup.wire", name = "wire-runtime", version.ref = "wire" }

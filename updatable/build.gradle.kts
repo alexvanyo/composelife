@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -38,6 +39,10 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -63,6 +68,14 @@ kotlin {
         }
         val androidMain by getting {
             configurations["kspAndroid"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                )
+            )
+        }
+        val wasmJsMain by getting {
+            configurations["kspWasmJs"].dependencies.addAll(
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
