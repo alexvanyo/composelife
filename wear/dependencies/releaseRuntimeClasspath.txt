@@ -146,8 +146,8 @@ co.touchlab:kermit-android:2.0.5
 co.touchlab:kermit-core-android:2.0.5
 co.touchlab:kermit-core:2.0.5
 co.touchlab:kermit:2.0.5
-com.airbnb.android:showkase-annotation:1.0.3
-com.airbnb.android:showkase:1.0.3
+com.airbnb.android:showkase-annotation:1.0.4
+com.airbnb.android:showkase:1.0.4
 com.github.livefront.sealed-enum:runtime:0.7.0
 com.google.guava:listenablefuture:1.0
 com.slack.circuit:circuit-retained-android:0.28.1
