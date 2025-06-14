@@ -130,7 +130,7 @@ sealedEnum = "0.7.0"
 #slf4j
 slf4j = "2.1.0-alpha1"
 #showkase
-showkase = "1.0.3"
+showkase = "1.0.4"
 #slackComposeLintChecks
 slackComposeLintChecks = "1.4.2"
 #sqldelight
