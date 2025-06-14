@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.database
 
-import app.cash.sqldelight.ColumnAdapter
-import me.tatarka.inject.annotations.Inject
-import kotlin.jvm.JvmInline
+import com.alexvanyo.composelife.scopes.ApplicationComponent
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-@JvmInline
-value class PatternCollectionId(val value: Long)
-
-@Inject
-class PatternCollectionIdAdapter : ColumnAdapter<PatternCollectionId, Long> {
-    override fun decode(databaseValue: Long): PatternCollectionId = PatternCollectionId(databaseValue)
-
-    override fun encode(value: PatternCollectionId): Long = value.value
+@MergeComponent(AppScope::class)
+@SingleIn(AppScope::class)
+actual abstract class TestComposeLifeApplicationComponent : ApplicationComponent() {
+    actual companion object
 }
+
+actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent =
+    TestComposeLifeApplicationComponent::class.create()

@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -32,6 +34,10 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -77,6 +83,15 @@ kotlin {
 
                 implementation(libs.leakCanary.android)
             }
+        }
+        val wasmJsMain by getting {
+            configurations["kspWasmJs"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                    projects.entryPointSymbolProcessor,
+                )
+            )
         }
     }
 }
