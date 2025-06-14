@@ -93,7 +93,7 @@ jobs:
 
       - name: Auto-commit changes
         if: ${{ !cancelled() }}
-        uses: stefanzweifel/git-auto-commit-action@v6
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Auto update app baseline profile
           push_options: --force-with-lease
