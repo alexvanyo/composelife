@@ -42,7 +42,6 @@ actual fun RepeatablePredictiveBackHandler(
         PredictiveBackHandler(enabled = enabled) { progress ->
             try {
                 progress.collect { backEvent ->
-                    backEvent.swipeEdge
                     repeatablePredictiveBackStateHolder.value = RepeatablePredictiveBackState.Running(
                         backEvent.touchX,
                         backEvent.touchY,
@@ -50,8 +49,8 @@ actual fun RepeatablePredictiveBackHandler(
                         when (backEvent.swipeEdge) {
                             BackEventCompat.EDGE_LEFT -> BackEventEdge.Left
                             BackEventCompat.EDGE_RIGHT -> BackEventEdge.Right
-                            // TODO: Handle BackEventCompat.EDGE_NONE explicitly when available
-                            else -> BackEventEdge.None
+                            BackEventCompat.EDGE_NONE -> BackEventEdge.None
+                            else -> BackEventEdge.None // Default to None for any other unhandled cases
                         },
                     )
                 }
@@ -83,7 +82,6 @@ actual fun CompletablePredictiveBackStateHandler(
         ) { progress ->
             try {
                 progress.collect { backEvent ->
-                    backEvent.swipeEdge
                     completablePredictiveBackStateHolder.value = CompletablePredictiveBackState.Running(
                         backEvent.touchX,
                         backEvent.touchY,
@@ -91,8 +89,8 @@ actual fun CompletablePredictiveBackStateHandler(
                         when (backEvent.swipeEdge) {
                             BackEventCompat.EDGE_LEFT -> BackEventEdge.Left
                             BackEventCompat.EDGE_RIGHT -> BackEventEdge.Right
-                            // TODO: Handle BackEventCompat.EDGE_NONE explicitly when available
-                            else -> BackEventEdge.None
+                            BackEventCompat.EDGE_NONE -> BackEventEdge.None
+                            else -> BackEventEdge.None // Default to None for any other unhandled cases
                         },
                     )
                 }
