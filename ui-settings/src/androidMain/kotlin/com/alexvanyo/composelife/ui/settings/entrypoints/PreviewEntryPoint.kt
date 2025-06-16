@@ -156,6 +156,7 @@ internal fun WithPreviewDependencies(
         driver = driver,
         cellStateAdapter = CellState.Adapter(
             idAdapter = CellStateIdAdapter(),
+            patternCollectionIdAdapter = PatternCollectionIdAdapter(),
         ),
         patternCollectionAdapter = com.alexvanyo.composelife.database.PatternCollection.Adapter(
             idAdapter = PatternCollectionIdAdapter(),
@@ -163,6 +164,7 @@ internal fun WithPreviewDependencies(
             lastUnsuccessfulSynchronizationTimestampAdapter = InstantAdapter(),
         ),
     )
+    val cellStateQueries = composeLifeDatabase.cellStateQueries
     val patternCollectionQueries = composeLifeDatabase.patternCollectionQueries
     val preferencesProvider = object : ComposeLifePreferencesProvider {
         override val composeLifePreferences = composeLifePreferences
@@ -187,6 +189,7 @@ internal fun WithPreviewDependencies(
     val patternCollectionRepositoryProvider = object : PatternCollectionRepositoryProvider {
         override val patternCollectionRepository = PatternCollectionRepositoryImpl(
             dispatchers = dispatchers,
+            cellStateQueries = cellStateQueries,
             patternCollectionQueries = patternCollectionQueries,
             fileSystem = fileSystem,
             httpClient = lazy { HttpClient(MockEngine) },

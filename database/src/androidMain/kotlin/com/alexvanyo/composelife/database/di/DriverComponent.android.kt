@@ -18,6 +18,7 @@
 package com.alexvanyo.composelife.database.di
 
 import android.content.Context
+import androidx.sqlite.db.SupportSQLiteDatabase
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.alexvanyo.composelife.database.ComposeLifeDatabase
@@ -42,6 +43,11 @@ interface DriverComponent {
             schema = ComposeLifeDatabase.Schema,
             context = context,
             name = "composelifedatabase.db",
+            callback = object : AndroidSqliteDriver.Callback(ComposeLifeDatabase.Schema) {
+                override fun onConfigure(db: SupportSQLiteDatabase) {
+                    db.setForeignKeyConstraintsEnabled(true)
+                }
+            },
         )
 
     @Provides
