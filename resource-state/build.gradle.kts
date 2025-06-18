@@ -42,7 +42,13 @@ kotlin {
     jvm("desktop")
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        browser()
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
     }
 
     sourceSets {
