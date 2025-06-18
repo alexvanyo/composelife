@@ -21,11 +21,14 @@ import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import kotlin.coroutines.CoroutineContext
@@ -57,6 +60,7 @@ abstract class BaseInjectTestImpl<AC : ApplicationComponent>(
     private val updatables: Set<Updatable>
         get() = entryPoint.updatables
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun runAppTest(
         context: CoroutineContext = EmptyCoroutineContext,
         timeout: Duration = 60.seconds,
@@ -66,6 +70,8 @@ abstract class BaseInjectTestImpl<AC : ApplicationComponent>(
         timeout = timeout,
     ) {
         withAppTestDependencies {
+            // Let any background jobs launch and stabilize before running the test body
+            advanceUntilIdle()
             testBody()
         }
     }

@@ -23,8 +23,11 @@ import androidx.compose.ui.test.runAndroidComposeUiTest
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestResult
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 import kotlin.time.Duration
 
 @OptIn(ExperimentalTestApi::class)
@@ -43,8 +46,10 @@ actual fun <AC : ApplicationComponent, UC : UiComponent> BaseUiInjectTest<AC, UC
                 override val activity = requireNotNull(this@runAndroidComposeUiTest.activity)
             },
         )
-
         withAppTestDependencies {
+            // Let any background jobs launch and stabilize before running the test body
+            val testDispatcher = coroutineContext[CoroutineDispatcher] as? TestDispatcher
+            testDispatcher?.scheduler?.advanceUntilIdle()
             testBody(
                 this@runAndroidComposeUiTest,
                 uiComponent,

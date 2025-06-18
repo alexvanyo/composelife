@@ -17,6 +17,7 @@
 
 package com.alexvanyo.composelife.database.di
 
+import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.alexvanyo.composelife.database.ComposeLifeDatabase
@@ -34,7 +35,9 @@ interface TestDriverComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun providesDriver(): SqlDriver =
-        JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY).also(ComposeLifeDatabase.Schema::create)
+        JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY).also(
+            ComposeLifeDatabase.Schema.synchronous()::create
+        )
 
     @Provides
     @SingleIn(AppScope::class)
