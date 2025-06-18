@@ -16,11 +16,12 @@
 
 package com.alexvanyo.composelife.data
 
+import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
 import com.alexvanyo.composelife.data.model.CellStateMetadata
 import com.alexvanyo.composelife.data.model.SaveableCellState
 import com.alexvanyo.composelife.database.CellStateId
 import com.alexvanyo.composelife.database.CellStateQueries
-import com.alexvanyo.composelife.database.executeLastInsertedId
+import com.alexvanyo.composelife.database.awaitLastInsertedId
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.CellStateFormat
 import com.alexvanyo.composelife.model.DeserializationResult
@@ -59,7 +60,7 @@ class CellStateRepositoryImpl(
                         generation = saveableCellState.cellStateMetadata.generation,
                         wasAutosaved = true,
                     )
-                    cellStateQueries.executeLastInsertedId()
+                    cellStateQueries.awaitLastInsertedId()
                 } else {
                     cellStateQueries.updateCellState(
                         id = saveableCellState.cellStateMetadata.id,
@@ -80,7 +81,7 @@ class CellStateRepositoryImpl(
 
     override suspend fun getAutosavedCellState(): SaveableCellState? {
         val cellState = withContext(dispatchers.IO) {
-            cellStateQueries.getMostRecentAutosavedCellState().executeAsOneOrNull()
+            cellStateQueries.getMostRecentAutosavedCellState().awaitAsOneOrNull()
         } ?: return null
         check(cellState.wasAutosaved)
 

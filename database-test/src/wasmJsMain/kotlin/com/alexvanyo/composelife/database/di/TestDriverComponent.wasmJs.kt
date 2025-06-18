@@ -17,6 +17,7 @@
 
 package com.alexvanyo.composelife.database.di
 
+import app.cash.sqldelight.async.coroutines.awaitCreate
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.db.use
 import app.cash.sqldelight.driver.worker.createDefaultWebWorkerDriver
@@ -35,7 +36,7 @@ interface TestDriverComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun providesDriver(): SqlDriver =
-        createDefaultWebWorkerDriver().also(ComposeLifeDatabase.Schema::create)
+        createDefaultWebWorkerDriver()
 
     @Provides
     @SingleIn(AppScope::class)
@@ -45,6 +46,7 @@ interface TestDriverComponent {
     ): Updatable = object : Updatable {
         override suspend fun update(): Nothing =
             driver.use { _ ->
+                ComposeLifeDatabase.Schema.awaitCreate(driver)
                 awaitCancellation()
             }
     }
