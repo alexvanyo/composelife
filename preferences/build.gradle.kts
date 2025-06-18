@@ -42,7 +42,13 @@ kotlin {
     androidTarget()
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        browser()
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
     }
 
     sourceSets {
