@@ -211,7 +211,7 @@ jobs:
 
       - name: Update screenshots
         if: ${{ !cancelled() && matrix.sdk == '35' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
-        run: ./gradlew recordRoborazziDebug
+        run: ./gradlew recordRoborazzi
 
       - name: Auto-commit screenshot changes
         if: ${{ !cancelled() && matrix.sdk == '35' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
