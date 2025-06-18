@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.ui.app.entrypoints
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import coil3.ImageLoader
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
@@ -175,7 +176,7 @@ internal fun WithPreviewDependencies(
     content: @Composable context(PreviewEntryPoint) () -> Unit,
 ) {
     val driver = AndroidSqliteDriver(
-        schema = ComposeLifeDatabase.Schema,
+        schema = ComposeLifeDatabase.Schema.synchronous(),
         context = LocalContext.current,
         name = null,
     )

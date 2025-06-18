@@ -21,12 +21,13 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import app.cash.sqldelight.async.coroutines.awaitAsList
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.alexvanyo.composelife.data.model.PatternCollection
 import com.alexvanyo.composelife.database.PatternCollectionId
 import com.alexvanyo.composelife.database.PatternCollectionQueries
-import com.alexvanyo.composelife.database.executeLastInsertedId
+import com.alexvanyo.composelife.database.awaitLastInsertedId
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.filesystem.PersistedDataPath
 import com.alexvanyo.composelife.logging.Logger
@@ -139,7 +140,7 @@ class PatternCollectionRepositoryImpl(
                 lastUnsuccessfulSynchronizationTimestamp = null,
                 synchronizationFailureMessage = null,
             )
-            patternCollectionQueries.executeLastInsertedId()
+            patternCollectionQueries.awaitLastInsertedId()
         }
     }
 
@@ -157,7 +158,7 @@ class PatternCollectionRepositoryImpl(
                 synchronizationInformation.clear()
                 // Fetch the current list of pattern collections
                 val databasePatternCollections = withContext(dispatchers.IO) {
-                    patternCollectionQueries.getPatternCollections().executeAsList()
+                    patternCollectionQueries.getPatternCollections().awaitAsList()
                 }
                 databasePatternCollections.forEach { databasePatternCollection ->
                     synchronizationInformation[databasePatternCollection.id] = true

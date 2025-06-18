@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.database
 
+import app.cash.sqldelight.async.coroutines.awaitAsOne
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
@@ -73,7 +74,7 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                         generation = 0,
                         wasAutosaved = true,
                     )
-                    cellStateQueries.lastInsertedRowId().executeAsOne()
+                    cellStateQueries.lastInsertedRowId().awaitAsOne()
                 }
 
                 assertEquals(
@@ -95,7 +96,7 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
     }
 
     @Test
-    fun get_cell_states_returns_value_if_saved_before() = runTest(testDispatcher) {
+    fun get_cell_states_returns_value_if_saved_before() = runAppTest(testDispatcher) {
         withTurbineTimeout(60.seconds) {
             val insertedId = cellStateQueries.transactionWithResult {
                 cellStateQueries.insertCellState(
@@ -106,7 +107,7 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                     generation = 0,
                     wasAutosaved = true,
                 )
-                cellStateQueries.lastInsertedRowId().executeAsOne()
+                cellStateQueries.lastInsertedRowId().awaitAsOne()
             }
 
             cellStateQueries.getCellStates().asFlow().mapToList(testDispatcher).test {
@@ -143,7 +144,7 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                         generation = 0,
                         wasAutosaved = true,
                     )
-                    cellStateQueries.lastInsertedRowId().executeAsOne()
+                    cellStateQueries.lastInsertedRowId().awaitAsOne()
                 }
 
                 assertEquals(
@@ -189,7 +190,7 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                     generation = 0,
                     wasAutosaved = true,
                 )
-                cellStateQueries.lastInsertedRowId().executeAsOne()
+                cellStateQueries.lastInsertedRowId().awaitAsOne()
             }
 
             cellStateQueries.getCellStateById(CellStateId(insertedId)).asFlow().mapToOneOrNull(testDispatcher).test {
@@ -221,7 +222,7 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                     generation = 0,
                     wasAutosaved = true,
                 )
-                cellStateQueries.lastInsertedRowId().executeAsOne()
+                cellStateQueries.lastInsertedRowId().awaitAsOne()
             }
 
             cellStateQueries.getCellStateById(CellStateId(insertedId)).asFlow().mapToOneOrNull(testDispatcher).test {
@@ -266,7 +267,7 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                     generation = 0,
                     wasAutosaved = false,
                 )
-                cellStateQueries.lastInsertedRowId().executeAsOne()
+                cellStateQueries.lastInsertedRowId().awaitAsOne()
             }
 
             cellStateQueries.getMostRecentAutosavedCellState().asFlow().mapToOneOrNull(testDispatcher).test {
@@ -287,7 +288,7 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                     generation = 0,
                     wasAutosaved = true,
                 )
-                cellStateQueries.lastInsertedRowId().executeAsOne()
+                cellStateQueries.lastInsertedRowId().awaitAsOne()
             }
 
             cellStateQueries.getMostRecentAutosavedCellState().asFlow().mapToOneOrNull(testDispatcher).test {
@@ -322,7 +323,7 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                         generation = 0,
                         wasAutosaved = true,
                     )
-                    cellStateQueries.lastInsertedRowId().executeAsOne()
+                    cellStateQueries.lastInsertedRowId().awaitAsOne()
                 }
 
                 assertEquals(
