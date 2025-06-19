@@ -154,8 +154,8 @@ com.slack.circuit:circuit-retained-android:0.28.1
 com.slack.circuit:circuit-retained:0.28.1
 com.squareup.okio:okio-jvm:3.13.0
 com.squareup.okio:okio:3.13.0
-com.squareup.wire:wire-runtime-jvm:5.4.0-SNAPSHOT
-com.squareup.wire:wire-runtime:5.4.0-SNAPSHOT
+com.squareup.wire:wire-runtime-jvm:5.3.3
+com.squareup.wire:wire-runtime:5.3.3
 me.tatarka.inject:kotlin-inject-runtime-jvm:0.8.0
 me.tatarka.inject:kotlin-inject-runtime:0.8.0
 org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4

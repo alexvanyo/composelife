@@ -169,8 +169,8 @@ com.squareup.okio:okio-fakefilesystem-jvm:3.13.0
 com.squareup.okio:okio-fakefilesystem:3.13.0
 com.squareup.okio:okio-jvm:3.13.0
 com.squareup.okio:okio:3.13.0
-com.squareup.wire:wire-runtime-jvm:5.4.0-SNAPSHOT
-com.squareup.wire:wire-runtime:5.4.0-SNAPSHOT
+com.squareup.wire:wire-runtime-jvm:5.3.3
+com.squareup.wire:wire-runtime:5.3.3
 io.coil-kt.coil3:coil-compose-core-android:3.2.0
 io.coil-kt.coil3:coil-compose-core:3.2.0
 io.coil-kt.coil3:coil-core-android:3.2.0
