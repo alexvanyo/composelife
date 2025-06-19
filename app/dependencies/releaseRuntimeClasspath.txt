@@ -1,6 +1,6 @@
-androidx.activity:activity-compose:1.12.0-alpha02
-androidx.activity:activity-ktx:1.12.0-alpha02
-androidx.activity:activity:1.12.0-alpha02
+androidx.activity:activity-compose:1.12.0-alpha03
+androidx.activity:activity-ktx:1.12.0-alpha03
+androidx.activity:activity:1.12.0-alpha03
 androidx.annotation:annotation-experimental:1.4.1
 androidx.annotation:annotation-jvm:1.9.1
 androidx.annotation:annotation:1.9.1
@@ -104,8 +104,10 @@ androidx.navigation:navigation-common:2.5.1
 androidx.navigation:navigation-compose:2.5.1
 androidx.navigation:navigation-runtime-ktx:2.5.1
 androidx.navigation:navigation-runtime:2.5.1
-androidx.navigationevent:navigationevent-android:1.0.0-alpha02
-androidx.navigationevent:navigationevent:1.0.0-alpha02
+androidx.navigationevent:navigationevent-android:1.0.0-alpha03
+androidx.navigationevent:navigationevent-compose-android:1.0.0-alpha03
+androidx.navigationevent:navigationevent-compose:1.0.0-alpha03
+androidx.navigationevent:navigationevent:1.0.0-alpha03
 androidx.profileinstaller:profileinstaller:1.4.1
 androidx.resourceinspection:resourceinspection-annotation:1.0.1
 androidx.room:room-common:2.6.1
