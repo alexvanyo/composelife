@@ -19,17 +19,17 @@ package com.alexvanyo.composelife.test
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
-import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestResult
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlin.coroutines.CoroutineContext
-import kotlin.reflect.KClass
 import kotlin.time.Duration
 
-@OptIn(ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 actual fun <AC : ApplicationComponent, UC : UiComponent> BaseUiInjectTest<AC, UC>.runUiTest(
     appTestContext: CoroutineContext,
     timeout: Duration,
@@ -46,13 +46,11 @@ actual fun <AC : ApplicationComponent, UC : UiComponent> BaseUiInjectTest<AC, UC
             context = appTestContext,
             timeout = timeout,
         ) {
+            // Let any background jobs launch and stabilize before running the test body
+            advanceUntilIdle()
             testBody(
                 this@runComposeUiTest,
                 uiComponent,
             )
         }
     }
-
-actual inline fun <reified T : BaseInjectTestEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
-    unused: KClass<T>,
-): BaseInjectTestEntryPoint = getEntryPoint<BaseInjectTestEntryPoint>()
