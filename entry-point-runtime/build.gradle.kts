@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-
 /*
  * Copyright 2025 The Android Open Source Project
  *
@@ -15,6 +13,8 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)

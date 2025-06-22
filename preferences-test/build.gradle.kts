@@ -1,7 +1,3 @@
-import com.alexvanyo.composelife.buildlogic.FormFactor
-import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -17,6 +13,10 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import com.alexvanyo.composelife.buildlogic.FormFactor
+import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
