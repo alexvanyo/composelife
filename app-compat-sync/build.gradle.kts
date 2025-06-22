@@ -1,6 +1,3 @@
-import com.alexvanyo.composelife.buildlogic.FormFactor
-import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-
 /*
  * Copyright 2023 The Android Open Source Project
  *
@@ -16,6 +13,9 @@ import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import com.alexvanyo.composelife.buildlogic.FormFactor
+import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)

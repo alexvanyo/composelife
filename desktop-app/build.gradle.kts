@@ -1,6 +1,3 @@
-
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-
 /*
  * Copyright 2024 The Android Open Source Project
  *
@@ -16,6 +13,8 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
