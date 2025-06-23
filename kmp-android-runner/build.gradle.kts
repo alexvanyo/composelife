@@ -48,18 +48,24 @@ kotlin {
         val commonMain by getting {}
         val jbMain by creating {
             dependsOn(commonMain)
+        }
+        val jvmMain by creating {
+            dependsOn(jbMain)
             dependencies {
                 implementation(libs.junit4)
             }
         }
         val desktopMain by getting {
-            dependsOn(jbMain)
+            dependsOn(jvmMain)
         }
         val androidMain by getting {
-            dependsOn(jbMain)
+            dependsOn(jvmMain)
             dependencies {
                 api(libs.androidx.test.junit)
             }
+        }
+        val wasmJsMain by getting {
+            dependsOn(jbMain)
         }
     }
 }
