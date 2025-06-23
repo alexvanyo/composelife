@@ -18,7 +18,9 @@ CREATE TABLE cellState (
     CONSTRAINT patternCollection
         FOREIGN KEY(patternCollectionId)
         REFERENCES patternCollection(id)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT serializedCellStateExists
+        CHECK (serializedCellState IS NOT NULL OR serializedCellStateFile IS NOT NULL)
 );
 INSERT INTO cellState (
     id,
