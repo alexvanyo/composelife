@@ -47,7 +47,3 @@ expect fun <AC : ApplicationComponent, UC : UiComponent> BaseUiInjectTest<AC, UC
     timeout: Duration = 60.seconds,
     testBody: suspend ComposeUiTest.(uiComponent: UC) -> Unit,
 ): TestResult
-
-expect inline fun <reified T : BaseInjectTestEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
-    unused: KClass<T> = T::class,
-): BaseInjectTestEntryPoint

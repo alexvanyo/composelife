@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -39,11 +40,20 @@ android {
 kotlin {
     jvm("desktop")
     androidTarget()
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.androidx.dataStore)
                 api(libs.jetbrains.compose.runtime)
                 api(libs.kotlinx.coroutines.core)
                 api(libs.kotlinx.datetime)
@@ -53,7 +63,6 @@ kotlin {
                 api(projects.sessionValue)
                 api(projects.updatable)
 
-                implementation(libs.androidx.dataStore.core.okio)
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.okio)
                 implementation(projects.filesystem)
@@ -65,8 +74,10 @@ kotlin {
         val jbMain by creating {
             dependsOn(commonMain)
             dependencies {
+                api(libs.androidx.dataStore)
                 api(libs.sealedEnum.runtime)
 
+                implementation(libs.androidx.dataStore.core.okio)
             }
         }
         val androidMain by getting {

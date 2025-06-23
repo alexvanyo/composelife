@@ -23,9 +23,11 @@ import com.alexvanyo.composelife.database.CellStateQueries
 import com.alexvanyo.composelife.entrypoint.EntryPoint
 import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.test.BaseInjectTest
 import kotlinx.coroutines.test.TestDispatcher
+import org.junit.runner.RunWith
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import kotlin.reflect.KClass
 import kotlin.test.Test
@@ -40,6 +42,7 @@ interface CellStateRepositoryTestsEntryPoint {
     val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher
 }
 
+@RunWith(KmpAndroidJUnit4::class)
 class CellStateRepositoryTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
     TestComposeLifeApplicationComponent::createComponent,
 ) {

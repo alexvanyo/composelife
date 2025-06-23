@@ -1,6 +1,3 @@
-import com.alexvanyo.composelife.buildlogic.FormFactor
-import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -16,6 +13,10 @@ import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import com.alexvanyo.composelife.buildlogic.FormFactor
+import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -39,6 +40,16 @@ android {
 kotlin {
     jvm("desktop")
     androidTarget()
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
