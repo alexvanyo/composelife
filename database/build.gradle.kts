@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -40,6 +41,16 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -77,6 +88,19 @@ kotlin {
             )
             dependencies {
                 implementation(libs.sqldelight.sqliteDriver)
+            }
+        }
+        val wasmJsMain by getting {
+            configurations["kspWasmJs"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                )
+            )
+            dependencies {
+                implementation(libs.sqldelight.webDriver)
+                implementation(npm("@cashapp/sqldelight-sqljs-worker", libs.versions.sqldelight.get()))
+                implementation(npm("sql.js", libs.versions.sqlJs.get()))
             }
         }
         val commonTest by getting {
@@ -130,6 +154,15 @@ kotlin {
                 )
             )
         }
+        val wasmJsTest by getting {
+            configurations["kspWasmJsTest"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                    projects.entryPointSymbolProcessor,
+                )
+            )
+        }
     }
 }
 
@@ -139,6 +172,7 @@ sqldelight {
             packageName.set("com.alexvanyo.composelife.database")
             schemaOutputDirectory.set(file("src/commonMain/sqldelight/databases"))
             verifyMigrations.set(true)
+            generateAsync = true
         }
     }
 }
