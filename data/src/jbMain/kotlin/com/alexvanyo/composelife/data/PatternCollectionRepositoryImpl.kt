@@ -330,7 +330,7 @@ class PatternCollectionRepositoryImpl(
                     // Delete the cell state before deleting the underlying file to avoid a race where the
                     // file no longer exists
                     cellStateQueries.deleteCellState(databaseCellState.id)
-                    fileSystem.delete(serializedCellStateFile)
+                    fileSystem.delete(persistedDataPath / serializedCellStateFile)
                 } else {
                     // TODO: Update metadata for updated pattern with the same file
                 }
