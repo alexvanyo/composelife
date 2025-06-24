@@ -28,15 +28,13 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
 import com.livefront.sealedenum.createSealedEnumFromEnum
-import org.junit.runner.RunWith
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
-class SealedEnumSaverTests {
+class SealedEnumSaverTests : BaseKmpTest() {
 
     @Test
     fun sealed_enum_saver_is_correct() = runComposeUiTest {
