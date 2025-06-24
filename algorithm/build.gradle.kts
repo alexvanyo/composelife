@@ -79,10 +79,15 @@ kotlin {
                 implementation(projects.injectScopes)
             }
         }
-        val jvmMain by creating {
+        val jbMain by creating {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.jetbrains.compose.uiUnit)
+            }
+        }
+        val jvmMain by creating {
+            dependsOn(jbMain)
+            dependencies {
                 implementation(libs.sealedEnum.runtime)
             }
         }
@@ -112,6 +117,9 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.android)
             }
         }
+        val wasmJsMain by getting {
+            dependsOn(jbMain)
+        }
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
@@ -123,8 +131,15 @@ kotlin {
                 implementation(projects.patterns)
             }
         }
-        val jvmTest by creating {
+        val jbTest by creating {
             dependsOn(commonTest)
+            dependencies {
+                implementation(libs.jetbrains.compose.foundation)
+                implementation(libs.jetbrains.compose.uiTest)
+            }
+        }
+        val jvmTest by creating {
+            dependsOn(jbTest)
             dependencies {
                 implementation(libs.testParameterInjector.junit4)
             }
@@ -134,21 +149,14 @@ kotlin {
                 implementation(libs.molecule)
             }
         }
-        val jbTest by creating {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.jetbrains.compose.foundation)
-                implementation(libs.jetbrains.compose.uiTest)
-            }
-        }
         val desktopTest by getting {
-            dependsOn(jbTest)
+            dependsOn(jvmTest)
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
         }
         val androidSharedTest by getting {
-            dependsOn(jbTest)
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.androidx.compose.uiTest)
                 implementation(libs.androidx.test.core)
