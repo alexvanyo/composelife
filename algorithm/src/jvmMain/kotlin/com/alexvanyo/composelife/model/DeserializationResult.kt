@@ -41,7 +41,9 @@ sealed interface DeserializationResult {
     @Serializable
     data class Successful(
         override val warnings: List<ParameterizedString>,
-        val cellState: CellState,
+        val cellState:
+        @Serializable(with = JsonCellStateSerialization::class)
+        CellState,
         val format: CellStateFormat.FixedFormat,
     ) : DeserializationResult
 

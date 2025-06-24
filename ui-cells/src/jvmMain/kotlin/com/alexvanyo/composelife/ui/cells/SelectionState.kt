@@ -27,6 +27,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntOffset
 import androidx.savedstate.SavedState
 import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.model.JsonCellStateSerialization
 import com.alexvanyo.composelife.serialization.IntOffsetSerializer
 import com.alexvanyo.composelife.serialization.RectSerializer
 import com.alexvanyo.composelife.serialization.saver
@@ -93,7 +94,7 @@ sealed interface SelectionState {
      */
     @Serializable
     data class Selection(
-        val cellState: CellState,
+        @Serializable(with = JsonCellStateSerialization::class) val cellState: CellState,
         @Serializable(with = IntOffsetSerializer::class) val offset: IntOffset,
     ) : SelectionState
 
