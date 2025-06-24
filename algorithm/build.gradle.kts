@@ -85,12 +85,12 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.jetbrains.compose.uiUnit)
+                implementation(projects.sealedEnum.runtime)
             }
         }
         val jvmMain by creating {
             dependsOn(jbMain)
             dependencies {
-                implementation(libs.sealedEnum.runtime)
             }
         }
         val jvmNonAndroidMain by creating {
@@ -100,7 +100,7 @@ kotlin {
             dependsOn(jvmNonAndroidMain)
             configurations["kspDesktop"].dependencies.addAll(
                 listOf(
-                    libs.sealedEnum.ksp.get(),
+                    projects.sealedEnum.ksp,
                 )
             )
             dependencies {
@@ -111,7 +111,7 @@ kotlin {
             dependsOn(jvmMain)
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
-                    libs.sealedEnum.ksp.get(),
+                    projects.sealedEnum.ksp,
                 )
             )
             dependencies {
@@ -121,6 +121,11 @@ kotlin {
         }
         val wasmJsMain by getting {
             dependsOn(jbMain)
+            configurations["kspWasmJs"].dependencies.addAll(
+                listOf(
+                    projects.sealedEnum.ksp,
+                )
+            )
         }
         val commonTest by getting {
             dependencies {
