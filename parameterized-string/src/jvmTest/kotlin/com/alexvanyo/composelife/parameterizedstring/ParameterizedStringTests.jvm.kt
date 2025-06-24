@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,82 +13,58 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("MatchingDeclarationName")
+@file:Suppress("Filename", "MatchingDeclarationName")
 
 package com.alexvanyo.composelife.parameterizedstring
 
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
+import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
+import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalTestApi::class)
-class ParameterizedStringTests : BaseKmpTest() {
+class ParameterizedStringJvmTests : BaseKmpTest() {
 
     @Test
-    fun composable_parameterized_string_resource_is_correct() = runComposeUiTest {
-        lateinit var string: String
+    fun saver_is_correct_for_basic_string() = runComposeUiTest {
+        val stateRestorationTester = KmpStateRestorationTester(this)
 
-        setContent {
-            string = parameterizedStringResource(
-                parameterizedString = ParameterizedString(
-                    "Three: (%s) (%s) (%s)",
-                    ParameterizedStringArgument(
-                        ParameterizedString(
-                            "Two: (%s) (%s)",
-                            ParameterizedStringArgument("a"),
-                            ParameterizedStringArgument("b"),
-                        ),
-                    ),
-                    ParameterizedStringArgument(
-                        ParameterizedString(
-                            "One: (%s)",
-                            ParameterizedStringArgument(
-                                ParameterizedString(
-                                    "One: (%s)",
-                                    ParameterizedStringArgument("c"),
-                                ),
-                            ),
-                        ),
-                    ),
-                    ParameterizedStringArgument(
-                        ParameterizedString(
-                            "One: (%s)",
-                            ParameterizedStringArgument(
-                                ParameterizedString(
-                                    "One: (%s)",
-                                    ParameterizedStringArgument(
-                                        ParameterizedString(
-                                            "One: (%s)",
-                                            ParameterizedStringArgument("d"),
-                                        ),
-                                    ),
-                                ),
-                            ),
-                        ),
-                    ),
-                ),
-            )
+        var parameterizedString: ParameterizedString? = null
+
+        stateRestorationTester.setContent {
+            parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
+                ParameterizedString(
+                    "Two: (%s) (%s)",
+                    ParameterizedStringArgument(Random.nextInt().toString()),
+                    ParameterizedStringArgument(Random.nextInt().toString()),
+                )
+            }
         }
 
-        assertEquals(
-            "Three: (Two: (a) (b)) (One: (One: (c))) (One: (One: (One: (d))))",
-            string,
-        )
+        val initial = parameterizedString
+
+        assertNotNull(initial)
+
+        stateRestorationTester.emulateStateRestore()
+
+        val restored = parameterizedString
+
+        assertEquals(initial, restored)
     }
 
     @Test
-    fun composable_resolver_is_correct() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun saver_is_correct_for_nested_parameterized_string() = runComposeUiTest {
+        val stateRestorationTester = KmpStateRestorationTester(this)
 
-        setContent {
-            resolver = parameterizedStringResolver()
-        }
+        var parameterizedString: ParameterizedString? = null
 
-        assertEquals(
-            "Three: (Two: (a) (b)) (One: (One: (c))) (One: (One: (One: (d))))",
-            resolver.invoke(
+        stateRestorationTester.setContent {
+            parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
                 ParameterizedString(
                     "Three: (%s) (%s) (%s)",
                     ParameterizedStringArgument(
@@ -125,8 +101,18 @@ class ParameterizedStringTests : BaseKmpTest() {
                             ),
                         ),
                     ),
-                ),
-            ),
-        )
+                )
+            }
+        }
+
+        val initial = parameterizedString
+
+        assertNotNull(initial)
+
+        stateRestorationTester.emulateStateRestore()
+
+        val restored = parameterizedString
+
+        assertEquals(initial, restored)
     }
 }
