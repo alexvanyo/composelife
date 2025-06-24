@@ -39,7 +39,6 @@ kotlin {
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
     }
     jvm("desktop")
-
     sourceSets {
         val commonMain by getting {
             dependencies {

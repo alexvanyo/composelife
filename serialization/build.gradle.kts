@@ -63,7 +63,7 @@ kotlin {
                 api(libs.androidx.savedState.compose)
                 api(libs.jetbrains.compose.uiGeometry)
                 api(libs.jetbrains.compose.uiUnit)
-                api(libs.sealedEnum.runtime)
+                api(projects.sealedEnum.runtime)
 
                 implementation(libs.jetbrains.compose.uiUtil)
             }

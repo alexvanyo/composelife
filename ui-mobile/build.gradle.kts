@@ -66,14 +66,14 @@ kotlin {
         }
         val desktopMain by getting {
             dependsOn(jbMain)
-            configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
+            configurations["kspDesktop"].dependencies.add(projects.sealedEnum.ksp)
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
         }
         val androidMain by getting {
             dependsOn(jbMain)
-            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
+            configurations["kspAndroid"].dependencies.add(projects.sealedEnum.ksp)
             dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.material3)

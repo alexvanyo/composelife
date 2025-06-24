@@ -59,7 +59,7 @@ kotlin {
         val jvmMain by creating {
             dependsOn(commonMain)
             dependencies {
-                implementation(libs.sealedEnum.runtime)
+                implementation(projects.sealedEnum.runtime)
             }
         }
         val jbMain by creating {
@@ -76,14 +76,14 @@ kotlin {
         }
         val desktopMain by getting {
             dependsOn(jbMain)
-            configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
+            configurations["kspDesktop"].dependencies.add(projects.sealedEnum.ksp)
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
         }
         val androidMain by getting {
             dependsOn(jbMain)
-            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
+            configurations["kspAndroid"].dependencies.add(projects.sealedEnum.ksp)
             dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.foundation)

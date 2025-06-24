@@ -74,7 +74,7 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                 api(libs.androidx.dataStore)
-                api(libs.sealedEnum.runtime)
+                api(projects.sealedEnum.runtime)
 
                 implementation(libs.androidx.dataStore.core.okio)
             }
@@ -83,7 +83,7 @@ kotlin {
             dependsOn(jbMain)
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
-                    libs.sealedEnum.ksp.get(),
+                    projects.sealedEnum.ksp,
                 )
             )
             dependencies {
@@ -94,7 +94,7 @@ kotlin {
             dependsOn(jbMain)
             configurations["kspDesktop"].dependencies.addAll(
                 listOf(
-                    libs.sealedEnum.ksp.get(),
+                    projects.sealedEnum.ksp,
                 )
             )
         }
