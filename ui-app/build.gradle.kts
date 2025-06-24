@@ -91,7 +91,7 @@ kotlin {
         val desktopMain by getting {
             dependsOn(jbMain)
             configurations["kspDesktop"].dependencies.addAll(listOf(
-                libs.sealedEnum.ksp.get(),
+                projects.sealedEnum.ksp,
             ))
             dependencies {
                 implementation(compose.desktop.currentOs)
@@ -100,7 +100,7 @@ kotlin {
         val androidMain by getting {
             dependsOn(jbMain)
             configurations["kspAndroid"].dependencies.addAll(listOf(
-                libs.sealedEnum.ksp.get(),
+                projects.sealedEnum.ksp,
             ))
             dependencies {
                 implementation(libs.androidx.activityCompose)
@@ -113,7 +113,7 @@ kotlin {
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.poolingContainer)
                 implementation(libs.kotlinx.coroutines.android)
-                implementation(libs.sealedEnum.runtime)
+                implementation(projects.sealedEnum.runtime)
             }
         }
         val commonTest by getting {
