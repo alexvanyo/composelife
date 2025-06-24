@@ -17,11 +17,15 @@
 
 package com.alexvanyo.composelife.parameterizedstring
 
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
+import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
+import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalTestApi::class)
 class ParameterizedStringTests : BaseKmpTest() {
@@ -131,6 +135,96 @@ class ParameterizedStringTests : BaseKmpTest() {
                     ),
                 ),
             )
+        }
+    }
+
+    @Test
+    fun saver_is_correct_for_basic_string() {
+        runComposeUiTest {
+            val stateRestorationTester = KmpStateRestorationTester(this)
+
+            var parameterizedString: ParameterizedString? = null
+
+            stateRestorationTester.setContent {
+                parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
+                    ParameterizedString(
+                        "Two: (%s) (%s)",
+                        ParameterizedStringArgument(Random.nextInt().toString()),
+                        ParameterizedStringArgument(Random.nextInt().toString()),
+                    )
+                }
+            }
+
+            val initial = parameterizedString
+
+            assertNotNull(initial)
+
+            stateRestorationTester.emulateStateRestore()
+
+            val restored = parameterizedString
+
+            assertEquals(initial, restored)
+        }
+    }
+
+    @Test
+    fun saver_is_correct_for_nested_parameterized_string() {
+        runComposeUiTest {
+            val stateRestorationTester = KmpStateRestorationTester(this)
+
+            var parameterizedString: ParameterizedString? = null
+
+            stateRestorationTester.setContent {
+                parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
+                    ParameterizedString(
+                        "Three: (%s) (%s) (%s)",
+                        ParameterizedStringArgument(
+                            ParameterizedString(
+                                "Two: (%s) (%s)",
+                                ParameterizedStringArgument("a"),
+                                ParameterizedStringArgument("b"),
+                            ),
+                        ),
+                        ParameterizedStringArgument(
+                            ParameterizedString(
+                                "One: (%s)",
+                                ParameterizedStringArgument(
+                                    ParameterizedString(
+                                        "One: (%s)",
+                                        ParameterizedStringArgument("c"),
+                                    ),
+                                ),
+                            ),
+                        ),
+                        ParameterizedStringArgument(
+                            ParameterizedString(
+                                "One: (%s)",
+                                ParameterizedStringArgument(
+                                    ParameterizedString(
+                                        "One: (%s)",
+                                        ParameterizedStringArgument(
+                                            ParameterizedString(
+                                                "One: (%s)",
+                                                ParameterizedStringArgument("d"),
+                                            ),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    )
+                }
+            }
+
+            val initial = parameterizedString
+
+            assertNotNull(initial)
+
+            stateRestorationTester.emulateStateRestore()
+
+            val restored = parameterizedString
+
+            assertEquals(initial, restored)
         }
     }
 }

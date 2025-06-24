@@ -321,7 +321,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                                 if (IntOffset(x, y) in node) '*' else '.'
                             }
                         }
-                            .map(::String)
+                            .map(CharArray::concatToString)
                             .joinToString("$") { it.trimEnd('.') }
                             .trimEnd('$') + '$',
                     )

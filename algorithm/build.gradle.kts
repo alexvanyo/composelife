@@ -88,14 +88,13 @@ kotlin {
         }
         val jvmMain by creating {
             dependsOn(jbMain)
-            dependencies {
-            }
         }
-        val jvmNonAndroidMain by creating {
-            dependsOn(jvmMain)
+        val jbNonAndroidMain by creating {
+            dependsOn(jbMain)
         }
         val desktopMain by getting {
-            dependsOn(jvmNonAndroidMain)
+            dependsOn(jvmMain)
+            dependsOn(jbNonAndroidMain)
             configurations["kspDesktop"].dependencies.addAll(
                 listOf(
                     projects.sealedEnum.ksp,
@@ -118,7 +117,7 @@ kotlin {
             }
         }
         val wasmJsMain by getting {
-            dependsOn(jbMain)
+            dependsOn(jbNonAndroidMain)
             configurations["kspWasmJs"].dependencies.addAll(
                 listOf(
                     projects.sealedEnum.ksp,

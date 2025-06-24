@@ -105,6 +105,8 @@ ksp = "2.2.20-2.0.3"
 ktor = "3.3.0"
 #jacoco
 jacoco = "0.8.13"
+#jetbrainsSavedState
+jetbrainsSavedState = "1.3.1"
 #jetbrainsCompose
 jetbrainsCompose = "1.10.0+dev3025"
 #jetbrainsComposeMaterialIconsExtended
@@ -224,6 +226,8 @@ detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-form
 detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
 google-autoValue-annotations = { group = "com.google.auto.value", name = "auto-value-annotations", version.ref = "googleAutoValue" }
 guava-android = { group = "com.google.guava", name = "guava", version.ref = "guavaAndroid" }
+jetbrains-savedState = { group = "org.jetbrains.androidx.savedstate", name = "savedstate", version.ref = "jetbrainsSavedState" }
+jetbrains-savedState-compose = { group = "org.jetbrains.androidx.savedstate", name = "savedstate-compose", version.ref = "jetbrainsSavedState" }
 jetbrains-compose-animation = { group = "org.jetbrains.compose.animation", name = "animation", version.ref = "jetbrainsCompose" }
 jetbrains-compose-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "jetbrainsCompose" }
 jetbrains-compose-gradlePlugin = { group = "org.jetbrains.compose", name = "compose-gradle-plugin", version.ref = "jetbrainsCompose" }
