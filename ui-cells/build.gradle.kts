@@ -86,7 +86,7 @@ kotlin {
             dependsOn(jbMain)
             configurations["kspDesktop"].dependencies.addAll(
                 listOf(
-                    libs.sealedEnum.ksp.get(),
+                    projects.sealedEnum.ksp,
                 )
             )
             dependencies {
@@ -97,7 +97,7 @@ kotlin {
             dependsOn(jbMain)
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
-                    libs.sealedEnum.ksp.get(),
+                    projects.sealedEnum.ksp,
                 )
             )
             dependencies {
@@ -113,7 +113,7 @@ kotlin {
                 implementation(libs.androidx.poolingContainer)
                 implementation(libs.androidx.window)
                 implementation(libs.kotlinx.coroutines.android)
-                implementation(libs.sealedEnum.runtime)
+                implementation(projects.sealedEnum.runtime)
             }
         }
         val commonTest by getting {
