@@ -18,11 +18,8 @@ package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import com.alexvanyo.composelife.model.di.CellStateParserProvider
-import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
-import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
