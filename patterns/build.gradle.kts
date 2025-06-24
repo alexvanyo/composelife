@@ -51,41 +51,47 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(projects.algorithm)
-            }
-        }
-        val jvmMain by creating {
-            dependsOn(commonMain)
-            dependencies {
-                api(libs.jetbrains.compose.uiUnit)
                 api(projects.sealedEnum.runtime)
             }
         }
         val jbMain by creating {
-            dependsOn(jvmMain)
+            dependsOn(commonMain)
+            dependencies {
+                api(libs.jetbrains.compose.uiUnit)
+            }
+        }
+        val jvmMain by creating {
+            dependsOn(jbMain)
         }
         val desktopMain by getting {
-            dependsOn(jbMain)
+            dependsOn(jvmMain)
             configurations["kspDesktop"].dependencies.add(projects.sealedEnum.ksp)
         }
         val androidMain by getting {
-            dependsOn(jbMain)
+            dependsOn(jvmMain)
             configurations["kspAndroid"].dependencies.add(projects.sealedEnum.ksp)
         }
-        val commonTest by getting {
+        val wasmJsMain by getting {
+            dependsOn(jbMain)
+            configurations["kspWasmJs"].dependencies.add(projects.sealedEnum.ksp)
+        }
+        val commonTest by getting {}
+        val jbTest by creating {
+            dependsOn(commonTest)
+        }
+        val jvmTest by creating {
+            dependsOn(jbTest)
             dependencies {
                 implementation(libs.testParameterInjector.junit4)
             }
         }
-        val jvmTest by creating {
-            dependsOn(commonTest)
-        }
-        val jbTest by creating {
+        val desktopTest by getting {
             dependsOn(jvmTest)
         }
-        val desktopTest by getting {
-            dependsOn(jbTest)
-        }
         val androidSharedTest by getting {
+            dependsOn(jvmTest)
+        }
+        val wasmJsTest by getting {
             dependsOn(jbTest)
         }
     }
