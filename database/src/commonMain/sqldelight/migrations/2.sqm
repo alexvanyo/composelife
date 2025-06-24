@@ -20,8 +20,11 @@ CREATE TABLE cellState (
         REFERENCES patternCollection(id)
         ON DELETE CASCADE,
     CONSTRAINT serializedCellStateExists
-        CHECK (serializedCellState IS NOT NULL OR serializedCellStateFile IS NOT NULL)
+        CHECK ((serializedCellState IS NOT NULL AND serializedCellStateFile IS NULL) OR
+             (serializedCellState IS NULL AND serializedCellStateFile IS NOT NULL))
 );
+
+CREATE INDEX idx_cellState_patternCollectionId ON cellState(patternCollectionId);
 INSERT INTO cellState (
     id,
     name,
