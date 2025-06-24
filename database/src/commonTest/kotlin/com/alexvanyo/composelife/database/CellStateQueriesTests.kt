@@ -71,8 +71,10 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                         description = null,
                         formatExtension = null,
                         serializedCellState = "O",
+                        serializedCellStateFile = null,
                         generation = 0,
                         wasAutosaved = true,
+                        patternCollectionId = null,
                     )
                     cellStateQueries.lastInsertedRowId().awaitAsOne()
                 }
@@ -85,8 +87,10 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                             description = null,
                             formatExtension = null,
                             serializedCellState = "O",
+                            serializedCellStateFile = null,
                             generation = 0,
                             wasAutosaved = true,
+                            patternCollectionId = null,
                         ),
                     ),
                     awaitItem(),
@@ -104,8 +108,10 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                     description = null,
                     formatExtension = null,
                     serializedCellState = "O",
+                    serializedCellStateFile = null,
                     generation = 0,
                     wasAutosaved = true,
+                    patternCollectionId = null,
                 )
                 cellStateQueries.lastInsertedRowId().awaitAsOne()
             }
@@ -119,8 +125,10 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                             description = null,
                             formatExtension = null,
                             serializedCellState = "O",
+                            serializedCellStateFile = null,
                             generation = 0,
                             wasAutosaved = true,
+                            patternCollectionId = null,
                         ),
                     ),
                     awaitItem(),
@@ -141,8 +149,10 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                         description = null,
                         formatExtension = null,
                         serializedCellState = "O",
+                        serializedCellStateFile = null,
                         generation = 0,
                         wasAutosaved = true,
+                        patternCollectionId = null,
                     )
                     cellStateQueries.lastInsertedRowId().awaitAsOne()
                 }
@@ -155,8 +165,10 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                             description = null,
                             formatExtension = null,
                             serializedCellState = "O",
+                            serializedCellStateFile = null,
                             generation = 0,
                             wasAutosaved = true,
+                            patternCollectionId = null,
                         ),
                     ),
                     awaitItem(),
@@ -187,8 +199,10 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                     description = null,
                     formatExtension = null,
                     serializedCellState = "O",
+                    serializedCellStateFile = null,
                     generation = 0,
                     wasAutosaved = true,
+                    patternCollectionId = null,
                 )
                 cellStateQueries.lastInsertedRowId().awaitAsOne()
             }
@@ -201,8 +215,10 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                         description = null,
                         formatExtension = null,
                         serializedCellState = "O",
+                        serializedCellStateFile = null,
                         generation = 0,
                         wasAutosaved = true,
+                        patternCollectionId = null,
                     ),
                     awaitItem(),
                 )
@@ -219,8 +235,10 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                     description = null,
                     formatExtension = null,
                     serializedCellState = "O",
+                    serializedCellStateFile = null,
                     generation = 0,
                     wasAutosaved = true,
+                    patternCollectionId = null,
                 )
                 cellStateQueries.lastInsertedRowId().awaitAsOne()
             }
@@ -233,8 +251,10 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                         description = null,
                         formatExtension = null,
                         serializedCellState = "O",
+                        serializedCellStateFile = null,
                         generation = 0,
                         wasAutosaved = true,
+                        patternCollectionId = null,
                     ),
                     awaitItem(),
                 )
@@ -264,8 +284,10 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                     description = null,
                     formatExtension = null,
                     serializedCellState = "O",
+                    serializedCellStateFile = null,
                     generation = 0,
                     wasAutosaved = false,
+                    patternCollectionId = null,
                 )
                 cellStateQueries.lastInsertedRowId().awaitAsOne()
             }
@@ -285,8 +307,10 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                     description = null,
                     formatExtension = null,
                     serializedCellState = "O",
+                    serializedCellStateFile = null,
                     generation = 0,
                     wasAutosaved = true,
+                    patternCollectionId = null,
                 )
                 cellStateQueries.lastInsertedRowId().awaitAsOne()
             }
@@ -299,8 +323,10 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                         description = null,
                         formatExtension = null,
                         serializedCellState = "O",
+                        serializedCellStateFile = null,
                         generation = 0,
                         wasAutosaved = true,
+                        patternCollectionId = null,
                     ),
                     awaitItem(),
                 )
@@ -320,8 +346,10 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                         description = null,
                         formatExtension = null,
                         serializedCellState = "O",
+                        serializedCellStateFile = null,
                         generation = 0,
                         wasAutosaved = true,
+                        patternCollectionId = null,
                     )
                     cellStateQueries.lastInsertedRowId().awaitAsOne()
                 }
@@ -333,8 +361,10 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
                         description = null,
                         formatExtension = null,
                         serializedCellState = "O",
+                        serializedCellStateFile = null,
                         generation = 0,
                         wasAutosaved = true,
+                        patternCollectionId = null,
                     ),
                     awaitItem(),
                 )

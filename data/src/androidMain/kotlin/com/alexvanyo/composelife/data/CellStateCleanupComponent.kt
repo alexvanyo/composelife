@@ -25,11 +25,11 @@ import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 
 @ContributesTo(AppScope::class)
-interface PatternCollectionSyncComponent {
+interface CellStateCleanupComponent {
     @Provides
     @IntoMap
-    fun providesPatternCollectionSyncWorkerCreatorIntoWorkerFactoryMap(
-        patternCollectionSyncWorkerCreator: (Context, WorkerParameters) -> PatternCollectionSyncWorker,
+    fun providesCellStateCleanupWorkerCreatorIntoWorkerFactoryMap(
+        cellStateCleanupWorkerCreator: (Context, WorkerParameters) -> CellStateCleanupWorker,
     ): Pair<String, AssistedWorkerFactory> =
-        PatternCollectionSyncWorker::class.java.name to patternCollectionSyncWorkerCreator
+        CellStateCleanupWorker::class.java.name to cellStateCleanupWorkerCreator
 }
