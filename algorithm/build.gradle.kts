@@ -85,12 +85,12 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.jetbrains.compose.uiUnit)
+                implementation(projects.sealedEnum.runtime)
             }
         }
         val jvmMain by creating {
             dependsOn(jbMain)
             dependencies {
-                implementation(libs.sealedEnum.runtime)
             }
         }
         val jvmNonAndroidMain by creating {
@@ -102,7 +102,7 @@ kotlin {
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
-                    libs.sealedEnum.ksp.get(),
+                    projects.sealedEnum.ksp,
                 )
             )
             dependencies {
@@ -115,7 +115,7 @@ kotlin {
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
-                    libs.sealedEnum.ksp.get(),
+                    projects.sealedEnum.ksp,
                 )
             )
             dependencies {
@@ -129,6 +129,7 @@ kotlin {
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
+                    projects.sealedEnum.ksp,
                 )
             )
         }
