@@ -13,17 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("MatchingDeclarationName")
 
-package com.alexvanyo.composelife.parameterizedstring
+package com.alexvanyo.composelife.model
 
-import androidx.compose.runtime.saveable.Saver
-import androidx.savedstate.SavedState
-import com.alexvanyo.composelife.serialization.saver
-
-/**
- * A [Saver] for [ParameterizedString].
- *
- * TODO: Move to jbMain when SavedState is available for wasmJs
- */
-val ParameterizedString.Companion.Saver: Saver<ParameterizedString, SavedState> get() = serializer().saver()
+actual val CellStateFormat.FixedFormat._name: String get() = name

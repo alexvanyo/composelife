@@ -19,6 +19,9 @@ package com.alexvanyo.composelife.parameterizedstring
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.saveable.Saver
+import androidx.savedstate.SavedState
+import com.alexvanyo.composelife.serialization.saver
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -67,6 +70,12 @@ fun ParameterizedStringArgument(value: Float): ParameterizedStringArgument =
     ParameterizedStringArgument.FloatArg(value)
 fun ParameterizedStringArgument(value: Double): ParameterizedStringArgument =
     ParameterizedStringArgument.DoubleArg(value)
+
+/**
+ * A [Saver] for [ParameterizedString].
+ */
+val ParameterizedString.Companion.Saver: Saver<ParameterizedString, SavedState> get() =
+    serializer().saver()
 
 /**
  * Creates a lambda to resolve the [ParameterizedString] to a [String].
