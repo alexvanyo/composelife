@@ -90,7 +90,7 @@ kotlin {
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
-                    libs.sealedEnum.ksp.get(),
+                    projects.sealedEnum.ksp,
                 )
             )
             dependencies {
@@ -103,7 +103,7 @@ kotlin {
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
-                    libs.sealedEnum.ksp.get(),
+                    projects.sealedEnum.ksp,
                     libs.showkase.processor.get(),
                 )
             )
@@ -120,7 +120,7 @@ kotlin {
                 implementation(libs.androidx.poolingContainer)
                 implementation(libs.androidx.window)
                 implementation(libs.kotlinx.coroutines.android)
-                implementation(libs.sealedEnum.runtime)
+                implementation(projects.sealedEnum.runtime)
                 implementation(libs.showkase.runtime)
             }
         }

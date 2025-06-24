@@ -58,7 +58,7 @@ kotlin {
             configurations["kspAndroid"].dependencies.addAll(listOf(
                 libs.kotlinInject.ksp.get(),
                 libs.kotlinInjectAnvil.ksp.get(),
-                libs.sealedEnum.ksp.get(),
+                projects.sealedEnum.ksp,
                 projects.entryPointSymbolProcessor,
             ))
             dependencies {
@@ -77,7 +77,7 @@ kotlin {
                 implementation(libs.androidx.wear.watchface.editor)
                 implementation(libs.androidx.wear.watchface.style)
                 implementation(libs.kotlinx.coroutines.android)
-                implementation(libs.sealedEnum.runtime)
+                implementation(projects.sealedEnum.runtime)
             }
         }
         val commonTest by getting {

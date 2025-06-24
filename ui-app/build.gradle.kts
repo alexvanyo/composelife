@@ -99,7 +99,7 @@ kotlin {
             configurations["kspDesktop"].dependencies.addAll(listOf(
                 libs.kotlinInject.ksp.get(),
                 libs.kotlinInjectAnvil.ksp.get(),
-                libs.sealedEnum.ksp.get(),
+                projects.sealedEnum.ksp,
             ))
             dependencies {
                 implementation(compose.desktop.currentOs)
@@ -110,7 +110,7 @@ kotlin {
             configurations["kspAndroid"].dependencies.addAll(listOf(
                 libs.kotlinInject.ksp.get(),
                 libs.kotlinInjectAnvil.ksp.get(),
-                libs.sealedEnum.ksp.get(),
+                projects.sealedEnum.ksp,
                 libs.showkase.processor.get(),
             ))
             dependencies {
@@ -126,7 +126,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.ktor.client.mock)
                 implementation(libs.okio.fakefilesystem)
-                implementation(libs.sealedEnum.runtime)
+                implementation(projects.sealedEnum.runtime)
                 implementation(libs.showkase.runtime)
                 implementation(libs.sqldelight.androidDriver)
             }

@@ -129,8 +129,6 @@ proguard = "7.6.0"
 robolectric = "4.15.1"
 #roborazzi
 roborazzi = "1.46.1"
-#sealedEnum
-sealedEnum = "0.7.0"
 #slf4j
 slf4j = "2.1.0-alpha1"
 #showkase
@@ -279,8 +277,6 @@ okio-fakefilesystem = { group = "com.squareup.okio", name = "okio-fakefilesystem
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 roborazzi-core =  { group = "io.github.takahirom.roborazzi", name = "roborazzi", version.ref = "roborazzi" }
 roborazzi-compose =  { group = "io.github.takahirom.roborazzi", name = "roborazzi-compose", version.ref = "roborazzi" }
-sealedEnum-ksp = { group = "com.github.livefront.sealed-enum", name = "ksp", version.ref = "sealedEnum" }
-sealedEnum-runtime = { group = "com.github.livefront.sealed-enum", name = "runtime", version.ref = "sealedEnum" }
 showkase-annotation = { group = "com.airbnb.android", name = "showkase-annotation", version.ref = "showkase" }
 showkase-processor = { group = "com.airbnb.android", name = "showkase-processor", version.ref = "showkase" }
 showkase-runtime = { group = "com.airbnb.android", name = "showkase", version.ref = "showkase" }

@@ -37,11 +37,6 @@ dependencyResolutionManagement {
                 includeModule("com.android.tools", "r8")
             }
         }
-        maven(url = "https://jitpack.io") {
-            content {
-                includeGroup("com.github.livefront.sealed-enum")
-            }
-        }
         google()
         mavenCentral()
     }
