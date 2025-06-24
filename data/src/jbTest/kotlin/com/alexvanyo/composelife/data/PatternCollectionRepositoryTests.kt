@@ -302,6 +302,93 @@ class PatternCollectionRepositoryTests : BaseInjectTest<TestComposeLifeApplicati
                 .toSet(),
         )
     }
+
+    @Test
+    fun deleting_pattern_from_archive_removes_files() = runAppTest(testDispatcher) {
+        backgroundScope.launch {
+            patternCollectionRepository.observePatternCollections()
+        }
+
+        val patternCollectionId = patternCollectionRepository.addPatternCollection(
+            sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+        )
+
+        val synchronizationJob = async {
+            patternCollectionRepository.synchronizePatternCollections()
+        }
+
+        runCurrent()
+
+        assertEquals(
+            ResourceState.Success(
+                listOf(
+                    PatternCollection(
+                        id = patternCollectionId,
+                        sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                        lastSuccessfulSynchronizationTimestamp = null,
+                        lastUnsuccessfulSynchronizationTimestamp = null,
+                        synchronizationFailureMessage = null,
+                        isSynchronizing = true,
+                    )
+                )
+            ),
+            patternCollectionRepository.collections,
+        )
+
+        fakeRequestHandler.addRequestHandler { request ->
+            assertEquals("https://alex.vanyo.dev/composelife/patterns.zip", request.url.toString())
+            respond(
+                this::class.java
+                    .getResource("/patternfiles/patterns.zip")!!
+                    .readBytes()
+            )
+        }
+
+        assertTrue(synchronizationJob.await())
+
+        assertEquals(
+            ResourceState.Success(
+                listOf(
+                    PatternCollection(
+                        id = patternCollectionId,
+                        sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                        lastSuccessfulSynchronizationTimestamp = Instant.fromEpochSeconds(0),
+                        lastUnsuccessfulSynchronizationTimestamp = null,
+                        synchronizationFailureMessage = null,
+                        isSynchronizing = false,
+                    )
+                )
+            ),
+            patternCollectionRepository.collections,
+        )
+
+        fakeRequestHandler.addRequestHandler { request ->
+            assertEquals("https://alex.vanyo.dev/composelife/patterns.zip", request.url.toString())
+            respond(
+                this::class.java
+                    .getResource("/patternfiles/empty.zip")!!
+                    .readBytes()
+            )
+        }
+
+        assertTrue(patternCollectionRepository.synchronizePatternCollections())
+
+        // Validate that the cell state was deleted
+        val cellStates = cellStateRepository.getCellStates()
+        assertEquals(emptyList(), cellStates)
+        assertEquals(
+            setOf(
+                "PatternCollections".toPath(),
+                "PatternCollections/${patternCollectionId.value}".toPath(),
+                "PatternCollections/${patternCollectionId.value}/archive.zip".toPath(),
+                "PatternCollections/${patternCollectionId.value}/archive.sha256".toPath(),
+                "PatternCollections/${patternCollectionId.value}/extracted".toPath(),
+            ),
+            fakeFileSystem.listRecursively(persistedDataPath)
+                .map { it.relativeTo(persistedDataPath) }
+                .toSet(),
+        )
+    }
 }
 
 expect inline fun <reified T : PatternCollectionRepositoryTestsEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
