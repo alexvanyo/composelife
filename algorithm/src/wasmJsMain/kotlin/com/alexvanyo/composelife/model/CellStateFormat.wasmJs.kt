@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,4 @@
 
 package com.alexvanyo.composelife.model
 
-/**
- * A serializer for a [CellStateFormat.FixedFormat].
- *
- * This can directly and synchronously deserialize a sequence of lines into a [DeserializationResult] with
- * [deserializeToCellState], and serialize a [CellState] into a sequence of lines with [serializeToString].
- */
-interface FixedFormatCellStateSerializer {
-    val format: CellStateFormat.FixedFormat
-
-    fun deserializeToCellState(lines: Sequence<String>): DeserializationResult
-
-    fun serializeToString(cellState: CellState): Sequence<String>
-}
+actual val CellStateFormat.FixedFormat._name: String get() = name
