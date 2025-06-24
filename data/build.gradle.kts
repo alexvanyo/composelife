@@ -39,7 +39,6 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
-
     sourceSets {
         val commonMain by getting {
             dependencies {
