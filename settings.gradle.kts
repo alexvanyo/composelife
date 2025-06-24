@@ -38,11 +38,6 @@ dependencyResolutionManagement {
                 includeModule("com.android.tools", "r8")
             }
         }
-        maven(url = "https://jitpack.io") {
-            content {
-                includeGroup("com.github.livefront.sealed-enum")
-            }
-        }
         google()
         mavenCentral()
         maven(url = "https://maven.pkg.jetbrains.space/public/p/compose/dev/")
@@ -112,6 +107,9 @@ include(":resources-wear")
 include(":roborazzi-showkase-screenshot-test")
 include(":serialization")
 include(":screenshot-test")
+include(":sealed-enum:runtime")
+include(":sealed-enum:processing-common")
+include(":sealed-enum:ksp")
 include(":session-value")
 include(":strict-mode")
 include(":test-activity")

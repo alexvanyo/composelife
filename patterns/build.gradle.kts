@@ -57,7 +57,7 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                 api(libs.jetbrains.compose.uiUnit)
-                api(libs.sealedEnum.runtime)
+                api(projects.sealedEnum.runtime)
             }
         }
         val jbMain by creating {
@@ -65,11 +65,11 @@ kotlin {
         }
         val desktopMain by getting {
             dependsOn(jbMain)
-            configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
+            configurations["kspDesktop"].dependencies.add(projects.sealedEnum.ksp)
         }
         val androidMain by getting {
             dependsOn(jbMain)
-            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
+            configurations["kspAndroid"].dependencies.add(projects.sealedEnum.ksp)
         }
         val commonTest by getting {
             dependencies {

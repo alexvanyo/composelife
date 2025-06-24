@@ -57,7 +57,7 @@ kotlin {
             }
         }
         val androidMain by getting {
-            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
+            configurations["kspAndroid"].dependencies.add(projects.sealedEnum.ksp)
             configurations["kspAndroid"].dependencies.add(libs.showkase.processor.get())
             dependencies {
                 implementation(libs.androidx.activityCompose)
@@ -76,8 +76,8 @@ kotlin {
                 implementation(libs.androidx.wear.watchface.editor)
                 implementation(libs.androidx.wear.watchface.style)
                 implementation(libs.kotlinx.coroutines.android)
-                implementation(libs.sealedEnum.runtime)
                 implementation(libs.showkase.runtime)
+                implementation(projects.sealedEnum.runtime)
             }
         }
         val commonTest by getting {

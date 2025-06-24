@@ -45,7 +45,7 @@ kotlin {
         }
         val desktopMain by getting {
             configurations["kspDesktop"].dependencies.addAll(listOf(
-                libs.sealedEnum.ksp.get(),
+                projects.sealedEnum.ksp,
             ))
             dependencies {
                 implementation(compose.desktop.currentOs)
