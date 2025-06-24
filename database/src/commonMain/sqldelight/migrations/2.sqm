@@ -2,6 +2,9 @@ import com.alexvanyo.composelife.database.CellStateId;
 import com.alexvanyo.composelife.database.PatternCollectionId;
 import kotlin.Boolean;
 
+PRAGMA foreign_keys=off;
+BEGIN TRANSACTION;
+ALTER TABLE cellState RENAME TO _cellState_old;
 CREATE TABLE cellState (
     id INTEGER AS CellStateId NOT NULL PRIMARY KEY AUTOINCREMENT,
     name TEXT,
@@ -22,37 +25,8 @@ CREATE TABLE cellState (
 );
 
 CREATE INDEX idx_cellState_patternCollectionId ON cellState(patternCollectionId);
-
-getCellStates:
-SELECT *
-FROM cellState;
-
-getCellStateById:
-SELECT *
-FROM cellState
-WHERE id=:id;
-
-getAutosavedCellStates:
-SELECT *
-FROM cellState
-WHERE wasAutosaved=1
-ORDER BY id DESC;
-
-getCellStatesByPatternCollectionId:
-SELECT *
-FROM cellState
-WHERE patternCollectionId=:patternCollectionId
-ORDER BY id DESC;
-
-getMostRecentAutosavedCellState:
-SELECT *
-FROM cellState
-WHERE wasAutosaved=1
-ORDER BY id DESC
-LIMIT 1;
-
-insertCellState:
 INSERT INTO cellState (
+    id,
     name,
     description,
     formatExtension,
@@ -62,33 +36,17 @@ INSERT INTO cellState (
     wasAutosaved,
     patternCollectionId
 )
-VALUES (
-    :name,
-    :description,
-    :formatExtension,
-    :serializedCellState,
-    :serializedCellStateFile,
-    :generation,
-    :wasAutosaved,
-    :patternCollectionId
-);
-
-updateCellState:
-UPDATE cellState
-SET
-    name=:name,
-    description=:description,
-    formatExtension=:formatExtension,
-    serializedCellState=:serializedCellState,
-    serializedCellStateFile=:serializedCellStateFile,
-    generation=:generation,
-    wasAutosaved=:wasAutosaved,
-    patternCollectionId=:patternCollectionId
-WHERE id=:id;
-
-lastInsertedRowId:
-SELECT last_insert_rowid();
-
-deleteCellState:
-DELETE FROM cellState
-WHERE id=:id;
+SELECT
+    id,
+    name,
+    description,
+    formatExtension,
+    serializedCellState,
+    NULL,
+    generation,
+    wasAutosaved,
+    NULL
+FROM _cellState_old;
+DROP TABLE _cellState_old;
+COMMIT;
+PRAGMA foreign_keys=on;

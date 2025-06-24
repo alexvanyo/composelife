@@ -18,6 +18,7 @@
 package com.alexvanyo.composelife.database.di
 
 import android.content.Context
+import androidx.sqlite.db.SupportSQLiteDatabase
 import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
@@ -38,12 +39,19 @@ interface TestDriverComponent {
     @SingleIn(AppScope::class)
     fun providesDriver(
         context: @ApplicationContext Context,
-    ): SqlDriver =
-        AndroidSqliteDriver(
-            schema = ComposeLifeDatabase.Schema.synchronous(),
+    ): SqlDriver {
+        val schema = ComposeLifeDatabase.Schema.synchronous()
+        return AndroidSqliteDriver(
+            schema = schema,
             context = context,
             name = null,
+            callback = object : AndroidSqliteDriver.Callback(schema) {
+                override fun onConfigure(db: SupportSQLiteDatabase) {
+                    db.setForeignKeyConstraintsEnabled(true)
+                }
+            },
         )
+    }
 
     @Provides
     @SingleIn(AppScope::class)
