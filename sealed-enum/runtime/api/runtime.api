@@ -1,0 +1,47 @@
+public abstract interface class com/livefront/sealedenum/EnumForSealedEnumProvider {
+	public abstract fun enumToSealedObject (Ljava/lang/Enum;)Ljava/lang/Object;
+	public abstract fun getEnumClass ()Lkotlin/reflect/KClass;
+	public abstract fun sealedObjectToEnum (Ljava/lang/Object;)Ljava/lang/Enum;
+}
+
+public abstract interface annotation class com/livefront/sealedenum/GenSealedEnum : java/lang/annotation/Annotation {
+	public abstract fun generateEnum ()Z
+	public abstract fun traversalOrder ()Lcom/livefront/sealedenum/TreeTraversalOrder;
+}
+
+public abstract interface annotation class com/livefront/sealedenum/GenSealedEnums : java/lang/annotation/Annotation {
+	public abstract fun value ()[Lcom/livefront/sealedenum/GenSealedEnum;
+}
+
+public abstract interface class com/livefront/sealedenum/SealedEnum : java/util/Comparator {
+	public abstract fun compare (Ljava/lang/Object;Ljava/lang/Object;)I
+	public abstract fun getValues ()Ljava/util/List;
+	public abstract fun nameOf (Ljava/lang/Object;)Ljava/lang/String;
+	public abstract fun ordinalOf (Ljava/lang/Object;)I
+	public abstract fun valueOf (Ljava/lang/String;)Ljava/lang/Object;
+}
+
+public final class com/livefront/sealedenum/SealedEnum$DefaultImpls {
+	public static fun compare (Lcom/livefront/sealedenum/SealedEnum;Ljava/lang/Object;Ljava/lang/Object;)I
+}
+
+public final class com/livefront/sealedenum/SealedEnumKt {
+	public static final fun createSealedEnumFromEnumArray ([Ljava/lang/Enum;Lkotlin/reflect/KClass;)Lcom/livefront/sealedenum/SealedEnumWithEnumProvider;
+}
+
+public abstract interface class com/livefront/sealedenum/SealedEnumWithEnumProvider : com/livefront/sealedenum/EnumForSealedEnumProvider, com/livefront/sealedenum/SealedEnum {
+}
+
+public final class com/livefront/sealedenum/SealedEnumWithEnumProvider$DefaultImpls {
+	public static fun compare (Lcom/livefront/sealedenum/SealedEnumWithEnumProvider;Ljava/lang/Object;Ljava/lang/Object;)I
+}
+
+public final class com/livefront/sealedenum/TreeTraversalOrder : java/lang/Enum {
+	public static final field IN_ORDER Lcom/livefront/sealedenum/TreeTraversalOrder;
+	public static final field LEVEL_ORDER Lcom/livefront/sealedenum/TreeTraversalOrder;
+	public static final field POST_ORDER Lcom/livefront/sealedenum/TreeTraversalOrder;
+	public static final field PRE_ORDER Lcom/livefront/sealedenum/TreeTraversalOrder;
+	public static fun valueOf (Ljava/lang/String;)Lcom/livefront/sealedenum/TreeTraversalOrder;
+	public static fun values ()[Lcom/livefront/sealedenum/TreeTraversalOrder;
+}
+
