@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,111 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalTestApi::class)
-class ParameterizedStringJvmTests : BaseKmpTest() {
+class ParameterizedStringTests : BaseKmpTest() {
+
+    @Test
+    fun composable_parameterized_string_resource_is_correct() = runComposeUiTest {
+        lateinit var string: String
+
+        setContent {
+            string = parameterizedStringResource(
+                parameterizedString = ParameterizedString(
+                    "Three: (%s) (%s) (%s)",
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            "Two: (%s) (%s)",
+                            ParameterizedStringArgument("a"),
+                            ParameterizedStringArgument("b"),
+                        )
+                    ),
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            "One: (%s)",
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    "One: (%s)",
+                                    ParameterizedStringArgument("c"),
+                                )
+                            ),
+                        )
+                    ),
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            "One: (%s)",
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    "One: (%s)",
+                                    ParameterizedStringArgument(
+                                        ParameterizedString(
+                                            "One: (%s)",
+                                            ParameterizedStringArgument("d"),
+                                        )
+                                    ),
+                                )
+                            ),
+                        )
+                    ),
+                ),
+            )
+        }
+
+        assertEquals(
+            "Three: (Two: (a) (b)) (One: (One: (c))) (One: (One: (One: (d))))",
+            string,
+        )
+    }
+
+    @Test
+    fun composable_resolver_is_correct() = runComposeUiTest {
+        lateinit var resolver: (ParameterizedString) -> String
+
+        setContent {
+            resolver = parameterizedStringResolver()
+        }
+
+        assertEquals(
+            "Three: (Two: (a) (b)) (One: (One: (c))) (One: (One: (One: (d))))",
+            resolver.invoke(
+                ParameterizedString(
+                    "Three: (%s) (%s) (%s)",
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            "Two: (%s) (%s)",
+                            ParameterizedStringArgument("a"),
+                            ParameterizedStringArgument("b"),
+                        )
+                    ),
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            "One: (%s)",
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    "One: (%s)",
+                                    ParameterizedStringArgument("c"),
+                                )
+                            ),
+                        )
+                    ),
+                    ParameterizedStringArgument(
+                        ParameterizedString(
+                            "One: (%s)",
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    "One: (%s)",
+                                    ParameterizedStringArgument(
+                                        ParameterizedString(
+                                            "One: (%s)",
+                                            ParameterizedStringArgument("d"),
+                                        )
+                                    ),
+                                )
+                            ),
+                        )
+                    ),
+                ),
+            ),
+        )
+    }
 
     @Test
     fun saver_is_correct_for_basic_string() = runComposeUiTest {
