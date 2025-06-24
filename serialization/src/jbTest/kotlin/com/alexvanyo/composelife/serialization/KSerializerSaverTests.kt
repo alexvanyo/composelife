@@ -21,17 +21,15 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.IntOffset
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
 import kotlinx.serialization.Serializable
-import org.junit.runner.RunWith
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
-class KSerializerSaverTests {
+class KSerializerSaverTests : BaseKmpTest() {
 
     @Test
     fun kserializer_saver_is_correct() = runComposeUiTest {
