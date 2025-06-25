@@ -117,7 +117,7 @@ jetbrainsComposeMaterial3 = "1.10.0+dev3025"
 jetbrainsComposeMaterial3Adaptive = "1.2.0+dev3025"
 #junit4
 junit4 = "4.13.2"
-#junit4
+#junit5
 junit5 = "5.8.1"
 #leakCanary
 leakCanary = "3.0-alpha-8"

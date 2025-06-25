@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.test
 
 import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
+import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import com.alexvanyo.composelife.updatable.Updatable
@@ -61,7 +62,7 @@ expect abstract class BaseInjectTest(
 @Suppress("UnnecessaryAbstractClass")
 abstract class BaseInjectTestImpl(
     applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
-) {
+) : BaseKmpTest() {
     val applicationGraph = applicationGraphCreator(createApplicationGraphArguments())
 
     private val ctx get() = applicationGraph.baseInjectTestCtx
