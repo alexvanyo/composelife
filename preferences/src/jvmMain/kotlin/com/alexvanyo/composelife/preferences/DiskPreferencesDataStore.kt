@@ -37,6 +37,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -63,14 +64,18 @@ internal class DiskPreferencesDataStore(
 ) : PreferencesDataStore, Updatable {
     private val mutex = Mutex()
 
-    private val dataStoreCompletable = CompletableDeferred<DataStore<PreferencesProto>>()
+    private val dataStoreCompletable = CompletableDeferred<KmpDataStore<PreferencesProto>>()
 
-    override suspend fun getDataStore(): DataStore<PreferencesProto> = dataStoreCompletable.await()
+    override suspend fun getDataStore(): KmpDataStore<PreferencesProto> = dataStoreCompletable.await()
 
     override suspend fun update(): Nothing = mutex.withLock {
         withContext(dispatchers.IO) {
             coroutineScope {
-                dataStoreCompletable.complete(createDataStore(this))
+                dataStoreCompletable.complete(
+                    createKmpDataStore(
+                        createDataStore(this),
+                    ),
+                )
                 awaitCancellation()
             }
         }
@@ -136,4 +141,14 @@ internal class DiskPreferencesDataStore(
             ),
             scope = scope,
         )
+
+    private fun createKmpDataStore(
+        actualDataStore: DataStore<PreferencesProto>,
+    ): KmpDataStore<PreferencesProto> =
+        object : KmpDataStore<PreferencesProto> {
+            override val data: Flow<PreferencesProto> = actualDataStore.data
+            override suspend fun updateData(
+                transform: suspend (PreferencesProto) -> PreferencesProto,
+            ): PreferencesProto = actualDataStore.updateData(transform)
+        }
 }
