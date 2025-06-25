@@ -60,11 +60,16 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                 api(libs.jetbrains.compose.uiTest)
+            }
+        }
+        val jvmMain by creating {
+            dependsOn(jbMain)
+            dependencies {
                 implementation(libs.kotlin.test.junit)
             }
         }
         val desktopMain by getting {
-            dependsOn(jbMain)
+            dependsOn(jvmMain)
             configurations["kspDesktop"].dependencies.addAll(
                 listOf(
                     libs.kotlinInject.ksp.get(),
@@ -74,7 +79,7 @@ kotlin {
             )
         }
         val androidMain by getting {
-            dependsOn(jbMain)
+            dependsOn(jvmMain)
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
                     libs.kotlinInject.ksp.get(),
@@ -91,6 +96,7 @@ kotlin {
             }
         }
         val wasmJsMain by getting {
+            dependsOn(jbMain)
             configurations["kspWasmJs"].dependencies.addAll(
                 listOf(
                     libs.kotlinInject.ksp.get(),
