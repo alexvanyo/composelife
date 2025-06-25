@@ -60,6 +60,7 @@ kotlin {
                 api(projects.dispatchers)
                 api(projects.logging)
                 api(projects.resourceState)
+                api(projects.sealedEnum.runtime)
                 api(projects.sessionValue)
                 api(projects.updatable)
 
@@ -72,15 +73,17 @@ kotlin {
         }
         val jbMain by creating {
             dependsOn(commonMain)
+        }
+        val jvmMain by creating {
+            dependsOn(jbMain)
             dependencies {
                 api(libs.androidx.dataStore)
-                api(projects.sealedEnum.runtime)
 
                 implementation(libs.androidx.dataStore.core.okio)
             }
         }
         val androidMain by getting {
-            dependsOn(jbMain)
+            dependsOn(jvmMain)
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
                     projects.sealedEnum.ksp,
@@ -91,8 +94,16 @@ kotlin {
             }
         }
         val desktopMain by getting {
-            dependsOn(jbMain)
+            dependsOn(jvmMain)
             configurations["kspDesktop"].dependencies.addAll(
+                listOf(
+                    projects.sealedEnum.ksp,
+                )
+            )
+        }
+        val wasmJsMain by getting {
+            dependsOn(jbMain)
+            configurations["kspWasmJs"].dependencies.addAll(
                 listOf(
                     projects.sealedEnum.ksp,
                 )
@@ -112,16 +123,22 @@ kotlin {
                 implementation(libs.turbine)
             }
         }
-        val desktopTest by getting {
+        val jvmTest by creating {
             dependsOn(jbTest)
         }
+        val desktopTest by getting {
+            dependsOn(jvmTest)
+        }
         val androidSharedTest by getting {
-            dependsOn(jbTest)
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.junit)
                 implementation(libs.androidx.test.runner)
             }
+        }
+        val wasmJsTest by getting {
+            dependsOn(jbTest)
         }
     }
 }
