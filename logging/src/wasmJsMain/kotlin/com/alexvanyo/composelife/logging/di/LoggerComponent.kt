@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("MatchingDeclarationName")
 
-package com.alexvanyo.composelife.test
+package com.alexvanyo.composelife.logging.di
 
-import com.alexvanyo.composelife.entrypoint.EntryPointProvider
-import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.logging.Logger
+import com.alexvanyo.composelife.logging.NoOpLogger
+import com.alexvanyo.composelife.logging.SingletonSystemLogger
+import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import kotlin.reflect.KClass
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 
-actual inline fun <reified T : BaseInjectTestEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
-    unused: KClass<T>,
-): BaseInjectTestEntryPoint = getEntryPoint<BaseInjectTestEntryPoint>()
+@ContributesTo(AppScope::class)
+interface LoggerComponent {
+    @Provides
+    fun providesLogger(): Logger =
+        // TODO: determine signal for wasmJs
+        if (false) {
+            SingletonSystemLogger
+        } else {
+            NoOpLogger
+        }
+}

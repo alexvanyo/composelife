@@ -33,7 +33,8 @@ actual fun <AC : ApplicationComponent, UC : UiComponent> BaseUiInjectTest<AC, UC
     appTestContext: CoroutineContext,
     timeout: Duration,
     testBody: suspend ComposeUiTest.(uiComponent: UC) -> Unit,
-): TestResult =
+): TestResult {
+    lateinit var result: TestResult
     runComposeUiTest {
         val uiComponent = uiComponentCreator(
             applicationComponent,
@@ -41,7 +42,7 @@ actual fun <AC : ApplicationComponent, UC : UiComponent> BaseUiInjectTest<AC, UC
         )
 
         // TODO: Replace with withAppTestDependencies when runComposeUiTest allows providing a suspend fun
-        runAppTest(
+        result = runAppTest(
             context = appTestContext,
             timeout = timeout,
         ) {
@@ -53,3 +54,5 @@ actual fun <AC : ApplicationComponent, UC : UiComponent> BaseUiInjectTest<AC, UC
             )
         }
     }
+    return result
+}
