@@ -31,7 +31,7 @@ import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.clock
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
 import com.alexvanyo.composelife.patterns.PondPattern
 import com.alexvanyo.composelife.patterns.SingleCellPattern
@@ -39,14 +39,12 @@ import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
-class TemporalGameOfLifeStateComposableTests {
+class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
     private val testDispatcher = StandardTestDispatcher()
 
