@@ -17,6 +17,7 @@
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -39,6 +40,17 @@ kotlin {
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
     }
     jvm("desktop")
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -62,11 +74,14 @@ kotlin {
         val jbMain by creating {
             dependsOn(commonMain)
         }
-        val desktopMain by getting {
+        val jvmMain by creating {
             dependsOn(jbMain)
         }
+        val desktopMain by getting {
+            dependsOn(jvmMain)
+        }
         val androidMain by getting {
-            dependsOn(jbMain)
+            dependsOn(jvmMain)
             dependencies {
                 api(libs.kotlinx.coroutines.android)
 
@@ -74,6 +89,9 @@ kotlin {
                 implementation(libs.guava.android)
                 implementation(libs.kotlinx.coroutines.guava)
             }
+        }
+        val wasmJsMain by getting {
+            dependsOn(jbMain)
         }
         val commonTest by getting {
             dependencies {
@@ -91,16 +109,22 @@ kotlin {
         val jbTest by creating {
             dependsOn(commonTest)
         }
-        val desktopTest by getting {
+        val jvmTest by creating {
             dependsOn(jbTest)
         }
+        val desktopTest by getting {
+            dependsOn(jvmTest)
+        }
         val androidSharedTest by getting {
-            dependsOn(jbTest)
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.junit)
                 implementation(libs.androidx.test.runner)
             }
+        }
+        val wasmJsTest by getting {
+            dependsOn(jbTest)
         }
     }
 }
