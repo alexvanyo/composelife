@@ -53,6 +53,7 @@ kotlin {
                 implementation(projects.parameterizedString)
                 implementation(projects.resourceState)
                 implementation(projects.resourcesWear)
+                implementation(projects.sealedEnum.runtime)
                 implementation(projects.serialization)
                 implementation(projects.uiCommon)
                 implementation(projects.uiToolingPreview)
