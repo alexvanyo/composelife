@@ -56,13 +56,15 @@ kotlin {
             dependencies {
                 api(projects.preferences)
 
-                implementation(libs.jetbrains.compose.runtime)
                 implementation(libs.kotlinInject.runtime)
                 implementation(projects.injectScopes)
             }
         }
         val jbMain by creating {
             dependsOn(commonMain)
+            dependencies {
+                implementation(libs.jetbrains.compose.runtime)
+            }
         }
         val desktopMain by getting {
             dependsOn(jbMain)
@@ -84,6 +86,15 @@ kotlin {
             dependencies {
                 api(libs.androidx.test.junit)
             }
+        }
+        val wasmJsMain by getting {
+            dependsOn(jbMain)
+            configurations["kspWasmJs"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                )
+            )
         }
         val commonTest by getting {
             dependencies {
@@ -126,6 +137,15 @@ kotlin {
         }
         val androidInstrumentedTest by getting {
             configurations["kspAndroidAndroidTest"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                    projects.entryPointSymbolProcessor,
+                )
+            )
+        }
+        val wasmJsTest by getting {
+            configurations["kspWasmJsTest"].dependencies.addAll(
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
