@@ -23,6 +23,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+@Suppress("TooManyFunctions")
 class MacroCellTests {
 
     @Test
@@ -148,6 +149,7 @@ class MacroCellTests {
         )
     }
 
+    @Suppress("LongMethod")
     @Test
     fun create_empty_macro_cell_at_level_3_is_correct() {
         assertEquals(
