@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.preferences
 
-import androidx.datastore.core.DataStore
-import com.alexvanyo.composelife.preferences.proto.PreferencesProto
+import kotlinx.coroutines.flow.Flow
 
-interface PreferencesDataStore {
-    suspend fun getDataStore(): DataStore<PreferencesProto>
+actual interface KmpDataStore<T> {
+    actual val data: Flow<T>
+    actual suspend fun updateData(transform: suspend (t: T) -> T): T
 }
