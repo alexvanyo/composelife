@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -39,6 +40,17 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -63,8 +75,11 @@ kotlin {
         val jbMain by creating {
             dependsOn(commonMain)
         }
-        val desktopMain by getting {
+        val jvmMain by creating {
             dependsOn(jbMain)
+        }
+        val desktopMain by getting {
+            dependsOn(jvmMain)
             configurations["kspDesktop"].dependencies.addAll(
                 listOf(
                     libs.kotlinInject.ksp.get(),
@@ -73,7 +88,7 @@ kotlin {
             )
         }
         val androidMain by getting {
-            dependsOn(jbMain)
+            dependsOn(jvmMain)
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
                     libs.kotlinInject.ksp.get(),
@@ -87,6 +102,15 @@ kotlin {
                 implementation(libs.guava.android)
                 implementation(libs.kotlinx.coroutines.guava)
             }
+        }
+        val wasmJsMain by getting {
+            dependsOn(jbMain)
+            configurations["kspWasmJs"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                )
+            )
         }
         val commonTest by getting {
             dependencies {
@@ -105,8 +129,11 @@ kotlin {
         val jbTest by creating {
             dependsOn(commonTest)
         }
-        val desktopTest by getting {
+        val jvmTest by creating {
             dependsOn(jbTest)
+        }
+        val desktopTest by getting {
+            dependsOn(jvmTest)
             configurations["kspDesktopTest"].dependencies.addAll(
                 listOf(
                     libs.kotlinInject.ksp.get(),
@@ -116,7 +143,7 @@ kotlin {
             )
         }
         val androidSharedTest by getting {
-            dependsOn(jbTest)
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.junit)
@@ -134,6 +161,16 @@ kotlin {
         }
         val androidInstrumentedTest by getting {
             configurations["kspAndroidAndroidTest"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                    projects.entryPointSymbolProcessor,
+                )
+            )
+        }
+        val wasmJsTest by getting {
+            dependsOn(jbTest)
+            configurations["kspWasmJsTest"].dependencies.addAll(
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),

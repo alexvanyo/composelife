@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
-package com.alexvanyo.composelife.test
+package com.alexvanyo.composelife.data
 
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import org.junit.runner.RunWith
+import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-@RunWith(KmpAndroidJUnit4::class)
-actual abstract class BaseInjectTest<AC : ApplicationComponent> actual constructor(
-    applicationComponentCreator: () -> AC,
-) : BaseInjectTestImpl<AC>(applicationComponentCreator)
+@MergeComponent(AppScope::class)
+@SingleIn(AppScope::class)
+actual abstract class TestComposeLifeApplicationComponent : ApplicationComponent() {
+    actual companion object
+}
+
+actual fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent =
+    TestComposeLifeApplicationComponent::class.create()
