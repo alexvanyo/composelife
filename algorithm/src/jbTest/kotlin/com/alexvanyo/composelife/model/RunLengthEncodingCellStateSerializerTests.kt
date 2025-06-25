@@ -183,6 +183,7 @@ class RunLengthEncodingCellStateSerializerTests {
         )
     }
 
+    @Suppress("LongMethod")
     @Test
     fun slow_puffer_serialization_is_correct() {
         assertEquals(
@@ -278,6 +279,7 @@ class RunLengthEncodingCellStateSerializerTests {
         )
     }
 
+    @Suppress("LongMethod")
     @Test
     fun slow_puffer_deserialization_is_correct() {
         assertEquals(
