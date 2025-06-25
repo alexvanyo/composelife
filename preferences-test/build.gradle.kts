@@ -62,6 +62,9 @@ kotlin {
         }
         val jbMain by creating {
             dependsOn(commonMain)
+            dependencies {
+                implementation(libs.jetbrains.compose.runtime)
+            }
         }
         val desktopMain by getting {
             dependsOn(jbMain)
@@ -71,6 +74,9 @@ kotlin {
             dependencies {
                 api(libs.androidx.test.junit)
             }
+        }
+        val wasmJsMain by getting {
+            dependsOn(jbMain)
         }
         val commonTest by getting {
             dependencies {
