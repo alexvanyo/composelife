@@ -137,6 +137,7 @@ class MacrocellCellStateSerializerTests {
         )
     }
 
+    @Suppress("LongMethod")
     @Test
     fun slow_puffer_serialization_is_correct() {
         assertEquals(
@@ -296,6 +297,7 @@ class MacrocellCellStateSerializerTests {
         )
     }
 
+    @Suppress("LongMethod")
     @Test
     fun slow_puffer_deserialization_is_correct() {
         assertEquals(
