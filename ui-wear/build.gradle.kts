@@ -53,6 +53,7 @@ kotlin {
                 implementation(projects.parameterizedString)
                 implementation(projects.resourceState)
                 implementation(projects.resourcesWear)
+                implementation(projects.sealedEnum.runtime)
                 implementation(projects.serialization)
                 implementation(projects.uiCommon)
                 implementation(projects.uiToolingPreview)
@@ -78,7 +79,6 @@ kotlin {
                 implementation(libs.androidx.wear.watchface.editor)
                 implementation(libs.androidx.wear.watchface.style)
                 implementation(libs.kotlinx.coroutines.android)
-                implementation(projects.sealedEnum.runtime)
                 implementation(libs.showkase.runtime)
             }
         }
