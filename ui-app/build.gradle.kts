@@ -66,6 +66,7 @@ kotlin {
                 implementation(projects.parameterizedString)
                 implementation(projects.patterns)
                 implementation(projects.resourceState)
+                implementation(projects.sealedEnum.runtime)
                 implementation(projects.serialization)
                 implementation(projects.sessionValue)
                 implementation(projects.uiMobile)
@@ -83,6 +84,7 @@ kotlin {
                 implementation(libs.androidx.window.core)
                 implementation(libs.jetbrains.compose.material3)
                 implementation(libs.jetbrains.compose.materialIconsExtended)
+                implementation(libs.jetbrains.compose.runtime)
                 implementation(libs.jetbrains.compose.ui)
                 implementation(libs.jetbrains.compose.uiGeometry)
                 implementation(libs.jetbrains.compose.uiUtil)
@@ -113,7 +115,6 @@ kotlin {
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.poolingContainer)
                 implementation(libs.kotlinx.coroutines.android)
-                implementation(projects.sealedEnum.runtime)
             }
         }
         val commonTest by getting {
