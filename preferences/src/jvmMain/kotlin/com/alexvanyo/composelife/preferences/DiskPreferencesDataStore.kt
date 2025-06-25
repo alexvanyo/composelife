@@ -18,12 +18,12 @@ package com.alexvanyo.composelife.preferences
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataMigration
-import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.core.okio.OkioStorage
 import com.alexvanyo.composelife.preferences.proto.PreferencesProto
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import me.tatarka.inject.annotations.Inject
 import me.tatarka.inject.annotations.Qualifier
 import okio.BufferedSink
@@ -51,24 +51,24 @@ class DiskPreferencesDataStore(
     path: @PreferencesProtoPath Lazy<Path>,
     scope: @PreferencesCoroutineScope CoroutineScope,
 ) : PreferencesDataStore {
-    override val dataStore: DataStore<PreferencesProto> = DataStoreFactory.create(
+    private val actualDataStore = DataStoreFactory.create(
         storage = OkioStorage(
             fileSystem = fileSystem,
             serializer =
-            object : OkioSerializer<PreferencesProto> {
-                override val defaultValue: PreferencesProto
-                    get() = PreferencesProto()
+                object : OkioSerializer<PreferencesProto> {
+                    override val defaultValue: PreferencesProto
+                        get() = PreferencesProto()
 
-                override suspend fun readFrom(source: BufferedSource): PreferencesProto =
-                    try {
-                        PreferencesProto.ADAPTER.decode(source)
-                    } catch (exception: IOException) {
-                        throw CorruptionException("Cannot read proto.", exception)
-                    }
+                    override suspend fun readFrom(source: BufferedSource): PreferencesProto =
+                        try {
+                            PreferencesProto.ADAPTER.decode(source)
+                        } catch (exception: IOException) {
+                            throw CorruptionException("Cannot read proto.", exception)
+                        }
 
-                override suspend fun writeTo(t: PreferencesProto, sink: BufferedSink) =
-                    PreferencesProto.ADAPTER.encode(sink, t)
-            },
+                    override suspend fun writeTo(t: PreferencesProto, sink: BufferedSink) =
+                        PreferencesProto.ADAPTER.encode(sink, t)
+                },
             producePath = path::value,
         ),
         corruptionHandler = null,
@@ -108,4 +108,12 @@ class DiskPreferencesDataStore(
         ),
         scope = scope,
     )
+
+    override val dataStore: KmpDataStore<PreferencesProto> =
+        object : KmpDataStore<PreferencesProto> {
+            override val data: Flow<PreferencesProto> = actualDataStore.data
+            override suspend fun updateData(
+                transform: suspend (PreferencesProto) -> PreferencesProto,
+            ): PreferencesProto = actualDataStore.updateData(transform)
+        }
 }
