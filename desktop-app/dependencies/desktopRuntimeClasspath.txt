@@ -138,7 +138,7 @@ org.jetbrains.compose.ui:ui:1.8.1
 org.jetbrains.kotlin:kotlin-bom:2.1.21
 org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.21
 org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.21
-org.jetbrains.kotlin:kotlin-stdlib:2.2.0-Beta1
+org.jetbrains.kotlin:kotlin-stdlib:2.2.0
 org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
 org.jetbrains.kotlinx:atomicfu:0.23.2
 org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.4.0
@@ -150,12 +150,12 @@ org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.10.2
 org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2
 org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.6.2
 org.jetbrains.kotlinx:kotlinx-datetime:0.6.2
-org.jetbrains.kotlinx:kotlinx-io-bytestring-jvm:0.7.0
-org.jetbrains.kotlinx:kotlinx-io-bytestring:0.7.0
-org.jetbrains.kotlinx:kotlinx-io-core-jvm:0.7.0
-org.jetbrains.kotlinx:kotlinx-io-core:0.7.0
-org.jetbrains.kotlinx:kotlinx-io-okio-jvm:0.7.0
-org.jetbrains.kotlinx:kotlinx-io-okio:0.7.0
+org.jetbrains.kotlinx:kotlinx-io-bytestring-jvm:0.8.0
+org.jetbrains.kotlinx:kotlinx-io-bytestring:0.8.0
+org.jetbrains.kotlinx:kotlinx-io-core-jvm:0.8.0
+org.jetbrains.kotlinx:kotlinx-io-core:0.8.0
+org.jetbrains.kotlinx:kotlinx-io-okio-jvm:0.8.0
+org.jetbrains.kotlinx:kotlinx-io-okio:0.8.0
 org.jetbrains.kotlinx:kotlinx-serialization-bom:1.8.1
 org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.8.1
 org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.1
