@@ -44,6 +44,7 @@ fun Project.configureKotlin() {
                         enableLanguageFeature("ContextParameters")
                         enableLanguageFeature("MultiDollarInterpolation")
                         optIn("kotlin.uuid.ExperimentalUuidApi")
+                        optIn("kotlin.time.ExperimentalTime")
                     }
                 }
             },

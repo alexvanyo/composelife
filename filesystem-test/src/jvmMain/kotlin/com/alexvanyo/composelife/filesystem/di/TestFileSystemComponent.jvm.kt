@@ -25,12 +25,18 @@ import okio.fakefilesystem.FakeFileSystem
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import kotlin.time.Clock
+import kotlinx.datetime.toDeprecatedClock
 
 @ContributesTo(AppScope::class, replaces = [FileSystemComponent::class])
 interface TestFileSystemComponent {
     @Provides
     @SingleIn(AppScope::class)
-    fun providesFakeFileSystem(): FakeFileSystem = FakeFileSystem()
+    fun providesFakeFileSystem(
+        clock: Clock,
+    ): FakeFileSystem = FakeFileSystem(
+        clock = clock.toDeprecatedClock(),
+    )
 
     @Provides
     fun providesFileSystem(

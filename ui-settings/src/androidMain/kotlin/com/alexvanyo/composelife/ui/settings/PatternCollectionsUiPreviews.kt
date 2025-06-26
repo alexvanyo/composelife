@@ -22,8 +22,8 @@ import com.alexvanyo.composelife.data.model.PatternCollection
 import com.alexvanyo.composelife.database.PatternCollectionId
 import com.alexvanyo.composelife.ui.settings.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.util.ThemePreviews
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -73,7 +73,7 @@ internal fun PatternCollectionPreviewSuccessfulSynchronizationNow() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies(
         clock = object : Clock {
-            override fun now() = referenceInstant
+            override fun now(): Instant = referenceInstant
         },
     ) {
         PatternCollection(
@@ -97,7 +97,7 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization55SecondsAgo() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies(
         clock = object : Clock {
-            override fun now() = referenceInstant
+            override fun now(): Instant = referenceInstant
         },
     ) {
         PatternCollection(
@@ -121,7 +121,7 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization60SecondsAgo() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies(
         clock = object : Clock {
-            override fun now() = referenceInstant
+            override fun now(): Instant = referenceInstant
         },
     ) {
         PatternCollection(
@@ -145,7 +145,7 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization65SecondsAgo() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies(
         clock = object : Clock {
-            override fun now() = referenceInstant
+            override fun now(): Instant = referenceInstant
         },
     ) {
         PatternCollection(
@@ -169,7 +169,7 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization65MinutesAgo() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies(
         clock = object : Clock {
-            override fun now() = referenceInstant
+            override fun now(): Instant = referenceInstant
         },
     ) {
         PatternCollection(
@@ -193,7 +193,7 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization25HoursAgo() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies(
         clock = object : Clock {
-            override fun now() = referenceInstant
+            override fun now(): Instant = referenceInstant
         },
     ) {
         PatternCollection(
