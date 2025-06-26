@@ -31,12 +31,12 @@ import com.alexvanyo.composelife.network.FakeRequestHandler
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.test.BaseInjectTest
 import io.ktor.client.engine.mock.respond
+import kotlin.time.Instant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.runCurrent
-import kotlinx.datetime.Instant
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem

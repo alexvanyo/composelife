@@ -52,6 +52,7 @@ kotlin {
 
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
                 implementation(projects.injectScopes)
                 implementation(projects.updatable)
             }

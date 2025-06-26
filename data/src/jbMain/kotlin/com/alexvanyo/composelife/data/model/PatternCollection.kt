@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.data.model
 
 import com.alexvanyo.composelife.database.PatternCollectionId
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 data class PatternCollection(
     val id: PatternCollectionId,

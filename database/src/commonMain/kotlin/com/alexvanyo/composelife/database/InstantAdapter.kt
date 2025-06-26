@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.database
 
 import app.cash.sqldelight.ColumnAdapter
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import me.tatarka.inject.annotations.Inject
 
 @Inject

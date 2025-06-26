@@ -19,8 +19,8 @@ package com.alexvanyo.composelife.dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestScope
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 /**
  * Returns a [Clock] that is synced with the [TestScope.schedulerClock] from this [TestScope].

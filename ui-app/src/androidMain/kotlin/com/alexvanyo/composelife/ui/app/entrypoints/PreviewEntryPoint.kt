@@ -92,7 +92,8 @@ import com.alexvanyo.composelife.ui.settings.SettingUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.SettingUiLocalEntryPoint
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
+import kotlinx.datetime.toDeprecatedClock
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
@@ -165,7 +166,9 @@ internal fun WithPreviewDependencies(
     random: Random = Random(1),
     clock: Clock = Clock.System,
     logger: Logger = NoOpLogger,
-    fileSystem: FileSystem = FakeFileSystem(),
+    fileSystem: FileSystem = FakeFileSystem(
+        clock = clock.toDeprecatedClock(),
+    ),
     cellStateParser: CellStateParser = CellStateParser(
         flexibleCellStateSerializer = FlexibleCellStateSerializer(
             dispatchers = dispatchers,
@@ -234,7 +237,7 @@ internal fun WithPreviewDependencies(
         override val random = random
     }
     val clockProvider = object : ClockProvider {
-        override val clock = clock
+        override val clock: Clock = clock
     }
     val cellStateParserProvider = object : CellStateParserProvider {
         override val cellStateParser = cellStateParser

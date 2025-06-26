@@ -59,6 +59,7 @@ kotlin {
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.collections.immutable)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(projects.clock)
                 implementation(projects.data)

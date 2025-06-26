@@ -52,7 +52,7 @@ import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.io.okio.asOkioSource
 import me.tatarka.inject.annotations.Inject
 import okio.ByteString.Companion.toByteString
