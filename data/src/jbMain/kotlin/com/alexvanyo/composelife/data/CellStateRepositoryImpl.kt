@@ -33,8 +33,8 @@ import com.alexvanyo.composelife.model.FlexibleCellStateSerializer
 import com.alexvanyo.composelife.model.fromFileExtension
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Clock
+import kotlin.time.Instant
 import me.tatarka.inject.annotations.Inject
 import okio.FileSystem
 import okio.Path

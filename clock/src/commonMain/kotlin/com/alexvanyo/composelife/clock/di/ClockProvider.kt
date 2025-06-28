@@ -16,7 +16,7 @@
 
 package com.alexvanyo.composelife.clock.di
 
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 
 interface ClockProvider {
     val clock: Clock
