@@ -50,6 +50,7 @@ kotlin {
                 api(libs.okio)
 
                 implementation(libs.kotlinInject.runtime)
+                implementation(libs.kotlinx.datetime)
                 implementation(projects.injectScopes)
             }
         }

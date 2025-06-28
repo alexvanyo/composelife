@@ -16,6 +16,8 @@
 
 package com.alexvanyo.composelife.filesystem.di
 
+import kotlin.time.Clock
+import kotlinx.datetime.toDeprecatedClock
 import me.tatarka.inject.annotations.Provides
 import okio.FileSystem
 import okio.fakefilesystem.FakeFileSystem
@@ -27,5 +29,9 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 interface FileSystemComponent {
     @Provides
     @SingleIn(AppScope::class)
-    fun providesFileSystem(): FileSystem = FakeFileSystem()
+    fun providesFileSystem(
+        clock: Clock
+    ): FileSystem = FakeFileSystem(
+        clock = clock.toDeprecatedClock(),
+    )
 }

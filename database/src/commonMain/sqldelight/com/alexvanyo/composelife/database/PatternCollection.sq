@@ -1,5 +1,5 @@
 import com.alexvanyo.composelife.database.PatternCollectionId;
-import kotlinx.datetime.Instant;
+import kotlin.time.Instant;
 
 CREATE TABLE patternCollection (
     id INTEGER AS PatternCollectionId NOT NULL PRIMARY KEY AUTOINCREMENT,

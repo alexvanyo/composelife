@@ -76,7 +76,8 @@ import com.alexvanyo.composelife.ui.settings.SettingUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.SettingUiLocalEntryPoint
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
+import kotlinx.datetime.toDeprecatedClock
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
@@ -145,7 +146,9 @@ internal fun WithPreviewDependencies(
         context = LocalContext.current,
     ),
     logger: Logger = NoOpLogger,
-    fileSystem: FileSystem = FakeFileSystem(),
+    fileSystem: FileSystem = FakeFileSystem(
+        clock = clock.toDeprecatedClock(),
+    ),
     content: @Composable context(PreviewEntryPoint) () -> Unit,
 ) {
     val driver = AndroidSqliteDriver(
