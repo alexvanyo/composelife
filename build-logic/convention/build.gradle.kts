@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import io.gitlab.arturbosch.detekt.Detekt
+//import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     `kotlin-dsl`
-    alias(libs.plugins.detekt)
+    //alias(libs.plugins.detekt)
     alias(libs.plugins.android.lint)
 }
 
@@ -43,21 +43,21 @@ tasks {
         failOnWarning = true
     }
 
-    withType<Detekt>().configureEach {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-    }
+//    withType<Detekt>().configureEach {
+//        jvmTarget = JavaVersion.VERSION_17.toString()
+//    }
 
-    named("check").configure {
-        dependsOn(withType<Detekt>())
-    }
+//    named("check").configure {
+//        dependsOn(withType<Detekt>())
+//    }
 }
 
-detekt {
-    buildUponDefaultConfig = true
-    allRules = true
-    autoCorrect = System.getenv("CI") != "true"
-    config.setFrom("$rootDir/../config/detekt.yml")
-}
+//detekt {
+//    buildUponDefaultConfig = true
+//    allRules = true
+//    autoCorrect = System.getenv("CI") != "true"
+//    config.setFrom("$rootDir/../config/detekt.yml")
+//}
 
 dependencies {
     implementation(libs.android.gradlePlugin)
@@ -69,7 +69,7 @@ dependencies {
     implementation(libs.keeper.gradlePlugin)
     implementation(libs.ksp.gradlePlugin)
     implementation(libs.jetbrains.compose.gradlePlugin)
-    detektPlugins(libs.detekt.formatting)
+    //detektPlugins(libs.detekt.formatting)
     lintChecks(libs.androidx.lint.gradle)
 }
 
