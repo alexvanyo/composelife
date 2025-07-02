@@ -152,16 +152,6 @@ internal fun WithPreviewDependencies(
     dispatchers: ComposeLifeDispatchers = DefaultComposeLifeDispatchers(),
     gameOfLifeAlgorithm: GameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(dispatchers),
     loadedComposeLifePreferences: LoadedComposeLifePreferences = LoadedComposeLifePreferences.Defaults,
-    composeLifePreferences: ComposeLifePreferences = TestComposeLifePreferences(
-        algorithmChoice = loadedComposeLifePreferences.algorithmChoice,
-        currentShapeType = loadedComposeLifePreferences.currentShape.type,
-        roundRectangleConfig = when (loadedComposeLifePreferences.currentShape) {
-            is CurrentShape.RoundRectangle -> loadedComposeLifePreferences.currentShape as CurrentShape.RoundRectangle
-        },
-        darkThemeConfig = loadedComposeLifePreferences.darkThemeConfig,
-        disableAGSL = loadedComposeLifePreferences.disableAGSL,
-        disableOpenGL = loadedComposeLifePreferences.disableOpenGL,
-    ),
     random: Random = Random(1),
     clock: Clock = Clock.System,
     logger: Logger = NoOpLogger,
@@ -196,6 +186,17 @@ internal fun WithPreviewDependencies(
     )
     val cellStateQueries = composeLifeDatabase.cellStateQueries
     val patternCollectionQueries = composeLifeDatabase.patternCollectionQueries
+
+    val composeLifePreferences: ComposeLifePreferences = TestComposeLifePreferences(
+        algorithmChoice = loadedComposeLifePreferences.algorithmChoice,
+        currentShapeType = loadedComposeLifePreferences.currentShape.type,
+        roundRectangleConfig = when (loadedComposeLifePreferences.currentShape) {
+            is CurrentShape.RoundRectangle -> loadedComposeLifePreferences.currentShape as CurrentShape.RoundRectangle
+        },
+        darkThemeConfig = loadedComposeLifePreferences.darkThemeConfig,
+        disableAGSL = loadedComposeLifePreferences.disableAGSL,
+        disableOpenGL = loadedComposeLifePreferences.disableOpenGL,
+    )
 
     val dispatchersProvider = object : ComposeLifeDispatchersProvider {
         override val dispatchers = dispatchers

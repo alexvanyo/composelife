@@ -59,6 +59,7 @@ import com.alexvanyo.composelife.ui.cells.resources.Strings
 import com.alexvanyo.composelife.ui.util.AnchoredDraggable2DState
 import com.alexvanyo.composelife.ui.util.anchoredDraggable2D
 import com.alexvanyo.composelife.ui.util.snapTo
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
@@ -190,79 +191,6 @@ internal fun FixedSelectingBoxOverlay(
             }
         }
 
-        @Stable
-        class SelectionDraggableHandleState(
-            val state: HandleState,
-            transientSelectingBoxAnimatable: Animatable<Offset, AnimationVector2D>,
-            val horizontalPairState: HandleState,
-            val verticalPairState: HandleState,
-            val oppositeCornerState: HandleState,
-        ) {
-            val confirmValueChange: (IntOffset) -> Boolean = { intOffset ->
-                if (state.reentrancyCount == 0) {
-                    val minX = min(intOffset.x, oppositeCornerState.state.targetValue.x)
-                    val maxX = max(intOffset.x, oppositeCornerState.state.targetValue.x)
-                    val minY = min(intOffset.y, oppositeCornerState.state.targetValue.y)
-                    val maxY = max(intOffset.y, oppositeCornerState.state.targetValue.y)
-
-                    setSelectionState(
-                        SelectionState.SelectingBox.FixedSelectingBox(
-                            topLeft = IntOffset(minX, minY),
-                            width = maxX - minX,
-                            height = maxY - minY,
-                            previousTransientSelectingBox = null,
-                        ),
-                    )
-
-                    coroutineScope.launch {
-                        try {
-                            horizontalPairState.reentrancyCount++
-                            horizontalPairState.state.snapTo(
-                                IntOffset(
-                                    x = horizontalPairState.state.targetValue.x,
-                                    y = intOffset.y,
-                                ),
-                            )
-                        } finally {
-                            horizontalPairState.reentrancyCount--
-                        }
-                    }
-                    coroutineScope.launch {
-                        try {
-                            verticalPairState.reentrancyCount++
-                            verticalPairState.state.snapTo(
-                                IntOffset(
-                                    x = intOffset.x,
-                                    y = verticalPairState.state.targetValue.y,
-                                ),
-                            )
-                        } finally {
-                            verticalPairState.reentrancyCount--
-                        }
-                    }
-                }
-                true
-            }
-
-            val offsetCalculator: () -> Offset = {
-                val xReferenceState = when {
-                    state.state.isDraggingOrAnimating() -> state
-                    verticalPairState.state.isDraggingOrAnimating() -> verticalPairState
-                    else -> state
-                }
-                val yReferenceState = when {
-                    state.state.isDraggingOrAnimating() -> state
-                    horizontalPairState.state.isDraggingOrAnimating() -> horizontalPairState
-                    else -> state
-                }
-
-                Offset(
-                    xReferenceState.state.requireOffset().x,
-                    yReferenceState.state.requireOffset().y,
-                ) + transientSelectingBoxAnimatable.value * scaledCellPixelSize
-            }
-        }
-
         val handleAnchoredDraggable2DStates =
             initialHandles.mapIndexed { index, initialHandleOffset ->
                 key(index, scaledCellPixelSize, cellWindow) {
@@ -309,7 +237,12 @@ internal fun FixedSelectingBoxOverlay(
         val handleCState = handleStates[2]
         val handleDState = handleStates[3]
 
-        val selectionHandleStates = remember(handleStates, transientSelectingBoxAnimatables) {
+        val selectionHandleStates = remember(
+            handleStates,
+            transientSelectingBoxAnimatables,
+            setSelectionState,
+            scaledCellPixelSize,
+        ) {
             listOf(
                 SelectionDraggableHandleState(
                     state = handleAState,
@@ -317,6 +250,9 @@ internal fun FixedSelectingBoxOverlay(
                     horizontalPairState = handleBState,
                     verticalPairState = handleDState,
                     oppositeCornerState = handleCState,
+                    setSelectionState = setSelectionState,
+                    coroutineScope = coroutineScope,
+                    scaledCellPixelSize = scaledCellPixelSize,
                 ),
                 SelectionDraggableHandleState(
                     state = handleBState,
@@ -324,6 +260,9 @@ internal fun FixedSelectingBoxOverlay(
                     horizontalPairState = handleAState,
                     verticalPairState = handleCState,
                     oppositeCornerState = handleDState,
+                    setSelectionState = setSelectionState,
+                    coroutineScope = coroutineScope,
+                    scaledCellPixelSize = scaledCellPixelSize,
                 ),
                 SelectionDraggableHandleState(
                     state = handleCState,
@@ -331,6 +270,9 @@ internal fun FixedSelectingBoxOverlay(
                     horizontalPairState = handleDState,
                     verticalPairState = handleBState,
                     oppositeCornerState = handleAState,
+                    setSelectionState = setSelectionState,
+                    coroutineScope = coroutineScope,
+                    scaledCellPixelSize = scaledCellPixelSize,
                 ),
                 SelectionDraggableHandleState(
                     state = handleDState,
@@ -338,6 +280,9 @@ internal fun FixedSelectingBoxOverlay(
                     horizontalPairState = handleCState,
                     verticalPairState = handleAState,
                     oppositeCornerState = handleBState,
+                    setSelectionState = setSelectionState,
+                    coroutineScope = coroutineScope,
+                    scaledCellPixelSize = scaledCellPixelSize,
                 ),
             )
         }
@@ -397,5 +342,81 @@ internal fun FixedSelectingBoxOverlay(
                     )
                 }
             }
+    }
+}
+
+@Stable
+private class SelectionDraggableHandleState(
+    val state: HandleState,
+    transientSelectingBoxAnimatable: Animatable<Offset, AnimationVector2D>,
+    val horizontalPairState: HandleState,
+    val verticalPairState: HandleState,
+    val oppositeCornerState: HandleState,
+    val setSelectionState: (SelectionState) -> Unit,
+    val coroutineScope: CoroutineScope,
+    val scaledCellPixelSize: Float,
+) {
+    val confirmValueChange: (IntOffset) -> Boolean = { intOffset ->
+        if (state.reentrancyCount == 0) {
+            val minX = min(intOffset.x, oppositeCornerState.state.targetValue.x)
+            val maxX = max(intOffset.x, oppositeCornerState.state.targetValue.x)
+            val minY = min(intOffset.y, oppositeCornerState.state.targetValue.y)
+            val maxY = max(intOffset.y, oppositeCornerState.state.targetValue.y)
+
+            setSelectionState(
+                SelectionState.SelectingBox.FixedSelectingBox(
+                    topLeft = IntOffset(minX, minY),
+                    width = maxX - minX,
+                    height = maxY - minY,
+                    previousTransientSelectingBox = null,
+                ),
+            )
+
+            coroutineScope.launch {
+                try {
+                    horizontalPairState.reentrancyCount++
+                    horizontalPairState.state.snapTo(
+                        IntOffset(
+                            x = horizontalPairState.state.targetValue.x,
+                            y = intOffset.y,
+                        ),
+                    )
+                } finally {
+                    horizontalPairState.reentrancyCount--
+                }
+            }
+            coroutineScope.launch {
+                try {
+                    verticalPairState.reentrancyCount++
+                    verticalPairState.state.snapTo(
+                        IntOffset(
+                            x = intOffset.x,
+                            y = verticalPairState.state.targetValue.y,
+                        ),
+                    )
+                } finally {
+                    verticalPairState.reentrancyCount--
+                }
+            }
+        }
+        true
+    }
+
+    val offsetCalculator: () -> Offset = {
+        val xReferenceState = when {
+            state.state.isDraggingOrAnimating() -> state
+            verticalPairState.state.isDraggingOrAnimating() -> verticalPairState
+            else -> state
+        }
+        val yReferenceState = when {
+            state.state.isDraggingOrAnimating() -> state
+            horizontalPairState.state.isDraggingOrAnimating() -> horizontalPairState
+            else -> state
+        }
+
+        Offset(
+            xReferenceState.state.requireOffset().x,
+            yReferenceState.state.requireOffset().y,
+        ) + transientSelectingBoxAnimatable.value * scaledCellPixelSize
     }
 }
