@@ -130,9 +130,9 @@ androidx.vectordrawable:vectordrawable-animated:1.1.0
 androidx.vectordrawable:vectordrawable:1.1.0
 androidx.versionedparcelable:versionedparcelable:1.1.1
 androidx.viewpager:viewpager:1.0.0
-androidx.window:window-core-android:1.5.0-alpha02
-androidx.window:window-core:1.5.0-alpha02
-androidx.window:window:1.5.0-alpha02
+androidx.window:window-core-android:1.5.0-beta01
+androidx.window:window-core:1.5.0-beta01
+androidx.window:window:1.5.0-beta01
 androidx.work:work-runtime-ktx:2.10.2
 androidx.work:work-runtime:2.10.2
 androidx.xr.arcore:arcore:1.0.0-alpha03
