@@ -163,8 +163,8 @@ com.google.errorprone:error_prone_annotations:2.30.0
 com.google.guava:failureaccess:1.0.1
 com.google.guava:guava:32.1.3-android
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
-com.slack.circuit:circuit-retained-android:0.28.1
-com.slack.circuit:circuit-retained:0.28.1
+com.slack.circuit:circuit-retained-android:0.29.0
+com.slack.circuit:circuit-retained:0.29.0
 com.squareup.okhttp3:okhttp-sse:4.12.0
 com.squareup.okhttp3:okhttp:4.12.0
 com.squareup.okio:okio-fakefilesystem-jvm:3.13.0
@@ -226,8 +226,8 @@ org.jetbrains.compose.material3:material3:1.9.0-alpha02
 org.jetbrains.compose.material:material-icons-core:1.7.3
 org.jetbrains.compose.material:material-icons-extended:1.7.3
 org.jetbrains.compose.material:material-ripple:1.8.1
-org.jetbrains.compose.runtime:runtime-saveable:1.8.1
-org.jetbrains.compose.runtime:runtime:1.8.1
+org.jetbrains.compose.runtime:runtime-saveable:1.8.2
+org.jetbrains.compose.runtime:runtime:1.8.2
 org.jetbrains.compose.ui:ui-backhandler-android:1.8.1
 org.jetbrains.compose.ui:ui-backhandler:1.8.1
 org.jetbrains.compose.ui:ui-geometry:1.8.1
@@ -237,9 +237,9 @@ org.jetbrains.compose.ui:ui-tooling-preview:1.8.1
 org.jetbrains.compose.ui:ui-unit:1.8.1
 org.jetbrains.compose.ui:ui-util:1.8.1
 org.jetbrains.compose.ui:ui:1.8.1
-org.jetbrains.kotlin:kotlin-bom:2.1.21
-org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.21
-org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.21
+org.jetbrains.kotlin:kotlin-bom:2.2.0
+org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0
+org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0
 org.jetbrains.kotlin:kotlin-stdlib:2.2.0
 org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.4.0
 org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0
