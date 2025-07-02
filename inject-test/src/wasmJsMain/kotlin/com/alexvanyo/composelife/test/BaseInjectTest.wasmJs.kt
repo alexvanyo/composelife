@@ -22,10 +22,6 @@ import com.alexvanyo.composelife.scopes.ApplicationComponent
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import kotlin.reflect.KClass
 
-actual abstract class BaseInjectTest<AC : ApplicationComponent> actual constructor(
-    applicationComponentCreator: () -> AC,
-) : BaseInjectTestImpl<AC>(applicationComponentCreator)
-
 actual inline fun <reified T : BaseInjectTestEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
     unused: KClass<T>,
 ): BaseInjectTestEntryPoint = getEntryPoint<BaseInjectTestEntryPoint>()

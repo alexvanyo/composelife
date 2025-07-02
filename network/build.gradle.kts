@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
@@ -32,6 +34,16 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -40,15 +52,21 @@ kotlin {
 
                 implementation(libs.kotlinInject.runtime)
                 implementation(libs.ktor.client.logging)
-                implementation(libs.ktor.client.okhttp)
-                implementation(libs.slf4j.nop)
                 implementation(projects.dispatchers)
                 implementation(projects.injectScopes)
                 implementation(projects.logging)
                 implementation(projects.updatable)
             }
         }
+        val jvmMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.ktor.client.okhttp)
+                implementation(libs.slf4j.nop)
+            }
+        }
         val desktopMain by getting {
+            dependsOn(jvmMain)
             configurations["kspDesktop"].dependencies.addAll(
                 listOf(
                     libs.kotlinInject.ksp.get(),
@@ -57,12 +75,24 @@ kotlin {
             )
         }
         val androidMain by getting {
+            dependsOn(jvmMain)
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
                 )
             )
+        }
+        val wasmJsMain by getting {
+            configurations["kspWasmJs"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                )
+            )
+            dependencies {
+                implementation(libs.ktor.client.js)
+            }
         }
     }
 }

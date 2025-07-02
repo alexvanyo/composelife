@@ -48,7 +48,7 @@ kotlin {
             configurations["kspDesktop"].dependencies.addAll(listOf(
                 libs.kotlinInject.ksp.get(),
                 libs.kotlinInjectAnvil.ksp.get(),
-                libs.sealedEnum.ksp.get(),
+                projects.sealedEnum.ksp,
                 projects.entryPointSymbolProcessor,
             ))
             dependencies {
