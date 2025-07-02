@@ -154,8 +154,8 @@ com.github.livefront.sealed-enum:runtime:0.7.0
 com.google.guava:listenablefuture:1.0
 com.slack.circuit:circuit-retained-android:0.28.1
 com.slack.circuit:circuit-retained:0.28.1
-com.squareup.okio:okio-jvm:3.13.0
-com.squareup.okio:okio:3.13.0
+com.squareup.okio:okio-jvm:3.15.0
+com.squareup.okio:okio:3.15.0
 com.squareup.wire:wire-runtime-jvm:5.3.3
 com.squareup.wire:wire-runtime:5.3.3
 me.tatarka.inject:kotlin-inject-runtime-jvm:0.8.0
