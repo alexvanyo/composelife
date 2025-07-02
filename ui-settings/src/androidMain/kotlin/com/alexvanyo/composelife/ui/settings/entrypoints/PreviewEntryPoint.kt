@@ -77,7 +77,6 @@ import com.alexvanyo.composelife.ui.settings.SettingUiLocalEntryPoint
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import kotlin.time.Clock
-import kotlinx.datetime.toDeprecatedClock
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
@@ -147,7 +146,7 @@ internal fun WithPreviewDependencies(
     ),
     logger: Logger = NoOpLogger,
     fileSystem: FileSystem = FakeFileSystem(
-        clock = clock.toDeprecatedClock(),
+        clock = clock,
     ),
     content: @Composable context(PreviewEntryPoint) () -> Unit,
 ) {
