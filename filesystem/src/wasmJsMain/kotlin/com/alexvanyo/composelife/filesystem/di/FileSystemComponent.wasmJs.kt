@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife.filesystem.di
 
 import kotlin.time.Clock
-import kotlinx.datetime.toDeprecatedClock
 import me.tatarka.inject.annotations.Provides
 import okio.FileSystem
 import okio.fakefilesystem.FakeFileSystem
@@ -32,6 +31,6 @@ interface FileSystemComponent {
     fun providesFileSystem(
         clock: Clock
     ): FileSystem = FakeFileSystem(
-        clock = clock.toDeprecatedClock(),
+        clock = clock,
     )
 }
