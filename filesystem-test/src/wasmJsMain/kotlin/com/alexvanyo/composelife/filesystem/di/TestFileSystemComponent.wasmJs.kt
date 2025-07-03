@@ -18,7 +18,6 @@ package com.alexvanyo.composelife.filesystem.di
 
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.awaitCancellation
-import kotlinx.datetime.toDeprecatedClock
 import me.tatarka.inject.annotations.IntoSet
 import me.tatarka.inject.annotations.Provides
 import okio.FileSystem
@@ -35,7 +34,7 @@ interface TestFileSystemComponent {
     fun providesFakeFileSystem(
         clock: Clock,
     ): FakeFileSystem = FakeFileSystem(
-        clock = clock.toDeprecatedClock(),
+        clock = clock,
     )
 
     @Provides

@@ -92,7 +92,7 @@ kotlinxCollectionsImmutable = "0.4.0"
 #kotlinxCoroutines
 kotlinxCoroutines = "1.10.2"
 #kotlinxDatetime
-kotlinxDatetime = "0.7.0-0.6.x-compat"
+kotlinxDatetime = "0.7.0"
 #kotlinxIo
 kotlinxIo = "0.8.0"
 #kotlinxSerialization
@@ -118,7 +118,7 @@ leakCanary = "3.0-alpha-8"
 #molecule
 molecule = "2.1.0"
 #okio
-okio = "3.13.0"
+okio = "3.15.0"
 #proguard
 proguard = "7.6.0"
 #robolectric
