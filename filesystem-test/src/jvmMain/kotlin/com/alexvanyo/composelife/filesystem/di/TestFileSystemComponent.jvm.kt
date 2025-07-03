@@ -26,7 +26,6 @@ import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 import kotlin.time.Clock
-import kotlinx.datetime.toDeprecatedClock
 
 @ContributesTo(AppScope::class, replaces = [FileSystemComponent::class])
 interface TestFileSystemComponent {
@@ -35,7 +34,7 @@ interface TestFileSystemComponent {
     fun providesFakeFileSystem(
         clock: Clock,
     ): FakeFileSystem = FakeFileSystem(
-        clock = clock.toDeprecatedClock(),
+        clock = clock,
     )
 
     @Provides
