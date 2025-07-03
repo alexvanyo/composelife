@@ -63,16 +63,6 @@ internal interface PreviewEntryPoint :
 internal fun WithPreviewDependencies(
     dispatchers: ComposeLifeDispatchers = DefaultComposeLifeDispatchers(),
     loadedComposeLifePreferences: LoadedComposeLifePreferences = LoadedComposeLifePreferences.Defaults,
-    composeLifePreferences: ComposeLifePreferences = TestComposeLifePreferences(
-        algorithmChoice = loadedComposeLifePreferences.algorithmChoice,
-        currentShapeType = loadedComposeLifePreferences.currentShape.type,
-        roundRectangleConfig = when (loadedComposeLifePreferences.currentShape) {
-            is CurrentShape.RoundRectangle -> loadedComposeLifePreferences.currentShape as CurrentShape.RoundRectangle
-        },
-        darkThemeConfig = loadedComposeLifePreferences.darkThemeConfig,
-        disableAGSL = loadedComposeLifePreferences.disableAGSL,
-        disableOpenGL = loadedComposeLifePreferences.disableOpenGL,
-    ),
     cellStateParser: CellStateParser = CellStateParser(
         flexibleCellStateSerializer = FlexibleCellStateSerializer(
             dispatchers = dispatchers,
@@ -82,6 +72,16 @@ internal fun WithPreviewDependencies(
     ),
     content: @Composable context(PreviewEntryPoint) () -> Unit,
 ) {
+    val composeLifePreferences = TestComposeLifePreferences(
+        algorithmChoice = loadedComposeLifePreferences.algorithmChoice,
+        currentShapeType = loadedComposeLifePreferences.currentShape.type,
+        roundRectangleConfig = when (val currentShape = loadedComposeLifePreferences.currentShape) {
+            is CurrentShape.RoundRectangle -> currentShape
+        },
+        darkThemeConfig = loadedComposeLifePreferences.darkThemeConfig,
+        disableAGSL = loadedComposeLifePreferences.disableAGSL,
+        disableOpenGL = loadedComposeLifePreferences.disableOpenGL,
+    )
     val preferencesProvider = object : ComposeLifePreferencesProvider {
         override val composeLifePreferences = composeLifePreferences
     }
