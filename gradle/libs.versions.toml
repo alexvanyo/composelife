@@ -124,7 +124,7 @@ proguard = "7.6.0"
 #robolectric
 robolectric = "4.15.1"
 #roborazzi
-roborazzi = "1.45.1"
+roborazzi = "1.46.1"
 #sealedEnum
 sealedEnum = "0.7.0"
 #slf4j
