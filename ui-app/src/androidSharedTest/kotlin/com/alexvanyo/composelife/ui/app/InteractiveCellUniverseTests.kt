@@ -28,20 +28,25 @@ import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.filter
+import androidx.compose.ui.test.filterToOne
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasImeAction
+import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onChild
+import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
@@ -967,9 +972,7 @@ private fun ComposeUiTest.assertNodesAreAlive(resolver: (ParameterizedString) ->
 @OptIn(ExperimentalTestApi::class)
 private fun ComposeUiTest.scrollToCell(cell: IntOffset) {
     onNodeWithTag("MutableCellWindow")
-        .onChild()
-        .fetchSemanticsNode()
-        .config[ScrollToIndex]
-        .action
-        ?.invoke(cell.toRingIndex())
+        .onChildren()
+        .filterToOne(hasScrollToIndexAction())
+        .performScrollToIndex(cell.toRingIndex())
 }
