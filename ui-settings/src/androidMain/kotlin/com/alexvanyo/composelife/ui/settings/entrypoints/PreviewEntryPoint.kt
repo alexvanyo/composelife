@@ -37,7 +37,6 @@ import com.alexvanyo.composelife.logging.NoOpLogger
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.FlexibleCellStateSerializer
 import com.alexvanyo.composelife.model.di.CellStateParserProvider
-import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
@@ -127,16 +126,6 @@ internal fun WithPreviewDependencies(
     dispatchers: ComposeLifeDispatchers = DefaultComposeLifeDispatchers(),
     loadedComposeLifePreferences: LoadedComposeLifePreferences = LoadedComposeLifePreferences.Defaults,
     clock: Clock = Clock.System,
-    composeLifePreferences: ComposeLifePreferences = TestComposeLifePreferences(
-        algorithmChoice = loadedComposeLifePreferences.algorithmChoice,
-        currentShapeType = loadedComposeLifePreferences.currentShape.type,
-        roundRectangleConfig = when (loadedComposeLifePreferences.currentShape) {
-            is CurrentShape.RoundRectangle -> loadedComposeLifePreferences.currentShape as CurrentShape.RoundRectangle
-        },
-        darkThemeConfig = loadedComposeLifePreferences.darkThemeConfig,
-        disableAGSL = loadedComposeLifePreferences.disableAGSL,
-        disableOpenGL = loadedComposeLifePreferences.disableOpenGL,
-    ),
     cellStateParser: CellStateParser = CellStateParser(
         flexibleCellStateSerializer = FlexibleCellStateSerializer(
             dispatchers = dispatchers,
@@ -169,6 +158,18 @@ internal fun WithPreviewDependencies(
     )
     val cellStateQueries = composeLifeDatabase.cellStateQueries
     val patternCollectionQueries = composeLifeDatabase.patternCollectionQueries
+
+    val composeLifePreferences = TestComposeLifePreferences(
+        algorithmChoice = loadedComposeLifePreferences.algorithmChoice,
+        currentShapeType = loadedComposeLifePreferences.currentShape.type,
+        roundRectangleConfig = when (loadedComposeLifePreferences.currentShape) {
+            is CurrentShape.RoundRectangle -> loadedComposeLifePreferences.currentShape as CurrentShape.RoundRectangle
+        },
+        darkThemeConfig = loadedComposeLifePreferences.darkThemeConfig,
+        disableAGSL = loadedComposeLifePreferences.disableAGSL,
+        disableOpenGL = loadedComposeLifePreferences.disableOpenGL,
+    )
+
     val preferencesProvider = object : ComposeLifePreferencesProvider {
         override val composeLifePreferences = composeLifePreferences
     }

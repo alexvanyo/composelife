@@ -141,16 +141,7 @@ fun <T, M> AnimatedContent(
      * By default, this will render the provisional target first (if any), then the current target, and then any
      * remaining targets.
      */
-    targetRenderingComparator: Comparator<T> = compareBy {
-        when (targetState) {
-            is TargetState.InProgress -> when (it) {
-                targetState.current -> 1f
-                targetState.provisional -> 0f
-                else -> 2f
-            }
-            is TargetState.Single -> if (it == targetState.current) 1f else 2f
-        }
-    },
+    targetRenderingComparator: Comparator<T>? = null,
     /**
      * The animation specification for animating the content size, if it is enabled.
      */
@@ -432,12 +423,24 @@ fun <T, M> AnimatedContent(
                         is TargetState.Single -> placeablesMap.getValue(targetState.current).size
                     }
 
+                    val resolvedTargetRenderingComparator = targetRenderingComparator ?:
+                        compareBy {
+                            when (targetState) {
+                                is TargetState.InProgress -> when (it) {
+                                    targetState.current -> 1f
+                                    targetState.provisional -> 0f
+                                    else -> 2f
+                                }
+                                is TargetState.Single -> if (it == targetState.current) 1f else 2f
+                            }
+                        }
+
                     return layout(targetSize.width, targetSize.height) {
                         placeablesMap.entries
                             .sortedWith(
                                 Comparator.comparing(
                                     Map.Entry<T, Placeable>::key,
-                                    targetRenderingComparator,
+                                    resolvedTargetRenderingComparator,
                                 ),
                             )
                             .forEach { (_, placeable) ->
@@ -670,3 +673,26 @@ sealed interface ContentStatus<out M> {
     ) : ContentStatus<M>
     data object NotVisible : ContentStatus<Nothing>
 }
+
+//@Composable
+//fun <T> Repro(
+//    holder: Alpha<T>,
+//    comparator: Comparator<T> = compareBy {
+//        when (holder) {
+//            is Alpha.A -> 0f
+//            is Alpha.B -> 1f
+//        }
+//    },
+//) {
+//
+//}
+//
+//sealed interface Alpha<T> {
+//    data class A<T>(
+//        val unused: Unit = Unit,
+//    ) : Alpha<T>
+//
+//    data class B<T>(
+//        val unused: Unit = Unit,
+//    ) : Alpha<T>
+//}
