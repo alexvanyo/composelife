@@ -80,7 +80,7 @@ keeper = "0.16.1"
 #kermit
 kermit = "2.0.6"
 #kotlin
-kotlin = "2.2.0-Beta1"
+kotlin = "2.2.0"
 #kotlinInject
 kotlinInject = "0.8.0"
 #kotlinInjectAnvil
@@ -98,7 +98,7 @@ kotlinxIo = "0.8.0"
 #kotlinxSerialization
 kotlinxSerialization = "1.9.0"
 #ksp
-ksp = "2.2.0-Beta1-2.0.0"
+ksp = "2.2.0-2.0.2"
 #ktor
 ktor = "3.1.3"
 #jacoco
