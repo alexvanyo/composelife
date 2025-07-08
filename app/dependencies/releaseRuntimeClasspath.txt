@@ -214,14 +214,14 @@ org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4
 org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.8.4
 org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4
 org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.8.4
-org.jetbrains.androidx.window:window-core:1.3.1
+org.jetbrains.androidx.window:window-core:1.4.0-alpha08
 org.jetbrains.compose.animation:animation-core:1.8.1
 org.jetbrains.compose.animation:animation:1.8.1
 org.jetbrains.compose.annotation-internal:annotation:1.9.0-alpha03
 org.jetbrains.compose.collection-internal:collection:1.9.0-alpha03
 org.jetbrains.compose.foundation:foundation-layout:1.8.1
 org.jetbrains.compose.foundation:foundation:1.8.1
-org.jetbrains.compose.material3.adaptive:adaptive:1.1.0
+org.jetbrains.compose.material3.adaptive:adaptive:1.2.0-alpha03
 org.jetbrains.compose.material3:material3:1.9.0-alpha03
 org.jetbrains.compose.material:material-icons-core:1.7.3
 org.jetbrains.compose.material:material-icons-extended:1.7.3
