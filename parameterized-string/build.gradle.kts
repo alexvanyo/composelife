@@ -90,12 +90,14 @@ kotlin {
         val jbTest by creating {
             dependsOn(jvmTest)
             dependencies {
-                implementation(compose.desktop.currentOs)
                 implementation(libs.jetbrains.compose.uiTest)
             }
         }
         val desktopTest by getting {
             dependsOn(jbTest)
+            dependencies {
+                implementation(compose.desktop.currentOs)
+            }
         }
         val androidSharedTest by getting {
             dependsOn(jbTest)
