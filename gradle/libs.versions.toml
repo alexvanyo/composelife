@@ -144,7 +144,7 @@ turbine = "1.2.1"
 #webPackPlugin
 webPackPlugin = "9.1.0"
 #wire
-wire = "5.3.4"
+wire = "5.3.5"
 
 [libraries]
 android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "androidDesugarJdkLibs" }
