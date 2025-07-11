@@ -60,6 +60,7 @@ kotlin {
                 api(projects.dispatchers)
                 api(projects.logging)
                 api(projects.resourceState)
+                api(projects.sealedEnum.runtime)
                 api(projects.sessionValue)
                 api(projects.updatable)
 
@@ -73,20 +74,22 @@ kotlin {
         }
         val jbMain by creating {
             dependsOn(commonMain)
+        }
+        val jvmMain by creating {
+            dependsOn(jbMain)
             dependencies {
                 api(libs.androidx.dataStore)
-                api(libs.sealedEnum.runtime)
 
                 implementation(libs.androidx.dataStore.core.okio)
             }
         }
         val androidMain by getting {
-            dependsOn(jbMain)
+            dependsOn(jvmMain)
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
-                    libs.sealedEnum.ksp.get(),
+                    projects.sealedEnum.ksp,
                 )
             )
             dependencies {
@@ -94,12 +97,22 @@ kotlin {
             }
         }
         val desktopMain by getting {
-            dependsOn(jbMain)
+            dependsOn(jvmMain)
             configurations["kspDesktop"].dependencies.addAll(
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),
-                    libs.sealedEnum.ksp.get(),
+                    projects.sealedEnum.ksp,
+                )
+            )
+        }
+        val wasmJsMain by getting {
+            dependsOn(jbMain)
+            configurations["kspWasmJs"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                    projects.sealedEnum.ksp,
                 )
             )
         }
@@ -118,8 +131,11 @@ kotlin {
                 implementation(libs.turbine)
             }
         }
-        val desktopTest by getting {
+        val jvmTest by creating {
             dependsOn(jbTest)
+        }
+        val desktopTest by getting {
+            dependsOn(jvmTest)
             configurations["kspDesktopTest"].dependencies.addAll(
                 listOf(
                     libs.kotlinInject.ksp.get(),
@@ -128,7 +144,7 @@ kotlin {
             )
         }
         val androidSharedTest by getting {
-            dependsOn(jbTest)
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.junit)
@@ -145,6 +161,15 @@ kotlin {
         }
         val androidInstrumentedTest by getting {
             configurations["kspAndroidAndroidTest"].dependencies.addAll(
+                listOf(
+                    libs.kotlinInject.ksp.get(),
+                    libs.kotlinInjectAnvil.ksp.get(),
+                )
+            )
+        }
+        val wasmJsTest by getting {
+            dependsOn(jbTest)
+            configurations["kspWasmJsTest"].dependencies.addAll(
                 listOf(
                     libs.kotlinInject.ksp.get(),
                     libs.kotlinInjectAnvil.ksp.get(),

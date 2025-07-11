@@ -19,15 +19,12 @@ package com.alexvanyo.composelife.test
 
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
-import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
 import kotlinx.coroutines.test.TestResult
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.reflect.KClass
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 

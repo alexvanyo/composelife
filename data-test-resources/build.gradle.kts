@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -22,4 +23,14 @@ plugins {
 
 kotlin {
     jvm()
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
+    }
 }
