@@ -80,7 +80,7 @@ keeper = "0.16.1"
 #kermit
 kermit = "2.0.6"
 #kotlin
-kotlin = "2.2.0"
+kotlin = "2.2.20-Beta1"
 #kotlinInject
 kotlinInject = "0.8.0"
 #kotlinInjectAnvil
