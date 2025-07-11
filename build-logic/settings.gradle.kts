@@ -17,10 +17,18 @@
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "io.gitlab.arturbosch.detekt") {
+                useModule("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${requested.version}")
+            }
+        }
+    }
     repositories {
         gradlePluginPortal()
         google()
         mavenCentral()
+        maven(url = "https://oss.sonatype.org/content/repositories/snapshots/")
     }
 }
 
@@ -33,6 +41,7 @@ dependencyResolutionManagement {
         }
         google()
         mavenCentral()
+        maven(url = "https://oss.sonatype.org/content/repositories/snapshots/")
     }
     versionCatalogs {
         create("libs") {
