@@ -80,8 +80,8 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(projects.dispatchersTest)
-                implementation(projects.filesystemTest)
+                implementation(projects.dispatchersTestFixtures)
+                implementation(projects.filesystemTestFixtures)
                 implementation(projects.injectScopes)
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
