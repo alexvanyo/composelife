@@ -27,6 +27,8 @@ so that additional usage of `gemini-cli` is more tailored to this project.
 As `GEMINI.md` files are created, I will make adjustments as needed then reload memory regularly.
 If something should be added but isn't knowable from the project context, don't make assumptions -
 instead, leave a clear TODO in the `GEMINI.md` file for me to fill in.
+Prioritize looking for existing markdown files and link to them as appropriate for project structure
+documentation.
 
 Here is the documentation for what `GEMINI.md` files do:
 
