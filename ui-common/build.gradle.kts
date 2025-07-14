@@ -103,7 +103,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.molecule)
                 implementation(libs.turbine)
-                implementation(projects.dispatchersTest)
+                implementation(projects.dispatchersTestFixtures)
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
