@@ -14,12 +14,12 @@ refine the `GEMINI.md` files. This is a collaborative and iterative process - as
 changes, I make corrections and tweaks, and I continuously refresh the memory in `gemini-cli`
 (with `/memory refresh`) to update the project structure.
 
-The starting prompt I using with `gemini-cli` is the following, which includes the direct
+The starting prompt I'm using with `gemini-cli` is the following, which includes the direct
 documentation of what `GEMINI.md` files do from the `gemini-cli` documentation:
 
 ## Prompt to `gemini-cli`:
 
-Help me create `GEMINI.md` files and update existing `GEMINI.md` files for this project.
+Help me create and maintain `GEMINI.md` files for this project, that may already exist.
 At the end of these instructions I'll include the documentation for what `GEMINI.md` files do,
 per the documentation for `gemini-cli`.
 I want to iteratively create and update files to "memory bootstrap" this project for `gemini-cli`,
@@ -27,8 +27,8 @@ so that additional usage of `gemini-cli` is more tailored to this project.
 As `GEMINI.md` files are created, I will make adjustments as needed then reload memory regularly.
 If something should be added but isn't knowable from the project context, don't make assumptions -
 instead, leave a clear TODO in the `GEMINI.md` file for me to fill in.
-Prioritize looking for existing markdown files and link to them as appropriate for project structure
-documentation.
+Prioritize looking for existing markdown files, especially `README.md` files, and link to them as
+appropriate for project structure documentation.
 
 Here is the documentation for what `GEMINI.md` files do:
 
