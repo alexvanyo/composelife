@@ -70,10 +70,6 @@ kotlin {
         val wasmJsMain by getting {
             dependencies {
                 api(libs.sqldelight.webDriver)
-
-                implementation(npm("@cashapp/sqldelight-sqljs-worker", libs.versions.sqldelight.get()))
-                implementation(npm("sql.js", libs.versions.sqlJs.get()))
-                implementation(devNpm("copy-webpack-plugin", libs.versions.webPackPlugin.get()))
             }
         }
     }
