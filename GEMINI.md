@@ -34,7 +34,7 @@ When adding or modifying code, please adhere to the following conventions, which
 ## Building and Running
 
 - **Requirements:** JDK 21+ and Android Studio Narwhal 2025.1.1 or newer.
-- **Build:** To build the entire project, run `./gradlew build`.
+- **Build:** To check the entire project, run `./gradlew check`.
 - **Run:** The primary runnable modules are:
     - `app`: The Android mobile application.
     - `desktop-app`: The JVM desktop application.
