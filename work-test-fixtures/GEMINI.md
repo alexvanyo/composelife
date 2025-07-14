@@ -1,4 +1,4 @@
-# Module: work-test
+# Module: work-test-fixtures
 
 This module provides test implementations and helpers for the `:work` module.
 
