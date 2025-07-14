@@ -20,6 +20,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -72,11 +73,10 @@ private object TimeZoneBroadcastReceiver : BroadcastReceiver() {
         try {
             if (count.andIncrement == 0) {
                 // If the increment increased from 0, register the receiver
-                ContextCompat.registerReceiver(
-                    applicationContext,
-                    this,
-                    IntentFilter(Intent.ACTION_TIMEZONE_CHANGED),
-                    ContextCompat.RECEIVER_NOT_EXPORTED,
+                applicationContext.registerReceiverCompat(
+                    receiver = this,
+                    filter = IntentFilter(Intent.ACTION_TIMEZONE_CHANGED),
+                    flags = ContextCompat.RECEIVER_NOT_EXPORTED,
                 )
             }
             awaitCancellation()
@@ -89,4 +89,46 @@ private object TimeZoneBroadcastReceiver : BroadcastReceiver() {
             }
         }
     }
+}
+
+
+private fun Context.registerReceiverCompat(
+    receiver: BroadcastReceiver,
+    filter: IntentFilter,
+    flags: Int,
+) {
+    if (Build.FINGERPRINT.lowercase() == "robolectric") {
+        if (Build.VERSION.SDK_INT >= 33) {
+            ContextCompat.registerReceiver(
+                this,
+                receiver,
+                IntentFilter(Intent.ACTION_TIMEZONE_CHANGED),
+                ContextCompat.RECEIVER_NOT_EXPORTED,
+            )
+        } else if (Build.VERSION.SDK_INT >= 26) {
+            registerReceiver(
+                receiver,
+                filter,
+                if (flags and ContextCompat.RECEIVER_VISIBLE_TO_INSTANT_APPS != 0) {
+                    Context.RECEIVER_VISIBLE_TO_INSTANT_APPS
+                } else {
+                    0
+                },
+            )
+        } else {
+            @Suppress("UnspecifiedRegisterReceiverFlag")
+            registerReceiver(
+                receiver,
+                filter,
+            )
+        }
+    } else {
+        ContextCompat.registerReceiver(
+            this,
+            receiver,
+            IntentFilter(Intent.ACTION_TIMEZONE_CHANGED),
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
+    }
+
 }
