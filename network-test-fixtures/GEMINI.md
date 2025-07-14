@@ -1,4 +1,4 @@
-# Module: network-test
+# Module: network-test-fixtures
 
 This module provides test implementations and helpers for the `:network` module.
 
