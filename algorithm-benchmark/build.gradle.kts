@@ -61,7 +61,7 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(projects.algorithm)
-                implementation(projects.dispatchersTest)
+                implementation(projects.dispatchersTestFixtures)
                 implementation(projects.patterns)
             }
         }

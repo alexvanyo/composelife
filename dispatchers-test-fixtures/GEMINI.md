@@ -1,4 +1,4 @@
-# Module: dispatchers-test
+# Module: dispatchers-test-fixtures
 
 This is a Kotlin Multiplatform library module that provides test implementations for the `:dispatchers` module.
 

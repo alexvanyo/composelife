@@ -48,7 +48,7 @@ kotlin {
                 api(libs.kotlinx.coroutines.test)
                 api(projects.kmpAndroidRunner)
 
-                implementation(projects.dispatchersTest)
+                implementation(projects.dispatchersTestFixtures)
                 implementation(projects.injectScopes)
                 implementation(projects.updatable)
             }

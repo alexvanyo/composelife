@@ -81,12 +81,12 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
                 implementation(projects.dataTestResources)
-                implementation(projects.databaseTest)
-                implementation(projects.dispatchersTest)
-                implementation(projects.filesystemTest)
+                implementation(projects.databaseTestFixtures)
+                implementation(projects.dispatchersTestFixtures)
+                implementation(projects.filesystemTestFixtures)
                 implementation(projects.injectTest)
-                implementation(projects.networkTest)
-                implementation(projects.workTest)
+                implementation(projects.networkTestFixtures)
+                implementation(projects.workTestFixtures)
             }
         }
         val jbTest by creating {

@@ -100,7 +100,7 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(projects.dispatchersTest)
+                implementation(projects.dispatchersTestFixtures)
                 implementation(projects.kmpAndroidRunner)
             }
         }

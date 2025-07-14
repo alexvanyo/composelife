@@ -16,29 +16,23 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
-    alias(libs.plugins.convention.androidLibraryJacoco)
-    alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
     alias(libs.plugins.metro)
 }
 
+
 kotlin {
-    jvm("desktop")
     androidLibrary {
-        namespace = "com.alexvanyo.composelife.preferencestest"
+        namespace = "com.alexvanyo.composelife.databasetest"
         minSdk = 23
-        compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java) {
-            instrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
-        }
-        configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
     }
+    jvm("desktop")
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser {
@@ -53,45 +47,28 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(projects.preferences)
+                api(libs.kotlinx.coroutines.core)
+                api(projects.database)
 
-                implementation(libs.androidx.compose.runtime)
+                implementation(libs.kotlinx.coroutines.test)
                 implementation(projects.injectScopes)
+                implementation(projects.updatable)
             }
-        }
-        val jbMain by creating {
-            dependsOn(commonMain)
-        }
-        val desktopMain by getting {
-            dependsOn(jbMain)
         }
         val androidMain by getting {
-            dependsOn(jbMain)
             dependencies {
-                api(libs.androidx.test.junit)
+                api(libs.kotlinx.coroutines.android)
+                api(libs.sqldelight.androidDriver)
             }
         }
-        val commonTest by getting {
+        val desktopMain by getting {
             dependencies {
-                implementation(projects.dispatchersTest)
-                implementation(projects.filesystemTest)
-                implementation(projects.injectScopes)
-                implementation(projects.injectTest)
-                implementation(projects.kmpAndroidRunner)
+                api(libs.sqldelight.sqliteDriver)
             }
         }
-        val jbTest by creating {
-            dependsOn(commonTest)
-        }
-        val desktopTest by getting {
-            dependsOn(jbTest)
-        }
-        val androidSharedTest by getting {
-            dependsOn(jbTest)
+        val wasmJsMain by getting {
             dependencies {
-                implementation(libs.androidx.test.core)
-                implementation(libs.androidx.test.junit)
-                implementation(libs.androidx.test.runner)
+                api(libs.sqldelight.webDriver)
             }
         }
     }
