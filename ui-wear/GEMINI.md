@@ -1,6 +1,7 @@
 # Module: ui-wear
 
-This module is an Android library containing **Jetpack Compose UI components** specifically for the Wear OS target.
+This is a Kotlin Multiplatform library module containing **Jetpack Compose UI components** specifically for the Wear OS
+target.
 
 ## Purpose & Architecture
 

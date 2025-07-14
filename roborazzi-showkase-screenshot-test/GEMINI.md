@@ -4,6 +4,7 @@ This module is the heart of the project's automated screenshot testing system.
 
 ## Purpose & Architecture
 
+- This is a Kotlin Multiplatform library module that targets Android.
 - This module uses **Roborazzi** to capture and verify screenshots of Jetpack Compose components.
 - It uses **Showkase** to automatically discover all `@Composable` functions annotated with `@Preview` across the entire project.
 - The tests in this module iterate through all Showkase-discovered components and generate a Roborazzi screenshot test for each one.

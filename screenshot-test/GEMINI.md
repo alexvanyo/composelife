@@ -4,7 +4,8 @@ This module provides specialized utilities to create screenshot tests directly w
 
 ## Purpose & Architecture
 
-- This is an Android library module that provides a couple specialized utilities for verifying bitmap data.
+- This is a Kotlin Multiplatform library module that provides a couple specialized utilities for verifying bitmap
+  data.
 
 ## Usage
 

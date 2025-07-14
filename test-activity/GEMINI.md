@@ -1,6 +1,7 @@
 # Module: test-activity
 
-This module provides a basic, empty `Activity` for use in Android instrumentation tests.
+This is a Kotlin Multiplatform library module that provides a basic, empty `Activity` for use in Android
+instrumentation tests.
 
 ## Purpose & Architecture
 
