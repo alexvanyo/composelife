@@ -59,10 +59,10 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(projects.databaseTest)
-                implementation(projects.dispatchersTest)
+                implementation(projects.databaseTestFixtures)
+                implementation(projects.dispatchersTestFixtures)
                 implementation(projects.patterns)
-                implementation(projects.preferencesTest)
+                implementation(projects.preferencesTestFixtures)
             }
         }
     }

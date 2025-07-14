@@ -106,9 +106,6 @@ kotlin {
         }
         val jvmTest by creating {
             dependsOn(jbTest)
-            dependencies {
-                implementation(compose.desktop.currentOs)
-            }
         }
         val desktopTest by getting {
             dependsOn(jvmTest)

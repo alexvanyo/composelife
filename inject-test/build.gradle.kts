@@ -49,9 +49,9 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(libs.kotlinx.coroutines.test)
-                api(projects.databaseTest)
+                api(projects.databaseTestFixtures)
                 api(projects.kmpAndroidRunner)
-                api(projects.preferencesTest)
+                api(projects.preferencesTestFixtures)
 
                 implementation(projects.injectScopes)
             }

@@ -1,4 +1,4 @@
-# Module: preferences-test
+# Module: preferences-test-fixtures
 
 This module provides test implementations and helpers for the `:preferences` module.
 

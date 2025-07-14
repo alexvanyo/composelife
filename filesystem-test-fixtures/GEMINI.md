@@ -1,4 +1,4 @@
-# Module: filesystem-test
+# Module: filesystem-test-fixtures
 
 This is a Kotlin Multiplatform library module that provides test implementations for the `:filesystem` module.
 
