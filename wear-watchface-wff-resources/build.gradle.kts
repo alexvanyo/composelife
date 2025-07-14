@@ -52,7 +52,7 @@ kotlin {
                 implementation(libs.turbine)
 
                 implementation(projects.algorithm)
-                implementation(projects.dispatchersTest)
+                implementation(projects.dispatchersTestFixtures)
                 implementation(projects.geometry)
             }
         }

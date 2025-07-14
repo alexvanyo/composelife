@@ -1,4 +1,4 @@
-# Module: database-test
+# Module: database-test-fixtures
 
 This module provides test implementations and helpers for the `:database` module.
 
