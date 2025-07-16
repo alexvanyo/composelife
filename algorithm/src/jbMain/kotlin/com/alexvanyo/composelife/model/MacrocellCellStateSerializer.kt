@@ -93,6 +93,15 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                     val neValue = ne.value.toInt()
                     val swValue = sw.value.toInt()
                     val seValue = se.value.toInt()
+                    val firstSpaceIndex = line.indexOf(" ")
+                    val secondSpaceIndex = line.indexOf(" ", firstSpaceIndex + 1)
+                    val thirdSpaceIndex = line.indexOf(" ", secondSpaceIndex + 1)
+                    val fourthSpaceIndex = line.indexOf(" ", thirdSpaceIndex + 1)
+
+                    val nwRange = firstSpaceIndex + 1 until secondSpaceIndex // nw.range
+                    val neRange = secondSpaceIndex + 1 until thirdSpaceIndex // ne.range
+                    val swRange = thirdSpaceIndex + 1 until fourthSpaceIndex // sw.range
+                    val seRange = fourthSpaceIndex + 1 until line.length // se.range
 
                     val node = CellNode(
                         if (nwValue == 0) {
@@ -103,7 +112,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                                 errors = listOf(
                                     UnexpectedNodeIdMessage(
                                         lineIndex = lineIndex,
-                                        characterIndices = nw.range,
+                                        characterIndices = nwRange,
                                     ),
                                 ),
                             )
@@ -116,7 +125,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                                 errors = listOf(
                                     UnexpectedNodeIdMessage(
                                         lineIndex = lineIndex,
-                                        characterIndices = ne.range,
+                                        characterIndices = neRange,
                                     ),
                                 ),
                             )
@@ -129,7 +138,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                                 errors = listOf(
                                     UnexpectedNodeIdMessage(
                                         lineIndex = lineIndex,
-                                        characterIndices = sw.range,
+                                        characterIndices = swRange,
                                     ),
                                 ),
                             )
@@ -142,7 +151,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                                 errors = listOf(
                                     UnexpectedNodeIdMessage(
                                         lineIndex = lineIndex,
-                                        characterIndices = se.range,
+                                        characterIndices = seRange,
                                     ),
                                 ),
                             )
