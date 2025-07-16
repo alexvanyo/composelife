@@ -30,11 +30,6 @@ import org.gradle.api.services.BuildServiceParameters
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.os.OperatingSystem
-import org.gradle.kotlin.dsl.closureOf
-import org.gradle.kotlin.dsl.getByName
-import org.gradle.kotlin.dsl.invoke
-import org.gradle.kotlin.dsl.register
-import org.gradle.kotlin.dsl.withType
 import org.gradle.process.ExecOperations
 import org.gradle.work.DisableCachingByDefault
 import java.io.ByteArrayOutputStream
@@ -145,7 +140,7 @@ fun Project.configureGradleManagedDevices(
     commonExtension: CommonExtension<*, *, *, *, *, *>,
     filterForTests: Boolean = true,
 ) {
-    commonExtension.testOptions.managedDevices.allDevices {
+    commonExtension.testOptions.managedDevices.allDevices.apply {
         devices
             .filter { config ->
                 !filterForTests ||
@@ -161,7 +156,7 @@ fun Project.configureGradleManagedDevices(
                 minSdk == null || config.apiLevel >= minSdk
             }
             .forEach { config ->
-                register<ManagedVirtualDevice>(config.taskPrefix) {
+                register(config.taskPrefix, ManagedVirtualDevice::class.java) {
                     this.device = when (config.device) {
                         AndroidDevice.DesktopDevice.MediumDesktop -> "Medium Desktop"
                         AndroidDevice.PhoneDevice.Nexus4 -> "Nexus 4"
@@ -204,17 +199,15 @@ fun Project.configureGradleManagedDevices(
     }
 
     if (OperatingSystem.current().isLinux) {
-        tasks.withType<ManagedDeviceInstrumentationTestTask>()
-            .whenTaskAdded(
-                closureOf<ManagedDeviceInstrumentationTestTask> {
-                    val id = path
-                    finalizedBy(
-                        tasks.register<KillEmulatorProcessesTask>("${name}KillEmulatorProcesses") {
-                            this.id.set(id)
-                        },
-                    )
-                },
-            )
+        tasks.withType(ManagedDeviceInstrumentationTestTask::class.java)
+            .whenTaskAdded {
+                val id = path
+                finalizedBy(
+                    tasks.register("${name}KillEmulatorProcesses", KillEmulatorProcessesTask::class.java) {
+                        this.id.set(id)
+                    },
+                )
+            }
     }
 
     // Create a limiting build service to only allow an maxConcurrentDevices amount of test tasks to run at a time
@@ -227,10 +220,10 @@ fun Project.configureGradleManagedDevices(
                 .map { value -> value.toIntOrNull() ?: 1 },
         )
     }
-    tasks.withType<ManagedDeviceInstrumentationTestTask>().configureEach {
+    tasks.withType(ManagedDeviceInstrumentationTestTask::class.java).configureEach {
         usesService(runningLimitingService)
     }
-    tasks.withType<ManagedDeviceInstrumentationTestSetupTask>().configureEach {
+    tasks.withType(ManagedDeviceInstrumentationTestSetupTask::class.java).configureEach {
         usesService(
             gradle
                 .sharedServices
