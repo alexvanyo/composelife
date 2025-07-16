@@ -79,6 +79,9 @@ kotlin {
         }
         val wasmJsMain by getting {
             dependsOn(jbMain)
+            dependencies {
+                implementation(libs.jetbrains.compose.ui)
+            }
         }
         val commonTest by getting {
             dependencies {
