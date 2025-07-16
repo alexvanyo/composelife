@@ -105,6 +105,9 @@ kotlin {
         }
         val wasmJsTest by getting {
             dependsOn(jbTest)
+            dependencies {
+                implementation(libs.jetbrains.compose.ui)
+            }
         }
     }
 }
