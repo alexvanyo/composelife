@@ -16,38 +16,29 @@
 
 package com.alexvanyo.composelife.buildlogic
 
-import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.closureOf
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 fun Project.configureKotlin() {
-    tasks.withType<KotlinCompile>().configureEach {
+    tasks.withType(KotlinCompile::class.java).configureEach {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
             allWarningsAsErrors.set(true)
         }
     }
 
-    extensions.configure<KotlinMultiplatformExtension> {
-        sourceSets.configure(
-            closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
-                configureEach {
-                    languageSettings {
-                        // TODO: Remove when out of beta: https://youtrack.jetbrains.com/issue/KT-61573
-                        enableLanguageFeature("ExpectActualClasses")
-                        enableLanguageFeature("ContextParameters")
-                        enableLanguageFeature("MultiDollarInterpolation")
-                        optIn("kotlin.uuid.ExperimentalUuidApi")
-                        optIn("kotlin.time.ExperimentalTime")
-                    }
-                }
-            },
-        )
+    extensions.configure(KotlinMultiplatformExtension::class.java) {
+        sourceSets.configureEach {
+            languageSettings {
+                // TODO: Remove when out of beta: https://youtrack.jetbrains.com/issue/KT-61573
+                enableLanguageFeature("ExpectActualClasses")
+                enableLanguageFeature("ContextParameters")
+                enableLanguageFeature("MultiDollarInterpolation")
+                optIn("kotlin.uuid.ExperimentalUuidApi")
+                optIn("kotlin.time.ExperimentalTime")
+            }
+        }
     }
 }

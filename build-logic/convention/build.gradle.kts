@@ -18,7 +18,9 @@ import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    `kotlin-dsl`
+    kotlin("jvm") version libs.versions.kotlin
+    kotlin("plugin.sam.with.receiver") version libs.versions.kotlin
+    `java-gradle-plugin`
     alias(libs.plugins.detekt)
     alias(libs.plugins.android.lint)
 }
@@ -38,7 +40,7 @@ kotlin {
 }
 
 tasks {
-    validatePlugins {
+    withType<ValidatePlugins>().configureEach {
         enableStricterValidation = true
         failOnWarning = true
     }
@@ -50,6 +52,10 @@ tasks {
     named("check").configure {
         dependsOn(withType<Detekt>())
     }
+}
+
+samWithReceiver {
+    annotation(HasImplicitReceiver::class.qualifiedName!!)
 }
 
 detekt {
@@ -73,7 +79,7 @@ dependencies {
     lintChecks(libs.androidx.lint.gradle)
 }
 
-gradlePlugin {
+configure<GradlePluginDevelopmentExtension> {
     plugins {
         register("androidApplication") {
             id = "com.alexvanyo.composelife.androidApplication"

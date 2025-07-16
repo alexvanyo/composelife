@@ -19,22 +19,19 @@ import com.alexvanyo.composelife.buildlogic.configureAndroid
 import com.alexvanyo.composelife.buildlogic.configureBadgingTasks
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.exclude
-import org.gradle.kotlin.dsl.getByType
 
 class AndroidApplicationConventionPlugin : ConventionPlugin({
     with(pluginManager) {
         apply("com.android.application")
     }
 
-    configureBadgingTasks(extensions.getByType<ApplicationAndroidComponentsExtension>())
+    configureBadgingTasks(extensions.getByType(ApplicationAndroidComponentsExtension::class.java))
 
     tasks.named("check").configure {
         dependsOn("checkReleaseBadging")
     }
 
-    extensions.configure<ApplicationExtension> {
+    extensions.configure(ApplicationExtension::class.java) {
         configureAndroid(this)
 
         signingConfigs {
@@ -84,8 +81,8 @@ class AndroidApplicationConventionPlugin : ConventionPlugin({
         configurations
             .matching { it.name.contains("debug", ignoreCase = true).not() }
             .configureEach {
-                exclude(group = "androidx.compose.ui", module = "ui-tooling")
-                exclude(group = "androidx.compose.ui", module = "ui-tooling-data")
+                exclude(mapOf("group" to "androidx.compose.ui", "module" to "ui-tooling"))
+                exclude(mapOf("group" to "androidx.compose.ui", "module" to "ui-tooling-data"))
             }
     }
 })
