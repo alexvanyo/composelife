@@ -23,11 +23,29 @@ kotlin {
     jvm()
 
     js {
-        browser()
-        nodejs()
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
+        nodejs {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
     }
     wasmJs {
-        browser()
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
     }
 
     macosX64()
