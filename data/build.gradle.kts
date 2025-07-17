@@ -25,6 +25,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
+    alias(libs.plugins.metro)
 }
 
 android {
@@ -66,21 +67,9 @@ kotlin {
         }
         val desktopMain by getting {
             dependsOn(jbMain)
-            configurations["kspDesktop"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                )
-            )
         }
         val androidMain by getting {
             dependsOn(jbMain)
-            configurations["kspAndroid"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                )
-            )
             dependencies {
                 api(libs.kotlinx.coroutines.android)
 
@@ -110,8 +99,6 @@ kotlin {
             dependsOn(jbTest)
             configurations["kspDesktopTest"].dependencies.addAll(
                 listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
                     projects.entryPointSymbolProcessor,
                 )
             )
@@ -127,8 +114,6 @@ kotlin {
         val androidUnitTest by getting {
             configurations["kspAndroidTest"].dependencies.addAll(
                 listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
                     projects.entryPointSymbolProcessor,
                 )
             )
@@ -136,8 +121,6 @@ kotlin {
         val androidInstrumentedTest by getting {
             configurations["kspAndroidAndroidTest"].dependencies.addAll(
                 listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
                     projects.entryPointSymbolProcessor,
                 )
             )
