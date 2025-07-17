@@ -22,6 +22,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
+    alias(libs.plugins.metro)
 }
 
 android {
@@ -61,8 +62,6 @@ kotlin {
             dependsOn(jbMain)
             configurations["kspDesktop"].dependencies.addAll(
                 listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
                     projects.entryPointSymbolProcessor,
                 )
             )
@@ -71,8 +70,6 @@ kotlin {
             dependsOn(jbMain)
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
                     projects.entryPointSymbolProcessor,
                 )
             )
@@ -81,8 +78,6 @@ kotlin {
             dependsOn(jbMain)
             configurations["kspWasmJs"].dependencies.addAll(
                 listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
                     projects.entryPointSymbolProcessor,
                 )
             )

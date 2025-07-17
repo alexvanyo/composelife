@@ -23,6 +23,7 @@ plugins {
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
     alias(libs.plugins.gradleDependenciesSorter)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.metro)
 }
 
 kotlin {
@@ -46,8 +47,6 @@ kotlin {
         }
         val desktopMain by getting {
             configurations["kspDesktop"].dependencies.addAll(listOf(
-                libs.kotlinInject.ksp.get(),
-                libs.kotlinInjectAnvil.ksp.get(),
                 libs.sealedEnum.ksp.get(),
                 projects.entryPointSymbolProcessor,
             ))

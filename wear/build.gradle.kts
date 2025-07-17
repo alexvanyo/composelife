@@ -26,6 +26,7 @@ plugins {
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
     alias(libs.plugins.androidx.baselineProfile)
+    alias(libs.plugins.metro)
 }
 
 android {
@@ -65,8 +66,6 @@ kotlin {
         }
         val androidMain by getting {
             configurations["kspAndroid"].dependencies.addAll(listOf(
-                libs.kotlinInject.ksp.get(),
-                libs.kotlinInjectAnvil.ksp.get(),
                 projects.entryPointSymbolProcessor,
             ))
             configurations["baselineProfile"].dependencies.add(projects.wearBaselineProfileGenerator)

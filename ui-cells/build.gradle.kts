@@ -30,6 +30,7 @@ plugins {
     alias(libs.plugins.roborazzi)
     kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
+    alias(libs.plugins.metro)
 }
 
 android {
@@ -88,8 +89,6 @@ kotlin {
             dependsOn(jbMain)
             configurations["kspDesktop"].dependencies.addAll(
                 listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
                     libs.sealedEnum.ksp.get(),
                 )
             )
@@ -101,8 +100,6 @@ kotlin {
             dependsOn(jbMain)
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
                     libs.sealedEnum.ksp.get(),
                     libs.showkase.processor.get(),
                 )
@@ -156,8 +153,6 @@ kotlin {
             dependsOn(jbTest)
             configurations["kspDesktopTest"].dependencies.addAll(
                 listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
                     projects.entryPointSymbolProcessor,
                 )
             )
@@ -177,8 +172,6 @@ kotlin {
         val androidUnitTest by getting {
             configurations["kspAndroidTest"].dependencies.addAll(
                 listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
                     libs.showkase.processor.get(),
                     projects.entryPointSymbolProcessor,
                 )
@@ -190,8 +183,6 @@ kotlin {
         val androidInstrumentedTest by getting {
             configurations["kspAndroidAndroidTest"].dependencies.addAll(
                 listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
                     projects.entryPointSymbolProcessor,
                 )
             )
