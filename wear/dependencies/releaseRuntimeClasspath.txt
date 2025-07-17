@@ -127,10 +127,10 @@ androidx.vectordrawable:vectordrawable-animated:1.1.0
 androidx.vectordrawable:vectordrawable:1.1.0
 androidx.versionedparcelable:versionedparcelable:1.1.1
 androidx.viewpager:viewpager:1.0.0
-androidx.wear.compose:compose-foundation:1.5.0-beta05
-androidx.wear.compose:compose-material-core:1.5.0-beta05
-androidx.wear.compose:compose-material3:1.5.0-beta05
-androidx.wear.compose:compose-ui-tooling:1.5.0-beta05
+androidx.wear.compose:compose-foundation:1.5.0-beta06
+androidx.wear.compose:compose-material-core:1.5.0-beta06
+androidx.wear.compose:compose-material3:1.5.0-beta06
+androidx.wear.compose:compose-ui-tooling:1.5.0-beta06
 androidx.wear.protolayout:protolayout-expression-pipeline:1.0.0
 androidx.wear.protolayout:protolayout-expression:1.0.0
 androidx.wear.protolayout:protolayout-proto:1.0.0
