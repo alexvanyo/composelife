@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.test
 
 import com.alexvanyo.composelife.entrypoint.EntryPoint
 import com.alexvanyo.composelife.entrypoint.EntryPointProvider
+import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
@@ -28,7 +29,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import software.amazon.lastmile.kotlin.inject.anvil.AppScope
 import kotlin.coroutines.CoroutineContext
@@ -40,19 +40,15 @@ import kotlin.time.Duration.Companion.seconds
 @EntryPoint(AppScope::class)
 interface BaseInjectTestEntryPoint : UpdatableModule
 
-expect abstract class BaseInjectTest<AC : ApplicationComponent>(
-    applicationComponentCreator: () -> AC,
-) : BaseInjectTestImpl<AC>
-
 /**
  * A base class for testing components that depend on injected classes.
  *
  * Subclasses must call [runAppTest] instead of [runTest] to properly initialize dependencies.
  */
 @Suppress("UnnecessaryAbstractClass")
-abstract class BaseInjectTestImpl<AC : ApplicationComponent>(
+abstract class BaseInjectTest<AC : ApplicationComponent>(
     applicationComponentCreator: () -> AC,
-) {
+) : BaseKmpTest() {
     val applicationComponent = applicationComponentCreator()
 
     private val entryPoint get() = applicationComponent.kmpGetEntryPoint<BaseInjectTestEntryPoint>()

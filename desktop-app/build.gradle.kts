@@ -48,7 +48,7 @@ kotlin {
             configurations["kspDesktop"].dependencies.addAll(listOf(
                 libs.kotlinInject.ksp.get(),
                 libs.kotlinInjectAnvil.ksp.get(),
-                libs.sealedEnum.ksp.get(),
+                projects.sealedEnum.ksp,
                 projects.entryPointSymbolProcessor,
             ))
             dependencies {
@@ -59,10 +59,10 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(projects.databaseTest)
-                implementation(projects.dispatchersTest)
+                implementation(projects.databaseTestFixtures)
+                implementation(projects.dispatchersTestFixtures)
                 implementation(projects.patterns)
-                implementation(projects.preferencesTest)
+                implementation(projects.preferencesTestFixtures)
             }
         }
     }
