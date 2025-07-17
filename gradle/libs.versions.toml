@@ -115,6 +115,8 @@ jetbrainsComposeMaterial3Adaptive = "1.2.0-alpha03"
 junit4 = "4.13.2"
 #leakCanary
 leakCanary = "3.0-alpha-8"
+#metro
+metro = "0.5.0"
 #molecule
 molecule = "2.1.0"
 #okio
@@ -312,6 +314,7 @@ detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 gradleDependenciesSorter = { id = "com.squareup.sort-dependencies", version.ref = "gradleDependenciesSorter" }
 keeper = { id = "com.slack.keeper" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 wire = { id = "com.squareup.wire", version.ref = "wire" }
