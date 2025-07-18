@@ -54,7 +54,6 @@ kotlin {
 
                 implementation(libs.androidx.annotation)
                 implementation(libs.coil.compose.core)
-                implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.collections.immutable)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
@@ -126,7 +125,6 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
                 implementation(projects.dispatchersTest)
-                implementation(projects.entryPointRuntime)
                 implementation(projects.filesystemTest)
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
@@ -151,11 +149,6 @@ kotlin {
         }
         val desktopTest by getting {
             dependsOn(jbTest)
-            configurations["kspDesktopTest"].dependencies.addAll(
-                listOf(
-                    projects.entryPointSymbolProcessor,
-                )
-            )
             dependencies {
                 implementation(libs.kotlinx.coroutines.swing)
             }
@@ -173,19 +166,11 @@ kotlin {
             configurations["kspAndroidTest"].dependencies.addAll(
                 listOf(
                     libs.showkase.processor.get(),
-                    projects.entryPointSymbolProcessor,
                 )
             )
             dependencies {
                 implementation(projects.roborazziShowkaseScreenshotTest)
             }
-        }
-        val androidInstrumentedTest by getting {
-            configurations["kspAndroidAndroidTest"].dependencies.addAll(
-                listOf(
-                    projects.entryPointSymbolProcessor,
-                )
-            )
         }
     }
 }

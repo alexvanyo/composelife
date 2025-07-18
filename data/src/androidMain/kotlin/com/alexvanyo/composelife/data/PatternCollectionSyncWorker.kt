@@ -19,8 +19,14 @@ package com.alexvanyo.composelife.data
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import me.tatarka.inject.annotations.Assisted
-import me.tatarka.inject.annotations.Inject
+import com.alexvanyo.composelife.work.AssistedWorkerFactory
+import com.alexvanyo.composelife.work.WorkerKey
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 
 @Inject
 class PatternCollectionSyncWorker(
@@ -34,4 +40,14 @@ class PatternCollectionSyncWorker(
         } else {
             Result.retry()
         }
+
+    @ContributesIntoMap(AppScope::class, binding = binding<AssistedWorkerFactory>())
+    @WorkerKey(PatternCollectionSyncWorker::class)
+    @AssistedFactory
+    fun interface Factory : AssistedWorkerFactory {
+        override fun invoke(
+            appContext: Context,
+            workerParams: WorkerParameters,
+        ): PatternCollectionSyncWorker
+    }
 }

@@ -16,14 +16,16 @@
 
 package com.alexvanyo.composelife.scopes
 
-import com.alexvanyo.composelife.entrypoint.EntryPoint
-import com.alexvanyo.composelife.entrypoint.EntryPointProvider
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesGraphExtension
+import dev.zacsweers.metro.Provides
 
-@SingleIn(UiScope::class)
-expect interface UiComponent : EntryPointProvider<UiScope>
-
-// TODO: Remove when it is possible to declare an empty binding map
-//       https://github.com/evant/kotlin-inject/issues/249
-@EntryPoint(UiScope::class)
-interface EmptyUiScopeEntryPoint
+@ContributesGraphExtension(UiScope::class, isExtendable = true)
+expect interface UiComponent {
+    @ContributesGraphExtension.Factory(AppScope::class)
+    fun interface Factory {
+        fun create(
+            @Provides uiComponentArguments: UiComponentArguments,
+        ): UiComponent
+    }
+}

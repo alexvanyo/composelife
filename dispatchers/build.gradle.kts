@@ -49,7 +49,6 @@ kotlin {
             dependencies {
                 api(libs.kotlinx.coroutines.core)
 
-                implementation(libs.kotlinInject.runtime)
                 implementation(projects.injectScopes)
             }
         }

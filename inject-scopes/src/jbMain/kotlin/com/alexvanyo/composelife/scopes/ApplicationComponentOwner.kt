@@ -21,5 +21,3 @@ interface ApplicationComponentOwner {
 
     val uiComponentFactory: (UiComponentArguments) -> UiComponent
 }
-
-expect interface UiComponentArguments

@@ -64,7 +64,6 @@ kotlin {
                 api(projects.sessionValue)
                 api(projects.updatable)
 
-                implementation(libs.kotlinInject.runtime)
                 implementation(libs.okio)
                 implementation(projects.filesystem)
                 implementation(projects.injectScopes)

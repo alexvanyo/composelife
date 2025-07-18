@@ -45,7 +45,6 @@ kotlin {
             dependencies {
                 api(projects.algorithm)
 
-                implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(projects.geometry)
@@ -58,7 +57,6 @@ kotlin {
         val androidMain by getting {
             configurations["kspAndroid"].dependencies.addAll(listOf(
                 libs.sealedEnum.ksp.get(),
-                projects.entryPointSymbolProcessor,
             ))
             dependencies {
                 api(libs.androidx.wear.watchface)

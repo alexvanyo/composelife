@@ -37,7 +37,6 @@ kotlin {
             dependencies {
                 api(projects.processLifecycle)
 
-                implementation(libs.kotlinInject.runtime)
                 implementation(projects.injectScopes)
                 implementation(projects.preferences)
                 implementation(projects.updatable)

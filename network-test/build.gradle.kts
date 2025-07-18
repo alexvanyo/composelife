@@ -39,7 +39,6 @@ kotlin {
                 api(libs.ktor.client.core)
                 api(libs.ktor.client.mock)
 
-                implementation(libs.kotlinInject.runtime)
                 implementation(projects.dispatchers)
                 implementation(projects.injectScopes)
                 implementation(projects.network)

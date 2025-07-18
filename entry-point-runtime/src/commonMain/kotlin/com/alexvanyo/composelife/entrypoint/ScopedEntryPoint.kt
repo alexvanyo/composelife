@@ -16,10 +16,12 @@
 
 package com.alexvanyo.composelife.entrypoint
 
+import dev.zacsweers.metro.Provider
+
 /**
  * A holder of a creator for an [EntryPoint] of type [E] for the scope [S].
  */
 data class ScopedEntryPoint<S : Any, E> @InternalEntryPointProviderApi constructor(
     @property:InternalEntryPointProviderApi
-    val entryPointCreator: () -> E,
+    val entryPointCreator: Provider<E>,
 )

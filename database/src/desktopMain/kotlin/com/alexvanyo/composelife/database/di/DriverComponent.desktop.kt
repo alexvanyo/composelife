@@ -17,16 +17,17 @@
 
 package com.alexvanyo.composelife.database.di
 
+import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.alexvanyo.composelife.database.ComposeLifeDatabase
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.awaitCancellation
-import me.tatarka.inject.annotations.IntoSet
-import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import dev.zacsweers.metro.IntoSet
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.SingleIn
 import java.util.Properties
 
 @ContributesTo(AppScope::class)
@@ -39,7 +40,7 @@ interface DriverComponent {
             JdbcSqliteDriver.IN_MEMORY,
             Properties().apply { put("foreign_keys", "true") }
         )
-            .also(ComposeLifeDatabase.Schema::create)
+            .also(ComposeLifeDatabase.Schema.synchronous()::create)
 
     @Provides
     @SingleIn(AppScope::class)

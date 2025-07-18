@@ -64,7 +64,6 @@ kotlin {
 
                 implementation(libs.androidx.annotation)
                 implementation(libs.jetbrains.compose.runtime)
-                implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)

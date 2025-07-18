@@ -17,60 +17,30 @@
 package com.alexvanyo.composelife.entrypoint
 
 import com.google.devtools.ksp.getAllSuperTypes
-import com.google.devtools.ksp.getAnnotationsByType
-import com.google.devtools.ksp.getVisibility
-import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
-import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSDeclaration
-import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.KSType
-import com.google.devtools.ksp.symbol.Visibility
-import com.squareup.kotlinpoet.AnnotationSpec
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.LambdaTypeName
-import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.TypeVariableName
-import com.squareup.kotlinpoet.WildcardTypeName
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
-import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
-import com.squareup.kotlinpoet.ksp.toAnnotationSpec
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.toTypeParameterResolver
-import com.squareup.kotlinpoet.ksp.writeTo
-import me.tatarka.inject.annotations.Component
-import me.tatarka.inject.annotations.Inject
-import me.tatarka.inject.annotations.IntoMap
-import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
-import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
-import kotlin.reflect.KClass
+import dev.zacsweers.metro.DependencyGraph
 
 class EntryPointProviderSymbolProcessor : SymbolProcessor {
     override fun process(resolver: Resolver): List<KSAnnotated> =
         resolver
-            .getSymbolsWithAnnotation(requireNotNull(Component::class.qualifiedName))
+            .getSymbolsWithAnnotation(requireNotNull(DependencyGraph::class.qualifiedName))
             .filterIsInstance<KSClassDeclaration>()
             .filter { component ->
                 val mergeScopeClassName =
                     (component
                         .annotations
-                        .first { it.annotationType.toTypeName() == MergeComponent::class.asTypeName() }
+                        .first { it.annotationType.toTypeName() == DependencyGraph::class.asTypeName() }
                         .arguments
                         .first()
                         .value as KSType?

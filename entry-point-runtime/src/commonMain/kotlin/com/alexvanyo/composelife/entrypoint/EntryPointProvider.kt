@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.entrypoint
 
+import dev.zacsweers.metro.Multibinds
 import kotlin.reflect.KClass
 
 /**
@@ -26,5 +27,6 @@ import kotlin.reflect.KClass
  * correct scope.
  */
 interface EntryPointProvider<S : Any> {
+    @Multibinds
     val entryPoints: Map<KClass<*>, ScopedEntryPoint<S, *>>
 }

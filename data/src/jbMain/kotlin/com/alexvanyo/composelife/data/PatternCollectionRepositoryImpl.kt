@@ -54,7 +54,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 import kotlinx.io.okio.asOkioSource
-import me.tatarka.inject.annotations.Inject
+import dev.zacsweers.metro.Inject
 import okio.ByteString.Companion.toByteString
 import okio.FileSystem
 import okio.HashingSink
@@ -64,13 +64,15 @@ import okio.blackholeSink
 import okio.buffer
 import okio.openZip
 import okio.use
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 
 @Inject
-@ContributesBinding(AppScope::class, boundType = PatternCollectionRepository::class)
-@ContributesBinding(AppScope::class, boundType = Updatable::class, multibinding = true)
+@ContributesBinding(AppScope::class, binding = binding<PatternCollectionRepository>())
+@ContributesIntoSet(AppScope::class, binding = binding<Updatable>())
 @SingleIn(AppScope::class)
 @Suppress("LongParameterList")
 class PatternCollectionRepositoryImpl(
@@ -81,7 +83,7 @@ class PatternCollectionRepositoryImpl(
     httpClient: Lazy<HttpClient>,
     private val logger: Logger,
     private val clock: Clock,
-    persistedDataPath: @PersistedDataPath Lazy<Path>,
+    @PersistedDataPath persistedDataPath: Lazy<Path>,
 ) : PatternCollectionRepository, Updatable {
     private val httpClient by httpClient
     private val persistedDataPath by persistedDataPath

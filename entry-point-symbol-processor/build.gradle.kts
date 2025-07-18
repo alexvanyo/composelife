@@ -27,8 +27,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.kotlinInject.runtime)
-                implementation(libs.kotlinInjectAnvil.runtime)
+                implementation(libs.metro.runtime)
                 implementation(projects.entryPointRuntime)
             }
         }

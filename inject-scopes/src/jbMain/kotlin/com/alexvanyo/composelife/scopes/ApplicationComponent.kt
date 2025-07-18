@@ -16,15 +16,4 @@
 
 package com.alexvanyo.composelife.scopes
 
-import com.alexvanyo.composelife.entrypoint.EntryPoint
-import com.alexvanyo.composelife.entrypoint.EntryPointProvider
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
-
-@SingleIn(AppScope::class)
-expect abstract class ApplicationComponent : EntryPointProvider<AppScope>
-
-// TODO: Remove when it is possible to declare an empty binding map
-//       https://github.com/evant/kotlin-inject/issues/249
-@EntryPoint(AppScope::class)
-interface EmptyAppScopeEntryPoint
+expect interface ApplicationComponent

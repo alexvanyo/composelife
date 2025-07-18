@@ -27,12 +27,12 @@ import com.alexvanyo.composelife.preferences.PreferencesProtoPath
 import com.alexvanyo.composelife.scopes.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import me.tatarka.inject.annotations.Provides
+import dev.zacsweers.metro.Provides
 import okio.Path
 import okio.Path.Companion.toOkioPath
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.SingleIn
 
 @ContributesTo(AppScope::class)
 interface PreferencesDataStoreComponent {
@@ -40,7 +40,7 @@ interface PreferencesDataStoreComponent {
     @Provides
     @PreferencesProtoPath
     fun providesDataStorePath(
-        context: @ApplicationContext Context,
+        @ApplicationContext context: Context,
     ): Path = context.dataStoreFile("preferences.pb").absoluteFile.toOkioPath()
 
     @Provides

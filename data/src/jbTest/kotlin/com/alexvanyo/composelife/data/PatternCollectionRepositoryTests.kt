@@ -22,8 +22,6 @@ import com.alexvanyo.composelife.database.CellState
 import com.alexvanyo.composelife.database.CellStateQueries
 import com.alexvanyo.composelife.database.PatternCollectionQueries
 import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
-import com.alexvanyo.composelife.entrypoint.EntryPoint
-import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.filesystem.PersistedDataPath
 import com.alexvanyo.composelife.model.MacrocellCellStateSerializer
 import com.alexvanyo.composelife.model.toCellState
@@ -40,30 +38,32 @@ import kotlinx.coroutines.test.runCurrent
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import kotlin.reflect.KClass
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.asContribution
+import dev.zacsweers.metro.createGraphFactory
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-@EntryPoint(AppScope::class)
+@ContributesTo(AppScope::class)
 interface PatternCollectionRepositoryTestsEntryPoint {
     val patternCollectionRepository: PatternCollectionRepository
     val patternCollectionQueries: PatternCollectionQueries
     val cellStateRepository: CellStateRepository
     val cellStateQueries: CellStateQueries
-    val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher
+    @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
     val fakeRequestHandler: FakeRequestHandler
     val fakeFileSystem: FakeFileSystem
-    val persistedDataPath: @PersistedDataPath Path
+    @PersistedDataPath val persistedDataPath: Path
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PatternCollectionRepositoryTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
-    TestComposeLifeApplicationComponent::createComponent,
+    createGraphFactory<TestComposeLifeApplicationComponent.Factory>()::create,
 ) {
-    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<PatternCollectionRepositoryTestsEntryPoint>()
+    private val entryPoint get() = applicationComponent.asContribution<PatternCollectionRepositoryTestsEntryPoint>()
 
     private val patternCollectionRepository: PatternCollectionRepository
         get() = entryPoint.patternCollectionRepository
@@ -390,7 +390,3 @@ class PatternCollectionRepositoryTests : BaseInjectTest<TestComposeLifeApplicati
         )
     }
 }
-
-expect inline fun <reified T : PatternCollectionRepositoryTestsEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
-    unused: KClass<T> = T::class,
-): PatternCollectionRepositoryTestsEntryPoint

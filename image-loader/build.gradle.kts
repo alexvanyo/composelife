@@ -38,7 +38,6 @@ kotlin {
             dependencies {
                 api(libs.coil.core)
 
-                implementation(libs.kotlinInject.runtime)
                 implementation(projects.dispatchers)
                 implementation(projects.filesystem)
                 implementation(projects.injectScopes)

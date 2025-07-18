@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.entrypoint
 
-import software.amazon.lastmile.kotlin.inject.anvil.extend.ContributingAnnotation
 import kotlin.reflect.KClass
 
 /**
@@ -65,7 +64,6 @@ import kotlin.reflect.KClass
  * with `applicationComponent.getEntryPoint<MyEntryPoint>()`.
  */
 @Target(AnnotationTarget.CLASS)
-@ContributingAnnotation
 annotation class EntryPoint(
     /**
      * The marker that identifies this scope.

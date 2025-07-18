@@ -22,7 +22,6 @@ plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
     alias(libs.plugins.convention.androidLibraryJacoco)
-    alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.sqldelight)
@@ -62,7 +61,6 @@ kotlin {
                 api(projects.dispatchers)
                 api(projects.updatable)
 
-                implementation(libs.kotlinInject.runtime)
                 implementation(libs.sqldelight.primitiveAdapters)
                 implementation(projects.injectScopes)
             }
@@ -80,6 +78,7 @@ kotlin {
             }
         }
         val wasmJsMain by getting {
+            dependsOn(commonMain)
             dependencies {
                 implementation(libs.sqldelight.webDriver)
                 implementation(npm("@cashapp/sqldelight-sqljs-worker", libs.versions.sqldelight.get()))
@@ -92,7 +91,6 @@ kotlin {
                 implementation(libs.turbine)
                 implementation(projects.databaseTest)
                 implementation(projects.dispatchersTest)
-                implementation(projects.entryPointRuntime)
                 implementation(projects.filesystemTest)
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
@@ -103,11 +101,6 @@ kotlin {
         }
         val desktopTest by getting {
             dependsOn(jbTest)
-            configurations["kspDesktopTest"].dependencies.addAll(
-                listOf(
-                    projects.entryPointSymbolProcessor,
-                )
-            )
         }
         val androidSharedTest by getting {
             dependsOn(jbTest)
@@ -116,27 +109,6 @@ kotlin {
                 implementation(libs.androidx.test.junit)
                 implementation(libs.androidx.test.runner)
             }
-        }
-        val androidUnitTest by getting {
-            configurations["kspAndroidTest"].dependencies.addAll(
-                listOf(
-                    projects.entryPointSymbolProcessor,
-                )
-            )
-        }
-        val androidInstrumentedTest by getting {
-            configurations["kspAndroidAndroidTest"].dependencies.addAll(
-                listOf(
-                    projects.entryPointSymbolProcessor,
-                )
-            )
-        }
-        val wasmJsTest by getting {
-            configurations["kspWasmJsTest"].dependencies.addAll(
-                listOf(
-                    projects.entryPointSymbolProcessor,
-                )
-            )
         }
     }
 }

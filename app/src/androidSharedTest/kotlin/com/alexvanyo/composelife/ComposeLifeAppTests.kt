@@ -50,6 +50,8 @@ import com.alexvanyo.composelife.preferences.darkThemeConfigState
 import com.alexvanyo.composelife.preferences.quickAccessSettingsState
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.test.BaseActivityInjectTest
+import dev.zacsweers.metro.asContribution
+import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runCurrent
 import leakcanary.SkipLeakDetection
@@ -60,10 +62,10 @@ import com.alexvanyo.composelife.ui.app.R as uiAppR
 import com.alexvanyo.composelife.ui.settings.R as uiSettingsR
 
 class ComposeLifeAppTests : BaseActivityInjectTest<TestComposeLifeApplicationComponent, MainActivity>(
-    { TestComposeLifeApplicationComponent.createComponent() },
+    createGraphFactory<TestComposeLifeApplicationComponent.Factory>()::create,
     MainActivity::class.java,
 ) {
-    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<TestComposeLifeApplicationEntryPoint>()
+    private val entryPoint get() = applicationComponent.asContribution<TestComposeLifeApplicationEntryPoint>()
 
     private val testDispatcher get() = entryPoint.generalTestDispatcher
 

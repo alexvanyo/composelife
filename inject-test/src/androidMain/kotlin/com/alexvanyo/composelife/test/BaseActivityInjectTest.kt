@@ -21,7 +21,7 @@ import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.UiComponentOwner
+import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import kotlinx.coroutines.test.runTest
 import leakcanary.DetectLeaksAfterTestSuccess
@@ -34,11 +34,10 @@ import org.junit.rules.TestRule
  * Subclasses must call [runAppTest] instead of [runTest] to properly initialize dependencies.
  */
 @Suppress("UnnecessaryAbstractClass")
-abstract class BaseActivityInjectTest<AC : ApplicationComponent, A>(
-    applicationComponentCreator: () -> AC,
+abstract class BaseActivityInjectTest<AC : ApplicationComponent, A : ComponentActivity>(
+    applicationComponentCreator: (ApplicationComponentArguments) -> AC,
     clazz: Class<A>,
-) : BaseInjectTest<AC>(applicationComponentCreator)
-    where A : ComponentActivity, A : UiComponentOwner {
+) : BaseInjectTest<AC>(applicationComponentCreator) {
 
     @get:Rule(order = 0)
     val outerLeakRule = createLeakRule("Outer")

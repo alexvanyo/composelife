@@ -16,10 +16,15 @@
 
 package com.alexvanyo.composelife.test
 
-import com.alexvanyo.composelife.entrypoint.EntryPointProvider
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import kotlin.reflect.KClass
+import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
+import org.junit.runner.RunWith
 
-actual inline fun <reified T : BaseInjectTestEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
-    unused: KClass<T>,
-): BaseInjectTestEntryPoint = getEntryPoint<BaseInjectTestEntryPoint>()
+@RunWith(KmpAndroidJUnit4::class)
+actual abstract class BaseInjectTest<AC : ApplicationComponent> actual constructor(
+    applicationComponentCreator: (ApplicationComponentArguments) -> AC,
+) : BaseInjectTestImpl<AC>(applicationComponentCreator)
+
+actual fun createApplicationComponentArguments(): ApplicationComponentArguments =
+    object : ApplicationComponentArguments {}

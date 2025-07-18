@@ -17,10 +17,17 @@
 package com.alexvanyo.composelife
 
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.Provides
 
-@MergeComponent(AppScope::class)
-@SingleIn(AppScope::class)
-abstract class ComposeLifeApplicationComponent : ApplicationComponent()
+@DependencyGraph(AppScope::class, isExtendable = true)
+interface ComposeLifeApplicationComponent : ApplicationComponent {
+    @DependencyGraph.Factory
+    fun interface Factory {
+        fun create(
+            @Provides applicationComponentArguments: ApplicationComponentArguments,
+        ): ComposeLifeApplicationComponent
+    }
+}

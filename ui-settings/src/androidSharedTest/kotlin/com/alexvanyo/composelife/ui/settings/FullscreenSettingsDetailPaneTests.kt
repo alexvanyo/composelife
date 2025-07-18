@@ -46,21 +46,26 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.firstSuccess
+import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.settings.resources.CornerFractionLabel
 import com.alexvanyo.composelife.ui.settings.resources.Strings
+import dev.zacsweers.metro.asContribution
+import dev.zacsweers.metro.createGraphFactory
 import org.junit.Assume.assumeTrue
 import kotlin.test.Test
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-class FullscreenSettingsDetailPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
-    TestComposeLifeApplicationComponent::createComponent,
-    TestComposeLifeUiComponent.Companion::createComponent,
+class FullscreenSettingsDetailPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, UiComponent>(
+    createGraphFactory<TestComposeLifeApplicationComponent.Factory>()::create,
+    {  applicationComponent, uiComponentArguments ->
+        applicationComponent.asContribution<UiComponent.Factory>().create(uiComponentArguments)
+    },
 ) {
-    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<TestComposeLifeApplicationEntryPoint>()
+    private val entryPoint get() = applicationComponent.asContribution<TestComposeLifeApplicationEntryPoint>()
 
     private val composeLifePreferences get() = entryPoint.composeLifePreferences
 
@@ -68,7 +73,7 @@ class FullscreenSettingsDetailPaneTests : BaseUiInjectTest<TestComposeLifeApplic
     fun visual_settings_category_keeps_scroll_position_with_ime() = runUiTest { uiComponent ->
         assumeTrue(Build.VERSION.SDK_INT >= 30)
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
-            uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
+            uiComponent as TestComposeLifeUiEntryPoint
 
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 

@@ -36,7 +36,6 @@ import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.entrypoint.EntryPoint
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
@@ -52,9 +51,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.asContribution
 
-@EntryPoint(AppScope::class)
+@ContributesTo(AppScope::class)
 interface GameOfLifeWatchFaceServiceEntryPoint : AlgorithmModule, DispatchersModule
 
 @Suppress("Deprecated")
@@ -79,7 +80,8 @@ class GameOfLifeWatchFaceService : WatchFaceService() {
         super.onCreate()
 
         val applicationComponent = (application as ApplicationComponentOwner).applicationComponent
-        val entryPoint = applicationComponent.getEntryPoint<GameOfLifeWatchFaceServiceEntryPoint>()
+        // TODO: Replace with asContribution
+        val entryPoint = applicationComponent as GameOfLifeWatchFaceServiceEntryPoint
         gameOfLifeAlgorithm = entryPoint.gameOfLifeAlgorithm
         dispatchers = entryPoint.dispatchers
 

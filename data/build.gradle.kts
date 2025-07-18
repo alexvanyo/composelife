@@ -21,7 +21,6 @@ plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
     alias(libs.plugins.convention.androidLibraryJacoco)
-    alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
@@ -49,7 +48,6 @@ kotlin {
                 api(projects.dispatchers)
                 api(projects.network)
 
-                implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.io.core)
                 implementation(libs.kotlinx.io.okio)
                 implementation(libs.okio)
@@ -85,7 +83,6 @@ kotlin {
                 implementation(projects.dataTestResources)
                 implementation(projects.databaseTest)
                 implementation(projects.dispatchersTest)
-                implementation(projects.entryPointRuntime)
                 implementation(projects.filesystemTest)
                 implementation(projects.injectTest)
                 implementation(projects.networkTest)
@@ -97,11 +94,6 @@ kotlin {
         }
         val desktopTest by getting {
             dependsOn(jbTest)
-            configurations["kspDesktopTest"].dependencies.addAll(
-                listOf(
-                    projects.entryPointSymbolProcessor,
-                )
-            )
         }
         val androidSharedTest by getting {
             dependsOn(jbTest)
@@ -110,20 +102,6 @@ kotlin {
                 implementation(libs.androidx.test.junit)
                 implementation(libs.androidx.test.runner)
             }
-        }
-        val androidUnitTest by getting {
-            configurations["kspAndroidTest"].dependencies.addAll(
-                listOf(
-                    projects.entryPointSymbolProcessor,
-                )
-            )
-        }
-        val androidInstrumentedTest by getting {
-            configurations["kspAndroidAndroidTest"].dependencies.addAll(
-                listOf(
-                    projects.entryPointSymbolProcessor,
-                )
-            )
         }
     }
 }

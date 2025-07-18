@@ -19,17 +19,14 @@ package com.alexvanyo.composelife.scopes
 
 import android.app.Application
 import android.content.Context
-import com.alexvanyo.composelife.entrypoint.EntryPointProvider
-import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import dev.zacsweers.metro.Provides
 
-@Suppress("UnnecessaryAbstractClass")
-@SingleIn(AppScope::class)
-actual abstract class ApplicationComponent(
-    @get:Provides val application: Application,
-) : EntryPointProvider<AppScope> {
+actual interface ApplicationComponent {
+    @Provides
+    fun bindApplication(applicationComponentArguments: ApplicationComponentArguments): Application =
+        applicationComponentArguments.application
+
     @Provides
     @ApplicationContext
-    fun bindApplication(application: Application): Context = application
+    fun bindApplicationContext(application: Application): Context = application
 }
