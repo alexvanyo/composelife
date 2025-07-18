@@ -19,17 +19,11 @@ package com.alexvanyo.composelife.buildlogic
 import com.android.build.api.dsl.CommonExtension
 import com.android.build.gradle.TestedExtension
 import org.gradle.api.GradleException
-import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.provider.Provider
-import org.gradle.kotlin.dsl.closureOf
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 
 fun Project.configureTesting(
@@ -42,16 +36,12 @@ fun Project.configureTesting(
         }
     }
 
-    extensions.configure<KotlinMultiplatformExtension> {
-        sourceSets.configure(
-            closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
-                getByName("commonTest") {
-                    dependencies {
-                        implementation(kotlin("test"))
-                    }
-                }
-            },
-        )
+    extensions.configure(KotlinMultiplatformExtension::class.java) {
+        sourceSets.getByName("commonTest") {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
     }
 }
 
@@ -106,42 +96,40 @@ fun Project.configureAndroidTesting(
         }
     }
 
-    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+    val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
-    extensions.configure<KotlinMultiplatformExtension> {
+    extensions.configure(KotlinMultiplatformExtension::class.java) {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         androidTarget {
             unitTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
             instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
         }
 
-        sourceSets.configure(
-            closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
-                val commonTest = getByName("commonTest")
-                val androidSharedTest = create("androidSharedTest") {
-                    dependsOn(commonTest)
+        sourceSets.apply {
+            val commonTest = getByName("commonTest")
+            val androidSharedTest = create("androidSharedTest") {
+                dependsOn(commonTest)
+            }
+            getByName("androidUnitTest") {
+                if (useSharedTest.get() != SharedTestConfig.Instrumentation) {
+                    dependsOn(androidSharedTest)
                 }
-                getByName("androidUnitTest") {
-                    if (useSharedTest.get() != SharedTestConfig.Instrumentation) {
-                        dependsOn(androidSharedTest)
-                    }
-                    dependencies {
-                        implementation(libs.findLibrary("robolectric").get())
-                    }
+                dependencies {
+                    implementation(libs.findLibrary("robolectric").get())
                 }
-                getByName("androidInstrumentedTest") {
-                    if (useSharedTest.get() != SharedTestConfig.Robolectric) {
-                        dependsOn(androidSharedTest)
-                    }
-                    dependencies {
-                        implementation(libs.findLibrary("androidx-test-runner").get())
-                    }
+            }
+            getByName("androidInstrumentedTest") {
+                if (useSharedTest.get() != SharedTestConfig.Robolectric) {
+                    dependsOn(androidSharedTest)
                 }
-            },
-        )
+                dependencies {
+                    implementation(libs.findLibrary("androidx-test-runner").get())
+                }
+            }
+        }
     }
 
-    tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
+    tasks.withType(org.gradle.api.tasks.testing.Test::class.java).configureEach {
         // Automatically output Robolectric logs to stdout (for ease of debugging in Android Studio)
         systemProperty("robolectric.logging", "stdout")
 
