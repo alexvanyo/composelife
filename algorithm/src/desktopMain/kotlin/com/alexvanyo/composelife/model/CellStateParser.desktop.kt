@@ -20,7 +20,7 @@ package com.alexvanyo.composelife.model
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draganddrop.DragData
-import me.tatarka.inject.annotations.Inject
+import dev.zacsweers.metro.Inject
 
 @Inject
 actual class CellStateParser(

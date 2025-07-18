@@ -50,7 +50,6 @@ kotlin {
             dependencies {
                 api(libs.kotlinx.datetime)
 
-                implementation(libs.kotlinInject.runtime)
                 implementation(projects.injectScopes)
             }
         }

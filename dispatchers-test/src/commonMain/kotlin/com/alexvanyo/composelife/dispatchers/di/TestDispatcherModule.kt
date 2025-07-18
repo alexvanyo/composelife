@@ -22,7 +22,7 @@ import kotlinx.coroutines.test.TestDispatcher
 
 interface TestDispatcherModule {
 
-    val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher
+    @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
 
-    val cellTickerTestDispatcher: @CellTickerTestDispatcher TestDispatcher
+    @CellTickerTestDispatcher val cellTickerTestDispatcher: TestDispatcher
 }

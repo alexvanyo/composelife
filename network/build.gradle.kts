@@ -38,7 +38,6 @@ kotlin {
             dependencies {
                 api(libs.ktor.client.core)
 
-                implementation(libs.kotlinInject.runtime)
                 implementation(libs.ktor.client.logging)
                 implementation(libs.ktor.client.okhttp)
                 implementation(libs.slf4j.nop)

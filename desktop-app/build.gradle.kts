@@ -33,9 +33,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(libs.circuit.retained)
-                implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.serialization.core)
-                implementation(projects.entryPointRuntime)
                 implementation(projects.filesystem)
                 implementation(projects.imageLoader)
                 implementation(projects.injectScopes)
@@ -48,7 +46,6 @@ kotlin {
         val desktopMain by getting {
             configurations["kspDesktop"].dependencies.addAll(listOf(
                 libs.sealedEnum.ksp.get(),
-                projects.entryPointSymbolProcessor,
             ))
             dependencies {
                 implementation(compose.desktop.currentOs)

@@ -21,7 +21,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import com.alexvanyo.composelife.logging.Logger
-import com.alexvanyo.composelife.logging.e
 import com.alexvanyo.composelife.preferences.CurrentShape.RoundRectangle
 import com.alexvanyo.composelife.preferences.proto.AlgorithmProto
 import com.alexvanyo.composelife.preferences.proto.CurrentShapeTypeProto
@@ -40,14 +39,16 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retry
 import kotlinx.datetime.DateTimePeriod
-import me.tatarka.inject.annotations.Inject
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 
 @Inject
-@ContributesBinding(AppScope::class, boundType = ComposeLifePreferences::class)
-@ContributesBinding(AppScope::class, boundType = Updatable::class, multibinding = true)
+@ContributesBinding(AppScope::class, binding = binding<ComposeLifePreferences>())
+@ContributesIntoSet(AppScope::class, binding = binding<Updatable>())
 @SingleIn(AppScope::class)
 class DefaultComposeLifePreferences(
     preferencesDataStore: PreferencesDataStore,

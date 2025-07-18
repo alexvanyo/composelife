@@ -21,9 +21,9 @@ import android.content.pm.ApplicationInfo
 import com.alexvanyo.composelife.logging.Logger
 import com.alexvanyo.composelife.logging.NoOpLogger
 import com.alexvanyo.composelife.logging.SingletonSystemLogger
-import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
 
 @ContributesTo(AppScope::class)
 interface LoggerComponent {

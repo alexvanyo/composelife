@@ -48,7 +48,6 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(libs.kermit)
-                implementation(libs.kotlinInject.runtime)
                 implementation(projects.injectScopes)
             }
         }

@@ -16,27 +16,26 @@
 
 package com.alexvanyo.composelife.ui.settings
 
-import com.alexvanyo.composelife.entrypoint.EntryPoint
-import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import kotlin.reflect.KClass
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.Provides
 
-expect abstract class TestComposeLifeApplicationComponent : ApplicationComponent {
-    companion object
+@DependencyGraph(AppScope::class, isExtendable = true)
+interface TestComposeLifeApplicationComponent : ApplicationComponent {
+    @DependencyGraph.Factory
+    fun interface Factory {
+        fun create(
+            @Provides applicationComponentArguments: ApplicationComponentArguments,
+        ): TestComposeLifeApplicationComponent
+    }
 }
 
-expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent
-
-@EntryPoint(AppScope::class)
+@ContributesTo(AppScope::class)
 interface TestComposeLifeApplicationEntryPoint :
     UpdatableModule,
-    PreferencesModule {
-    val uiComponentFactory: TestComposeLifeUiComponent.Factory
-}
-
-expect inline fun <reified T : TestComposeLifeApplicationEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
-    unused: KClass<T> = T::class,
-): TestComposeLifeApplicationEntryPoint
+    PreferencesModule

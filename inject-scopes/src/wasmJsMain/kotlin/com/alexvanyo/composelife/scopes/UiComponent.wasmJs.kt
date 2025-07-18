@@ -17,8 +17,17 @@
 
 package com.alexvanyo.composelife.scopes
 
-import com.alexvanyo.composelife.entrypoint.EntryPointProvider
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesGraphExtension
+import dev.zacsweers.metro.Provides
 
-@SingleIn(UiScope::class)
-actual interface UiComponent : EntryPointProvider<UiScope>
+@ContributesGraphExtension(UiScope::class, isExtendable = true)
+actual interface UiComponent {
+
+    @ContributesGraphExtension.Factory(AppScope::class)
+    actual fun interface Factory {
+        actual fun create(
+            @Provides uiComponentArguments: UiComponentArguments,
+        ): UiComponent
+    }
+}

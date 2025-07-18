@@ -22,7 +22,6 @@ plugins {
     alias(libs.plugins.convention.androidApplication)
     alias(libs.plugins.convention.androidApplicationCompose)
     alias(libs.plugins.convention.androidApplicationJacoco)
-    alias(libs.plugins.convention.androidApplicationKsp)
     alias(libs.plugins.convention.androidApplicationTesting)
     alias(libs.plugins.convention.dependencyGuard)
     alias(libs.plugins.convention.detekt)
@@ -58,11 +57,8 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(libs.circuit.retained)
-                implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.serialization.core)
-                implementation(projects.appCompatSync)
                 implementation(projects.doNotKeepProcess)
-                implementation(projects.entryPointRuntime)
                 implementation(projects.filesystem)
                 implementation(projects.imageLoader)
                 implementation(projects.injectScopes)
@@ -77,9 +73,6 @@ kotlin {
             }
         }
         val androidMain by getting {
-            configurations["kspAndroid"].dependencies.addAll(listOf(
-                projects.entryPointSymbolProcessor,
-            ))
             configurations["baselineProfile"].dependencies.add(projects.appBaselineProfileGenerator)
             dependencies {
                 implementation(libs.androidx.activityCompose)
@@ -123,15 +116,7 @@ kotlin {
                 implementation(libs.androidx.window)
             }
         }
-        val androidUnitTest by getting {
-            configurations["kspAndroidTest"].dependencies.addAll(listOf(
-                projects.entryPointSymbolProcessor,
-            ))
-        }
         val androidInstrumentedTest by getting {
-            configurations["kspAndroidAndroidTest"].dependencies.addAll(listOf(
-                projects.entryPointSymbolProcessor,
-            ))
             dependencies {
                 compileOnly(libs.apiGuardian.api)
                 compileOnly(libs.google.autoValue.annotations)

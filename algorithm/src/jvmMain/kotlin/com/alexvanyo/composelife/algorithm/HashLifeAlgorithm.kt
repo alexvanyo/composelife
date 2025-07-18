@@ -25,9 +25,9 @@ import com.alexvanyo.composelife.model.MacroCell
 import com.alexvanyo.composelife.model.expandCentered
 import com.alexvanyo.composelife.model.toHashLifeCellState
 import kotlinx.coroutines.withContext
-import me.tatarka.inject.annotations.Inject
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
 @SingleIn(AppScope::class)
 @Inject
