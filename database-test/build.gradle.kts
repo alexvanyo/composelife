@@ -51,7 +51,6 @@ kotlin {
                 api(libs.kotlinx.coroutines.core)
                 api(projects.database)
 
-                implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(projects.injectScopes)
                 implementation(projects.updatable)

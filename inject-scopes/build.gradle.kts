@@ -19,7 +19,6 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
-    alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
     alias(libs.plugins.metro)
@@ -47,40 +46,18 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                api(libs.kotlinInject.runtime)
-                api(libs.kotlinInjectAnvil.runtime)
-                api(libs.kotlinInjectAnvil.runtimeOptional)
-                api(projects.entryPointRuntime)
-            }
-        }
+        val commonMain by getting
         val jbMain by creating {
             dependsOn(commonMain)
         }
         val desktopMain by getting {
             dependsOn(jbMain)
-            configurations["kspDesktop"].dependencies.addAll(
-                listOf(
-                    projects.entryPointSymbolProcessor,
-                )
-            )
         }
         val androidMain by getting {
             dependsOn(jbMain)
-            configurations["kspAndroid"].dependencies.addAll(
-                listOf(
-                    projects.entryPointSymbolProcessor,
-                )
-            )
         }
         val wasmJsMain by getting {
             dependsOn(jbMain)
-            configurations["kspWasmJs"].dependencies.addAll(
-                listOf(
-                    projects.entryPointSymbolProcessor,
-                )
-            )
         }
     }
 }

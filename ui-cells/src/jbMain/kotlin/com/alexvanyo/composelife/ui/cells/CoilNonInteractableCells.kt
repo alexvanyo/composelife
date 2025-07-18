@@ -59,7 +59,7 @@ import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
-import me.tatarka.inject.annotations.Inject
+import dev.zacsweers.metro.Inject
 import kotlin.math.roundToInt
 
 context(imageLoaderProvider: ImageLoaderProvider)

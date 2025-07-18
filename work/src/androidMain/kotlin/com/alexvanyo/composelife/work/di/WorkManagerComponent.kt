@@ -17,19 +17,29 @@
 package com.alexvanyo.composelife.work.di
 
 import android.content.Context
+import androidx.work.ListenableWorker
 import androidx.work.WorkManager
 import com.alexvanyo.composelife.scopes.ApplicationContext
 import com.alexvanyo.composelife.work.AssistedWorkerFactory
 import com.alexvanyo.composelife.work.InjectWorkerFactory
-import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Multibinds
+import dev.zacsweers.metro.SingleIn
+import kotlin.reflect.KClass
 
 @ContributesTo(AppScope::class)
 interface WorkManagerComponent {
 
-    val workerFactoryMap: Map<String, AssistedWorkerFactory>
+    @Multibinds(allowEmpty = true)
+    val workerFactoryClassMap: Map<KClass<out ListenableWorker>, AssistedWorkerFactory>
+
+    @Provides
+    fun providesWorkerFactoryClassNameMap(
+        workerFactoryClassMap: Map<KClass<out ListenableWorker>, AssistedWorkerFactory>
+    ): Map<String, AssistedWorkerFactory> =
+        workerFactoryClassMap.mapKeys { it.key.java.name }
 
     @Provides
     fun providesWorkManagerConfiguration(
@@ -42,7 +52,7 @@ interface WorkManagerComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun providesWorkManager(
-        context: @ApplicationContext Context,
+        @ApplicationContext context: Context,
         workManagerConfiguration: androidx.work.Configuration
     ): WorkManager {
         WorkManager.initialize(context, workManagerConfiguration)

@@ -23,8 +23,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import com.alexvanyo.composelife.entrypoint.EntryPoint
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
+import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
+import com.alexvanyo.composelife.scopes.UiComponent
+import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
@@ -36,12 +38,17 @@ import com.slack.circuit.retained.LocalRetainedStateRegistry
 import com.slack.circuit.retained.continuityRetainedStateRegistry
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.asContribution
+import dev.zacsweers.metro.createGraphFactory
 
 fun main() = application {
-    val applicationComponent = ComposeLifeApplicationComponent::class.create()
+    val applicationComponent = createGraphFactory<ComposeLifeApplicationComponent.Factory>().create(
+        object : ApplicationComponentArguments {}
+    )
 
-    val entryPoint = applicationComponent.getEntryPoint<ComposeLifeApplicationEntryPoint>()
+    val entryPoint = applicationComponent.asContribution<ComposeLifeApplicationEntryPoint>()
     val updatables = entryPoint.updatables
 
     LaunchedEffect(Unit) {
@@ -63,12 +70,12 @@ fun main() = application {
         state = windowState,
     ) {
         CompositionLocalProvider(LocalRetainedStateRegistry provides continuityRetainedStateRegistry()) {
-            val uiComponent = remember(entryPoint.uiComponentFactory) {
-                entryPoint.uiComponentFactory.createComponent()
+            val uiComponent = remember(applicationComponent) {
+                applicationComponent.asContribution<UiComponent.Factory>().create(
+                    object : UiComponentArguments {},
+                )
             }
-            val mainInjectEntryPoint = remember(uiComponent) {
-                uiComponent.getEntryPoint<MainInjectEntryPoint>()
-            }
+            val mainInjectEntryPoint = uiComponent as MainInjectEntryPoint
             with(mainInjectEntryPoint) {
                 ComposeLifeTheme(shouldUseDarkTheme()) {
                     ComposeLifeApp(
@@ -82,12 +89,10 @@ fun main() = application {
     }
 }
 
-@EntryPoint(AppScope::class)
-interface ComposeLifeApplicationEntryPoint : UpdatableModule {
-    val uiComponentFactory: ComposeLifeUiComponent.Factory
-}
+@ContributesTo(AppScope::class)
+interface ComposeLifeApplicationEntryPoint : UpdatableModule
 
-@EntryPoint(UiScope::class)
+@ContributesTo(UiScope::class)
 interface MainInjectEntryPoint :
     ComposeLifePreferencesProvider,
     ComposeLifeAppInjectEntryPoint

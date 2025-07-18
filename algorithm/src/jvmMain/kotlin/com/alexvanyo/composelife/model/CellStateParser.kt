@@ -16,7 +16,7 @@
 
 package com.alexvanyo.composelife.model
 
-import me.tatarka.inject.annotations.Inject
+import dev.zacsweers.metro.Inject
 
 @Inject
 expect class CellStateParser {

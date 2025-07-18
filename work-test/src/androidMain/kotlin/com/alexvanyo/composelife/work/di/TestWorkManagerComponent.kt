@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.work.di
 
 import android.content.Context
+import androidx.work.ListenableWorker
 import androidx.work.WorkManager
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
@@ -25,16 +26,23 @@ import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.work.AssistedWorkerFactory
 import com.alexvanyo.composelife.work.InjectWorkerFactory
 import kotlinx.coroutines.awaitCancellation
-import me.tatarka.inject.annotations.IntoSet
-import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import dev.zacsweers.metro.IntoSet
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.SingleIn
+import kotlin.reflect.KClass
 
 @ContributesTo(AppScope::class, replaces = [WorkManagerComponent::class])
 interface TestWorkManagerComponent {
 
     val workerFactoryMap: Map<String, AssistedWorkerFactory>
+
+    @Provides
+    fun providesWorkerFactoryClassNameMap(
+        workerFactoryClassMap: Map<KClass<out ListenableWorker>, AssistedWorkerFactory>
+    ): Map<String, AssistedWorkerFactory> =
+        workerFactoryClassMap.mapKeys { it.key.java.name }
 
     @Provides
     fun providesWorkManagerConfiguration(
@@ -49,7 +57,7 @@ interface TestWorkManagerComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun providesWorkManager(
-        context: @ApplicationContext Context,
+        @ApplicationContext context: Context,
         workManagerConfiguration: androidx.work.Configuration
     ): WorkManager {
         WorkManagerTestInitHelper.initializeTestWorkManager(

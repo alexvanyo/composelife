@@ -37,25 +37,30 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
+import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.cells.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.cells.resources.Strings
+import dev.zacsweers.metro.asContribution
+import dev.zacsweers.metro.createGraphFactory
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTestApi::class)
-class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
-    TestComposeLifeApplicationComponent::createComponent,
-    TestComposeLifeUiComponent::createComponent,
+class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, UiComponent>(
+    createGraphFactory<TestComposeLifeApplicationComponent.Factory>()::create,
+    {  applicationComponent, uiComponentArguments ->
+        applicationComponent.asContribution<UiComponent.Factory>().create(uiComponentArguments)
+    },
 ) {
 
     @Test
     fun cells_are_displayed_correctly() = runUiTest { uiComponent ->
-        val cellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
+        val cellWindowInjectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -149,7 +154,7 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
 
     @Test
     fun cells_are_displayed_correctly_after_scrolling() = runUiTest { uiComponent ->
-        val cellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
+        val cellWindowInjectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -222,7 +227,7 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
 
     @Test
     fun cells_are_not_scrolled_with_none_touch_tool_config() = runUiTest { uiComponent ->
-        val cellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
+        val cellWindowInjectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -297,7 +302,7 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
 
     @Test
     fun cells_are_displayed_correctly_after_zooming_in_with_mouse_wheel() = runUiTest { uiComponent ->
-        val cellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
+        val cellWindowInjectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -354,7 +359,7 @@ class CellWindowTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, Te
 
     @Test
     fun cells_are_displayed_correctly_after_zooming_out_with_mouse_wheel() = runUiTest { uiComponent ->
-        val cellWindowInjectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
+        val cellWindowInjectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }

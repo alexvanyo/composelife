@@ -21,7 +21,6 @@ plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidApplication)
     alias(libs.plugins.convention.androidApplicationCompose)
-    alias(libs.plugins.convention.androidApplicationKsp)
     alias(libs.plugins.convention.dependencyGuard)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
@@ -54,9 +53,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.coroutines.core)
-                implementation(projects.entryPointRuntime)
                 implementation(projects.filesystem)
                 implementation(projects.injectScopes)
                 implementation(projects.processLifecycle)
@@ -65,9 +62,6 @@ kotlin {
             }
         }
         val androidMain by getting {
-            configurations["kspAndroid"].dependencies.addAll(listOf(
-                projects.entryPointSymbolProcessor,
-            ))
             configurations["baselineProfile"].dependencies.add(projects.wearBaselineProfileGenerator)
             dependencies {
                 implementation(libs.androidx.activityCompose)

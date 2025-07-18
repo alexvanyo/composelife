@@ -16,8 +16,7 @@
 
 package com.alexvanyo.composelife.dispatchers
 
-import me.tatarka.inject.annotations.Qualifier
+import dev.zacsweers.metro.Qualifier
 
-@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPE)
 @Qualifier
 annotation class GeneralTestDispatcher

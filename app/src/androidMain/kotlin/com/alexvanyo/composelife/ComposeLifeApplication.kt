@@ -20,36 +20,42 @@ import android.app.Application
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.alexvanyo.composelife.entrypoint.EntryPoint
 import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleModule
+import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
 import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
+import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.strictmode.initStrictModeIfNeeded
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.asContribution
+import dev.zacsweers.metro.createGraphFactory
 
-@EntryPoint(AppScope::class)
-interface ComposeLifeApplicationEntryPoint : UpdatableModule, ProcessLifecycleModule {
-    val uiComponentFactory: ComposeLifeUiComponent.Factory
-}
+@ContributesTo(AppScope::class)
+interface ComposeLifeApplicationEntryPoint : UpdatableModule, ProcessLifecycleModule
 
 class ComposeLifeApplication : Application(), ApplicationComponentOwner {
 
     override lateinit var applicationComponent: ComposeLifeApplicationComponent
 
-    private val entryPoint get() = applicationComponent.getEntryPoint<ComposeLifeApplicationEntryPoint>()
+    private val entryPoint get() = applicationComponent.asContribution<ComposeLifeApplicationEntryPoint>()
 
-    override val uiComponentFactory: (UiComponentArguments) -> ComposeLifeUiComponent =
-        { entryPoint.uiComponentFactory.createComponent(it.activity) }
+    override val uiComponentFactory: (UiComponentArguments) -> UiComponent =
+        { applicationComponent.asContribution<UiComponent.Factory>().create(it) }
 
     override fun onCreate() {
         super.onCreate()
 
         initStrictModeIfNeeded()
 
-        applicationComponent = ComposeLifeApplicationComponent::class.create(this)
+        applicationComponent = createGraphFactory<ComposeLifeApplicationComponent.Factory>().create(
+            object : ApplicationComponentArguments {
+                override val application: Application = this@ComposeLifeApplication
+            }
+        )
 
         val processLifecycleOwner = entryPoint.processLifecycleOwner
         val updatables = entryPoint.updatables

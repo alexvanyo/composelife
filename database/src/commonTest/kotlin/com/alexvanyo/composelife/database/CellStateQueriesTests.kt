@@ -23,28 +23,27 @@ import app.cash.sqldelight.coroutines.mapToOneOrNull
 import app.cash.turbine.test
 import app.cash.turbine.withTurbineTimeout
 import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
-import com.alexvanyo.composelife.entrypoint.EntryPoint
-import com.alexvanyo.composelife.entrypoint.EntryPointProvider
 import com.alexvanyo.composelife.test.BaseInjectTest
 import kotlinx.coroutines.test.TestDispatcher
-import kotlinx.coroutines.test.runTest
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import kotlin.reflect.KClass
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.asContribution
+import dev.zacsweers.metro.createGraphFactory
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.time.Duration.Companion.seconds
 
-@EntryPoint(AppScope::class)
+@ContributesTo(AppScope::class)
 interface CellStateQueriesTestsEntryPoint {
     val cellStateQueries: CellStateQueries
-    val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher
+    @get:GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
 }
 
 class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
-    TestComposeLifeApplicationComponent::createComponent,
+    createGraphFactory<TestComposeLifeApplicationComponent.Factory>()::create,
 ) {
-    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<CellStateQueriesTestsEntryPoint>()
+    private val entryPoint get() = applicationComponent.asContribution<CellStateQueriesTestsEntryPoint>()
 
     private val cellStateQueries get() = entryPoint.cellStateQueries
 
@@ -372,7 +371,3 @@ class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent
         }
     }
 }
-
-expect inline fun <reified T : CellStateQueriesTestsEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
-    unused: KClass<T> = T::class,
-): CellStateQueriesTestsEntryPoint

@@ -52,7 +52,6 @@ kotlin {
                 api(projects.clock)
                 api(projects.dispatchers)
 
-                implementation(libs.kotlinInject.runtime)
                 implementation(projects.injectScopes)
             }
         }

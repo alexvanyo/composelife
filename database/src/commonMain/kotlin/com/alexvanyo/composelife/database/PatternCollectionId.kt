@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.database
 
 import app.cash.sqldelight.ColumnAdapter
-import me.tatarka.inject.annotations.Inject
+import dev.zacsweers.metro.Inject
 import kotlin.jvm.JvmInline
 
 @JvmInline

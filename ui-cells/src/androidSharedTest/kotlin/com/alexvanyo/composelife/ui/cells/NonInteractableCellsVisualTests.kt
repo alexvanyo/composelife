@@ -31,18 +31,23 @@ import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.screenshot.assertPixels
 import com.alexvanyo.composelife.screenshot.captureToImage
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
+import dev.zacsweers.metro.asContribution
+import dev.zacsweers.metro.createGraphFactory
 import org.junit.Assume.assumeTrue
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-class NonInteractableCellsVisualTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
-    TestComposeLifeApplicationComponent::createComponent,
-    TestComposeLifeUiComponent::createComponent,
+class NonInteractableCellsVisualTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, UiComponent>(
+    createGraphFactory<TestComposeLifeApplicationComponent.Factory>()::create,
+    {  applicationComponent, uiComponentArguments ->
+        applicationComponent.asContribution<UiComponent.Factory>().create(uiComponentArguments)
+    },
 ) {
     private val nonInteractableCellsLocalEntryPoint = object : NonInteractableCellsLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults.copy(
@@ -57,7 +62,7 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest<TestComposeLifeApplicat
         if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
         val nonInteractableCellsInjectEntryPoint: NonInteractableCellsInjectEntryPoint =
-            uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
+            uiComponent as TestComposeLifeUiEntryPoint
 
         val cellState = setOf(
             0 to 0,
@@ -130,7 +135,7 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest<TestComposeLifeApplicat
         if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
         val nonInteractableCellsInjectEntryPoint: NonInteractableCellsInjectEntryPoint =
-            uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
+            uiComponent as TestComposeLifeUiEntryPoint
 
         val cellState = setOf(
             0 to 0,

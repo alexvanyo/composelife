@@ -18,18 +18,16 @@
 package com.alexvanyo.composelife.preferences.di
 
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.preferences.DiskPreferencesDataStore
 import com.alexvanyo.composelife.preferences.PreferencesCoroutineScope
-import com.alexvanyo.composelife.preferences.PreferencesDataStore
 import com.alexvanyo.composelife.preferences.PreferencesProtoPath
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import me.tatarka.inject.annotations.Provides
+import dev.zacsweers.metro.Provides
 import okio.FileSystem
 import okio.Path
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.SingleIn
 
 @ContributesTo(AppScope::class)
 interface PreferencesDataStoreComponent {

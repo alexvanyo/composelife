@@ -47,11 +47,14 @@ import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.toTypeParameterResolver
 import com.squareup.kotlinpoet.ksp.writeTo
-import me.tatarka.inject.annotations.Inject
-import me.tatarka.inject.annotations.IntoMap
-import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import dev.zacsweers.metro.ClassKey
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.IntoMap
+import dev.zacsweers.metro.MapKey
+import dev.zacsweers.metro.Provider
+import dev.zacsweers.metro.Provides
 import kotlin.reflect.KClass
 
 @OptIn(InternalEntryPointProviderApi::class)
@@ -164,6 +167,11 @@ class EntryPointSymbolProcessor(
                             .addAnnotation(Provides::class)
                             .addAnnotation(IntoMap::class)
                             .addAnnotation(
+                                AnnotationSpec.builder(ClassKey::class)
+                                    .addMember("%T::class", entryPoint.toClassName())
+                                    .build()
+                            )
+                            .addAnnotation(
                                 AnnotationSpec.builder(ClassName("kotlin", "OptIn"))
                                     .addMember("%T::class", InternalEntryPointProviderApi::class)
                                     .build(),
@@ -171,30 +179,21 @@ class EntryPointSymbolProcessor(
                             .addParameter(
                                 ParameterSpec.builder(
                                     "entryPointCreator",
-                                    LambdaTypeName.get(returnType = entryPoint.toClassName())
+                                    Provider::class.asTypeName().parameterizedBy(entryPoint.toClassName())
                                 )
                                     .build()
                             )
                             .returns(
-                                Pair::class.asTypeName()
+                                ScopedEntryPoint::class.asTypeName()
                                     .parameterizedBy(
-                                        KClass::class.asTypeName().parameterizedBy(
-                                            WildcardTypeName.producerOf(
-                                                Any::class.asTypeName().copy(nullable = true)
-                                            )
-                                        ),
-                                        ScopedEntryPoint::class.asTypeName()
-                                            .parameterizedBy(
-                                                scopeClassName,
-                                                WildcardTypeName.producerOf(
-                                                    Any::class.asTypeName().copy(nullable = true)
-                                                )
-                                            )
+                                        scopeClassName,
+                                        WildcardTypeName.producerOf(
+                                            Any::class.asTypeName().copy(nullable = true)
+                                        )
                                     )
                             )
                             .addStatement(
-                                "return %T::class to %T(entryPointCreator)",
-                                entryPoint.toClassName(),
+                                "return %T(entryPointCreator)",
                                 ScopedEntryPoint::class,
                             )
                             .build()

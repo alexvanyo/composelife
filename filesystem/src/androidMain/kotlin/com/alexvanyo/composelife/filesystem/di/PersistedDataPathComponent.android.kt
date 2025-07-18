@@ -19,11 +19,11 @@ package com.alexvanyo.composelife.filesystem.di
 import android.content.Context
 import com.alexvanyo.composelife.filesystem.PersistedDataPath
 import com.alexvanyo.composelife.scopes.ApplicationContext
-import me.tatarka.inject.annotations.Provides
+import dev.zacsweers.metro.Provides
 import okio.Path
 import okio.Path.Companion.toOkioPath
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
 
 @ContributesTo(AppScope::class)
 interface PersistedDataPathComponent {
@@ -31,6 +31,6 @@ interface PersistedDataPathComponent {
     @Provides
     @PersistedDataPath
     fun providesPersistedDataPath(
-        context: @ApplicationContext Context,
+        @ApplicationContext context: Context,
     ): Path = context.filesDir.toOkioPath()
 }

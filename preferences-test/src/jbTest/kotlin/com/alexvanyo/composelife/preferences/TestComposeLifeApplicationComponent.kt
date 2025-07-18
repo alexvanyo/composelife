@@ -17,9 +17,17 @@
 package com.alexvanyo.composelife.preferences
 
 import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.Provides
 
-expect abstract class TestComposeLifeApplicationComponent : ApplicationComponent {
-    companion object
+@DependencyGraph(AppScope::class, isExtendable = true)
+interface TestComposeLifeApplicationComponent : ApplicationComponent {
+    @DependencyGraph.Factory
+    fun interface Factory {
+        fun create(
+            @Provides applicationComponentArguments: ApplicationComponentArguments,
+        ): TestComposeLifeApplicationComponent
+    }
 }
-
-expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent

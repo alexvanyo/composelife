@@ -19,13 +19,24 @@ package com.alexvanyo.composelife.scopes
 
 import android.app.Activity
 import android.content.Context
-import com.alexvanyo.composelife.entrypoint.EntryPointProvider
-import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesGraphExtension
+import dev.zacsweers.metro.Provides
 
-@SingleIn(UiScope::class)
-actual interface UiComponent : EntryPointProvider<UiScope> {
+@ContributesGraphExtension(UiScope::class, isExtendable = true)
+actual interface UiComponent {
+
+    @Provides
+    fun bindActivity(uiComponentArguments: UiComponentArguments): Activity = uiComponentArguments.activity
+
     @Provides
     @ActivityContext
-    fun bindActivity(activity: Activity): Context = activity
+    fun bindContext(activity: Activity): Context = activity
+
+    @ContributesGraphExtension.Factory(AppScope::class)
+    actual fun interface Factory {
+        actual fun create(
+            @Provides uiComponentArguments: UiComponentArguments,
+        ): UiComponent
+    }
 }

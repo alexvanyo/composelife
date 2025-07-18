@@ -20,5 +20,5 @@ import androidx.lifecycle.LifecycleOwner
 import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
 
 interface ProcessLifecycleModule {
-    val processLifecycleOwner: @ProcessLifecycleOwner LifecycleOwner
+    @ProcessLifecycleOwner val processLifecycleOwner: LifecycleOwner
 }

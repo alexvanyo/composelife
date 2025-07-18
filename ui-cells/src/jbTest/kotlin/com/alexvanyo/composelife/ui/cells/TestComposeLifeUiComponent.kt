@@ -16,27 +16,8 @@
 
 package com.alexvanyo.composelife.ui.cells
 
-import com.alexvanyo.composelife.entrypoint.EntryPoint
-import com.alexvanyo.composelife.entrypoint.EntryPointProvider
-import com.alexvanyo.composelife.scopes.UiComponent
-import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.scopes.UiScope
-import kotlin.reflect.KClass
+import dev.zacsweers.metro.ContributesTo
 
-expect interface TestComposeLifeUiComponent : UiComponent {
-    interface Factory
-
-    companion object
-}
-
-expect fun TestComposeLifeUiComponent.Companion.createComponent(
-    applicationComponent: TestComposeLifeApplicationComponent,
-    uiComponentArguments: UiComponentArguments,
-): TestComposeLifeUiComponent
-
-@EntryPoint(UiScope::class)
+@ContributesTo(UiScope::class)
 interface TestComposeLifeUiEntryPoint : CellWindowInjectEntryPoint
-
-expect inline fun <reified T : TestComposeLifeUiEntryPoint> EntryPointProvider<UiScope>.kmpGetEntryPoint(
-    unused: KClass<T> = T::class,
-): TestComposeLifeUiEntryPoint
