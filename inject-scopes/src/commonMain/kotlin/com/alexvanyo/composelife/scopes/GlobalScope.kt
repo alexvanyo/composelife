@@ -16,4 +16,21 @@
 
 package com.alexvanyo.composelife.scopes
 
+/**
+ * A special scope that exists outside of the app scope.
+ *
+ * Nothing should be put into the [GlobalScope] directly, except for the [ApplicationComponent.Factory].
+ *
+ * This allows anywhere (especially tests) to create a simple `GlobalGraph`, and inject the accumulated
+ * [ApplicationComponent], which is centrally defined in this module:
+ *
+ * ```kotlin
+ * @DependencyGraph(GlobalScope::class, isExtendable = true)
+ * interface GlobalGraph
+ *
+ * internal val globalGraph = createGraph<GlobalGraph>()
+ *
+ * val applicationComponentFactory = globalGraph.asContribution<ApplicationComponent.Factory>()
+ * ```
+ */
 abstract class GlobalScope private constructor()
