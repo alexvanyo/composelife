@@ -48,8 +48,6 @@ class ComposeLifeApplication : Application(), ApplicationComponentOwner {
 
     override lateinit var applicationComponent: ApplicationComponent
 
-    private val entryPoint get() = applicationComponent as ComposeLifeApplicationEntryPoint
-
     override fun onCreate() {
         super.onCreate()
 
@@ -62,6 +60,8 @@ class ComposeLifeApplication : Application(), ApplicationComponentOwner {
             }
         )
 
+        // TODO: Replace with applicationComponent.asContribution<ComposeLifeApplicationEntryPoint>()
+        val entryPoint = applicationComponent as ComposeLifeApplicationEntryPoint
         val processLifecycleOwner = entryPoint.processLifecycleOwner
         val updatables = entryPoint.updatables
 

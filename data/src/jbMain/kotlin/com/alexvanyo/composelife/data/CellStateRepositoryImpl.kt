@@ -53,7 +53,7 @@ class CellStateRepositoryImpl(
     private val cellStateQueries: CellStateQueries,
     private val dispatchers: ComposeLifeDispatchers,
     private val fileSystem: FileSystem,
-    @PersistedDataPath persistedDataPath:Lazy<Path>,
+    @PersistedDataPath persistedDataPath: Lazy<Path>,
     private val logger: Logger,
     private val clock: Clock,
 ) : CellStateRepository {
