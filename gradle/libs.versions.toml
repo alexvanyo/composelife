@@ -81,10 +81,6 @@ keeper = "0.16.1"
 kermit = "2.0.6"
 #kotlin
 kotlin = "2.2.0"
-#kotlinInject
-kotlinInject = "0.8.0"
-#kotlinInjectAnvil
-kotlinInjectAnvil = "0.1.6"
 #kotlinPoet
 kotlinPoet = "2.2.0"
 #kotlinxCollectionsImmutable
@@ -239,11 +235,6 @@ kermit = { group = "co.touchlab", name = "kermit", version.ref = "kermit" }
 kotlin-composeCompilerGradlePlugin = { group = "org.jetbrains.kotlin", name = "compose-compiler-gradle-plugin", version.ref = "kotlin" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit", version.ref = "kotlin" }
-kotlinInject-ksp = { group = "me.tatarka.inject", name = "kotlin-inject-compiler-ksp", version.ref = "kotlinInject" }
-kotlinInject-runtime = { group = "me.tatarka.inject", name = "kotlin-inject-runtime", version.ref = "kotlinInject" }
-kotlinInjectAnvil-ksp = { group = "software.amazon.lastmile.kotlin.inject.anvil", name = "compiler", version.ref = "kotlinInjectAnvil" }
-kotlinInjectAnvil-runtime = { group = "software.amazon.lastmile.kotlin.inject.anvil", name = "runtime", version.ref = "kotlinInjectAnvil" }
-kotlinInjectAnvil-runtimeOptional = { group = "software.amazon.lastmile.kotlin.inject.anvil", name = "runtime-optional", version.ref = "kotlinInjectAnvil" }
 kotlinPoet = { group = "com.squareup", name = "kotlinpoet", version.ref = "kotlinPoet" }
 kotlinPoet-ksp = { group = "com.squareup", name = "kotlinpoet-ksp", version.ref = "kotlinPoet" }
 kotlinx-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
