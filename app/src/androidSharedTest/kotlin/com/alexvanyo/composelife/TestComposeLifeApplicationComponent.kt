@@ -17,18 +17,18 @@
 
 package com.alexvanyo.composelife
 
-import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
-import com.alexvanyo.composelife.preferences.di.PreferencesModule
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.DependencyGraph
-import dev.zacsweers.metro.Provides
+import kotlinx.coroutines.test.TestDispatcher
 
 @ContributesTo(AppScope::class)
-interface TestComposeLifeApplicationEntryPoint :
-    UpdatableModule,
-    TestDispatcherModule,
-    PreferencesModule
+interface TestComposeLifeApplicationEntryPoint {
+    val updatables: Set<Updatable>
+    @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
+    @CellTickerTestDispatcher val cellTickerTestDispatcher: TestDispatcher
+    val composeLifePreferences: ComposeLifePreferences
+}

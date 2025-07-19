@@ -35,7 +35,7 @@ import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import com.alexvanyo.composelife.updatable.Updatable
 import com.slack.circuit.retained.LocalRetainedStateRegistry
 import com.slack.circuit.retained.continuityRetainedStateRegistry
 import kotlinx.coroutines.launch
@@ -94,7 +94,9 @@ fun main() = application {
 }
 
 @ContributesTo(AppScope::class)
-interface ComposeLifeApplicationEntryPoint : UpdatableModule
+interface ComposeLifeApplicationEntryPoint {
+    val updatables: Set<Updatable>
+}
 
 @ContributesTo(UiScope::class)
 interface MainInjectEntryPoint :

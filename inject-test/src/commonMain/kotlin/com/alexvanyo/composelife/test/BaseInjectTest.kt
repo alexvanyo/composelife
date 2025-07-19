@@ -19,7 +19,6 @@ package com.alexvanyo.composelife.test
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
 import com.alexvanyo.composelife.updatable.Updatable
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
@@ -36,7 +35,9 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 @ContributesTo(AppScope::class)
-interface BaseInjectTestEntryPoint : UpdatableModule
+interface BaseInjectTestEntryPoint {
+    val updatables: Set<Updatable>
+}
 
 expect abstract class BaseInjectTest(
     applicationComponentCreator: (ApplicationComponentArguments) -> ApplicationComponent,

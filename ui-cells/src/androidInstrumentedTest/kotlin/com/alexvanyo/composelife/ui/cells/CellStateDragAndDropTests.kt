@@ -39,6 +39,7 @@ import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.patterns.GliderPattern
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
@@ -54,14 +55,11 @@ import kotlin.test.assertNull
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class CellStateDragAndDropTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, UiComponent>(
-    createGraphFactory<TestComposeLifeApplicationComponent.Factory>()::create,
-    {  applicationComponent, uiComponentArguments ->
-        applicationComponent.asContribution<UiComponent.Factory>().create(uiComponentArguments)
-    },
+class CellStateDragAndDropTests : BaseUiInjectTest(
+    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
 ) {
 
-    private val entryPoint get() = applicationComponent.asContribution<TestComposeLifeApplicationEntryPoint>()
+    private val entryPoint get() = applicationComponent as TestComposeLifeApplicationEntryPoint
 
     @Test
     fun drag_and_drop_works_correctly_when_dropped() = runUiTest(

@@ -20,9 +20,7 @@ package com.alexvanyo.composelife.preferences.di
 import android.content.Context
 import androidx.datastore.dataStoreFile
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.preferences.DiskPreferencesDataStore
 import com.alexvanyo.composelife.preferences.PreferencesCoroutineScope
-import com.alexvanyo.composelife.preferences.PreferencesDataStore
 import com.alexvanyo.composelife.preferences.PreferencesProtoPath
 import com.alexvanyo.composelife.scopes.ApplicationContext
 import kotlinx.coroutines.CoroutineScope

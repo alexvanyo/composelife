@@ -19,14 +19,12 @@ package com.alexvanyo.composelife.imageloader.di
 import android.content.Context
 import coil3.PlatformContext
 import com.alexvanyo.composelife.scopes.ApplicationContext
-import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesTo
 
 @ContributesTo(AppScope::class)
 interface PlatformContextComponent {
-    @Provides
-    fun providesPlatformContext(
-        @ApplicationContext context: Context,
-    ): PlatformContext = context
+    @Binds
+    val @receiver:ApplicationContext Context.binds: PlatformContext
 }
