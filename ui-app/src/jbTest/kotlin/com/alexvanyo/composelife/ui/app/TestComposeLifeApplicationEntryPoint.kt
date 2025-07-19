@@ -16,20 +16,24 @@
 
 package com.alexvanyo.composelife.ui.app
 
-import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
-import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
-import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
-import com.alexvanyo.composelife.model.di.CellStateParserModule
-import com.alexvanyo.composelife.preferences.di.PreferencesModule
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
+import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
+import com.alexvanyo.composelife.model.CellStateParser
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
+import kotlinx.coroutines.test.TestDispatcher
 
 @ContributesTo(AppScope::class)
-interface TestComposeLifeApplicationEntryPoint :
-    UpdatableModule,
-    CellStateParserModule,
-    PreferencesModule,
-    AlgorithmModule,
-    DispatchersModule,
-    TestDispatcherModule
+interface TestComposeLifeApplicationEntryPoint {
+    val updatables: Set<Updatable>
+    val dispatchers: ComposeLifeDispatchers
+    val gameOfLifeAlgorithm: GameOfLifeAlgorithm
+    val composeLifePreferences: ComposeLifePreferences
+    val cellStateParser: CellStateParser
+    @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
+    @CellTickerTestDispatcher val cellTickerTestDispatcher: TestDispatcher
+}

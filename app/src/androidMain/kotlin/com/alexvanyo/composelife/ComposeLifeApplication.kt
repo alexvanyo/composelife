@@ -18,15 +18,16 @@ package com.alexvanyo.composelife
 
 import android.app.Application
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleModule
+import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
 import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
 import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.strictmode.initStrictModeIfNeeded
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import dev.zacsweers.metro.AppScope
@@ -36,7 +37,10 @@ import dev.zacsweers.metro.asContribution
 import dev.zacsweers.metro.createGraph
 
 @ContributesTo(AppScope::class)
-interface ComposeLifeApplicationEntryPoint : UpdatableModule, ProcessLifecycleModule
+interface ComposeLifeApplicationEntryPoint {
+    @ProcessLifecycleOwner val processLifecycleOwner: LifecycleOwner
+    val updatables: Set<Updatable>
+}
 
 class ComposeLifeApplication : Application(), ApplicationComponentOwner {
 

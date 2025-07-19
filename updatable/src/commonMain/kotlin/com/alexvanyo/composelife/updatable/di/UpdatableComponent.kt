@@ -24,6 +24,6 @@ import dev.zacsweers.metro.Multibinds
 @ContributesTo(AppScope::class)
 interface UpdatableComponent {
 
-    @Multibinds
+    @Multibinds(allowEmpty = true)
     val updatables: Set<Updatable>
 }

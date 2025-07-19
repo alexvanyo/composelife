@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.ui.test.ExperimentalTestApi
-import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.resourcestate.isSuccess
@@ -39,7 +38,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
 ) {
     private val entryPoint get() = applicationComponent as TestComposeLifeApplicationEntryPoint
 
-    private val cellStateParserProvider: CellStateParserProvider = entryPoint
+    private val cellStateParser get() = entryPoint.cellStateParser
 
     @Test
     fun initial_state_is_correct_when_onboarding() = runUiTest {
@@ -61,7 +60,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
             inlineEditPaneState = rememberInlineEditPaneState(
                 composeLifePreferences = composeLifePreferences,
                 preferences = preferences,
-                cellStateParser = cellStateParserProvider.cellStateParser,
+                cellStateParser = cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -105,7 +104,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
             inlineEditPaneState = rememberInlineEditPaneState(
                 composeLifePreferences = composeLifePreferences,
                 preferences = preferences,
-                cellStateParser = cellStateParserProvider.cellStateParser,
+                cellStateParser = cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -150,7 +149,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
             inlineEditPaneState = rememberInlineEditPaneState(
                 composeLifePreferences = composeLifePreferences,
                 preferences = preferences,
-                cellStateParser = cellStateParserProvider.cellStateParser,
+                cellStateParser = cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -195,7 +194,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
             inlineEditPaneState = rememberInlineEditPaneState(
                 composeLifePreferences = composeLifePreferences,
                 preferences = preferences,
-                cellStateParser = cellStateParserProvider.cellStateParser,
+                cellStateParser = cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -239,7 +238,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
             inlineEditPaneState = rememberInlineEditPaneState(
                 composeLifePreferences = composeLifePreferences,
                 preferences = preferences,
-                cellStateParser = cellStateParserProvider.cellStateParser,
+                cellStateParser = cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
