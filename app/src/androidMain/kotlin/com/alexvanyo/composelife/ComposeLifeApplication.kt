@@ -18,38 +18,47 @@ package com.alexvanyo.composelife
 
 import android.app.Application
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.alexvanyo.composelife.entrypoint.EntryPoint
-import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleModule
+import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
+import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
 import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
-import com.alexvanyo.composelife.scopes.UiComponentArguments
+import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.strictmode.initStrictModeIfNeeded
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.asContribution
+import dev.zacsweers.metro.createGraph
 
-@EntryPoint(AppScope::class)
-interface ComposeLifeApplicationEntryPoint : UpdatableModule, ProcessLifecycleModule {
-    val uiComponentFactory: ComposeLifeUiComponent.Factory
+@ContributesTo(AppScope::class)
+interface ComposeLifeApplicationEntryPoint {
+    @ProcessLifecycleOwner val processLifecycleOwner: LifecycleOwner
+    val updatables: Set<Updatable>
 }
 
 class ComposeLifeApplication : Application(), ApplicationComponentOwner {
 
-    override lateinit var applicationComponent: ComposeLifeApplicationComponent
+    override lateinit var applicationComponent: ApplicationComponent
 
-    private val entryPoint get() = applicationComponent.getEntryPoint<ComposeLifeApplicationEntryPoint>()
-
-    override val uiComponentFactory: (UiComponentArguments) -> ComposeLifeUiComponent =
-        { entryPoint.uiComponentFactory.createComponent(it.activity) }
+    private val entryPoint get() = applicationComponent as ComposeLifeApplicationEntryPoint
 
     override fun onCreate() {
         super.onCreate()
 
         initStrictModeIfNeeded()
 
-        applicationComponent = ComposeLifeApplicationComponent::class.create(this)
+        val globalGraph = createGraph<GlobalGraph>()
+        applicationComponent = globalGraph.asContribution<ApplicationComponent.Factory>().create(
+            object : ApplicationComponentArguments {
+                override val application: Application = this@ComposeLifeApplication
+            }
+        )
 
         val processLifecycleOwner = entryPoint.processLifecycleOwner
         val updatables = entryPoint.updatables
@@ -69,3 +78,6 @@ class ComposeLifeApplication : Application(), ApplicationComponentOwner {
         }
     }
 }
+
+@DependencyGraph(GlobalScope::class, isExtendable = true)
+interface GlobalGraph

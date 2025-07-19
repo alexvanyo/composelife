@@ -26,11 +26,11 @@ import com.alexvanyo.composelife.database.ComposeLifeDatabase
 import com.alexvanyo.composelife.scopes.ApplicationContext
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.awaitCancellation
-import me.tatarka.inject.annotations.IntoSet
-import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import dev.zacsweers.metro.IntoSet
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.SingleIn
 
 @ContributesTo(AppScope::class)
 interface DriverComponent {
@@ -38,7 +38,7 @@ interface DriverComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun providesDriver(
-        context: @ApplicationContext Context,
+        @ApplicationContext context: Context,
     ): SqlDriver {
         val schema = ComposeLifeDatabase.Schema.synchronous()
         return AndroidSqliteDriver(

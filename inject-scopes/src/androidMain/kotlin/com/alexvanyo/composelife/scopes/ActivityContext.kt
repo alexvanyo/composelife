@@ -16,7 +16,7 @@
 
 package com.alexvanyo.composelife.scopes
 
-import me.tatarka.inject.annotations.Qualifier
+import dev.zacsweers.metro.Qualifier
 
 @Qualifier
 annotation class ActivityContext

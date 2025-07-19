@@ -24,10 +24,10 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
 import kotlin.time.Clock
-import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.SingleIn
 
 @ContributesTo(AppScope::class, replaces = [ClockComponent::class])
 interface TestDispatcherComponent {
@@ -42,7 +42,7 @@ interface TestDispatcherComponent {
     @SingleIn(AppScope::class)
     @GeneralTestDispatcher
     fun providesGeneralTestDispatcher(
-        testCoroutineScheduler: @GeneralTestDispatcher TestCoroutineScheduler,
+        @GeneralTestDispatcher testCoroutineScheduler: TestCoroutineScheduler,
     ): TestDispatcher =
         StandardTestDispatcher(
             scheduler = testCoroutineScheduler,
@@ -50,7 +50,7 @@ interface TestDispatcherComponent {
 
     @Provides
     fun providesClock(
-        testCoroutineScheduler: @GeneralTestDispatcher TestCoroutineScheduler,
+        @GeneralTestDispatcher testCoroutineScheduler: TestCoroutineScheduler,
     ): Clock = testCoroutineScheduler.clock
 
     @Provides

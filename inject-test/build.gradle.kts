@@ -19,9 +19,9 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
-    alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
+    alias(libs.plugins.metro)
 }
 
 android {
@@ -65,23 +65,9 @@ kotlin {
         }
         val desktopMain by getting {
             dependsOn(jbMain)
-            configurations["kspDesktop"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                    projects.entryPointSymbolProcessor,
-                )
-            )
         }
         val androidMain by getting {
             dependsOn(jbMain)
-            configurations["kspAndroid"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                    projects.entryPointSymbolProcessor,
-                )
-            )
             dependencies {
                 api(libs.androidx.compose.uiTestJunit4)
                 api(libs.androidx.test.runner)
@@ -89,15 +75,6 @@ kotlin {
 
                 implementation(libs.leakCanary.android)
             }
-        }
-        val wasmJsMain by getting {
-            configurations["kspWasmJs"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                    projects.entryPointSymbolProcessor,
-                )
-            )
         }
     }
 }

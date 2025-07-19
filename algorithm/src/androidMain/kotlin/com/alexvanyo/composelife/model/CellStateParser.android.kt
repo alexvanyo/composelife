@@ -26,13 +26,13 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
-import me.tatarka.inject.annotations.Inject
+import dev.zacsweers.metro.Inject
 
 @Inject
 actual class CellStateParser(
     internal actual val flexibleCellStateSerializer: FlexibleCellStateSerializer,
     private val dispatchers: ComposeLifeDispatchers,
-    private val context: @ApplicationContext Context,
+    @param:ApplicationContext private val context: Context,
 ) {
     suspend fun parseCellState(clipData: ClipData?): DeserializationResult {
         val items = clipData?.items.orEmpty()

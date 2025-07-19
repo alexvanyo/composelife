@@ -19,14 +19,12 @@ package com.alexvanyo.composelife.imageloader.di
 import android.content.Context
 import coil3.PlatformContext
 import com.alexvanyo.composelife.scopes.ApplicationContext
-import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Binds
+import dev.zacsweers.metro.ContributesTo
 
 @ContributesTo(AppScope::class)
 interface PlatformContextComponent {
-    @Provides
-    fun providesPlatformContext(
-        context: @ApplicationContext Context,
-    ): PlatformContext = context
+    @Binds
+    val @receiver:ApplicationContext Context.binds: PlatformContext
 }

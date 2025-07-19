@@ -17,24 +17,13 @@
 package com.alexvanyo.composelife.updatable.di
 
 import com.alexvanyo.composelife.updatable.Updatable
-import kotlinx.coroutines.awaitCancellation
-import me.tatarka.inject.annotations.IntoSet
-import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Multibinds
 
 @ContributesTo(AppScope::class)
 interface UpdatableComponent {
 
+    @Multibinds(allowEmpty = true)
     val updatables: Set<Updatable>
-
-    // TODO: Remove when it is possible to declare an empty binding set
-    //       https://github.com/evant/kotlin-inject/issues/249
-    @Provides
-    @SingleIn(AppScope::class)
-    @IntoSet
-    fun providesEmptyUpdatable(): Updatable = object : Updatable {
-        override suspend fun update(): Nothing = awaitCancellation()
-    }
 }

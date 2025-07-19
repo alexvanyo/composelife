@@ -19,9 +19,9 @@ package com.alexvanyo.composelife.network.di
 import android.net.TrafficStats
 import com.alexvanyo.composelife.network.EngineFactoryWithConfigBlock
 import io.ktor.client.engine.okhttp.OkHttp
-import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
 
 @ContributesTo(AppScope::class)
 interface EngineFactoryComponent {

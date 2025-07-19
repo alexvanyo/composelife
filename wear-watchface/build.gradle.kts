@@ -26,6 +26,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
+    alias(libs.plugins.metro)
 }
 
 android {
@@ -44,7 +45,6 @@ kotlin {
             dependencies {
                 api(projects.algorithm)
 
-                implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(projects.geometry)
@@ -56,10 +56,7 @@ kotlin {
         }
         val androidMain by getting {
             configurations["kspAndroid"].dependencies.addAll(listOf(
-                libs.kotlinInject.ksp.get(),
-                libs.kotlinInjectAnvil.ksp.get(),
                 libs.sealedEnum.ksp.get(),
-                projects.entryPointSymbolProcessor,
             ))
             dependencies {
                 api(libs.androidx.wear.watchface)

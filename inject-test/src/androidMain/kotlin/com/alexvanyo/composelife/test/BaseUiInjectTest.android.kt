@@ -31,17 +31,16 @@ import kotlin.coroutines.coroutineContext
 import kotlin.time.Duration
 
 @OptIn(ExperimentalTestApi::class)
-actual fun <AC : ApplicationComponent, UC : UiComponent> BaseUiInjectTest<AC, UC>.runUiTest(
+actual fun BaseUiInjectTest.runUiTest(
     appTestContext: CoroutineContext,
     timeout: Duration,
-    testBody: suspend ComposeUiTest.(uiComponent: UC) -> Unit,
+    testBody: suspend ComposeUiTest.(uiComponent: UiComponent) -> Unit,
 ): TestResult =
     runAndroidComposeUiTest<ComponentActivity>(
         runTestContext = appTestContext,
         testTimeout = timeout,
     ) {
-        val uiComponent = uiComponentCreator(
-            applicationComponent,
+        val uiComponent = uiComponentCreator.create(
             object : UiComponentArguments {
                 override val activity = requireNotNull(this@runAndroidComposeUiTest.activity)
             },

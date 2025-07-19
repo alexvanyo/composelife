@@ -17,11 +17,11 @@
 package com.alexvanyo.composelife.filesystem.di
 
 import com.alexvanyo.composelife.filesystem.PersistedDataPath
-import me.tatarka.inject.annotations.Provides
+import dev.zacsweers.metro.Provides
 import okio.FileSystem
 import okio.Path
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
 
 @ContributesTo(AppScope::class)
 interface PersistedDataPathComponent {

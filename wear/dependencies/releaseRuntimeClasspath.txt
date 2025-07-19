@@ -158,8 +158,8 @@ com.squareup.okio:okio-jvm:3.15.0
 com.squareup.okio:okio:3.15.0
 com.squareup.wire:wire-runtime-jvm:5.3.5
 com.squareup.wire:wire-runtime:5.3.5
-me.tatarka.inject:kotlin-inject-runtime-jvm:0.8.0
-me.tatarka.inject:kotlin-inject-runtime:0.8.0
+dev.zacsweers.metro:runtime-jvm:0.5.1
+dev.zacsweers.metro:runtime:0.5.1
 org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.1
 org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.1
 org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.9.1
@@ -202,7 +202,3 @@ org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.9.0
 org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0
 org.jetbrains:annotations:23.0.0
 org.jspecify:jspecify:1.0.0
-software.amazon.lastmile.kotlin.inject.anvil:runtime-android:0.1.6
-software.amazon.lastmile.kotlin.inject.anvil:runtime-optional-android:0.1.6
-software.amazon.lastmile.kotlin.inject.anvil:runtime-optional:0.1.6
-software.amazon.lastmile.kotlin.inject.anvil:runtime:0.1.6

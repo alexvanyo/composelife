@@ -17,36 +17,18 @@
 
 package com.alexvanyo.composelife
 
-import android.app.Application
-import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
-import com.alexvanyo.composelife.entrypoint.EntryPoint
-import com.alexvanyo.composelife.entrypoint.EntryPointProvider
-import com.alexvanyo.composelife.preferences.di.PreferencesModule
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
-import kotlin.reflect.KClass
+import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.updatable.Updatable
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import kotlinx.coroutines.test.TestDispatcher
 
-@MergeComponent(AppScope::class)
-@SingleIn(AppScope::class)
-abstract class TestComposeLifeApplicationComponent(
-    application: Application,
-) : ApplicationComponent(application) {
-    companion object
+@ContributesTo(AppScope::class)
+interface TestComposeLifeApplicationEntryPoint {
+    val updatables: Set<Updatable>
+    @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
+    @CellTickerTestDispatcher val cellTickerTestDispatcher: TestDispatcher
+    val composeLifePreferences: ComposeLifePreferences
 }
-
-expect fun TestComposeLifeApplicationComponent.Companion.createComponent(): TestComposeLifeApplicationComponent
-
-@EntryPoint(AppScope::class)
-interface TestComposeLifeApplicationEntryPoint :
-    UpdatableModule,
-    TestDispatcherModule,
-    PreferencesModule {
-    val uiComponentFactory: TestComposeLifeUiComponent.Factory
-}
-
-expect inline fun <reified T : TestComposeLifeApplicationEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
-    unused: KClass<T> = T::class,
-): TestComposeLifeApplicationEntryPoint

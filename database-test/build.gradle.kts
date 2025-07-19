@@ -19,9 +19,9 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
-    alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
+    alias(libs.plugins.metro)
 }
 
 android {
@@ -51,42 +51,23 @@ kotlin {
                 api(libs.kotlinx.coroutines.core)
                 api(projects.database)
 
-                implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(projects.injectScopes)
                 implementation(projects.updatable)
             }
         }
         val androidMain by getting {
-            configurations["kspAndroid"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                )
-            )
             dependencies {
                 api(libs.kotlinx.coroutines.android)
                 api(libs.sqldelight.androidDriver)
             }
         }
         val desktopMain by getting {
-            configurations["kspDesktop"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                )
-            )
             dependencies {
                 api(libs.sqldelight.sqliteDriver)
             }
         }
         val wasmJsMain by getting {
-            configurations["kspWasmJs"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                )
-            )
             dependencies {
                 api(libs.sqldelight.webDriver)
 

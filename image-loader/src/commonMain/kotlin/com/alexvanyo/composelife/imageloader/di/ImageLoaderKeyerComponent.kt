@@ -18,12 +18,14 @@ package com.alexvanyo.composelife.imageloader.di
 
 import coil3.ComponentRegistry
 import coil3.key.Keyer
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Multibinds
 import kotlin.reflect.KClass
 
 @ContributesTo(AppScope::class)
 interface ImageLoaderKeyerComponent {
+    @Multibinds(allowEmpty = true)
     val keyers: Set<KeyerWithType<out Any>>
 }
 

@@ -16,25 +16,22 @@
 
 package com.alexvanyo.composelife.preferences
 
-import com.alexvanyo.composelife.entrypoint.EntryPoint
-import com.alexvanyo.composelife.entrypoint.EntryPointProvider
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
-import com.alexvanyo.composelife.preferences.di.PreferencesModule
-import org.junit.runner.RunWith
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import kotlin.reflect.KClass
+import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
+import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.test.BaseInjectTest
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.asContribution
 import kotlin.test.Test
 import kotlin.test.assertIs
 
-@EntryPoint(AppScope::class)
-interface TestPreferencesComponentTestsEntryPoint : PreferencesModule
+@ContributesTo(AppScope::class)
+interface TestPreferencesComponentTestsEntryPoint : ComposeLifePreferencesProvider
 
-@RunWith(KmpAndroidJUnit4::class)
-class TestPreferencesComponentTests {
-
-    private val composeLifeApplicationComponent = TestComposeLifeApplicationComponent.createComponent()
-
-    private val entryPoint = composeLifeApplicationComponent.kmpGetEntryPoint<TestPreferencesComponentTestsEntryPoint>()
+class TestPreferencesComponentTests : BaseInjectTest(
+    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
+) {
+    private val entryPoint = applicationComponent as TestPreferencesComponentTestsEntryPoint
 
     @Test
     fun checkType() {
@@ -42,7 +39,3 @@ class TestPreferencesComponentTests {
         assertIs<TestComposeLifePreferences>(entryPoint.composeLifePreferences)
     }
 }
-
-expect inline fun <reified T : TestPreferencesComponentTestsEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
-    unused: KClass<T> = T::class,
-): TestPreferencesComponentTestsEntryPoint
