@@ -22,7 +22,6 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
 import com.alexvanyo.composelife.scopes.UiComponent
-import dev.zacsweers.metro.asContribution
 import kotlinx.coroutines.test.TestResult
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -37,7 +36,8 @@ import kotlin.time.Duration.Companion.seconds
 abstract class BaseUiInjectTest(
     applicationComponentCreator: (ApplicationComponentArguments) -> ApplicationComponent,
 ) : BaseInjectTest(applicationComponentCreator) {
-    internal val uiComponentCreator: UiComponent.Factory get() = applicationComponent.asContribution<UiComponent.Factory>()
+    internal val uiComponentCreator: UiComponent.Factory get() =
+        applicationComponent as UiComponent.Factory
 }
 
 @OptIn(ExperimentalTestApi::class)
