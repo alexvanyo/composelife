@@ -45,8 +45,8 @@ import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.globalGraph
-import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationEntryPoint
-import com.alexvanyo.composelife.ui.app.TestComposeLifeUiEntryPoint
+import com.alexvanyo.composelife.ui.app.testComposeLifeApplicationEntryPoint
+import com.alexvanyo.composelife.ui.app.testComposeLifeUiEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropTarget
@@ -61,7 +61,7 @@ import kotlin.test.assertEquals
 class LoadedCellStatePreviewTests : BaseUiInjectTest(
     { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationComponent as TestComposeLifeApplicationEntryPoint
+    private val entryPoint get() = applicationComponent.testComposeLifeApplicationEntryPoint
 
     private val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults
@@ -71,7 +71,7 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest(
     fun drag_and_drop_works_correctly() = runUiTest(
         entryPoint.generalTestDispatcher,
     ) { uiComponent ->
-        val uiEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
+        val uiEntryPoint = uiComponent.testComposeLifeUiEntryPoint
         val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = uiEntryPoint
         val cellStateParserProvider: CellStateParserProvider = uiEntryPoint
 

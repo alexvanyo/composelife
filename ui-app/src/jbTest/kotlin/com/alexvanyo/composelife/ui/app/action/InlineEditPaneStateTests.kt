@@ -25,6 +25,7 @@ import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationEntryPoint
 import com.alexvanyo.composelife.ui.app.globalGraph
+import com.alexvanyo.composelife.ui.app.testComposeLifeApplicationEntryPoint
 import dev.zacsweers.metro.asContribution
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -36,7 +37,7 @@ import kotlin.test.assertTrue
 class InlineEditPaneStateTests : BaseUiInjectTest(
     { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationComponent as TestComposeLifeApplicationEntryPoint
+    private val entryPoint get() = applicationComponent.testComposeLifeApplicationEntryPoint
 
     private val cellStateParser get() = entryPoint.cellStateParser
 

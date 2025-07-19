@@ -38,14 +38,12 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.cells.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.cells.resources.Strings
 import dev.zacsweers.metro.asContribution
-import dev.zacsweers.metro.createGraphFactory
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -58,7 +56,7 @@ class CellWindowTests : BaseUiInjectTest(
 
     @Test
     fun cells_are_displayed_correctly() = runUiTest { uiComponent ->
-        val cellWindowInjectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
+        val cellWindowInjectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -152,7 +150,7 @@ class CellWindowTests : BaseUiInjectTest(
 
     @Test
     fun cells_are_displayed_correctly_after_scrolling() = runUiTest { uiComponent ->
-        val cellWindowInjectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
+        val cellWindowInjectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -225,7 +223,7 @@ class CellWindowTests : BaseUiInjectTest(
 
     @Test
     fun cells_are_not_scrolled_with_none_touch_tool_config() = runUiTest { uiComponent ->
-        val cellWindowInjectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
+        val cellWindowInjectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -300,7 +298,7 @@ class CellWindowTests : BaseUiInjectTest(
 
     @Test
     fun cells_are_displayed_correctly_after_zooming_in_with_mouse_wheel() = runUiTest { uiComponent ->
-        val cellWindowInjectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
+        val cellWindowInjectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -357,7 +355,7 @@ class CellWindowTests : BaseUiInjectTest(
 
     @Test
     fun cells_are_displayed_correctly_after_zooming_out_with_mouse_wheel() = runUiTest { uiComponent ->
-        val cellWindowInjectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
+        val cellWindowInjectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
         val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }

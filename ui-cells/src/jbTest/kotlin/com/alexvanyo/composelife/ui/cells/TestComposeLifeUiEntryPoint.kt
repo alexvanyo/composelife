@@ -16,8 +16,13 @@
 
 package com.alexvanyo.composelife.ui.cells
 
+import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiScope
 import dev.zacsweers.metro.ContributesTo
 
 @ContributesTo(UiScope::class)
 interface TestComposeLifeUiEntryPoint : CellWindowInjectEntryPoint
+
+// TODO: Replace with asContribution()
+internal val UiComponent.testComposeLifeUiEntryPoint: TestComposeLifeUiEntryPoint get() =
+    this as TestComposeLifeUiEntryPoint

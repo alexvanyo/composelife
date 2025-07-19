@@ -65,7 +65,7 @@ class ComposeLifeAppTests : BaseActivityInjectTest<MainActivity>(
     { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
     MainActivity::class.java,
 ) {
-    private val entryPoint get() = applicationComponent as TestComposeLifeApplicationEntryPoint
+    private val entryPoint get() = applicationComponent.testComposeLifeApplicationEntryPoint
 
     private val testDispatcher get() = entryPoint.generalTestDispatcher
 

@@ -61,7 +61,7 @@ import kotlin.test.assertTrue
 class FullscreenSettingsDetailPaneTests : BaseUiInjectTest(
     { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationComponent as TestComposeLifeApplicationEntryPoint
+    private val entryPoint get() = applicationComponent.testComposeLifeApplicationEntryPoint
 
     private val composeLifePreferences get() = entryPoint.composeLifePreferences
 
@@ -69,7 +69,7 @@ class FullscreenSettingsDetailPaneTests : BaseUiInjectTest(
     fun visual_settings_category_keeps_scroll_position_with_ime() = runUiTest { uiComponent ->
         assumeTrue(Build.VERSION.SDK_INT >= 30)
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
-            uiComponent as TestComposeLifeUiEntryPoint
+            uiComponent.testComposeLifeUiEntryPoint
 
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 

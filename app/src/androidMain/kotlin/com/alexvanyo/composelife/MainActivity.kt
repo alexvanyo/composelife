@@ -36,6 +36,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowInsetsControllerCompat
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.isSuccess
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
@@ -54,6 +55,10 @@ interface MainActivityInjectEntryPoint :
     ComposeLifePreferencesProvider,
     ComposeLifeAppInjectEntryPoint
 
+// TODO: Replace with asContribution()
+internal val UiComponent.mainActivityInjectEntryPoint: MainActivityInjectEntryPoint get() =
+    this as MainActivityInjectEntryPoint
+
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,7 +71,7 @@ class MainActivity : AppCompatActivity() {
                 override val activity: Activity = this@MainActivity
             }
         )
-        val mainActivityEntryPoint = uiComponent as MainActivityInjectEntryPoint
+        val mainActivityEntryPoint = uiComponent.mainActivityInjectEntryPoint
 
         // Keep the splash screen on screen until we've loaded preferences
         splashScreen.setKeepOnScreenCondition {

@@ -36,7 +36,6 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
@@ -44,9 +43,6 @@ import com.alexvanyo.composelife.ui.cells.resources.SelectingBoxHandle
 import com.alexvanyo.composelife.ui.cells.resources.Strings
 import com.alexvanyo.composelife.ui.cells.util.isAndroid
 import dev.zacsweers.metro.asContribution
-import dev.zacsweers.metro.createGraphFactory
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestDispatcher
 import org.junit.Assume.assumeTrue
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -59,7 +55,7 @@ class SelectionOverlayTests : BaseUiInjectTest(
 
     @Test
     fun no_selection_is_displayed_correctly() = runUiTest { uiComponent ->
-        val injectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
+        val injectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -102,7 +98,7 @@ class SelectionOverlayTests : BaseUiInjectTest(
 
     @Test
     fun selecting_box_is_displayed_correctly() = runUiTest { uiComponent ->
-        val injectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
+        val injectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -168,7 +164,7 @@ class SelectionOverlayTests : BaseUiInjectTest(
         // TODO: This test tends to deadlock on desktop
         assumeTrue(isAndroid())
 
-        val injectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
+        val injectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -235,7 +231,7 @@ class SelectionOverlayTests : BaseUiInjectTest(
 
     @Test
     fun selection_is_displayed_correctly() = runUiTest { uiComponent ->
-        val injectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
+        val injectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -281,7 +277,7 @@ class SelectionOverlayTests : BaseUiInjectTest(
         // TODO: This test tends to deadlock on desktop
         assumeTrue(isAndroid())
 
-        val injectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
+        val injectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
