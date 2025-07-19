@@ -16,4 +16,16 @@
 
 package com.alexvanyo.composelife.scopes
 
-expect interface ApplicationComponent
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesGraphExtension
+import dev.zacsweers.metro.Provides
+
+@ContributesGraphExtension(AppScope::class, isExtendable = true)
+interface ApplicationComponent {
+    @ContributesGraphExtension.Factory(GlobalScope::class)
+    fun interface Factory {
+        fun create(
+            @Provides applicationComponentArguments: ApplicationComponentArguments,
+        ): ApplicationComponent
+    }
+}

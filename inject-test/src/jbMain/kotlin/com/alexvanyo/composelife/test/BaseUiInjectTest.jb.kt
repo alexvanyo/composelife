@@ -22,7 +22,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
 import com.alexvanyo.composelife.scopes.UiComponent
-import com.alexvanyo.composelife.scopes.UiComponentArguments
+import dev.zacsweers.metro.asContribution
 import kotlinx.coroutines.test.TestResult
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -34,14 +34,15 @@ import kotlin.time.Duration.Companion.seconds
  *
  * Subclasses must call [runUiTest] instead of [runAppTest] or [runAppTest] to properly initialize dependencies.
  */
-abstract class BaseUiInjectTest<AC : ApplicationComponent, UC : UiComponent>(
-    applicationComponentCreator: (ApplicationComponentArguments) -> AC,
-    internal val uiComponentCreator: (AC, UiComponentArguments) -> UC,
-) : BaseInjectTest<AC>(applicationComponentCreator)
+abstract class BaseUiInjectTest(
+    applicationComponentCreator: (ApplicationComponentArguments) -> ApplicationComponent,
+) : BaseInjectTest(applicationComponentCreator) {
+    internal val uiComponentCreator: UiComponent.Factory get() = applicationComponent.asContribution<UiComponent.Factory>()
+}
 
 @OptIn(ExperimentalTestApi::class)
-expect fun <AC : ApplicationComponent, UC : UiComponent> BaseUiInjectTest<AC, UC>.runUiTest(
+expect fun BaseUiInjectTest.runUiTest(
     appTestContext: CoroutineContext = EmptyCoroutineContext,
     timeout: Duration = 60.seconds,
-    testBody: suspend ComposeUiTest.(uiComponent: UC) -> Unit,
+    testBody: suspend ComposeUiTest.(uiComponent: UiComponent) -> Unit,
 ): TestResult

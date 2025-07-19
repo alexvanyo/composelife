@@ -24,9 +24,9 @@ import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
 import org.junit.runner.RunWith
 
 @RunWith(KmpAndroidJUnit4::class)
-actual abstract class BaseInjectTest<AC : ApplicationComponent> actual constructor(
-    applicationComponentCreator: (ApplicationComponentArguments) -> AC,
-) : BaseInjectTestImpl<AC>(applicationComponentCreator) {
+actual abstract class BaseInjectTest actual constructor(
+    applicationComponentCreator: (ApplicationComponentArguments) -> ApplicationComponent,
+) : BaseInjectTestImpl(applicationComponentCreator) {
     init {
         // If TestInjectApplication is being used, store the created application component into it
         (ApplicationProvider.getApplicationContext<Application>() as? TestInjectApplication)?.applicationComponent =

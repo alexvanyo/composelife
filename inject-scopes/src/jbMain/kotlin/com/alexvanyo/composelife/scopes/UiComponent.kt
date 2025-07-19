@@ -21,7 +21,7 @@ import dev.zacsweers.metro.ContributesGraphExtension
 import dev.zacsweers.metro.Provides
 
 @ContributesGraphExtension(UiScope::class, isExtendable = true)
-expect interface UiComponent {
+interface UiComponent {
     @ContributesGraphExtension.Factory(AppScope::class)
     fun interface Factory {
         fun create(

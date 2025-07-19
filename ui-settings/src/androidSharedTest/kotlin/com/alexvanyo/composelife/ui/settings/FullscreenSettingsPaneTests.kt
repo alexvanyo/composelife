@@ -48,6 +48,7 @@ import androidx.window.core.layout.computeWindowSizeClass
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
@@ -67,11 +68,9 @@ import kotlin.test.assertNull
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalTestApi::class)
-class FullscreenSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, UiComponent>(
-    createGraphFactory<TestComposeLifeApplicationComponent.Factory>()::create,
-    {  applicationComponent, uiComponentArguments ->
-        applicationComponent.asContribution<UiComponent.Factory>().create(uiComponentArguments)
-    },
+class FullscreenSettingsPaneTests : BaseUiInjectTest(
+    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
+
 ) {
     private val fullscreenSettingsDetailPaneLocalEntryPoint = object : FullscreenSettingsDetailPaneLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults

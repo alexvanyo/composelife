@@ -47,7 +47,7 @@ import androidx.window.core.layout.computeWindowSizeClass
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.scopes.UiComponent
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.settings.resources.Algorithm
@@ -59,7 +59,6 @@ import com.alexvanyo.composelife.ui.settings.resources.HashLifeAlgorithm
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.settings.resources.Visual
 import dev.zacsweers.metro.asContribution
-import dev.zacsweers.metro.createGraphFactory
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import org.robolectric.shadow.api.Shadow
@@ -70,11 +69,9 @@ import kotlin.test.assertNull
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalTestApi::class)
-class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, UiComponent>(
-    createGraphFactory<TestComposeLifeApplicationComponent.Factory>()::create,
-    {  applicationComponent, uiComponentArguments ->
-        applicationComponent.asContribution<UiComponent.Factory>().create(uiComponentArguments)
-    },
+class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
+    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
+
 ) {
     private val fullscreenSettingsDetailPaneLocalEntryPoint = object : FullscreenSettingsDetailPaneLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults

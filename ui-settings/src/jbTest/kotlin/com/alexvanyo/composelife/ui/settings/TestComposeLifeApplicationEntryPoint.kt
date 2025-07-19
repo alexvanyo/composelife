@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.scopes
+package com.alexvanyo.composelife.ui.settings
 
-interface UiComponentOwner {
-    val uiComponent: UiComponent
-}
+import com.alexvanyo.composelife.preferences.di.PreferencesModule
+import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+
+@ContributesTo(AppScope::class)
+interface TestComposeLifeApplicationEntryPoint :
+    UpdatableModule,
+    PreferencesModule

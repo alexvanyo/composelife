@@ -38,9 +38,9 @@ import kotlin.time.Duration.Companion.seconds
 @ContributesTo(AppScope::class)
 interface BaseInjectTestEntryPoint : UpdatableModule
 
-expect abstract class BaseInjectTest<AC : ApplicationComponent>(
-    applicationComponentCreator: (ApplicationComponentArguments) -> AC,
-) : BaseInjectTestImpl<AC>
+expect abstract class BaseInjectTest(
+    applicationComponentCreator: (ApplicationComponentArguments) -> ApplicationComponent,
+) : BaseInjectTestImpl
 
 /**
  * A base class for testing components that depend on injected classes.
@@ -48,8 +48,8 @@ expect abstract class BaseInjectTest<AC : ApplicationComponent>(
  * Subclasses must call [runAppTest] instead of [runTest] to properly initialize dependencies.
  */
 @Suppress("UnnecessaryAbstractClass")
-abstract class BaseInjectTestImpl<AC : ApplicationComponent>(
-    applicationComponentCreator: (ApplicationComponentArguments) -> AC,
+abstract class BaseInjectTestImpl(
+    applicationComponentCreator: (ApplicationComponentArguments) -> ApplicationComponent,
 ) {
     val applicationComponent = applicationComponentCreator(createApplicationComponentArguments())
 

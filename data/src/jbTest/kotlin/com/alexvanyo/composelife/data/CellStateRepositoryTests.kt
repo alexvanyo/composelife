@@ -23,6 +23,7 @@ import com.alexvanyo.composelife.database.CellStateQueries
 import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.filesystem.PersistedDataPath
 import com.alexvanyo.composelife.model.toCellState
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.test.BaseInjectTest
 import kotlinx.coroutines.test.TestDispatcher
 import okio.Path
@@ -47,10 +48,10 @@ interface CellStateRepositoryTestsEntryPoint {
     @PersistedDataPath val persistedDataPath: Path
 }
 
-class CellStateRepositoryTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
-    createGraphFactory<TestComposeLifeApplicationComponent.Factory>()::create,
+class CellStateRepositoryTests : BaseInjectTest(
+    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationComponent.asContribution<CellStateRepositoryTestsEntryPoint>()
+    private val entryPoint get() = applicationComponent as CellStateRepositoryTestsEntryPoint
 
     private val cellStateRepository get() = entryPoint.cellStateRepository
 

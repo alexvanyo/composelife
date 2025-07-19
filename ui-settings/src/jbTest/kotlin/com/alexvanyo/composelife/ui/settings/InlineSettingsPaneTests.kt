@@ -39,6 +39,7 @@ import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.firstSuccess
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
@@ -56,13 +57,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalTestApi::class)
-class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, UiComponent>(
-    createGraphFactory<TestComposeLifeApplicationComponent.Factory>()::create,
-    {  applicationComponent, uiComponentArguments ->
-        applicationComponent.asContribution<UiComponent.Factory>().create(uiComponentArguments)
-    },
+class InlineSettingsPaneTests : BaseUiInjectTest(
+    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationComponent.asContribution<TestComposeLifeApplicationEntryPoint>()
+    private val entryPoint get() = applicationComponent as TestComposeLifeApplicationEntryPoint
 
     private val composeLifePreferences get() = entryPoint.composeLifePreferences
 

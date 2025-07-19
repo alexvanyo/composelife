@@ -59,7 +59,7 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.scopes.UiComponent
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.resources.ApplyPaste
@@ -80,7 +80,6 @@ import com.alexvanyo.composelife.ui.util.rememberFakeClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.setText
 import dev.zacsweers.metro.asContribution
-import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlin.test.Test
@@ -91,13 +90,10 @@ import com.alexvanyo.composelife.ui.cells.resources.Strings as CellsStrings
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
-class InteractiveCellUniverseTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, UiComponent>(
-    createGraphFactory<TestComposeLifeApplicationComponent.Factory>()::create,
-    {  applicationComponent, uiComponentArguments ->
-        applicationComponent.asContribution<UiComponent.Factory>().create(uiComponentArguments)
-    },
+class InteractiveCellUniverseTests : BaseUiInjectTest(
+    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationComponent.asContribution<TestComposeLifeApplicationEntryPoint>()
+    private val entryPoint get() = applicationComponent as TestComposeLifeApplicationEntryPoint
 
     private val generalTestDispatcher get() = entryPoint.generalTestDispatcher
 

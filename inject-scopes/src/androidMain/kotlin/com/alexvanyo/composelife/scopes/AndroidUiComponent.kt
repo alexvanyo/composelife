@@ -19,24 +19,17 @@ package com.alexvanyo.composelife.scopes
 
 import android.app.Activity
 import android.content.Context
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesGraphExtension
+import dev.zacsweers.metro.Binds
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Provides
 
-@ContributesGraphExtension(UiScope::class, isExtendable = true)
-actual interface UiComponent {
+@ContributesTo(UiScope::class)
+interface AndroidUiComponent {
 
     @Provides
     fun bindActivity(uiComponentArguments: UiComponentArguments): Activity = uiComponentArguments.activity
 
-    @Provides
+    @Binds
     @ActivityContext
-    fun bindContext(activity: Activity): Context = activity
-
-    @ContributesGraphExtension.Factory(AppScope::class)
-    actual fun interface Factory {
-        actual fun create(
-            @Provides uiComponentArguments: UiComponentArguments,
-        ): UiComponent
-    }
+    val Activity.bind: Context
 }

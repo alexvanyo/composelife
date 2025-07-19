@@ -13,8 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("MatchingDeclarationName")
 
-package com.alexvanyo.composelife.scopes
+package com.alexvanyo.composelife
 
-actual interface ApplicationComponent
+import com.alexvanyo.composelife.scopes.GlobalScope
+import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.createGraph
+
+@DependencyGraph(GlobalScope::class, isExtendable = true)
+interface GlobalGraph
+
+internal val globalGraph = createGraph<GlobalGraph>()

@@ -40,11 +40,11 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.patterns.GliderPattern
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
-import com.alexvanyo.composelife.scopes.UiComponent
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
-import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.TestComposeLifeUiEntryPoint
+import com.alexvanyo.composelife.ui.app.globalGraph
 import com.alexvanyo.composelife.ui.app.resources.Draw
 import com.alexvanyo.composelife.ui.app.resources.Erase
 import com.alexvanyo.composelife.ui.app.resources.None
@@ -54,17 +54,13 @@ import com.alexvanyo.composelife.ui.app.resources.Pin
 import com.alexvanyo.composelife.ui.app.resources.Select
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import dev.zacsweers.metro.asContribution
-import dev.zacsweers.metro.createGraphFactory
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTestApi::class)
-class InlineEditPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, UiComponent>(
-    createGraphFactory<TestComposeLifeApplicationComponent.Factory>()::create,
-    {  applicationComponent, uiComponentArguments ->
-        applicationComponent.asContribution<UiComponent.Factory>().create(uiComponentArguments)
-    },
+class InlineEditPaneTests : BaseUiInjectTest(
+    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
 ) {
 
     private val clipboardCellStatePreviewLocalEntryPoint = object : ClipboardCellStatePreviewLocalEntryPoint {

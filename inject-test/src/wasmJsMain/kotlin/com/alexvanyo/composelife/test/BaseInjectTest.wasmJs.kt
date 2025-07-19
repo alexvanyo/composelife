@@ -20,9 +20,9 @@ package com.alexvanyo.composelife.test
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
 
-actual abstract class BaseInjectTest<AC : ApplicationComponent> actual constructor(
-    applicationComponentCreator: (ApplicationComponentArguments) -> AC,
-) : BaseInjectTestImpl<AC>(applicationComponentCreator)
+actual abstract class BaseInjectTest actual constructor(
+    applicationComponentCreator: (ApplicationComponentArguments) -> ApplicationComponent,
+) : BaseInjectTestImpl(applicationComponentCreator)
 
 actual fun createApplicationComponentArguments(): ApplicationComponentArguments =
     object : ApplicationComponentArguments {}

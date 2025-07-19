@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.wear
+package com.alexvanyo.composelife.ui.cells
 
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
+import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
+import com.alexvanyo.composelife.model.di.CellStateParserModule
+import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.DependencyGraph
-import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.ContributesTo
 
-@DependencyGraph(AppScope::class, isExtendable = true)
-interface ComposeLifeApplicationComponent : ApplicationComponent {
-    @DependencyGraph.Factory
-    fun interface Factory {
-        fun create(
-            @Provides applicationComponentArguments: ApplicationComponentArguments,
-        ): ComposeLifeApplicationComponent
-    }
-}
+@ContributesTo(AppScope::class)
+interface TestComposeLifeApplicationEntryPoint :
+    UpdatableModule,
+    CellStateParserModule,
+    TestDispatcherModule
