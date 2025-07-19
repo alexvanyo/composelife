@@ -16,11 +16,11 @@
 
 package com.alexvanyo.composelife.database
 
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.test.BaseInjectTest
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
-import dev.zacsweers.metro.createGraphFactory
 import kotlin.test.Test
 import kotlin.test.assertIs
 
@@ -29,10 +29,10 @@ interface ComposeLifeDatabaseTestsEntryPoint {
     val composeLifeDatabase: ComposeLifeDatabase
 }
 
-class ComposeLifeDatabaseTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
-    createGraphFactory<TestComposeLifeApplicationComponent.Factory>()::create,
+class ComposeLifeDatabaseTests : BaseInjectTest(
+    globalGraph.asContribution<ApplicationComponent.Factory>()::create,
 ) {
-    private val entryPoint get() = applicationComponent.asContribution<ComposeLifeDatabaseTestsEntryPoint>()
+    private val entryPoint get() = applicationComponent as ComposeLifeDatabaseTestsEntryPoint
 
     private val composeLifeDatabase get() = entryPoint.composeLifeDatabase
 

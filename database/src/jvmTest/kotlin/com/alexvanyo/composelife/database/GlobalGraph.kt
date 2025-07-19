@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,11 @@
 
 package com.alexvanyo.composelife.database
 
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
-import dev.zacsweers.metro.AppScope
+import com.alexvanyo.composelife.scopes.GlobalScope
 import dev.zacsweers.metro.DependencyGraph
-import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.createGraph
 
-@DependencyGraph(AppScope::class, isExtendable = true)
-interface TestComposeLifeApplicationComponent : ApplicationComponent {
-    @DependencyGraph.Factory
-    fun interface Factory {
-        fun create(
-            @Provides applicationComponentArguments: ApplicationComponentArguments,
-        ): TestComposeLifeApplicationComponent
-    }
-}
+@DependencyGraph(GlobalScope::class, isExtendable = true)
+interface GlobalGraph
+
+internal val globalGraph = createGraph<GlobalGraph>()

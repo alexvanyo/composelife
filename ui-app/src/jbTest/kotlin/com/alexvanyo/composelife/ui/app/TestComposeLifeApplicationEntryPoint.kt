@@ -14,28 +14,22 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.settings
+package com.alexvanyo.composelife.ui.app
 
+import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
+import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
+import com.alexvanyo.composelife.dispatchers.di.TestDispatcherModule
+import com.alexvanyo.composelife.model.di.CellStateParserModule
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.DependencyGraph
-import dev.zacsweers.metro.Provides
-
-@DependencyGraph(AppScope::class, isExtendable = true)
-interface TestComposeLifeApplicationComponent : ApplicationComponent {
-    @DependencyGraph.Factory
-    fun interface Factory {
-        fun create(
-            @Provides applicationComponentArguments: ApplicationComponentArguments,
-        ): TestComposeLifeApplicationComponent
-    }
-}
 
 @ContributesTo(AppScope::class)
 interface TestComposeLifeApplicationEntryPoint :
     UpdatableModule,
-    PreferencesModule
+    CellStateParserModule,
+    PreferencesModule,
+    AlgorithmModule,
+    DispatchersModule,
+    TestDispatcherModule

@@ -78,7 +78,6 @@ kotlin {
             }
         }
         val wasmJsMain by getting {
-            dependsOn(commonMain)
             dependencies {
                 implementation(libs.sqldelight.webDriver)
                 implementation(npm("@cashapp/sqldelight-sqljs-worker", libs.versions.sqldelight.get()))
@@ -96,14 +95,14 @@ kotlin {
                 implementation(projects.kmpAndroidRunner)
             }
         }
-        val jbTest by creating {
+        val jvmTest by creating {
             dependsOn(commonTest)
         }
         val desktopTest by getting {
-            dependsOn(jbTest)
+            dependsOn(jvmTest)
         }
         val androidSharedTest by getting {
-            dependsOn(jbTest)
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.junit)

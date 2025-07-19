@@ -23,12 +23,12 @@ import app.cash.sqldelight.coroutines.mapToOneOrNull
 import app.cash.turbine.test
 import app.cash.turbine.withTurbineTimeout
 import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.test.BaseInjectTest
 import kotlinx.coroutines.test.TestDispatcher
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
-import dev.zacsweers.metro.createGraphFactory
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -37,17 +37,15 @@ import kotlin.time.Duration.Companion.seconds
 @ContributesTo(AppScope::class)
 interface CellStateQueriesTestsEntryPoint {
     val cellStateQueries: CellStateQueries
-    @get:GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
+    @GeneralTestDispatcher val testDispatcher: TestDispatcher
 }
 
-class CellStateQueriesTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
-    createGraphFactory<TestComposeLifeApplicationComponent.Factory>()::create,
+class CellStateQueriesTests : BaseInjectTest(
+    globalGraph.asContribution<ApplicationComponent.Factory>()::create,
 ) {
-    private val entryPoint get() = applicationComponent.asContribution<CellStateQueriesTestsEntryPoint>()
-
+    private val entryPoint get() = applicationComponent as CellStateQueriesTestsEntryPoint
     private val cellStateQueries get() = entryPoint.cellStateQueries
-
-    private val testDispatcher get() = entryPoint.generalTestDispatcher
+    private val testDispatcher get() = entryPoint.testDispatcher
 
     @Test
     fun get_cell_states_returns_empty_initially() = runAppTest(testDispatcher) {

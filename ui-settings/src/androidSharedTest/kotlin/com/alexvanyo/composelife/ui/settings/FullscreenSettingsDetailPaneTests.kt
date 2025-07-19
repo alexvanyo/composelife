@@ -46,26 +46,22 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.firstSuccess
-import com.alexvanyo.composelife.scopes.UiComponent
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.settings.resources.CornerFractionLabel
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import dev.zacsweers.metro.asContribution
-import dev.zacsweers.metro.createGraphFactory
 import org.junit.Assume.assumeTrue
 import kotlin.test.Test
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-class FullscreenSettingsDetailPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, UiComponent>(
-    createGraphFactory<TestComposeLifeApplicationComponent.Factory>()::create,
-    {  applicationComponent, uiComponentArguments ->
-        applicationComponent.asContribution<UiComponent.Factory>().create(uiComponentArguments)
-    },
+class FullscreenSettingsDetailPaneTests : BaseUiInjectTest(
+    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationComponent.asContribution<TestComposeLifeApplicationEntryPoint>()
+    private val entryPoint get() = applicationComponent as TestComposeLifeApplicationEntryPoint
 
     private val composeLifePreferences get() = entryPoint.composeLifePreferences
 

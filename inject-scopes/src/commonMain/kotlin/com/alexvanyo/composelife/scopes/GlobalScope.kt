@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.scopes
 
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesGraphExtension
-import dev.zacsweers.metro.Provides
-
-@ContributesGraphExtension(UiScope::class, isExtendable = true)
-actual interface UiComponent {
-
-    @ContributesGraphExtension.Factory(AppScope::class)
-    actual fun interface Factory {
-        actual fun create(
-            @Provides uiComponentArguments: UiComponentArguments,
-        ): UiComponent
-    }
-}
+abstract class GlobalScope private constructor()
