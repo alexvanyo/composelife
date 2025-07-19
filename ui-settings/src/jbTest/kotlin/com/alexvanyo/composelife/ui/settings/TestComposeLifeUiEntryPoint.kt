@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.ui.settings
 
+import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import dev.zacsweers.metro.ContributesTo
@@ -32,3 +33,7 @@ interface TestComposeLifeUiEntryPoint :
     InlineSettingsPaneInjectEntryPoint,
     PatternCollectionsUiInjectEntryPoint,
     SettingUiInjectEntryPoint
+
+// TODO: Replace with asContribution()
+internal val UiComponent.testComposeLifeUiEntryPoint: TestComposeLifeUiEntryPoint get() =
+    this as TestComposeLifeUiEntryPoint

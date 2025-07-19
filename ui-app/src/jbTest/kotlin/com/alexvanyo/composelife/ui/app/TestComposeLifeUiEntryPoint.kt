@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.ui.app
 
+import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.AlgorithmImplementationUiInjectEntryPoint
@@ -46,3 +47,7 @@ interface TestComposeLifeUiEntryPoint :
     InteractiveCellUniverseInjectEntryPoint,
     InteractiveCellUniverseOverlayInjectEntryPoint,
     SettingUiInjectEntryPoint
+
+// TODO: Replace with asContribution()
+internal val UiComponent.testComposeLifeUiEntryPoint: TestComposeLifeUiEntryPoint get() =
+    this as TestComposeLifeUiEntryPoint

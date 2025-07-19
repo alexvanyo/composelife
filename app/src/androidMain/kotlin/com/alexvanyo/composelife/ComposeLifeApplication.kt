@@ -42,6 +42,10 @@ interface ComposeLifeApplicationEntryPoint {
     val updatables: Set<Updatable>
 }
 
+// TODO: Replace with asContribution()
+internal val ApplicationComponent.composeLifeApplicationEntryPoint: ComposeLifeApplicationEntryPoint get() =
+    this as ComposeLifeApplicationEntryPoint
+
 class ComposeLifeApplication : Application(), ApplicationComponentOwner {
 
     override lateinit var applicationComponent: ApplicationComponent
@@ -57,8 +61,7 @@ class ComposeLifeApplication : Application(), ApplicationComponentOwner {
                 override val application: Application = this@ComposeLifeApplication
             }
         )
-        // TODO: Replace with applicationComponent.asContribution<ComposeLifeApplicationEntryPoint>()
-        val entryPoint = applicationComponent as ComposeLifeApplicationEntryPoint
+        val entryPoint = applicationComponent.composeLifeApplicationEntryPoint
         val processLifecycleOwner = entryPoint.processLifecycleOwner
         val updatables = entryPoint.updatables
 

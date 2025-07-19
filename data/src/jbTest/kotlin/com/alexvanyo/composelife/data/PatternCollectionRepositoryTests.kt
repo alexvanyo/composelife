@@ -59,11 +59,15 @@ interface PatternCollectionRepositoryTestsEntryPoint {
     @PersistedDataPath val persistedDataPath: Path
 }
 
+// TODO: Replace with asContribution()
+internal val ApplicationComponent.patternCollectionRepositoryTestsEntryPoint: PatternCollectionRepositoryTestsEntryPoint get() =
+    this as PatternCollectionRepositoryTestsEntryPoint
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class PatternCollectionRepositoryTests : BaseInjectTest(
     { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationComponent as PatternCollectionRepositoryTestsEntryPoint
+    private val entryPoint get() = applicationComponent.patternCollectionRepositoryTestsEntryPoint
 
     private val patternCollectionRepository: PatternCollectionRepository
         get() = entryPoint.patternCollectionRepository

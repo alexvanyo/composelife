@@ -22,6 +22,7 @@ import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -37,3 +38,7 @@ interface TestComposeLifeApplicationEntryPoint {
     @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
     @CellTickerTestDispatcher val cellTickerTestDispatcher: TestDispatcher
 }
+
+// TODO: Replace with asContribution()
+internal val ApplicationComponent.testComposeLifeApplicationEntryPoint: TestComposeLifeApplicationEntryPoint get() =
+    this as TestComposeLifeApplicationEntryPoint

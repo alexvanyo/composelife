@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.ui.settings
 
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -25,3 +26,7 @@ import dev.zacsweers.metro.ContributesTo
 interface TestComposeLifeApplicationEntryPoint : ComposeLifePreferencesProvider {
     val updatables: Set<Updatable>
 }
+
+// TODO: Replace with asContribution()
+internal val ApplicationComponent.testComposeLifeApplicationEntryPoint: TestComposeLifeApplicationEntryPoint get() =
+    this as TestComposeLifeApplicationEntryPoint

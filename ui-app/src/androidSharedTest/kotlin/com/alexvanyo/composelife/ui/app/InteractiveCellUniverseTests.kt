@@ -93,7 +93,7 @@ import com.alexvanyo.composelife.ui.cells.resources.Strings as CellsStrings
 class InteractiveCellUniverseTests : BaseUiInjectTest(
     { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationComponent as TestComposeLifeApplicationEntryPoint
+    private val entryPoint get() = applicationComponent.testComposeLifeApplicationEntryPoint
 
     private val generalTestDispatcher get() = entryPoint.generalTestDispatcher
 
@@ -110,7 +110,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     @Test
     fun info_card_closes_upon_back_press() = runUiTest(generalTestDispatcher) { uiComponent ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent as TestComposeLifeUiEntryPoint
+            uiComponent.testComposeLifeUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -165,7 +165,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     @Test
     fun action_card_closes_upon_back_press() = runUiTest(generalTestDispatcher) { uiComponent ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent as TestComposeLifeUiEntryPoint
+            uiComponent.testComposeLifeUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -223,7 +223,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         120.seconds,
     ) { uiComponent ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent as TestComposeLifeUiEntryPoint
+            uiComponent.testComposeLifeUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -292,7 +292,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         120.seconds,
     ) { uiComponent ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent as TestComposeLifeUiEntryPoint
+            uiComponent.testComposeLifeUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -365,7 +365,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         120.seconds,
     ) { uiComponent ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent as TestComposeLifeUiEntryPoint
+            uiComponent.testComposeLifeUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -449,7 +449,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         120.seconds,
     ) { uiComponent ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent as TestComposeLifeUiEntryPoint
+            uiComponent.testComposeLifeUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -514,7 +514,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         120.seconds,
     ) { uiComponent ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent as TestComposeLifeUiEntryPoint
+            uiComponent.testComposeLifeUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -594,7 +594,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         120.seconds,
     ) { uiComponent ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent as TestComposeLifeUiEntryPoint
+            uiComponent.testComposeLifeUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -681,7 +681,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         generalTestDispatcher,
     ) { uiComponent ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent as TestComposeLifeUiEntryPoint
+            uiComponent.testComposeLifeUiEntryPoint
 
         lateinit var clipboardReaderWriter: ClipboardReaderWriter
         lateinit var resolver: (ParameterizedString) -> String
@@ -782,7 +782,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         generalTestDispatcher,
     ) { uiComponent ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent as TestComposeLifeUiEntryPoint
+            uiComponent.testComposeLifeUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -862,7 +862,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         generalTestDispatcher,
     ) { uiComponent ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent as TestComposeLifeUiEntryPoint
+            uiComponent.testComposeLifeUiEntryPoint
 
         lateinit var clipboardReaderWriter: ClipboardReaderWriter
         lateinit var resolver: (ParameterizedString) -> String

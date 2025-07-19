@@ -29,10 +29,14 @@ interface ComposeLifeDatabaseTestsEntryPoint {
     val composeLifeDatabase: ComposeLifeDatabase
 }
 
+// TODO: Replace with asContribution()
+internal val ApplicationComponent.composeLifeDatabaseTestsEntryPoint: ComposeLifeDatabaseTestsEntryPoint get() =
+    this as ComposeLifeDatabaseTestsEntryPoint
+
 class ComposeLifeDatabaseTests : BaseInjectTest(
     globalGraph.asContribution<ApplicationComponent.Factory>()::create,
 ) {
-    private val entryPoint get() = applicationComponent as ComposeLifeDatabaseTestsEntryPoint
+    private val entryPoint get() = applicationComponent.composeLifeDatabaseTestsEntryPoint
 
     private val composeLifeDatabase get() = entryPoint.composeLifeDatabase
 

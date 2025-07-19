@@ -40,10 +40,14 @@ interface CellStateQueriesTestsEntryPoint {
     @GeneralTestDispatcher val testDispatcher: TestDispatcher
 }
 
+// TODO: Replace with asContribution()
+internal val ApplicationComponent.cellStateQueriesTestsEntryPoint: CellStateQueriesTestsEntryPoint get() =
+    this as CellStateQueriesTestsEntryPoint
+
 class CellStateQueriesTests : BaseInjectTest(
     globalGraph.asContribution<ApplicationComponent.Factory>()::create,
 ) {
-    private val entryPoint get() = applicationComponent as CellStateQueriesTestsEntryPoint
+    private val entryPoint get() = applicationComponent.cellStateQueriesTestsEntryPoint
     private val cellStateQueries get() = entryPoint.cellStateQueries
     private val testDispatcher get() = entryPoint.testDispatcher
 

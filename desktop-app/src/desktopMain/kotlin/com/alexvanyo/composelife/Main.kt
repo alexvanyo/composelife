@@ -52,8 +52,7 @@ fun main() = application {
         object : ApplicationComponentArguments {}
     )
 
-    // TODO: Replace with applicationComponent.asContribution<ComposeLifeApplicationEntryPoint>()
-    val entryPoint = applicationComponent as ComposeLifeApplicationEntryPoint
+    val entryPoint = applicationComponent.composeLifeApplicationEntryPoint
     val updatables = entryPoint.updatables
 
     LaunchedEffect(Unit) {
@@ -76,11 +75,11 @@ fun main() = application {
     ) {
         CompositionLocalProvider(LocalRetainedStateRegistry provides continuityRetainedStateRegistry()) {
             val uiComponent = remember(applicationComponent) {
-                applicationComponent.asContribution<UiComponent.Factory>().create(
+                (applicationComponent as UiComponent.Factory).create(
                     object : UiComponentArguments {},
                 )
             }
-            val mainInjectEntryPoint = uiComponent as MainInjectEntryPoint
+            val mainInjectEntryPoint = uiComponent.mainInjectEntryPoint
             with(mainInjectEntryPoint) {
                 ComposeLifeTheme(shouldUseDarkTheme()) {
                     ComposeLifeApp(
@@ -99,10 +98,18 @@ interface ComposeLifeApplicationEntryPoint {
     val updatables: Set<Updatable>
 }
 
+// TODO: Replace with asContribution()
+internal val ApplicationComponent.composeLifeApplicationEntryPoint: ComposeLifeApplicationEntryPoint get() =
+    this as ComposeLifeApplicationEntryPoint
+
 @ContributesTo(UiScope::class)
 interface MainInjectEntryPoint :
     ComposeLifePreferencesProvider,
     ComposeLifeAppInjectEntryPoint
+
+// TODO: Replace with asContribution()
+internal val UiComponent.mainInjectEntryPoint: MainInjectEntryPoint get() =
+    this as MainInjectEntryPoint
 
 @DependencyGraph(GlobalScope::class, isExtendable = true)
 interface GlobalGraph

@@ -68,7 +68,7 @@ class InlineSettingsPaneTests : BaseUiInjectTest(
 
     @Test
     fun saving_settings_onboarding_is_shown_with_no_quick_access_settings_saved() = runUiTest { uiComponent ->
-        val inlineSettingsPaneInjectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
+        val inlineSettingsPaneInjectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
 
         testComposeLifePreferences.quickAccessSettings = emptySet()
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
@@ -114,7 +114,7 @@ class InlineSettingsPaneTests : BaseUiInjectTest(
 
     @Test
     fun saved_opengl_setting_is_displayed_correctly() = runUiTest { uiComponent ->
-        val inlineSettingsPaneInjectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
+        val inlineSettingsPaneInjectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
         testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
@@ -166,7 +166,7 @@ class InlineSettingsPaneTests : BaseUiInjectTest(
 
     @Test
     fun opening_saved_setting_functions_correctly() = runUiTest { uiComponent ->
-        val inlineSettingsPaneInjectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
+        val inlineSettingsPaneInjectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
         testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
@@ -211,7 +211,7 @@ class InlineSettingsPaneTests : BaseUiInjectTest(
 
     @Test
     fun removing_saved_setting_functions_correctly() = runUiTest { uiComponent ->
-        val inlineSettingsPaneInjectEntryPoint = uiComponent as TestComposeLifeUiEntryPoint
+        val inlineSettingsPaneInjectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
         testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 

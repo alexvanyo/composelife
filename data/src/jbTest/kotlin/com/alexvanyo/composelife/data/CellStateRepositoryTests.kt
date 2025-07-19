@@ -47,10 +47,14 @@ interface CellStateRepositoryTestsEntryPoint {
     @PersistedDataPath val persistedDataPath: Path
 }
 
+// TODO: Replace with asContribution()
+internal val ApplicationComponent.cellStateRepositoryTestsEntryPoint: CellStateRepositoryTestsEntryPoint get() =
+    this as CellStateRepositoryTestsEntryPoint
+
 class CellStateRepositoryTests : BaseInjectTest(
     { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationComponent as CellStateRepositoryTestsEntryPoint
+    private val entryPoint get() = applicationComponent.cellStateRepositoryTestsEntryPoint
 
     private val cellStateRepository get() = entryPoint.cellStateRepository
 

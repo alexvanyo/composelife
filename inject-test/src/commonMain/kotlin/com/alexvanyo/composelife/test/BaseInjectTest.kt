@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.test
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
 import com.alexvanyo.composelife.updatable.Updatable
+import dev.zacsweers.metro.AppScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
@@ -27,8 +28,8 @@ import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Inject
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
@@ -38,6 +39,10 @@ import kotlin.time.Duration.Companion.seconds
 interface BaseInjectTestEntryPoint {
     val updatables: Set<Updatable>
 }
+
+// TODO: Replace with asContribution()
+private val ApplicationComponent.baseInjectTestEntryPoint: BaseInjectTestEntryPoint get() =
+    this as BaseInjectTestEntryPoint
 
 expect abstract class BaseInjectTest(
     applicationComponentCreator: (ApplicationComponentArguments) -> ApplicationComponent,
@@ -54,11 +59,8 @@ abstract class BaseInjectTestImpl(
 ) {
     val applicationComponent = applicationComponentCreator(createApplicationComponentArguments())
 
-    // TODO: Replace with applicationComponent.asContribution<BaseInjectTestEntryPoint>()
-    private val entryPoint get() = applicationComponent as BaseInjectTestEntryPoint
-
-    private val updatables: Set<Updatable>
-        get() = entryPoint.updatables
+    private val entryPoint get() = applicationComponent.baseInjectTestEntryPoint
+    private val updatables: Set<Updatable> get() = entryPoint.updatables
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun runAppTest(
