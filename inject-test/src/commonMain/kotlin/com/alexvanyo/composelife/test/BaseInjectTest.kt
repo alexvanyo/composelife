@@ -54,7 +54,7 @@ abstract class BaseInjectTestImpl(
 ) {
     val applicationComponent = applicationComponentCreator(createApplicationComponentArguments())
 
-    // TODO: Replace with asContribution
+    // TODO: Replace with applicationComponent.asContribution<BaseInjectTestEntryPoint>()
     private val entryPoint get() = applicationComponent as BaseInjectTestEntryPoint
 
     private val updatables: Set<Updatable>

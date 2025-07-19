@@ -52,6 +52,7 @@ fun main() = application {
         object : ApplicationComponentArguments {}
     )
 
+    // TODO: Replace with applicationComponent.asContribution<ComposeLifeApplicationEntryPoint>()
     val entryPoint = applicationComponent as ComposeLifeApplicationEntryPoint
     val updatables = entryPoint.updatables
 
