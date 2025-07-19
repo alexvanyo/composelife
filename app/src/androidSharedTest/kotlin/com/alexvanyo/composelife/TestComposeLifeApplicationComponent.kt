@@ -27,16 +27,6 @@ import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
 
-@DependencyGraph(AppScope::class, isExtendable = true)
-interface TestComposeLifeApplicationComponent : ApplicationComponent {
-    @DependencyGraph.Factory
-    fun interface Factory {
-        fun create(
-            @Provides applicationComponentArguments: ApplicationComponentArguments,
-        ): TestComposeLifeApplicationComponent
-    }
-}
-
 @ContributesTo(AppScope::class)
 interface TestComposeLifeApplicationEntryPoint :
     UpdatableModule,

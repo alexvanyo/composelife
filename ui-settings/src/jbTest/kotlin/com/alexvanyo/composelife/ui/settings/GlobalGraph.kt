@@ -13,21 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("MatchingDeclarationName")
 
-package com.alexvanyo.composelife.scopes
+package com.alexvanyo.composelife.ui.settings
 
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesGraphExtension
-import dev.zacsweers.metro.Provides
+import com.alexvanyo.composelife.scopes.GlobalScope
+import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.createGraph
 
-@ContributesGraphExtension(UiScope::class, isExtendable = true)
-actual interface UiComponent {
+@DependencyGraph(GlobalScope::class, isExtendable = true)
+interface GlobalGraph
 
-    @ContributesGraphExtension.Factory(AppScope::class)
-    actual fun interface Factory {
-        actual fun create(
-            @Provides uiComponentArguments: UiComponentArguments,
-        ): UiComponent
-    }
-}
+internal val globalGraph = createGraph<GlobalGraph>()

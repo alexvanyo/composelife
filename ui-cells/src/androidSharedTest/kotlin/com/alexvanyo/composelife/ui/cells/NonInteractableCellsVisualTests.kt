@@ -31,23 +31,19 @@ import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.scopes.UiComponent
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.screenshot.assertPixels
 import com.alexvanyo.composelife.screenshot.captureToImage
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import dev.zacsweers.metro.asContribution
-import dev.zacsweers.metro.createGraphFactory
 import org.junit.Assume.assumeTrue
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-class NonInteractableCellsVisualTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, UiComponent>(
-    createGraphFactory<TestComposeLifeApplicationComponent.Factory>()::create,
-    {  applicationComponent, uiComponentArguments ->
-        applicationComponent.asContribution<UiComponent.Factory>().create(uiComponentArguments)
-    },
+class NonInteractableCellsVisualTests : BaseUiInjectTest(
+    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
 ) {
     private val nonInteractableCellsLocalEntryPoint = object : NonInteractableCellsLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults.copy(

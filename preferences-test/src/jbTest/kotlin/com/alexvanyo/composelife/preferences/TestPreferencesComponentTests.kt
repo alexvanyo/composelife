@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.preferences
 
 import com.alexvanyo.composelife.preferences.di.PreferencesModule
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.test.BaseInjectTest
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -28,10 +29,10 @@ import kotlin.test.assertIs
 @ContributesTo(AppScope::class)
 interface TestPreferencesComponentTestsEntryPoint : PreferencesModule
 
-class TestPreferencesComponentTests : BaseInjectTest<TestComposeLifeApplicationComponent>(
-    createGraphFactory<TestComposeLifeApplicationComponent.Factory>()::create,
+class TestPreferencesComponentTests : BaseInjectTest(
+    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
 ) {
-    private val entryPoint = applicationComponent.asContribution<TestPreferencesComponentTestsEntryPoint>()
+    private val entryPoint = applicationComponent as TestPreferencesComponentTestsEntryPoint
 
     @Test
     fun checkType() {

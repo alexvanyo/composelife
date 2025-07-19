@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
-package com.alexvanyo.composelife
+package com.alexvanyo.composelife.scopes
 
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
+import android.app.Application
+import android.content.Context
 import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.Binds
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Provides
 
-@DependencyGraph(AppScope::class, isExtendable = true)
-interface ComposeLifeApplicationComponent : ApplicationComponent {
-    @DependencyGraph.Factory
-    fun interface Factory {
-        fun create(
-            @Provides applicationComponentArguments: ApplicationComponentArguments,
-        ): ComposeLifeApplicationComponent
-    }
-}
+@ContributesTo(AppScope::class)
+interface AndroidApplicationComponent {
+    @Provides
+    fun bindApplication(applicationComponentArguments: ApplicationComponentArguments): Application =
+        applicationComponentArguments.application
 
+    @Binds
+    @ApplicationContext
+    val Application.bind: Context
+}

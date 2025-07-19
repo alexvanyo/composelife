@@ -21,37 +21,36 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.alexvanyo.composelife.processlifecycle.di.ProcessLifecycleModule
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
 import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
-import com.alexvanyo.composelife.scopes.UiComponent
-import com.alexvanyo.composelife.scopes.UiComponentArguments
+import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.strictmode.initStrictModeIfNeeded
 import com.alexvanyo.composelife.updatable.di.UpdatableModule
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.asContribution
-import dev.zacsweers.metro.createGraphFactory
+import dev.zacsweers.metro.createGraph
 
 @ContributesTo(AppScope::class)
 interface ComposeLifeApplicationEntryPoint : UpdatableModule, ProcessLifecycleModule
 
 class ComposeLifeApplication : Application(), ApplicationComponentOwner {
 
-    override lateinit var applicationComponent: ComposeLifeApplicationComponent
+    override lateinit var applicationComponent: ApplicationComponent
 
-    private val entryPoint get() = applicationComponent.asContribution<ComposeLifeApplicationEntryPoint>()
-
-    override val uiComponentFactory: (UiComponentArguments) -> UiComponent =
-        { applicationComponent.asContribution<UiComponent.Factory>().create(it) }
+    private val entryPoint get() = applicationComponent as ComposeLifeApplicationEntryPoint
 
     override fun onCreate() {
         super.onCreate()
 
         initStrictModeIfNeeded()
 
-        applicationComponent = createGraphFactory<ComposeLifeApplicationComponent.Factory>().create(
+        val globalGraph = createGraph<GlobalGraph>()
+        applicationComponent = globalGraph.asContribution<ApplicationComponent.Factory>().create(
             object : ApplicationComponentArguments {
                 override val application: Application = this@ComposeLifeApplication
             }
@@ -75,3 +74,6 @@ class ComposeLifeApplication : Application(), ApplicationComponentOwner {
         }
     }
 }
+
+@DependencyGraph(GlobalScope::class, isExtendable = true)
+interface GlobalGraph

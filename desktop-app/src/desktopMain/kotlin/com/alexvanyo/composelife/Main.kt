@@ -24,7 +24,9 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
+import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
+import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.scopes.UiComponent
 import com.alexvanyo.composelife.scopes.UiComponentArguments
 import com.alexvanyo.composelife.scopes.UiScope
@@ -40,15 +42,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.asContribution
-import dev.zacsweers.metro.createGraphFactory
+import dev.zacsweers.metro.createGraph
 
 fun main() = application {
-    val applicationComponent = createGraphFactory<ComposeLifeApplicationComponent.Factory>().create(
+    val globalGraph = createGraph<GlobalGraph>()
+    val applicationComponent = globalGraph.asContribution<ApplicationComponent.Factory>().create(
         object : ApplicationComponentArguments {}
     )
 
-    val entryPoint = applicationComponent.asContribution<ComposeLifeApplicationEntryPoint>()
+    val entryPoint = applicationComponent as ComposeLifeApplicationEntryPoint
     val updatables = entryPoint.updatables
 
     LaunchedEffect(Unit) {
@@ -96,3 +100,6 @@ interface ComposeLifeApplicationEntryPoint : UpdatableModule
 interface MainInjectEntryPoint :
     ComposeLifePreferencesProvider,
     ComposeLifeAppInjectEntryPoint
+
+@DependencyGraph(GlobalScope::class, isExtendable = true)
+interface GlobalGraph
