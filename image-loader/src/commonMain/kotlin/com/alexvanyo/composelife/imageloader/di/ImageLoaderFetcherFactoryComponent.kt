@@ -19,10 +19,12 @@ package com.alexvanyo.composelife.imageloader.di
 import coil3.fetch.Fetcher
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Multibinds
 import kotlin.reflect.KClass
 
 @ContributesTo(AppScope::class)
 interface ImageLoaderFetcherFactoryComponent {
+    @Multibinds(allowEmpty = true)
     val fetcherFactoriesWithType: Set<FetcherFactoryWithType<out Any>>
 }
 

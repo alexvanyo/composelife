@@ -20,10 +20,12 @@ import coil3.ComponentRegistry
 import coil3.key.Keyer
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Multibinds
 import kotlin.reflect.KClass
 
 @ContributesTo(AppScope::class)
 interface ImageLoaderKeyerComponent {
+    @Multibinds(allowEmpty = true)
     val keyers: Set<KeyerWithType<out Any>>
 }
 

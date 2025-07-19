@@ -36,8 +36,6 @@ import kotlin.reflect.KClass
 @ContributesTo(AppScope::class, replaces = [WorkManagerComponent::class])
 interface TestWorkManagerComponent {
 
-    val workerFactoryMap: Map<String, AssistedWorkerFactory>
-
     @Provides
     fun providesWorkerFactoryClassNameMap(
         workerFactoryClassMap: Map<KClass<out ListenableWorker>, AssistedWorkerFactory>

@@ -33,9 +33,8 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
-import com.alexvanyo.composelife.algorithm.di.AlgorithmModule
+import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.dispatchers.di.DispatchersModule
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
@@ -53,10 +52,12 @@ import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.asContribution
 
 @ContributesTo(AppScope::class)
-interface GameOfLifeWatchFaceServiceEntryPoint : AlgorithmModule, DispatchersModule
+interface GameOfLifeWatchFaceServiceEntryPoint {
+    val gameOfLifeAlgorithm: GameOfLifeAlgorithm
+    val dispatchers: ComposeLifeDispatchers
+}
 
 @Suppress("Deprecated")
 @OptIn(WatchFaceExperimental::class)

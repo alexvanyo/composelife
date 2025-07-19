@@ -16,12 +16,12 @@
 
 package com.alexvanyo.composelife.ui.settings
 
-import com.alexvanyo.composelife.preferences.di.PreferencesModule
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
+import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 
 @ContributesTo(AppScope::class)
-interface TestComposeLifeApplicationEntryPoint :
-    UpdatableModule,
-    PreferencesModule
+interface TestComposeLifeApplicationEntryPoint : ComposeLifePreferencesProvider {
+    val updatables: Set<Updatable>
+}

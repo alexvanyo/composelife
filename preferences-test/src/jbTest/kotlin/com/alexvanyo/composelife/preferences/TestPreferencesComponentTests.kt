@@ -16,18 +16,17 @@
 
 package com.alexvanyo.composelife.preferences
 
-import com.alexvanyo.composelife.preferences.di.PreferencesModule
+import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.scopes.ApplicationComponent
 import com.alexvanyo.composelife.test.BaseInjectTest
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
-import dev.zacsweers.metro.createGraphFactory
 import kotlin.test.Test
 import kotlin.test.assertIs
 
 @ContributesTo(AppScope::class)
-interface TestPreferencesComponentTestsEntryPoint : PreferencesModule
+interface TestPreferencesComponentTestsEntryPoint : ComposeLifePreferencesProvider
 
 class TestPreferencesComponentTests : BaseInjectTest(
     { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },

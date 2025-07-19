@@ -16,43 +16,14 @@
 
 package com.alexvanyo.composelife.filesystem.di
 
-import com.alexvanyo.composelife.updatable.Updatable
-import kotlinx.coroutines.awaitCancellation
-import dev.zacsweers.metro.IntoSet
-import dev.zacsweers.metro.Provides
 import okio.FileSystem
 import okio.fakefilesystem.FakeFileSystem
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.SingleIn
-import kotlin.time.Clock
 
 @ContributesTo(AppScope::class, replaces = [FileSystemComponent::class])
 interface TestFileSystemComponent {
-    @Provides
-    @SingleIn(AppScope::class)
-    fun providesFakeFileSystem(
-        clock: Clock,
-    ): FakeFileSystem = FakeFileSystem(
-        clock = clock,
-    )
-
-    @Provides
-    fun providesFileSystem(
-        fakeFileSystem: FakeFileSystem,
-    ): FileSystem = fakeFileSystem
-
-    @Provides
-    @SingleIn(AppScope::class)
-    @IntoSet
-    fun providesFakeFileSystemIntoUpdatable(
-        fakeFileSystem: FakeFileSystem,
-    ): Updatable = object : Updatable {
-        override suspend fun update(): Nothing =
-            try {
-                awaitCancellation()
-            } finally {
-                fakeFileSystem.checkNoOpenFiles()
-            }
-    }
+    @Binds
+    val FakeFileSystem.fileSystem: FileSystem
 }
