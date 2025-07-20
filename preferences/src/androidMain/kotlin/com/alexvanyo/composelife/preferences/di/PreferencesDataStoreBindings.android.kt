@@ -19,17 +19,12 @@ package com.alexvanyo.composelife.preferences.di
 
 import android.content.Context
 import androidx.datastore.dataStoreFile
-import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.preferences.PreferencesCoroutineScope
 import com.alexvanyo.composelife.preferences.PreferencesProtoPath
 import com.alexvanyo.composelife.scopes.ApplicationContext
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Provides
-import dev.zacsweers.metro.SingleIn
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 import okio.Path
 import okio.Path.Companion.toOkioPath
 
@@ -42,14 +37,5 @@ interface PreferencesDataStoreBindings {
         fun providesDataStorePath(
             @ApplicationContext context: Context,
         ): Path = context.dataStoreFile("preferences.pb").absoluteFile.toOkioPath()
-
-        @Provides
-        @SingleIn(AppScope::class)
-        @PreferencesCoroutineScope
-        fun providesPreferencesCoroutineScope(
-            dispatchers: ComposeLifeDispatchers,
-        ): CoroutineScope = CoroutineScope(
-            dispatchers.IO + SupervisorJob(),
-        )
     }
 }
