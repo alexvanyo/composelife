@@ -16,7 +16,7 @@
 
 package com.alexvanyo.composelife.ui.cells
 
-import com.alexvanyo.composelife.scopes.UiComponent
+import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiScope
 import dev.zacsweers.metro.ContributesTo
 
@@ -24,5 +24,5 @@ import dev.zacsweers.metro.ContributesTo
 interface TestComposeLifeUiEntryPoint : CellWindowInjectEntryPoint
 
 // TODO: Replace with asContribution()
-internal val UiComponent.testComposeLifeUiEntryPoint: TestComposeLifeUiEntryPoint get() =
+internal val UiGraph.testComposeLifeUiEntryPoint: TestComposeLifeUiEntryPoint get() =
     this as TestComposeLifeUiEntryPoint

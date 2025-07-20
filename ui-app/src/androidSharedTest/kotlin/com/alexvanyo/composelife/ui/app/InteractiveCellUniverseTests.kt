@@ -59,7 +59,7 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.resources.ApplyPaste
@@ -91,9 +91,9 @@ import com.alexvanyo.composelife.ui.cells.resources.Strings as CellsStrings
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
 class InteractiveCellUniverseTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
+    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationComponent.testComposeLifeApplicationEntryPoint
+    private val entryPoint get() = applicationGraph.testComposeLifeApplicationEntryPoint
 
     private val generalTestDispatcher get() = entryPoint.generalTestDispatcher
 
@@ -108,9 +108,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     }
 
     @Test
-    fun info_card_closes_upon_back_press() = runUiTest(generalTestDispatcher) { uiComponent ->
+    fun info_card_closes_upon_back_press() = runUiTest(generalTestDispatcher) { uiGraph ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -163,9 +163,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     }
 
     @Test
-    fun action_card_closes_upon_back_press() = runUiTest(generalTestDispatcher) { uiComponent ->
+    fun action_card_closes_upon_back_press() = runUiTest(generalTestDispatcher) { uiGraph ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -221,9 +221,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     fun six_long_line_evolves_correctly() = runUiTest(
         generalTestDispatcher,
         120.seconds,
-    ) { uiComponent ->
+    ) { uiGraph ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -290,9 +290,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     fun six_long_line_evolves_correctly_with_spacebar() = runUiTest(
         generalTestDispatcher,
         120.seconds,
-    ) { uiComponent ->
+    ) { uiGraph ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -363,9 +363,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     fun six_long_line_evolves_correctly_after_slowing_down() = runUiTest(
         generalTestDispatcher,
         120.seconds,
-    ) { uiComponent ->
+    ) { uiGraph ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -447,9 +447,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     fun six_long_line_evolves_correctly_with_step() = runUiTest(
         generalTestDispatcher,
         120.seconds,
-    ) { uiComponent ->
+    ) { uiGraph ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -512,9 +512,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     fun six_long_line_evolves_correctly_with_double_step_via_slider() = runUiTest(
         generalTestDispatcher,
         120.seconds,
-    ) { uiComponent ->
+    ) { uiGraph ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -592,9 +592,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     fun six_long_line_evolves_correctly_with_double_step_via_text() = runUiTest(
         generalTestDispatcher,
         120.seconds,
-    ) { uiComponent ->
+    ) { uiGraph ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -679,9 +679,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     @Test
     fun glider_is_copied_correctly_with_keyboard_shortcuts() = runUiTest(
         generalTestDispatcher,
-    ) { uiComponent ->
+    ) { uiGraph ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         lateinit var clipboardReaderWriter: ClipboardReaderWriter
         lateinit var resolver: (ParameterizedString) -> String
@@ -780,9 +780,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     @Test
     fun selection_is_cleared_correctly_with_keyboard_shortcuts() = runUiTest(
         generalTestDispatcher,
-    ) { uiComponent ->
+    ) { uiGraph ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -860,9 +860,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     @Test
     fun glider_is_pasted_correctly_with_keyboard_shortcuts() = runUiTest(
         generalTestDispatcher,
-    ) { uiComponent ->
+    ) { uiGraph ->
         val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         lateinit var clipboardReaderWriter: ClipboardReaderWriter
         lateinit var resolver: (ParameterizedString) -> String

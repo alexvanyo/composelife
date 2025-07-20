@@ -20,7 +20,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.resourcestate.isSuccess
-import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationEntryPoint
@@ -35,9 +35,9 @@ import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class InlineEditPaneStateTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
+    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationComponent.testComposeLifeApplicationEntryPoint
+    private val entryPoint get() = applicationGraph.testComposeLifeApplicationEntryPoint
 
     private val cellStateParser get() = entryPoint.cellStateParser
 

@@ -20,9 +20,9 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runAndroidComposeUiTest
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.UiComponent
-import com.alexvanyo.composelife.scopes.UiComponentArguments
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiGraphArguments
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestResult
@@ -34,14 +34,14 @@ import kotlin.time.Duration
 actual fun BaseUiInjectTest.runUiTest(
     appTestContext: CoroutineContext,
     timeout: Duration,
-    testBody: suspend ComposeUiTest.(uiComponent: UiComponent) -> Unit,
+    testBody: suspend ComposeUiTest.(uiGraph: UiGraph) -> Unit,
 ): TestResult =
     runAndroidComposeUiTest<ComponentActivity>(
         runTestContext = appTestContext,
         testTimeout = timeout,
     ) {
-        val uiComponent = uiComponentCreator.create(
-            object : UiComponentArguments {
+        val uiGraph = uiGraphCreator.create(
+            object : UiGraphArguments {
                 override val activity = requireNotNull(this@runAndroidComposeUiTest.activity)
             },
         )
@@ -51,7 +51,7 @@ actual fun BaseUiInjectTest.runUiTest(
             testDispatcher?.scheduler?.advanceUntilIdle()
             testBody(
                 this@runAndroidComposeUiTest,
-                uiComponent,
+                uiGraph,
             )
         }
     }

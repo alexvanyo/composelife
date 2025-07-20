@@ -23,14 +23,17 @@ import dev.zacsweers.metro.Provides
 import okio.Path
 import okio.Path.Companion.toOkioPath
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 
 @ContributesTo(AppScope::class)
-interface PersistedDataPathComponent {
-
-    @Provides
-    @PersistedDataPath
-    fun providesPersistedDataPath(
-        @ApplicationContext context: Context,
-    ): Path = context.filesDir.toOkioPath()
+@BindingContainer
+interface PersistedDataPathBindings {
+    companion object {
+        @Provides
+        @PersistedDataPath
+        fun providesPersistedDataPath(
+            @ApplicationContext context: Context,
+        ): Path = context.filesDir.toOkioPath()
+    }
 }

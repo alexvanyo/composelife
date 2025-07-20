@@ -36,10 +36,10 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowInsetsControllerCompat
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.isSuccess
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
-import com.alexvanyo.composelife.scopes.UiComponent
-import com.alexvanyo.composelife.scopes.UiComponentArguments
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
+import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
@@ -56,7 +56,7 @@ interface MainActivityInjectEntryPoint :
     ComposeLifeAppInjectEntryPoint
 
 // TODO: Replace with asContribution()
-internal val UiComponent.mainActivityInjectEntryPoint: MainActivityInjectEntryPoint get() =
+internal val UiGraph.mainActivityInjectEntryPoint: MainActivityInjectEntryPoint get() =
     this as MainActivityInjectEntryPoint
 
 class MainActivity : AppCompatActivity() {
@@ -65,13 +65,13 @@ class MainActivity : AppCompatActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        val application = application as ApplicationComponentOwner
-        val uiComponent = (application.applicationComponent as UiComponent.Factory).create(
-            object : UiComponentArguments {
+        val application = application as ApplicationGraphOwner
+        val uiGraph = (application.applicationGraph as UiGraph.Factory).create(
+            object : UiGraphArguments {
                 override val activity: Activity = this@MainActivity
             }
         )
-        val mainActivityEntryPoint = uiComponent.mainActivityInjectEntryPoint
+        val mainActivityEntryPoint = uiGraph.mainActivityInjectEntryPoint
 
         // Keep the splash screen on screen until we've loaded preferences
         splashScreen.setKeepOnScreenCondition {

@@ -47,7 +47,7 @@ import androidx.window.core.layout.computeWindowSizeClass
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.settings.resources.Algorithm
@@ -70,7 +70,7 @@ import kotlin.test.assertNull
 @Suppress("LargeClass")
 @OptIn(ExperimentalTestApi::class)
 class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
+    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 
 ) {
     private val fullscreenSettingsDetailPaneLocalEntryPoint = object : FullscreenSettingsDetailPaneLocalEntryPoint {
@@ -79,9 +79,9 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
 
     @Config(qualifiers = "w500dp-h500dp")
     @Test
-    fun show_list_screen_is_displayed_correctly_with_compact_width() = runUiTest { uiComponent ->
+    fun show_list_screen_is_displayed_correctly_with_compact_width() = runUiTest { uiGraph ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         val entryPoint = object :
             FullscreenSettingsDetailPaneInjectEntryPoint by fullscreenSettingsDetailPaneInjectEntryPoint,
@@ -176,9 +176,9 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
 
     @Config(qualifiers = "w700dp-h500dp")
     @Test
-    fun show_list_screen_is_displayed_correctly_with_medium_width() = runUiTest { uiComponent ->
+    fun show_list_screen_is_displayed_correctly_with_medium_width() = runUiTest { uiGraph ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         val entryPoint = object :
             FullscreenSettingsDetailPaneInjectEntryPoint by fullscreenSettingsDetailPaneInjectEntryPoint,
@@ -277,9 +277,9 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
 
     @Config(qualifiers = "w500dp-h500dp")
     @Test
-    fun show_detail_screen_is_displayed_correctly_with_compact_width() = runUiTest { uiComponent ->
+    fun show_detail_screen_is_displayed_correctly_with_compact_width() = runUiTest { uiGraph ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         val entryPoint = object :
             FullscreenSettingsDetailPaneInjectEntryPoint by fullscreenSettingsDetailPaneInjectEntryPoint,
@@ -362,9 +362,9 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
 
     @Config(qualifiers = "w700dp-h500dp")
     @Test
-    fun show_detail_screen_is_displayed_correctly_with_medium_width() = runUiTest { uiComponent ->
+    fun show_detail_screen_is_displayed_correctly_with_medium_width() = runUiTest { uiGraph ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         val entryPoint = object :
             FullscreenSettingsDetailPaneInjectEntryPoint by fullscreenSettingsDetailPaneInjectEntryPoint,
@@ -457,9 +457,9 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
 
     @Config(qualifiers = "w500dp-h500dp")
     @Test
-    fun click_on_detail_is_displayed_correctly_with_compact_width() = runUiTest { uiComponent ->
+    fun click_on_detail_is_displayed_correctly_with_compact_width() = runUiTest { uiGraph ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         val entryPoint = object :
             FullscreenSettingsDetailPaneInjectEntryPoint by fullscreenSettingsDetailPaneInjectEntryPoint,
@@ -536,9 +536,9 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
 
     @Config(qualifiers = "w700dp-h500dp")
     @Test
-    fun click_on_detail_is_displayed_correctly_with_medium_width() = runUiTest { uiComponent ->
+    fun click_on_detail_is_displayed_correctly_with_medium_width() = runUiTest { uiGraph ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         val entryPoint = object :
             FullscreenSettingsDetailPaneInjectEntryPoint by fullscreenSettingsDetailPaneInjectEntryPoint,
@@ -627,9 +627,9 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
 
     @Config(qualifiers = "w300dp-h300dp")
     @Test
-    fun no_detail_to_scroll_to_is_displayed_correctly() = runUiTest { uiComponent ->
+    fun no_detail_to_scroll_to_is_displayed_correctly() = runUiTest { uiGraph ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         val entryPoint = object :
             FullscreenSettingsDetailPaneInjectEntryPoint by fullscreenSettingsDetailPaneInjectEntryPoint,
@@ -686,9 +686,9 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
 
     @Config(qualifiers = "w300dp-h300dp")
     @Test
-    fun detail_to_scroll_to_is_displayed_correctly() = runUiTest { uiComponent ->
+    fun detail_to_scroll_to_is_displayed_correctly() = runUiTest { uiGraph ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         val entryPoint = object :
             FullscreenSettingsDetailPaneInjectEntryPoint by fullscreenSettingsDetailPaneInjectEntryPoint,
@@ -749,9 +749,9 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
 
     @Config(qualifiers = "w700dp-h500dp")
     @Test
-    fun reducing_size_keeps_selected_detail() = runUiTest { uiComponent ->
+    fun reducing_size_keeps_selected_detail() = runUiTest { uiGraph ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         val entryPoint = object :
             FullscreenSettingsDetailPaneInjectEntryPoint by fullscreenSettingsDetailPaneInjectEntryPoint,
@@ -829,9 +829,9 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
 
     @Config(qualifiers = "w500dp-h500dp")
     @Test
-    fun expanding_size_keeps_selected_detail() = runUiTest { uiComponent ->
+    fun expanding_size_keeps_selected_detail() = runUiTest { uiGraph ->
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         val entryPoint = object :
             FullscreenSettingsDetailPaneInjectEntryPoint by fullscreenSettingsDetailPaneInjectEntryPoint,

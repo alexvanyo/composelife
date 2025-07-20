@@ -27,7 +27,7 @@ import com.alexvanyo.composelife.model.MacrocellCellStateSerializer
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.network.FakeRequestHandler
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseInjectTest
 import io.ktor.client.engine.mock.respond
 import kotlin.time.Instant
@@ -60,14 +60,14 @@ interface PatternCollectionRepositoryTestsEntryPoint {
 }
 
 // TODO: Replace with asContribution()
-internal val ApplicationComponent.patternCollectionRepositoryTestsEntryPoint: PatternCollectionRepositoryTestsEntryPoint get() =
+internal val ApplicationGraph.patternCollectionRepositoryTestsEntryPoint: PatternCollectionRepositoryTestsEntryPoint get() =
     this as PatternCollectionRepositoryTestsEntryPoint
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PatternCollectionRepositoryTests : BaseInjectTest(
-    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
+    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationComponent.patternCollectionRepositoryTestsEntryPoint
+    private val entryPoint get() = applicationGraph.patternCollectionRepositoryTestsEntryPoint
 
     private val patternCollectionRepository: PatternCollectionRepository
         get() = entryPoint.patternCollectionRepository

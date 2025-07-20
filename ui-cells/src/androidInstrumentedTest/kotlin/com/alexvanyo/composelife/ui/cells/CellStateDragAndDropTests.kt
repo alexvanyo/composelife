@@ -39,8 +39,8 @@ import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.patterns.GliderPattern
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.UiComponent
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import dev.zacsweers.metro.asContribution
@@ -56,16 +56,16 @@ import kotlin.test.assertNull
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class CellStateDragAndDropTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
+    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
 
-    private val entryPoint get() = applicationComponent.testComposeLifeApplicationEntryPoint
+    private val entryPoint get() = applicationGraph.testComposeLifeApplicationEntryPoint
 
     @Test
     fun drag_and_drop_works_correctly_when_dropped() = runUiTest(
         entryPoint.generalTestDispatcher,
-    ) { uiComponent ->
-        val cellStateParserProvider: CellStateParserProvider = uiComponent.testComposeLifeUiEntryPoint
+    ) { uiGraph ->
+        val cellStateParserProvider: CellStateParserProvider = uiGraph.testComposeLifeUiEntryPoint
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
 
@@ -190,8 +190,8 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
     @Test
     fun drag_and_drop_works_correctly_when_ended() = runUiTest(
         entryPoint.generalTestDispatcher,
-    ) { uiComponent ->
-        val cellStateParserProvider: CellStateParserProvider = uiComponent.testComposeLifeUiEntryPoint
+    ) { uiGraph ->
+        val cellStateParserProvider: CellStateParserProvider = uiGraph.testComposeLifeUiEntryPoint
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
 

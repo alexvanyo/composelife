@@ -24,11 +24,11 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import com.alexvanyo.composelife.scopes.GlobalScope
-import com.alexvanyo.composelife.scopes.UiComponent
-import com.alexvanyo.composelife.scopes.UiComponentArguments
+import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
@@ -48,11 +48,11 @@ import dev.zacsweers.metro.createGraph
 
 fun main() = application {
     val globalGraph = createGraph<GlobalGraph>()
-    val applicationComponent = globalGraph.asContribution<ApplicationComponent.Factory>().create(
-        object : ApplicationComponentArguments {}
+    val applicationGraph = globalGraph.asContribution<ApplicationGraph.Factory>().create(
+        object : ApplicationGraphArguments {}
     )
 
-    val entryPoint = applicationComponent.composeLifeApplicationEntryPoint
+    val entryPoint = applicationGraph.composeLifeApplicationEntryPoint
     val updatables = entryPoint.updatables
 
     LaunchedEffect(Unit) {
@@ -74,12 +74,12 @@ fun main() = application {
         state = windowState,
     ) {
         CompositionLocalProvider(LocalRetainedStateRegistry provides continuityRetainedStateRegistry()) {
-            val uiComponent = remember(applicationComponent) {
-                (applicationComponent as UiComponent.Factory).create(
-                    object : UiComponentArguments {},
+            val uiGraph = remember(applicationGraph) {
+                (applicationGraph as UiGraph.Factory).create(
+                    object : UiGraphArguments {},
                 )
             }
-            val mainInjectEntryPoint = uiComponent.mainInjectEntryPoint
+            val mainInjectEntryPoint = uiGraph.mainInjectEntryPoint
             with(mainInjectEntryPoint) {
                 ComposeLifeTheme(shouldUseDarkTheme()) {
                     ComposeLifeApp(
@@ -99,7 +99,7 @@ interface ComposeLifeApplicationEntryPoint {
 }
 
 // TODO: Replace with asContribution()
-internal val ApplicationComponent.composeLifeApplicationEntryPoint: ComposeLifeApplicationEntryPoint get() =
+internal val ApplicationGraph.composeLifeApplicationEntryPoint: ComposeLifeApplicationEntryPoint get() =
     this as ComposeLifeApplicationEntryPoint
 
 @ContributesTo(UiScope::class)
@@ -108,7 +108,7 @@ interface MainInjectEntryPoint :
     ComposeLifeAppInjectEntryPoint
 
 // TODO: Replace with asContribution()
-internal val UiComponent.mainInjectEntryPoint: MainInjectEntryPoint get() =
+internal val UiGraph.mainInjectEntryPoint: MainInjectEntryPoint get() =
     this as MainInjectEntryPoint
 
 @DependencyGraph(GlobalScope::class, isExtendable = true)

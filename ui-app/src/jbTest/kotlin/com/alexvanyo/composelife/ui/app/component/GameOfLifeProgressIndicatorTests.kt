@@ -28,7 +28,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.globalGraph
@@ -38,16 +38,16 @@ import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
 class GameOfLifeProgressIndicatorTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
+    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
     private val gameOfLifeProgressIndicatorLocalEntryPoint = object : GameOfLifeProgressIndicatorLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults
     }
 
     @Test
-    fun progress_indicator_is_displayed_correctly() = runUiTest { uiComponent ->
+    fun progress_indicator_is_displayed_correctly() = runUiTest { uiGraph ->
         val gameOfLifeProgressIndicatorInjectEntryPoint: GameOfLifeProgressIndicatorInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         setContent {
             CompositionLocalProvider(
