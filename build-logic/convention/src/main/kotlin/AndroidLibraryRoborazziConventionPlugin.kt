@@ -18,22 +18,17 @@ import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureTesting
 import com.android.build.gradle.LibraryExtension
 import org.gradle.api.GradleException
-import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.artifacts.VersionCatalogsExtension
-import org.gradle.kotlin.dsl.closureOf
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 class AndroidLibraryRoborazziConventionPlugin : ConventionPlugin({
     with(pluginManager) {
         apply("com.android.library")
     }
 
-    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+    val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
-    val libraryExtension = extensions.getByType<LibraryExtension>()
+    val libraryExtension = extensions.getByType(LibraryExtension::class.java)
 
     configureTesting(libraryExtension)
 
@@ -65,19 +60,15 @@ class AndroidLibraryRoborazziConventionPlugin : ConventionPlugin({
         }
     }
 
-    extensions.configure<KotlinMultiplatformExtension> {
+    extensions.configure(KotlinMultiplatformExtension::class.java) {
         androidTarget()
 
-        sourceSets.configure(
-            closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
-                getByName("androidUnitTest") {
-                    dependencies {
-                        implementation(libs.findLibrary("roborazzi.compose").get())
-                        implementation(libs.findLibrary("roborazzi.core").get())
-                        implementation(libs.findLibrary("robolectric").get())
-                    }
-                }
-            },
-        )
+        sourceSets.getByName("androidUnitTest") {
+            dependencies {
+                implementation(libs.findLibrary("roborazzi.compose").get())
+                implementation(libs.findLibrary("roborazzi.core").get())
+                implementation(libs.findLibrary("robolectric").get())
+            }
+        }
     }
 })

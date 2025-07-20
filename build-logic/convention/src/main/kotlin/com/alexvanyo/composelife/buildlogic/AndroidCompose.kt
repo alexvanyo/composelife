@@ -17,22 +17,15 @@
 package com.alexvanyo.composelife.buildlogic
 
 import com.android.build.api.dsl.CommonExtension
-import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
-import org.gradle.kotlin.dsl.closureOf
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 fun Project.configureAndroidCompose(
     commonExtension: CommonExtension<*, *, *, *, *, *>,
 ) {
-    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+    val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
     commonExtension.apply {
         lint {
@@ -49,7 +42,7 @@ fun Project.configureAndroidCompose(
 
         // TODO: Add metrics and report to non-test KotlinCompile tasks
         afterEvaluate {
-            tasks.withType<KotlinCompile>().configureEach {
+            tasks.withType(KotlinCompile::class.java).configureEach {
                 if (!name.contains("test", true)) {
                     compilerOptions {
                         val metricsFolder = layout.buildDirectory.dir("build/compose-metrics")
@@ -70,17 +63,14 @@ fun Project.configureAndroidCompose(
         }
     }
 
-    extensions.configure<KotlinMultiplatformExtension> {
-        sourceSets.configure(
-            closureOf<NamedDomainObjectContainer<KotlinSourceSet>> {
-                create("androidMain") {
-                    dependencies {
-                        implementation(project.dependencies.platform(libs.findLibrary("androidx.compose.bom").get()))
-                    }
-                }
-            },
-        )
+    extensions.configure(KotlinMultiplatformExtension::class.java) {
+        sourceSets.create("androidMain") {
+            dependencies {
+                implementation(project.dependencies.platform(libs.findLibrary("androidx.compose.bom").get()))
+            }
+        }
     }
 
-    configurations["lintChecks"].dependencies.add(libs.findLibrary("slackComposeLintChecks").get().get())
+    configurations.getByName("lintChecks")
+        .dependencies.add(libs.findLibrary("slackComposeLintChecks").get().get())
 }

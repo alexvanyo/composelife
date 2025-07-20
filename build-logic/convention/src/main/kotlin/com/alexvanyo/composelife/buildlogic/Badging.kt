@@ -35,7 +35,6 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
-import org.gradle.kotlin.dsl.register
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.gradle.process.ExecOperations
 import java.nio.file.Files
@@ -117,7 +116,7 @@ fun Project.configureBadgingTasks(
         // Registers a new task to verify the app bundle.
         val capitalizedVariantName = variant.name.capitalizeForTaskName()
         val generateBadgingTaskName = "generate${capitalizedVariantName}Badging"
-        val generateBadging = tasks.register<GenerateBadgingTask>(generateBadgingTaskName) {
+        val generateBadging = tasks.register(generateBadgingTaskName, GenerateBadgingTask::class.java) {
             apk.set(
                 variant.artifacts.get(SingleArtifact.APK_FROM_BUNDLE),
             )
@@ -131,18 +130,18 @@ fun Project.configureBadgingTasks(
         }
 
         val updateBadgingTaskName = "update${capitalizedVariantName}Badging"
-        tasks.register<Copy>(updateBadgingTaskName) {
-            from(generateBadging.map { it.badging })
+        tasks.register(updateBadgingTaskName, Copy::class.java) {
+            from(generateBadging.map(GenerateBadgingTask::badging))
             into(project.layout.projectDirectory)
         }
 
         val checkBadgingTaskName = "check${capitalizedVariantName}Badging"
-        tasks.register<CheckBadgingTask>(checkBadgingTaskName) {
+        tasks.register(checkBadgingTaskName, CheckBadgingTask::class.java) {
             goldenBadging.set(
                 project.layout.projectDirectory.file("${variant.name}-badging.txt"),
             )
             generatedBadging.set(
-                generateBadging.flatMap { it.badging },
+                generateBadging.flatMap(GenerateBadgingTask::badging),
             )
             this.updateBadgingTaskName.set(updateBadgingTaskName)
 

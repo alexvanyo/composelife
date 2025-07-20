@@ -18,20 +18,19 @@ import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureAndroid
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
-import org.gradle.kotlin.dsl.configure
 
 class AndroidLibraryConventionPlugin : ConventionPlugin({
     with(pluginManager) {
         apply("com.android.library")
     }
 
-    extensions.configure<LibraryAndroidComponentsExtension> {
+    extensions.configure(LibraryAndroidComponentsExtension::class.java) {
         beforeVariants(selector().withBuildType("debug")) { builder ->
             builder.enable = false
         }
     }
 
-    extensions.configure<LibraryExtension> {
+    extensions.configure(LibraryExtension::class.java) {
         configureAndroid(this)
 
         testOptions {
