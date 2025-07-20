@@ -23,10 +23,6 @@ import com.android.build.gradle.internal.coverage.JacocoReportTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.tasks.testing.Test
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.register
-import org.gradle.kotlin.dsl.withType
 import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
@@ -35,7 +31,7 @@ import kotlin.collections.map
 fun Project.configureJacoco(
     commonExtension: CommonExtension<*, *, *, *, *, *>,
 ) {
-    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+    val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
     commonExtension.testCoverage {
         jacocoVersion = libs.findVersion("jacoco").get().toString()
@@ -47,8 +43,8 @@ fun Project.configureJacoco(
         // enableAndroidTestCoverage = true
     }
 
-    tasks.withType<Test>().configureEach {
-        configure<JacocoTaskExtension> {
+    tasks.withType(Test::class.java).configureEach {
+        extensions.configure(JacocoTaskExtension::class.java) {
             // Required for JaCoCo + Robolectric
             // https://github.com/robolectric/robolectric/issues/2230
             isIncludeNoLocationClasses = true
@@ -62,7 +58,7 @@ fun Project.configureJacoco(
     tasks.register("createUnitTestCoverageReport") {
         dependsOn(
             project.provider {
-                tasks.withType<JacocoReportTask>().filter {
+                tasks.withType(JacocoReportTask::class.java).filter {
                     it.name.contains("UnitTest", ignoreCase = true)
                 }
             },
@@ -71,7 +67,7 @@ fun Project.configureJacoco(
     tasks.register("createAndroidTestCoverageReport") {
         dependsOn(
             project.provider {
-                tasks.withType<JacocoReportTask>().filter {
+                tasks.withType(JacocoReportTask::class.java).filter {
                     it.name.contains("AndroidTest", ignoreCase = true)
                 }
             },
@@ -81,9 +77,9 @@ fun Project.configureJacoco(
 
 @Suppress("LongMethod", "NoNameShadowing")
 fun Project.configureJacocoMerge() {
-    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+    val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
-    configure<JacocoPluginExtension> {
+    extensions.configure(JacocoPluginExtension::class.java) {
         toolVersion = libs.findVersion("jacoco").get().toString()
     }
 
@@ -100,7 +96,7 @@ fun Project.configureJacocoMerge() {
         }
 
     val createVariantUnitTestCoverageReports = variants.map { variant ->
-        tasks.register("jacoco${variant.capitalizeForTaskName()}UnitTestCoverageReport", JacocoReport::class) {
+        tasks.register("jacoco${variant.capitalizeForTaskName()}UnitTestCoverageReport", JacocoReport::class.java) {
             dependsOn(
                 subprojects.flatMap {
                     it.getUnitTestReportTasks(variant)
@@ -127,7 +123,7 @@ fun Project.configureJacocoMerge() {
             }
         }
     }
-    val createAndroidTestCoverageReport = tasks.register("jacocoAndroidTestCoverageReport", JacocoReport::class) {
+    val createAndroidTestCoverageReport = tasks.register("jacocoAndroidTestCoverageReport", JacocoReport::class.java) {
         dependsOn(
             subprojects.flatMap {
                 it.getAndroidTestReportTasks()

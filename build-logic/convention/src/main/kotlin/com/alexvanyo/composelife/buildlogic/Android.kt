@@ -27,10 +27,6 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.tooling.core.withClosure
@@ -39,7 +35,7 @@ import java.lang.reflect.Field
 fun Project.configureAndroid(
     commonExtension: CommonExtension<*, *, *, *, *, *>,
 ) {
-    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+    val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
     commonExtension.apply {
         compileSdk = 36
@@ -96,9 +92,7 @@ fun Project.configureAndroid(
         addSourceSetsForAndroidMultiplatformAfterEvaluate()
     }
 
-    dependencies {
-        add("coreLibraryDesugaring", libs.findLibrary("android.desugarJdkLibs").get())
-    }
+    dependencies.add("coreLibraryDesugaring", libs.findLibrary("android.desugarJdkLibs").get())
 }
 
 // Adapted from https://github.com/androidx/androidx/blob/androidx-main/buildSrc/private/src/main/kotlin/androidx/build/LintConfiguration.kt
@@ -115,7 +109,7 @@ fun Project.configureAndroid(
  * no longer be needed. See also b/195329463.
  */
 private fun Project.addSourceSetsForAndroidMultiplatformAfterEvaluate() {
-    val multiplatformExtension = extensions.findByType<KotlinMultiplatformExtension>() ?: return
+    val multiplatformExtension = extensions.findByType(KotlinMultiplatformExtension::class.java) ?: return
     multiplatformExtension.targets.findByName("android") ?: return
 
     val androidMain =
@@ -139,13 +133,13 @@ private fun Project.addSourceSetsForAndroidMultiplatformAfterEvaluate() {
     }
 
     // Add the new sources to the lint analysis tasks.
-    tasks.withType<AndroidLintAnalysisTask>().configureEach {
+    tasks.withType(AndroidLintAnalysisTask::class.java).configureEach {
         variantInputs.addSourceSets()
     }
 
     // Also configure the model writing task, so that we don't run into mismatches between
     // analyzed sources in one module and a downstream module
-    tasks.withType<LintModelWriterTask>().configureEach {
+    tasks.withType(LintModelWriterTask::class.java).configureEach {
         variantInputs.addSourceSets()
     }
 }

@@ -17,7 +17,6 @@
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureAndroidCompose
 import com.android.build.api.dsl.ApplicationExtension
-import org.gradle.kotlin.dsl.getByType
 
 class AndroidApplicationComposeConventionPlugin : ConventionPlugin({
     with(pluginManager) {
@@ -25,5 +24,5 @@ class AndroidApplicationComposeConventionPlugin : ConventionPlugin({
         apply("org.jetbrains.kotlin.plugin.compose")
     }
 
-    configureAndroidCompose(extensions.getByType<ApplicationExtension>())
+    configureAndroidCompose(extensions.getByType(ApplicationExtension::class.java))
 })

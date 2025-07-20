@@ -23,8 +23,6 @@ import com.android.build.gradle.TestedExtension
 import com.slack.keeper.KeeperExtension
 import com.slack.keeper.optInToKeeper
 import org.gradle.api.GradleException
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.getByType
 
 class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
     val enableKeeperProperty = providers.gradleProperty("com.alexvanyo.composelife.enableKeeper")
@@ -43,7 +41,7 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
         apply("com.android.application")
     }
 
-    extensions.configure<ApplicationExtension> {
+    extensions.configure(ApplicationExtension::class.java) {
         defaultConfig {
             val testBuildTypeProperty =
                 providers
@@ -57,14 +55,14 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
         configureTesting(this)
     }
 
-    configureAndroidTesting(extensions.getByType<TestedExtension>())
+    configureAndroidTesting(extensions.getByType(TestedExtension::class.java))
 
     if (enableKeeper.get()) {
         with(pluginManager) {
             apply("com.slack.keeper")
         }
 
-        extensions.configure<ApplicationAndroidComponentsExtension> {
+        extensions.configure(ApplicationAndroidComponentsExtension::class.java) {
             beforeVariants { builder ->
                 if (builder.buildType == "staging") {
                     builder.optInToKeeper()
@@ -72,7 +70,7 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
             }
         }
 
-        extensions.configure<KeeperExtension> {
+        extensions.configure(KeeperExtension::class.java) {
             automaticR8RepoManagement.set(false)
             traceReferences {}
         }
