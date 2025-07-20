@@ -22,13 +22,22 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.core.okio.OkioStorage
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.preferences.proto.PreferencesProto
+import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Qualifier
 import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import okio.BufferedSink
 import okio.BufferedSource
 import okio.FileSystem
@@ -38,72 +47,88 @@ import java.io.IOException
 @Qualifier
 annotation class PreferencesProtoPath
 
-@Qualifier
-annotation class PreferencesCoroutineScope
-
 @SingleIn(AppScope::class)
-@ContributesBinding(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<PreferencesDataStore>())
+@ContributesBinding(AppScope::class, binding = binding<Updatable>())
 @Inject
 class DiskPreferencesDataStore(
-    fileSystem: FileSystem,
-    @PreferencesProtoPath path: Lazy<Path>,
-    @PreferencesCoroutineScope scope: CoroutineScope,
-) : PreferencesDataStore {
-    override val dataStore: DataStore<PreferencesProto> = DataStoreFactory.create(
-        storage = OkioStorage(
-            fileSystem = fileSystem,
-            serializer =
-            object : OkioSerializer<PreferencesProto> {
-                override val defaultValue: PreferencesProto
-                    get() = PreferencesProto()
+    private val fileSystem: FileSystem,
+    @param:PreferencesProtoPath private val path: Lazy<Path>,
+    private val dispatchers: ComposeLifeDispatchers,
+) : PreferencesDataStore, Updatable {
+    private val mutex = Mutex()
 
-                override suspend fun readFrom(source: BufferedSource): PreferencesProto =
-                    try {
-                        PreferencesProto.ADAPTER.decode(source)
-                    } catch (exception: IOException) {
-                        throw CorruptionException("Cannot read proto.", exception)
-                    }
+    private val dataStoreCompletable = CompletableDeferred<DataStore<PreferencesProto>>()
 
-                override suspend fun writeTo(t: PreferencesProto, sink: BufferedSink) =
-                    PreferencesProto.ADAPTER.encode(sink, t)
-            },
-            producePath = path::value,
-        ),
-        corruptionHandler = null,
-        migrations = listOf(
-            object : DataMigration<PreferencesProto> {
-                override suspend fun shouldMigrate(currentData: PreferencesProto): Boolean =
-                    currentData.round_rectangle_session_id == null
+    override suspend fun getDataStore(): DataStore<PreferencesProto> = dataStoreCompletable.await()
 
-                override suspend fun migrate(currentData: PreferencesProto): PreferencesProto =
-                    currentData.copy(
-                        round_rectangle_session_id = LoadedComposeLifePreferences
-                            .defaultRoundRectangleSessionId
-                            .toProto(),
-                        round_rectangle_value_id = LoadedComposeLifePreferences
-                            .defaultRoundRectangleValueId
-                            .toProto(),
-                    )
+    override suspend fun update(): Nothing = mutex.withLock {
+        withContext(dispatchers.IO) {
+            coroutineScope {
+                dataStoreCompletable.complete(createDataStore(this))
+                awaitCancellation()
+            }
+        }
+    }
 
-                override suspend fun cleanUp() = Unit
-            },
-            object : DataMigration<PreferencesProto> {
-                override suspend fun shouldMigrate(currentData: PreferencesProto): Boolean =
-                    currentData.pattern_collections_synchronization_period_session_id == null
+    private fun createDataStore(
+        scope: CoroutineScope,
+    ): DataStore<PreferencesProto> =
+        DataStoreFactory.create(
+            storage = OkioStorage(
+                fileSystem = fileSystem,
+                serializer =
+                    object : OkioSerializer<PreferencesProto> {
+                        override val defaultValue: PreferencesProto
+                            get() = PreferencesProto()
 
-                override suspend fun migrate(currentData: PreferencesProto): PreferencesProto =
-                    currentData.copy(
-                        pattern_collections_synchronization_period_session_id = LoadedComposeLifePreferences
-                            .defaultPatternCollectionsSynchronizationPeriodSessionId
-                            .toProto(),
-                        pattern_collections_synchronization_period_value_id = LoadedComposeLifePreferences
-                            .defaultPatternCollectionsSynchronizationPeriodValueId
-                            .toProto(),
-                    )
+                        override suspend fun readFrom(source: BufferedSource): PreferencesProto =
+                            try {
+                                PreferencesProto.ADAPTER.decode(source)
+                            } catch (exception: IOException) {
+                                throw CorruptionException("Cannot read proto.", exception)
+                            }
 
-                override suspend fun cleanUp() = Unit
-            },
-        ),
-        scope = scope,
-    )
+                        override suspend fun writeTo(t: PreferencesProto, sink: BufferedSink) =
+                            PreferencesProto.ADAPTER.encode(sink, t)
+                    },
+                producePath = path::value,
+            ),
+            corruptionHandler = null,
+            migrations = listOf(
+                object : DataMigration<PreferencesProto> {
+                    override suspend fun shouldMigrate(currentData: PreferencesProto): Boolean =
+                        currentData.round_rectangle_session_id == null
+
+                    override suspend fun migrate(currentData: PreferencesProto): PreferencesProto =
+                        currentData.copy(
+                            round_rectangle_session_id = LoadedComposeLifePreferences
+                                .defaultRoundRectangleSessionId
+                                .toProto(),
+                            round_rectangle_value_id = LoadedComposeLifePreferences
+                                .defaultRoundRectangleValueId
+                                .toProto(),
+                        )
+
+                    override suspend fun cleanUp() = Unit
+                },
+                object : DataMigration<PreferencesProto> {
+                    override suspend fun shouldMigrate(currentData: PreferencesProto): Boolean =
+                        currentData.pattern_collections_synchronization_period_session_id == null
+
+                    override suspend fun migrate(currentData: PreferencesProto): PreferencesProto =
+                        currentData.copy(
+                            pattern_collections_synchronization_period_session_id = LoadedComposeLifePreferences
+                                .defaultPatternCollectionsSynchronizationPeriodSessionId
+                                .toProto(),
+                            pattern_collections_synchronization_period_value_id = LoadedComposeLifePreferences
+                                .defaultPatternCollectionsSynchronizationPeriodValueId
+                                .toProto(),
+                        )
+
+                    override suspend fun cleanUp() = Unit
+                },
+            ),
+            scope = scope,
+        )
 }

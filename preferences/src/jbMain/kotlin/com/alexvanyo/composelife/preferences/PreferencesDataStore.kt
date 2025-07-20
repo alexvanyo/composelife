@@ -20,5 +20,5 @@ import androidx.datastore.core.DataStore
 import com.alexvanyo.composelife.preferences.proto.PreferencesProto
 
 interface PreferencesDataStore {
-    val dataStore: DataStore<PreferencesProto>
+    suspend fun getDataStore(): DataStore<PreferencesProto>
 }

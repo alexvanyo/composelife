@@ -16,12 +16,15 @@
 
 package com.alexvanyo.composelife.preferences
 
+import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.logging.NoOpLogger
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
@@ -37,20 +40,30 @@ import kotlin.uuid.Uuid
 @Suppress("LargeClass", "TooManyFunctions")
 class DefaultComposeLifePreferencesTests {
 
-    private fun runPreferencesTest(testBody: suspend TestScope.(ComposeLifePreferences) -> Unit) = runTest {
-        val composelifePreferences = DefaultComposeLifePreferences(
-            preferencesDataStore = DiskPreferencesDataStore(
+    private val testDispatcher = StandardTestDispatcher()
+
+    private fun runPreferencesTest(testBody: suspend TestScope.(ComposeLifePreferences) -> Unit) =
+        runTest(testDispatcher) {
+            val diskPreferencesDataStore = DiskPreferencesDataStore(
                 fileSystem = FakeFileSystem(),
                 path = lazy { "/preferences.pb".toPath() },
-                scope = backgroundScope,
-            ),
-            logger = NoOpLogger,
-        )
-        backgroundScope.launch {
-            composelifePreferences.update()
+                dispatchers = TestComposeLifeDispatchers(
+                    generalTestDispatcher = testDispatcher,
+                    cellTickerTestDispatcher = testDispatcher,
+                ),
+            )
+            val composelifePreferences = DefaultComposeLifePreferences(
+                preferencesDataStore = diskPreferencesDataStore,
+                logger = NoOpLogger,
+            )
+            backgroundScope.launch {
+                diskPreferencesDataStore.update()
+            }
+            backgroundScope.launch {
+                composelifePreferences.update()
+            }
+            testBody(composelifePreferences)
         }
-        testBody(composelifePreferences)
-    }
 
     @Test
     fun default_loaded_preferences_is_correct() = runPreferencesTest { composelifePreferences ->
