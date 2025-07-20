@@ -23,7 +23,7 @@ import app.cash.sqldelight.coroutines.mapToOneOrNull
 import app.cash.turbine.test
 import app.cash.turbine.withTurbineTimeout
 import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
-import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseInjectTest
 import kotlinx.coroutines.test.TestDispatcher
 import dev.zacsweers.metro.AppScope
@@ -41,13 +41,13 @@ interface CellStateQueriesTestsEntryPoint {
 }
 
 // TODO: Replace with asContribution()
-internal val ApplicationComponent.cellStateQueriesTestsEntryPoint: CellStateQueriesTestsEntryPoint get() =
+internal val ApplicationGraph.cellStateQueriesTestsEntryPoint: CellStateQueriesTestsEntryPoint get() =
     this as CellStateQueriesTestsEntryPoint
 
 class CellStateQueriesTests : BaseInjectTest(
-    globalGraph.asContribution<ApplicationComponent.Factory>()::create,
+    globalGraph.asContribution<ApplicationGraph.Factory>()::create,
 ) {
-    private val entryPoint get() = applicationComponent.cellStateQueriesTestsEntryPoint
+    private val entryPoint get() = applicationGraph.cellStateQueriesTestsEntryPoint
     private val cellStateQueries get() = entryPoint.cellStateQueries
     private val testDispatcher get() = entryPoint.testDispatcher
 

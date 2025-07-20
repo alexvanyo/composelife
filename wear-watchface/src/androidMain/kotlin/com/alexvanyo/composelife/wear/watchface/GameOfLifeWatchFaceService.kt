@@ -36,8 +36,8 @@ import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.emptyCellState
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
 import com.alexvanyo.composelife.wear.watchface.configuration.createGameOfLifeComplicationSlotsManager
 import com.alexvanyo.composelife.wear.watchface.configuration.createGameOfLifeStyleSchema
 import com.alexvanyo.composelife.wear.watchface.configuration.getGameOfLifeColor
@@ -60,7 +60,7 @@ interface GameOfLifeWatchFaceServiceEntryPoint {
 }
 
 // TODO: Replace with asContribution()
-internal val ApplicationComponent.gameOfLifeWatchFaceServiceEntryPoint: GameOfLifeWatchFaceServiceEntryPoint get() =
+internal val ApplicationGraph.gameOfLifeWatchFaceServiceEntryPoint: GameOfLifeWatchFaceServiceEntryPoint get() =
     this as GameOfLifeWatchFaceServiceEntryPoint
 
 @Suppress("Deprecated")
@@ -84,8 +84,8 @@ class GameOfLifeWatchFaceService : WatchFaceService() {
     override fun onCreate() {
         super.onCreate()
 
-        val applicationComponent = (application as ApplicationComponentOwner).applicationComponent
-        val entryPoint = applicationComponent.gameOfLifeWatchFaceServiceEntryPoint
+        val applicationGraph = (application as ApplicationGraphOwner).applicationGraph
+        val entryPoint = applicationGraph.gameOfLifeWatchFaceServiceEntryPoint
         gameOfLifeAlgorithm = entryPoint.gameOfLifeAlgorithm
         dispatchers = entryPoint.dispatchers
 

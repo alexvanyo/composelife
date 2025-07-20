@@ -49,7 +49,7 @@ import com.alexvanyo.composelife.preferences.algorithmChoiceState
 import com.alexvanyo.composelife.preferences.darkThemeConfigState
 import com.alexvanyo.composelife.preferences.quickAccessSettingsState
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseActivityInjectTest
 import dev.zacsweers.metro.asContribution
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -62,10 +62,10 @@ import com.alexvanyo.composelife.ui.app.R as uiAppR
 import com.alexvanyo.composelife.ui.settings.R as uiSettingsR
 
 class ComposeLifeAppTests : BaseActivityInjectTest<MainActivity>(
-    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
+    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
     MainActivity::class.java,
 ) {
-    private val entryPoint get() = applicationComponent.testComposeLifeApplicationEntryPoint
+    private val entryPoint get() = applicationGraph.testComposeLifeApplicationEntryPoint
 
     private val testDispatcher get() = entryPoint.generalTestDispatcher
 

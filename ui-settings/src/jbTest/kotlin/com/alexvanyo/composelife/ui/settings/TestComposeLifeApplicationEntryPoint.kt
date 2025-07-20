@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.ui.settings
 
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -28,5 +28,5 @@ interface TestComposeLifeApplicationEntryPoint : ComposeLifePreferencesProvider 
 }
 
 // TODO: Replace with asContribution()
-internal val ApplicationComponent.testComposeLifeApplicationEntryPoint: TestComposeLifeApplicationEntryPoint get() =
+internal val ApplicationGraph.testComposeLifeApplicationEntryPoint: TestComposeLifeApplicationEntryPoint get() =
     this as TestComposeLifeApplicationEntryPoint

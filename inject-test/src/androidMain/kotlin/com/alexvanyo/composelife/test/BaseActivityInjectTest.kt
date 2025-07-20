@@ -20,8 +20,8 @@ import android.content.Context
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import kotlinx.coroutines.test.runTest
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Rule
@@ -34,9 +34,9 @@ import org.junit.rules.TestRule
  */
 @Suppress("UnnecessaryAbstractClass")
 abstract class BaseActivityInjectTest<A : ComponentActivity>(
-    applicationComponentCreator: (ApplicationComponentArguments) -> ApplicationComponent,
+    applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
     clazz: Class<A>,
-) : BaseInjectTest(applicationComponentCreator) {
+) : BaseInjectTest(applicationGraphCreator) {
 
     @get:Rule(order = 0)
     val outerLeakRule = createLeakRule("Outer")

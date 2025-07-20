@@ -46,7 +46,7 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.firstSuccess
-import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.settings.resources.CornerFractionLabel
@@ -59,17 +59,17 @@ import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class FullscreenSettingsDetailPaneTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
+    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationComponent.testComposeLifeApplicationEntryPoint
+    private val entryPoint get() = applicationGraph.testComposeLifeApplicationEntryPoint
 
     private val composeLifePreferences get() = entryPoint.composeLifePreferences
 
     @Test
-    fun visual_settings_category_keeps_scroll_position_with_ime() = runUiTest { uiComponent ->
+    fun visual_settings_category_keeps_scroll_position_with_ime() = runUiTest { uiGraph ->
         assumeTrue(Build.VERSION.SDK_INT >= 30)
         val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 

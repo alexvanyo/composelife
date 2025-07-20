@@ -20,7 +20,7 @@ package com.alexvanyo.composelife
 import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
 import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
-import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -35,5 +35,5 @@ interface TestComposeLifeApplicationEntryPoint {
 }
 
 // TODO: Replace with asContribution()
-internal val ApplicationComponent.testComposeLifeApplicationEntryPoint: TestComposeLifeApplicationEntryPoint get() =
+internal val ApplicationGraph.testComposeLifeApplicationEntryPoint: TestComposeLifeApplicationEntryPoint get() =
     this as TestComposeLifeApplicationEntryPoint

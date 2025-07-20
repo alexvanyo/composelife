@@ -19,11 +19,13 @@ package com.alexvanyo.composelife.filesystem.di
 import okio.FileSystem
 import okio.fakefilesystem.FakeFileSystem
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesTo
 
-@ContributesTo(AppScope::class, replaces = [FileSystemComponent::class])
-interface TestFileSystemComponent {
+@ContributesTo(AppScope::class, replaces = [FileSystemBindings::class])
+@BindingContainer
+interface TestFileSystemBindings {
     @Binds
     val FakeFileSystem.fileSystem: FileSystem
 }

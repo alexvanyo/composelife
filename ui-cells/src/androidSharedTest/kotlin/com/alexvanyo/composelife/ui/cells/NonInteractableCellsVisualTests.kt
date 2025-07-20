@@ -31,7 +31,7 @@ import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.screenshot.assertPixels
 import com.alexvanyo.composelife.screenshot.captureToImage
 import com.alexvanyo.composelife.test.BaseUiInjectTest
@@ -43,7 +43,7 @@ import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
 class NonInteractableCellsVisualTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
+    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
     private val nonInteractableCellsLocalEntryPoint = object : NonInteractableCellsLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults.copy(
@@ -53,12 +53,12 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest(
     }
 
     @Test
-    fun non_interactable_cells_draws_correctly_dark_mode() = runUiTest { uiComponent ->
+    fun non_interactable_cells_draws_correctly_dark_mode() = runUiTest { uiGraph ->
         assumeTrue(Build.VERSION.SDK_INT >= 28)
         if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
         val nonInteractableCellsInjectEntryPoint: NonInteractableCellsInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         val cellState = setOf(
             0 to 0,
@@ -126,12 +126,12 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest(
     }
 
     @Test
-    fun non_interactable_cells_draws_correctly_light_mode() = runUiTest { uiComponent ->
+    fun non_interactable_cells_draws_correctly_light_mode() = runUiTest { uiGraph ->
         assumeTrue(Build.VERSION.SDK_INT >= 28)
         if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
         val nonInteractableCellsInjectEntryPoint: NonInteractableCellsInjectEntryPoint =
-            uiComponent.testComposeLifeUiEntryPoint
+            uiGraph.testComposeLifeUiEntryPoint
 
         val cellState = setOf(
             0 to 0,

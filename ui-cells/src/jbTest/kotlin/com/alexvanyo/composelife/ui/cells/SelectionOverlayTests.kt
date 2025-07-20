@@ -35,7 +35,7 @@ import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
@@ -50,12 +50,12 @@ import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTestApi::class)
 class SelectionOverlayTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationComponent.Factory>().create(it) },
+    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
 
     @Test
-    fun no_selection_is_displayed_correctly() = runUiTest { uiComponent ->
-        val injectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
+    fun no_selection_is_displayed_correctly() = runUiTest { uiGraph ->
+        val injectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -97,8 +97,8 @@ class SelectionOverlayTests : BaseUiInjectTest(
     }
 
     @Test
-    fun selecting_box_is_displayed_correctly() = runUiTest { uiComponent ->
-        val injectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
+    fun selecting_box_is_displayed_correctly() = runUiTest { uiGraph ->
+        val injectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -160,11 +160,11 @@ class SelectionOverlayTests : BaseUiInjectTest(
     }
 
     @Test
-    fun dragging_selecting_box_is_displayed_correctly() = runUiTest { uiComponent ->
+    fun dragging_selecting_box_is_displayed_correctly() = runUiTest { uiGraph ->
         // TODO: This test tends to deadlock on desktop
         assumeTrue(isAndroid())
 
-        val injectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
+        val injectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -230,8 +230,8 @@ class SelectionOverlayTests : BaseUiInjectTest(
 
 
     @Test
-    fun selection_is_displayed_correctly() = runUiTest { uiComponent ->
-        val injectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
+    fun selection_is_displayed_correctly() = runUiTest { uiGraph ->
+        val injectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }
@@ -273,11 +273,11 @@ class SelectionOverlayTests : BaseUiInjectTest(
     }
 
     @Test
-    fun dragging_selection_is_displayed_correctly() = runUiTest { uiComponent ->
+    fun dragging_selection_is_displayed_correctly() = runUiTest { uiGraph ->
         // TODO: This test tends to deadlock on desktop
         assumeTrue(isAndroid())
 
-        val injectEntryPoint = uiComponent.testComposeLifeUiEntryPoint
+        val injectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
         val localEntryPoint = object : CellWindowLocalEntryPoint {
             override val preferences = LoadedComposeLifePreferences.Defaults
         }

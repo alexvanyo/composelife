@@ -16,8 +16,8 @@
 
 package com.alexvanyo.composelife.test
 
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -41,11 +41,11 @@ interface BaseInjectTestEntryPoint {
 }
 
 // TODO: Replace with asContribution()
-private val ApplicationComponent.baseInjectTestEntryPoint: BaseInjectTestEntryPoint get() =
+private val ApplicationGraph.baseInjectTestEntryPoint: BaseInjectTestEntryPoint get() =
     this as BaseInjectTestEntryPoint
 
 expect abstract class BaseInjectTest(
-    applicationComponentCreator: (ApplicationComponentArguments) -> ApplicationComponent,
+    applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
 ) : BaseInjectTestImpl
 
 /**
@@ -55,11 +55,11 @@ expect abstract class BaseInjectTest(
  */
 @Suppress("UnnecessaryAbstractClass")
 abstract class BaseInjectTestImpl(
-    applicationComponentCreator: (ApplicationComponentArguments) -> ApplicationComponent,
+    applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
 ) {
-    val applicationComponent = applicationComponentCreator(createApplicationComponentArguments())
+    val applicationGraph = applicationGraphCreator(createApplicationGraphArguments())
 
-    private val entryPoint get() = applicationComponent.baseInjectTestEntryPoint
+    private val entryPoint get() = applicationGraph.baseInjectTestEntryPoint
     private val updatables: Set<Updatable> get() = entryPoint.updatables
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -96,4 +96,4 @@ abstract class BaseInjectTestImpl(
     }
 }
 
-expect fun createApplicationComponentArguments(): ApplicationComponentArguments
+expect fun createApplicationGraphArguments(): ApplicationGraphArguments

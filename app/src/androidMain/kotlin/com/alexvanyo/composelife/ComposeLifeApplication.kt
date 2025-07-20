@@ -22,9 +22,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.ApplicationComponentArguments
-import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
+import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
 import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.strictmode.initStrictModeIfNeeded
 import com.alexvanyo.composelife.updatable.Updatable
@@ -43,12 +43,12 @@ interface ComposeLifeApplicationEntryPoint {
 }
 
 // TODO: Replace with asContribution()
-internal val ApplicationComponent.composeLifeApplicationEntryPoint: ComposeLifeApplicationEntryPoint get() =
+internal val ApplicationGraph.composeLifeApplicationEntryPoint: ComposeLifeApplicationEntryPoint get() =
     this as ComposeLifeApplicationEntryPoint
 
-class ComposeLifeApplication : Application(), ApplicationComponentOwner {
+class ComposeLifeApplication : Application(), ApplicationGraphOwner {
 
-    override lateinit var applicationComponent: ApplicationComponent
+    override lateinit var applicationGraph: ApplicationGraph
 
     override fun onCreate() {
         super.onCreate()
@@ -56,12 +56,12 @@ class ComposeLifeApplication : Application(), ApplicationComponentOwner {
         initStrictModeIfNeeded()
 
         val globalGraph = createGraph<GlobalGraph>()
-        applicationComponent = globalGraph.asContribution<ApplicationComponent.Factory>().create(
-            object : ApplicationComponentArguments {
+        applicationGraph = globalGraph.asContribution<ApplicationGraph.Factory>().create(
+            object : ApplicationGraphArguments {
                 override val application: Application = this@ComposeLifeApplication
             }
         )
-        val entryPoint = applicationComponent.composeLifeApplicationEntryPoint
+        val entryPoint = applicationGraph.composeLifeApplicationEntryPoint
         val processLifecycleOwner = entryPoint.processLifecycleOwner
         val updatables = entryPoint.updatables
 
