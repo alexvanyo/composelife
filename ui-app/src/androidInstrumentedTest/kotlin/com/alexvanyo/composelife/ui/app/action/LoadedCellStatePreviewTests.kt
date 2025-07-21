@@ -41,29 +41,27 @@ import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.patterns.GliderPattern
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
-import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
-import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationEntryPoint
-import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
-import com.alexvanyo.composelife.ui.app.TestComposeLifeUiEntryPoint
-import com.alexvanyo.composelife.ui.app.createComponent
-import com.alexvanyo.composelife.ui.app.kmpGetEntryPoint
+import com.alexvanyo.composelife.ui.app.globalGraph
+import com.alexvanyo.composelife.ui.app.testComposeLifeApplicationEntryPoint
+import com.alexvanyo.composelife.ui.app.testComposeLifeUiEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropTarget
 import com.alexvanyo.composelife.ui.cells.rememberMutableCellStateDropStateHolder
+import dev.zacsweers.metro.asContribution
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runCurrent
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
-class LoadedCellStatePreviewTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
-    TestComposeLifeApplicationComponent::createComponent,
-    TestComposeLifeUiComponent::createComponent,
+class LoadedCellStatePreviewTests : BaseUiInjectTest(
+    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<TestComposeLifeApplicationEntryPoint>()
+    private val entryPoint get() = applicationGraph.testComposeLifeApplicationEntryPoint
 
     private val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults
@@ -72,8 +70,8 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest<TestComposeLifeApplicationC
     @Test
     fun drag_and_drop_works_correctly() = runUiTest(
         entryPoint.generalTestDispatcher,
-    ) { uiComponent ->
-        val uiEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
+    ) { uiGraph ->
+        val uiEntryPoint = uiGraph.testComposeLifeUiEntryPoint
         val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = uiEntryPoint
         val cellStateParserProvider: CellStateParserProvider = uiEntryPoint
 

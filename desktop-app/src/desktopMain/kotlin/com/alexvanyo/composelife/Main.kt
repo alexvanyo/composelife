@@ -23,25 +23,36 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import com.alexvanyo.composelife.entrypoint.EntryPoint
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
+import com.alexvanyo.composelife.scopes.GlobalScope
+import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import com.alexvanyo.composelife.updatable.Updatable
 import com.slack.circuit.retained.LocalRetainedStateRegistry
 import com.slack.circuit.retained.continuityRetainedStateRegistry
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.asContribution
+import dev.zacsweers.metro.createGraph
 
 fun main() = application {
-    val applicationComponent = ComposeLifeApplicationComponent::class.create()
+    val globalGraph = createGraph<GlobalGraph>()
+    val applicationGraph = globalGraph.asContribution<ApplicationGraph.Factory>().create(
+        object : ApplicationGraphArguments {}
+    )
 
-    val entryPoint = applicationComponent.getEntryPoint<ComposeLifeApplicationEntryPoint>()
+    val entryPoint = applicationGraph.composeLifeApplicationEntryPoint
     val updatables = entryPoint.updatables
 
     LaunchedEffect(Unit) {
@@ -63,12 +74,12 @@ fun main() = application {
         state = windowState,
     ) {
         CompositionLocalProvider(LocalRetainedStateRegistry provides continuityRetainedStateRegistry()) {
-            val uiComponent = remember(entryPoint.uiComponentFactory) {
-                entryPoint.uiComponentFactory.createComponent()
+            val uiGraph = remember(applicationGraph) {
+                (applicationGraph as UiGraph.Factory).create(
+                    object : UiGraphArguments {},
+                )
             }
-            val mainInjectEntryPoint = remember(uiComponent) {
-                uiComponent.getEntryPoint<MainInjectEntryPoint>()
-            }
+            val mainInjectEntryPoint = uiGraph.mainInjectEntryPoint
             with(mainInjectEntryPoint) {
                 ComposeLifeTheme(shouldUseDarkTheme()) {
                     ComposeLifeApp(
@@ -82,12 +93,23 @@ fun main() = application {
     }
 }
 
-@EntryPoint(AppScope::class)
-interface ComposeLifeApplicationEntryPoint : UpdatableModule {
-    val uiComponentFactory: ComposeLifeUiComponent.Factory
+@ContributesTo(AppScope::class)
+interface ComposeLifeApplicationEntryPoint {
+    val updatables: Set<Updatable>
 }
 
-@EntryPoint(UiScope::class)
+// TODO: Replace with asContribution()
+internal val ApplicationGraph.composeLifeApplicationEntryPoint: ComposeLifeApplicationEntryPoint get() =
+    this as ComposeLifeApplicationEntryPoint
+
+@ContributesTo(UiScope::class)
 interface MainInjectEntryPoint :
     ComposeLifePreferencesProvider,
     ComposeLifeAppInjectEntryPoint
+
+// TODO: Replace with asContribution()
+internal val UiGraph.mainInjectEntryPoint: MainInjectEntryPoint get() =
+    this as MainInjectEntryPoint
+
+@DependencyGraph(GlobalScope::class, isExtendable = true)
+interface GlobalGraph

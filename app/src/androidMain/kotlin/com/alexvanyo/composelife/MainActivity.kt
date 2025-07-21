@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife
 
 import android.app.Activity
+import android.graphics.Color
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.activity.SystemBarStyle
@@ -33,13 +34,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.toSize
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowInsetsControllerCompat
-import com.alexvanyo.composelife.entrypoint.EntryPoint
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.isSuccess
-import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
-import com.alexvanyo.composelife.scopes.UiComponent
-import com.alexvanyo.composelife.scopes.UiComponentArguments
-import com.alexvanyo.composelife.scopes.UiComponentOwner
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
+import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
@@ -48,27 +48,30 @@ import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
 import com.alexvanyo.composelife.ui.util.ProvideLocalWindowInsetsHolder
 import com.slack.circuit.retained.LocalRetainedStateRegistry
 import com.slack.circuit.retained.continuityRetainedStateRegistry
+import dev.zacsweers.metro.ContributesTo
 
-@EntryPoint(UiScope::class)
+@ContributesTo(UiScope::class)
 interface MainActivityInjectEntryPoint :
     ComposeLifePreferencesProvider,
     ComposeLifeAppInjectEntryPoint
 
-class MainActivity : AppCompatActivity(), UiComponentOwner {
+// TODO: Replace with asContribution()
+internal val UiGraph.mainActivityInjectEntryPoint: MainActivityInjectEntryPoint get() =
+    this as MainActivityInjectEntryPoint
 
-    override lateinit var uiComponent: UiComponent
+class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        val application = application as ApplicationComponentOwner
-        uiComponent = application.uiComponentFactory(
-            object : UiComponentArguments {
+        val application = application as ApplicationGraphOwner
+        val uiGraph = (application.applicationGraph as UiGraph.Factory).create(
+            object : UiGraphArguments {
                 override val activity: Activity = this@MainActivity
-            },
+            }
         )
-        val mainActivityEntryPoint = uiComponent.getEntryPoint<MainActivityInjectEntryPoint>()
+        val mainActivityEntryPoint = uiGraph.mainActivityInjectEntryPoint
 
         // Keep the splash screen on screen until we've loaded preferences
         splashScreen.setKeepOnScreenCondition {
@@ -87,8 +90,8 @@ class MainActivity : AppCompatActivity(), UiComponentOwner {
                         DisposableEffect(darkTheme) {
                             enableEdgeToEdge(
                                 statusBarStyle = SystemBarStyle.auto(
-                                    android.graphics.Color.TRANSPARENT,
-                                    android.graphics.Color.TRANSPARENT,
+                                    Color.TRANSPARENT,
+                                    Color.TRANSPARENT,
                                 ) { darkTheme },
                                 navigationBarStyle = SystemBarStyle.auto(
                                     lightScrim,
@@ -116,10 +119,10 @@ class MainActivity : AppCompatActivity(), UiComponentOwner {
 * The default light scrim, as defined by androidx and the platform:
 * https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:activity/activity/src/main/java/androidx/activity/EdgeToEdge.kt;l=35-38;drc=27e7d52e8604a080133e8b842db10c89b4482598
 */
-private val lightScrim = android.graphics.Color.argb(0xe6, 0xFF, 0xFF, 0xFF)
+private val lightScrim = Color.argb(0xe6, 0xFF, 0xFF, 0xFF)
 
 /**
  * The default dark scrim, as defined by androidx and the platform:
  * https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:activity/activity/src/main/java/androidx/activity/EdgeToEdge.kt;l=40-44;drc=27e7d52e8604a080133e8b842db10c89b4482598
  */
-private val darkScrim = android.graphics.Color.argb(0x80, 0x1b, 0x1b, 0x1b)
+private val darkScrim = Color.argb(0x80, 0x1b, 0x1b, 0x1b)

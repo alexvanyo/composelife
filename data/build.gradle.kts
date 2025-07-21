@@ -21,10 +21,10 @@ plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
     alias(libs.plugins.convention.androidLibraryJacoco)
-    alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
+    alias(libs.plugins.metro)
 }
 
 android {
@@ -48,7 +48,6 @@ kotlin {
                 api(projects.dispatchers)
                 api(projects.network)
 
-                implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.io.core)
                 implementation(libs.kotlinx.io.okio)
                 implementation(libs.okio)
@@ -66,21 +65,9 @@ kotlin {
         }
         val desktopMain by getting {
             dependsOn(jbMain)
-            configurations["kspDesktop"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                )
-            )
         }
         val androidMain by getting {
             dependsOn(jbMain)
-            configurations["kspAndroid"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                )
-            )
             dependencies {
                 api(libs.kotlinx.coroutines.android)
 
@@ -96,7 +83,6 @@ kotlin {
                 implementation(projects.dataTestResources)
                 implementation(projects.databaseTest)
                 implementation(projects.dispatchersTest)
-                implementation(projects.entryPointRuntime)
                 implementation(projects.filesystemTest)
                 implementation(projects.injectTest)
                 implementation(projects.networkTest)
@@ -108,13 +94,6 @@ kotlin {
         }
         val desktopTest by getting {
             dependsOn(jbTest)
-            configurations["kspDesktopTest"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                    projects.entryPointSymbolProcessor,
-                )
-            )
         }
         val androidSharedTest by getting {
             dependsOn(jbTest)
@@ -123,24 +102,6 @@ kotlin {
                 implementation(libs.androidx.test.junit)
                 implementation(libs.androidx.test.runner)
             }
-        }
-        val androidUnitTest by getting {
-            configurations["kspAndroidTest"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                    projects.entryPointSymbolProcessor,
-                )
-            )
-        }
-        val androidInstrumentedTest by getting {
-            configurations["kspAndroidAndroidTest"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                    projects.entryPointSymbolProcessor,
-                )
-            )
         }
     }
 }

@@ -24,22 +24,20 @@ import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.core.okio.OkioStorage
 import com.alexvanyo.composelife.preferences.proto.PreferencesProto
 import kotlinx.coroutines.CoroutineScope
-import me.tatarka.inject.annotations.Inject
-import me.tatarka.inject.annotations.Qualifier
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Qualifier
 import okio.BufferedSink
 import okio.BufferedSource
 import okio.FileSystem
 import okio.Path
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.SingleIn
 import java.io.IOException
 
-@Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
 @Qualifier
 annotation class PreferencesProtoPath
 
-@Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
 @Qualifier
 annotation class PreferencesCoroutineScope
 
@@ -48,8 +46,8 @@ annotation class PreferencesCoroutineScope
 @Inject
 class DiskPreferencesDataStore(
     fileSystem: FileSystem,
-    path: @PreferencesProtoPath Lazy<Path>,
-    scope: @PreferencesCoroutineScope CoroutineScope,
+    @PreferencesProtoPath path: Lazy<Path>,
+    @PreferencesCoroutineScope scope: CoroutineScope,
 ) : PreferencesDataStore {
     override val dataStore: DataStore<PreferencesProto> = DataStoreFactory.create(
         storage = OkioStorage(

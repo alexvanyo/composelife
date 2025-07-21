@@ -16,8 +16,7 @@
 
 package com.alexvanyo.composelife.filesystem
 
-import me.tatarka.inject.annotations.Qualifier
+import dev.zacsweers.metro.Qualifier
 
-@Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
 @Qualifier
 annotation class PersistedDataPath

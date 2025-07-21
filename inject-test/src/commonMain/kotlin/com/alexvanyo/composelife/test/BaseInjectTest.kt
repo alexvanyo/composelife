@@ -16,11 +16,10 @@
 
 package com.alexvanyo.composelife.test
 
-import com.alexvanyo.composelife.entrypoint.EntryPoint
-import com.alexvanyo.composelife.entrypoint.EntryPointProvider
-import com.alexvanyo.composelife.scopes.ApplicationComponent
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import com.alexvanyo.composelife.updatable.Updatable
-import com.alexvanyo.composelife.updatable.di.UpdatableModule
+import dev.zacsweers.metro.AppScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
@@ -28,21 +27,26 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Inject
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.reflect.KClass
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-@EntryPoint(AppScope::class)
-interface BaseInjectTestEntryPoint : UpdatableModule
+@ContributesTo(AppScope::class)
+interface BaseInjectTestEntryPoint {
+    val updatables: Set<Updatable>
+}
 
-expect abstract class BaseInjectTest<AC : ApplicationComponent>(
-    applicationComponentCreator: () -> AC,
-) : BaseInjectTestImpl<AC>
+// TODO: Replace with asContribution()
+private val ApplicationGraph.baseInjectTestEntryPoint: BaseInjectTestEntryPoint get() =
+    this as BaseInjectTestEntryPoint
+
+expect abstract class BaseInjectTest(
+    applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
+) : BaseInjectTestImpl
 
 /**
  * A base class for testing components that depend on injected classes.
@@ -50,15 +54,13 @@ expect abstract class BaseInjectTest<AC : ApplicationComponent>(
  * Subclasses must call [runAppTest] instead of [runTest] to properly initialize dependencies.
  */
 @Suppress("UnnecessaryAbstractClass")
-abstract class BaseInjectTestImpl<AC : ApplicationComponent>(
-    applicationComponentCreator: () -> AC,
+abstract class BaseInjectTestImpl(
+    applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
 ) {
-    val applicationComponent = applicationComponentCreator()
+    val applicationGraph = applicationGraphCreator(createApplicationGraphArguments())
 
-    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<BaseInjectTestEntryPoint>()
-
-    private val updatables: Set<Updatable>
-        get() = entryPoint.updatables
+    private val entryPoint get() = applicationGraph.baseInjectTestEntryPoint
+    private val updatables: Set<Updatable> get() = entryPoint.updatables
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun runAppTest(
@@ -94,6 +96,4 @@ abstract class BaseInjectTestImpl<AC : ApplicationComponent>(
     }
 }
 
-expect inline fun <reified T : BaseInjectTestEntryPoint> EntryPointProvider<AppScope>.kmpGetEntryPoint(
-    unused: KClass<T> = T::class,
-): BaseInjectTestEntryPoint
+expect fun createApplicationGraphArguments(): ApplicationGraphArguments

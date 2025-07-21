@@ -19,10 +19,10 @@ package com.alexvanyo.composelife.dispatchers
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.TestDispatcher
-import me.tatarka.inject.annotations.Inject
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.SingleIn
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -35,8 +35,8 @@ import kotlin.coroutines.CoroutineContext
 @ContributesBinding(AppScope::class, replaces = [DefaultComposeLifeDispatchers::class])
 @SingleIn(AppScope::class)
 actual class TestComposeLifeDispatchers actual constructor(
-    private val generalTestDispatcher: @GeneralTestDispatcher TestDispatcher,
-    cellTickerTestDispatcher: @CellTickerTestDispatcher TestDispatcher,
+    @param:GeneralTestDispatcher private val generalTestDispatcher: TestDispatcher,
+    @CellTickerTestDispatcher cellTickerTestDispatcher: TestDispatcher,
 ) : ComposeLifeDispatchers {
     override val Default: CoroutineContext = generalTestDispatcher
     override val Main: CoroutineContext = generalTestDispatcher

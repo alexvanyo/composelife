@@ -17,20 +17,16 @@
 package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.ui.test.ExperimentalTestApi
-import com.alexvanyo.composelife.model.di.CellStateParserProvider
-import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
-import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.isSuccess
+import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
-import com.alexvanyo.composelife.ui.app.kmpGetEntryPoint
-import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationComponent
 import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationEntryPoint
-import com.alexvanyo.composelife.ui.app.TestComposeLifeUiComponent
-import com.alexvanyo.composelife.ui.app.createComponent
+import com.alexvanyo.composelife.ui.app.globalGraph
+import com.alexvanyo.composelife.ui.app.testComposeLifeApplicationEntryPoint
+import dev.zacsweers.metro.asContribution
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -38,13 +34,12 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
-    TestComposeLifeApplicationComponent::createComponent,
-    TestComposeLifeUiComponent::createComponent,
+class InlineEditPaneStateTests : BaseUiInjectTest(
+    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<TestComposeLifeApplicationEntryPoint>()
+    private val entryPoint get() = applicationGraph.testComposeLifeApplicationEntryPoint
 
-    private val cellStateParserProvider: CellStateParserProvider = entryPoint
+    private val cellStateParser get() = entryPoint.cellStateParser
 
     @Test
     fun initial_state_is_correct_when_onboarding() = runUiTest {
@@ -66,7 +61,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
             inlineEditPaneState = rememberInlineEditPaneState(
                 composeLifePreferences = composeLifePreferences,
                 preferences = preferences,
-                cellStateParser = cellStateParserProvider.cellStateParser,
+                cellStateParser = cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -110,7 +105,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
             inlineEditPaneState = rememberInlineEditPaneState(
                 composeLifePreferences = composeLifePreferences,
                 preferences = preferences,
-                cellStateParser = cellStateParserProvider.cellStateParser,
+                cellStateParser = cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -155,7 +150,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
             inlineEditPaneState = rememberInlineEditPaneState(
                 composeLifePreferences = composeLifePreferences,
                 preferences = preferences,
-                cellStateParser = cellStateParserProvider.cellStateParser,
+                cellStateParser = cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -200,7 +195,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
             inlineEditPaneState = rememberInlineEditPaneState(
                 composeLifePreferences = composeLifePreferences,
                 preferences = preferences,
-                cellStateParser = cellStateParserProvider.cellStateParser,
+                cellStateParser = cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -244,7 +239,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest<TestComposeLifeApplicationComp
             inlineEditPaneState = rememberInlineEditPaneState(
                 composeLifePreferences = composeLifePreferences,
                 preferences = preferences,
-                cellStateParser = cellStateParserProvider.cellStateParser,
+                cellStateParser = cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )

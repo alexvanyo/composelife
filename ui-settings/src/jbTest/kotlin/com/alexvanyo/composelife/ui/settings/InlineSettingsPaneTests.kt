@@ -39,6 +39,8 @@ import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.firstSuccess
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.settings.resources.DisableOpenGL
@@ -47,25 +49,26 @@ import com.alexvanyo.composelife.ui.settings.resources.QuickSettingsInfo
 import com.alexvanyo.composelife.ui.settings.resources.RemoveSettingFromQuickAccess
 import com.alexvanyo.composelife.ui.settings.resources.SeeAll
 import com.alexvanyo.composelife.ui.settings.resources.Strings
+import dev.zacsweers.metro.asContribution
+import dev.zacsweers.metro.createGraphFactory
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalTestApi::class)
-class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
-    TestComposeLifeApplicationComponent::createComponent,
-    TestComposeLifeUiComponent::createComponent,
+class InlineSettingsPaneTests : BaseUiInjectTest(
+    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationComponent.kmpGetEntryPoint<TestComposeLifeApplicationEntryPoint>()
+    private val entryPoint get() = applicationGraph as TestComposeLifeApplicationEntryPoint
 
     private val composeLifePreferences get() = entryPoint.composeLifePreferences
 
     private val testComposeLifePreferences: TestComposeLifePreferences get() = assertIs(composeLifePreferences)
 
     @Test
-    fun saving_settings_onboarding_is_shown_with_no_quick_access_settings_saved() = runUiTest { uiComponent ->
-        val inlineSettingsPaneInjectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
+    fun saving_settings_onboarding_is_shown_with_no_quick_access_settings_saved() = runUiTest { uiGraph ->
+        val inlineSettingsPaneInjectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
 
         testComposeLifePreferences.quickAccessSettings = emptySet()
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
@@ -110,8 +113,8 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
     }
 
     @Test
-    fun saved_opengl_setting_is_displayed_correctly() = runUiTest { uiComponent ->
-        val inlineSettingsPaneInjectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
+    fun saved_opengl_setting_is_displayed_correctly() = runUiTest { uiGraph ->
+        val inlineSettingsPaneInjectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
         testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
@@ -162,8 +165,8 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
     }
 
     @Test
-    fun opening_saved_setting_functions_correctly() = runUiTest { uiComponent ->
-        val inlineSettingsPaneInjectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
+    fun opening_saved_setting_functions_correctly() = runUiTest { uiGraph ->
+        val inlineSettingsPaneInjectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
         testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 
@@ -207,8 +210,8 @@ class InlineSettingsPaneTests : BaseUiInjectTest<TestComposeLifeApplicationCompo
     }
 
     @Test
-    fun removing_saved_setting_functions_correctly() = runUiTest { uiComponent ->
-        val inlineSettingsPaneInjectEntryPoint = uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
+    fun removing_saved_setting_functions_correctly() = runUiTest { uiGraph ->
+        val inlineSettingsPaneInjectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
         testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
         snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
 

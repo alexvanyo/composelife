@@ -16,43 +16,16 @@
 
 package com.alexvanyo.composelife.filesystem.di
 
-import com.alexvanyo.composelife.updatable.Updatable
-import kotlinx.coroutines.awaitCancellation
-import me.tatarka.inject.annotations.IntoSet
-import me.tatarka.inject.annotations.Provides
 import okio.FileSystem
 import okio.fakefilesystem.FakeFileSystem
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
-import kotlin.time.Clock
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Binds
+import dev.zacsweers.metro.ContributesTo
 
-@ContributesTo(AppScope::class, replaces = [FileSystemComponent::class])
-interface TestFileSystemComponent {
-    @Provides
-    @SingleIn(AppScope::class)
-    fun providesFakeFileSystem(
-        clock: Clock,
-    ): FakeFileSystem = FakeFileSystem(
-        clock = clock,
-    )
-
-    @Provides
-    fun providesFileSystem(
-        fakeFileSystem: FakeFileSystem,
-    ): FileSystem = fakeFileSystem
-
-    @Provides
-    @SingleIn(AppScope::class)
-    @IntoSet
-    fun providesFakeFileSystemIntoUpdatable(
-        fakeFileSystem: FakeFileSystem,
-    ): Updatable = object : Updatable {
-        override suspend fun update(): Nothing =
-            try {
-                awaitCancellation()
-            } finally {
-                fakeFileSystem.checkNoOpenFiles()
-            }
-    }
+@ContributesTo(AppScope::class, replaces = [FileSystemBindings::class])
+@BindingContainer
+interface TestFileSystemBindings {
+    @Binds
+    val FakeFileSystem.fileSystem: FileSystem
 }

@@ -26,17 +26,18 @@ import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.collectLatest
-import me.tatarka.inject.annotations.Inject
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import kotlin.system.exitProcess
 
 @Inject
-@ContributesBinding(AppScope::class, boundType = Updatable::class, multibinding = true)
+@ContributesIntoSet(AppScope::class, binding = binding<Updatable>())
 @SingleIn(AppScope::class)
 class DoNotKeepProcess(
-    private val lifecycleOwner: @ProcessLifecycleOwner LifecycleOwner,
+    @param:ProcessLifecycleOwner private val lifecycleOwner: LifecycleOwner,
     private val composeLifePreferences: ComposeLifePreferences,
 ) : Updatable {
     override suspend fun update(): Nothing {
