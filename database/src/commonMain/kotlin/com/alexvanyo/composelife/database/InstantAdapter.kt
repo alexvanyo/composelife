@@ -17,8 +17,8 @@
 package com.alexvanyo.composelife.database
 
 import app.cash.sqldelight.ColumnAdapter
-import kotlin.time.Instant
 import dev.zacsweers.metro.Inject
+import kotlin.time.Instant
 
 @Inject
 class InstantAdapter : ColumnAdapter<Instant, String> {

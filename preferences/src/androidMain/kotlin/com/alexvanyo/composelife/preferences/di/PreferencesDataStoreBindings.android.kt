@@ -23,15 +23,15 @@ import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.preferences.PreferencesCoroutineScope
 import com.alexvanyo.composelife.preferences.PreferencesProtoPath
 import com.alexvanyo.composelife.scopes.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import dev.zacsweers.metro.Provides
-import okio.Path
-import okio.Path.Companion.toOkioPath
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import okio.Path
+import okio.Path.Companion.toOkioPath
 
 @ContributesTo(AppScope::class)
 @BindingContainer

@@ -28,14 +28,14 @@ import com.alexvanyo.composelife.preferences.darkThemeConfigState
 import com.alexvanyo.composelife.resourcestate.successes
 import com.alexvanyo.composelife.scopes.ApplicationContext
 import com.alexvanyo.composelife.updatable.Updatable
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
-import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.binding
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 
 @Inject
 @ContributesIntoSet(AppScope::class, binding = binding<Updatable>())

@@ -20,15 +20,15 @@ import com.alexvanyo.composelife.clock.di.ClockBindings
 import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
 import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.dispatchers.clock
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
 import kotlin.time.Clock
-import dev.zacsweers.metro.Provides
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.BindingContainer
-import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.SingleIn
 
 @ContributesTo(AppScope::class, replaces = [ClockBindings::class])
 @BindingContainer

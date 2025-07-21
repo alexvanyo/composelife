@@ -22,11 +22,11 @@ import android.content.ClipData
 import android.content.Context
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.scopes.ApplicationContext
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
-import dev.zacsweers.metro.Inject
 
 @Inject
 actual class CellStateParser(

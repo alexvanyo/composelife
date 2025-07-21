@@ -17,12 +17,12 @@
 package com.alexvanyo.composelife.model
 
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
-import dev.zacsweers.metro.Inject
 
 @Inject
 class FlexibleCellStateSerializer(
