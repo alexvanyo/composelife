@@ -20,6 +20,8 @@ import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
@@ -28,8 +30,6 @@ import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.Inject
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration

@@ -18,12 +18,12 @@ package com.alexvanyo.composelife.imageloader.di
 
 import coil3.disk.DiskCache
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import dev.zacsweers.metro.Provides
-import okio.FileSystem
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
+import okio.FileSystem
 
 @ContributesTo(AppScope::class)
 @BindingContainer

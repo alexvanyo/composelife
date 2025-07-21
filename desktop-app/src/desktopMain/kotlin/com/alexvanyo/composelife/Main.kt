@@ -38,18 +38,18 @@ import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import com.alexvanyo.composelife.updatable.Updatable
 import com.slack.circuit.retained.LocalRetainedStateRegistry
 import com.slack.circuit.retained.continuityRetainedStateRegistry
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.asContribution
 import dev.zacsweers.metro.createGraph
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 
 fun main() = application {
     val globalGraph = createGraph<GlobalGraph>()
     val applicationGraph = globalGraph.asContribution<ApplicationGraph.Factory>().create(
-        object : ApplicationGraphArguments {}
+        object : ApplicationGraphArguments {},
     )
 
     val entryPoint = applicationGraph.composeLifeApplicationEntryPoint

@@ -36,6 +36,12 @@ import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.map
 import com.alexvanyo.composelife.updatable.PowerableUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.onDownload
 import io.ktor.client.request.prepareGet
@@ -53,7 +59,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.io.okio.asOkioSource
-import dev.zacsweers.metro.Inject
 import okio.ByteString.Companion.toByteString
 import okio.FileSystem
 import okio.HashingSink
@@ -63,11 +68,7 @@ import okio.blackholeSink
 import okio.buffer
 import okio.openZip
 import okio.use
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesBinding
-import dev.zacsweers.metro.ContributesIntoSet
-import dev.zacsweers.metro.SingleIn
-import dev.zacsweers.metro.binding
+import kotlin.time.Clock
 
 @Inject
 @ContributesBinding(AppScope::class, binding = binding<PatternCollectionRepository>())

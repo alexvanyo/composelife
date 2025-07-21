@@ -41,6 +41,8 @@ import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
 import com.alexvanyo.composelife.wear.watchface.configuration.createGameOfLifeComplicationSlotsManager
 import com.alexvanyo.composelife.wear.watchface.configuration.createGameOfLifeStyleSchema
 import com.alexvanyo.composelife.wear.watchface.configuration.getGameOfLifeColor
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -50,8 +52,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesTo
 
 @ContributesTo(AppScope::class)
 interface GameOfLifeWatchFaceServiceEntryPoint {

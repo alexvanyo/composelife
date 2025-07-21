@@ -18,10 +18,10 @@ package com.alexvanyo.composelife.processlifecycle.di
 
 import androidx.lifecycle.LifecycleOwner
 import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
-import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 
 @ContributesTo(AppScope::class)

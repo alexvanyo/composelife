@@ -29,6 +29,9 @@ import com.alexvanyo.composelife.network.FakeRequestHandler
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseInjectTest
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.asContribution
 import io.ktor.client.engine.mock.respond
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -38,9 +41,6 @@ import kotlinx.coroutines.test.runCurrent
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.asContribution
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -53,15 +53,18 @@ interface PatternCollectionRepositoryTestsEntryPoint {
     val patternCollectionQueries: PatternCollectionQueries
     val cellStateRepository: CellStateRepository
     val cellStateQueries: CellStateQueries
+
     @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
     val fakeRequestHandler: FakeRequestHandler
     val fakeFileSystem: FakeFileSystem
+
     @PersistedDataPath val persistedDataPath: Path
 }
 
 // TODO: Replace with asContribution()
-internal val ApplicationGraph.patternCollectionRepositoryTestsEntryPoint: PatternCollectionRepositoryTestsEntryPoint get() =
-    this as PatternCollectionRepositoryTestsEntryPoint
+internal val ApplicationGraph.patternCollectionRepositoryTestsEntryPoint:
+    PatternCollectionRepositoryTestsEntryPoint get() =
+        this as PatternCollectionRepositoryTestsEntryPoint
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PatternCollectionRepositoryTests : BaseInjectTest(

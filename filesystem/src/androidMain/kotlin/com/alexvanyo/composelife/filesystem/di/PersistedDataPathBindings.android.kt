@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.filesystem.di
 
 import android.content.Context
 import com.alexvanyo.composelife.filesystem.PersistedDataPath
 import com.alexvanyo.composelife.scopes.ApplicationContext
-import dev.zacsweers.metro.Provides
-import okio.Path
-import okio.Path.Companion.toOkioPath
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import okio.Path
+import okio.Path.Companion.toOkioPath
 
 @ContributesTo(AppScope::class)
 @BindingContainer

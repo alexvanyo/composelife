@@ -25,13 +25,13 @@ import com.alexvanyo.composelife.filesystem.PersistedDataPath
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseInjectTest
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.asContribution
 import kotlinx.coroutines.test.TestDispatcher
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.asContribution
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -42,8 +42,10 @@ import kotlin.uuid.Uuid
 interface CellStateRepositoryTestsEntryPoint {
     val cellStateRepository: CellStateRepository
     val cellStateQueries: CellStateQueries
+
     @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
     val fakeFileSystem: FakeFileSystem
+
     @PersistedDataPath val persistedDataPath: Path
 }
 

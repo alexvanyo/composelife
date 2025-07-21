@@ -25,13 +25,13 @@ import com.alexvanyo.composelife.scopes.ApplicationContext
 import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.work.AssistedWorkerFactory
 import com.alexvanyo.composelife.work.InjectWorkerFactory
-import kotlinx.coroutines.awaitCancellation
-import dev.zacsweers.metro.IntoSet
-import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.IntoSet
+import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
+import kotlinx.coroutines.awaitCancellation
 import kotlin.reflect.KClass
 
 @ContributesTo(AppScope::class, replaces = [WorkManagerBindings::class])
@@ -40,7 +40,7 @@ interface TestWorkManagerBindings {
     companion object {
         @Provides
         fun providesWorkerFactoryClassNameMap(
-            workerFactoryClassMap: Map<KClass<out ListenableWorker>, AssistedWorkerFactory>
+            workerFactoryClassMap: Map<KClass<out ListenableWorker>, AssistedWorkerFactory>,
         ): Map<String, AssistedWorkerFactory> =
             workerFactoryClassMap.mapKeys { it.key.java.name }
 
@@ -58,7 +58,7 @@ interface TestWorkManagerBindings {
         @SingleIn(AppScope::class)
         fun providesWorkManager(
             @ApplicationContext context: Context,
-            workManagerConfiguration: androidx.work.Configuration
+            workManagerConfiguration: androidx.work.Configuration,
         ): WorkManager {
             WorkManagerTestInitHelper.initializeTestWorkManager(
                 context,

@@ -24,8 +24,8 @@ import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Multibinds
 import kotlin.reflect.KClass
 
+// @BindingContainer TODO: https://github.com/ZacSweers/metro/issues/742
 @ContributesTo(AppScope::class)
-//@BindingContainer TODO: https://github.com/ZacSweers/metro/issues/742
 interface ImageLoaderKeyerBindings {
     @Multibinds(allowEmpty = true)
     val keyers: Set<KeyerWithType<out Any>>

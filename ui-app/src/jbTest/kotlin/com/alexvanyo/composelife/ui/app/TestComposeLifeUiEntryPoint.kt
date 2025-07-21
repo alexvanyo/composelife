@@ -29,8 +29,6 @@ import com.alexvanyo.composelife.ui.settings.DisableOpenGLUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.SettingUiInjectEntryPoint
-import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import dev.zacsweers.metro.ContributesTo
 
 @ContributesTo(UiScope::class)

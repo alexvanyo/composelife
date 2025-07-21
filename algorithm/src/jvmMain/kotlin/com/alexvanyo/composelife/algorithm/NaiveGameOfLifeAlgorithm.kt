@@ -21,8 +21,8 @@ import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.geometry.getNeighbors
 import com.alexvanyo.composelife.model.CellState
-import kotlinx.coroutines.withContext
 import dev.zacsweers.metro.Inject
+import kotlinx.coroutines.withContext
 
 /**
  * The basic, naive implementation of the [GameOfLifeAlgorithm].
