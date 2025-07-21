@@ -72,17 +72,17 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.settings.resources.AddPatternCollection
+import com.alexvanyo.composelife.ui.settings.resources.DayUnit
 import com.alexvanyo.composelife.ui.settings.resources.Delete
-import com.alexvanyo.composelife.ui.settings.resources.SourceUrlLabel
+import com.alexvanyo.composelife.ui.settings.resources.HourUnit
 import com.alexvanyo.composelife.ui.settings.resources.LastSuccessfulSync
 import com.alexvanyo.composelife.ui.settings.resources.LastUnsuccessfulSync
-import com.alexvanyo.composelife.ui.settings.resources.Strings
-import com.alexvanyo.composelife.ui.settings.resources.DayUnit
-import com.alexvanyo.composelife.ui.settings.resources.HourUnit
 import com.alexvanyo.composelife.ui.settings.resources.MinuteUnit
 import com.alexvanyo.composelife.ui.settings.resources.Never
 import com.alexvanyo.composelife.ui.settings.resources.SecondUnit
+import com.alexvanyo.composelife.ui.settings.resources.SourceUrlLabel
 import com.alexvanyo.composelife.ui.settings.resources.Sources
+import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.currentTimeZone
@@ -126,6 +126,7 @@ fun PatternCollectionsUi(
 
 context(_: ClockProvider)
 @OptIn(ExperimentalMaterial3Api::class)
+@Suppress("LongMethod")
 @Composable
 fun PatternCollectionsUi(
     patternCollectionsState: ResourceState<List<PatternCollection>>,
@@ -146,7 +147,7 @@ fun PatternCollectionsUi(
             modifier = Modifier.padding(
                 top = 8.dp,
                 bottom = 12.dp,
-            )
+            ),
         )
 
         when (patternCollectionsState) {
@@ -240,6 +241,7 @@ fun PatternCollectionsUi(
 }
 
 context(clockProvider: ClockProvider)
+@Suppress("CyclomaticComplexMethod", "LongMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatternCollection(

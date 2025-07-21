@@ -25,12 +25,12 @@ actual fun Strings.InteractableCellContentDescription(x: Int, y: Int): Parameter
     ParameterizedString(
         R.string.cell_content_description,
         ParameterizedStringArgument(x),
-        ParameterizedStringArgument(y)
+        ParameterizedStringArgument(y),
     )
 
 internal actual fun Strings.SelectingBoxHandle(x: Int, y: Int): ParameterizedString =
     ParameterizedString(
         R.string.selecting_box_handle,
         ParameterizedStringArgument(x),
-        ParameterizedStringArgument(y)
+        ParameterizedStringArgument(y),
     )

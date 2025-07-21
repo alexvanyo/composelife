@@ -79,8 +79,11 @@ val ComposeLifePreferences.enableClipboardWatchingState: ResourceState<Boolean>
 val ComposeLifePreferences.synchronizePatternCollectionsOnMeteredNetwork: ResourceState<Boolean>
     get() = loadedPreferencesState.map(LoadedComposeLifePreferences::synchronizePatternCollectionsOnMeteredNetwork)
 
-val ComposeLifePreferences.patternCollectionsSynchronizationPeriodSessionValue: ResourceState<SessionValue<DateTimePeriod>>
-    get() = loadedPreferencesState.map(LoadedComposeLifePreferences::patternCollectionsSynchronizationPeriodSessionValue)
+val ComposeLifePreferences.patternCollectionsSynchronizationPeriodSessionValue:
+    ResourceState<SessionValue<DateTimePeriod>>
+    get() = loadedPreferencesState.map(
+        LoadedComposeLifePreferences::patternCollectionsSynchronizationPeriodSessionValue,
+    )
 
 val ComposeLifePreferences.enableWindowShapeClippingState: ResourceState<Boolean>
     get() = loadedPreferencesState.map(LoadedComposeLifePreferences::enableWindowShapeClipping)

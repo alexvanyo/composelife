@@ -19,10 +19,10 @@ package com.alexvanyo.composelife.preferences.di
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.DefaultComposeLifePreferences
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
-import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 
 @ContributesTo(AppScope::class, replaces = [DefaultComposeLifePreferences::class])

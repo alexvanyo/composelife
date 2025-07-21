@@ -25,13 +25,13 @@ import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.alexvanyo.composelife.database.ComposeLifeDatabase
 import com.alexvanyo.composelife.scopes.ApplicationContext
 import com.alexvanyo.composelife.updatable.Updatable
-import kotlinx.coroutines.awaitCancellation
-import dev.zacsweers.metro.IntoSet
-import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.IntoSet
+import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
+import kotlinx.coroutines.awaitCancellation
 
 @ContributesTo(AppScope::class, replaces = [DriverBindings::class])
 @BindingContainer

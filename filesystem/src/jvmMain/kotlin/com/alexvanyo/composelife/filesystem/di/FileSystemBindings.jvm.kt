@@ -16,11 +16,11 @@
 
 package com.alexvanyo.composelife.filesystem.di
 
-import dev.zacsweers.metro.Provides
-import okio.FileSystem
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import okio.FileSystem
 
 @ContributesTo(AppScope::class)
 @BindingContainer

@@ -19,10 +19,10 @@ package com.alexvanyo.composelife.database.di
 import com.alexvanyo.composelife.database.CellStateQueries
 import com.alexvanyo.composelife.database.ComposeLifeDatabase
 import com.alexvanyo.composelife.database.PatternCollectionQueries
-import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 
 @ContributesTo(AppScope::class)

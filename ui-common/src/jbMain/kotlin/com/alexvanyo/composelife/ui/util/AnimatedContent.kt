@@ -423,8 +423,8 @@ fun <T, M> AnimatedContent(
                         is TargetState.Single -> placeablesMap.getValue(targetState.current).size
                     }
 
-                    val resolvedTargetRenderingComparator = targetRenderingComparator ?:
-                        compareBy {
+                    val resolvedTargetRenderingComparator = targetRenderingComparator
+                        ?: compareBy {
                             when (targetState) {
                                 is TargetState.InProgress -> when (it) {
                                     targetState.current -> 1f
@@ -674,8 +674,8 @@ sealed interface ContentStatus<out M> {
     data object NotVisible : ContentStatus<Nothing>
 }
 
-//@Composable
-//fun <T> Repro(
+// @Composable
+// fun <T> Repro(
 //    holder: Alpha<T>,
 //    comparator: Comparator<T> = compareBy {
 //        when (holder) {
@@ -683,11 +683,11 @@ sealed interface ContentStatus<out M> {
 //            is Alpha.B -> 1f
 //        }
 //    },
-//) {
+// ) {
 //
-//}
+// }
 //
-//sealed interface Alpha<T> {
+// sealed interface Alpha<T> {
 //    data class A<T>(
 //        val unused: Unit = Unit,
 //    ) : Alpha<T>
@@ -695,4 +695,4 @@ sealed interface ContentStatus<out M> {
 //    data class B<T>(
 //        val unused: Unit = Unit,
 //    ) : Alpha<T>
-//}
+// }

@@ -15,43 +15,31 @@
  */
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
+import io.gitlab.arturbosch.detekt.Detekt
+import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import org.gradle.api.JavaVersion
+import org.gradle.api.artifacts.VersionCatalogsExtension
 
 class DetektConventionPlugin : ConventionPlugin({
-    // TODO: Re-enable detekt when detekt works with context parameters
-//    pluginManager.apply("io.gitlab.arturbosch.detekt")
-//
-//    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-//
-//    extensions.configure<DetektExtension> {
-//        buildUponDefaultConfig = true
-//        allRules = true
-//        autoCorrect = true
-//        config.setFrom("$rootDir/config/detekt.yml")
-//        source.setFrom(
-//            "src/commonMain/kotlin",
-//            "src/commonTest/kotlin",
-//            "src/desktopMain/kotlin",
-//            "src/desktopTest/kotlin",
-//            "src/androidMain/kotlin",
-//            "src/androidDebug/kotlin",
-//            "src/androidRelease/kotlin",
-//            "src/androidStaging/kotlin",
-//            "src/androidBenchmark/kotlin",
-//            "src/androidUnitTest/kotlin",
-//            "src/androidSharedTest/kotlin",
-//            "src/androidInstrumentedTest/kotlin",
-//        )
-//    }
-//
-//    dependencies {
-//        add("detektPlugins", libs.findLibrary("detekt.formatting").get())
-//    }
-//
-//    tasks.withType<Detekt>().configureEach {
-//        jvmTarget = JavaVersion.VERSION_1_8.toString()
-//    }
-//
-//    tasks.named("check").configure {
-//        dependsOn(tasks.withType<Detekt>())
-//    }
+    pluginManager.apply("io.gitlab.arturbosch.detekt")
+
+    val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
+
+    extensions.configure(DetektExtension::class.java) {
+        buildUponDefaultConfig = true
+        allRules = true
+        autoCorrect = true
+        config.setFrom("$rootDir/config/detekt.yml")
+        source.setFrom("src")
+    }
+
+    dependencies.add("detektPlugins", libs.findLibrary("detekt.formatting").get())
+
+    tasks.withType(Detekt::class.java).configureEach {
+        jvmTarget = JavaVersion.VERSION_17.toString()
+    }
+
+    tasks.named("check").configure {
+        dependsOn(tasks.withType(Detekt::class.java))
+    }
 })

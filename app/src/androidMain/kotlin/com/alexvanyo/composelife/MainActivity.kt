@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         val uiGraph = (application.applicationGraph as UiGraph.Factory).create(
             object : UiGraphArguments {
                 override val activity: Activity = this@MainActivity
-            }
+            },
         )
         val mainActivityEntryPoint = uiGraph.mainActivityInjectEntryPoint
 

@@ -36,7 +36,7 @@ internal fun PatternCollectionsSynchronizationPeriodUiPreviews(modifier: Modifie
             Surface(modifier) {
                 PatternCollectionsSynchronizationPeriodUi(
                     patternCollectionsSynchronizationPeriodSessionValue =
-                        SessionValue(Uuid.random(), Uuid.random(), DateTimePeriod(minutes = 15)),
+                    SessionValue(Uuid.random(), Uuid.random(), DateTimePeriod(minutes = 15)),
                     setPatternCollectionsSynchronizationPeriodSessionValue = { _, _ -> },
                 )
             }

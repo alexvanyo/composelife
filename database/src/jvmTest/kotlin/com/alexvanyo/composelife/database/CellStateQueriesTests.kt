@@ -25,10 +25,10 @@ import app.cash.turbine.withTurbineTimeout
 import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseInjectTest
-import kotlinx.coroutines.test.TestDispatcher
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
+import kotlinx.coroutines.test.TestDispatcher
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -37,6 +37,7 @@ import kotlin.time.Duration.Companion.seconds
 @ContributesTo(AppScope::class)
 interface CellStateQueriesTestsEntryPoint {
     val cellStateQueries: CellStateQueries
+
     @GeneralTestDispatcher val testDispatcher: TestDispatcher
 }
 

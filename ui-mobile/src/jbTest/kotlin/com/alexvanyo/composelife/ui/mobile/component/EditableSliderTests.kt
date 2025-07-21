@@ -42,8 +42,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.sessionvalue.SessionValue
-import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.uuid.Uuid
 
@@ -230,6 +230,7 @@ class EditableSliderTests {
         assertEquals(1f, sessionValue.value)
     }
 
+    @Suppress("LongMethod")
     @Test
     fun multiple_concurrent_editable_sliders_are_updated_correctly_with_slider() = runComposeUiTest {
         var sessionValue by mutableStateOf(SessionValue(Uuid.random(), Uuid.random(), 0f))
@@ -302,6 +303,7 @@ class EditableSliderTests {
         assertEquals(0.25f, sessionValue.value)
     }
 
+    @Suppress("LongMethod")
     @Test
     fun multiple_concurrent_editable_sliders_are_updated_correctly_with_text() = runComposeUiTest {
         var sessionValue by mutableStateOf(SessionValue(Uuid.random(), Uuid.random(), 0f))

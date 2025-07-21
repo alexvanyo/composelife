@@ -71,6 +71,7 @@ interface SettingUiLocalEntryPoint :
  * setting that will invoke [onOpenInSettingsClicked].
  */
 context(injectEntryPoint: SettingUiInjectEntryPoint, localEntryPoint: SettingUiLocalEntryPoint)
+@Suppress("CyclomaticComplexMethod")
 @Composable
 fun SettingUi(
     setting: Setting,

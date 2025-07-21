@@ -28,13 +28,13 @@ import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
 import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.strictmode.initStrictModeIfNeeded
 import com.alexvanyo.composelife.updatable.Updatable
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.asContribution
 import dev.zacsweers.metro.createGraph
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 
 @ContributesTo(AppScope::class)
 interface ComposeLifeApplicationEntryPoint {
@@ -59,7 +59,7 @@ class ComposeLifeApplication : Application(), ApplicationGraphOwner {
         applicationGraph = globalGraph.asContribution<ApplicationGraph.Factory>().create(
             object : ApplicationGraphArguments {
                 override val application: Application = this@ComposeLifeApplication
-            }
+            },
         )
         val entryPoint = applicationGraph.composeLifeApplicationEntryPoint
         val processLifecycleOwner = entryPoint.processLifecycleOwner

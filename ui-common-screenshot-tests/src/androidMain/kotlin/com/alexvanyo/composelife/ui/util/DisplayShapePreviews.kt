@@ -54,34 +54,36 @@ internal fun WindowShapeDisplayShapePreview(modifier: Modifier = Modifier) {
             windowInsets = WindowInsetsCompat.toWindowInsetsCompat(
                 WindowInsets.Builder()
                     .setDisplayShape(
+                        @Suppress("MaxLineLength", "MaximumLineLength")
                         createDisplayShape(
                             displayShapeSpec = "m25,0 h250 a25,25 0 0 1 25,25 v350 a25,25 0 0 1 -25,25 h-250 a25,25 0 0 1 -25,-25 v-350 a25,25 0 0 1 25,-25 z",
                             displayWidth = 300,
                             displayHeight = 400,
                             physicalPixelDisplaySizeRatio = density.density,
                             rotation = 0,
-                        )
+                        ),
                     )
                     .setInsets(WindowInsets.Type.statusBars(), Insets.of(0, 100, 0, 0))
-                    .build()
-            )
-        ) then DeviceConfigurationOverride.WindowSize(DpSize(300.dp, 400.dp))
+                    .build(),
+            ),
+        ) then DeviceConfigurationOverride.WindowSize(DpSize(300.dp, 400.dp)),
     ) {
         ProvideLocalWindowInsetsHolder {
             val windowShape = currentWindowShape()
-            Canvas(modifier = Modifier.fillMaxSize()) {
+            Canvas(modifier = modifier.fillMaxSize()) {
                 drawPath(
                     path = windowShape.path,
                     color = Color.Blue,
                     style = Stroke(
                         width = 8.dp.toPx(),
-                    )
+                    ),
                 )
             }
         }
     }
 }
 
+@Suppress("LongMethod")
 @RequiresApi(34)
 @ShowkaseComposable
 @Preview
@@ -99,7 +101,7 @@ internal fun WindowShapeRoundedCornerPreview(modifier: Modifier = Modifier) {
                             with(density) { 25.dp.roundToPx() },
                             with(density) { 25.dp.roundToPx() },
                             with(density) { 25.dp.roundToPx() },
-                        )
+                        ),
                     )
                     .setRoundedCorner(
                         RoundedCorner.POSITION_TOP_RIGHT,
@@ -108,7 +110,7 @@ internal fun WindowShapeRoundedCornerPreview(modifier: Modifier = Modifier) {
                             with(density) { 25.dp.roundToPx() },
                             with(density) { 275.dp.roundToPx() },
                             with(density) { 25.dp.roundToPx() },
-                        )
+                        ),
                     )
                     .setRoundedCorner(
                         RoundedCorner.POSITION_BOTTOM_LEFT,
@@ -117,7 +119,7 @@ internal fun WindowShapeRoundedCornerPreview(modifier: Modifier = Modifier) {
                             with(density) { 25.dp.roundToPx() },
                             with(density) { 25.dp.roundToPx() },
                             with(density) { 375.dp.roundToPx() },
-                        )
+                        ),
                     )
                     .setRoundedCorner(
                         RoundedCorner.POSITION_BOTTOM_RIGHT,
@@ -126,22 +128,22 @@ internal fun WindowShapeRoundedCornerPreview(modifier: Modifier = Modifier) {
                             with(density) { 25.dp.roundToPx() },
                             with(density) { 275.dp.roundToPx() },
                             with(density) { 375.dp.roundToPx() },
-                        )
+                        ),
                     )
                     .setInsets(WindowInsets.Type.statusBars(), Insets.of(0, 100, 0, 0))
-                    .build()
-            )
-        ) then DeviceConfigurationOverride.WindowSize(DpSize(300.dp, 400.dp))
+                    .build(),
+            ),
+        ) then DeviceConfigurationOverride.WindowSize(DpSize(300.dp, 400.dp)),
     ) {
         ProvideLocalWindowInsetsHolder {
             val windowShape = currentWindowShape()
-            Canvas(modifier = Modifier.fillMaxSize()) {
+            Canvas(modifier = modifier.fillMaxSize()) {
                 drawPath(
                     path = windowShape.path,
                     color = Color.Blue,
                     style = Stroke(
                         width = 8.dp.toPx(),
-                    )
+                    ),
                 )
             }
         }
@@ -162,19 +164,19 @@ internal fun WindowShapeRectanglePreview(modifier: Modifier = Modifier) {
                     .setRoundedCorner(RoundedCorner.POSITION_TOP_RIGHT, null)
                     .setRoundedCorner(RoundedCorner.POSITION_BOTTOM_LEFT, null)
                     .setRoundedCorner(RoundedCorner.POSITION_BOTTOM_RIGHT, null)
-                    .build()
-            )
-        ) then DeviceConfigurationOverride.WindowSize(DpSize(300.dp, 400.dp))
+                    .build(),
+            ),
+        ) then DeviceConfigurationOverride.WindowSize(DpSize(300.dp, 400.dp)),
     ) {
         ProvideLocalWindowInsetsHolder {
             val windowShape = currentWindowShape()
-            Canvas(modifier = Modifier.fillMaxSize()) {
+            Canvas(modifier = modifier.fillMaxSize()) {
                 drawPath(
                     path = windowShape.path,
                     color = Color.Blue,
                     style = Stroke(
                         width = 8.dp.toPx(),
-                    )
+                    ),
                 )
             }
         }
@@ -198,7 +200,7 @@ fun createDisplayShape(
             Int::class.java,
             Int::class.java,
             Float::class.java,
-            Int::class.java
+            Int::class.java,
         )
         .apply {
             isAccessible = true
@@ -209,12 +211,12 @@ fun createDisplayShape(
         displayWidth,
         displayHeight,
         physicalPixelDisplaySizeRatio,
-        rotation
+        rotation,
     )
 }
 
 fun DeviceConfigurationOverride.Companion.WindowSize(
-    size: DpSize
+    size: DpSize,
 ): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
     val windowInfo = LocalWindowInfo.current
     val density = LocalDensity.current

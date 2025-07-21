@@ -153,7 +153,7 @@ fun <T> WearNavigationFrame(
         Box(
             modifier = paneModifier.hierarchicalFocusGroup(
                 active = currentEntry.id == entry.id,
-            )
+            ),
         ) {
             key(entry.id) {
                 // Fetch and store the movable content to hold onto while animating out

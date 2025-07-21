@@ -41,14 +41,19 @@ expect fun ParameterizedString(
 sealed interface ParameterizedStringArgument {
     @Serializable
     data class ParameterizedStringArg(val value: ParameterizedString) : ParameterizedStringArgument
+
     @Serializable
     data class StringArg(val value: String) : ParameterizedStringArgument
+
     @Serializable
     data class IntArg(val value: Int) : ParameterizedStringArgument
+
     @Serializable
     data class CharArg(val value: Char) : ParameterizedStringArgument
+
     @Serializable
     data class FloatArg(val value: Float) : ParameterizedStringArgument
+
     @Serializable
     data class DoubleArg(val value: Double) : ParameterizedStringArgument
 }

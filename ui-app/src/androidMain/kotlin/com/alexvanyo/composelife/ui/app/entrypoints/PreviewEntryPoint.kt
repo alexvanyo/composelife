@@ -92,11 +92,11 @@ import com.alexvanyo.composelife.ui.settings.SettingUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.SettingUiLocalEntryPoint
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
-import kotlin.time.Clock
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
 import kotlin.random.Random
+import kotlin.time.Clock
 
 /**
  * The full super-interface implementing all entry points for rendering
@@ -227,7 +227,7 @@ internal fun WithPreviewDependencies(
             httpClient = lazy { HttpClient(MockEngine) },
             logger = logger,
             clock = clock,
-            persistedDataPath = lazy { "persistedDataPath".toPath() }
+            persistedDataPath = lazy { "persistedDataPath".toPath() },
         )
     }
     val loadedPreferencesProvider = object : LoadedComposeLifePreferencesProvider {

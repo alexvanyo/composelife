@@ -45,12 +45,12 @@ tasks {
         failOnWarning = true
     }
 
-    withType<Detekt>().configureEach {
+    withType(Detekt::class.java).configureEach {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     named("check").configure {
-        dependsOn(withType<Detekt>())
+        dependsOn(withType(Detekt::class.java))
     }
 }
 

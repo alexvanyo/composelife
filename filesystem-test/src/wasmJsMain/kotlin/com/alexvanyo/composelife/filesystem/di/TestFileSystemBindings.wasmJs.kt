@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.filesystem.di
 
-import okio.FileSystem
-import okio.fakefilesystem.FakeFileSystem
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesTo
+import okio.FileSystem
+import okio.fakefilesystem.FakeFileSystem
 
 @ContributesTo(AppScope::class, replaces = [FileSystemBindings::class])
 interface TestFileSystemBindings {

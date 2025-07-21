@@ -16,6 +16,10 @@
 
 package com.alexvanyo.composelife.ui.util
 
+import kotlinx.datetime.DateTimePeriod
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.until
 import kotlin.math.abs
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
@@ -23,10 +27,6 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
-import kotlinx.datetime.DateTimePeriod
-import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.until
 
 /**
  * Returns the [DateTimePeriod] until the given [Instant] using the given [unit] in the given [timeZone].

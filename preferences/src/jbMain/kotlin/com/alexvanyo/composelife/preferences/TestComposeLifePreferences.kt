@@ -96,7 +96,7 @@ class TestComposeLifePreferences(
         Uuid by mutableStateOf(patternCollectionsSynchronizationPeriodSessionId)
 
     var patternCollectionsSynchronizationPeriodValueId:
-            Uuid by mutableStateOf(patternCollectionsSynchronizationPeriodValueId)
+        Uuid by mutableStateOf(patternCollectionsSynchronizationPeriodValueId)
 
     var enableWindowShapeClipping: Boolean by mutableStateOf(enableWindowShapeClipping)
 

@@ -56,6 +56,7 @@ class InteractableCellsTests {
         override val preferences = LoadedComposeLifePreferences.Defaults
     }
 
+    @Suppress("LongMethod")
     @Test
     fun cells_are_displayed_correctly() = runComposeUiTest {
         val mutableGameOfLifeState = MutableGameOfLifeState(
@@ -217,6 +218,7 @@ class InteractableCellsTests {
         )
     }
 
+    @Suppress("LongMethod")
     @Test
     fun drawing_on_cells_with_mouse_updates_state_with_draw_tool() = runComposeUiTest {
         val mutableGameOfLifeState = MutableGameOfLifeState(
@@ -285,6 +287,7 @@ class InteractableCellsTests {
         )
     }
 
+    @Suppress("LongMethod")
     @Test
     fun drawing_on_cells_with_mouse_does_not_update_state_with_none_tool() = runComposeUiTest {
         val mutableGameOfLifeState = MutableGameOfLifeState(

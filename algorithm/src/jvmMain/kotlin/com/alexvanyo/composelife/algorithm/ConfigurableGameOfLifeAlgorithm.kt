@@ -24,6 +24,9 @@ import com.alexvanyo.composelife.preferences.algorithmChoiceState
 import com.alexvanyo.composelife.resourcestate.firstSuccess
 import com.alexvanyo.composelife.resourcestate.map
 import com.alexvanyo.composelife.resourcestate.successes
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.currentCoroutineContext
@@ -34,9 +37,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.selects.select
-import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesBinding
 
 @Inject
 @ContributesBinding(AppScope::class)

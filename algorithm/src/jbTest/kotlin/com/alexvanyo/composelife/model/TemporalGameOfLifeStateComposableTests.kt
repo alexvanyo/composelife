@@ -134,6 +134,7 @@ class TemporalGameOfLifeStateComposableTests {
         }
     }
 
+    @Suppress("LongMethod")
     @Test
     fun pausing_evolution_is_correct() = runComposeUiTest {
         val temporalGameOfLifeState = TemporalGameOfLifeState(
@@ -226,6 +227,7 @@ class TemporalGameOfLifeStateComposableTests {
         assertIs<TemporalGameOfLifeState.EvolutionStatus.Paused>(temporalGameOfLifeState.status)
     }
 
+    @Suppress("LongMethod")
     @Test
     fun target_steps_evolution_is_correct() = runComposeUiTest {
         val temporalGameOfLifeState = TemporalGameOfLifeState(
@@ -333,6 +335,7 @@ class TemporalGameOfLifeStateComposableTests {
         }
     }
 
+    @Suppress("LongMethod")
     @Test
     fun setting_evolution_is_correct() = runComposeUiTest {
         val temporalGameOfLifeState = TemporalGameOfLifeState(
@@ -440,6 +443,7 @@ class TemporalGameOfLifeStateComposableTests {
         }
     }
 
+    @Suppress("LongMethod")
     @Test
     fun multiple_evolutions_is_correct() = runComposeUiTest {
         val temporalGameOfLifeState = TemporalGameOfLifeState(

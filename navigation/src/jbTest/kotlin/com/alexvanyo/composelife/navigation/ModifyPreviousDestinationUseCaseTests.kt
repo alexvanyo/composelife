@@ -71,6 +71,7 @@ private class TestPaneState(
 @RunWith(KmpAndroidJUnit4::class)
 class ModifyPreviousDestinationUseCaseTests {
 
+    @Suppress("LongMethod")
     @Test
     fun can_increment_count_on_previous_pane() = runComposeUiTest {
         setContent {
@@ -155,6 +156,7 @@ class ModifyPreviousDestinationUseCaseTests {
         onNodeWithText("count: 2").assertExists()
     }
 
+    @Suppress("LongMethod")
     @Test
     fun can_increment_count_on_previous_pane_after_recreation() = runComposeUiTest {
         val stateRestorationTester = KmpStateRestorationTester(this)

@@ -35,7 +35,7 @@ import kotlin.test.assertTrue
 import kotlin.uuid.Uuid
 import kotlin.collections.removeFirst as removeFirstKt
 
-@Suppress("LargeClass")
+@Suppress("LargeClass", "TooManyFunctions")
 class SessionValueHolderComposableTests {
 
     val broadcastFrameClock = BroadcastFrameClock()
@@ -449,6 +449,7 @@ class SessionValueHolderComposableTests {
             }
     }
 
+    @Suppress("LongMethod")
     @Test
     fun localSessionActive_whenUpdatingValue_stateIsCorrect() = runTest(broadcastFrameClock) {
         val sessionId1 = Uuid.random()
@@ -535,6 +536,7 @@ class SessionValueHolderComposableTests {
             }
     }
 
+    @Suppress("LongMethod")
     @Test
     fun localSessionActive_whenUpstreamSessionCatchesUp_stateIsCorrect() = runTest(broadcastFrameClock) {
         val sessionId1 = Uuid.random()
@@ -622,6 +624,7 @@ class SessionValueHolderComposableTests {
             }
     }
 
+    @Suppress("LongMethod")
     @Test
     fun localSessionActive_whenUpstreamSessionCatchesUpWithTwoChanges_stateIsCorrect() = runTest(broadcastFrameClock) {
         val sessionId1 = Uuid.random()
@@ -769,6 +772,7 @@ class SessionValueHolderComposableTests {
             }
     }
 
+    @Suppress("LongMethod")
     @Test
     fun localSessionActive_whenUpstreamSessionChanges_stateIsCorrect() = runTest(broadcastFrameClock) {
         val sessionId1 = Uuid.random()
@@ -860,6 +864,7 @@ class SessionValueHolderComposableTests {
             }
     }
 
+    @Suppress("LongMethod")
     @Test
     fun localSessionActive_whenUpstreamSessionChangesBeforeLocalSession_stateIsCorrect() = runTest(
         broadcastFrameClock,

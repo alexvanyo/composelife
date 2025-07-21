@@ -29,7 +29,9 @@ import kotlinx.coroutines.test.TestDispatcher
 @ContributesTo(AppScope::class)
 interface TestComposeLifeApplicationEntryPoint {
     val updatables: Set<Updatable>
+
     @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
+
     @CellTickerTestDispatcher val cellTickerTestDispatcher: TestDispatcher
     val composeLifePreferences: ComposeLifePreferences
 }

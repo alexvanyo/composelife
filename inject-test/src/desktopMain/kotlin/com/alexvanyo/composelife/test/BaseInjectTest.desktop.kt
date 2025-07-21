@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.test
 
@@ -21,6 +22,7 @@ import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import org.junit.runner.RunWith
 
+@Suppress("UnnecessaryAbstractClass")
 @RunWith(KmpAndroidJUnit4::class)
 actual abstract class BaseInjectTest actual constructor(
     applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,

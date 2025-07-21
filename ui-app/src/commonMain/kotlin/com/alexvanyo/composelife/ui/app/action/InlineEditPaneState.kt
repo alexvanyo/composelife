@@ -178,6 +178,7 @@ fun rememberInlineEditPaneState(
     }
 }
 
+@Suppress("LongParameterList")
 @Composable
 fun rememberClipboardWatchingState(
     composeLifePreferences: ComposeLifePreferences,

@@ -22,11 +22,11 @@ import androidx.work.WorkManager
 import com.alexvanyo.composelife.scopes.ApplicationContext
 import com.alexvanyo.composelife.work.AssistedWorkerFactory
 import com.alexvanyo.composelife.work.InjectWorkerFactory
-import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Multibinds
+import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import kotlin.reflect.KClass
 
@@ -40,7 +40,7 @@ interface WorkManagerBindings {
     companion object {
         @Provides
         fun providesWorkerFactoryClassNameMap(
-            workerFactoryClassMap: Map<KClass<out ListenableWorker>, AssistedWorkerFactory>
+            workerFactoryClassMap: Map<KClass<out ListenableWorker>, AssistedWorkerFactory>,
         ): Map<String, AssistedWorkerFactory> =
             workerFactoryClassMap.mapKeys { it.key.java.name }
 
@@ -56,7 +56,7 @@ interface WorkManagerBindings {
         @SingleIn(AppScope::class)
         fun providesWorkManager(
             @ApplicationContext context: Context,
-            workManagerConfiguration: androidx.work.Configuration
+            workManagerConfiguration: androidx.work.Configuration,
         ): WorkManager {
             WorkManager.initialize(context, workManagerConfiguration)
             return WorkManager.getInstance(context)

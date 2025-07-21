@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.filesystem.di
 
-import android.content.Context
-import com.alexvanyo.composelife.filesystem.PersistedDataPath
-import com.alexvanyo.composelife.scopes.ApplicationContext
-import dev.zacsweers.metro.Provides
-import okio.Path
-import okio.Path.Companion.toOkioPath
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesTo
+import okio.FileSystem
+import okio.fakefilesystem.FakeFileSystem
 
-@ContributesTo(AppScope::class)
+@ContributesTo(AppScope::class, replaces = [FileSystemBindings::class])
 @BindingContainer
-interface PersistedDataPathBindings {
-    companion object {
-        @Provides
-        @PersistedDataPath
-        fun providesPersistedDataPath(
-            @ApplicationContext context: Context,
-        ): Path = context.filesDir.toOkioPath()
-    }
+interface TestFileSystemBindings {
+    @Binds
+    val FakeFileSystem.fileSystem: FileSystem
 }

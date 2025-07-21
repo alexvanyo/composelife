@@ -24,10 +24,10 @@ import com.alexvanyo.composelife.model.HashLifeCellState
 import com.alexvanyo.composelife.model.MacroCell
 import com.alexvanyo.composelife.model.expandCentered
 import com.alexvanyo.composelife.model.toHashLifeCellState
-import kotlinx.coroutines.withContext
-import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import kotlinx.coroutines.withContext
 
 @SingleIn(AppScope::class)
 @Inject

@@ -23,16 +23,16 @@ import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.core.okio.OkioStorage
 import com.alexvanyo.composelife.preferences.proto.PreferencesProto
-import kotlinx.coroutines.CoroutineScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Qualifier
+import dev.zacsweers.metro.SingleIn
+import kotlinx.coroutines.CoroutineScope
 import okio.BufferedSink
 import okio.BufferedSource
 import okio.FileSystem
 import okio.Path
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesBinding
-import dev.zacsweers.metro.SingleIn
 import java.io.IOException
 
 @Qualifier

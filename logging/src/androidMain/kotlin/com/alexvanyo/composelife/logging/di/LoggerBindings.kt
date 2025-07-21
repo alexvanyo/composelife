@@ -21,10 +21,10 @@ import android.content.pm.ApplicationInfo
 import com.alexvanyo.composelife.logging.Logger
 import com.alexvanyo.composelife.logging.NoOpLogger
 import com.alexvanyo.composelife.logging.SingletonSystemLogger
-import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
 
 @ContributesTo(AppScope::class)
 @BindingContainer

@@ -19,6 +19,8 @@ package com.alexvanyo.composelife.ui.app
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
+import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.AlgorithmImplementationUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.CellShapeConfigUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.DarkThemeConfigUiInjectEntryPoint
@@ -27,8 +29,6 @@ import com.alexvanyo.composelife.ui.settings.DisableOpenGLUiInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneInjectEntryPoint
 import com.alexvanyo.composelife.ui.settings.SettingUiInjectEntryPoint
-import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
 import dev.zacsweers.metro.ContributesTo
 
 @ContributesTo(UiScope::class)

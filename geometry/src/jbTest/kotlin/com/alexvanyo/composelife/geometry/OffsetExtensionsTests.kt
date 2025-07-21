@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.IntOffset
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@Suppress("TooManyFunctions")
 class OffsetExtensionsTests {
 
     @Test

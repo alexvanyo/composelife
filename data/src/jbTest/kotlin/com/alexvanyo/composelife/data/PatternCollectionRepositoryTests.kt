@@ -29,8 +29,10 @@ import com.alexvanyo.composelife.network.FakeRequestHandler
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseInjectTest
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.asContribution
 import io.ktor.client.engine.mock.respond
-import kotlin.time.Instant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -39,13 +41,11 @@ import kotlinx.coroutines.test.runCurrent
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.asContribution
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.time.Instant
 
 @ContributesTo(AppScope::class)
 interface PatternCollectionRepositoryTestsEntryPoint {
@@ -53,15 +53,18 @@ interface PatternCollectionRepositoryTestsEntryPoint {
     val patternCollectionQueries: PatternCollectionQueries
     val cellStateRepository: CellStateRepository
     val cellStateQueries: CellStateQueries
+
     @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
     val fakeRequestHandler: FakeRequestHandler
     val fakeFileSystem: FakeFileSystem
+
     @PersistedDataPath val persistedDataPath: Path
 }
 
 // TODO: Replace with asContribution()
-internal val ApplicationGraph.patternCollectionRepositoryTestsEntryPoint: PatternCollectionRepositoryTestsEntryPoint get() =
-    this as PatternCollectionRepositoryTestsEntryPoint
+internal val ApplicationGraph.patternCollectionRepositoryTestsEntryPoint:
+    PatternCollectionRepositoryTestsEntryPoint get() =
+        this as PatternCollectionRepositoryTestsEntryPoint
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PatternCollectionRepositoryTests : BaseInjectTest(
@@ -122,13 +125,14 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
                         lastUnsuccessfulSynchronizationTimestamp = null,
                         synchronizationFailureMessage = null,
                         isSynchronizing = false,
-                    )
-                )
+                    ),
+                ),
             ),
             patternCollectionRepository.collections,
         )
     }
 
+    @Suppress("LongMethod")
     @Test
     fun after_adding_pattern_collection_synchronization_updates() = runAppTest(testDispatcher) {
         backgroundScope.launch {
@@ -155,8 +159,8 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
                         lastUnsuccessfulSynchronizationTimestamp = null,
                         synchronizationFailureMessage = null,
                         isSynchronizing = true,
-                    )
-                )
+                    ),
+                ),
             ),
             patternCollectionRepository.collections,
         )
@@ -166,7 +170,7 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
             respond(
                 this::class.java
                     .getResource("/patternfiles/patterns.zip")!!
-                    .readBytes()
+                    .readBytes(),
             )
         }
 
@@ -182,8 +186,8 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
                         lastUnsuccessfulSynchronizationTimestamp = null,
                         synchronizationFailureMessage = null,
                         isSynchronizing = false,
-                    )
-                )
+                    ),
+                ),
             ),
             patternCollectionRepository.collections,
         )
@@ -255,7 +259,7 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
                 .getResource("/patternfiles/pulsarpixeldisplay.mc")!!
                 .readText()
                 .toCellState(fixedFormatCellStateSerializer = MacrocellCellStateSerializer),
-            cellStates.first().cellState
+            cellStates.first().cellState,
         )
     }
 
@@ -280,7 +284,7 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
             respond(
                 this::class.java
                     .getResource("/patternfiles/patterns.zip")!!
-                    .readBytes()
+                    .readBytes(),
             )
         }
         assertTrue(synchronizationJob.await())
@@ -290,7 +294,7 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
         runCurrent()
 
         assertEquals(
-            ResourceState.Success(emptyList(),),
+            ResourceState.Success(emptyList()),
             patternCollectionRepository.collections,
         )
         assertEquals(
@@ -307,6 +311,7 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
         )
     }
 
+    @Suppress("LongMethod")
     @Test
     fun deleting_pattern_from_archive_removes_files() = runAppTest(testDispatcher) {
         backgroundScope.launch {
@@ -333,8 +338,8 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
                         lastUnsuccessfulSynchronizationTimestamp = null,
                         synchronizationFailureMessage = null,
                         isSynchronizing = true,
-                    )
-                )
+                    ),
+                ),
             ),
             patternCollectionRepository.collections,
         )
@@ -344,7 +349,7 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
             respond(
                 this::class.java
                     .getResource("/patternfiles/patterns.zip")!!
-                    .readBytes()
+                    .readBytes(),
             )
         }
 
@@ -360,8 +365,8 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
                         lastUnsuccessfulSynchronizationTimestamp = null,
                         synchronizationFailureMessage = null,
                         isSynchronizing = false,
-                    )
-                )
+                    ),
+                ),
             ),
             patternCollectionRepository.collections,
         )
@@ -371,7 +376,7 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
             respond(
                 this::class.java
                     .getResource("/patternfiles/empty.zip")!!
-                    .readBytes()
+                    .readBytes(),
             )
         }
 

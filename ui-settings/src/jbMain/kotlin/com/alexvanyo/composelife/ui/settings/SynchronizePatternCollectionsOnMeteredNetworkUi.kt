@@ -25,8 +25,8 @@ import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.setSynchronizePatternCollectionsOnMeteredNetwork
 import com.alexvanyo.composelife.ui.mobile.component.LabeledSwitch
-import com.alexvanyo.composelife.ui.settings.resources.SynchronizePatternCollectionsOnMeteredNetwork
 import com.alexvanyo.composelife.ui.settings.resources.Strings
+import com.alexvanyo.composelife.ui.settings.resources.SynchronizePatternCollectionsOnMeteredNetwork
 import kotlinx.coroutines.launch
 
 interface SynchronizePatternCollectionsOnMeteredNetworkUiInjectEntryPoint :
@@ -37,7 +37,7 @@ interface SynchronizePatternCollectionsOnMeteredNetworkUiLocalEntryPoint :
 
 context(
     injectEntryPoint: SynchronizePatternCollectionsOnMeteredNetworkUiInjectEntryPoint,
-    localEntryPoint: SynchronizePatternCollectionsOnMeteredNetworkUiLocalEntryPoint
+localEntryPoint: SynchronizePatternCollectionsOnMeteredNetworkUiLocalEntryPoint
 )
 @Composable
 fun SynchronizePatternCollectionsOnMeteredNetworkUi(
@@ -45,9 +45,9 @@ fun SynchronizePatternCollectionsOnMeteredNetworkUi(
 ) {
     SynchronizePatternCollectionsOnMeteredNetworkUi(
         synchronizePatternCollectionsOnMeteredNetwork =
-            localEntryPoint.preferences.synchronizePatternCollectionsOnMeteredNetwork,
+        localEntryPoint.preferences.synchronizePatternCollectionsOnMeteredNetwork,
         setSynchronizePatternCollectionsOnMeteredNetwork =
-            injectEntryPoint.composeLifePreferences::setSynchronizePatternCollectionsOnMeteredNetwork,
+        injectEntryPoint.composeLifePreferences::setSynchronizePatternCollectionsOnMeteredNetwork,
         modifier = modifier,
     )
 }

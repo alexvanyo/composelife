@@ -35,7 +35,9 @@ interface TestComposeLifeApplicationEntryPoint {
     val gameOfLifeAlgorithm: GameOfLifeAlgorithm
     val composeLifePreferences: ComposeLifePreferences
     val cellStateParser: CellStateParser
+
     @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
+
     @CellTickerTestDispatcher val cellTickerTestDispatcher: TestDispatcher
 }
 

@@ -54,6 +54,7 @@ class CellWindowTests : BaseUiInjectTest(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
 
+    @Suppress("LongMethod")
     @Test
     fun cells_are_displayed_correctly() = runUiTest { uiGraph ->
         val cellWindowInjectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
@@ -148,6 +149,7 @@ class CellWindowTests : BaseUiInjectTest(
             .assertIsOn()
     }
 
+    @Suppress("LongMethod")
     @Test
     fun cells_are_displayed_correctly_after_scrolling() = runUiTest { uiGraph ->
         val cellWindowInjectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
@@ -221,6 +223,7 @@ class CellWindowTests : BaseUiInjectTest(
         assertTrue(mutableCellWindowViewportState.offset.y > 3f)
     }
 
+    @Suppress("LongMethod")
     @Test
     fun cells_are_not_scrolled_with_none_touch_tool_config() = runUiTest { uiGraph ->
         val cellWindowInjectEntryPoint = uiGraph.testComposeLifeUiEntryPoint

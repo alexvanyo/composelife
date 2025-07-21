@@ -88,6 +88,7 @@ private data class A(
     }
 }
 
+@Suppress("UnusedPrivateClass")
 @Serializable
 private data class B(
     val int: Int,

@@ -33,8 +33,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.PairSerializer
 import kotlinx.serialization.serializer
-import kotlin.collections.removeFirst as removeFirstKt
 import kotlin.uuid.Uuid
+import kotlin.collections.removeFirst as removeFirstKt
 
 /**
  * A multiplexer for a [SessionValue] that can maintain the state for a local session that runs ahead of the
@@ -346,8 +346,8 @@ fun <T> rememberAsyncSessionValueHolder(
             PairSerializer(
                 SessionValue.serializer(valueSerializer),
                 SessionValue.serializer(valueSerializer),
-            )
-        ).saver()
+            ),
+        ).saver(),
     ) {
         mutableStateListOf()
     }

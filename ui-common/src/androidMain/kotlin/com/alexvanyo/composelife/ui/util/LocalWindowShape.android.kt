@@ -60,6 +60,7 @@ private fun getDisplayShapePath(windowInsets: WindowInsetsCompat?, windowSize: I
     } ?: getPathFromFrame(windowSize)
 }
 
+@Suppress("SwallowedException")
 @RequiresApi(34)
 private fun android.view.WindowInsets.getPathFromDisplayShape(): Path? =
     try {
@@ -74,11 +75,19 @@ private fun android.view.WindowInsets.getPathFromRoundedCorners(windowSize: IntS
         addRoundRect(
             RoundRect(
                 rect = windowSize.toIntRect().toRect(),
-                topLeft = getRoundedCorner(RoundedCorner.POSITION_TOP_LEFT)?.toCornerRadius() ?: CornerRadius.Zero,
-                topRight = getRoundedCorner(RoundedCorner.POSITION_TOP_RIGHT)?.toCornerRadius() ?: CornerRadius.Zero,
-                bottomLeft = getRoundedCorner(RoundedCorner.POSITION_BOTTOM_LEFT)?.toCornerRadius() ?: CornerRadius.Zero,
-                bottomRight = getRoundedCorner(RoundedCorner.POSITION_BOTTOM_RIGHT)?.toCornerRadius() ?: CornerRadius.Zero,
-            )
+                topLeft = getRoundedCorner(
+                    RoundedCorner.POSITION_TOP_LEFT,
+                )?.toCornerRadius() ?: CornerRadius.Zero,
+                topRight = getRoundedCorner(
+                    RoundedCorner.POSITION_TOP_RIGHT,
+                )?.toCornerRadius() ?: CornerRadius.Zero,
+                bottomLeft = getRoundedCorner(
+                    RoundedCorner.POSITION_BOTTOM_LEFT,
+                )?.toCornerRadius() ?: CornerRadius.Zero,
+                bottomRight = getRoundedCorner(
+                    RoundedCorner.POSITION_BOTTOM_RIGHT,
+                )?.toCornerRadius() ?: CornerRadius.Zero,
+            ),
         )
     }
 
@@ -86,7 +95,7 @@ private fun android.view.WindowInsets.getPathFromRoundedCorners(windowSize: IntS
 private fun getPathFromFrame(windowSize: IntSize): Path =
     Path().apply {
         addRect(
-            windowSize.toIntRect().toRect()
+            windowSize.toIntRect().toRect(),
         )
     }
 

@@ -22,8 +22,8 @@ import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Multibinds
 
+// @BindingContainer TODO: https://github.com/ZacSweers/metro/issues/742
 @ContributesTo(AppScope::class)
-//@BindingContainer TODO: https://github.com/ZacSweers/metro/issues/742
 interface UpdatableBindings {
 
     @Multibinds(allowEmpty = true)

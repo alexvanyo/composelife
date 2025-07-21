@@ -24,13 +24,13 @@ import com.alexvanyo.composelife.preferences.doNotKeepProcessState
 import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.updatable.Updatable
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.flow.collectLatest
-import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.binding
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.collectLatest
 import kotlin.system.exitProcess
 
 @Inject

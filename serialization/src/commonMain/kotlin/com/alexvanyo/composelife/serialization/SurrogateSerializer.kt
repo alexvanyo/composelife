@@ -34,7 +34,7 @@ inline fun <reified T, reified S> SurrogatingSerializer(
     object : KSerializer<T> {
         override val descriptor = SerialDescriptor(
             serialName = requireNotNull(T::class.qualifiedName),
-            original = surrogateSerializer.descriptor
+            original = surrogateSerializer.descriptor,
         )
         override fun deserialize(decoder: Decoder): T =
             convertFromSurrogate(surrogateSerializer.deserialize(decoder))

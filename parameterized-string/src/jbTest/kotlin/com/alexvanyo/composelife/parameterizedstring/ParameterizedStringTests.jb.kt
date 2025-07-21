@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.parameterizedstring
 
@@ -44,7 +45,7 @@ class ParameterizedStringTests {
                             "Two: (%s) (%s)",
                             ParameterizedStringArgument("a"),
                             ParameterizedStringArgument("b"),
-                        )
+                        ),
                     ),
                     ParameterizedStringArgument(
                         ParameterizedString(
@@ -53,9 +54,9 @@ class ParameterizedStringTests {
                                 ParameterizedString(
                                     "One: (%s)",
                                     ParameterizedStringArgument("c"),
-                                )
+                                ),
                             ),
-                        )
+                        ),
                     ),
                     ParameterizedStringArgument(
                         ParameterizedString(
@@ -67,11 +68,11 @@ class ParameterizedStringTests {
                                         ParameterizedString(
                                             "One: (%s)",
                                             ParameterizedStringArgument("d"),
-                                        )
+                                        ),
                                     ),
-                                )
+                                ),
                             ),
-                        )
+                        ),
                     ),
                 ),
             )
@@ -101,7 +102,7 @@ class ParameterizedStringTests {
                             "Two: (%s) (%s)",
                             ParameterizedStringArgument("a"),
                             ParameterizedStringArgument("b"),
-                        )
+                        ),
                     ),
                     ParameterizedStringArgument(
                         ParameterizedString(
@@ -110,9 +111,9 @@ class ParameterizedStringTests {
                                 ParameterizedString(
                                     "One: (%s)",
                                     ParameterizedStringArgument("c"),
-                                )
+                                ),
                             ),
-                        )
+                        ),
                     ),
                     ParameterizedStringArgument(
                         ParameterizedString(
@@ -124,11 +125,11 @@ class ParameterizedStringTests {
                                         ParameterizedString(
                                             "One: (%s)",
                                             ParameterizedStringArgument("d"),
-                                        )
+                                        ),
                                     ),
-                                )
+                                ),
                             ),
-                        )
+                        ),
                     ),
                 ),
             ),
@@ -146,7 +147,7 @@ class ParameterizedStringTests {
                 ParameterizedString(
                     "Two: (%s) (%s)",
                     ParameterizedStringArgument(Random.nextInt().toString()),
-                    ParameterizedStringArgument(Random.nextInt().toString())
+                    ParameterizedStringArgument(Random.nextInt().toString()),
                 )
             }
         }
@@ -177,7 +178,7 @@ class ParameterizedStringTests {
                             "Two: (%s) (%s)",
                             ParameterizedStringArgument("a"),
                             ParameterizedStringArgument("b"),
-                        )
+                        ),
                     ),
                     ParameterizedStringArgument(
                         ParameterizedString(
@@ -186,9 +187,9 @@ class ParameterizedStringTests {
                                 ParameterizedString(
                                     "One: (%s)",
                                     ParameterizedStringArgument("c"),
-                                )
+                                ),
                             ),
-                        )
+                        ),
                     ),
                     ParameterizedStringArgument(
                         ParameterizedString(
@@ -200,11 +201,11 @@ class ParameterizedStringTests {
                                         ParameterizedString(
                                             "One: (%s)",
                                             ParameterizedStringArgument("d"),
-                                        )
+                                        ),
                                     ),
-                                )
+                                ),
                             ),
-                        )
+                        ),
                     ),
                 )
             }

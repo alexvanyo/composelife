@@ -345,6 +345,7 @@ internal fun FixedSelectingBoxOverlay(
     }
 }
 
+@Suppress("LongParameterList")
 @Stable
 private class SelectionDraggableHandleState(
     val state: HandleState,

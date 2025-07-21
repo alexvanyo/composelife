@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
 package com.alexvanyo.composelife.filesystem.di
 
-import kotlin.time.Clock
-import dev.zacsweers.metro.Provides
-import okio.FileSystem
-import okio.fakefilesystem.FakeFileSystem
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
+import okio.FileSystem
+import okio.fakefilesystem.FakeFileSystem
+import kotlin.time.Clock
 
 @ContributesTo(AppScope::class)
 @BindingContainer
@@ -32,7 +33,7 @@ interface FileSystemBindings {
         @Provides
         @SingleIn(AppScope::class)
         fun providesFileSystem(
-            clock: Clock
+            clock: Clock,
         ): FileSystem = FakeFileSystem(
             clock = clock,
         )
