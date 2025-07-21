@@ -27,6 +27,7 @@ plugins {
     alias(libs.plugins.convention.detekt)
     kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
+    alias(libs.plugins.metro)
 }
 
 android {
@@ -63,7 +64,6 @@ kotlin {
                 api(projects.sessionValue)
                 api(projects.updatable)
 
-                implementation(libs.kotlinInject.runtime)
                 implementation(libs.okio)
                 implementation(projects.filesystem)
                 implementation(projects.injectScopes)
@@ -84,8 +84,6 @@ kotlin {
             dependsOn(jbMain)
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
                     libs.sealedEnum.ksp.get(),
                 )
             )
@@ -97,8 +95,6 @@ kotlin {
             dependsOn(jbMain)
             configurations["kspDesktop"].dependencies.addAll(
                 listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
                     libs.sealedEnum.ksp.get(),
                 )
             )
@@ -120,12 +116,6 @@ kotlin {
         }
         val desktopTest by getting {
             dependsOn(jbTest)
-            configurations["kspDesktopTest"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                )
-            )
         }
         val androidSharedTest by getting {
             dependsOn(jbTest)
@@ -134,22 +124,6 @@ kotlin {
                 implementation(libs.androidx.test.junit)
                 implementation(libs.androidx.test.runner)
             }
-        }
-        val androidUnitTest by getting {
-            configurations["kspAndroidTest"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                )
-            )
-        }
-        val androidInstrumentedTest by getting {
-            configurations["kspAndroidAndroidTest"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                )
-            )
         }
     }
 }

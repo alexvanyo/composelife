@@ -31,18 +31,19 @@ import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.screenshot.assertPixels
 import com.alexvanyo.composelife.screenshot.captureToImage
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
+import dev.zacsweers.metro.asContribution
 import org.junit.Assume.assumeTrue
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-class NonInteractableCellsVisualTests : BaseUiInjectTest<TestComposeLifeApplicationComponent, TestComposeLifeUiComponent>(
-    TestComposeLifeApplicationComponent::createComponent,
-    TestComposeLifeUiComponent::createComponent,
+class NonInteractableCellsVisualTests : BaseUiInjectTest(
+    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
     private val nonInteractableCellsLocalEntryPoint = object : NonInteractableCellsLocalEntryPoint {
         override val preferences = LoadedComposeLifePreferences.Defaults.copy(
@@ -52,12 +53,12 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest<TestComposeLifeApplicat
     }
 
     @Test
-    fun non_interactable_cells_draws_correctly_dark_mode() = runUiTest { uiComponent ->
+    fun non_interactable_cells_draws_correctly_dark_mode() = runUiTest { uiGraph ->
         assumeTrue(Build.VERSION.SDK_INT >= 28)
         if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
         val nonInteractableCellsInjectEntryPoint: NonInteractableCellsInjectEntryPoint =
-            uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
+            uiGraph.testComposeLifeUiEntryPoint
 
         val cellState = setOf(
             0 to 0,
@@ -125,12 +126,12 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest<TestComposeLifeApplicat
     }
 
     @Test
-    fun non_interactable_cells_draws_correctly_light_mode() = runUiTest { uiComponent ->
+    fun non_interactable_cells_draws_correctly_light_mode() = runUiTest { uiGraph ->
         assumeTrue(Build.VERSION.SDK_INT >= 28)
         if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
         val nonInteractableCellsInjectEntryPoint: NonInteractableCellsInjectEntryPoint =
-            uiComponent.kmpGetEntryPoint<TestComposeLifeUiEntryPoint>()
+            uiGraph.testComposeLifeUiEntryPoint
 
         val cellState = setOf(
             0 to 0,

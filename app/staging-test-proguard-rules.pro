@@ -25,7 +25,5 @@
 
 -dontwarn javax.lang.model.element.Modifier
 
-# Removing this causes a crash at runtime for some reason
--keep class com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint {
-    *;
-}
+# TODO: enabling obfuscation should work
+-dontobfuscate

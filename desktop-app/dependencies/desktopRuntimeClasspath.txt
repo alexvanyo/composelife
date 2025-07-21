@@ -54,6 +54,8 @@ com.squareup.okio:okio-jvm:3.15.0
 com.squareup.okio:okio:3.15.0
 com.squareup.wire:wire-runtime-jvm:5.3.5
 com.squareup.wire:wire-runtime:5.3.5
+dev.zacsweers.metro:runtime-jvm:0.5.1
+dev.zacsweers.metro:runtime:0.5.1
 io.coil-kt.coil3:coil-compose-core-jvm:3.2.0
 io.coil-kt.coil3:coil-compose-core:3.2.0
 io.coil-kt.coil3:coil-core-jvm:3.2.0
@@ -84,8 +86,6 @@ io.ktor:ktor-websocket-serialization-jvm:3.2.2
 io.ktor:ktor-websocket-serialization:3.2.2
 io.ktor:ktor-websockets-jvm:3.2.2
 io.ktor:ktor-websockets:3.2.2
-me.tatarka.inject:kotlin-inject-runtime-jvm:0.8.0
-me.tatarka.inject:kotlin-inject-runtime:0.8.0
 org.jetbrains.androidx.graphics:graphics-shapes:1.0.0-alpha09
 org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.1
 org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose-desktop:2.9.1
@@ -179,7 +179,3 @@ org.jspecify:jspecify:1.0.0
 org.slf4j:slf4j-api:2.1.0-alpha1
 org.slf4j:slf4j-nop:2.1.0-alpha1
 org.xerial:sqlite-jdbc:3.49.1.0
-software.amazon.lastmile.kotlin.inject.anvil:runtime-jvm:0.1.6
-software.amazon.lastmile.kotlin.inject.anvil:runtime-optional-jvm:0.1.6
-software.amazon.lastmile.kotlin.inject.anvil:runtime-optional:0.1.6
-software.amazon.lastmile.kotlin.inject.anvil:runtime:0.1.6

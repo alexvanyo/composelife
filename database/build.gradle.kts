@@ -22,11 +22,11 @@ plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
     alias(libs.plugins.convention.androidLibraryJacoco)
-    alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.gradleDependenciesSorter)
+    alias(libs.plugins.metro)
 }
 
 android {
@@ -61,18 +61,11 @@ kotlin {
                 api(projects.dispatchers)
                 api(projects.updatable)
 
-                implementation(libs.kotlinInject.runtime)
                 implementation(libs.sqldelight.primitiveAdapters)
                 implementation(projects.injectScopes)
             }
         }
         val androidMain by getting {
-            configurations["kspAndroid"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                )
-            )
             dependencies {
                 api(libs.kotlinx.coroutines.android)
 
@@ -80,23 +73,11 @@ kotlin {
             }
         }
         val desktopMain by getting {
-            configurations["kspDesktop"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                )
-            )
             dependencies {
                 implementation(libs.sqldelight.sqliteDriver)
             }
         }
         val wasmJsMain by getting {
-            configurations["kspWasmJs"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                )
-            )
             dependencies {
                 implementation(libs.sqldelight.webDriver)
                 implementation(npm("@cashapp/sqldelight-sqljs-worker", libs.versions.sqldelight.get()))
@@ -109,59 +90,24 @@ kotlin {
                 implementation(libs.turbine)
                 implementation(projects.databaseTest)
                 implementation(projects.dispatchersTest)
-                implementation(projects.entryPointRuntime)
                 implementation(projects.filesystemTest)
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
             }
         }
-        val jbTest by creating {
+        val jvmTest by creating {
             dependsOn(commonTest)
         }
         val desktopTest by getting {
-            dependsOn(jbTest)
-            configurations["kspDesktopTest"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                    projects.entryPointSymbolProcessor,
-                )
-            )
+            dependsOn(jvmTest)
         }
         val androidSharedTest by getting {
-            dependsOn(jbTest)
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.junit)
                 implementation(libs.androidx.test.runner)
             }
-        }
-        val androidUnitTest by getting {
-            configurations["kspAndroidTest"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                    projects.entryPointSymbolProcessor,
-                )
-            )
-        }
-        val androidInstrumentedTest by getting {
-            configurations["kspAndroidAndroidTest"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                    projects.entryPointSymbolProcessor,
-                )
-            )
-        }
-        val wasmJsTest by getting {
-            configurations["kspWasmJsTest"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                    projects.entryPointSymbolProcessor,
-                )
-            )
         }
     }
 }

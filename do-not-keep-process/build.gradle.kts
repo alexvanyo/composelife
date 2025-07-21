@@ -17,9 +17,9 @@
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
-    alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
+    alias(libs.plugins.metro)
 }
 
 android {
@@ -37,19 +37,12 @@ kotlin {
             dependencies {
                 api(projects.processLifecycle)
 
-                implementation(libs.kotlinInject.runtime)
                 implementation(projects.injectScopes)
                 implementation(projects.preferences)
                 implementation(projects.updatable)
             }
         }
         val androidMain by getting {
-            configurations["kspAndroid"].dependencies.addAll(
-                listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
-                )
-            )
             dependencies {
                 implementation(libs.androidx.lifecycle.process)
             }

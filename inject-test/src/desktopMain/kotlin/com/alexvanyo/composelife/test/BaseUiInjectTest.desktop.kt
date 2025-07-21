@@ -19,9 +19,9 @@ package com.alexvanyo.composelife.test
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.UiComponent
-import com.alexvanyo.composelife.scopes.UiComponentArguments
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiGraphArguments
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -30,15 +30,14 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
-actual fun <AC : ApplicationComponent, UC : UiComponent> BaseUiInjectTest<AC, UC>.runUiTest(
+actual fun BaseUiInjectTest.runUiTest(
     appTestContext: CoroutineContext,
     timeout: Duration,
-    testBody: suspend ComposeUiTest.(uiComponent: UC) -> Unit,
+    testBody: suspend ComposeUiTest.(uiGraph: UiGraph) -> Unit,
 ): TestResult =
     runComposeUiTest {
-        val uiComponent = uiComponentCreator(
-            applicationComponent,
-            object : UiComponentArguments {},
+        val uiGraph = uiGraphCreator.create(
+            object : UiGraphArguments {},
         )
 
         // TODO: Replace with withAppTestDependencies when runComposeUiTest allows providing a suspend fun
@@ -50,7 +49,7 @@ actual fun <AC : ApplicationComponent, UC : UiComponent> BaseUiInjectTest<AC, UC
             advanceUntilIdle()
             testBody(
                 this@runComposeUiTest,
-                uiComponent,
+                uiGraph,
             )
         }
     }

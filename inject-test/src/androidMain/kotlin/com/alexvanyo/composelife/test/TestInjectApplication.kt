@@ -17,12 +17,9 @@
 package com.alexvanyo.composelife.test
 
 import android.app.Application
-import com.alexvanyo.composelife.scopes.ApplicationComponent
-import com.alexvanyo.composelife.scopes.ApplicationComponentOwner
-import com.alexvanyo.composelife.scopes.UiComponent
-import com.alexvanyo.composelife.scopes.UiComponentArguments
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
 
-class TestInjectApplication : Application(), ApplicationComponentOwner {
-    override lateinit var applicationComponent: ApplicationComponent
-    override lateinit var uiComponentFactory: (UiComponentArguments) -> UiComponent
+class TestInjectApplication : Application(), ApplicationGraphOwner {
+    override lateinit var applicationGraph: ApplicationGraph
 }

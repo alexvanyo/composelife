@@ -35,14 +35,14 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 import kotlin.time.Instant
-import me.tatarka.inject.annotations.Inject
+import dev.zacsweers.metro.Inject
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.buffer
 import okio.use
-import software.amazon.lastmile.kotlin.inject.anvil.AppScope
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
 import kotlin.time.Duration
 import kotlin.uuid.Uuid
 
@@ -53,7 +53,7 @@ class CellStateRepositoryImpl(
     private val cellStateQueries: CellStateQueries,
     private val dispatchers: ComposeLifeDispatchers,
     private val fileSystem: FileSystem,
-    persistedDataPath: @PersistedDataPath Lazy<Path>,
+    @PersistedDataPath persistedDataPath: Lazy<Path>,
     private val logger: Logger,
     private val clock: Clock,
 ) : CellStateRepository {

@@ -28,6 +28,7 @@ plugins {
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
     kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
+    alias(libs.plugins.metro)
 }
 
 android {
@@ -63,7 +64,6 @@ kotlin {
 
                 implementation(libs.androidx.annotation)
                 implementation(libs.jetbrains.compose.runtime)
-                implementation(libs.kotlinInject.runtime)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
@@ -84,8 +84,6 @@ kotlin {
             dependsOn(jvmNonAndroidMain)
             configurations["kspDesktop"].dependencies.addAll(
                 listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
                     libs.sealedEnum.ksp.get(),
                 )
             )
@@ -97,8 +95,6 @@ kotlin {
             dependsOn(jvmMain)
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
-                    libs.kotlinInject.ksp.get(),
-                    libs.kotlinInjectAnvil.ksp.get(),
                     libs.sealedEnum.ksp.get(),
                 )
             )
