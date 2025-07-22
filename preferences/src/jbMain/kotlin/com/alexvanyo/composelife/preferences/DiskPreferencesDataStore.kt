@@ -78,20 +78,20 @@ class DiskPreferencesDataStore(
             storage = OkioStorage(
                 fileSystem = fileSystem,
                 serializer =
-                    object : OkioSerializer<PreferencesProto> {
-                        override val defaultValue: PreferencesProto
-                            get() = PreferencesProto()
+                object : OkioSerializer<PreferencesProto> {
+                    override val defaultValue: PreferencesProto
+                        get() = PreferencesProto()
 
-                        override suspend fun readFrom(source: BufferedSource): PreferencesProto =
-                            try {
-                                PreferencesProto.ADAPTER.decode(source)
-                            } catch (exception: IOException) {
-                                throw CorruptionException("Cannot read proto.", exception)
-                            }
+                    override suspend fun readFrom(source: BufferedSource): PreferencesProto =
+                        try {
+                            PreferencesProto.ADAPTER.decode(source)
+                        } catch (exception: IOException) {
+                            throw CorruptionException("Cannot read proto.", exception)
+                        }
 
-                        override suspend fun writeTo(t: PreferencesProto, sink: BufferedSink) =
-                            PreferencesProto.ADAPTER.encode(sink, t)
-                    },
+                    override suspend fun writeTo(t: PreferencesProto, sink: BufferedSink) =
+                        PreferencesProto.ADAPTER.encode(sink, t)
+                },
                 producePath = path::value,
             ),
             corruptionHandler = null,
