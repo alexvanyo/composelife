@@ -193,7 +193,7 @@ jobs:
 
       - name: Auto-commit formatting changes
         if: ${{ !cancelled() && matrix.sdk == '35' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: Fix formatting issues
           push_options: --force-with-lease
@@ -204,7 +204,7 @@ jobs:
 
       - name: Auto-commit dependency guard baseline changes
         if: ${{ !cancelled() && matrix.sdk == '35' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: Auto update dependency guard baseline
           push_options: --force-with-lease
@@ -215,7 +215,7 @@ jobs:
 
       - name: Auto-commit screenshot changes
         if: ${{ !cancelled() && matrix.sdk == '35' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: Auto update screenshots
           push_options: --force-with-lease
@@ -226,7 +226,7 @@ jobs:
 
       - name: Auto-commit badging changes
         if: ${{ !cancelled() && matrix.sdk == '35' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: Auto update badging
           push_options: --force-with-lease
