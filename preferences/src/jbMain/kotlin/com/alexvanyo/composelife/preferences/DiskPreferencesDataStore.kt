@@ -26,7 +26,10 @@ import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.preferences.proto.PreferencesProto
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Qualifier
 import dev.zacsweers.metro.SingleIn
@@ -49,7 +52,7 @@ annotation class PreferencesProtoPath
 
 @SingleIn(AppScope::class)
 @ContributesBinding(AppScope::class, binding = binding<PreferencesDataStore>())
-@ContributesBinding(AppScope::class, binding = binding<Updatable>())
+@ContributesIntoSet(AppScope::class, binding = binding<Updatable>())
 @Inject
 class DiskPreferencesDataStore(
     private val fileSystem: FileSystem,

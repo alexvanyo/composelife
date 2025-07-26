@@ -17,10 +17,23 @@
 package com.alexvanyo.composelife.ui.app
 
 import com.alexvanyo.composelife.scopes.GlobalScope
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.createGraph
 
 @DependencyGraph(GlobalScope::class, isExtendable = true)
 interface GlobalGraph
 
 internal val globalGraph = createGraph<GlobalGraph>()
+
+@ContributesTo(UiWithLoadedPreferencesScope::class, replaces = [UiWithLoadedPreferencesScopeBindings::class])
+interface TestLoadedComposeLifePreferencesHolderBindings {
+
+    companion object {
+        @Provides
+        internal fun emptyProvides(): EmptyProvides = EmptyProvides()
+    }
+}
+
+internal class EmptyProvides

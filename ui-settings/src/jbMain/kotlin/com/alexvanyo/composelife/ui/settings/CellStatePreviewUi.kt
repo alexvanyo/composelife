@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -28,22 +29,42 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
-import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindow
+import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowEntryPoint
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
+import dev.zacsweers.metro.Inject
 
-interface CellStatePreviewUiInjectEntryPoint :
-    CellWindowInjectEntryPoint
+@Immutable
+@Inject
+class CellStatePreviewUiEntryPoint(
+    private val thumbnailImmutableCellWindowEntryPoint: ThumbnailImmutableCellWindowEntryPoint,
+) {
+    @Suppress("ComposableNaming")
+    @Composable
+    operator fun invoke(
+        modifier: Modifier = Modifier,
+    ) = lambda(thumbnailImmutableCellWindowEntryPoint, modifier)
 
-interface CellStatePreviewUiLocalEntryPoint :
-    CellWindowLocalEntryPoint
+    companion object {
+        private val lambda:
+            @Composable context(ThumbnailImmutableCellWindowEntryPoint) (modifier: Modifier) -> Unit =
+            { modifier ->
+                CellStatePreviewUi(modifier)
+            }
+    }
+}
 
-context(_: CellStatePreviewUiInjectEntryPoint, _: CellStatePreviewUiLocalEntryPoint)
-@Suppress("LongMethod")
+context(entryPoint: CellStatePreviewUiEntryPoint)
 @Composable
 fun CellStatePreviewUi(
+    modifier: Modifier = Modifier,
+) = entryPoint(modifier)
+
+context(_: ThumbnailImmutableCellWindowEntryPoint)
+@Suppress("LongMethod")
+@Composable
+private fun CellStatePreviewUi(
     modifier: Modifier = Modifier,
 ) {
     Box(

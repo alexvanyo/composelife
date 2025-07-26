@@ -27,6 +27,8 @@ import com.alexvanyo.composelife.model.toHashLifeCellState
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 @SingleIn(AppScope::class)
@@ -34,6 +36,8 @@ import kotlinx.coroutines.withContext
 class HashLifeAlgorithm(
     private val dispatchers: ComposeLifeDispatchers,
 ) : GameOfLifeAlgorithm {
+
+    private val mutex = Mutex()
 
     /**
      * The current number of computed generations.
@@ -267,10 +271,12 @@ class HashLifeAlgorithm(
         @IntRange(from = 0) step: Int,
     ): CellState =
         withContext(dispatchers.Default) {
-            computeGenerationWithStepImpl(
-                cellState = cellState.toHashLifeCellState(),
-                step = step,
-            )
+            mutex.withLock {
+                computeGenerationWithStepImpl(
+                    cellState = cellState.toHashLifeCellState(),
+                    step = step,
+                )
+            }
         }
 
     private tailrec fun computeGenerationWithStepImpl(

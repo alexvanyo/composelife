@@ -16,7 +16,7 @@
 
 package com.alexvanyo.composelife
 
-import android.app.Activity
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.ViewGroup
@@ -36,13 +36,12 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowInsetsControllerCompat
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.isSuccess
-import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
-import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiEntryPoint
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
 import com.alexvanyo.composelife.ui.util.ProvideLocalWindowInsetsHolder
@@ -51,9 +50,9 @@ import com.slack.circuit.retained.continuityRetainedStateRegistry
 import dev.zacsweers.metro.ContributesTo
 
 @ContributesTo(UiScope::class)
-interface MainActivityInjectEntryPoint :
-    ComposeLifePreferencesProvider,
-    ComposeLifeAppInjectEntryPoint
+interface MainActivityInjectEntryPoint : ComposeLifePreferencesProvider {
+    val composeLifeAppUiEntryPoint: ComposeLifeAppUiEntryPoint
+}
 
 // TODO: Replace with asContribution()
 internal val UiGraph.mainActivityInjectEntryPoint: MainActivityInjectEntryPoint get() =
@@ -68,7 +67,7 @@ class MainActivity : AppCompatActivity() {
         val application = application as ApplicationGraphOwner
         val uiGraph = (application.applicationGraph as UiGraph.Factory).create(
             object : UiGraphArguments {
-                override val activity: Activity = this@MainActivity
+                override val uiContext: Context = this@MainActivity
             },
         )
         val mainActivityEntryPoint = uiGraph.mainActivityInjectEntryPoint
@@ -102,10 +101,14 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         ComposeLifeTheme(darkTheme) {
-                            ComposeLifeApp(
-                                windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                                windowSize = with(LocalDensity.current) { currentWindowSize().toSize().toDpSize() },
-                            )
+                            with(composeLifeAppUiEntryPoint) {
+                                ComposeLifeApp(
+                                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                                    windowSize = with(LocalDensity.current) {
+                                        currentWindowSize().toSize().toDpSize()
+                                    },
+                                )
+                            }
                         }
                     }
                 }

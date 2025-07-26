@@ -20,7 +20,6 @@ import android.os.Build
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -43,35 +42,36 @@ import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
-import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.resourcestate.firstSuccess
 import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.settings.resources.CornerFractionLabel
 import com.alexvanyo.composelife.ui.settings.resources.Strings
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
 import org.junit.Assume.assumeTrue
 import kotlin.test.Test
-import kotlin.test.assertIs
 import kotlin.test.assertTrue
+
+@ContributesTo(UiScope::class)
+interface FullscreenSettingsDetailPaneTestsEntryPoint {
+    val fullscreenSettingsDetailPaneEntryPoint: FullscreenSettingsDetailPaneEntryPoint
+}
+
+// TODO: Replace with asContribution()
+val UiGraph.fullscreenSettingsDetailPaneTestsEntryPoint: FullscreenSettingsDetailPaneTestsEntryPoint get() =
+    this as FullscreenSettingsDetailPaneTestsEntryPoint
 
 @OptIn(ExperimentalTestApi::class)
 class FullscreenSettingsDetailPaneTests : BaseUiInjectTest(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationGraph.testComposeLifeApplicationEntryPoint
-
-    private val composeLifePreferences get() = entryPoint.composeLifePreferences
-
     @Test
     fun visual_settings_category_keeps_scroll_position_with_ime() = runUiTest { uiGraph ->
         assumeTrue(Build.VERSION.SDK_INT >= 30)
-        val fullscreenSettingsDetailPaneInjectEntryPoint: FullscreenSettingsDetailPaneInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
-
-        snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
+        val entryPoint = uiGraph.fullscreenSettingsDetailPaneTestsEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -79,42 +79,33 @@ class FullscreenSettingsDetailPaneTests : BaseUiInjectTest(
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(fullscreenSettingsDetailPaneInjectEntryPoint) {
-                with(
-                    object : FullscreenSettingsDetailPaneLocalEntryPoint {
-                        override val preferences get() =
-                            assertIs<ResourceState.Success<LoadedComposeLifePreferences>>(
-                                composeLifePreferences.loadedPreferencesState,
-                            ).value
-                    },
+            with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(400.dp, 1200.dp)),
                 ) {
                     DeviceConfigurationOverride(
-                        DeviceConfigurationOverride.ForcedSize(DpSize(400.dp, 1200.dp)),
+                        DeviceConfigurationOverride.WindowInsets(
+                            WindowInsetsCompat.Builder()
+                                .setInsets(
+                                    WindowInsetsCompat.Type.ime(),
+                                    with(LocalDensity.current) {
+                                        DpRect(0.dp, 0.dp, 0.dp, imeBottom).toRect()
+                                    }.roundToIntRect().toAndroidXInsets(),
+                                )
+                                .build(),
+                        ),
                     ) {
-                        DeviceConfigurationOverride(
-                            DeviceConfigurationOverride.WindowInsets(
-                                WindowInsetsCompat.Builder()
-                                    .setInsets(
-                                        WindowInsetsCompat.Type.ime(),
-                                        with(LocalDensity.current) {
-                                            DpRect(0.dp, 0.dp, 0.dp, imeBottom).toRect()
-                                        }.roundToIntRect().toAndroidXInsets(),
-                                    )
-                                    .build(),
-                            ),
-                        ) {
-                            FullscreenSettingsDetailPane(
-                                fullscreenSettingsDetailPaneState = object : FullscreenSettingsDetailPaneState {
-                                    override val settingsCategory = SettingsCategory.Visual
-                                    override val settingToScrollTo = null
-                                    override fun onFinishedScrollingToSetting() = Unit
+                        FullscreenSettingsDetailPane(
+                            fullscreenSettingsDetailPaneState = object : FullscreenSettingsDetailPaneState {
+                                override val settingsCategory = SettingsCategory.Visual
+                                override val settingToScrollTo = null
+                                override fun onFinishedScrollingToSetting() = Unit
 
-                                    override val isListVisible: Boolean = false
-                                    override val isDetailVisible: Boolean = true
-                                },
-                                onBackButtonPressed = {},
-                            )
-                        }
+                                override val isListVisible: Boolean = false
+                                override val isDetailVisible: Boolean = true
+                            },
+                            onBackButtonPressed = {},
+                        )
                     }
                 }
             }

@@ -37,12 +37,12 @@ actual fun BaseUiInjectTest.runUiTest(
     testBody: suspend ComposeUiTest.(uiGraph: UiGraph) -> Unit,
 ): TestResult =
     runAndroidComposeUiTest<ComponentActivity>(
-        runTestContext = appTestContext,
+        runTestContext = generalTestDispatcher + appTestContext,
         testTimeout = timeout,
     ) {
         val uiGraph = uiGraphCreator.create(
             object : UiGraphArguments {
-                override val activity = requireNotNull(this@runAndroidComposeUiTest.activity)
+                override val uiContext = requireNotNull(this@runAndroidComposeUiTest.activity)
             },
         )
         withAppTestDependencies {

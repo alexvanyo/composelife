@@ -41,6 +41,8 @@ import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
+import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.ui.cells.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.cells.resources.Strings
@@ -52,9 +54,9 @@ import kotlin.test.assertEquals
 @RunWith(KmpAndroidJUnit4::class)
 class InteractableCellsTests {
 
-    private val interactableCellsLocalEntryPoint = object : InteractableCellsLocalEntryPoint {
-        override val preferences = LoadedComposeLifePreferences.Defaults
-    }
+    private val interactableCellsLocalEntryPoint = InteractableCellsEntryPoint(
+        preferencesHolder = TestComposeLifePreferences(),
+    )
 
     @Suppress("LongMethod")
     @Test
@@ -240,11 +242,13 @@ class InteractableCellsTests {
         setContent {
             density = LocalDensity.current
             with(
-                object : InteractableCellsLocalEntryPoint {
-                    override val preferences = LoadedComposeLifePreferences.Defaults.copy(
-                        mouseToolConfig = ToolConfig.Draw,
-                    )
-                },
+                InteractableCellsEntryPoint(
+                    preferencesHolder = TestComposeLifePreferences(
+                        initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
+                            mouseToolConfig = ToolConfig.Draw,
+                        ),
+                    ),
+                ),
             ) {
                 InteractableCells(
                     gameOfLifeState = mutableGameOfLifeState,
@@ -309,11 +313,13 @@ class InteractableCellsTests {
         setContent {
             density = LocalDensity.current
             with(
-                object : InteractableCellsLocalEntryPoint {
-                    override val preferences = LoadedComposeLifePreferences.Defaults.copy(
-                        mouseToolConfig = ToolConfig.None,
-                    )
-                },
+                InteractableCellsEntryPoint(
+                    preferencesHolder = TestComposeLifePreferences(
+                        initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
+                            mouseToolConfig = ToolConfig.None,
+                        ),
+                    ),
+                ),
             ) {
                 InteractableCells(
                     gameOfLifeState = mutableGameOfLifeState,

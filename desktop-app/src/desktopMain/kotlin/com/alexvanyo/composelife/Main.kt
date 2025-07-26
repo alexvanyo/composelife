@@ -31,7 +31,7 @@ import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
-import com.alexvanyo.composelife.ui.app.ComposeLifeAppInjectEntryPoint
+import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiEntryPoint
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
@@ -82,11 +82,13 @@ fun main() = application {
             val mainInjectEntryPoint = uiGraph.mainInjectEntryPoint
             with(mainInjectEntryPoint) {
                 ComposeLifeTheme(shouldUseDarkTheme()) {
-                    ComposeLifeApp(
-                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                        windowSize = windowState.size,
-                        immersiveModeManager = immersiveModeManager,
-                    )
+                    with(mainInjectEntryPoint.composeLifeAppUiEntryPoint) {
+                        ComposeLifeApp(
+                            windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                            windowSize = windowState.size,
+                            immersiveModeManager = immersiveModeManager,
+                        )
+                    }
                 }
             }
         }
@@ -103,9 +105,9 @@ internal val ApplicationGraph.composeLifeApplicationEntryPoint: ComposeLifeAppli
     this as ComposeLifeApplicationEntryPoint
 
 @ContributesTo(UiScope::class)
-interface MainInjectEntryPoint :
-    ComposeLifePreferencesProvider,
-    ComposeLifeAppInjectEntryPoint
+interface MainInjectEntryPoint : ComposeLifePreferencesProvider {
+    val composeLifeAppUiEntryPoint: ComposeLifeAppUiEntryPoint
+}
 
 // TODO: Replace with asContribution()
 internal val UiGraph.mainInjectEntryPoint: MainInjectEntryPoint get() =

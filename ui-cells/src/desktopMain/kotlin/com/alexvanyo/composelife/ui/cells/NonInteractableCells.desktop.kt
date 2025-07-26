@@ -20,13 +20,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
+import coil3.ImageLoader
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.currentShape
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 
-context(_: NonInteractableCellsInjectEntryPoint, localEntryPoint: NonInteractableCellsLocalEntryPoint)
+context(
+    imageLoader: ImageLoader,
+preferencesHolder: LoadedComposeLifePreferencesHolder,
+)
 @Composable
 @Suppress("LongParameterList")
 actual fun NonInteractableCells(
@@ -38,13 +43,13 @@ actual fun NonInteractableCells(
     modifier: Modifier,
     inOverlay: Boolean,
 ) {
-    when (computeImplementationType(localEntryPoint.preferences, isThumbnail)) {
+    when (computeImplementationType(preferencesHolder.preferences, isThumbnail)) {
         NonInteractableCellsImplementationType.Canvas -> {
             CanvasNonInteractableCells(
                 gameOfLifeState = gameOfLifeState,
                 scaledCellDpSize = scaledCellDpSize,
                 cellWindow = cellWindow,
-                shape = localEntryPoint.preferences.currentShape,
+                shape = preferencesHolder.preferences.currentShape,
                 pixelOffsetFromCenter = pixelOffsetFromCenter,
                 modifier = modifier,
             )
@@ -54,7 +59,7 @@ actual fun NonInteractableCells(
                 gameOfLifeState = gameOfLifeState,
                 scaledCellDpSize = scaledCellDpSize,
                 cellWindow = cellWindow,
-                shape = localEntryPoint.preferences.currentShape,
+                shape = preferencesHolder.preferences.currentShape,
                 pixelOffsetFromCenter = pixelOffsetFromCenter,
                 modifier = modifier,
             )
@@ -64,7 +69,7 @@ actual fun NonInteractableCells(
                 gameOfLifeState = gameOfLifeState,
                 scaledCellDpSize = scaledCellDpSize,
                 cellWindow = cellWindow,
-                shape = localEntryPoint.preferences.currentShape,
+                shape = preferencesHolder.preferences.currentShape,
                 pixelOffsetFromCenter = pixelOffsetFromCenter,
                 modifier = modifier,
             )

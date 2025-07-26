@@ -53,6 +53,7 @@ import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutType
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.TopInsets
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCard
+import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardEntryPoint
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.SelectionState
@@ -63,7 +64,94 @@ import com.livefront.sealedenum.SealedEnum
 import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
 
-context(_: InteractiveCellUniverseOverlayInjectEntryPoint, _: InteractiveCellUniverseOverlayLocalEntryPoint)
+@Suppress("ComposableNaming", "LongParameterList")
+@Composable
+private operator fun InteractiveCellUniverseOverlayEntryPoint.invoke(
+    temporalGameOfLifeState: TemporalGameOfLifeState,
+    interactiveCellUniverseState: InteractiveCellUniverseState,
+    cellWindowViewportState: CellWindowViewportState,
+    windowSizeClass: WindowSizeClass,
+    onSeeMoreSettingsClicked: () -> Unit,
+    onOpenInSettingsClicked: (setting: Setting) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
+    modifier: Modifier = Modifier,
+) = InteractiveCellUniverseOverlayEntryPoint.lambda(
+    cellUniverseActionCardEntryPoint,
+    temporalGameOfLifeState,
+    interactiveCellUniverseState,
+    cellWindowViewportState,
+    windowSizeClass,
+    onSeeMoreSettingsClicked,
+    onOpenInSettingsClicked,
+    onViewDeserializationInfo,
+    modifier,
+)
+
+private val InteractiveCellUniverseOverlayEntryPoint.Companion.lambda:
+    @Composable context(
+        CellUniverseActionCardEntryPoint
+    ) (
+        temporalGameOfLifeState: TemporalGameOfLifeState,
+        interactiveCellUniverseState: InteractiveCellUniverseState,
+        cellWindowViewportState: CellWindowViewportState,
+        windowSizeClass: WindowSizeClass,
+        onSeeMoreSettingsClicked: () -> Unit,
+        onOpenInSettingsClicked: (setting: Setting) -> Unit,
+        onViewDeserializationInfo: (DeserializationResult) -> Unit,
+        modifier: Modifier,
+    ) -> Unit
+    get() = {
+            temporalGameOfLifeState,
+            interactiveCellUniverseState,
+            cellWindowViewportState,
+            windowSizeClass,
+            onSeeMoreSettingsClicked,
+            onOpenInSettingsClicked,
+            onViewDeserializationInfo,
+            modifier,
+        ->
+        InteractiveCellUniverseOverlay(
+            temporalGameOfLifeState = temporalGameOfLifeState,
+            interactiveCellUniverseState = interactiveCellUniverseState,
+            cellWindowViewportState = cellWindowViewportState,
+            windowSizeClass = windowSizeClass,
+            onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
+            onOpenInSettingsClicked = onOpenInSettingsClicked,
+            onViewDeserializationInfo = onViewDeserializationInfo,
+            modifier = modifier,
+        )
+    }
+
+/**
+ * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
+ * evolves.
+ */
+context(entryPoint: InteractiveCellUniverseOverlayEntryPoint)
+@Suppress("LongParameterList")
+@Composable
+fun InteractiveCellUniverseOverlay(
+    temporalGameOfLifeState: TemporalGameOfLifeState,
+    interactiveCellUniverseState: InteractiveCellUniverseState,
+    cellWindowViewportState: CellWindowViewportState,
+    windowSizeClass: WindowSizeClass,
+    onSeeMoreSettingsClicked: () -> Unit,
+    onOpenInSettingsClicked: (setting: Setting) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
+    modifier: Modifier = Modifier,
+) = entryPoint(
+    temporalGameOfLifeState = temporalGameOfLifeState,
+    interactiveCellUniverseState = interactiveCellUniverseState,
+    cellWindowViewportState = cellWindowViewportState,
+    windowSizeClass = windowSizeClass,
+    onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
+    onOpenInSettingsClicked = onOpenInSettingsClicked,
+    onViewDeserializationInfo = onViewDeserializationInfo,
+    modifier = modifier,
+)
+
+context(
+    _: CellUniverseActionCardEntryPoint,
+)
 @Suppress("LongMethod", "ComplexMethod", "LongParameterList")
 @Composable
 fun InteractiveCellUniverseOverlay(

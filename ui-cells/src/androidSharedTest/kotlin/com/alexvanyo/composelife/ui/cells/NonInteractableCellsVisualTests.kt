@@ -27,38 +27,47 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
+import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.screenshot.assertPixels
 import com.alexvanyo.composelife.screenshot.captureToImage
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
 import org.junit.Assume.assumeTrue
 import kotlin.test.Test
+
+@ContributesTo(UiScope::class)
+interface NonInteractableCellsVisualTestsEntryPoint {
+    val nonInteractableCellsEntryPoint: NonInteractableCellsEntryPoint
+    val testComposeLifePreferences: TestComposeLifePreferences
+}
+
+// TODO: Replace with asContribution()
+val UiGraph.nonInteractableCellsVisualTestsEntryPoint: NonInteractableCellsVisualTestsEntryPoint get() =
+    this as NonInteractableCellsVisualTestsEntryPoint
 
 @OptIn(ExperimentalTestApi::class)
 class NonInteractableCellsVisualTests : BaseUiInjectTest(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val nonInteractableCellsLocalEntryPoint = object : NonInteractableCellsLocalEntryPoint {
-        override val preferences = LoadedComposeLifePreferences.Defaults.copy(
-            disableAGSL = true,
-            disableOpenGL = true,
-        )
-    }
-
     @Test
     fun non_interactable_cells_draws_correctly_dark_mode() = runUiTest { uiGraph ->
         assumeTrue(Build.VERSION.SDK_INT >= 28)
         if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
-        val nonInteractableCellsInjectEntryPoint: NonInteractableCellsInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val entryPoint = uiGraph.nonInteractableCellsVisualTestsEntryPoint
+        entryPoint.testComposeLifePreferences.disableAGSL = true
+        entryPoint.testComposeLifePreferences.disableOpenGL = true
 
         val cellState = setOf(
             0 to 0,
@@ -77,34 +86,32 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest(
 
         setContent {
             ComposeLifeTheme(darkTheme = true) {
-                with(nonInteractableCellsInjectEntryPoint) {
-                    with(nonInteractableCellsLocalEntryPoint) {
-                        NonInteractableCells(
-                            gameOfLifeState = GameOfLifeState(
-                                setOf(
-                                    0 to 0,
-                                    2 to 0,
-                                    4 to 0,
-                                    0 to 2,
-                                    2 to 2,
-                                    4 to 2,
-                                    0 to 4,
-                                    2 to 4,
-                                    4 to 4,
-                                ).toCellState(),
+                with(entryPoint.nonInteractableCellsEntryPoint) {
+                    NonInteractableCells(
+                        gameOfLifeState = GameOfLifeState(
+                            setOf(
+                                0 to 0,
+                                2 to 0,
+                                4 to 0,
+                                0 to 2,
+                                2 to 2,
+                                4 to 2,
+                                0 to 4,
+                                2 to 4,
+                                4 to 4,
+                            ).toCellState(),
+                        ),
+                        scaledCellDpSize = with(LocalDensity.current) { 1.toDp() },
+                        cellWindow = CellWindow(
+                            IntRect(
+                                IntOffset(0, 0),
+                                IntSize(10, 10),
                             ),
-                            scaledCellDpSize = with(LocalDensity.current) { 1.toDp() },
-                            cellWindow = CellWindow(
-                                IntRect(
-                                    IntOffset(0, 0),
-                                    IntSize(10, 10),
-                                ),
-                            ),
-                            pixelOffsetFromCenter = Offset.Zero,
-                            isThumbnail = false,
-                            modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() }),
-                        )
-                    }
+                        ),
+                        pixelOffsetFromCenter = Offset.Zero,
+                        isThumbnail = false,
+                        modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() }),
+                    )
                 }
 
                 aliveCellColor = ComposeLifeTheme.aliveCellColor
@@ -130,8 +137,9 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest(
         assumeTrue(Build.VERSION.SDK_INT >= 28)
         if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
-        val nonInteractableCellsInjectEntryPoint: NonInteractableCellsInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val entryPoint = uiGraph.nonInteractableCellsVisualTestsEntryPoint
+        entryPoint.testComposeLifePreferences.disableAGSL = true
+        entryPoint.testComposeLifePreferences.disableOpenGL = true
 
         val cellState = setOf(
             0 to 0,
@@ -150,34 +158,32 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest(
 
         setContent {
             ComposeLifeTheme(darkTheme = false) {
-                with(nonInteractableCellsInjectEntryPoint) {
-                    with(nonInteractableCellsLocalEntryPoint) {
-                        NonInteractableCells(
-                            gameOfLifeState = GameOfLifeState(
-                                setOf(
-                                    0 to 0,
-                                    2 to 0,
-                                    4 to 0,
-                                    0 to 2,
-                                    2 to 2,
-                                    4 to 2,
-                                    0 to 4,
-                                    2 to 4,
-                                    4 to 4,
-                                ).toCellState(),
+                with(entryPoint.nonInteractableCellsEntryPoint) {
+                    NonInteractableCells(
+                        gameOfLifeState = GameOfLifeState(
+                            setOf(
+                                0 to 0,
+                                2 to 0,
+                                4 to 0,
+                                0 to 2,
+                                2 to 2,
+                                4 to 2,
+                                0 to 4,
+                                2 to 4,
+                                4 to 4,
+                            ).toCellState(),
+                        ),
+                        scaledCellDpSize = with(LocalDensity.current) { 1.toDp() },
+                        cellWindow = CellWindow(
+                            IntRect(
+                                IntOffset(0, 0),
+                                IntSize(10, 10),
                             ),
-                            scaledCellDpSize = with(LocalDensity.current) { 1.toDp() },
-                            cellWindow = CellWindow(
-                                IntRect(
-                                    IntOffset(0, 0),
-                                    IntSize(10, 10),
-                                ),
-                            ),
-                            pixelOffsetFromCenter = Offset.Zero,
-                            isThumbnail = false,
-                            modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() }),
-                        )
-                    }
+                        ),
+                        pixelOffsetFromCenter = Offset.Zero,
+                        isThumbnail = false,
+                        modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() }),
+                    )
                 }
 
                 aliveCellColor = ComposeLifeTheme.aliveCellColor

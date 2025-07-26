@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -58,7 +59,7 @@ class ComposeLifeApplication : Application(), ApplicationGraphOwner {
         val globalGraph = createGraph<GlobalGraph>()
         applicationGraph = globalGraph.asContribution<ApplicationGraph.Factory>().create(
             object : ApplicationGraphArguments {
-                override val application: Application = this@ComposeLifeApplication
+                override val applicationContext: Context = this@ComposeLifeApplication
             },
         )
         val entryPoint = applicationGraph.composeLifeApplicationEntryPoint
