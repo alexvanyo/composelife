@@ -18,11 +18,13 @@
 
 package com.alexvanyo.composelife.preferences
 
+import androidx.compose.runtime.Stable
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.map
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import kotlinx.datetime.DateTimePeriod
 
+@Stable
 interface ComposeLifePreferences {
     val loadedPreferencesState: ResourceState<LoadedComposeLifePreferences>
 

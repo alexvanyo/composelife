@@ -38,12 +38,12 @@ import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.patterns.GliderPattern
-import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
-import com.alexvanyo.composelife.ui.app.TestComposeLifeUiEntryPoint
 import com.alexvanyo.composelife.ui.app.globalGraph
 import com.alexvanyo.composelife.ui.app.resources.Draw
 import com.alexvanyo.composelife.ui.app.resources.Erase
@@ -53,33 +53,32 @@ import com.alexvanyo.composelife.ui.app.resources.Paste
 import com.alexvanyo.composelife.ui.app.resources.Pin
 import com.alexvanyo.composelife.ui.app.resources.Select
 import com.alexvanyo.composelife.ui.app.resources.Strings
-import com.alexvanyo.composelife.ui.app.testComposeLifeUiEntryPoint
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.uuid.Uuid
 
+@ContributesTo(UiScope::class)
+interface InlineEditPaneTestsEntryPoint {
+    val clipboardCellStatePreviewEntryPoint: ClipboardCellStatePreviewEntryPoint
+}
+
+// TODO: Replace with asContribution()
+val UiGraph.inlineEditPaneTestsEntryPoint: InlineEditPaneTestsEntryPoint get() =
+    this as InlineEditPaneTestsEntryPoint
+
 @OptIn(ExperimentalTestApi::class)
 class InlineEditPaneTests : BaseUiInjectTest(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-
-    private val clipboardCellStatePreviewLocalEntryPoint = object : ClipboardCellStatePreviewLocalEntryPoint {
-        override val preferences = LoadedComposeLifePreferences.Defaults
-    }
-
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun clipboard_cell_state_preview_loading_is_displayed_correctly() = runUiTest { uiGraph ->
-        val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
 
         setContent {
-            with(
-                object :
-                    ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
-                    ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
-            ) {
+            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig = ToolConfig.Pan
@@ -115,18 +114,13 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
     @Test
     fun clipboard_cell_state_preview_success_is_displayed_correctly() = runUiTest { uiGraph ->
-        val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(
-                object :
-                    ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
-                    ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
-            ) {
+            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
                 val clipboardPreviewStates = remember {
                     listOf(
                         object : ClipboardPreviewState {
@@ -191,8 +185,7 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
     @Test
     fun clipboard_cell_state_preview_success_paste_is_handled_correctly() = runUiTest { uiGraph ->
-        val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -200,11 +193,7 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(
-                object :
-                    ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
-                    ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
-            ) {
+            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
                 val clipboardPreviewStates = remember {
                     listOf(
                         object : ClipboardPreviewState {
@@ -265,8 +254,7 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
     @Test
     fun clipboard_cell_state_preview_success_pin_is_handled_correctly() = runUiTest { uiGraph ->
-        val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -274,11 +262,7 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(
-                object :
-                    ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
-                    ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
-            ) {
+            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
                 val clipboardPreviewStates = remember {
                     listOf(
                         object : ClipboardPreviewState {
@@ -338,18 +322,13 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
     @Test
     fun touch_config_pan_is_displayed_correctly() = runUiTest { uiGraph ->
-        val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(
-                object :
-                    ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
-                    ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
-            ) {
+            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig = ToolConfig.Pan
@@ -386,18 +365,13 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
     @Test
     fun touch_config_draw_is_displayed_correctly() = runUiTest { uiGraph ->
-        val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(
-                object :
-                    ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
-                    ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
-            ) {
+            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig = ToolConfig.Draw
@@ -434,18 +408,13 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
     @Test
     fun touch_config_erase_is_displayed_correctly() = runUiTest { uiGraph ->
-        val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(
-                object :
-                    ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
-                    ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
-            ) {
+            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig = ToolConfig.Erase
@@ -482,18 +451,13 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
     @Test
     fun touch_config_select_is_displayed_correctly() = runUiTest { uiGraph ->
-        val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(
-                object :
-                    ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
-                    ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
-            ) {
+            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig = ToolConfig.Select
@@ -530,18 +494,13 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
     @Test
     fun touch_config_none_is_displayed_correctly() = runUiTest { uiGraph ->
-        val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(
-                object :
-                    ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
-                    ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
-            ) {
+            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig = ToolConfig.None
@@ -578,8 +537,7 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
     @Test
     fun touch_config_popup_displays_options() = runUiTest { uiGraph ->
-        val clipboardCellStatePreviewInjectEntryPoint: ClipboardCellStatePreviewInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
 
         var touchToolConfig: ToolConfig by mutableStateOf(ToolConfig.Pan)
 
@@ -587,11 +545,7 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(
-                object :
-                    ClipboardCellStatePreviewInjectEntryPoint by clipboardCellStatePreviewInjectEntryPoint,
-                    ClipboardCellStatePreviewLocalEntryPoint by clipboardCellStatePreviewLocalEntryPoint {},
-            ) {
+            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig get() = touchToolConfig

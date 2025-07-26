@@ -17,15 +17,20 @@
 package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import com.alexvanyo.composelife.model.CellStateParser
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
-import com.alexvanyo.composelife.ui.app.TestComposeLifeApplicationEntryPoint
 import com.alexvanyo.composelife.ui.app.globalGraph
-import com.alexvanyo.composelife.ui.app.testComposeLifeApplicationEntryPoint
+import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneEntryPoint
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -33,35 +38,39 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
+@ContributesTo(AppScope::class)
+interface InlineEditPaneStateTestsEntryPoint {
+    val testComposeLifePreferences: TestComposeLifePreferences
+    val cellStateParser: CellStateParser
+}
+
+// TODO: Replace with asContribution()
+val ApplicationGraph.inlineEditPaneStateTestsEntryPoint: InlineEditPaneStateTestsEntryPoint get() =
+    this as InlineEditPaneStateTestsEntryPoint
+
 @OptIn(ExperimentalTestApi::class)
 class InlineEditPaneStateTests : BaseUiInjectTest(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationGraph.testComposeLifeApplicationEntryPoint
+    private val entryPoint get() = applicationGraph.inlineEditPaneStateTestsEntryPoint
 
-    private val cellStateParser get() = entryPoint.cellStateParser
+    private val testComposeLifePreferences get() = entryPoint.testComposeLifePreferences
 
     @Test
     fun initial_state_is_correct_when_onboarding() = runUiTest {
-        val composeLifePreferences = TestComposeLifePreferences(
-            touchToolConfig = ToolConfig.Pan,
-            mouseToolConfig = ToolConfig.Select,
-            stylusToolConfig = ToolConfig.Draw,
-            completedClipboardWatchingOnboarding = false,
-            enableClipboardWatching = true,
-        )
+        testComposeLifePreferences.touchToolConfig = ToolConfig.Pan
+        testComposeLifePreferences.mouseToolConfig = ToolConfig.Select
+        testComposeLifePreferences.stylusToolConfig = ToolConfig.Draw
+        testComposeLifePreferences.completedClipboardWatchingOnboarding = false
+        testComposeLifePreferences.enableClipboardWatching = true
 
         lateinit var inlineEditPaneState: InlineEditPaneState
 
         setContent {
-            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-            assertTrue(loadedPreferencesState.isSuccess())
-            val preferences = loadedPreferencesState.value
-
             inlineEditPaneState = rememberInlineEditPaneState(
-                composeLifePreferences = composeLifePreferences,
-                preferences = preferences,
-                cellStateParser = cellStateParser,
+                composeLifePreferences = testComposeLifePreferences,
+                preferences = testComposeLifePreferences.preferences,
+                cellStateParser = entryPoint.cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -87,25 +96,19 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
 
     @Test
     fun allowing_clipboard_watching_updates_state_correctly() = runUiTest {
-        val composeLifePreferences = TestComposeLifePreferences(
-            touchToolConfig = ToolConfig.Pan,
-            mouseToolConfig = ToolConfig.Select,
-            stylusToolConfig = ToolConfig.Draw,
-            completedClipboardWatchingOnboarding = false,
-            enableClipboardWatching = true,
-        )
+        testComposeLifePreferences.touchToolConfig = ToolConfig.Pan
+        testComposeLifePreferences.mouseToolConfig = ToolConfig.Select
+        testComposeLifePreferences.stylusToolConfig = ToolConfig.Draw
+        testComposeLifePreferences.completedClipboardWatchingOnboarding = false
+        testComposeLifePreferences.enableClipboardWatching = true
 
         lateinit var inlineEditPaneState: InlineEditPaneState
 
         setContent {
-            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-            assertTrue(loadedPreferencesState.isSuccess())
-            val preferences = loadedPreferencesState.value
-
             inlineEditPaneState = rememberInlineEditPaneState(
-                composeLifePreferences = composeLifePreferences,
-                preferences = preferences,
-                cellStateParser = cellStateParser,
+                composeLifePreferences = testComposeLifePreferences,
+                preferences = testComposeLifePreferences.preferences,
+                cellStateParser = entryPoint.cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -118,9 +121,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
 
         waitForIdle()
 
-        val newPreferencesState = composeLifePreferences.loadedPreferencesState
-        assertTrue(newPreferencesState.isSuccess())
-        val newPreferences = newPreferencesState.value
+        val newPreferences = testComposeLifePreferences.preferences
 
         assertTrue(newPreferences.completedClipboardWatchingOnboarding)
         assertTrue(newPreferences.enableClipboardWatching)
@@ -132,25 +133,19 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
 
     @Test
     fun disallowing_clipboard_watching_updates_state_correctly() = runUiTest {
-        val composeLifePreferences = TestComposeLifePreferences(
-            touchToolConfig = ToolConfig.Pan,
-            mouseToolConfig = ToolConfig.Select,
-            stylusToolConfig = ToolConfig.Draw,
-            completedClipboardWatchingOnboarding = false,
-            enableClipboardWatching = true,
-        )
+        testComposeLifePreferences.touchToolConfig = ToolConfig.Pan
+        testComposeLifePreferences.mouseToolConfig = ToolConfig.Select
+        testComposeLifePreferences.stylusToolConfig = ToolConfig.Draw
+        testComposeLifePreferences.completedClipboardWatchingOnboarding = false
+        testComposeLifePreferences.enableClipboardWatching = true
 
         lateinit var inlineEditPaneState: InlineEditPaneState
 
         setContent {
-            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-            assertTrue(loadedPreferencesState.isSuccess())
-            val preferences = loadedPreferencesState.value
-
             inlineEditPaneState = rememberInlineEditPaneState(
-                composeLifePreferences = composeLifePreferences,
-                preferences = preferences,
-                cellStateParser = cellStateParser,
+                composeLifePreferences = testComposeLifePreferences,
+                preferences = testComposeLifePreferences.preferences,
+                cellStateParser = entryPoint.cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -163,9 +158,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
 
         waitForIdle()
 
-        val newPreferencesState = composeLifePreferences.loadedPreferencesState
-        assertTrue(newPreferencesState.isSuccess())
-        val newPreferences = newPreferencesState.value
+        val newPreferences = testComposeLifePreferences.preferences
 
         assertTrue(newPreferences.completedClipboardWatchingOnboarding)
         assertFalse(newPreferences.enableClipboardWatching)
@@ -177,25 +170,19 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
 
     @Test
     fun initial_state_is_correct_when_clipboard_watching_enabled() = runUiTest {
-        val composeLifePreferences = TestComposeLifePreferences(
-            touchToolConfig = ToolConfig.Pan,
-            mouseToolConfig = ToolConfig.Select,
-            stylusToolConfig = ToolConfig.Draw,
-            completedClipboardWatchingOnboarding = true,
-            enableClipboardWatching = true,
-        )
+        testComposeLifePreferences.touchToolConfig = ToolConfig.Pan
+        testComposeLifePreferences.mouseToolConfig = ToolConfig.Select
+        testComposeLifePreferences.stylusToolConfig = ToolConfig.Draw
+        testComposeLifePreferences.completedClipboardWatchingOnboarding = true
+        testComposeLifePreferences.enableClipboardWatching = true
 
         lateinit var inlineEditPaneState: InlineEditPaneState
 
         setContent {
-            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-            assertTrue(loadedPreferencesState.isSuccess())
-            val preferences = loadedPreferencesState.value
-
             inlineEditPaneState = rememberInlineEditPaneState(
-                composeLifePreferences = composeLifePreferences,
-                preferences = preferences,
-                cellStateParser = cellStateParser,
+                composeLifePreferences = testComposeLifePreferences,
+                preferences = testComposeLifePreferences.preferences,
+                cellStateParser = entryPoint.cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -221,25 +208,19 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
 
     @Test
     fun initial_state_is_correct_when_clipboard_watching_disabled() = runUiTest {
-        val composeLifePreferences = TestComposeLifePreferences(
-            touchToolConfig = ToolConfig.Pan,
-            mouseToolConfig = ToolConfig.Select,
-            stylusToolConfig = ToolConfig.Draw,
-            completedClipboardWatchingOnboarding = true,
-            enableClipboardWatching = false,
-        )
+        testComposeLifePreferences.touchToolConfig = ToolConfig.Pan
+        testComposeLifePreferences.mouseToolConfig = ToolConfig.Select
+        testComposeLifePreferences.stylusToolConfig = ToolConfig.Draw
+        testComposeLifePreferences.completedClipboardWatchingOnboarding = true
+        testComposeLifePreferences.enableClipboardWatching = false
 
         lateinit var inlineEditPaneState: InlineEditPaneState
 
         setContent {
-            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-            assertTrue(loadedPreferencesState.isSuccess())
-            val preferences = loadedPreferencesState.value
-
             inlineEditPaneState = rememberInlineEditPaneState(
-                composeLifePreferences = composeLifePreferences,
-                preferences = preferences,
-                cellStateParser = cellStateParser,
+                composeLifePreferences = testComposeLifePreferences,
+                preferences = testComposeLifePreferences.preferences,
+                cellStateParser = entryPoint.cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )

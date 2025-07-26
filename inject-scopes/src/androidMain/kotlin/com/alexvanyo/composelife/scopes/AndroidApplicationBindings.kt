@@ -17,11 +17,9 @@
 
 package com.alexvanyo.composelife.scopes
 
-import android.app.Application
 import android.content.Context
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
-import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Provides
 
@@ -29,13 +27,10 @@ import dev.zacsweers.metro.Provides
 @BindingContainer
 interface AndroidApplicationBindings {
 
-    @Binds
-    @ApplicationContext
-    val Application.bind: Context
-
     companion object {
         @Provides
-        fun bindApplication(applicationGraphArguments: ApplicationGraphArguments): Application =
-            applicationGraphArguments.application
+        @ApplicationContext
+        fun bindApplicationContext(applicationGraphArguments: ApplicationGraphArguments): Context =
+            applicationGraphArguments.applicationContext
     }
 }

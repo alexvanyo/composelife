@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.ui.app
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,20 +25,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
-import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
-import com.alexvanyo.composelife.clock.di.ClockProvider
 import com.alexvanyo.composelife.data.CellStateRepository
-import com.alexvanyo.composelife.data.di.CellStateRepositoryProvider
 import com.alexvanyo.composelife.data.model.CellStateMetadata
 import com.alexvanyo.composelife.data.model.SaveableCellState
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorInjectEntryPoint
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorLocalEntryPoint
+import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorEntryPoint
 import com.slack.circuit.retained.rememberRetained
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
@@ -46,30 +43,26 @@ import kotlinx.coroutines.flow.transform
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 
-interface CellUniversePaneInjectEntryPoint :
-    CellStateRepositoryProvider,
-    GameOfLifeAlgorithmProvider,
-    ClockProvider,
-    ComposeLifeDispatchersProvider,
-    GameOfLifeProgressIndicatorInjectEntryPoint,
-    InteractiveCellUniverseInjectEntryPoint
+@Immutable
+@Inject
+class CellUniversePaneEntryPoint(
+    internal val cellStateRepository: CellStateRepository,
+    internal val gameOfLifeAlgorithm: GameOfLifeAlgorithm,
+    internal val clock: Clock,
+    internal val dispatchers: ComposeLifeDispatchers,
+    internal val gameOfLifeProgressIndicatorEntryPoint: GameOfLifeProgressIndicatorEntryPoint,
+    internal val interactiveCellUniverseEntryPoint: InteractiveCellUniverseEntryPoint,
+) {
+    companion object
+}
 
-interface CellUniversePaneLocalEntryPoint :
-    GameOfLifeProgressIndicatorLocalEntryPoint,
-    InteractiveCellUniverseLocalEntryPoint
-
-context(
-    cellStateRepositoryProvider: CellStateRepositoryProvider,
-gameOfLifeAlgorithmProvider: GameOfLifeAlgorithmProvider,
-dispatchersProvider: ComposeLifeDispatchersProvider,
-clockProvider: ClockProvider
-)
+context(entryPoint: CellUniversePaneEntryPoint)
 @Composable
 fun rememberCellUniversePaneState(): CellUniversePaneState = rememberCellUniversePaneState(
-    cellStateRepository = cellStateRepositoryProvider.cellStateRepository,
-    gameOfLifeAlgorithm = gameOfLifeAlgorithmProvider.gameOfLifeAlgorithm,
-    dispatchers = dispatchersProvider.dispatchers,
-    clock = clockProvider.clock,
+    cellStateRepository = entryPoint.cellStateRepository,
+    gameOfLifeAlgorithm = entryPoint.gameOfLifeAlgorithm,
+    dispatchers = entryPoint.dispatchers,
+    clock = entryPoint.clock,
 )
 
 @Suppress("LongMethod")
@@ -175,7 +168,7 @@ sealed interface CellUniversePaneState {
     }
 }
 
-internal val gosperGliderGun = """
+val gosperGliderGun = """
     |........................O...........
     |......................O.O...........
     |............OO......OO............OO

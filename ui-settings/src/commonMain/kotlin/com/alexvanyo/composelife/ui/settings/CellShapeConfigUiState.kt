@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.ui.settings
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
@@ -25,10 +26,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.setCurrentShapeType
@@ -37,14 +40,18 @@ import com.alexvanyo.composelife.serialization.uuidSaver
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.sessionvalue.localSessionId
 import com.alexvanyo.composelife.sessionvalue.rememberAsyncSessionValueHolder
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
 
-interface CellShapeConfigUiInjectEntryPoint :
-    ComposeLifePreferencesProvider
-
-interface CellShapeConfigUiLocalEntryPoint :
-    LoadedComposeLifePreferencesProvider
+@Immutable
+@Inject
+class CellShapeConfigUiEntryPoint(
+    internal val preferencesHolder: LoadedComposeLifePreferencesHolder,
+    internal val composeLifePreferences: ComposeLifePreferences,
+) {
+    companion object
+}
 
 interface CellShapeConfigUiState {
     val currentShapeDropdownOption: ShapeDropdownOption
@@ -67,12 +74,23 @@ sealed interface CurrentShapeConfigUiState {
     }
 }
 
-context(injectEntryPoint: CellShapeConfigUiInjectEntryPoint, localEntryPoint: CellShapeConfigUiLocalEntryPoint)
+context(entryPoint: CellShapeConfigUiEntryPoint)
 @Composable
 fun rememberCellShapeConfigUiState(): CellShapeConfigUiState =
     rememberCellShapeConfigUiState(
-        composeLifePreferences = injectEntryPoint.composeLifePreferences,
-        preferences = localEntryPoint.preferences,
+        composeLifePreferences = entryPoint.composeLifePreferences,
+        preferences = entryPoint.preferencesHolder.preferences,
+    )
+
+context(
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+composeLifePreferences: ComposeLifePreferences,
+)
+@Composable
+fun rememberCellShapeConfigUiState(): CellShapeConfigUiState =
+    rememberCellShapeConfigUiState(
+        composeLifePreferences = composeLifePreferences,
+        preferences = preferencesHolder.preferences,
     )
 
 @Suppress("LongMethod")

@@ -22,12 +22,80 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.window.core.layout.WindowSizeClass
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
+import com.alexvanyo.composelife.data.CellStateRepository
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicator
+import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorEntryPoint
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.ImmersiveModeManager
+import kotlin.time.Clock
 
-context(_: CellUniversePaneInjectEntryPoint, _: CellUniversePaneLocalEntryPoint)
+@Suppress("ComposableNaming", "LongParameterList")
+@Composable
+private operator fun CellUniversePaneEntryPoint.invoke(
+    immersiveModeManager: ImmersiveModeManager,
+    windowSizeClass: WindowSizeClass,
+    onSeeMoreSettingsClicked: () -> Unit,
+    onOpenInSettingsClicked: (setting: Setting) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
+    modifier: Modifier = Modifier,
+    cellUniversePaneState: CellUniversePaneState = rememberCellUniversePaneState(),
+) = CellUniversePaneEntryPoint.lambda(
+    cellStateRepository,
+    gameOfLifeAlgorithm,
+    dispatchers,
+    clock,
+    gameOfLifeProgressIndicatorEntryPoint,
+    interactiveCellUniverseEntryPoint,
+    immersiveModeManager,
+    windowSizeClass,
+    onSeeMoreSettingsClicked,
+    onOpenInSettingsClicked,
+    onViewDeserializationInfo,
+    modifier,
+    cellUniversePaneState,
+)
+
+private val CellUniversePaneEntryPoint.Companion.lambda:
+    @Composable context(
+        CellStateRepository,
+        GameOfLifeAlgorithm,
+        ComposeLifeDispatchers,
+        Clock,
+        GameOfLifeProgressIndicatorEntryPoint,
+        InteractiveCellUniverseEntryPoint,
+    ) (
+        immersiveModeManager: ImmersiveModeManager,
+        windowSizeClass: WindowSizeClass,
+        onSeeMoreSettingsClicked: () -> Unit,
+        onOpenInSettingsClicked: (setting: Setting) -> Unit,
+        onViewDeserializationInfo: (DeserializationResult) -> Unit,
+        modifier: Modifier,
+        cellUniversePaneState: CellUniversePaneState,
+    ) -> Unit
+    get() = {
+            immersiveModeManager,
+            windowSizeClass,
+            onSeeMoreSettingsClicked,
+            onOpenInSettingsClicked,
+            onViewDeserializationInfo,
+            modifier,
+            cellUniversePaneState,
+        ->
+        CellUniversePane(
+            immersiveModeManager = immersiveModeManager,
+            windowSizeClass = windowSizeClass,
+            onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
+            onOpenInSettingsClicked = onOpenInSettingsClicked,
+            onViewDeserializationInfo = onViewDeserializationInfo,
+            modifier = modifier,
+            cellUniversePaneState = cellUniversePaneState,
+        )
+    }
+
+context(entryPoint: CellUniversePaneEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun CellUniversePane(
@@ -38,6 +106,39 @@ fun CellUniversePane(
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
     modifier: Modifier = Modifier,
     cellUniversePaneState: CellUniversePaneState = rememberCellUniversePaneState(),
+) = entryPoint(
+    immersiveModeManager = immersiveModeManager,
+    windowSizeClass = windowSizeClass,
+    onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
+    onOpenInSettingsClicked = onOpenInSettingsClicked,
+    onViewDeserializationInfo = onViewDeserializationInfo,
+    modifier = modifier,
+    cellUniversePaneState = cellUniversePaneState,
+)
+
+context(
+    cellStateRepository: CellStateRepository,
+gameOfLifeAlgorithm: GameOfLifeAlgorithm,
+dispatchers: ComposeLifeDispatchers,
+clock: Clock,
+_: GameOfLifeProgressIndicatorEntryPoint,
+_: InteractiveCellUniverseEntryPoint,
+)
+@Suppress("LongParameterList")
+@Composable
+private fun CellUniversePane(
+    immersiveModeManager: ImmersiveModeManager,
+    windowSizeClass: WindowSizeClass,
+    onSeeMoreSettingsClicked: () -> Unit,
+    onOpenInSettingsClicked: (setting: Setting) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
+    modifier: Modifier = Modifier,
+    cellUniversePaneState: CellUniversePaneState = rememberCellUniversePaneState(
+        cellStateRepository = cellStateRepository,
+        gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+        dispatchers = dispatchers,
+        clock = clock,
+    ),
 ) {
     Box(modifier = modifier) {
         when (cellUniversePaneState) {

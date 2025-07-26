@@ -24,14 +24,12 @@ androidx.compose.material3.adaptive:adaptive-android:1.2.0-alpha09
 androidx.compose.material3.adaptive:adaptive:1.2.0-alpha09
 androidx.compose.material3:material3-android:1.4.0-alpha18
 androidx.compose.material3:material3:1.4.0-alpha18
-androidx.compose.material:material-android:1.9.0-beta03
 androidx.compose.material:material-icons-core-android:1.7.8
 androidx.compose.material:material-icons-core:1.7.8
 androidx.compose.material:material-icons-extended-android:1.7.8
 androidx.compose.material:material-icons-extended:1.7.8
 androidx.compose.material:material-ripple-android:1.9.0-beta03
 androidx.compose.material:material-ripple:1.9.0-beta03
-androidx.compose.material:material:1.9.0-beta03
 androidx.compose.runtime:runtime-android:1.9.0-beta03
 androidx.compose.runtime:runtime-annotation-android:1.9.0-beta03
 androidx.compose.runtime:runtime-annotation:1.9.0-beta03
@@ -99,11 +97,6 @@ androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.9.2
 androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.2
 androidx.lifecycle:lifecycle-viewmodel:2.9.2
 androidx.loader:loader:1.0.0
-androidx.navigation:navigation-common-ktx:2.5.1
-androidx.navigation:navigation-common:2.5.1
-androidx.navigation:navigation-compose:2.5.1
-androidx.navigation:navigation-runtime-ktx:2.5.1
-androidx.navigation:navigation-runtime:2.5.1
 androidx.navigationevent:navigationevent-android:1.0.0-alpha04
 androidx.navigationevent:navigationevent-compose-android:1.0.0-alpha04
 androidx.navigationevent:navigationevent-compose:1.0.0-alpha04
@@ -153,8 +146,6 @@ co.touchlab:kermit-android:2.0.6
 co.touchlab:kermit-core-android:2.0.6
 co.touchlab:kermit-core:2.0.6
 co.touchlab:kermit:2.0.6
-com.airbnb.android:showkase-annotation:1.0.4
-com.airbnb.android:showkase:1.0.4
 com.github.livefront.sealed-enum:runtime:0.7.0
 com.google.accompanist:accompanist-drawablepainter:0.37.3
 com.google.ar:impress:0.0.2
@@ -167,8 +158,6 @@ com.slack.circuit:circuit-retained-android:0.29.1
 com.slack.circuit:circuit-retained:0.29.1
 com.squareup.okhttp3:okhttp-sse:4.12.0
 com.squareup.okhttp3:okhttp:4.12.0
-com.squareup.okio:okio-fakefilesystem-jvm:3.15.0
-com.squareup.okio:okio-fakefilesystem:3.15.0
 com.squareup.okio:okio-jvm:3.15.0
 com.squareup.okio:okio:3.15.0
 com.squareup.wire:wire-runtime-jvm:5.3.5
@@ -183,8 +172,6 @@ io.ktor:ktor-client-core-jvm:3.2.2
 io.ktor:ktor-client-core:3.2.2
 io.ktor:ktor-client-logging-jvm:3.2.2
 io.ktor:ktor-client-logging:3.2.2
-io.ktor:ktor-client-mock-jvm:3.2.2
-io.ktor:ktor-client-mock:3.2.2
 io.ktor:ktor-client-okhttp-jvm:3.2.2
 io.ktor:ktor-client-okhttp:3.2.2
 io.ktor:ktor-events-jvm:3.2.2

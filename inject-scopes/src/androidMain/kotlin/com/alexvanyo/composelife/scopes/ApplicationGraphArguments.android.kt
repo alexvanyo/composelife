@@ -17,8 +17,8 @@
 
 package com.alexvanyo.composelife.scopes
 
-import android.app.Application
+import android.content.Context
 
 actual interface ApplicationGraphArguments {
-    val application: Application
+    val applicationContext: Context
 }

@@ -219,14 +219,14 @@ internal class MutableCellStateDropStateHolderImpl(
  *
  * The passed [dropOffset] will be in the local coordinates of the [cellStateDragAndDropTarget].
  */
-context(cellStateParserProvider: CellStateParserProvider)
+context(cellStateParser: CellStateParser)
 @Composable
 fun rememberMutableCellStateDropStateHolder(
     setSelectionToCellState: (dropOffset: Offset, cellState: CellState) -> Unit,
 ): MutableCellStateDropStateHolder {
     val currentSetSelectionToCellState by rememberUpdatedState(setSelectionToCellState)
-    val mutableCellStateDropStateHolderImpl = remember(cellStateParserProvider.cellStateParser) {
-        MutableCellStateDropStateHolderImpl(cellStateParserProvider.cellStateParser) { dropOffset, cellState ->
+    val mutableCellStateDropStateHolderImpl = remember(cellStateParser) {
+        MutableCellStateDropStateHolderImpl(cellStateParser) { dropOffset, cellState ->
             currentSetSelectionToCellState(dropOffset, cellState)
         }
     }

@@ -38,22 +38,93 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.testTag
 import androidx.window.core.layout.WindowSizeClass
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
+import com.alexvanyo.composelife.data.CellStateRepository
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.isRunning
 import com.alexvanyo.composelife.sessionvalue.SessionValue
+import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorEntryPoint
+import com.alexvanyo.composelife.ui.app.rememberInteractiveCellUniverseState
 import com.alexvanyo.composelife.ui.cells.MutableCellWindow
+import com.alexvanyo.composelife.ui.cells.MutableCellWindowEntryPoint
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.ImmersiveModeManager
+import kotlin.time.Clock
 import kotlin.uuid.Uuid
+
+@Suppress("ComposableNaming", "LongParameterList")
+@Composable
+private operator fun InteractiveCellUniverseEntryPoint.invoke(
+    temporalGameOfLifeState: TemporalGameOfLifeState,
+    immersiveModeManager: ImmersiveModeManager,
+    windowSizeClass: WindowSizeClass,
+    onSeeMoreSettingsClicked: () -> Unit,
+    onOpenInSettingsClicked: (setting: Setting) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
+    modifier: Modifier = Modifier,
+    interactiveCellUniverseState: InteractiveCellUniverseState =
+        rememberInteractiveCellUniverseState(temporalGameOfLifeState, immersiveModeManager),
+) = InteractiveCellUniverseEntryPoint.lambda(
+    cellStateParser,
+    mutableCellWindowEntryPoint,
+    interactiveCellUniverseOverlayEntryPoint,
+    temporalGameOfLifeState,
+    immersiveModeManager,
+    windowSizeClass,
+    onSeeMoreSettingsClicked,
+    onOpenInSettingsClicked,
+    onViewDeserializationInfo,
+    modifier,
+    interactiveCellUniverseState,
+)
+
+private val InteractiveCellUniverseEntryPoint.Companion.lambda:
+    @Composable context(
+        CellStateParser,
+        MutableCellWindowEntryPoint,
+        InteractiveCellUniverseOverlayEntryPoint,
+    ) (
+        temporalGameOfLifeState: TemporalGameOfLifeState,
+        immersiveModeManager: ImmersiveModeManager,
+        windowSizeClass: WindowSizeClass,
+        onSeeMoreSettingsClicked: () -> Unit,
+        onOpenInSettingsClicked: (setting: Setting) -> Unit,
+        onViewDeserializationInfo: (DeserializationResult) -> Unit,
+        modifier: Modifier,
+        interactiveCellUniverseState: InteractiveCellUniverseState,
+    ) -> Unit
+    get() = {
+            temporalGameOfLifeState,
+            immersiveModeManager,
+            windowSizeClass,
+            onSeeMoreSettingsClicked,
+            onOpenInSettingsClicked,
+            onViewDeserializationInfo,
+            modifier,
+            interactiveCellUniverseState,
+        ->
+        InteractiveCellUniverse(
+            temporalGameOfLifeState = temporalGameOfLifeState,
+            immersiveModeManager = immersiveModeManager,
+            windowSizeClass = windowSizeClass,
+            onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
+            onOpenInSettingsClicked = onOpenInSettingsClicked,
+            onViewDeserializationInfo = onViewDeserializationInfo,
+            modifier = modifier,
+            interactiveCellUniverseState = interactiveCellUniverseState,
+        )
+    }
 
 /**
  * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
  * evolves.
  */
-context(_: InteractiveCellUniverseInjectEntryPoint, _: InteractiveCellUniverseLocalEntryPoint)
-@Suppress("LongParameterList", "LongMethod", "CyclomaticComplexMethod")
+context(entryPoint: InteractiveCellUniverseEntryPoint)
+@Suppress("LongParameterList")
 @Composable
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
@@ -65,6 +136,38 @@ fun InteractiveCellUniverse(
     modifier: Modifier = Modifier,
     interactiveCellUniverseState: InteractiveCellUniverseState =
         rememberInteractiveCellUniverseState(temporalGameOfLifeState, immersiveModeManager),
+) = entryPoint(
+    temporalGameOfLifeState = temporalGameOfLifeState,
+    immersiveModeManager = immersiveModeManager,
+    windowSizeClass = windowSizeClass,
+    onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
+    onOpenInSettingsClicked = onOpenInSettingsClicked,
+    onViewDeserializationInfo = onViewDeserializationInfo,
+    modifier = modifier,
+    interactiveCellUniverseState = interactiveCellUniverseState,
+)
+
+context(
+    cellStateParser: CellStateParser,
+_: MutableCellWindowEntryPoint,
+_: InteractiveCellUniverseOverlayEntryPoint,
+)
+@Suppress("LongParameterList", "LongMethod", "CyclomaticComplexMethod")
+@Composable
+fun InteractiveCellUniverse(
+    temporalGameOfLifeState: TemporalGameOfLifeState,
+    immersiveModeManager: ImmersiveModeManager,
+    windowSizeClass: WindowSizeClass,
+    onSeeMoreSettingsClicked: () -> Unit,
+    onOpenInSettingsClicked: (setting: Setting) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
+    modifier: Modifier = Modifier,
+    interactiveCellUniverseState: InteractiveCellUniverseState =
+        rememberInteractiveCellUniverseState(
+            cellStateParser,
+            temporalGameOfLifeState,
+            immersiveModeManager,
+        ),
 ) {
     // Force focus to allow listening to key events
     var hasFocus by remember { mutableStateOf(false) }

@@ -18,13 +18,14 @@
 package com.alexvanyo.composelife.ui.settings
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.AlgorithmType
-import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.setAlgorithmChoice
 import com.alexvanyo.composelife.ui.mobile.component.DropdownOption
 import com.alexvanyo.composelife.ui.mobile.component.TextFieldDropdown
@@ -33,26 +34,50 @@ import com.alexvanyo.composelife.ui.settings.resources.HashLifeAlgorithm
 import com.alexvanyo.composelife.ui.settings.resources.NaiveAlgorithm
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.livefront.sealedenum.GenSealedEnum
+import dev.zacsweers.metro.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 
-interface AlgorithmImplementationUiInjectEntryPoint :
-    ComposeLifePreferencesProvider
+@Immutable
+@Inject
+class AlgorithmImplementationUiEntryPoint(
+    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
+    private val composeLifePreferences: ComposeLifePreferences,
+) {
+    @Suppress("ComposableNaming")
+    @Composable
+    operator fun invoke(
+        modifier: Modifier = Modifier,
+    ) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
-interface AlgorithmImplementationUiLocalEntryPoint :
-    LoadedComposeLifePreferencesProvider
+    companion object {
+        private val lambda:
+            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (
+                modifier: Modifier,
+            ) -> Unit =
+            { modifier ->
+                AlgorithmImplementationUi(modifier)
+            }
+    }
+}
 
-context(
-    injectEntryPoint: AlgorithmImplementationUiInjectEntryPoint,
-localEntryPoint: AlgorithmImplementationUiLocalEntryPoint
-)
+context(entryPoint: AlgorithmImplementationUiEntryPoint)
 @Composable
 fun AlgorithmImplementationUi(
     modifier: Modifier = Modifier,
+) = entryPoint(modifier)
+
+context(
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+composeLifePreferences: ComposeLifePreferences,
+)
+@Composable
+private fun AlgorithmImplementationUi(
+    modifier: Modifier = Modifier,
 ) {
     AlgorithmImplementationUi(
-        algorithmChoice = localEntryPoint.preferences.algorithmChoice,
-        setAlgorithmChoice = injectEntryPoint.composeLifePreferences::setAlgorithmChoice,
+        algorithmChoice = preferencesHolder.preferences.algorithmChoice,
+        setAlgorithmChoice = composeLifePreferences::setAlgorithmChoice,
         modifier = modifier,
     )
 }

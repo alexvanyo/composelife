@@ -18,34 +18,62 @@
 package com.alexvanyo.composelife.ui.settings
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.setEnableClipboardWatching
 import com.alexvanyo.composelife.ui.mobile.component.LabeledSwitch
 import com.alexvanyo.composelife.ui.settings.resources.EnableClipboardWatching
 import com.alexvanyo.composelife.ui.settings.resources.Strings
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 
-interface EnableClipboardWatchingUiInjectEntryPoint :
-    ComposeLifePreferencesProvider
+@Immutable
+@Inject
+class EnableClipboardWatchingUiEntryPoint(
+    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
+    private val composeLifePreferences: ComposeLifePreferences,
+) {
+    @Suppress("ComposableNaming")
+    @Composable
+    operator fun invoke(
+        modifier: Modifier = Modifier,
+    ) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
-interface EnableClipboardWatchingUiLocalEntryPoint :
-    LoadedComposeLifePreferencesProvider
+    companion object {
+        private val lambda:
+            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (
+                modifier: Modifier,
+            ) -> Unit =
+            { modifier ->
+                EnableClipboardWatchingUi(modifier)
+            }
+    }
+}
 
-context(
-    injectEntryPoint: EnableClipboardWatchingUiInjectEntryPoint,
-localEntryPoint: EnableClipboardWatchingUiLocalEntryPoint
-)
+context(entryPoint: EnableClipboardWatchingUiEntryPoint)
 @Composable
 fun EnableClipboardWatchingUi(
     modifier: Modifier = Modifier,
+) = entryPoint(modifier)
+
+context(
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+composeLifePreferences: ComposeLifePreferences,
+)
+@Composable
+private fun EnableClipboardWatchingUi(
+    modifier: Modifier = Modifier,
 ) {
     EnableClipboardWatchingUi(
-        enableClipboardWatching = localEntryPoint.preferences.enableClipboardWatching,
-        setEnableClipboardWatching = injectEntryPoint.composeLifePreferences::setEnableClipboardWatching,
+        enableClipboardWatching = preferencesHolder.preferences.enableClipboardWatching,
+        setEnableClipboardWatching = composeLifePreferences::setEnableClipboardWatching,
         modifier = modifier,
     )
 }

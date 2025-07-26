@@ -20,6 +20,7 @@ package com.alexvanyo.composelife.ui.settings
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -31,6 +32,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.setPatternCollectionsSynchronizationPeriod
@@ -48,6 +52,7 @@ import com.alexvanyo.composelife.ui.settings.resources.PatternCollectionsSynchro
 import com.alexvanyo.composelife.ui.settings.resources.PatternCollectionsSynchronizationPeriodValue
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.util.nonNegativeDouble
+import dev.zacsweers.metro.Inject
 import kotlinx.datetime.DateTimePeriod
 import kotlinx.datetime.toDateTimePeriod
 import kotlin.math.log2
@@ -60,25 +65,48 @@ import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.Uuid
 
-interface PatternCollectionsSynchronizationPeriodUiInjectEntryPoint :
-    ComposeLifePreferencesProvider
+@Immutable
+@Inject
+class PatternCollectionsSynchronizationPeriodUiEntryPoint(
+    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
+    private val composeLifePreferences: ComposeLifePreferences,
+) {
+    @Suppress("ComposableNaming")
+    @Composable
+    operator fun invoke(
+        modifier: Modifier = Modifier,
+    ) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
-interface PatternCollectionsSynchronizationPeriodUiLocalEntryPoint :
-    LoadedComposeLifePreferencesProvider
+    companion object {
+        private val lambda:
+            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (
+                modifier: Modifier,
+            ) -> Unit =
+            { modifier ->
+                PatternCollectionsSynchronizationPeriodUi(modifier)
+            }
+    }
+}
 
-context(
-    injectEntryPoint: PatternCollectionsSynchronizationPeriodUiInjectEntryPoint,
-localEntryPoint: PatternCollectionsSynchronizationPeriodUiLocalEntryPoint
-)
+context(entryPoint: PatternCollectionsSynchronizationPeriodUiEntryPoint)
 @Composable
 fun PatternCollectionsSynchronizationPeriodUi(
+    modifier: Modifier = Modifier,
+) = entryPoint(modifier)
+
+context(
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+composeLifePreferences: ComposeLifePreferences,
+)
+@Composable
+private fun PatternCollectionsSynchronizationPeriodUi(
     modifier: Modifier = Modifier,
 ) {
     PatternCollectionsSynchronizationPeriodUi(
         patternCollectionsSynchronizationPeriodSessionValue =
-        localEntryPoint.preferences.patternCollectionsSynchronizationPeriodSessionValue,
+        preferencesHolder.preferences.patternCollectionsSynchronizationPeriodSessionValue,
         setPatternCollectionsSynchronizationPeriodSessionValue =
-        injectEntryPoint.composeLifePreferences::setPatternCollectionsSynchronizationPeriod,
+        composeLifePreferences::setPatternCollectionsSynchronizationPeriod,
         modifier = modifier,
     )
 }

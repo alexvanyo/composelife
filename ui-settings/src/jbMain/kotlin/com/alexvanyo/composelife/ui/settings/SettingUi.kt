@@ -21,48 +21,104 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.preferences.addQuickAccessSetting
-import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.removeQuickAccessSetting
 import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 
-interface SettingUiInjectEntryPoint :
-    AlgorithmImplementationUiInjectEntryPoint,
-    CellShapeConfigUiInjectEntryPoint,
-    CellStatePreviewUiInjectEntryPoint,
-    ComposeLifePreferencesProvider,
-    DarkThemeConfigUiInjectEntryPoint,
-    DisableAGSLUiInjectEntryPoint,
-    DisableOpenGLUiInjectEntryPoint,
-    DoNotKeepProcessUiInjectEntryPoint,
-    EnableClipboardWatchingUiInjectEntryPoint,
-    EnableWindowShapeClippingUiInjectEntryPoint,
-    ClipboardWatchingOnboardingCompletedUiInjectEntryPoint,
-    PatternCollectionsSynchronizationPeriodUiInjectEntryPoint,
-    PatternCollectionsUiInjectEntryPoint,
-    SynchronizePatternCollectionsOnMeteredNetworkUiInjectEntryPoint
+@Immutable
+@Inject
+@Suppress("LongParameterList")
+class SettingUiEntryPoint(
+    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
+    private val composeLifePreferences: ComposeLifePreferences,
+    private val algorithmImplementationUiEntryPoint: AlgorithmImplementationUiEntryPoint,
+    private val cellStatePreviewUiEntryPoint: CellStatePreviewUiEntryPoint,
+    private val darkThemeConfigUiEntryPoint: DarkThemeConfigUiEntryPoint,
+    private val cellShapeConfigUiEntryPoint: CellShapeConfigUiEntryPoint,
+    private val synchronizePatternCollectionsOnMeteredNetworkUiEntryPoint:
+    SynchronizePatternCollectionsOnMeteredNetworkUiEntryPoint,
+    private val patternCollectionsSynchronizationPeriodUiEntryPoint:
+    PatternCollectionsSynchronizationPeriodUiEntryPoint,
+    private val patternCollectionsUiEntryPoint: PatternCollectionsUiEntryPoint,
+    private val disableAGSLUiEntryPoint: DisableAGSLUiEntryPoint,
+    private val disableOpenGLUiEntryPoint: DisableOpenGLUiEntryPoint,
+    private val doNotKeepProcessUiEntryPoint: DoNotKeepProcessUiEntryPoint,
+    private val enableClipboardWatchingUiEntryPoint: EnableClipboardWatchingUiEntryPoint,
+    private val clipboardWatchingOnboardingCompletedUiEntryPoint: ClipboardWatchingOnboardingCompletedUiEntryPoint,
+    private val enableWindowShapeClippingUiEntryPoint: EnableWindowShapeClippingUiEntryPoint,
+) {
+    @Suppress("ComposableNaming", "LongParameterList")
+    @Composable
+    operator fun invoke(
+        setting: Setting,
+        modifier: Modifier = Modifier,
+        onOpenInSettingsClicked: ((Setting) -> Unit)? = null,
+    ) = lambda(
+        preferencesHolder,
+        composeLifePreferences,
+        algorithmImplementationUiEntryPoint,
+        cellStatePreviewUiEntryPoint,
+        darkThemeConfigUiEntryPoint,
+        cellShapeConfigUiEntryPoint,
+        synchronizePatternCollectionsOnMeteredNetworkUiEntryPoint,
+        patternCollectionsSynchronizationPeriodUiEntryPoint,
+        patternCollectionsUiEntryPoint,
+        disableAGSLUiEntryPoint,
+        disableOpenGLUiEntryPoint,
+        doNotKeepProcessUiEntryPoint,
+        enableClipboardWatchingUiEntryPoint,
+        clipboardWatchingOnboardingCompletedUiEntryPoint,
+        enableWindowShapeClippingUiEntryPoint,
+        setting,
+        modifier,
+        onOpenInSettingsClicked,
+    )
 
-interface SettingUiLocalEntryPoint :
-    AlgorithmImplementationUiLocalEntryPoint,
-    CellShapeConfigUiLocalEntryPoint,
-    CellStatePreviewUiLocalEntryPoint,
-    DarkThemeConfigUiLocalEntryPoint,
-    DisableAGSLUiLocalEntryPoint,
-    DisableOpenGLUiLocalEntryPoint,
-    DoNotKeepProcessUiLocalEntryPoint,
-    EnableClipboardWatchingUiLocalEntryPoint,
-    EnableWindowShapeClippingUiLocalEntryPoint,
-    ClipboardWatchingOnboardingCompletedUiLocalEntryPoint,
-    LoadedComposeLifePreferencesProvider,
-    PatternCollectionsSynchronizationPeriodUiLocalEntryPoint,
-    PatternCollectionsUiLocalEntryPoint,
-    SynchronizePatternCollectionsOnMeteredNetworkUiLocalEntryPoint
+    companion object {
+        private val lambda:
+            @Composable context(
+                LoadedComposeLifePreferencesHolder,
+                ComposeLifePreferences,
+                AlgorithmImplementationUiEntryPoint,
+                CellStatePreviewUiEntryPoint,
+                DarkThemeConfigUiEntryPoint,
+                CellShapeConfigUiEntryPoint,
+                SynchronizePatternCollectionsOnMeteredNetworkUiEntryPoint,
+                PatternCollectionsSynchronizationPeriodUiEntryPoint,
+                PatternCollectionsUiEntryPoint,
+                DisableAGSLUiEntryPoint,
+                DisableOpenGLUiEntryPoint,
+                DoNotKeepProcessUiEntryPoint,
+                EnableClipboardWatchingUiEntryPoint,
+                ClipboardWatchingOnboardingCompletedUiEntryPoint,
+                EnableWindowShapeClippingUiEntryPoint,
+            ) (
+                setting: Setting,
+                modifier: Modifier,
+                onOpenInSettingsClicked: ((Setting) -> Unit)?,
+            ) -> Unit =
+            { setting, modifier, onOpenInSettingsClicked ->
+                SettingUi(setting, modifier, onOpenInSettingsClicked)
+            }
+    }
+}
+
+context(entryPoint: SettingUiEntryPoint)
+@Composable
+fun SettingUi(
+    setting: Setting,
+    modifier: Modifier = Modifier,
+    onOpenInSettingsClicked: ((Setting) -> Unit)? = null,
+) = entryPoint(setting, modifier, onOpenInSettingsClicked)
 
 /**
  * Displays the setting UI for the given [setting].
@@ -70,10 +126,26 @@ interface SettingUiLocalEntryPoint :
  * If [onOpenInSettingsClicked] is not null, then a button will be displayed to open the given
  * setting that will invoke [onOpenInSettingsClicked].
  */
-context(injectEntryPoint: SettingUiInjectEntryPoint, localEntryPoint: SettingUiLocalEntryPoint)
+context(
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+composeLifePreferences: ComposeLifePreferences,
+_: AlgorithmImplementationUiEntryPoint,
+_: CellStatePreviewUiEntryPoint,
+_: DarkThemeConfigUiEntryPoint,
+_: CellShapeConfigUiEntryPoint,
+_: SynchronizePatternCollectionsOnMeteredNetworkUiEntryPoint,
+_: PatternCollectionsSynchronizationPeriodUiEntryPoint,
+_: PatternCollectionsUiEntryPoint,
+_: DisableAGSLUiEntryPoint,
+_: DisableOpenGLUiEntryPoint,
+_: DoNotKeepProcessUiEntryPoint,
+_: EnableClipboardWatchingUiEntryPoint,
+_: ClipboardWatchingOnboardingCompletedUiEntryPoint,
+_: EnableWindowShapeClippingUiEntryPoint,
+)
 @Suppress("CyclomaticComplexMethod")
 @Composable
-fun SettingUi(
+private fun SettingUi(
     setting: Setting,
     modifier: Modifier = Modifier,
     onOpenInSettingsClicked: ((Setting) -> Unit)? = null,
@@ -87,13 +159,13 @@ fun SettingUi(
             if (quickAccessSetting != null) {
                 val coroutineScope = rememberCoroutineScope()
                 QuickAccessSettingHeader(
-                    isFavorite = quickAccessSetting in localEntryPoint.preferences.quickAccessSettings,
+                    isFavorite = quickAccessSetting in preferencesHolder.preferences.quickAccessSettings,
                     setIsFavorite = { isFavorite ->
                         coroutineScope.launch {
                             if (isFavorite) {
-                                injectEntryPoint.composeLifePreferences.addQuickAccessSetting(quickAccessSetting)
+                                composeLifePreferences.addQuickAccessSetting(quickAccessSetting)
                             } else {
-                                injectEntryPoint.composeLifePreferences.removeQuickAccessSetting(quickAccessSetting)
+                                composeLifePreferences.removeQuickAccessSetting(quickAccessSetting)
                             }
                         }
                     },

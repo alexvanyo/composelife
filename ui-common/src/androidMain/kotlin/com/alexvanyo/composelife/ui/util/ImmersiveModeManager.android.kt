@@ -34,22 +34,21 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 @Composable
 actual fun rememberImmersiveModeManager(): ImmersiveModeManager = rememberImmersiveModeManager(
-    activity = requireNotNull(LocalActivity.current),
-    window = requireNotNull(LocalActivity.current).window,
+    activity = LocalActivity.current,
+    window = LocalActivity.current?.window,
 )
 
 @Composable
 fun rememberImmersiveModeManager(
-    activity: Activity,
-    window: Window,
+    activity: Activity?,
+    window: Window?,
 ): ImmersiveModeManager {
     val view = LocalView.current
 
     val immersiveModeManager = remember(activity, window, view) {
-        val windowInsetsControllerCompat = WindowInsetsControllerCompat(window, view)
         AndroidImmersiveModeManager(
             activity,
-            windowInsetsControllerCompat,
+            window?.let { WindowInsetsControllerCompat(it, view) },
         )
     }
 
@@ -61,20 +60,20 @@ fun rememberImmersiveModeManager(
 }
 
 private class AndroidImmersiveModeManager private constructor(
-    private val activity: Activity,
+    private val activity: Activity?,
     private val powerableUpdatable: PowerableUpdatable,
 ) : ImmersiveModeManager, Updatable by powerableUpdatable {
     constructor(
-        activity: Activity,
-        windowInsetsControllerCompat: WindowInsetsControllerCompat,
+        activity: Activity?,
+        windowInsetsControllerCompat: WindowInsetsControllerCompat?,
     ) : this(
         activity,
         PowerableUpdatable {
             try {
-                windowInsetsControllerCompat.hide(WindowInsetsCompat.Type.systemBars())
+                windowInsetsControllerCompat?.hide(WindowInsetsCompat.Type.systemBars())
                 awaitCancellation()
             } finally {
-                windowInsetsControllerCompat.show(WindowInsetsCompat.Type.systemBars())
+                windowInsetsControllerCompat?.show(WindowInsetsCompat.Type.systemBars())
             }
         },
     )
@@ -84,7 +83,7 @@ private class AndroidImmersiveModeManager private constructor(
     override suspend fun enterFullscreenMode(): Result<Unit> =
         if (Build.VERSION.SDK_INT >= 35) {
             suspendCancellableCoroutine { cont ->
-                activity.requestFullscreenMode(
+                activity?.requestFullscreenMode(
                     Activity.FULLSCREEN_MODE_REQUEST_ENTER,
                     @Suppress("ForbiddenVoid")
                     object : OutcomeReceiver<Void, Throwable> {
@@ -105,7 +104,7 @@ private class AndroidImmersiveModeManager private constructor(
     override suspend fun exitFullscreenMode(): Result<Unit> =
         if (Build.VERSION.SDK_INT >= 35) {
             suspendCancellableCoroutine { cont ->
-                activity.requestFullscreenMode(
+                activity?.requestFullscreenMode(
                     Activity.FULLSCREEN_MODE_REQUEST_EXIT,
                     @Suppress("ForbiddenVoid")
                     object : OutcomeReceiver<Void, Throwable> {
