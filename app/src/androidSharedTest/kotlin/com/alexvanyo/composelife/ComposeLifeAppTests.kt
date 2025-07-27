@@ -42,7 +42,9 @@ import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
 import androidx.window.core.layout.computeWindowSizeClass
 import androidx.window.layout.WindowMetricsCalculator
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.preferences.AlgorithmType
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.preferences.algorithmChoiceState
@@ -51,8 +53,11 @@ import com.alexvanyo.composelife.preferences.quickAccessSettingsState
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseActivityInjectTest
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import leakcanary.SkipLeakDetection
 import kotlin.test.Test
@@ -61,15 +66,25 @@ import kotlin.test.assertNotNull
 import com.alexvanyo.composelife.ui.app.R as uiAppR
 import com.alexvanyo.composelife.ui.settings.R as uiSettingsR
 
+@ContributesTo(AppScope::class)
+interface ComposeLifeAppTestsEntryPoint {
+    @GeneralTestDispatcher val testDispatcher: TestDispatcher
+    val preferences: ComposeLifePreferences
+}
+
+// TODO: Replace with asContribution()
+internal val ApplicationGraph.composeLifeAppTestsEntryPoint: ComposeLifeAppTestsEntryPoint get() =
+    this as ComposeLifeAppTestsEntryPoint
+
 class ComposeLifeAppTests : BaseActivityInjectTest<MainActivity>(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
     MainActivity::class.java,
 ) {
-    private val entryPoint get() = applicationGraph.testComposeLifeApplicationEntryPoint
+    private val entryPoint get() = applicationGraph.composeLifeAppTestsEntryPoint
 
-    private val testDispatcher get() = entryPoint.generalTestDispatcher
+    private val testDispatcher get() = entryPoint.testDispatcher
 
-    private val preferences get() = entryPoint.composeLifePreferences
+    private val preferences get() = entryPoint.preferences
 
     @SkipLeakDetection("recomposer", "Outer")
     @Test
