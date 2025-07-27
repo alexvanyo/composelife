@@ -100,19 +100,19 @@ ktor = "3.2.2"
 #jacoco
 jacoco = "0.8.13"
 #jetbrainsCompose
-jetbrainsCompose = "1.9.0-alpha03"
+jetbrainsCompose = "1.9.0-beta01"
 #jetbrainsComposeMaterialIconsExtended
 jetbrainsComposeMaterialIconsExtended = "1.7.3"
 #jetbrainsComposeMaterial3
 jetbrainsComposeMaterial3 = "1.9.0-alpha04"
 #jetbrainsComposeMaterial3Adaptive
-jetbrainsComposeMaterial3Adaptive = "1.2.0-alpha03"
+jetbrainsComposeMaterial3Adaptive = "1.2.0-alpha04"
 #junit4
 junit4 = "4.13.2"
 #leakCanary
 leakCanary = "3.0-alpha-8"
 #metro
-metro = "0.5.1"
+metro = "0.5.2"
 #molecule
 molecule = "2.1.0"
 #okio

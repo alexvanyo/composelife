@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,21 +31,22 @@ import com.alexvanyo.composelife.navigation.canNavigateBack
 import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
-import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneInjectEntryPoint
-import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneLocalEntryPoint
+import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneEntryPoint
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
+import dev.zacsweers.metro.Inject
 import kotlin.uuid.Uuid
 
-interface CellUniverseActionCardInjectEntryPoint :
-    InlineEditPaneInjectEntryPoint,
-    InlineSettingsPaneInjectEntryPoint
-
-interface CellUniverseActionCardLocalEntryPoint :
-    InlineEditPaneLocalEntryPoint,
-    InlineSettingsPaneLocalEntryPoint
+@Immutable
+@Inject
+class CellUniverseActionCardEntryPoint(
+    internal val inlineEditPaneEntryPoint: InlineEditPaneEntryPoint,
+    internal val inlineSettingsPaneEntryPoint: InlineSettingsPaneEntryPoint,
+) {
+    companion object
+}
 
 /**
  * The persistable state describing the [CellUniverseActionCard].

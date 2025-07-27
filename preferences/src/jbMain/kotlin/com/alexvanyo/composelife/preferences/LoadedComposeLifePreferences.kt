@@ -16,10 +16,12 @@
 
 package com.alexvanyo.composelife.preferences
 
+import androidx.compose.runtime.Immutable
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import kotlinx.datetime.DateTimePeriod
 import kotlin.uuid.Uuid
 
+@Immutable
 data class LoadedComposeLifePreferences(
     val quickAccessSettings: Set<QuickAccessSetting>,
     val algorithmChoice: AlgorithmType,

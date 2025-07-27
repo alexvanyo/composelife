@@ -16,16 +16,17 @@
 
 package com.alexvanyo.composelife.test
 
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -37,6 +38,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @ContributesTo(AppScope::class)
 interface BaseInjectTestEntryPoint {
+    @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
     val updatables: Set<Updatable>
 }
 
@@ -61,6 +63,7 @@ abstract class BaseInjectTestImpl(
 
     private val entryPoint get() = applicationGraph.baseInjectTestEntryPoint
     private val updatables: Set<Updatable> get() = entryPoint.updatables
+    internal val generalTestDispatcher: TestDispatcher get() = entryPoint.generalTestDispatcher
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun runAppTest(
@@ -68,7 +71,7 @@ abstract class BaseInjectTestImpl(
         timeout: Duration = 60.seconds,
         testBody: suspend TestScope.() -> Unit,
     ): TestResult = runTest(
-        context = context,
+        context = generalTestDispatcher + context,
         timeout = timeout,
     ) {
         withAppTestDependencies {

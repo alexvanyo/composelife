@@ -19,13 +19,15 @@ package com.alexvanyo.composelife.ui.settings
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
-import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.setDarkThemeConfig
 import com.alexvanyo.composelife.ui.mobile.component.DropdownOption
 import com.alexvanyo.composelife.ui.mobile.component.TextFieldDropdown
@@ -35,23 +37,50 @@ import com.alexvanyo.composelife.ui.settings.resources.FollowSystem
 import com.alexvanyo.composelife.ui.settings.resources.LightTheme
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.livefront.sealedenum.GenSealedEnum
+import dev.zacsweers.metro.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 
-interface DarkThemeConfigUiInjectEntryPoint :
-    ComposeLifePreferencesProvider
+@Immutable
+@Inject
+class DarkThemeConfigUiEntryPoint(
+    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
+    private val composeLifePreferences: ComposeLifePreferences,
+) {
+    @Suppress("ComposableNaming")
+    @Composable
+    operator fun invoke(
+        modifier: Modifier = Modifier,
+    ) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
-interface DarkThemeConfigUiLocalEntryPoint :
-    LoadedComposeLifePreferencesProvider
+    companion object {
+        private val lambda:
+            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (
+                modifier: Modifier,
+            ) -> Unit =
+            { modifier ->
+                DarkThemeConfigUi(modifier)
+            }
+    }
+}
 
-context(injectEntryPoint: DarkThemeConfigUiInjectEntryPoint, localEntryPoint: DarkThemeConfigUiLocalEntryPoint)
+context(entryPoint: DarkThemeConfigUiEntryPoint)
 @Composable
 fun DarkThemeConfigUi(
     modifier: Modifier = Modifier,
+) = entryPoint(modifier)
+
+context(
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+composeLifePreferences: ComposeLifePreferences,
+)
+@Composable
+private fun DarkThemeConfigUi(
+    modifier: Modifier = Modifier,
 ) {
     DarkThemeConfigUi(
-        darkThemeConfig = localEntryPoint.preferences.darkThemeConfig,
-        setDarkThemeConfig = injectEntryPoint.composeLifePreferences::setDarkThemeConfig,
+        darkThemeConfig = preferencesHolder.preferences.darkThemeConfig,
+        setDarkThemeConfig = composeLifePreferences::setDarkThemeConfig,
         modifier = modifier,
     )
 }

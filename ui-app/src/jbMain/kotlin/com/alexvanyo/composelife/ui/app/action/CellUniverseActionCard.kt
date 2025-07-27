@@ -48,6 +48,7 @@ import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPane
+import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneEntryPoint
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavigationFrame
@@ -61,10 +62,191 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.max
 
-context(_: CellUniverseActionCardInjectEntryPoint, _: CellUniverseActionCardLocalEntryPoint)
-@Suppress("LongParameterList", "LongMethod")
+@Suppress("ComposableNaming", "LongParameterList")
+@Composable
+private operator fun CellUniverseActionCardEntryPoint.invoke(
+    temporalGameOfLifeState: TemporalGameOfLifeState,
+    isViewportTracking: Boolean,
+    setIsViewportTracking: (Boolean) -> Unit,
+    showImmersiveModeControl: Boolean,
+    isImmersiveMode: Boolean,
+    setIsImmersiveMode: (Boolean) -> Unit,
+    showFullSpaceModeControl: Boolean,
+    isFullSpaceMode: Boolean,
+    setIsFullSpaceMode: (Boolean) -> Unit,
+    selectionState: SelectionState,
+    setSelectionToCellState: (CellState) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
+    onClearSelection: () -> Unit,
+    onCopy: () -> Unit,
+    onCut: () -> Unit,
+    onPaste: () -> Unit,
+    onApplyPaste: () -> Unit,
+    onSeeMoreSettingsClicked: () -> Unit,
+    onOpenInSettingsClicked: (setting: Setting) -> Unit,
+    actionCardState: CellUniverseActionCardState,
+    modifier: Modifier = Modifier,
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+) = CellUniverseActionCardEntryPoint.lambda(
+    inlineEditPaneEntryPoint,
+    inlineSettingsPaneEntryPoint,
+    temporalGameOfLifeState,
+    isViewportTracking,
+    setIsViewportTracking,
+    showImmersiveModeControl,
+    isImmersiveMode,
+    setIsImmersiveMode,
+    showFullSpaceModeControl,
+    isFullSpaceMode,
+    setIsFullSpaceMode,
+    selectionState,
+    setSelectionToCellState,
+    onViewDeserializationInfo,
+    onClearSelection,
+    onCopy,
+    onCut,
+    onPaste,
+    onApplyPaste,
+    onSeeMoreSettingsClicked,
+    onOpenInSettingsClicked,
+    actionCardState,
+    modifier,
+    coroutineScope,
+)
+
+private val CellUniverseActionCardEntryPoint.Companion.lambda:
+    @Composable (context(InlineEditPaneEntryPoint, InlineSettingsPaneEntryPoint) (
+        temporalGameOfLifeState: TemporalGameOfLifeState,
+        isViewportTracking: Boolean,
+        setIsViewportTracking: (Boolean) -> Unit,
+        showImmersiveModeControl: Boolean,
+        isImmersiveMode: Boolean,
+        setIsImmersiveMode: (Boolean) -> Unit,
+        showFullSpaceModeControl: Boolean,
+        isFullSpaceMode: Boolean,
+        setIsFullSpaceMode: (Boolean) -> Unit,
+        selectionState: SelectionState,
+        setSelectionToCellState: (CellState) -> Unit,
+        onViewDeserializationInfo: (DeserializationResult) -> Unit,
+        onClearSelection: () -> Unit,
+        onCopy: () -> Unit,
+        onCut: () -> Unit,
+        onPaste: () -> Unit,
+        onApplyPaste: () -> Unit,
+        onSeeMoreSettingsClicked: () -> Unit,
+        onOpenInSettingsClicked: (setting: Setting) -> Unit,
+        actionCardState: CellUniverseActionCardState,
+        modifier: Modifier,
+        coroutineScope: CoroutineScope,
+    ) -> Unit)
+    get() = {
+            temporalGameOfLifeState,
+            isViewportTracking,
+            setIsViewportTracking,
+            showImmersiveModeControl,
+            isImmersiveMode,
+            setIsImmersiveMode,
+            showFullSpaceModeControl,
+            isFullSpaceMode,
+            setIsFullSpaceMode,
+            selectionState,
+            setSelectionToCellState,
+            onViewDeserializationInfo,
+            onClearSelection,
+            onCopy,
+            onCut,
+            onPaste,
+            onApplyPaste,
+            onSeeMoreSettingsClicked,
+            onOpenInSettingsClicked,
+            actionCardState,
+            modifier,
+            coroutineScope,
+        ->
+        CellUniverseActionCard(
+            temporalGameOfLifeState = temporalGameOfLifeState,
+            isViewportTracking = isViewportTracking,
+            setIsViewportTracking = setIsViewportTracking,
+            showImmersiveModeControl = showImmersiveModeControl,
+            isImmersiveMode = isImmersiveMode,
+            setIsImmersiveMode = setIsImmersiveMode,
+            showFullSpaceModeControl = showFullSpaceModeControl,
+            isFullSpaceMode = isFullSpaceMode,
+            setIsFullSpaceMode = setIsFullSpaceMode,
+            selectionState = selectionState,
+            setSelectionToCellState = setSelectionToCellState,
+            onViewDeserializationInfo = onViewDeserializationInfo,
+            onClearSelection = onClearSelection,
+            onCopy = onCopy,
+            onCut = onCut,
+            onPaste = onPaste,
+            onApplyPaste = onApplyPaste,
+            onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
+            onOpenInSettingsClicked = onOpenInSettingsClicked,
+            actionCardState = actionCardState,
+            modifier = modifier,
+            coroutineScope = coroutineScope,
+        )
+    }
+
+context(entryPoint: CellUniverseActionCardEntryPoint)
+@Suppress("LongParameterList")
 @Composable
 fun CellUniverseActionCard(
+    temporalGameOfLifeState: TemporalGameOfLifeState,
+    isViewportTracking: Boolean,
+    setIsViewportTracking: (Boolean) -> Unit,
+    showImmersiveModeControl: Boolean,
+    isImmersiveMode: Boolean,
+    setIsImmersiveMode: (Boolean) -> Unit,
+    showFullSpaceModeControl: Boolean,
+    isFullSpaceMode: Boolean,
+    setIsFullSpaceMode: (Boolean) -> Unit,
+    selectionState: SelectionState,
+    setSelectionToCellState: (CellState) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
+    onClearSelection: () -> Unit,
+    onCopy: () -> Unit,
+    onCut: () -> Unit,
+    onPaste: () -> Unit,
+    onApplyPaste: () -> Unit,
+    onSeeMoreSettingsClicked: () -> Unit,
+    onOpenInSettingsClicked: (setting: Setting) -> Unit,
+    actionCardState: CellUniverseActionCardState,
+    modifier: Modifier = Modifier,
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+) = entryPoint(
+    temporalGameOfLifeState = temporalGameOfLifeState,
+    isViewportTracking = isViewportTracking,
+    setIsViewportTracking = setIsViewportTracking,
+    showImmersiveModeControl = showImmersiveModeControl,
+    isImmersiveMode = isImmersiveMode,
+    setIsImmersiveMode = setIsImmersiveMode,
+    showFullSpaceModeControl = showFullSpaceModeControl,
+    isFullSpaceMode = isFullSpaceMode,
+    setIsFullSpaceMode = setIsFullSpaceMode,
+    selectionState = selectionState,
+    setSelectionToCellState = setSelectionToCellState,
+    onViewDeserializationInfo = onViewDeserializationInfo,
+    onClearSelection = onClearSelection,
+    onCopy = onCopy,
+    onCut = onCut,
+    onPaste = onPaste,
+    onApplyPaste = onApplyPaste,
+    onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
+    onOpenInSettingsClicked = onOpenInSettingsClicked,
+    actionCardState = actionCardState,
+    modifier = modifier,
+    coroutineScope = coroutineScope,
+)
+
+context(
+    _: InlineEditPaneEntryPoint,
+_: InlineSettingsPaneEntryPoint
+)
+@Suppress("LongParameterList", "LongMethod")
+@Composable
+private fun CellUniverseActionCard(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     isViewportTracking: Boolean,
     setIsViewportTracking: (Boolean) -> Unit,
@@ -126,7 +308,10 @@ fun CellUniverseActionCard(
     )
 }
 
-context(_: CellUniverseActionCardInjectEntryPoint, _: CellUniverseActionCardLocalEntryPoint)
+context(
+    _: InlineEditPaneEntryPoint,
+_: InlineSettingsPaneEntryPoint
+)
 @Suppress("LongParameterList", "LongMethod", "ComplexMethod")
 @Composable
 fun CellUniverseActionCard(

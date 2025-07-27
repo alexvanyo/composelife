@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.unit.toSize
 import com.alexvanyo.composelife.geometry.times
 import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.sessionvalue.preLocalSessionId
@@ -68,10 +69,13 @@ import kotlin.uuid.Uuid
 /**
  * The overlay based on the [selectionSessionState].
  */
-context(_: CellWindowInjectEntryPoint, _: CellWindowLocalEntryPoint)
+context(
+    _: CellStateParser,
+_: CellWindowImplEntryPoint,
+)
 @Suppress("LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 @Composable
-fun SelectionOverlay(
+internal fun SelectionOverlay(
     selectionSessionState: SessionValue<SelectionState>,
     setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
     getSelectionCellState: (SelectionState) -> CellState,

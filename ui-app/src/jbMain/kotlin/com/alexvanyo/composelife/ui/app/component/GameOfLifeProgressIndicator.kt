@@ -32,6 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
@@ -42,24 +44,60 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.ImmutableCellWindow
+import com.alexvanyo.composelife.ui.cells.ImmutableCellWindowEntryPoint
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
 import kotlinx.coroutines.awaitCancellation
 import kotlin.coroutines.coroutineContext
 import kotlin.math.max
+import kotlin.random.Random
+import kotlin.time.Clock
 import kotlin.uuid.Uuid
+
+@Suppress("ComposableNaming")
+@Composable
+private operator fun GameOfLifeProgressIndicatorEntryPoint.invoke(
+    modifier: Modifier = Modifier,
+) = GameOfLifeProgressIndicatorEntryPoint.lambda(
+    immutableCellWindowEntryPoint,
+    random,
+    clock,
+    gameOfLifeAlgorithm,
+    dispatchers,
+    modifier,
+)
+
+private val GameOfLifeProgressIndicatorEntryPoint.Companion.lambda:
+    @Composable context(
+        ImmutableCellWindowEntryPoint, Random, Clock, GameOfLifeAlgorithm, ComposeLifeDispatchers
+    ) (Modifier) -> Unit
+    get() = { modifier ->
+        GameOfLifeProgressIndicator(modifier)
+    }
+
+context(entryPoint: GameOfLifeProgressIndicatorEntryPoint)
+@Composable
+fun GameOfLifeProgressIndicator(
+    modifier: Modifier = Modifier,
+) = entryPoint(modifier)
 
 /**
  * A progress indicator that displays progress via an embedded set of cells displaying an
  * oscillating pattern.
  */
-context(injectEntryPoint: GameOfLifeProgressIndicatorInjectEntryPoint, _: GameOfLifeProgressIndicatorLocalEntryPoint)
+context(
+    _: ImmutableCellWindowEntryPoint,
+random: Random,
+clock: Clock,
+gameOfLifeAlgorithm: GameOfLifeAlgorithm,
+dispatchers: ComposeLifeDispatchers,
+)
 @Composable
 fun GameOfLifeProgressIndicator(
     modifier: Modifier = Modifier,
 ) {
     val patternIndex = remember(OscillatorPattern.values.size) {
-        injectEntryPoint.random.nextInt(OscillatorPattern.values.size)
+        random.nextInt(OscillatorPattern.values.size)
     }
     val pattern = OscillatorPattern.values[patternIndex]
     val temporalGameOfLifeState = key(pattern) {
@@ -72,9 +110,9 @@ fun GameOfLifeProgressIndicator(
 
     val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
         temporalGameOfLifeState = temporalGameOfLifeState,
-        gameOfLifeAlgorithm = injectEntryPoint.gameOfLifeAlgorithm,
-        dispatchers = injectEntryPoint.dispatchers,
-        clock = injectEntryPoint.clock,
+        gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+        dispatchers = dispatchers,
+        clock = clock,
     )
 
     LaunchedEffect(temporalGameOfLifeStateMutator) {
@@ -119,7 +157,9 @@ private suspend fun <R> withInfiniteAnimationPolicy(block: suspend () -> R): R {
     }
 }
 
-context(_: GameOfLifeProgressIndicatorInjectEntryPoint, _: GameOfLifeProgressIndicatorLocalEntryPoint)
+context(
+    immutableCellWindowEntryPoint: ImmutableCellWindowEntryPoint,
+)
 @Suppress("LongParameterList")
 @Composable
 fun GameOfLifeProgressIndicator(

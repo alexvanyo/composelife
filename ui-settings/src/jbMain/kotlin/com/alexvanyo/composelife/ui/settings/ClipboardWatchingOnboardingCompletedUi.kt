@@ -18,35 +18,63 @@
 package com.alexvanyo.composelife.ui.settings
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.setCompletedClipboardWatchingOnboarding
 import com.alexvanyo.composelife.ui.mobile.component.LabeledSwitch
 import com.alexvanyo.composelife.ui.settings.resources.ClipboardWatchingOnboardingCompleted
 import com.alexvanyo.composelife.ui.settings.resources.Strings
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 
-interface ClipboardWatchingOnboardingCompletedUiInjectEntryPoint :
-    ComposeLifePreferencesProvider
+@Immutable
+@Inject
+class ClipboardWatchingOnboardingCompletedUiEntryPoint(
+    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
+    private val composeLifePreferences: ComposeLifePreferences,
+) {
+    @Suppress("ComposableNaming")
+    @Composable
+    operator fun invoke(
+        modifier: Modifier = Modifier,
+    ) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
-interface ClipboardWatchingOnboardingCompletedUiLocalEntryPoint :
-    LoadedComposeLifePreferencesProvider
+    companion object {
+        private val lambda:
+            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (
+                modifier: Modifier,
+            ) -> Unit =
+            { modifier ->
+                ClipboardWatchingOnboardingCompletedUi(modifier)
+            }
+    }
+}
 
-context(
-    injectEntryPoint: ClipboardWatchingOnboardingCompletedUiInjectEntryPoint,
-localEntryPoint: ClipboardWatchingOnboardingCompletedUiLocalEntryPoint
-)
+context(entryPoint: ClipboardWatchingOnboardingCompletedUiEntryPoint)
 @Composable
 fun ClipboardWatchingOnboardingCompletedUi(
     modifier: Modifier = Modifier,
+) = entryPoint(modifier)
+
+context(
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+composeLifePreferences: ComposeLifePreferences,
+)
+@Composable
+private fun ClipboardWatchingOnboardingCompletedUi(
+    modifier: Modifier = Modifier,
 ) {
     ClipboardWatchingOnboardingCompletedUi(
-        completedClipboardWatchingOnboarding = localEntryPoint.preferences.completedClipboardWatchingOnboarding,
+        completedClipboardWatchingOnboarding = preferencesHolder.preferences.completedClipboardWatchingOnboarding,
         setCompletedClipboardWatchingOnboarding =
-        injectEntryPoint.composeLifePreferences::setCompletedClipboardWatchingOnboarding,
+        composeLifePreferences::setCompletedClipboardWatchingOnboarding,
         modifier = modifier,
     )
 }

@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.test
 
 import android.app.Application
+import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.scopes.ApplicationGraph
@@ -37,5 +38,5 @@ actual abstract class BaseInjectTest actual constructor(
 
 actual fun createApplicationGraphArguments(): ApplicationGraphArguments =
     object : ApplicationGraphArguments {
-        override val application: Application = ApplicationProvider.getApplicationContext()
+        override val applicationContext: Context = ApplicationProvider.getApplicationContext()
     }

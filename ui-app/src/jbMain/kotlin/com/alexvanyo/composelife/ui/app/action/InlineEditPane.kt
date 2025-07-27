@@ -39,10 +39,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.ui.app.resources.Draw
 import com.alexvanyo.composelife.ui.app.resources.Erase
@@ -58,6 +60,7 @@ import com.alexvanyo.composelife.ui.app.resources.Touch
 import com.alexvanyo.composelife.ui.app.resources.TouchTool
 import com.alexvanyo.composelife.ui.mobile.component.DropdownOption
 import com.alexvanyo.composelife.ui.mobile.component.TextFieldDropdown
+import com.alexvanyo.composelife.ui.settings.AlgorithmImplementationUi
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.collections.immutable.toImmutableList
 
@@ -132,7 +135,55 @@ private fun ToolConfig.toToolDropdownOption(): ToolDropdownOption =
         ToolConfig.Select -> ToolDropdownOption.Select
     }
 
-context(_: InlineEditPaneInjectEntryPoint, _: InlineEditPaneLocalEntryPoint)
+@Suppress("ComposableNaming")
+@Composable
+private operator fun InlineEditPaneEntryPoint.invoke(
+    setSelectionToCellState: (CellState) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(),
+) = InlineEditPaneEntryPoint.lambda(
+    preferencesHolder,
+    composeLifePreferences,
+    clipboardCellStatePreviewEntryPoint,
+    cellStateParser,
+    setSelectionToCellState,
+    onViewDeserializationInfo,
+    modifier,
+    scrollState,
+)
+
+private val InlineEditPaneEntryPoint.Companion.lambda:
+    @Composable context(
+        LoadedComposeLifePreferencesHolder,
+        ComposeLifePreferences,
+        ClipboardCellStatePreviewEntryPoint,
+        CellStateParser
+    ) (
+        (CellState) -> Unit,
+        (DeserializationResult) -> Unit,
+        Modifier,
+        ScrollState,
+    ) -> Unit
+    get() = { setSelectionToCellState, onViewDeserializationInfo, modifier, scrollState ->
+        InlineEditPane(setSelectionToCellState, onViewDeserializationInfo, modifier, scrollState)
+    }
+
+context(entryPoint: InlineEditPaneEntryPoint)
+@Composable
+fun InlineEditPane(
+    setSelectionToCellState: (CellState) -> Unit,
+    onViewDeserializationInfo: (DeserializationResult) -> Unit,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(),
+) = entryPoint(setSelectionToCellState, onViewDeserializationInfo, modifier, scrollState)
+
+context(
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+composeLifePreferences: ComposeLifePreferences,
+clipboardCellStatePreviewEntryPoint: ClipboardCellStatePreviewEntryPoint,
+cellStateParser: CellStateParser,
+)
 @Composable
 fun InlineEditPane(
     setSelectionToCellState: (CellState) -> Unit,
@@ -145,7 +196,7 @@ fun InlineEditPane(
     scrollState = scrollState,
 )
 
-context(_: ClipboardCellStatePreviewInjectEntryPoint, _: ClipboardCellStatePreviewLocalEntryPoint)
+context(clipboardCellStatePreviewEntryPoint: ClipboardCellStatePreviewEntryPoint)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 fun InlineEditPane(

@@ -47,6 +47,7 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -65,10 +66,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.alexvanyo.composelife.clock.di.ClockProvider
+import com.alexvanyo.composelife.data.PatternCollectionRepository
 import com.alexvanyo.composelife.data.di.PatternCollectionRepositoryProvider
 import com.alexvanyo.composelife.data.model.PatternCollection
 import com.alexvanyo.composelife.database.PatternCollectionId
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.settings.resources.AddPatternCollection
@@ -89,6 +93,7 @@ import com.alexvanyo.composelife.ui.util.currentTimeZone
 import com.alexvanyo.composelife.ui.util.dateComponentInWholeUnits
 import com.alexvanyo.composelife.ui.util.progressivePeriodUntil
 import com.alexvanyo.composelife.ui.util.timeComponentInWholeUnits
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -96,35 +101,59 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
 import kotlin.collections.component1
 import kotlin.collections.component2
+import kotlin.time.Clock
 
-interface PatternCollectionsUiInjectEntryPoint :
-    PatternCollectionRepositoryProvider,
-    ClockProvider
+@Immutable
+@Inject
+class PatternCollectionsUiEntryPoint(
+    private val patternCollectionRepository: PatternCollectionRepository,
+    private val clock: Clock,
+) {
+    @Suppress("ComposableNaming")
+    @Composable
+    operator fun invoke(
+        modifier: Modifier = Modifier,
+    ) = lambda(patternCollectionRepository, clock, modifier)
 
-interface PatternCollectionsUiLocalEntryPoint :
-    LoadedComposeLifePreferencesProvider
+    companion object {
+        private val lambda:
+            @Composable context(PatternCollectionRepository, Clock) (modifier: Modifier) -> Unit =
+            { modifier ->
+                PatternCollectionsUi(modifier)
+            }
+    }
+}
 
-context(injectEntryPoint: PatternCollectionsUiInjectEntryPoint, _: PatternCollectionsUiLocalEntryPoint)
+context(entryPoint: PatternCollectionsUiEntryPoint)
+@Composable
+fun PatternCollectionsUi(
+    modifier: Modifier = Modifier,
+) = entryPoint(modifier)
+
+context(
+    patternCollectionRepository: PatternCollectionRepository,
+clock: Clock,
+)
 @Composable
 fun PatternCollectionsUi(
     modifier: Modifier = Modifier,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(lifecycleOwner, injectEntryPoint.patternCollectionRepository) {
+    LaunchedEffect(lifecycleOwner, patternCollectionRepository) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            injectEntryPoint.patternCollectionRepository.observePatternCollections()
+            patternCollectionRepository.observePatternCollections()
         }
     }
 
     PatternCollectionsUi(
-        patternCollectionsState = injectEntryPoint.patternCollectionRepository.collections,
-        addPatternCollection = injectEntryPoint.patternCollectionRepository::addPatternCollection,
-        deletePatternCollection = injectEntryPoint.patternCollectionRepository::deletePatternCollection,
+        patternCollectionsState = patternCollectionRepository.collections,
+        addPatternCollection = patternCollectionRepository::addPatternCollection,
+        deletePatternCollection = patternCollectionRepository::deletePatternCollection,
         modifier = modifier,
     )
 }
 
-context(_: ClockProvider)
+context(_: Clock)
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongMethod")
 @Composable
@@ -240,7 +269,7 @@ fun PatternCollectionsUi(
     }
 }
 
-context(clockProvider: ClockProvider)
+context(clock: Clock)
 @Suppress("CyclomaticComplexMethod", "LongMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -267,7 +296,7 @@ fun PatternCollection(
                         Text(parameterizedStringResource(Strings.Never))
                     } else {
                         val (unit, period) = lastSuccessfulSynchronizationTimestamp.progressivePeriodUntil(
-                            clock = clockProvider.clock,
+                            clock = clock,
                             unitProgression = listOf(
                                 DateTimeUnit.DAY,
                                 DateTimeUnit.HOUR,
@@ -297,7 +326,7 @@ fun PatternCollection(
                             Column {
                                 Text(parameterizedStringResource(Strings.LastUnsuccessfulSync))
                                 val (unit, period) = lastUnsuccessfulSynchronizationTimestamp.progressivePeriodUntil(
-                                    clock = clockProvider.clock,
+                                    clock = clock,
                                     unitProgression = listOf(
                                         DateTimeUnit.DAY,
                                         DateTimeUnit.HOUR,

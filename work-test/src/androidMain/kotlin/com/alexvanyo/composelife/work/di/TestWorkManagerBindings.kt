@@ -29,6 +29,7 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.IntoSet
+import dev.zacsweers.metro.Multibinds
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.awaitCancellation
@@ -37,6 +38,10 @@ import kotlin.reflect.KClass
 @ContributesTo(AppScope::class, replaces = [WorkManagerBindings::class])
 @BindingContainer
 interface TestWorkManagerBindings {
+
+    @Multibinds(allowEmpty = true)
+    val workerFactoryClassMap: Map<KClass<out ListenableWorker>, AssistedWorkerFactory>
+
     companion object {
         @Provides
         fun providesWorkerFactoryClassNameMap(

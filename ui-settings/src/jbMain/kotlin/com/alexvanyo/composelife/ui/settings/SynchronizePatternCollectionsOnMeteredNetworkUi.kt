@@ -18,36 +18,64 @@
 package com.alexvanyo.composelife.ui.settings
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.setSynchronizePatternCollectionsOnMeteredNetwork
 import com.alexvanyo.composelife.ui.mobile.component.LabeledSwitch
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.settings.resources.SynchronizePatternCollectionsOnMeteredNetwork
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 
-interface SynchronizePatternCollectionsOnMeteredNetworkUiInjectEntryPoint :
-    ComposeLifePreferencesProvider
+@Immutable
+@Inject
+class SynchronizePatternCollectionsOnMeteredNetworkUiEntryPoint(
+    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
+    private val composeLifePreferences: ComposeLifePreferences,
+) {
+    @Suppress("ComposableNaming")
+    @Composable
+    operator fun invoke(
+        modifier: Modifier = Modifier,
+    ) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
-interface SynchronizePatternCollectionsOnMeteredNetworkUiLocalEntryPoint :
-    LoadedComposeLifePreferencesProvider
+    companion object {
+        private val lambda:
+            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (
+                modifier: Modifier,
+            ) -> Unit =
+            { modifier ->
+                SynchronizePatternCollectionsOnMeteredNetworkUi(modifier)
+            }
+    }
+}
 
-context(
-    injectEntryPoint: SynchronizePatternCollectionsOnMeteredNetworkUiInjectEntryPoint,
-localEntryPoint: SynchronizePatternCollectionsOnMeteredNetworkUiLocalEntryPoint
-)
+context(entryPoint: SynchronizePatternCollectionsOnMeteredNetworkUiEntryPoint)
 @Composable
 fun SynchronizePatternCollectionsOnMeteredNetworkUi(
+    modifier: Modifier = Modifier,
+) = entryPoint(modifier)
+
+context(
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+composeLifePreferences: ComposeLifePreferences,
+)
+@Composable
+private fun SynchronizePatternCollectionsOnMeteredNetworkUi(
     modifier: Modifier = Modifier,
 ) {
     SynchronizePatternCollectionsOnMeteredNetworkUi(
         synchronizePatternCollectionsOnMeteredNetwork =
-        localEntryPoint.preferences.synchronizePatternCollectionsOnMeteredNetwork,
+        preferencesHolder.preferences.synchronizePatternCollectionsOnMeteredNetwork,
         setSynchronizePatternCollectionsOnMeteredNetwork =
-        injectEntryPoint.composeLifePreferences::setSynchronizePatternCollectionsOnMeteredNetwork,
+        composeLifePreferences::setSynchronizePatternCollectionsOnMeteredNetwork,
         modifier = modifier,
     )
 }

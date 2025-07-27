@@ -51,6 +51,7 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -64,25 +65,64 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.data.PatternCollectionRepository
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailInfo
 import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
 import com.alexvanyo.composelife.ui.settings.resources.Back
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.util.trySharedBounds
-import kotlinx.coroutines.delay
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-interface FullscreenSettingsDetailPaneInjectEntryPoint :
-    SettingUiInjectEntryPoint
+@Immutable
+@Inject
+class FullscreenSettingsDetailPaneEntryPoint(
+    private val settingUiEntryPoint: SettingUiEntryPoint,
+    private val patternCollectionRepository: PatternCollectionRepository,
+) {
+    @Suppress("ComposableNaming")
+    @Composable
+    operator fun invoke(
+        fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
+        onBackButtonPressed: () -> Unit,
+        modifier: Modifier = Modifier,
+    ) = lambda(
+        settingUiEntryPoint,
+        patternCollectionRepository,
+        fullscreenSettingsDetailPaneState,
+        onBackButtonPressed,
+        modifier,
+    )
 
-interface FullscreenSettingsDetailPaneLocalEntryPoint :
-    SettingUiLocalEntryPoint
+    companion object {
+        private val lambda:
+            @Composable context(SettingUiEntryPoint, PatternCollectionRepository) (
+                fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
+                onBackButtonPressed: () -> Unit,
+                modifier: Modifier,
+            ) -> Unit =
+            { fullscreenSettingsDetailPaneState, onBackButtonPressed, modifier ->
+                FullscreenSettingsDetailPane(fullscreenSettingsDetailPaneState, onBackButtonPressed, modifier)
+            }
+    }
+}
 
-context(_: FullscreenSettingsDetailPaneInjectEntryPoint, _: FullscreenSettingsDetailPaneLocalEntryPoint)
+context(entryPoint: FullscreenSettingsDetailPaneEntryPoint)
 @Composable
 fun FullscreenSettingsDetailPane(
+    fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
+    onBackButtonPressed: () -> Unit,
+    modifier: Modifier = Modifier,
+) = entryPoint(fullscreenSettingsDetailPaneState, onBackButtonPressed, modifier)
+
+context(
+    _: SettingUiEntryPoint,
+_: PatternCollectionRepository,
+)
+@Composable
+private fun FullscreenSettingsDetailPane(
     fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
     onBackButtonPressed: () -> Unit,
     modifier: Modifier = Modifier,
@@ -101,7 +141,10 @@ fun FullscreenSettingsDetailPane(
     )
 }
 
-context(_: SettingUiInjectEntryPoint, _: SettingUiLocalEntryPoint)
+context(
+    _: SettingUiEntryPoint,
+_: PatternCollectionRepository,
+)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
@@ -142,7 +185,7 @@ private fun SettingsCategoryDetail(
     }
 }
 
-context(_: SettingUiInjectEntryPoint, _: SettingUiLocalEntryPoint)
+context(_: SettingUiEntryPoint)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
@@ -262,7 +305,10 @@ private fun StandardSettingsCategoryDetail(
     }
 }
 
-context(injectEntryPoint: SettingUiInjectEntryPoint, _: SettingUiLocalEntryPoint)
+context(
+    _: SettingUiEntryPoint,
+patternCollectionRepository: PatternCollectionRepository,
+)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
@@ -339,7 +385,7 @@ private fun PatternCollectionsDetail(
                     coroutineScope.launch {
                         isRefreshing = true
                         try {
-                            injectEntryPoint.patternCollectionRepository.synchronizePatternCollections()
+                            patternCollectionRepository.synchronizePatternCollections()
                         } finally {
                             isRefreshing = false
                         }

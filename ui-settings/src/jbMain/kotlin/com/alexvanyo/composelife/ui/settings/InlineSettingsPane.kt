@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -44,31 +45,72 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
-import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.preferences.ordinal
 import com.alexvanyo.composelife.ui.settings.resources.QuickSettingsInfo
 import com.alexvanyo.composelife.ui.settings.resources.SeeAll
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.util.trySharedBounds
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlin.Int
 
-interface InlineSettingsPaneInjectEntryPoint :
-    ComposeLifePreferencesProvider,
-    SettingUiInjectEntryPoint
+@Immutable
+@Inject
+class InlineSettingsPaneEntryPoint(
+    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
+    private val settingUiEntryPoint: SettingUiEntryPoint,
+) {
+    @Suppress("ComposableNaming")
+    @Composable
+    operator fun invoke(
+        onSeeMoreClicked: () -> Unit,
+        onOpenInSettingsClicked: (Setting) -> Unit,
+        modifier: Modifier = Modifier,
+        scrollState: ScrollState = rememberScrollState(initial = Int.MAX_VALUE),
+    ) = lambda(
+        preferencesHolder,
+        settingUiEntryPoint,
+        onSeeMoreClicked,
+        onOpenInSettingsClicked,
+        modifier,
+        scrollState,
+    )
 
-interface InlineSettingsPaneLocalEntryPoint :
-    LoadedComposeLifePreferencesProvider,
-    SettingUiLocalEntryPoint
+    companion object {
+        private val lambda:
+            @Composable context(LoadedComposeLifePreferencesHolder, SettingUiEntryPoint) (
+                onSeeMoreClicked: () -> Unit,
+                onOpenInSettingsClicked: (Setting) -> Unit,
+                modifier: Modifier,
+                scrollState: ScrollState,
+            ) -> Unit =
+            { onSeeMoreClicked, onOpenInSettingsClicked, modifier, scrollState ->
+                InlineSettingsPane(onSeeMoreClicked, onOpenInSettingsClicked, modifier, scrollState)
+            }
+    }
+}
 
-context(_: InlineSettingsPaneInjectEntryPoint, localEntryPoint: InlineSettingsPaneLocalEntryPoint)
+context(entryPoint: InlineSettingsPaneEntryPoint)
+@Composable
+fun InlineSettingsPane(
+    onSeeMoreClicked: () -> Unit,
+    onOpenInSettingsClicked: (Setting) -> Unit,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(initial = Int.MAX_VALUE),
+) = entryPoint(onSeeMoreClicked, onOpenInSettingsClicked, modifier, scrollState)
+
+context(
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+_: SettingUiEntryPoint,
+)
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod")
 @Composable
-fun InlineSettingsPane(
+private fun InlineSettingsPane(
     onSeeMoreClicked: () -> Unit,
     onOpenInSettingsClicked: (Setting) -> Unit,
     modifier: Modifier = Modifier,
@@ -84,7 +126,7 @@ fun InlineSettingsPane(
             .padding(vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val quickAccessSettings = localEntryPoint.preferences.quickAccessSettings
+        val quickAccessSettings = preferencesHolder.preferences.quickAccessSettings
 
         /**
          * The list of previously known animatable quick access settings, used to smoothly animate out upon

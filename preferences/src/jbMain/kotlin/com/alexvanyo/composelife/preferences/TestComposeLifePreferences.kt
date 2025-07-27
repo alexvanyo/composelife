@@ -29,115 +29,89 @@ import kotlin.uuid.Uuid
 
 @Suppress("TooManyFunctions", "LongParameterList")
 class TestComposeLifePreferences(
-    isLoaded: Boolean = true,
-    algorithmChoice: AlgorithmType = AlgorithmType.NaiveAlgorithm,
-    currentShapeType: CurrentShapeType = CurrentShapeType.RoundRectangle,
-    roundRectangleConfig: CurrentShape.RoundRectangle = CurrentShape.RoundRectangle(
-        sizeFraction = 1.0f,
-        cornerFraction = 0.0f,
-    ),
-    roundRectangleSessionId: Uuid = Uuid.random(),
-    roundRectangleValueId: Uuid = Uuid.random(),
-    darkThemeConfig: DarkThemeConfig = DarkThemeConfig.FollowSystem,
-    quickAccessSettings: Set<QuickAccessSetting> = emptySet(),
-    disableAGSL: Boolean = false,
-    disableOpenGL: Boolean = false,
-    doNotKeepProcess: Boolean = false,
-    touchToolConfig: ToolConfig = ToolConfig.Pan,
-    stylusToolConfig: ToolConfig = ToolConfig.Draw,
-    mouseToolConfig: ToolConfig = ToolConfig.Draw,
-    completedClipboardWatchingOnboarding: Boolean = false,
-    enableClipboardWatching: Boolean = false,
-    synchronizePatternCollectionsOnMeteredNetwork: Boolean = false,
-    patternCollectionsSynchronizationPeriod: DateTimePeriod = DateTimePeriod(hours = 24),
-    patternCollectionsSynchronizationPeriodSessionId: Uuid = Uuid.random(),
-    patternCollectionsSynchronizationPeriodValueId: Uuid = Uuid.random(),
-    enableWindowShapeClipping: Boolean = false,
-) : ComposeLifePreferences {
-    var quickAccessSettings: Set<QuickAccessSetting> by mutableStateOf(quickAccessSettings)
+    initialPreferences: LoadedComposeLifePreferences = LoadedComposeLifePreferences.Defaults,
+) : ComposeLifePreferences, LoadedComposeLifePreferencesHolder {
+    var quickAccessSettings: Set<QuickAccessSetting> by mutableStateOf(initialPreferences.quickAccessSettings)
 
-    var algorithmChoice: AlgorithmType by mutableStateOf(algorithmChoice)
+    var algorithmChoice: AlgorithmType by mutableStateOf(initialPreferences.algorithmChoice)
 
-    var currentShapeType: CurrentShapeType by mutableStateOf(currentShapeType)
+    var currentShapeType: CurrentShapeType by mutableStateOf(initialPreferences.currentShapeType)
 
-    var roundRectangleConfig: CurrentShape.RoundRectangle by mutableStateOf(roundRectangleConfig)
+    var roundRectangleConfig: CurrentShape.RoundRectangle by mutableStateOf(
+        initialPreferences.roundRectangleSessionValue.value,
+    )
 
-    var roundRectangleSessionId: Uuid by mutableStateOf(roundRectangleSessionId)
+    var roundRectangleSessionId: Uuid by mutableStateOf(initialPreferences.roundRectangleSessionValue.sessionId)
 
-    var roundRectangleValueId: Uuid by mutableStateOf(roundRectangleValueId)
+    var roundRectangleValueId: Uuid by mutableStateOf(initialPreferences.roundRectangleSessionValue.valueId)
 
-    var darkThemeConfig: DarkThemeConfig by mutableStateOf(darkThemeConfig)
+    var darkThemeConfig: DarkThemeConfig by mutableStateOf(initialPreferences.darkThemeConfig)
 
-    var disableAGSL: Boolean by mutableStateOf(disableAGSL)
+    var disableAGSL: Boolean by mutableStateOf(initialPreferences.disableAGSL)
 
-    var disableOpenGL: Boolean by mutableStateOf(disableOpenGL)
+    var disableOpenGL: Boolean by mutableStateOf(initialPreferences.disableOpenGL)
 
-    var doNotKeepProcess: Boolean by mutableStateOf(doNotKeepProcess)
+    var doNotKeepProcess: Boolean by mutableStateOf(initialPreferences.doNotKeepProcess)
 
-    var touchToolConfig: ToolConfig by mutableStateOf(touchToolConfig)
+    var touchToolConfig: ToolConfig by mutableStateOf(initialPreferences.touchToolConfig)
 
-    var stylusToolConfig: ToolConfig by mutableStateOf(stylusToolConfig)
+    var stylusToolConfig: ToolConfig by mutableStateOf(initialPreferences.stylusToolConfig)
 
-    var mouseToolConfig: ToolConfig by mutableStateOf(mouseToolConfig)
+    var mouseToolConfig: ToolConfig by mutableStateOf(initialPreferences.mouseToolConfig)
 
     var completedClipboardWatchingOnboarding:
-        Boolean by mutableStateOf(completedClipboardWatchingOnboarding)
+        Boolean by mutableStateOf(initialPreferences.completedClipboardWatchingOnboarding)
 
     var enableClipboardWatching:
-        Boolean by mutableStateOf(enableClipboardWatching)
+        Boolean by mutableStateOf(initialPreferences.enableClipboardWatching)
 
     var synchronizePatternCollectionsOnMeteredNetwork:
-        Boolean by mutableStateOf(synchronizePatternCollectionsOnMeteredNetwork)
+        Boolean by mutableStateOf(initialPreferences.synchronizePatternCollectionsOnMeteredNetwork)
 
     var patternCollectionsSynchronizationPeriod:
-        DateTimePeriod by mutableStateOf(patternCollectionsSynchronizationPeriod)
+        DateTimePeriod by mutableStateOf(initialPreferences.patternCollectionsSynchronizationPeriodSessionValue.value)
 
     var patternCollectionsSynchronizationPeriodSessionId:
-        Uuid by mutableStateOf(patternCollectionsSynchronizationPeriodSessionId)
+        Uuid by mutableStateOf(initialPreferences.patternCollectionsSynchronizationPeriodSessionValue.sessionId)
 
     var patternCollectionsSynchronizationPeriodValueId:
-        Uuid by mutableStateOf(patternCollectionsSynchronizationPeriodValueId)
+        Uuid by mutableStateOf(initialPreferences.patternCollectionsSynchronizationPeriodSessionValue.valueId)
 
-    var enableWindowShapeClipping: Boolean by mutableStateOf(enableWindowShapeClipping)
+    var enableWindowShapeClipping: Boolean by mutableStateOf(initialPreferences.enableWindowShapeClipping)
 
-    var isLoaded by mutableStateOf(isLoaded)
+    override val loadedPreferencesState: ResourceState.Success<LoadedComposeLifePreferences>
+        get() = ResourceState.Success(preferences)
 
-    override val loadedPreferencesState: ResourceState<LoadedComposeLifePreferences>
-        get() = if (isLoaded) {
-            ResourceState.Success(
-                LoadedComposeLifePreferences(
-                    quickAccessSettings = quickAccessSettings,
-                    algorithmChoice = algorithmChoice,
-                    currentShapeType = currentShapeType,
-                    roundRectangleSessionValue = SessionValue(
-                        sessionId = roundRectangleSessionId,
-                        valueId = roundRectangleValueId,
-                        value = roundRectangleConfig,
-                    ),
-                    darkThemeConfig = darkThemeConfig,
-                    disableAGSL = disableAGSL,
-                    disableOpenGL = disableOpenGL,
-                    doNotKeepProcess = doNotKeepProcess,
-                    touchToolConfig = touchToolConfig,
-                    stylusToolConfig = stylusToolConfig,
-                    mouseToolConfig = mouseToolConfig,
-                    completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
-                    enableClipboardWatching = enableClipboardWatching,
-                    synchronizePatternCollectionsOnMeteredNetwork = synchronizePatternCollectionsOnMeteredNetwork,
-                    patternCollectionsSynchronizationPeriodSessionValue = SessionValue(
-                        sessionId = patternCollectionsSynchronizationPeriodSessionId,
-                        valueId = patternCollectionsSynchronizationPeriodValueId,
-                        value = patternCollectionsSynchronizationPeriod,
-                    ),
-                    enableWindowShapeClipping = enableWindowShapeClipping,
-                ),
-            )
-        } else {
-            ResourceState.Loading
-        }
+    override val preferences: LoadedComposeLifePreferences
+        get() = LoadedComposeLifePreferences(
+            quickAccessSettings = quickAccessSettings,
+            algorithmChoice = algorithmChoice,
+            currentShapeType = currentShapeType,
+            roundRectangleSessionValue = SessionValue(
+                sessionId = roundRectangleSessionId,
+                valueId = roundRectangleValueId,
+                value = roundRectangleConfig,
+            ),
+            darkThemeConfig = darkThemeConfig,
+            disableAGSL = disableAGSL,
+            disableOpenGL = disableOpenGL,
+            doNotKeepProcess = doNotKeepProcess,
+            touchToolConfig = touchToolConfig,
+            stylusToolConfig = stylusToolConfig,
+            mouseToolConfig = mouseToolConfig,
+            completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
+            enableClipboardWatching = enableClipboardWatching,
+            synchronizePatternCollectionsOnMeteredNetwork = synchronizePatternCollectionsOnMeteredNetwork,
+            patternCollectionsSynchronizationPeriodSessionValue = SessionValue(
+                sessionId = patternCollectionsSynchronizationPeriodSessionId,
+                valueId = patternCollectionsSynchronizationPeriodValueId,
+                value = patternCollectionsSynchronizationPeriod,
+            ),
+            enableWindowShapeClipping = enableWindowShapeClipping,
+        )
 
     override suspend fun update(block: ComposeLifePreferencesTransform.() -> Unit) {
-        val previousLoadedComposeLifePreferences = snapshotFlow { loadedPreferencesState }.firstSuccess().value
+        val previousLoadedComposeLifePreferences = preferences
 
         Snapshot.withMutableSnapshot {
             object : ComposeLifePreferencesTransform {

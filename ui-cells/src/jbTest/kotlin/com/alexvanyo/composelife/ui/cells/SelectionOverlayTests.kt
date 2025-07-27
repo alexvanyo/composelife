@@ -28,7 +28,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.database.CellStateQueries
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
+import com.alexvanyo.composelife.filesystem.PersistedDataPath
 import com.alexvanyo.composelife.geometry.toPx
+import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.model.toCellState
@@ -36,17 +40,34 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.cells.resources.SelectingBoxHandle
 import com.alexvanyo.composelife.ui.cells.resources.Strings
 import com.alexvanyo.composelife.ui.cells.util.isAndroid
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
+import kotlinx.coroutines.test.TestDispatcher
+import okio.Path
+import okio.fakefilesystem.FakeFileSystem
 import org.junit.Assume.assumeTrue
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.uuid.Uuid
+
+@ContributesTo(UiScope::class)
+internal interface SelectionOverlayTestsEntryPoint {
+    val cellWindowImplEntryPoint: CellWindowImplEntryPoint
+    val cellStateParser: CellStateParser
+}
+
+// TODO: Replace with asContribution()
+private val UiGraph.selectionOverlayTestsEntryPoint: SelectionOverlayTestsEntryPoint get() =
+    this as SelectionOverlayTestsEntryPoint
 
 @OptIn(ExperimentalTestApi::class)
 class SelectionOverlayTests : BaseUiInjectTest(
@@ -55,38 +76,33 @@ class SelectionOverlayTests : BaseUiInjectTest(
 
     @Test
     fun no_selection_is_displayed_correctly() = runUiTest { uiGraph ->
-        val injectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
-        val localEntryPoint = object : CellWindowLocalEntryPoint {
-            override val preferences = LoadedComposeLifePreferences.Defaults
-        }
-
-        val entryPoint = object :
-            CellWindowInjectEntryPoint by injectEntryPoint,
-            CellWindowLocalEntryPoint by localEntryPoint {}
+        val entryPoint = uiGraph.selectionOverlayTestsEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
 
-            with(entryPoint) {
-                SelectionOverlay(
-                    selectionSessionState = SessionValue(
-                        sessionId = Uuid.random(),
-                        valueId = Uuid.random(),
-                        value = SelectionState.NoSelection,
-                    ),
-                    setSelectionSessionState = {},
-                    getSelectionCellState = { emptyCellState() },
-                    scaledCellDpSize = 50.dp,
-                    cellWindow = CellWindow(
-                        IntRect(
-                            IntOffset(0, 0),
-                            IntSize(9, 9),
+            with(entryPoint.cellWindowImplEntryPoint) {
+                with(entryPoint.cellStateParser) {
+                    SelectionOverlay(
+                        selectionSessionState = SessionValue(
+                            sessionId = Uuid.random(),
+                            valueId = Uuid.random(),
+                            value = SelectionState.NoSelection,
                         ),
-                    ),
-                    pixelOffsetFromCenter = Offset.Zero,
-                )
+                        setSelectionSessionState = {},
+                        getSelectionCellState = { emptyCellState() },
+                        scaledCellDpSize = 50.dp,
+                        cellWindow = CellWindow(
+                            IntRect(
+                                IntOffset(0, 0),
+                                IntSize(9, 9),
+                            ),
+                        ),
+                        pixelOffsetFromCenter = Offset.Zero,
+                    )
+                }
             }
         }
 
@@ -98,43 +114,38 @@ class SelectionOverlayTests : BaseUiInjectTest(
 
     @Test
     fun selecting_box_is_displayed_correctly() = runUiTest { uiGraph ->
-        val injectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
-        val localEntryPoint = object : CellWindowLocalEntryPoint {
-            override val preferences = LoadedComposeLifePreferences.Defaults
-        }
-
-        val entryPoint = object :
-            CellWindowInjectEntryPoint by injectEntryPoint,
-            CellWindowLocalEntryPoint by localEntryPoint {}
+        val entryPoint = uiGraph.selectionOverlayTestsEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
 
-            with(entryPoint) {
-                SelectionOverlay(
-                    selectionSessionState = SessionValue(
-                        sessionId = Uuid.random(),
-                        valueId = Uuid.random(),
-                        value = SelectionState.SelectingBox.FixedSelectingBox(
-                            topLeft = IntOffset(1, 1),
-                            width = 2,
-                            height = 3,
-                            previousTransientSelectingBox = null,
+            with(entryPoint.cellWindowImplEntryPoint) {
+                with(entryPoint.cellStateParser) {
+                    SelectionOverlay(
+                        selectionSessionState = SessionValue(
+                            sessionId = Uuid.random(),
+                            valueId = Uuid.random(),
+                            value = SelectionState.SelectingBox.FixedSelectingBox(
+                                topLeft = IntOffset(1, 1),
+                                width = 2,
+                                height = 3,
+                                previousTransientSelectingBox = null,
+                            ),
                         ),
-                    ),
-                    setSelectionSessionState = {},
-                    getSelectionCellState = { emptyCellState() },
-                    scaledCellDpSize = 50.dp,
-                    cellWindow = CellWindow(
-                        IntRect(
-                            IntOffset(0, 0),
-                            IntSize(9, 9),
+                        setSelectionSessionState = {},
+                        getSelectionCellState = { emptyCellState() },
+                        scaledCellDpSize = 50.dp,
+                        cellWindow = CellWindow(
+                            IntRect(
+                                IntOffset(0, 0),
+                                IntSize(9, 9),
+                            ),
                         ),
-                    ),
-                    pixelOffsetFromCenter = Offset.Zero,
-                )
+                        pixelOffsetFromCenter = Offset.Zero,
+                    )
+                }
             }
         }
 
@@ -164,14 +175,7 @@ class SelectionOverlayTests : BaseUiInjectTest(
         // TODO: This test tends to deadlock on desktop
         assumeTrue(isAndroid())
 
-        val injectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
-        val localEntryPoint = object : CellWindowLocalEntryPoint {
-            override val preferences = LoadedComposeLifePreferences.Defaults
-        }
-
-        val entryPoint = object :
-            CellWindowInjectEntryPoint by injectEntryPoint,
-            CellWindowLocalEntryPoint by localEntryPoint {}
+        val entryPoint = uiGraph.selectionOverlayTestsEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -191,20 +195,22 @@ class SelectionOverlayTests : BaseUiInjectTest(
         setContent {
             resolver = parameterizedStringResolver()
 
-            with(entryPoint) {
-                SelectionOverlay(
-                    selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
-                    setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
-                    getSelectionCellState = { emptyCellState() },
-                    scaledCellDpSize = 50.dp,
-                    cellWindow = CellWindow(
-                        IntRect(
-                            IntOffset(0, 0),
-                            IntSize(9, 9),
+            with(entryPoint.cellWindowImplEntryPoint) {
+                with(entryPoint.cellStateParser) {
+                    SelectionOverlay(
+                        selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
+                        setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
+                        getSelectionCellState = { emptyCellState() },
+                        scaledCellDpSize = 50.dp,
+                        cellWindow = CellWindow(
+                            IntRect(
+                                IntOffset(0, 0),
+                                IntSize(9, 9),
+                            ),
                         ),
-                    ),
-                    pixelOffsetFromCenter = Offset.Zero,
-                )
+                        pixelOffsetFromCenter = Offset.Zero,
+                    )
+                }
             }
         }
 
@@ -230,41 +236,36 @@ class SelectionOverlayTests : BaseUiInjectTest(
 
     @Test
     fun selection_is_displayed_correctly() = runUiTest { uiGraph ->
-        val injectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
-        val localEntryPoint = object : CellWindowLocalEntryPoint {
-            override val preferences = LoadedComposeLifePreferences.Defaults
-        }
-
-        val entryPoint = object :
-            CellWindowInjectEntryPoint by injectEntryPoint,
-            CellWindowLocalEntryPoint by localEntryPoint {}
+        val entryPoint = uiGraph.selectionOverlayTestsEntryPoint
 
         setContent {
-            with(entryPoint) {
-                SelectionOverlay(
-                    selectionSessionState = SessionValue(
-                        sessionId = Uuid.random(),
-                        valueId = Uuid.random(),
-                        value = SelectionState.Selection(
-                            cellState = """
+            with(entryPoint.cellWindowImplEntryPoint) {
+                with(entryPoint.cellStateParser) {
+                    SelectionOverlay(
+                        selectionSessionState = SessionValue(
+                            sessionId = Uuid.random(),
+                            valueId = Uuid.random(),
+                            value = SelectionState.Selection(
+                                cellState = """
                                 |.O.
                                 |..O
                                 |OOO
                             """.toCellState(),
-                            offset = IntOffset(1, 1),
+                                offset = IntOffset(1, 1),
+                            ),
                         ),
-                    ),
-                    setSelectionSessionState = {},
-                    getSelectionCellState = { emptyCellState() },
-                    scaledCellDpSize = 50.dp,
-                    cellWindow = CellWindow(
-                        IntRect(
-                            IntOffset(0, 0),
-                            IntSize(9, 9),
+                        setSelectionSessionState = {},
+                        getSelectionCellState = { emptyCellState() },
+                        scaledCellDpSize = 50.dp,
+                        cellWindow = CellWindow(
+                            IntRect(
+                                IntOffset(0, 0),
+                                IntSize(9, 9),
+                            ),
                         ),
-                    ),
-                    pixelOffsetFromCenter = Offset.Zero,
-                )
+                        pixelOffsetFromCenter = Offset.Zero,
+                    )
+                }
             }
         }
 
@@ -276,14 +277,7 @@ class SelectionOverlayTests : BaseUiInjectTest(
         // TODO: This test tends to deadlock on desktop
         assumeTrue(isAndroid())
 
-        val injectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
-        val localEntryPoint = object : CellWindowLocalEntryPoint {
-            override val preferences = LoadedComposeLifePreferences.Defaults
-        }
-
-        val entryPoint = object :
-            CellWindowInjectEntryPoint by injectEntryPoint,
-            CellWindowLocalEntryPoint by localEntryPoint {}
+        val entryPoint = uiGraph.selectionOverlayTestsEntryPoint
 
         val mutableSelectionStateHolder = MutableSelectionStateHolder(
             SessionValue(
@@ -301,20 +295,22 @@ class SelectionOverlayTests : BaseUiInjectTest(
         )
 
         setContent {
-            with(entryPoint) {
-                SelectionOverlay(
-                    selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
-                    setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
-                    getSelectionCellState = { emptyCellState() },
-                    scaledCellDpSize = 50.dp,
-                    cellWindow = CellWindow(
-                        IntRect(
-                            IntOffset(0, 0),
-                            IntSize(9, 9),
+            with(entryPoint.cellWindowImplEntryPoint) {
+                with(entryPoint.cellStateParser) {
+                    SelectionOverlay(
+                        selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
+                        setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
+                        getSelectionCellState = { emptyCellState() },
+                        scaledCellDpSize = 50.dp,
+                        cellWindow = CellWindow(
+                            IntRect(
+                                IntOffset(0, 0),
+                                IntSize(9, 9),
+                            ),
                         ),
-                    ),
-                    pixelOffsetFromCenter = Offset.Zero,
-                )
+                        pixelOffsetFromCenter = Offset.Zero,
+                    )
+                }
             }
         }
 

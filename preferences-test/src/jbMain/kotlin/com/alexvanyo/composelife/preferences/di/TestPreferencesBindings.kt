@@ -18,9 +18,14 @@ package com.alexvanyo.composelife.preferences.di
 
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.DefaultComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
+import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.resourcestate.isSuccess
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
@@ -28,10 +33,20 @@ import dev.zacsweers.metro.SingleIn
 @ContributesTo(AppScope::class, replaces = [DefaultComposeLifePreferences::class])
 @BindingContainer
 interface TestPreferencesBindings {
+    @Binds
+    val TestComposeLifePreferences.bindsComposeLifePreferences: ComposeLifePreferences
+
     companion object {
         @SingleIn(AppScope::class)
         @Provides
-        fun providesComposeLifePreferences(): ComposeLifePreferences =
+        fun providesTestComposeLifePreferences(): TestComposeLifePreferences =
             TestComposeLifePreferences()
     }
+}
+
+@ContributesTo(AppScope::class)
+@BindingContainer
+interface LoadedComposeLifePreferencesHolderBindings {
+    @Binds
+    val TestComposeLifePreferences.bindsLoadedComposeLifePreferencesHolder: LoadedComposeLifePreferencesHolder
 }

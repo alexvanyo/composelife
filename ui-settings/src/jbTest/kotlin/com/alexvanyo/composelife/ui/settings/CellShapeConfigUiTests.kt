@@ -40,8 +40,10 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.preferences.CurrentShapeType
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.isSuccess
+import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.settings.resources.CornerFractionLabel
 import com.alexvanyo.composelife.ui.settings.resources.CornerFractionLabelAndValue
 import com.alexvanyo.composelife.ui.settings.resources.CornerFractionValue
@@ -54,6 +56,7 @@ import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
@@ -64,20 +67,23 @@ class CellShapeConfigUiTests {
         lateinit var resolver: (ParameterizedString) -> String
 
         val composeLifePreferences = TestComposeLifePreferences(
-            roundRectangleConfig = CurrentShape.RoundRectangle(0.8f, 0.4f),
+            initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
+                roundRectangleSessionValue = SessionValue(
+                    sessionId = Uuid.random(),
+                    valueId = Uuid.random(),
+                    value = CurrentShape.RoundRectangle(0.8f, 0.4f),
+                ),
+            ),
         )
-        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        val preferences = loadedPreferencesState.value
 
         setContent {
             resolver = parameterizedStringResolver()
 
             val cellShapeConfigUiState = with(
-                object : CellShapeConfigUiInjectEntryPoint, CellShapeConfigUiLocalEntryPoint {
-                    override val composeLifePreferences = composeLifePreferences
-                    override val preferences = preferences
-                },
+                CellShapeConfigUiEntryPoint(
+                    preferencesHolder = composeLifePreferences,
+                    composeLifePreferences = composeLifePreferences,
+                ),
             ) {
                 rememberCellShapeConfigUiState()
             }
@@ -117,20 +123,23 @@ class CellShapeConfigUiTests {
         lateinit var resolver: (ParameterizedString) -> String
 
         val composeLifePreferences = TestComposeLifePreferences(
-            roundRectangleConfig = CurrentShape.RoundRectangle(0.8f, 0.4f),
+            initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
+                roundRectangleSessionValue = SessionValue(
+                    sessionId = Uuid.random(),
+                    valueId = Uuid.random(),
+                    value = CurrentShape.RoundRectangle(0.8f, 0.4f),
+                ),
+            ),
         )
-        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        val preferences = loadedPreferencesState.value
 
         setContent {
             resolver = parameterizedStringResolver()
 
             val cellShapeConfigUiState = with(
-                object : CellShapeConfigUiInjectEntryPoint, CellShapeConfigUiLocalEntryPoint {
-                    override val composeLifePreferences = composeLifePreferences
-                    override val preferences = preferences
-                },
+                CellShapeConfigUiEntryPoint(
+                    preferencesHolder = composeLifePreferences,
+                    composeLifePreferences = composeLifePreferences,
+                ),
             ) {
                 rememberCellShapeConfigUiState()
             }
@@ -156,20 +165,23 @@ class CellShapeConfigUiTests {
         lateinit var resolver: (ParameterizedString) -> String
 
         val composeLifePreferences = TestComposeLifePreferences(
-            roundRectangleConfig = CurrentShape.RoundRectangle(0.8f, 0.4f),
+            initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
+                roundRectangleSessionValue = SessionValue(
+                    sessionId = Uuid.random(),
+                    valueId = Uuid.random(),
+                    value = CurrentShape.RoundRectangle(0.8f, 0.4f),
+                ),
+            ),
         )
-        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        val preferences = loadedPreferencesState.value
 
         setContent {
             resolver = parameterizedStringResolver()
 
             val cellShapeConfigUiState = with(
-                object : CellShapeConfigUiInjectEntryPoint, CellShapeConfigUiLocalEntryPoint {
-                    override val composeLifePreferences = composeLifePreferences
-                    override val preferences = preferences
-                },
+                CellShapeConfigUiEntryPoint(
+                    preferencesHolder = composeLifePreferences,
+                    composeLifePreferences = composeLifePreferences,
+                ),
             ) {
                 rememberCellShapeConfigUiState()
             }
@@ -195,20 +207,23 @@ class CellShapeConfigUiTests {
         lateinit var resolver: (ParameterizedString) -> String
 
         val composeLifePreferences = TestComposeLifePreferences(
-            roundRectangleConfig = CurrentShape.RoundRectangle(0.8f, 0.4f),
+            initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
+                roundRectangleSessionValue = SessionValue(
+                    sessionId = Uuid.random(),
+                    valueId = Uuid.random(),
+                    value = CurrentShape.RoundRectangle(0.8f, 0.4f),
+                ),
+            ),
         )
-        val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        val preferences = loadedPreferencesState.value
 
         setContent {
             resolver = parameterizedStringResolver()
 
             val cellShapeConfigUiState = with(
-                object : CellShapeConfigUiInjectEntryPoint, CellShapeConfigUiLocalEntryPoint {
-                    override val composeLifePreferences = composeLifePreferences
-                    override val preferences = preferences
-                },
+                CellShapeConfigUiEntryPoint(
+                    preferencesHolder = composeLifePreferences,
+                    composeLifePreferences = composeLifePreferences,
+                ),
             ) {
                 rememberCellShapeConfigUiState()
             }

@@ -27,6 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.ui.mobile.component.EditableSlider
 import com.alexvanyo.composelife.ui.mobile.component.IdentitySliderBijection
 import com.alexvanyo.composelife.ui.mobile.component.TextFieldDropdown
@@ -41,9 +43,30 @@ import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.util.nonNegativeDouble
 import kotlinx.collections.immutable.toImmutableList
 
-context(_: CellShapeConfigUiInjectEntryPoint, _: CellShapeConfigUiLocalEntryPoint)
+private val CellShapeConfigUiEntryPoint.Companion.lambda:
+    @Composable (context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (Modifier) -> Unit)
+    get() = { modifier ->
+        CellShapeConfigUi(modifier)
+    }
+
+@Suppress("ComposableNaming")
+@Composable
+private operator fun CellShapeConfigUiEntryPoint.invoke(
+    modifier: Modifier = Modifier,
+) = CellShapeConfigUiEntryPoint.Companion.lambda(preferencesHolder, composeLifePreferences, modifier)
+
+context(entryPoint: CellShapeConfigUiEntryPoint)
 @Composable
 fun CellShapeConfigUi(
+    modifier: Modifier = Modifier,
+) = entryPoint(modifier)
+
+context(
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+composeLifePreferences: ComposeLifePreferences,
+)
+@Composable
+private fun CellShapeConfigUi(
     modifier: Modifier = Modifier,
 ) {
     CellShapeConfigUi(

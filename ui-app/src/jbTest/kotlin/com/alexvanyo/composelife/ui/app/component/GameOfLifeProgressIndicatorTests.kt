@@ -27,27 +27,33 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.globalGraph
-import com.alexvanyo.composelife.ui.app.testComposeLifeUiEntryPoint
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
 import kotlin.test.Test
+
+@ContributesTo(UiScope::class)
+interface GameOfLifeProgressIndicatorTestsEntryPoint {
+    val gameOfLifeProgressIndicatorEntryPoint: GameOfLifeProgressIndicatorEntryPoint
+}
+
+// TODO: Replace with asContribution()
+val UiGraph.gameOfLifeProgressIndicatorTestsEntryPoint: GameOfLifeProgressIndicatorTestsEntryPoint get() =
+    this as GameOfLifeProgressIndicatorTestsEntryPoint
 
 @OptIn(ExperimentalTestApi::class)
 class GameOfLifeProgressIndicatorTests : BaseUiInjectTest(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val gameOfLifeProgressIndicatorLocalEntryPoint = object : GameOfLifeProgressIndicatorLocalEntryPoint {
-        override val preferences = LoadedComposeLifePreferences.Defaults
-    }
 
     @Test
     fun progress_indicator_is_displayed_correctly() = runUiTest { uiGraph ->
-        val gameOfLifeProgressIndicatorInjectEntryPoint: GameOfLifeProgressIndicatorInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val entryPoint = uiGraph.gameOfLifeProgressIndicatorTestsEntryPoint
 
         setContent {
             CompositionLocalProvider(
@@ -57,10 +63,8 @@ class GameOfLifeProgressIndicatorTests : BaseUiInjectTest(
                     }
                 },
             ) {
-                with(gameOfLifeProgressIndicatorInjectEntryPoint) {
-                    with(gameOfLifeProgressIndicatorLocalEntryPoint) {
-                        GameOfLifeProgressIndicator()
-                    }
+                with(entryPoint.gameOfLifeProgressIndicatorEntryPoint) {
+                    GameOfLifeProgressIndicator()
                 }
             }
         }

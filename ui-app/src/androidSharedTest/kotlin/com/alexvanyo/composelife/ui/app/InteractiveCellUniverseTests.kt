@@ -51,6 +51,10 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.IntOffset
 import androidx.test.espresso.Espresso
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
+import com.alexvanyo.composelife.dispatchers.CellTickerTestDispatcher
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.dispatchers.clock
 import com.alexvanyo.composelife.geometry.toRingIndex
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
@@ -58,8 +62,9 @@ import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
-import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.resources.ApplyPaste
@@ -79,21 +84,45 @@ import com.alexvanyo.composelife.ui.util.ClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.rememberFakeClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.setText
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.TestDispatcher
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.time.Duration.Companion.seconds
 import com.alexvanyo.composelife.ui.cells.resources.Strings as CellsStrings
 
+@ContributesTo(AppScope::class)
+interface InteractiveCellUniverseTestsAppEntryPoint {
+    @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
+
+    @CellTickerTestDispatcher val cellTickerTestDispatcher: TestDispatcher
+    val gameOfLifeAlgorithm: GameOfLifeAlgorithm
+    val dispatchers: ComposeLifeDispatchers
+}
+
+// TODO: Replace with asContribution()
+val ApplicationGraph.interactiveCellUniverseTestsAppEntryPoint: InteractiveCellUniverseTestsAppEntryPoint get() =
+    this as InteractiveCellUniverseTestsAppEntryPoint
+
+@ContributesTo(UiScope::class)
+interface InteractiveCellUniverseTestsUiEntryPoint {
+    val interactiveCellUniverseEntryPoint: InteractiveCellUniverseEntryPoint
+}
+
+// TODO: Replace with asContribution()
+val UiGraph.interactiveCellUniverseTestsUiEntryPoint: InteractiveCellUniverseTestsUiEntryPoint get() =
+    this as InteractiveCellUniverseTestsUiEntryPoint
+
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
 class InteractiveCellUniverseTests : BaseUiInjectTest(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationGraph.testComposeLifeApplicationEntryPoint
+    private val entryPoint get() = applicationGraph.interactiveCellUniverseTestsAppEntryPoint
 
     private val generalTestDispatcher get() = entryPoint.generalTestDispatcher
 
@@ -103,14 +132,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
 
     private val dispatchers get() = entryPoint.dispatchers
 
-    private val interactiveCellUniverseLocalEntryPoint = object : InteractiveCellUniverseLocalEntryPoint {
-        override val preferences = LoadedComposeLifePreferences.Defaults
-    }
-
     @Test
     fun info_card_closes_upon_back_press() = runUiTest(generalTestDispatcher) { uiGraph ->
-        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -132,18 +156,16 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(interactiveCellUniverseInjectEntryPoint) {
-                with(interactiveCellUniverseLocalEntryPoint) {
-                    InteractiveCellUniverse(
-                        temporalGameOfLifeState = temporalGameOfLifeState,
-                        immersiveModeManager = rememberImmersiveModeManager(),
-                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                        onSeeMoreSettingsClicked = {},
-                        onOpenInSettingsClicked = {},
-                        onViewDeserializationInfo = {},
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
+            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+                InteractiveCellUniverse(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    immersiveModeManager = rememberImmersiveModeManager(),
+                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    onSeeMoreSettingsClicked = {},
+                    onOpenInSettingsClicked = {},
+                    onViewDeserializationInfo = {},
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
 
@@ -164,8 +186,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
 
     @Test
     fun action_card_closes_upon_back_press() = runUiTest(generalTestDispatcher) { uiGraph ->
-        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -187,18 +208,16 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(interactiveCellUniverseInjectEntryPoint) {
-                with(interactiveCellUniverseLocalEntryPoint) {
-                    InteractiveCellUniverse(
-                        temporalGameOfLifeState = temporalGameOfLifeState,
-                        immersiveModeManager = rememberImmersiveModeManager(),
-                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                        onSeeMoreSettingsClicked = {},
-                        onOpenInSettingsClicked = {},
-                        onViewDeserializationInfo = {},
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
+            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+                InteractiveCellUniverse(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    immersiveModeManager = rememberImmersiveModeManager(),
+                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    onSeeMoreSettingsClicked = {},
+                    onOpenInSettingsClicked = {},
+                    onViewDeserializationInfo = {},
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
 
@@ -222,8 +241,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         generalTestDispatcher,
         120.seconds,
     ) { uiGraph ->
-        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -244,18 +262,16 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(interactiveCellUniverseInjectEntryPoint) {
-                with(interactiveCellUniverseLocalEntryPoint) {
-                    InteractiveCellUniverse(
-                        temporalGameOfLifeState = temporalGameOfLifeState,
-                        immersiveModeManager = rememberImmersiveModeManager(),
-                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                        onSeeMoreSettingsClicked = {},
-                        onOpenInSettingsClicked = {},
-                        onViewDeserializationInfo = {},
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
+            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+                InteractiveCellUniverse(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    immersiveModeManager = rememberImmersiveModeManager(),
+                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    onSeeMoreSettingsClicked = {},
+                    onOpenInSettingsClicked = {},
+                    onViewDeserializationInfo = {},
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
 
@@ -291,8 +307,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         generalTestDispatcher,
         120.seconds,
     ) { uiGraph ->
-        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -313,18 +328,16 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(interactiveCellUniverseInjectEntryPoint) {
-                with(interactiveCellUniverseLocalEntryPoint) {
-                    InteractiveCellUniverse(
-                        temporalGameOfLifeState = temporalGameOfLifeState,
-                        immersiveModeManager = rememberImmersiveModeManager(),
-                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                        onSeeMoreSettingsClicked = {},
-                        onOpenInSettingsClicked = {},
-                        onViewDeserializationInfo = {},
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
+            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+                InteractiveCellUniverse(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    immersiveModeManager = rememberImmersiveModeManager(),
+                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    onSeeMoreSettingsClicked = {},
+                    onOpenInSettingsClicked = {},
+                    onViewDeserializationInfo = {},
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
 
@@ -364,8 +377,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         generalTestDispatcher,
         120.seconds,
     ) { uiGraph ->
-        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -386,18 +398,16 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(interactiveCellUniverseInjectEntryPoint) {
-                with(interactiveCellUniverseLocalEntryPoint) {
-                    InteractiveCellUniverse(
-                        temporalGameOfLifeState = temporalGameOfLifeState,
-                        immersiveModeManager = rememberImmersiveModeManager(),
-                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                        onSeeMoreSettingsClicked = {},
-                        onOpenInSettingsClicked = {},
-                        onViewDeserializationInfo = {},
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
+            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+                InteractiveCellUniverse(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    immersiveModeManager = rememberImmersiveModeManager(),
+                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    onSeeMoreSettingsClicked = {},
+                    onOpenInSettingsClicked = {},
+                    onViewDeserializationInfo = {},
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
 
@@ -448,8 +458,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         generalTestDispatcher,
         120.seconds,
     ) { uiGraph ->
-        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -470,18 +479,16 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(interactiveCellUniverseInjectEntryPoint) {
-                with(interactiveCellUniverseLocalEntryPoint) {
-                    InteractiveCellUniverse(
-                        temporalGameOfLifeState = temporalGameOfLifeState,
-                        immersiveModeManager = rememberImmersiveModeManager(),
-                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                        onSeeMoreSettingsClicked = {},
-                        onOpenInSettingsClicked = {},
-                        onViewDeserializationInfo = {},
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
+            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+                InteractiveCellUniverse(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    immersiveModeManager = rememberImmersiveModeManager(),
+                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    onSeeMoreSettingsClicked = {},
+                    onOpenInSettingsClicked = {},
+                    onViewDeserializationInfo = {},
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
 
@@ -513,8 +520,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         generalTestDispatcher,
         120.seconds,
     ) { uiGraph ->
-        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -534,19 +540,16 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             LaunchedEffect(temporalGameOfLifeStateMutator) {
                 temporalGameOfLifeStateMutator.update()
             }
-
-            with(interactiveCellUniverseInjectEntryPoint) {
-                with(interactiveCellUniverseLocalEntryPoint) {
-                    InteractiveCellUniverse(
-                        temporalGameOfLifeState = temporalGameOfLifeState,
-                        immersiveModeManager = rememberImmersiveModeManager(),
-                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                        onSeeMoreSettingsClicked = {},
-                        onOpenInSettingsClicked = {},
-                        onViewDeserializationInfo = {},
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
+            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+                InteractiveCellUniverse(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    immersiveModeManager = rememberImmersiveModeManager(),
+                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    onSeeMoreSettingsClicked = {},
+                    onOpenInSettingsClicked = {},
+                    onViewDeserializationInfo = {},
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
 
@@ -593,8 +596,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         generalTestDispatcher,
         120.seconds,
     ) { uiGraph ->
-        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -614,19 +616,16 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             LaunchedEffect(temporalGameOfLifeStateMutator) {
                 temporalGameOfLifeStateMutator.update()
             }
-
-            with(interactiveCellUniverseInjectEntryPoint) {
-                with(interactiveCellUniverseLocalEntryPoint) {
-                    InteractiveCellUniverse(
-                        temporalGameOfLifeState = temporalGameOfLifeState,
-                        immersiveModeManager = rememberImmersiveModeManager(),
-                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                        onSeeMoreSettingsClicked = {},
-                        onOpenInSettingsClicked = {},
-                        onViewDeserializationInfo = {},
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
+            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+                InteractiveCellUniverse(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    immersiveModeManager = rememberImmersiveModeManager(),
+                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    onSeeMoreSettingsClicked = {},
+                    onOpenInSettingsClicked = {},
+                    onViewDeserializationInfo = {},
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
 
@@ -680,8 +679,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     fun glider_is_copied_correctly_with_keyboard_shortcuts() = runUiTest(
         generalTestDispatcher,
     ) { uiGraph ->
-        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
 
         lateinit var clipboardReaderWriter: ClipboardReaderWriter
         lateinit var resolver: (ParameterizedString) -> String
@@ -702,27 +700,24 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             LaunchedEffect(temporalGameOfLifeStateMutator) {
                 temporalGameOfLifeStateMutator.update()
             }
+            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+                clipboardReaderWriter = rememberFakeClipboardReaderWriter()
+                val immersiveModeManager = rememberImmersiveModeManager()
 
-            with(interactiveCellUniverseInjectEntryPoint) {
-                with(interactiveCellUniverseLocalEntryPoint) {
-                    clipboardReaderWriter = rememberFakeClipboardReaderWriter()
-                    val immersiveModeManager = rememberImmersiveModeManager()
-
-                    InteractiveCellUniverse(
+                InteractiveCellUniverse(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    immersiveModeManager = immersiveModeManager,
+                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    onSeeMoreSettingsClicked = {},
+                    onOpenInSettingsClicked = {},
+                    onViewDeserializationInfo = {},
+                    modifier = Modifier.fillMaxSize(),
+                    interactiveCellUniverseState = rememberInteractiveCellUniverseState(
                         temporalGameOfLifeState = temporalGameOfLifeState,
                         immersiveModeManager = immersiveModeManager,
-                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                        onSeeMoreSettingsClicked = {},
-                        onOpenInSettingsClicked = {},
-                        onViewDeserializationInfo = {},
-                        modifier = Modifier.fillMaxSize(),
-                        interactiveCellUniverseState = rememberInteractiveCellUniverseState(
-                            temporalGameOfLifeState = temporalGameOfLifeState,
-                            immersiveModeManager = immersiveModeManager,
-                            clipboardReaderWriter = clipboardReaderWriter,
-                        ),
-                    )
-                }
+                        clipboardReaderWriter = clipboardReaderWriter,
+                    ),
+                )
             }
         }
 
@@ -781,8 +776,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     fun selection_is_cleared_correctly_with_keyboard_shortcuts() = runUiTest(
         generalTestDispatcher,
     ) { uiGraph ->
-        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -803,18 +797,16 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(interactiveCellUniverseInjectEntryPoint) {
-                with(interactiveCellUniverseLocalEntryPoint) {
-                    InteractiveCellUniverse(
-                        temporalGameOfLifeState = temporalGameOfLifeState,
-                        immersiveModeManager = rememberImmersiveModeManager(),
-                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                        onSeeMoreSettingsClicked = {},
-                        onOpenInSettingsClicked = {},
-                        onViewDeserializationInfo = {},
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
+            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+                InteractiveCellUniverse(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    immersiveModeManager = rememberImmersiveModeManager(),
+                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    onSeeMoreSettingsClicked = {},
+                    onOpenInSettingsClicked = {},
+                    onViewDeserializationInfo = {},
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
 
@@ -861,8 +853,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     fun glider_is_pasted_correctly_with_keyboard_shortcuts() = runUiTest(
         generalTestDispatcher,
     ) { uiGraph ->
-        val interactiveCellUniverseInjectEntryPoint: InteractiveCellUniverseInjectEntryPoint =
-            uiGraph.testComposeLifeUiEntryPoint
+        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
 
         lateinit var clipboardReaderWriter: ClipboardReaderWriter
         lateinit var resolver: (ParameterizedString) -> String
@@ -884,29 +875,27 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(interactiveCellUniverseInjectEntryPoint) {
-                with(interactiveCellUniverseLocalEntryPoint) {
-                    clipboardReaderWriter = rememberFakeClipboardReaderWriter()
-                    val immersiveModeManager = rememberImmersiveModeManager()
+            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+                clipboardReaderWriter = rememberFakeClipboardReaderWriter()
+                val immersiveModeManager = rememberImmersiveModeManager()
 
-                    InteractiveCellUniverse(
+                InteractiveCellUniverse(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    immersiveModeManager = immersiveModeManager,
+                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    onSeeMoreSettingsClicked = {},
+                    onOpenInSettingsClicked = {},
+                    onViewDeserializationInfo = {},
+                    modifier = Modifier.fillMaxSize(),
+                    interactiveCellUniverseState = rememberInteractiveCellUniverseState(
                         temporalGameOfLifeState = temporalGameOfLifeState,
                         immersiveModeManager = immersiveModeManager,
-                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                        onSeeMoreSettingsClicked = {},
-                        onOpenInSettingsClicked = {},
-                        onViewDeserializationInfo = {},
-                        modifier = Modifier.fillMaxSize(),
-                        interactiveCellUniverseState = rememberInteractiveCellUniverseState(
-                            temporalGameOfLifeState = temporalGameOfLifeState,
-                            immersiveModeManager = immersiveModeManager,
-                            mutableCellWindowViewportState = rememberMutableCellWindowViewportState(
-                                offset = Offset(30.5f, -18.5f),
-                            ),
-                            clipboardReaderWriter = clipboardReaderWriter,
+                        mutableCellWindowViewportState = rememberMutableCellWindowViewportState(
+                            offset = Offset(30.5f, -18.5f),
                         ),
-                    )
-                }
+                        clipboardReaderWriter = clipboardReaderWriter,
+                    ),
+                )
             }
         }
 

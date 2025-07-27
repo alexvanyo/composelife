@@ -23,11 +23,9 @@ plugins {
     alias(libs.plugins.convention.androidLibraryCompose)
     alias(libs.plugins.convention.androidLibraryJacoco)
     alias(libs.plugins.convention.androidLibraryKsp)
-    alias(libs.plugins.convention.androidLibraryRoborazzi)
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
-    alias(libs.plugins.roborazzi)
     kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
     alias(libs.plugins.metro)
@@ -40,10 +38,6 @@ android {
         testInstrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
     }
     configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
-}
-
-ksp {
-    arg("skipPrivatePreviews", "true")
 }
 
 kotlin {
@@ -106,7 +100,6 @@ kotlin {
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
                     libs.sealedEnum.ksp.get(),
-                    libs.showkase.processor.get(),
                 )
             )
             dependencies {
@@ -122,10 +115,7 @@ kotlin {
                 implementation(libs.androidx.poolingContainer)
                 implementation(libs.androidx.window)
                 implementation(libs.kotlinx.coroutines.android)
-                implementation(libs.ktor.client.mock)
-                implementation(libs.okio.fakefilesystem)
                 implementation(libs.sealedEnum.runtime)
-                implementation(libs.showkase.runtime)
                 implementation(libs.sqldelight.androidDriver)
             }
         }
@@ -138,6 +128,7 @@ kotlin {
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
+                implementation(projects.networkTest)
                 implementation(projects.patterns)
                 implementation(projects.preferencesTest)
                 implementation(projects.screenshotTest)
@@ -170,16 +161,6 @@ kotlin {
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
                 implementation(libs.androidx.test.junit)
-            }
-        }
-        val androidUnitTest by getting {
-            configurations["kspAndroidTest"].dependencies.addAll(
-                listOf(
-                    libs.showkase.processor.get(),
-                )
-            )
-            dependencies {
-                implementation(projects.roborazziShowkaseScreenshotTest)
             }
         }
     }

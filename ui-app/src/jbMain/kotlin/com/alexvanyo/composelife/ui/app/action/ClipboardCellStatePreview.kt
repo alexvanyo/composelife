@@ -60,17 +60,67 @@ import com.alexvanyo.composelife.ui.app.resources.Pin
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.resources.Unpin
 import com.alexvanyo.composelife.ui.app.resources.Warnings
-import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
-import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
 import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindow
+import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowEntryPoint
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
 import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropSource
 import com.alexvanyo.composelife.ui.cells.rememberTrackingCellWindowViewportState
 
+@Suppress("ComposableNaming", "LongParameterList")
+@Composable
+private operator fun ClipboardCellStatePreviewEntryPoint.invoke(
+    deserializationResult: DeserializationResult,
+    isPinned: Boolean,
+    onPaste: () -> Unit,
+    onPinChanged: () -> Unit,
+    onViewDeserializationInfo: () -> Unit,
+    modifier: Modifier = Modifier,
+) = ClipboardCellStatePreviewEntryPoint.lambda(
+    thumbnailImmutableCellWindowEntryPoint,
+    deserializationResult,
+    isPinned,
+    onPaste,
+    onPinChanged,
+    onViewDeserializationInfo,
+    modifier,
+)
+
+private val ClipboardCellStatePreviewEntryPoint.Companion.lambda:
+    @Composable context(ThumbnailImmutableCellWindowEntryPoint) (
+        deserializationResult: DeserializationResult,
+        isPinned: Boolean,
+        onPaste: () -> Unit,
+        onPinChanged: () -> Unit,
+        onViewDeserializationInfo: () -> Unit,
+        modifier: Modifier,
+    ) -> Unit
+    get() = { deserializationResult, isPinned, onPaste, onPinChanged, onViewDeserializationInfo, modifier ->
+        ClipboardCellStatePreview(
+            deserializationResult,
+            isPinned,
+            onPaste,
+            onPinChanged,
+            onViewDeserializationInfo,
+            modifier,
+        )
+    }
+
+context(entryPoint: ClipboardCellStatePreviewEntryPoint)
+@Suppress("LongParameterList")
+@Composable
+fun ClipboardCellStatePreview(
+    deserializationResult: DeserializationResult,
+    isPinned: Boolean,
+    onPaste: () -> Unit,
+    onPinChanged: () -> Unit,
+    onViewDeserializationInfo: () -> Unit,
+    modifier: Modifier = Modifier,
+) = entryPoint(deserializationResult, isPinned, onPaste, onPinChanged, onViewDeserializationInfo, modifier)
+
 /**
  * Renders the current clipboard as a cell-state, if possible.
  */
-context(_: ClipboardCellStatePreviewInjectEntryPoint, _: ClipboardCellStatePreviewLocalEntryPoint)
+context(_: ThumbnailImmutableCellWindowEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun ClipboardCellStatePreview(
@@ -132,7 +182,7 @@ fun ClipboardCellStatePreview(
     }
 }
 
-context(_: CellWindowInjectEntryPoint, _: CellWindowLocalEntryPoint)
+context(_: ThumbnailImmutableCellWindowEntryPoint,)
 @Suppress("LongMethod", "LongParameterList")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

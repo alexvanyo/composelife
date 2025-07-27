@@ -17,10 +17,8 @@
 
 package com.alexvanyo.composelife.scopes
 
-import android.app.Activity
 import android.content.Context
 import dev.zacsweers.metro.BindingContainer
-import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Provides
 
@@ -28,12 +26,9 @@ import dev.zacsweers.metro.Provides
 @BindingContainer
 interface AndroidUiBindings {
 
-    @Binds
-    @ActivityContext
-    val Activity.bind: Context
-
     companion object {
         @Provides
-        fun bindActivity(uiGraphArguments: UiGraphArguments): Activity = uiGraphArguments.activity
+        @ActivityContext
+        fun bindUiContext(uiGraphArguments: UiGraphArguments): Context = uiGraphArguments.uiContext
     }
 }

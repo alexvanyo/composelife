@@ -18,6 +18,7 @@
 package com.alexvanyo.composelife.ui.app
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -29,18 +30,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.round
 import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
-import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardState
 import com.alexvanyo.composelife.ui.app.action.rememberCellUniverseActionCardState
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
-import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
 import com.alexvanyo.composelife.ui.cells.CellWindowInteractionState
-import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
+import com.alexvanyo.composelife.ui.cells.MutableCellWindowEntryPoint
 import com.alexvanyo.composelife.ui.cells.MutableCellWindowInteractionState
 import com.alexvanyo.composelife.ui.cells.MutableCellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.MutableSelectionStateHolder
@@ -61,17 +61,19 @@ import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.rememberClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import com.alexvanyo.composelife.ui.util.setText
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
 
-interface InteractiveCellUniverseInjectEntryPoint :
-    CellStateParserProvider,
-    CellWindowInjectEntryPoint,
-    InteractiveCellUniverseOverlayInjectEntryPoint
-
-interface InteractiveCellUniverseLocalEntryPoint :
-    CellWindowLocalEntryPoint,
-    InteractiveCellUniverseOverlayLocalEntryPoint
+@Immutable
+@Inject
+class InteractiveCellUniverseEntryPoint(
+    internal val cellStateParser: CellStateParser,
+    internal val mutableCellWindowEntryPoint: MutableCellWindowEntryPoint,
+    internal val interactiveCellUniverseOverlayEntryPoint: InteractiveCellUniverseOverlayEntryPoint,
+) {
+    companion object
+}
 
 interface InteractiveCellUniverseState {
 
@@ -175,10 +177,27 @@ interface InteractiveCellUniverseState {
     fun onClearSelection()
 }
 
-context(cellStateParserProvider: CellStateParserProvider)
+context(entryPoint: InteractiveCellUniverseEntryPoint)
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun rememberInteractiveCellUniverseState(
+    temporalGameOfLifeState: TemporalGameOfLifeState,
+    immersiveModeManager: ImmersiveModeManager,
+    mutableCellWindowViewportState: MutableCellWindowViewportState = rememberMutableCellWindowViewportState(),
+    clipboardReaderWriter: ClipboardReaderWriter = rememberClipboardReaderWriter(),
+): InteractiveCellUniverseState =
+    rememberInteractiveCellUniverseState(
+        cellStateParser = entryPoint.cellStateParser,
+        temporalGameOfLifeState = temporalGameOfLifeState,
+        immersiveModeManager = immersiveModeManager,
+        mutableCellWindowViewportState = mutableCellWindowViewportState,
+        clipboardReaderWriter = clipboardReaderWriter,
+    )
+
+@Suppress("LongMethod", "CyclomaticComplexMethod")
+@Composable
+internal fun rememberInteractiveCellUniverseState(
+    cellStateParser: CellStateParser,
     temporalGameOfLifeState: TemporalGameOfLifeState,
     immersiveModeManager: ImmersiveModeManager,
     mutableCellWindowViewportState: MutableCellWindowViewportState = rememberMutableCellWindowViewportState(),
@@ -303,7 +322,7 @@ fun rememberInteractiveCellUniverseState(
         infoCardState,
         actionCardState,
         clipboardReaderWriter,
-        cellStateParserProvider.cellStateParser,
+        cellStateParser,
         coroutineScope,
         spatialController,
     ) {
@@ -386,7 +405,7 @@ fun rememberInteractiveCellUniverseState(
                 coroutineScope.launch {
                     when (
                         val deserializationResult =
-                            cellStateParserProvider.cellStateParser.parseCellState(clipboardReaderWriter)
+                            cellStateParser.parseCellState(clipboardReaderWriter)
                     ) {
                         is DeserializationResult.Successful -> {
                             setSelectionToCellState(deserializationResult.cellState)

@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
@@ -49,6 +50,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
+import coil3.ImageLoader
 import com.alexvanyo.composelife.geometry.LineSegmentPath
 import com.alexvanyo.composelife.geometry.cellIntersections
 import com.alexvanyo.composelife.model.CellWindow
@@ -56,6 +58,8 @@ import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.setCellState
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.preferences.currentShape
 import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
@@ -63,21 +67,89 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.cells.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.cells.resources.Strings
 import com.alexvanyo.composelife.ui.util.detectDragGestures
+import dev.zacsweers.metro.Inject
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 import kotlin.uuid.Uuid
 
-interface InteractableCellsLocalEntryPoint : LoadedComposeLifePreferencesProvider
+@Immutable
+@Inject
+class InteractableCellsEntryPoint(
+    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
+) {
+    @Suppress("ComposableNaming", "LongParameterList")
+    @Composable
+    operator fun invoke(
+        gameOfLifeState: MutableGameOfLifeState,
+        setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
+        scaledCellDpSize: Dp,
+        cellWindow: CellWindow,
+        pixelOffsetFromCenter: Offset,
+        modifier: Modifier = Modifier,
+    ) = lambda(
+        preferencesHolder,
+        gameOfLifeState,
+        setSelectionSessionState,
+        scaledCellDpSize,
+        cellWindow,
+        pixelOffsetFromCenter,
+        modifier,
+    )
+
+    companion object {
+        private val lambda:
+            @Composable
+            context(
+                LoadedComposeLifePreferencesHolder,
+            ) (
+                gameOfLifeState: MutableGameOfLifeState,
+                setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
+                scaledCellDpSize: Dp,
+                cellWindow: CellWindow,
+                pixelOffsetFromCenter: Offset,
+                modifier: Modifier,
+            ) -> Unit =
+            {
+                    gameOfLifeState,
+                    setSelectionSessionState,
+                    scaledCellDpSize,
+                    cellWindow,
+                    pixelOffsetFromCenter,
+                    modifier,
+                ->
+                InteractableCells(
+                    gameOfLifeState = gameOfLifeState,
+                    setSelectionSessionState = setSelectionSessionState,
+                    scaledCellDpSize = scaledCellDpSize,
+                    cellWindow = cellWindow,
+                    pixelOffsetFromCenter = pixelOffsetFromCenter,
+                    modifier = modifier,
+                )
+            }
+    }
+}
 
 /**
  * A fixed size composable that displays a specific [cellWindow] into the given [GameOfLifeState].
  *
  * The [GameOfLifeState] is interactable, so each cell is displayed by a unique [InteractableCell].
  */
-context(localEntryPoint: InteractableCellsLocalEntryPoint)
+context(entryPoint: InteractableCellsEntryPoint)
+@Composable
+@Suppress("LongParameterList")
+fun InteractableCells(
+    gameOfLifeState: MutableGameOfLifeState,
+    setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
+    scaledCellDpSize: Dp,
+    cellWindow: CellWindow,
+    pixelOffsetFromCenter: Offset,
+    modifier: Modifier = Modifier,
+) = entryPoint(gameOfLifeState, setSelectionSessionState, scaledCellDpSize, cellWindow, pixelOffsetFromCenter, modifier)
+
+context(preferencesHolder: LoadedComposeLifePreferencesHolder)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
-fun InteractableCells(
+private fun InteractableCells(
     gameOfLifeState: MutableGameOfLifeState,
     setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
     scaledCellDpSize: Dp,
@@ -103,23 +175,24 @@ fun InteractableCells(
 
         val pendingCellChanges = remember { mutableStateMapOf<IntOffset, Boolean>() }
 
+        val preferences = preferencesHolder.preferences
         val drawingPointerTypes =
             setOfNotNull(
-                PointerType.Touch.takeIf { localEntryPoint.preferences.touchToolConfig == ToolConfig.Draw },
-                PointerType.Stylus.takeIf { localEntryPoint.preferences.stylusToolConfig == ToolConfig.Draw },
-                PointerType.Mouse.takeIf { localEntryPoint.preferences.mouseToolConfig == ToolConfig.Draw },
+                PointerType.Touch.takeIf { preferences.touchToolConfig == ToolConfig.Draw },
+                PointerType.Stylus.takeIf { preferences.stylusToolConfig == ToolConfig.Draw },
+                PointerType.Mouse.takeIf { preferences.mouseToolConfig == ToolConfig.Draw },
             )
         val erasingPointerTypes =
             setOfNotNull(
-                PointerType.Touch.takeIf { localEntryPoint.preferences.touchToolConfig == ToolConfig.Erase },
-                PointerType.Stylus.takeIf { localEntryPoint.preferences.stylusToolConfig == ToolConfig.Erase },
-                PointerType.Mouse.takeIf { localEntryPoint.preferences.mouseToolConfig == ToolConfig.Erase },
+                PointerType.Touch.takeIf { preferences.touchToolConfig == ToolConfig.Erase },
+                PointerType.Stylus.takeIf { preferences.stylusToolConfig == ToolConfig.Erase },
+                PointerType.Mouse.takeIf { preferences.mouseToolConfig == ToolConfig.Erase },
             )
         val selectingPointerTypes =
             setOfNotNull(
-                PointerType.Touch.takeIf { localEntryPoint.preferences.touchToolConfig == ToolConfig.Select },
-                PointerType.Stylus.takeIf { localEntryPoint.preferences.stylusToolConfig == ToolConfig.Select },
-                PointerType.Mouse.takeIf { localEntryPoint.preferences.mouseToolConfig == ToolConfig.Select },
+                PointerType.Touch.takeIf { preferences.touchToolConfig == ToolConfig.Select },
+                PointerType.Stylus.takeIf { preferences.stylusToolConfig == ToolConfig.Select },
+                PointerType.Mouse.takeIf { preferences.mouseToolConfig == ToolConfig.Select },
             )
 
         Box(
@@ -158,7 +231,7 @@ fun InteractableCells(
                                     true -> if (isAliveInState) DrawState.Alive else DrawState.PendingAlive
                                     null -> if (isAliveInState) DrawState.Alive else DrawState.Dead
                                 },
-                                shape = localEntryPoint.preferences.currentShape,
+                                shape = preferences.currentShape,
                                 contentDescription = parameterizedStringResource(
                                     Strings.InteractableCellContentDescription(
                                         x = cell.x,

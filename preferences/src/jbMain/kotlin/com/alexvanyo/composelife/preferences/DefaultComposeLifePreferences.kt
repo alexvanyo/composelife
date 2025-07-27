@@ -51,17 +51,17 @@ import kotlinx.datetime.DateTimePeriod
 @ContributesIntoSet(AppScope::class, binding = binding<Updatable>())
 @SingleIn(AppScope::class)
 class DefaultComposeLifePreferences(
-    preferencesDataStore: PreferencesDataStore,
+    private val preferencesDataStore: PreferencesDataStore,
     private val logger: Logger,
 ) : ComposeLifePreferences, Updatable {
-    private val dataStore = preferencesDataStore.dataStore
 
     override var loadedPreferencesState:
         ResourceState<LoadedComposeLifePreferences> by mutableStateOf(ResourceState.Loading)
         private set
 
     override suspend fun update(): Nothing {
-        dataStore.data
+        preferencesDataStore.getDataStore()
+            .data
             .map(PreferencesProto::toLoadedComposeLifePreferences)
             .asResourceState()
             .onEach {
@@ -86,7 +86,7 @@ class DefaultComposeLifePreferences(
     override suspend fun update(
         block: ComposeLifePreferencesTransform.() -> Unit,
     ) {
-        dataStore.updateData { preferencesProto ->
+        preferencesDataStore.getDataStore().updateData { preferencesProto ->
             PreferencesProtoTransform(preferencesProto).apply(block).newPreferencesProto
         }
     }

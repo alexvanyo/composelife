@@ -53,6 +53,7 @@ kotlin {
                 api(projects.kmpAndroidRunner)
                 api(projects.preferencesTest)
 
+                implementation(projects.dispatchersTest)
                 implementation(projects.injectScopes)
             }
         }

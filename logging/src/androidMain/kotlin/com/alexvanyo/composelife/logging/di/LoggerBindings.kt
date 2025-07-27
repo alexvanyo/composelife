@@ -16,11 +16,12 @@
 
 package com.alexvanyo.composelife.logging.di
 
-import android.app.Application
+import android.content.Context
 import android.content.pm.ApplicationInfo
 import com.alexvanyo.composelife.logging.Logger
 import com.alexvanyo.composelife.logging.NoOpLogger
 import com.alexvanyo.composelife.logging.SingletonSystemLogger
+import com.alexvanyo.composelife.scopes.ApplicationContext
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
@@ -32,9 +33,9 @@ interface LoggerBindings {
     companion object {
         @Provides
         fun providesLogger(
-            application: Application,
+            @ApplicationContext context: Context,
         ): Logger =
-            if (application.isDebuggable) {
+            if (context.isDebuggable) {
                 SingletonSystemLogger
             } else {
                 NoOpLogger
@@ -42,5 +43,5 @@ interface LoggerBindings {
     }
 }
 
-private val Application.isDebuggable get() =
+private val Context.isDebuggable get() =
     applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0

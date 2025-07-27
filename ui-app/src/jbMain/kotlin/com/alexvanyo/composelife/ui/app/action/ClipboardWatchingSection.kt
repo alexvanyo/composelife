@@ -54,7 +54,7 @@ import com.alexvanyo.composelife.ui.app.resources.Disallow
 import com.alexvanyo.composelife.ui.app.resources.Pinned
 import com.alexvanyo.composelife.ui.app.resources.Strings
 
-context(_: ClipboardCellStatePreviewInjectEntryPoint, _: ClipboardCellStatePreviewLocalEntryPoint)
+context(_: ClipboardCellStatePreviewEntryPoint)
 @Composable
 fun ClipboardWatchingSection(
     clipboardWatchingState: ClipboardWatchingState,
@@ -83,7 +83,7 @@ fun ClipboardWatchingSection(
     }
 }
 
-context(_: ClipboardCellStatePreviewInjectEntryPoint, _: ClipboardCellStatePreviewLocalEntryPoint)
+context(_: ClipboardCellStatePreviewEntryPoint)
 @Composable
 fun ClipboardWatchingEnabled(
     clipboardWatchingState: ClipboardWatchingState.ClipboardWatchingEnabled,
@@ -132,7 +132,7 @@ fun ClipboardWatchingEnabled(
     }
 }
 
-context(_: ClipboardCellStatePreviewInjectEntryPoint, _: ClipboardCellStatePreviewLocalEntryPoint)
+context(_: ClipboardCellStatePreviewEntryPoint)
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun PinnedClipboardPreviews(
@@ -196,7 +196,7 @@ private fun PinnedClipboardPreviews(
     }
 }
 
-context(_: ClipboardCellStatePreviewInjectEntryPoint, _: ClipboardCellStatePreviewLocalEntryPoint)
+context(_: ClipboardCellStatePreviewEntryPoint)
 @Suppress("LongMethod")
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable

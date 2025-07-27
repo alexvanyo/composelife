@@ -25,5 +25,6 @@
 
 -dontwarn javax.lang.model.element.Modifier
 
-# TODO: enabling obfuscation should work
--dontobfuscate
+-keep,allowoptimization class **.*$$$MetroContribution* {
+    *;
+}

@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.settings
 
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
@@ -31,16 +30,13 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
-import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
-import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.resourcestate.firstSuccess
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.settings.resources.DisableOpenGL
@@ -49,29 +45,29 @@ import com.alexvanyo.composelife.ui.settings.resources.QuickSettingsInfo
 import com.alexvanyo.composelife.ui.settings.resources.RemoveSettingFromQuickAccess
 import com.alexvanyo.composelife.ui.settings.resources.SeeAll
 import com.alexvanyo.composelife.ui.settings.resources.Strings
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
-import dev.zacsweers.metro.createGraphFactory
-import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertIs
+
+@ContributesTo(UiScope::class)
+interface InlineSettingsPaneTestsEntryPoint {
+    val inlineSettingsPaneEntryPoint: InlineSettingsPaneEntryPoint
+    val testComposeLifePreferences: TestComposeLifePreferences
+}
+
+// TODO: Replace with asContribution()
+val UiGraph.inlineSettingsPaneTestsEntryPoint: InlineSettingsPaneTestsEntryPoint get() =
+    this as InlineSettingsPaneTestsEntryPoint
 
 @OptIn(ExperimentalTestApi::class)
 class InlineSettingsPaneTests : BaseUiInjectTest(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationGraph as TestComposeLifeApplicationEntryPoint
-
-    private val composeLifePreferences get() = entryPoint.composeLifePreferences
-
-    private val testComposeLifePreferences: TestComposeLifePreferences get() = assertIs(composeLifePreferences)
-
     @Test
     fun saving_settings_onboarding_is_shown_with_no_quick_access_settings_saved() = runUiTest { uiGraph ->
-        val inlineSettingsPaneInjectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
-
-        testComposeLifePreferences.quickAccessSettings = emptySet()
-        snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
+        val entryPoint = uiGraph.inlineSettingsPaneTestsEntryPoint
+        entryPoint.testComposeLifePreferences.quickAccessSettings = emptySet()
 
         var onSeeMoreClickedCount = 0
 
@@ -79,22 +75,13 @@ class InlineSettingsPaneTests : BaseUiInjectTest(
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(inlineSettingsPaneInjectEntryPoint) {
-                with(
-                    object : InlineSettingsPaneLocalEntryPoint {
-                        override val preferences get() =
-                            assertIs<ResourceState.Success<LoadedComposeLifePreferences>>(
-                                composeLifePreferences.loadedPreferencesState,
-                            ).value
+            with(entryPoint.inlineSettingsPaneEntryPoint) {
+                InlineSettingsPane(
+                    onSeeMoreClicked = {
+                        onSeeMoreClickedCount++
                     },
-                ) {
-                    InlineSettingsPane(
-                        onSeeMoreClicked = {
-                            onSeeMoreClickedCount++
-                        },
-                        onOpenInSettingsClicked = {},
-                    )
-                }
+                    onOpenInSettingsClicked = {},
+                )
             }
         }
 
@@ -114,28 +101,18 @@ class InlineSettingsPaneTests : BaseUiInjectTest(
 
     @Test
     fun saved_opengl_setting_is_displayed_correctly() = runUiTest { uiGraph ->
-        val inlineSettingsPaneInjectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
-        testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
-        snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
+        val entryPoint = uiGraph.inlineSettingsPaneTestsEntryPoint
+        entryPoint.testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(inlineSettingsPaneInjectEntryPoint) {
-                with(
-                    object : InlineSettingsPaneLocalEntryPoint {
-                        override val preferences get() =
-                            assertIs<ResourceState.Success<LoadedComposeLifePreferences>>(
-                                composeLifePreferences.loadedPreferencesState,
-                            ).value
-                    },
-                ) {
-                    InlineSettingsPane(
-                        onSeeMoreClicked = {},
-                        onOpenInSettingsClicked = {},
-                    )
-                }
+            with(entryPoint.inlineSettingsPaneEntryPoint) {
+                InlineSettingsPane(
+                    onSeeMoreClicked = {},
+                    onOpenInSettingsClicked = {},
+                )
             }
         }
 
@@ -166,9 +143,8 @@ class InlineSettingsPaneTests : BaseUiInjectTest(
 
     @Test
     fun opening_saved_setting_functions_correctly() = runUiTest { uiGraph ->
-        val inlineSettingsPaneInjectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
-        testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
-        snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
+        val entryPoint = uiGraph.inlineSettingsPaneTestsEntryPoint
+        entryPoint.testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
 
         var onOpenInSettingsClickedCount = 0
         var onOpenInSettingsClickedSetting: Setting? = null
@@ -177,23 +153,14 @@ class InlineSettingsPaneTests : BaseUiInjectTest(
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(inlineSettingsPaneInjectEntryPoint) {
-                with(
-                    object : InlineSettingsPaneLocalEntryPoint {
-                        override val preferences get() =
-                            assertIs<ResourceState.Success<LoadedComposeLifePreferences>>(
-                                composeLifePreferences.loadedPreferencesState,
-                            ).value
+            with(entryPoint.inlineSettingsPaneEntryPoint) {
+                InlineSettingsPane(
+                    onSeeMoreClicked = {},
+                    onOpenInSettingsClicked = {
+                        onOpenInSettingsClickedCount++
+                        onOpenInSettingsClickedSetting = it
                     },
-                ) {
-                    InlineSettingsPane(
-                        onSeeMoreClicked = {},
-                        onOpenInSettingsClicked = {
-                            onOpenInSettingsClickedCount++
-                            onOpenInSettingsClickedSetting = it
-                        },
-                    )
-                }
+                )
             }
         }
 
@@ -211,28 +178,18 @@ class InlineSettingsPaneTests : BaseUiInjectTest(
 
     @Test
     fun removing_saved_setting_functions_correctly() = runUiTest { uiGraph ->
-        val inlineSettingsPaneInjectEntryPoint = uiGraph.testComposeLifeUiEntryPoint
-        testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
-        snapshotFlow { composeLifePreferences.loadedPreferencesState }.firstSuccess()
+        val entryPoint = uiGraph.inlineSettingsPaneTestsEntryPoint
+        entryPoint.testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(inlineSettingsPaneInjectEntryPoint) {
-                with(
-                    object : InlineSettingsPaneLocalEntryPoint {
-                        override val preferences get() =
-                            assertIs<ResourceState.Success<LoadedComposeLifePreferences>>(
-                                composeLifePreferences.loadedPreferencesState,
-                            ).value
-                    },
-                ) {
-                    InlineSettingsPane(
-                        onSeeMoreClicked = {},
-                        onOpenInSettingsClicked = {},
-                    )
-                }
+            with(entryPoint.inlineSettingsPaneEntryPoint) {
+                InlineSettingsPane(
+                    onSeeMoreClicked = {},
+                    onOpenInSettingsClicked = {},
+                )
             }
         }
 

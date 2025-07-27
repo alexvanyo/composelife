@@ -35,45 +35,59 @@ import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import androidx.test.platform.app.InstrumentationRegistry
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellStateFormat
+import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
-import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.patterns.GliderPattern
-import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.globalGraph
-import com.alexvanyo.composelife.ui.app.testComposeLifeApplicationEntryPoint
-import com.alexvanyo.composelife.ui.app.testComposeLifeUiEntryPoint
-import com.alexvanyo.composelife.ui.cells.CellWindowInjectEntryPoint
-import com.alexvanyo.composelife.ui.cells.CellWindowLocalEntryPoint
+import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowEntryPoint
 import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropTarget
 import com.alexvanyo.composelife.ui.cells.rememberMutableCellStateDropStateHolder
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.TestDispatcher
 import kotlin.test.Test
 import kotlin.test.assertEquals
+
+@ContributesTo(AppScope::class)
+interface LoadedCellStatePreviewTestsAppEntryPoint {
+    @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
+}
+
+// TODO: Replace with asContribution()
+val ApplicationGraph.loadedCellStatePreviewTestsAppEntryPoint: LoadedCellStatePreviewTestsAppEntryPoint get() =
+    this as LoadedCellStatePreviewTestsAppEntryPoint
+
+@ContributesTo(UiScope::class)
+interface LoadedCellStatePreviewTestsUiEntryPoint {
+    val thumbnailImmutableCellWindowEntryPoint: ThumbnailImmutableCellWindowEntryPoint
+    val cellStateParser: CellStateParser
+}
+
+// TODO: Replace with asContribution()
+val UiGraph.loadedCellStatePreviewTestsAppEntryPoint: LoadedCellStatePreviewTestsUiEntryPoint get() =
+    this as LoadedCellStatePreviewTestsUiEntryPoint
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 class LoadedCellStatePreviewTests : BaseUiInjectTest(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationGraph.testComposeLifeApplicationEntryPoint
-
-    private val cellWindowLocalEntryPoint = object : CellWindowLocalEntryPoint {
-        override val preferences = LoadedComposeLifePreferences.Defaults
-    }
+    private val appEntryPoint get() = applicationGraph.loadedCellStatePreviewTestsAppEntryPoint
 
     @Test
     fun drag_and_drop_works_correctly() = runUiTest(
-        entryPoint.generalTestDispatcher,
+        appEntryPoint.generalTestDispatcher,
     ) { uiGraph ->
-        val uiEntryPoint = uiGraph.testComposeLifeUiEntryPoint
-        val cellWindowInjectEntryPoint: CellWindowInjectEntryPoint = uiEntryPoint
-        val cellStateParserProvider: CellStateParserProvider = uiEntryPoint
+        val uiEntryPoint = uiGraph.loadedCellStatePreviewTestsAppEntryPoint
 
         var droppedCellState: CellState? = null
 
@@ -83,26 +97,24 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest(
             viewConfiguration = LocalViewConfiguration.current
 
             Column {
-                with(cellWindowLocalEntryPoint) {
-                    with(cellWindowInjectEntryPoint) {
-                        LoadedCellStatePreview(
-                            deserializationResult = DeserializationResult.Successful(
-                                cellState = GliderPattern.seedCellState,
-                                format = CellStateFormat.FixedFormat.Plaintext,
-                                warnings = emptyList(),
-                            ),
-                            isPinned = false,
-                            onPaste = {},
-                            onPinChanged = {},
-                            onViewDeserializationInfo = {},
-                            modifier = Modifier
-                                .testTag("LoadedCellStatePreview")
-                                .height(200.dp),
-                        )
-                    }
+                with(uiEntryPoint.thumbnailImmutableCellWindowEntryPoint) {
+                    LoadedCellStatePreview(
+                        deserializationResult = DeserializationResult.Successful(
+                            cellState = GliderPattern.seedCellState,
+                            format = CellStateFormat.FixedFormat.Plaintext,
+                            warnings = emptyList(),
+                        ),
+                        isPinned = false,
+                        onPaste = {},
+                        onPinChanged = {},
+                        onViewDeserializationInfo = {},
+                        modifier = Modifier
+                            .testTag("LoadedCellStatePreview")
+                            .height(200.dp),
+                    )
                 }
 
-                with(cellStateParserProvider) {
+                with(uiEntryPoint.cellStateParser) {
                     Spacer(
                         modifier = Modifier
                             .testTag("TestDropTarget")
@@ -174,7 +186,7 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest(
         up.recycle()
 
         waitForIdle()
-        entryPoint.generalTestDispatcher.scheduler.runCurrent()
+        appEntryPoint.generalTestDispatcher.scheduler.runCurrent()
 
         assertEquals(GliderPattern.seedCellState, droppedCellState)
     }

@@ -35,23 +35,44 @@ import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import androidx.test.platform.app.InstrumentationRegistry
+import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.model.CellState
-import com.alexvanyo.composelife.model.di.CellStateParserProvider
+import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.patterns.GliderPattern
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
-import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.TestDispatcher
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
+
+@ContributesTo(AppScope::class)
+interface CellStateDragAndDropTestsAppEntryPoint {
+    @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
+}
+
+// TODO: Replace with asContribution()
+val ApplicationGraph.cellStateDragAndDropTestsAppEntryPoint: CellStateDragAndDropTestsAppEntryPoint get() =
+    this as CellStateDragAndDropTestsAppEntryPoint
+
+@ContributesTo(UiScope::class)
+interface CellStateDragAndDropTestsUiEntryPoint {
+    val cellStateParser: CellStateParser
+}
+
+// TODO: Replace with asContribution()
+val UiGraph.cellStateDragAndDropTestsUiEntryPoint: CellStateDragAndDropTestsUiEntryPoint get() =
+    this as CellStateDragAndDropTestsUiEntryPoint
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 @RunWith(KmpAndroidJUnit4::class)
@@ -59,13 +80,13 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
 
-    private val entryPoint get() = applicationGraph.testComposeLifeApplicationEntryPoint
+    private val entryPoint get() = applicationGraph.cellStateDragAndDropTestsAppEntryPoint
 
     @Test
     fun drag_and_drop_works_correctly_when_dropped() = runUiTest(
         entryPoint.generalTestDispatcher,
     ) { uiGraph ->
-        val cellStateParserProvider: CellStateParserProvider = uiGraph.testComposeLifeUiEntryPoint
+        val cellStateParser = uiGraph.cellStateDragAndDropTestsUiEntryPoint.cellStateParser
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
 
@@ -76,7 +97,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
 
         setContent {
             viewConfiguration = LocalViewConfiguration.current
-            with(cellStateParserProvider) {
+            with(cellStateParser) {
                 mutableCellStateDropStateHolder = rememberMutableCellStateDropStateHolder { dropOffset, cellState ->
                     droppedOffset = dropOffset
                     droppedCellState = cellState
@@ -191,7 +212,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
     fun drag_and_drop_works_correctly_when_ended() = runUiTest(
         entryPoint.generalTestDispatcher,
     ) { uiGraph ->
-        val cellStateParserProvider: CellStateParserProvider = uiGraph.testComposeLifeUiEntryPoint
+        val cellStateParser = uiGraph.cellStateDragAndDropTestsUiEntryPoint.cellStateParser
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
 
@@ -202,7 +223,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
 
         setContent {
             viewConfiguration = LocalViewConfiguration.current
-            with(cellStateParserProvider) {
+            with(cellStateParser) {
                 mutableCellStateDropStateHolder = rememberMutableCellStateDropStateHolder { dropOffset, cellState ->
                     droppedOffset = dropOffset
                     droppedCellState = cellState
