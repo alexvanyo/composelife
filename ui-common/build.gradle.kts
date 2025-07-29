@@ -27,6 +27,7 @@ plugins {
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
     alias(libs.plugins.gradleDependenciesSorter)
+    alias(libs.plugins.metro)
 }
 
 android {
@@ -49,6 +50,7 @@ kotlin {
                 implementation(libs.kotlinx.datetime)
                 implementation(projects.dispatchers)
                 implementation(projects.geometry)
+                implementation(projects.injectScopes)
                 implementation(projects.logging)
                 implementation(projects.navigation)
                 implementation(projects.serialization)

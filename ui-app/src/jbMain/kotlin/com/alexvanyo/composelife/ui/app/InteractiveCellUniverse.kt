@@ -54,20 +54,19 @@ import kotlin.uuid.Uuid
 @Composable
 private operator fun InteractiveCellUniverseEntryPoint.invoke(
     temporalGameOfLifeState: TemporalGameOfLifeState,
-    immersiveModeManager: ImmersiveModeManager,
     windowSizeClass: WindowSizeClass,
     onSeeMoreSettingsClicked: () -> Unit,
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
     modifier: Modifier = Modifier,
     interactiveCellUniverseState: InteractiveCellUniverseState =
-        rememberInteractiveCellUniverseState(temporalGameOfLifeState, immersiveModeManager),
+        rememberInteractiveCellUniverseState(temporalGameOfLifeState),
 ) = InteractiveCellUniverseEntryPoint.lambda(
     cellStateParser,
+    immersiveModeManager,
     mutableCellWindowEntryPoint,
     interactiveCellUniverseOverlayEntryPoint,
     temporalGameOfLifeState,
-    immersiveModeManager,
     windowSizeClass,
     onSeeMoreSettingsClicked,
     onOpenInSettingsClicked,
@@ -79,11 +78,11 @@ private operator fun InteractiveCellUniverseEntryPoint.invoke(
 private val InteractiveCellUniverseEntryPoint.Companion.lambda:
     @Composable context(
         CellStateParser,
+        ImmersiveModeManager,
         MutableCellWindowEntryPoint,
         InteractiveCellUniverseOverlayEntryPoint,
     ) (
         temporalGameOfLifeState: TemporalGameOfLifeState,
-        immersiveModeManager: ImmersiveModeManager,
         windowSizeClass: WindowSizeClass,
         onSeeMoreSettingsClicked: () -> Unit,
         onOpenInSettingsClicked: (setting: Setting) -> Unit,
@@ -93,7 +92,6 @@ private val InteractiveCellUniverseEntryPoint.Companion.lambda:
     ) -> Unit
     get() = {
             temporalGameOfLifeState,
-            immersiveModeManager,
             windowSizeClass,
             onSeeMoreSettingsClicked,
             onOpenInSettingsClicked,
@@ -103,7 +101,6 @@ private val InteractiveCellUniverseEntryPoint.Companion.lambda:
         ->
         InteractiveCellUniverse(
             temporalGameOfLifeState = temporalGameOfLifeState,
-            immersiveModeManager = immersiveModeManager,
             windowSizeClass = windowSizeClass,
             onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
             onOpenInSettingsClicked = onOpenInSettingsClicked,
@@ -122,17 +119,15 @@ context(entryPoint: InteractiveCellUniverseEntryPoint)
 @Composable
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
-    immersiveModeManager: ImmersiveModeManager,
     windowSizeClass: WindowSizeClass,
     onSeeMoreSettingsClicked: () -> Unit,
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
     modifier: Modifier = Modifier,
     interactiveCellUniverseState: InteractiveCellUniverseState =
-        rememberInteractiveCellUniverseState(temporalGameOfLifeState, immersiveModeManager),
+        rememberInteractiveCellUniverseState(temporalGameOfLifeState),
 ) = entryPoint(
     temporalGameOfLifeState = temporalGameOfLifeState,
-    immersiveModeManager = immersiveModeManager,
     windowSizeClass = windowSizeClass,
     onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
     onOpenInSettingsClicked = onOpenInSettingsClicked,
@@ -143,6 +138,7 @@ fun InteractiveCellUniverse(
 
 context(
     cellStateParser: CellStateParser,
+immersiveModeManager: ImmersiveModeManager,
 _: MutableCellWindowEntryPoint,
 _: InteractiveCellUniverseOverlayEntryPoint,
 )
@@ -150,7 +146,6 @@ _: InteractiveCellUniverseOverlayEntryPoint,
 @Composable
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
-    immersiveModeManager: ImmersiveModeManager,
     windowSizeClass: WindowSizeClass,
     onSeeMoreSettingsClicked: () -> Unit,
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
@@ -159,8 +154,8 @@ fun InteractiveCellUniverse(
     interactiveCellUniverseState: InteractiveCellUniverseState =
         rememberInteractiveCellUniverseState(
             cellStateParser,
-            temporalGameOfLifeState,
             immersiveModeManager,
+            temporalGameOfLifeState,
         ),
 ) {
     // Force focus to allow listening to key events

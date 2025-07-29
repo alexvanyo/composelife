@@ -41,10 +41,12 @@ actual fun BaseUiInjectTest.runUiTest(
     ) {
         val uiGraph = uiGraphCreator.create(
             object : UiGraphArguments {
-                override val uiContext = requireNotNull(this@runAndroidComposeUiTest.activity)
+                override val activity = requireNotNull(this@runAndroidComposeUiTest.activity)
+                override val uiContext = activity
             },
         )
-        withAppTestDependencies {
+        val uiUpdatables = uiGraph.baseUiInjectTestEntryPoint.uiUpdatables
+        withUpdatables(appUpdatables + uiUpdatables) {
             // Let any background jobs launch and stabilize before running the test body
             val testDispatcher = coroutineContext[CoroutineDispatcher] as? TestDispatcher
             testDispatcher?.scheduler?.advanceUntilIdle()

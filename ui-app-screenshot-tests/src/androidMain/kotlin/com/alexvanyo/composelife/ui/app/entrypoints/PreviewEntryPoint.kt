@@ -16,7 +16,9 @@
 
 package com.alexvanyo.composelife.ui.app.entrypoints
 
+import android.app.Activity
 import android.content.Context
+import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
@@ -86,6 +88,7 @@ internal fun WithPreviewDependencies(
     val uiGraph = (applicationGraph as UiGraph.Factory).create(
         object : UiGraphArguments {
             override val uiContext: Context = LocalContext.current
+            override val activity: Activity? = LocalActivity.current
         },
     )
     val entryPoint = uiGraph as PreviewEntryPoint

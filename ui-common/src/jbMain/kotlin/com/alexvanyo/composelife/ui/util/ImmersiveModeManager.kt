@@ -16,8 +16,6 @@
 
 package com.alexvanyo.composelife.ui.util
 
-import androidx.compose.runtime.Composable
-
 /**
  * A manager that controls hiding the system UI.
  *
@@ -46,6 +44,3 @@ interface ImmersiveModeManager {
      */
     suspend fun exitFullscreenMode(): Result<Unit>
 }
-
-@Composable
-expect fun rememberImmersiveModeManager(): ImmersiveModeManager

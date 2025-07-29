@@ -82,7 +82,6 @@ import com.alexvanyo.composelife.ui.cells.rememberMutableCellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.util.ClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.rememberFakeClipboardReaderWriter
-import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.setText
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -159,7 +158,6 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    immersiveModeManager = rememberImmersiveModeManager(),
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
@@ -211,7 +209,6 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    immersiveModeManager = rememberImmersiveModeManager(),
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
@@ -265,7 +262,6 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    immersiveModeManager = rememberImmersiveModeManager(),
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
@@ -331,7 +327,6 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    immersiveModeManager = rememberImmersiveModeManager(),
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
@@ -401,7 +396,6 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    immersiveModeManager = rememberImmersiveModeManager(),
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
@@ -482,7 +476,6 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    immersiveModeManager = rememberImmersiveModeManager(),
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
@@ -543,7 +536,6 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    immersiveModeManager = rememberImmersiveModeManager(),
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
@@ -619,7 +611,6 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    immersiveModeManager = rememberImmersiveModeManager(),
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
@@ -702,11 +693,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             }
             with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
                 clipboardReaderWriter = rememberFakeClipboardReaderWriter()
-                val immersiveModeManager = rememberImmersiveModeManager()
 
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    immersiveModeManager = immersiveModeManager,
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
@@ -714,7 +703,6 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                     modifier = Modifier.fillMaxSize(),
                     interactiveCellUniverseState = rememberInteractiveCellUniverseState(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        immersiveModeManager = immersiveModeManager,
                         clipboardReaderWriter = clipboardReaderWriter,
                     ),
                 )
@@ -800,7 +788,6 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    immersiveModeManager = rememberImmersiveModeManager(),
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
@@ -877,11 +864,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
 
             with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
                 clipboardReaderWriter = rememberFakeClipboardReaderWriter()
-                val immersiveModeManager = rememberImmersiveModeManager()
 
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    immersiveModeManager = immersiveModeManager,
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
@@ -889,7 +874,6 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                     modifier = Modifier.fillMaxSize(),
                     interactiveCellUniverseState = rememberInteractiveCellUniverseState(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        immersiveModeManager = immersiveModeManager,
                         mutableCellWindowViewportState = rememberMutableCellWindowViewportState(
                             offset = Offset(30.5f, -18.5f),
                         ),

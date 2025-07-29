@@ -22,6 +22,7 @@ import androidx.work.WorkManager
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
 import com.alexvanyo.composelife.scopes.ApplicationContext
+import com.alexvanyo.composelife.updatable.AppUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.work.AssistedWorkerFactory
 import com.alexvanyo.composelife.work.InjectWorkerFactory
@@ -76,6 +77,7 @@ interface TestWorkManagerBindings {
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
+        @AppUpdatable
         fun providesWorkManagerIntoUpdatable(): Updatable =
             object : Updatable {
                 override suspend fun update(): Nothing =
