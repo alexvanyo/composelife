@@ -56,7 +56,6 @@ import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlin.Int
 
 @Immutable
 @Inject

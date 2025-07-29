@@ -26,7 +26,6 @@ import org.gradle.api.tasks.testing.Test
 import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
-import kotlin.collections.map
 
 fun Project.configureJacoco(
     commonExtension: CommonExtension<*, *, *, *, *, *>,

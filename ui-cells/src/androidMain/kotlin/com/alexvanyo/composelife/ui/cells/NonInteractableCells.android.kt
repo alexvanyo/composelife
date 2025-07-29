@@ -28,7 +28,6 @@ import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.currentShape
-import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 
 context(
     imageLoader: ImageLoader,

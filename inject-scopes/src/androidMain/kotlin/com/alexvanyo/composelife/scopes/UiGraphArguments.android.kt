@@ -17,7 +17,6 @@
 
 package com.alexvanyo.composelife.scopes
 
-import android.app.Activity
 import android.content.Context
 
 actual interface UiGraphArguments {

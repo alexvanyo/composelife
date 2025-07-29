@@ -17,13 +17,11 @@
 package com.alexvanyo.composelife.wear
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.alexvanyo.composelife.algorithm.di.GameOfLifeAlgorithmProvider
-import com.alexvanyo.composelife.dispatchers.di.ComposeLifeDispatchersProvider
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
@@ -40,9 +38,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
 @ContributesTo(AppScope::class)
-interface ComposeLifeApplicationEntryPoint : GameOfLifeAlgorithmProvider, ComposeLifeDispatchersProvider {
+interface ComposeLifeApplicationEntryPoint {
     @ProcessLifecycleOwner val processLifecycleOwner: LifecycleOwner
     val updatables: Set<Updatable>
+    val gameOfLifeAlgorithm: GameOfLifeAlgorithm
 }
 
 // TODO: Replace with asContribution()

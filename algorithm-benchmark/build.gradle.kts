@@ -16,8 +16,6 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import com.slack.keeper.KeeperExtension
-import com.slack.keeper.optInToKeeper
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)

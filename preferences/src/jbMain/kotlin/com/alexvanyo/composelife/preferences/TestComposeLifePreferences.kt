@@ -19,10 +19,8 @@ package com.alexvanyo.composelife.preferences
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.resourcestate.firstSuccess
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import kotlinx.datetime.DateTimePeriod
 import kotlin.uuid.Uuid
