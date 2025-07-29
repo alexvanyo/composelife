@@ -65,15 +65,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
-import com.alexvanyo.composelife.clock.di.ClockProvider
 import com.alexvanyo.composelife.data.PatternCollectionRepository
-import com.alexvanyo.composelife.data.di.PatternCollectionRepositoryProvider
 import com.alexvanyo.composelife.data.model.PatternCollection
 import com.alexvanyo.composelife.database.PatternCollectionId
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
-import com.alexvanyo.composelife.preferences.ComposeLifePreferences
-import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
-import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.settings.resources.AddPatternCollection
 import com.alexvanyo.composelife.ui.settings.resources.DayUnit
@@ -99,8 +94,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
-import kotlin.collections.component1
-import kotlin.collections.component2
 import kotlin.time.Clock
 
 @Immutable

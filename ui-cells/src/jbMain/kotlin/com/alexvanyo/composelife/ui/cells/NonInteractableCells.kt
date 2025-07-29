@@ -24,13 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
 import coil3.ImageLoader
-import com.alexvanyo.composelife.imageloader.di.ImageLoaderProvider
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
-import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
-import com.alexvanyo.composelife.preferences.di.LoadedComposeLifePreferencesProvider
 import dev.zacsweers.metro.Inject
 
 @Immutable
