@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.test
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.window.WindowState
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,7 +36,9 @@ actual fun BaseUiInjectTest.runUiTest(
 ): TestResult =
     runComposeUiTest {
         val uiGraph = uiGraphCreator.create(
-            object : UiGraphArguments {},
+            object : UiGraphArguments {
+                override val windowState: WindowState? = null
+            },
         )
 
         // TODO: Replace with withAppTestDependencies when runComposeUiTest allows providing a suspend fun
@@ -43,11 +46,15 @@ actual fun BaseUiInjectTest.runUiTest(
             context = appTestContext,
             timeout = timeout,
         ) {
-            // Let any background jobs launch and stabilize before running the test body
-            advanceUntilIdle()
-            testBody(
-                this@runComposeUiTest,
-                uiGraph,
-            )
+            withUpdatables(
+                uiGraph.baseUiInjectTestEntryPoint.uiUpdatables,
+            ) {
+                // Let any background jobs launch and stabilize before running the test body
+                advanceUntilIdle()
+                testBody(
+                    this@runComposeUiTest,
+                    uiGraph,
+                )
+            }
         }
     }

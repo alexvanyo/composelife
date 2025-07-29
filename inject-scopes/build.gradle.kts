@@ -52,6 +52,9 @@ kotlin {
         }
         val desktopMain by getting {
             dependsOn(jbMain)
+            dependencies {
+                implementation(libs.jetbrains.compose.ui)
+            }
         }
         val androidMain by getting {
             dependsOn(jbMain)

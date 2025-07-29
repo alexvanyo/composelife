@@ -63,12 +63,10 @@ import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneEntryPo
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsListPane
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.settings.SettingsCategory
-import com.alexvanyo.composelife.ui.util.ImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.LocalNavigationSharedTransitionScope
 import com.alexvanyo.composelife.ui.util.MaterialPredictiveNavigationFrame
 import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.ReportDrawn
-import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesGraphExtension
@@ -110,7 +108,6 @@ fun ComposeLifeApp(
         windowSizeClass,
         windowSize,
     ),
-    immersiveModeManager: ImmersiveModeManager = rememberImmersiveModeManager(),
 ) {
     Surface(modifier = modifier.fillMaxSize()) {
         LookaheadScope {
@@ -157,7 +154,6 @@ fun ComposeLifeApp(
                                                     with(cellUniversePaneEntryPoint) {
                                                         CellUniversePane(
                                                             windowSizeClass = windowSizeClass,
-                                                            immersiveModeManager = immersiveModeManager,
                                                             onSeeMoreSettingsClicked =
                                                             targetComposeLifeAppState::onSeeMoreSettingsClicked,
                                                             onOpenInSettingsClicked =

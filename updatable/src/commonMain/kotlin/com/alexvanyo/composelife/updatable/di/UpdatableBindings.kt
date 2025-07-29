@@ -16,6 +16,8 @@
 
 package com.alexvanyo.composelife.updatable.di
 
+import com.alexvanyo.composelife.updatable.AppUpdatable
+import com.alexvanyo.composelife.updatable.UiUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -26,5 +28,10 @@ import dev.zacsweers.metro.Multibinds
 interface UpdatableBindings {
 
     @Multibinds(allowEmpty = true)
-    val updatables: Set<Updatable>
+    @AppUpdatable
+    val appUpdatables: Set<Updatable>
+
+    @Multibinds(allowEmpty = true)
+    @UiUpdatable
+    val uiUpdatables: Set<Updatable>
 }

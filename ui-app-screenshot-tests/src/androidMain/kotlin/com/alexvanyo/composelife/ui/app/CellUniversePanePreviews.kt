@@ -29,7 +29,6 @@ import com.alexvanyo.composelife.scopes.implicit
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
-import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 
 @ShowkaseComposable
 @MobileDevicePreviews
@@ -46,7 +45,6 @@ internal fun LoadingCellStateCellUniversePanePreview(modifier: Modifier = Modifi
                             widthDp = size.width,
                             heightDp = size.height,
                         ),
-                        immersiveModeManager = rememberImmersiveModeManager(),
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         onViewDeserializationInfo = {},
@@ -76,7 +74,6 @@ internal fun LoadedCellUniversePanePreview(modifier: Modifier = Modifier) {
                             widthDp = size.width,
                             heightDp = size.height,
                         ),
-                        immersiveModeManager = rememberImmersiveModeManager(),
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         onViewDeserializationInfo = {},

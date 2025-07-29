@@ -18,7 +18,15 @@
 package com.alexvanyo.composelife.scopes
 
 import androidx.compose.ui.window.WindowState
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
 
-actual interface UiGraphArguments {
-    val windowState: WindowState?
+@ContributesTo(UiScope::class)
+@BindingContainer
+interface DesktopUiBindings {
+    companion object {
+        @Provides
+        fun bindWindowState(uiGraphArguments: UiGraphArguments): WindowState? = uiGraphArguments.windowState
+    }
 }

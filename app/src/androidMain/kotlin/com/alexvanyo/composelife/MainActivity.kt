@@ -29,11 +29,15 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.toSize
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
@@ -45,13 +49,19 @@ import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiEntryPoint
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
 import com.alexvanyo.composelife.ui.util.ProvideLocalWindowInsetsHolder
+import com.alexvanyo.composelife.updatable.UiUpdatable
+import com.alexvanyo.composelife.updatable.Updatable
 import com.slack.circuit.retained.LocalRetainedStateRegistry
 import com.slack.circuit.retained.continuityRetainedStateRegistry
 import dev.zacsweers.metro.ContributesTo
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 
 @ContributesTo(UiScope::class)
 interface MainActivityInjectEntryPoint : ComposeLifePreferencesProvider {
     val composeLifeAppUiEntryPoint: ComposeLifeAppUiEntryPoint
+
+    @UiUpdatable val uiUpdatables: Set<Updatable>
 }
 
 // TODO: Replace with asContribution()
@@ -60,6 +70,7 @@ internal val UiGraph.mainActivityInjectEntryPoint: MainActivityInjectEntryPoint 
 
 class MainActivity : AppCompatActivity() {
 
+    @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -67,10 +78,12 @@ class MainActivity : AppCompatActivity() {
         val application = application as ApplicationGraphOwner
         val uiGraph = (application.applicationGraph as UiGraph.Factory).create(
             object : UiGraphArguments {
-                override val uiContext: Context = this@MainActivity
+                override val activity: AppCompatActivity = this@MainActivity
+                override val uiContext: Context = activity
             },
         )
         val mainActivityEntryPoint = uiGraph.mainActivityInjectEntryPoint
+        val uiUpdatables = mainActivityEntryPoint.uiUpdatables
 
         // Keep the splash screen on screen until we've loaded preferences
         splashScreen.setKeepOnScreenCondition {
@@ -82,6 +95,16 @@ class MainActivity : AppCompatActivity() {
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
         setContent {
+            LaunchedEffect(uiUpdatables) {
+                supervisorScope {
+                    uiUpdatables.forEach { updatable ->
+                        launch {
+                            updatable.update()
+                        }
+                    }
+                }
+            }
+
             CompositionLocalProvider(LocalRetainedStateRegistry provides continuityRetainedStateRegistry()) {
                 ProvideLocalWindowInsetsHolder {
                     with(mainActivityEntryPoint) {
