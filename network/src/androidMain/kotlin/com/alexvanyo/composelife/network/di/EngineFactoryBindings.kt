@@ -30,7 +30,7 @@ interface EngineFactoryBindings {
 
     companion object {
         @Provides
-        fun providesEngineFactoryWithConfigBlock(): EngineFactoryWithConfigBlock<*> =
+        internal fun providesEngineFactoryWithConfigBlock(): EngineFactoryWithConfigBlock<*> =
             EngineFactoryWithConfigBlock(OkHttp) {
                 engine {
                     addInterceptor { chain ->

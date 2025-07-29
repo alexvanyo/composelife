@@ -41,7 +41,7 @@ interface DriverBindings {
     companion object {
         @Provides
         @SingleIn(AppScope::class)
-        fun providesDriver(
+        internal fun providesDriver(
             @ApplicationContext context: Context,
         ): SqlDriver {
             val schema = ComposeLifeDatabase.Schema.synchronous()
@@ -61,7 +61,7 @@ interface DriverBindings {
         @SingleIn(AppScope::class)
         @IntoSet
         @AppUpdatable
-        fun providesDriverClosingIntoUpdatable(
+        internal fun providesDriverClosingIntoUpdatable(
             driver: SqlDriver,
         ): Updatable = object : Updatable {
             override suspend fun update(): Nothing =

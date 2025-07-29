@@ -31,7 +31,7 @@ import dev.zacsweers.metro.Provides
 interface AdapterBindings {
     companion object {
         @Provides
-        fun providesCellStateAdapter(
+        internal fun providesCellStateAdapter(
             cellStateIdAdapter: CellStateIdAdapter,
             patternCollectionIdAdapter: PatternCollectionIdAdapter,
         ): CellState.Adapter =
@@ -41,7 +41,7 @@ interface AdapterBindings {
             )
 
         @Provides
-        fun providesPatternCollectionAdapter(
+        internal fun providesPatternCollectionAdapter(
             patternCollectionIdAdapter: PatternCollectionIdAdapter,
             instantAdapter: InstantAdapter,
         ): PatternCollection.Adapter =
