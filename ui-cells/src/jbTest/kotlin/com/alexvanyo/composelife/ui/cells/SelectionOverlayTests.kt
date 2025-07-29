@@ -28,9 +28,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import com.alexvanyo.composelife.database.CellStateQueries
-import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
-import com.alexvanyo.composelife.filesystem.PersistedDataPath
 import com.alexvanyo.composelife.geometry.toPx
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.CellWindow
@@ -38,7 +35,6 @@ import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
-import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiScope
@@ -48,12 +44,8 @@ import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.cells.resources.SelectingBoxHandle
 import com.alexvanyo.composelife.ui.cells.resources.Strings
 import com.alexvanyo.composelife.ui.cells.util.isAndroid
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
-import kotlinx.coroutines.test.TestDispatcher
-import okio.Path
-import okio.fakefilesystem.FakeFileSystem
 import org.junit.Assume.assumeTrue
 import kotlin.test.Test
 import kotlin.test.assertEquals

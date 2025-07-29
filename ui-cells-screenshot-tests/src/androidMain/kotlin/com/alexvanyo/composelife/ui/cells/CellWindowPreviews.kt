@@ -24,7 +24,6 @@ import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.scopes.implicit
 import com.alexvanyo.composelife.sessionvalue.SessionValue
-import com.alexvanyo.composelife.ui.cells.entrypoints.PreviewEntryPoint
 import com.alexvanyo.composelife.ui.cells.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews

@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.data.model.PatternCollection
 import com.alexvanyo.composelife.database.PatternCollectionId
-import com.alexvanyo.composelife.scopes.implicit
 import com.alexvanyo.composelife.ui.settings.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import kotlin.time.Clock

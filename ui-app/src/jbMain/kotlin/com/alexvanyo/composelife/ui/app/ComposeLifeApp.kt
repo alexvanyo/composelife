@@ -71,16 +71,11 @@ import com.alexvanyo.composelife.ui.util.ReportDrawn
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import dev.zacsweers.metro.BindingContainer
-import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesGraphExtension
 import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.DependencyGraph
-import dev.zacsweers.metro.Extends
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
-import dev.zacsweers.metro.asContribution
-import dev.zacsweers.metro.createGraphFactory
 
 @Immutable
 @Inject

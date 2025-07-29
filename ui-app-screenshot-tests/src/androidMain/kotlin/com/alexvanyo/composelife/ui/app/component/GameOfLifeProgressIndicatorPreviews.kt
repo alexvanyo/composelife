@@ -23,7 +23,6 @@ import com.alexvanyo.composelife.scopes.implicit
 import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
-import kotlin.random.Random
 
 @ShowkaseComposable
 @ThemePreviews

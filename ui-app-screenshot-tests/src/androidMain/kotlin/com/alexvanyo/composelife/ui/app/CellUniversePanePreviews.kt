@@ -30,7 +30,6 @@ import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
 import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
-import kotlin.random.Random
 
 @ShowkaseComposable
 @MobileDevicePreviews

@@ -34,7 +34,6 @@ import com.alexvanyo.composelife.logging.d
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
-import com.alexvanyo.composelife.model.di.CellStateParserProvider
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.filter

@@ -29,7 +29,6 @@ import com.alexvanyo.composelife.resourcestate.successes
 import com.alexvanyo.composelife.scopes.ApplicationContext
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.ContributesIntoSet
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

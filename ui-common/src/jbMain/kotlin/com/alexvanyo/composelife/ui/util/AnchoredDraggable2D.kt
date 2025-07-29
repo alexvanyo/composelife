@@ -69,6 +69,7 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastFirstOrNull
+import com.alexvanyo.composelife.ui.util.AnchoredDraggable2DState.Companion.Saver
 import com.alexvanyo.composelife.ui.util.DragEvent.DragCancelled
 import com.alexvanyo.composelife.ui.util.DragEvent.DragDelta
 import com.alexvanyo.composelife.ui.util.DragEvent.DragStarted
