@@ -38,14 +38,14 @@ interface DriverBindings {
     companion object {
         @Provides
         @SingleIn(AppScope::class)
-        fun providesDriver(): SqlDriver =
+        internal fun providesDriver(): SqlDriver =
             createDefaultWebWorkerDriver().also(ComposeLifeDatabase.Schema::create)
 
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
         @AppUpdatable
-        fun providesDriverClosingIntoUpdatable(
+        internal fun providesDriverClosingIntoUpdatable(
             driver: SqlDriver,
         ): Updatable = object : Updatable {
             override suspend fun update(): Nothing =

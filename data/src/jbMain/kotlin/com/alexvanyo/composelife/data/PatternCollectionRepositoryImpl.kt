@@ -81,14 +81,14 @@ interface PatternCollectionRepositoryImplBindings {
     @Binds
     @IntoSet
     @AppUpdatable
-    val PatternCollectionRepositoryImpl.bindIntoUpdatable: Updatable
+    private fun PatternCollectionRepositoryImpl.bindIntoUpdatable(): Updatable = this
 }
 
 @Inject
 @ContributesBinding(AppScope::class, binding = binding<PatternCollectionRepository>())
 @SingleIn(AppScope::class)
 @Suppress("LongParameterList")
-class PatternCollectionRepositoryImpl(
+internal class PatternCollectionRepositoryImpl(
     private val dispatchers: ComposeLifeDispatchers,
     private val cellStateQueries: CellStateQueries,
     private val patternCollectionQueries: PatternCollectionQueries,

@@ -34,7 +34,7 @@ interface FakeFileSystemBindings {
     companion object {
         @Provides
         @SingleIn(AppScope::class)
-        fun providesFakeFileSystem(
+        internal fun providesFakeFileSystem(
             clock: Clock,
         ): FakeFileSystem = FakeFileSystem(
             clock = clock,
@@ -44,7 +44,7 @@ interface FakeFileSystemBindings {
         @SingleIn(AppScope::class)
         @IntoSet
         @AppUpdatable
-        fun providesFakeFileSystemIntoUpdatable(
+        internal fun providesFakeFileSystemIntoUpdatable(
             fakeFileSystem: FakeFileSystem,
         ): Updatable = object : Updatable {
             override suspend fun update(): Nothing =

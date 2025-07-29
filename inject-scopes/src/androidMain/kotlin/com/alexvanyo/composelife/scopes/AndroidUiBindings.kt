@@ -31,12 +31,12 @@ interface AndroidUiBindings {
     companion object {
         @Provides
         @ActivityContext
-        fun bindUiContext(uiGraphArguments: UiGraphArguments): Context = uiGraphArguments.uiContext
+        internal fun bindUiContext(uiGraphArguments: UiGraphArguments): Context = uiGraphArguments.uiContext
 
         @Provides
-        fun bindActivity(uiGraphArguments: UiGraphArguments): Activity? = uiGraphArguments.activity
+        internal fun bindActivity(uiGraphArguments: UiGraphArguments): Activity? = uiGraphArguments.activity
 
         @Provides
-        fun bindWindow(activity: Activity?): Window? = activity?.window
+        internal fun bindWindow(activity: Activity?): Window? = activity?.window
     }
 }
