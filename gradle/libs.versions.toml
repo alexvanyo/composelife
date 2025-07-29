@@ -96,7 +96,7 @@ kotlinxSerialization = "1.9.0"
 #ksp
 ksp = "2.2.0-2.0.2"
 #ktor
-ktor = "3.2.2"
+ktor = "3.2.3"
 #jacoco
 jacoco = "0.8.13"
 #jetbrainsCompose
