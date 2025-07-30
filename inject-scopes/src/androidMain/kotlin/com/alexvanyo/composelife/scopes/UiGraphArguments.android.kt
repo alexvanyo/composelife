@@ -17,8 +17,10 @@
 
 package com.alexvanyo.composelife.scopes
 
+import android.app.Activity
 import android.content.Context
 
 actual interface UiGraphArguments {
     val uiContext: Context
+    val activity: Activity?
 }

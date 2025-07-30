@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.test
 import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
+import com.alexvanyo.composelife.updatable.AppUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -39,7 +40,8 @@ import kotlin.time.Duration.Companion.seconds
 @ContributesTo(AppScope::class)
 interface BaseInjectTestEntryPoint {
     @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
-    val updatables: Set<Updatable>
+
+    @AppUpdatable val appUpdatables: Set<Updatable>
 }
 
 // TODO: Replace with asContribution()
@@ -62,7 +64,7 @@ abstract class BaseInjectTestImpl(
     val applicationGraph = applicationGraphCreator(createApplicationGraphArguments())
 
     private val entryPoint get() = applicationGraph.baseInjectTestEntryPoint
-    private val updatables: Set<Updatable> get() = entryPoint.updatables
+    internal val appUpdatables: Set<Updatable> get() = entryPoint.appUpdatables
     internal val generalTestDispatcher: TestDispatcher get() = entryPoint.generalTestDispatcher
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -74,28 +76,29 @@ abstract class BaseInjectTestImpl(
         context = generalTestDispatcher + context,
         timeout = timeout,
     ) {
-        withAppTestDependencies {
+        withUpdatables(appUpdatables) {
             // Let any background jobs launch and stabilize before running the test body
             advanceUntilIdle()
             testBody()
         }
     }
+}
 
-    suspend fun withAppTestDependencies(
-        testBody: suspend () -> Unit,
-    ): Unit = coroutineScope {
-        val backgroundJob = launch {
-            updatables.forEach { updatable ->
-                launch {
-                    updatable.update()
-                }
+suspend fun withUpdatables(
+    updatables: Set<Updatable>,
+    testBody: suspend () -> Unit,
+): Unit = coroutineScope {
+    val backgroundJob = launch {
+        updatables.forEach { updatable ->
+            launch {
+                updatable.update()
             }
         }
-        try {
-            testBody()
-        } finally {
-            backgroundJob.cancelAndJoin()
-        }
+    }
+    try {
+        testBody()
+    } finally {
+        backgroundJob.cancelAndJoin()
     }
 }
 

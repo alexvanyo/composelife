@@ -20,6 +20,7 @@ import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.disk.DiskCache
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.updatable.AppUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
@@ -59,6 +60,7 @@ interface ImageLoaderBindings {
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
+        @AppUpdatable
         fun providesImagerLoaderShutdownIntoUpdatable(
             imageLoader: ImageLoader,
         ): Updatable = object : Updatable {

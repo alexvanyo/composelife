@@ -69,6 +69,7 @@ import kotlin.uuid.Uuid
 @Inject
 class InteractiveCellUniverseEntryPoint(
     internal val cellStateParser: CellStateParser,
+    internal val immersiveModeManager: ImmersiveModeManager,
     internal val mutableCellWindowEntryPoint: MutableCellWindowEntryPoint,
     internal val interactiveCellUniverseOverlayEntryPoint: InteractiveCellUniverseOverlayEntryPoint,
 ) {
@@ -182,14 +183,13 @@ context(entryPoint: InteractiveCellUniverseEntryPoint)
 @Composable
 fun rememberInteractiveCellUniverseState(
     temporalGameOfLifeState: TemporalGameOfLifeState,
-    immersiveModeManager: ImmersiveModeManager,
     mutableCellWindowViewportState: MutableCellWindowViewportState = rememberMutableCellWindowViewportState(),
     clipboardReaderWriter: ClipboardReaderWriter = rememberClipboardReaderWriter(),
 ): InteractiveCellUniverseState =
     rememberInteractiveCellUniverseState(
         cellStateParser = entryPoint.cellStateParser,
+        immersiveModeManager = entryPoint.immersiveModeManager,
         temporalGameOfLifeState = temporalGameOfLifeState,
-        immersiveModeManager = immersiveModeManager,
         mutableCellWindowViewportState = mutableCellWindowViewportState,
         clipboardReaderWriter = clipboardReaderWriter,
     )
@@ -198,8 +198,8 @@ fun rememberInteractiveCellUniverseState(
 @Composable
 internal fun rememberInteractiveCellUniverseState(
     cellStateParser: CellStateParser,
-    temporalGameOfLifeState: TemporalGameOfLifeState,
     immersiveModeManager: ImmersiveModeManager,
+    temporalGameOfLifeState: TemporalGameOfLifeState,
     mutableCellWindowViewportState: MutableCellWindowViewportState = rememberMutableCellWindowViewportState(),
     clipboardReaderWriter: ClipboardReaderWriter = rememberClipboardReaderWriter(),
 ): InteractiveCellUniverseState {

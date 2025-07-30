@@ -20,49 +20,32 @@ import android.app.Activity
 import android.os.Build
 import android.os.OutcomeReceiver
 import android.view.Window
-import androidx.activity.compose.LocalActivity
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.updatable.PowerableUpdatable
+import com.alexvanyo.composelife.updatable.UiUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Binds
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.IntoSet
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.suspendCancellableCoroutine
 
-@Composable
-actual fun rememberImmersiveModeManager(): ImmersiveModeManager = rememberImmersiveModeManager(
-    activity = LocalActivity.current,
-    window = LocalActivity.current?.window,
-)
-
-@Composable
-fun rememberImmersiveModeManager(
-    activity: Activity?,
-    window: Window?,
-): ImmersiveModeManager {
-    val view = LocalView.current
-
-    val immersiveModeManager = remember(activity, window, view) {
-        AndroidImmersiveModeManager(
-            activity,
-            window?.let { WindowInsetsControllerCompat(it, view) },
-        )
-    }
-
-    LaunchedEffect(immersiveModeManager) {
-        immersiveModeManager.update()
-    }
-
-    return immersiveModeManager
-}
-
-private class AndroidImmersiveModeManager private constructor(
+@SingleIn(UiScope::class)
+@ContributesBinding(UiScope::class, binding = binding<ImmersiveModeManager>())
+class AndroidImmersiveModeManager private constructor(
     private val activity: Activity?,
     private val powerableUpdatable: PowerableUpdatable,
 ) : ImmersiveModeManager, Updatable by powerableUpdatable {
+    @Inject
     constructor(
         activity: Activity?,
         windowInsetsControllerCompat: WindowInsetsControllerCompat?,
@@ -121,4 +104,26 @@ private class AndroidImmersiveModeManager private constructor(
         } else {
             Result.failure(IllegalStateException("Not supported on API < 35"))
         }
+}
+
+@ContributesTo(UiScope::class)
+@BindingContainer
+interface AndroidImmersiveModeManagerBindings {
+    @Binds
+    @IntoSet
+    @UiUpdatable
+    val AndroidImmersiveModeManager.bindIntoUpdatable: Updatable
+}
+
+@ContributesTo(UiScope::class)
+@BindingContainer
+interface WindowInsetsControllerBindings {
+    companion object {
+        @Provides
+        @SingleIn(UiScope::class)
+        fun providesWindowInsetsController(
+            window: Window?,
+        ): WindowInsetsControllerCompat? =
+            window?.let { WindowCompat.getInsetsController(window, window.decorView) }
+    }
 }

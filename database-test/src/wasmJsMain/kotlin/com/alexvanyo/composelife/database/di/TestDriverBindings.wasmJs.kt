@@ -22,6 +22,7 @@ import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.db.use
 import app.cash.sqldelight.driver.worker.createDefaultWebWorkerDriver
 import com.alexvanyo.composelife.database.ComposeLifeDatabase
+import com.alexvanyo.composelife.updatable.AppUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
@@ -43,6 +44,7 @@ interface TestDriverBindings {
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
+        @AppUpdatable
         fun providesDriverClosingIntoUpdatable(
             driver: SqlDriver,
         ): Updatable = object : Updatable {

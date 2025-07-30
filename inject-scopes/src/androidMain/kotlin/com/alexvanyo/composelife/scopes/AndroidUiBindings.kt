@@ -17,7 +17,9 @@
 
 package com.alexvanyo.composelife.scopes
 
+import android.app.Activity
 import android.content.Context
+import android.view.Window
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Provides
@@ -30,5 +32,11 @@ interface AndroidUiBindings {
         @Provides
         @ActivityContext
         fun bindUiContext(uiGraphArguments: UiGraphArguments): Context = uiGraphArguments.uiContext
+
+        @Provides
+        fun bindActivity(uiGraphArguments: UiGraphArguments): Activity? = uiGraphArguments.activity
+
+        @Provides
+        fun bindWindow(activity: Activity?): Window? = activity?.window
     }
 }

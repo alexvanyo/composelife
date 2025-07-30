@@ -50,7 +50,6 @@ import kotlin.time.Instant
 @ContributesTo(AppScope::class)
 interface PatternCollectionRepositoryTestsEntryPoint {
     val patternCollectionRepository: PatternCollectionRepository
-    val patternCollectionQueries: PatternCollectionQueries
     val cellStateRepository: CellStateRepository
     val cellStateQueries: CellStateQueries
 
@@ -76,8 +75,6 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
         get() = entryPoint.patternCollectionRepository
 
     private val cellStateRepository get() = entryPoint.cellStateRepository
-
-    private val patternCollectionQueries get() = entryPoint.patternCollectionQueries
 
     private val cellStateQueries get() = entryPoint.cellStateQueries
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("MatchingDeclarationName")
 
-package com.alexvanyo.composelife.scopes
+package com.alexvanyo.composelife.updatable
 
-import androidx.compose.ui.window.WindowState
+import dev.zacsweers.metro.Qualifier
 
-actual interface UiGraphArguments {
-    val windowState: WindowState?
-}
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.TYPE, AnnotationTarget.PROPERTY)
+@Qualifier
+annotation class UiUpdatable

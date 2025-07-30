@@ -22,11 +22,24 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiScope
+import com.alexvanyo.composelife.updatable.UiUpdatable
+import com.alexvanyo.composelife.updatable.Updatable
+import dev.zacsweers.metro.ContributesTo
 import kotlinx.coroutines.test.TestResult
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+
+@ContributesTo(UiScope::class)
+interface BaseUiInjectTestEntryPoint {
+    @UiUpdatable val uiUpdatables: Set<Updatable>
+}
+
+// TODO: Replace with asContribution()
+internal val UiGraph.baseUiInjectTestEntryPoint: BaseUiInjectTestEntryPoint get() =
+    this as BaseUiInjectTestEntryPoint
 
 /**
  * A base class for testing UI that depends on injected classes.

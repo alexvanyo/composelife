@@ -35,7 +35,6 @@ import kotlin.time.Clock
 @Suppress("ComposableNaming", "LongParameterList")
 @Composable
 private operator fun CellUniversePaneEntryPoint.invoke(
-    immersiveModeManager: ImmersiveModeManager,
     windowSizeClass: WindowSizeClass,
     onSeeMoreSettingsClicked: () -> Unit,
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
@@ -49,7 +48,6 @@ private operator fun CellUniversePaneEntryPoint.invoke(
     clock,
     gameOfLifeProgressIndicatorEntryPoint,
     interactiveCellUniverseEntryPoint,
-    immersiveModeManager,
     windowSizeClass,
     onSeeMoreSettingsClicked,
     onOpenInSettingsClicked,
@@ -67,7 +65,6 @@ private val CellUniversePaneEntryPoint.Companion.lambda:
         GameOfLifeProgressIndicatorEntryPoint,
         InteractiveCellUniverseEntryPoint,
     ) (
-        immersiveModeManager: ImmersiveModeManager,
         windowSizeClass: WindowSizeClass,
         onSeeMoreSettingsClicked: () -> Unit,
         onOpenInSettingsClicked: (setting: Setting) -> Unit,
@@ -76,7 +73,6 @@ private val CellUniversePaneEntryPoint.Companion.lambda:
         cellUniversePaneState: CellUniversePaneState,
     ) -> Unit
     get() = {
-            immersiveModeManager,
             windowSizeClass,
             onSeeMoreSettingsClicked,
             onOpenInSettingsClicked,
@@ -85,7 +81,6 @@ private val CellUniversePaneEntryPoint.Companion.lambda:
             cellUniversePaneState,
         ->
         CellUniversePane(
-            immersiveModeManager = immersiveModeManager,
             windowSizeClass = windowSizeClass,
             onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
             onOpenInSettingsClicked = onOpenInSettingsClicked,
@@ -99,7 +94,6 @@ context(entryPoint: CellUniversePaneEntryPoint)
 @Suppress("LongParameterList")
 @Composable
 fun CellUniversePane(
-    immersiveModeManager: ImmersiveModeManager,
     windowSizeClass: WindowSizeClass,
     onSeeMoreSettingsClicked: () -> Unit,
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
@@ -107,7 +101,6 @@ fun CellUniversePane(
     modifier: Modifier = Modifier,
     cellUniversePaneState: CellUniversePaneState = rememberCellUniversePaneState(),
 ) = entryPoint(
-    immersiveModeManager = immersiveModeManager,
     windowSizeClass = windowSizeClass,
     onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
     onOpenInSettingsClicked = onOpenInSettingsClicked,
@@ -127,7 +120,6 @@ _: InteractiveCellUniverseEntryPoint,
 @Suppress("LongParameterList")
 @Composable
 private fun CellUniversePane(
-    immersiveModeManager: ImmersiveModeManager,
     windowSizeClass: WindowSizeClass,
     onSeeMoreSettingsClicked: () -> Unit,
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
@@ -154,7 +146,6 @@ private fun CellUniversePane(
             is CellUniversePaneState.LoadedCellState -> {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = cellUniversePaneState.temporalGameOfLifeState,
-                    immersiveModeManager = immersiveModeManager,
                     windowSizeClass = windowSizeClass,
                     onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
                     onOpenInSettingsClicked = onOpenInSettingsClicked,

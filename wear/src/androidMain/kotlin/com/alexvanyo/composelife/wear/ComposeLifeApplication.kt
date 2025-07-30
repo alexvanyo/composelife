@@ -28,6 +28,7 @@ import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
 import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.strictmode.initStrictModeIfNeeded
+import com.alexvanyo.composelife.updatable.AppUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -40,7 +41,9 @@ import kotlinx.coroutines.supervisorScope
 @ContributesTo(AppScope::class)
 interface ComposeLifeApplicationEntryPoint {
     @ProcessLifecycleOwner val processLifecycleOwner: LifecycleOwner
-    val updatables: Set<Updatable>
+
+    @AppUpdatable val appUpdatables: Set<Updatable>
+
     val gameOfLifeAlgorithm: GameOfLifeAlgorithm
 }
 
@@ -67,14 +70,14 @@ class ComposeLifeApplication : Application(), ApplicationGraphOwner {
         // TODO: Replace with applicationGraph.asContribution<ComposeLifeApplicationEntryPoint>()
         val entryPoint = applicationGraph.composeLifeApplicationEntryPoint
         val processLifecycleOwner = entryPoint.processLifecycleOwner
-        val updatables = entryPoint.updatables
+        val appUpdatables = entryPoint.appUpdatables
 
         // Update all singleton scoped updatables in the process lifecycle scope, when its created.
         // Effectively, this is just a permanently running coroutine scope.
         processLifecycleOwner.lifecycleScope.launch {
             processLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
                 supervisorScope {
-                    updatables.forEach { updatable ->
+                    appUpdatables.forEach { updatable ->
                         launch {
                             updatable.update()
                         }

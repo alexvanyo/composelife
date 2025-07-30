@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.network.di
 
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.network.FakeRequestHandler
+import com.alexvanyo.composelife.updatable.AppUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
@@ -50,6 +51,7 @@ interface TestNetworkBindings {
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
+        @AppUpdatable
         fun providesHttpClientClosingIntoUpdatable(
             httpClient: HttpClient,
         ): Updatable = object : Updatable {

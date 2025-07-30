@@ -34,7 +34,8 @@ import com.alexvanyo.composelife.ui.app.ComposeLifeApp
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiEntryPoint
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
-import com.alexvanyo.composelife.ui.util.rememberImmersiveModeManager
+import com.alexvanyo.composelife.updatable.AppUpdatable
+import com.alexvanyo.composelife.updatable.UiUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import com.slack.circuit.retained.LocalRetainedStateRegistry
 import com.slack.circuit.retained.continuityRetainedStateRegistry
@@ -53,11 +54,11 @@ fun main() = application {
     )
 
     val entryPoint = applicationGraph.composeLifeApplicationEntryPoint
-    val updatables = entryPoint.updatables
+    val appUpdatables = entryPoint.appUpdatables
 
     LaunchedEffect(Unit) {
         supervisorScope {
-            updatables.forEach { updatable ->
+            appUpdatables.forEach { updatable ->
                 launch {
                     updatable.update()
                 }
@@ -66,7 +67,6 @@ fun main() = application {
     }
 
     val windowState = rememberWindowState()
-    val immersiveModeManager = rememberImmersiveModeManager(windowState)
 
     Window(
         onCloseRequest = ::exitApplication,
@@ -76,17 +76,30 @@ fun main() = application {
         CompositionLocalProvider(LocalRetainedStateRegistry provides continuityRetainedStateRegistry()) {
             val uiGraph = remember(applicationGraph) {
                 (applicationGraph as UiGraph.Factory).create(
-                    object : UiGraphArguments {},
+                    object : UiGraphArguments {
+                        override val windowState = windowState
+                    },
                 )
             }
             val mainInjectEntryPoint = uiGraph.mainInjectEntryPoint
+            val uiUpdatables = mainInjectEntryPoint.uiUpdatables
+
+            LaunchedEffect(uiUpdatables) {
+                supervisorScope {
+                    uiUpdatables.forEach { updatable ->
+                        launch {
+                            updatable.update()
+                        }
+                    }
+                }
+            }
+
             with(mainInjectEntryPoint) {
                 ComposeLifeTheme(shouldUseDarkTheme()) {
                     with(mainInjectEntryPoint.composeLifeAppUiEntryPoint) {
                         ComposeLifeApp(
                             windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                             windowSize = windowState.size,
-                            immersiveModeManager = immersiveModeManager,
                         )
                     }
                 }
@@ -97,7 +110,7 @@ fun main() = application {
 
 @ContributesTo(AppScope::class)
 interface ComposeLifeApplicationEntryPoint {
-    val updatables: Set<Updatable>
+    @AppUpdatable val appUpdatables: Set<Updatable>
 }
 
 // TODO: Replace with asContribution()
@@ -107,6 +120,8 @@ internal val ApplicationGraph.composeLifeApplicationEntryPoint: ComposeLifeAppli
 @ContributesTo(UiScope::class)
 interface MainInjectEntryPoint : ComposeLifePreferencesProvider {
     val composeLifeAppUiEntryPoint: ComposeLifeAppUiEntryPoint
+
+    @UiUpdatable val uiUpdatables: Set<Updatable>
 }
 
 // TODO: Replace with asContribution()

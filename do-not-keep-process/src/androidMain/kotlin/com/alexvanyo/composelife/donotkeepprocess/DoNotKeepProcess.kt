@@ -23,18 +23,29 @@ import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.doNotKeepProcessState
 import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
 import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.updatable.AppUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Binds
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.SingleIn
-import dev.zacsweers.metro.binding
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.collectLatest
 import kotlin.system.exitProcess
 
+@ContributesTo(AppScope::class)
+@BindingContainer
+interface DoNotKeepProcessBindings {
+    @Binds
+    @IntoSet
+    @AppUpdatable
+    val DoNotKeepProcess.bindIntoUpdatable: Updatable
+}
+
 @Inject
-@ContributesIntoSet(AppScope::class, binding = binding<Updatable>())
 @SingleIn(AppScope::class)
 class DoNotKeepProcess(
     @param:ProcessLifecycleOwner private val lifecycleOwner: LifecycleOwner,
