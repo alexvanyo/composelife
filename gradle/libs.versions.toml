@@ -116,7 +116,7 @@ metro = "0.5.3"
 #molecule
 molecule = "2.1.0"
 #okio
-okio = "3.15.0"
+okio = "3.16.0"
 #proguard
 proguard = "7.6.0"
 #robolectric
