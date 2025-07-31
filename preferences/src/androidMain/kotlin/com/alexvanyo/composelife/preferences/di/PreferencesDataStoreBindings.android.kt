@@ -34,7 +34,7 @@ interface PreferencesDataStoreBindings {
     companion object {
         @Provides
         @PreferencesProtoPath
-        fun providesDataStorePath(
+        internal fun providesDataStorePath(
             @ApplicationContext context: Context,
         ): Path = context.dataStoreFile("preferences.pb").absoluteFile.toOkioPath()
     }

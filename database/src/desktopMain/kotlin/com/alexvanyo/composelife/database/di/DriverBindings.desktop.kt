@@ -39,7 +39,7 @@ interface DriverBindings {
     companion object {
         @Provides
         @SingleIn(AppScope::class)
-        fun providesDriver(): SqlDriver =
+        internal fun providesDriver(): SqlDriver =
             JdbcSqliteDriver(
                 JdbcSqliteDriver.IN_MEMORY,
                 Properties().apply { put("foreign_keys", "true") },
@@ -50,7 +50,7 @@ interface DriverBindings {
         @SingleIn(AppScope::class)
         @IntoSet
         @AppUpdatable
-        fun providesDriverClosingIntoUpdatable(
+        internal fun providesDriverClosingIntoUpdatable(
             driver: SqlDriver,
         ): Updatable = object : Updatable {
             override suspend fun update(): Nothing =

@@ -27,6 +27,6 @@ import okio.FileSystem
 interface FileSystemBindings {
     companion object {
         @Provides
-        fun providesFileSystem(): FileSystem = FileSystem.SYSTEM
+        internal fun providesFileSystem(): FileSystem = FileSystem.SYSTEM
     }
 }

@@ -29,6 +29,6 @@ interface RandomBindings {
     companion object {
         @SingleIn(AppScope::class)
         @Provides
-        fun providesRandom(): Random = Random
+        internal fun providesRandom(): Random = Random
     }
 }

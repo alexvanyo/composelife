@@ -19,11 +19,12 @@ package com.alexvanyo.composelife.imageloader.di
 import coil3.ComponentRegistry
 import coil3.key.Keyer
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Multibinds
 import kotlin.reflect.KClass
 
-// @BindingContainer TODO: https://github.com/ZacSweers/metro/issues/742
+@BindingContainer
 @ContributesTo(AppScope::class)
 interface ImageLoaderKeyerBindings {
     @Multibinds(allowEmpty = true)

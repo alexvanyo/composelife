@@ -31,7 +31,7 @@ interface PreferencesDataStoreBindings {
     companion object {
         @Provides
         @PreferencesProtoPath
-        fun providesDataStorePath(): Path =
+        internal fun providesDataStorePath(): Path =
             FileSystem.SYSTEM_TEMPORARY_DIRECTORY.resolve("preferences.pb")
     }
 }
