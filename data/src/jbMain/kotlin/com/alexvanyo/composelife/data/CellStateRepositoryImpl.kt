@@ -49,7 +49,7 @@ import kotlin.uuid.Uuid
 @Suppress("LongParameterList")
 @Inject
 @ContributesBinding(AppScope::class)
-class CellStateRepositoryImpl(
+internal class CellStateRepositoryImpl(
     private val flexibleCellStateSerializer: FlexibleCellStateSerializer,
     private val cellStateQueries: CellStateQueries,
     private val dispatchers: ComposeLifeDispatchers,

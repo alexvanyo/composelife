@@ -31,6 +31,6 @@ interface PersistedDataPathBindings {
     companion object {
         @Provides
         @PersistedDataPath
-        fun providesPersistedDataPath(): Path = FileSystem.SYSTEM_TEMPORARY_DIRECTORY
+        internal fun providesPersistedDataPath(): Path = FileSystem.SYSTEM_TEMPORARY_DIRECTORY
     }
 }

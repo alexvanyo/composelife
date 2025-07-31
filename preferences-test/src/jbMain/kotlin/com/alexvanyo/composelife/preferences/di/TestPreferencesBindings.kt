@@ -36,7 +36,7 @@ interface TestPreferencesBindings {
     companion object {
         @SingleIn(AppScope::class)
         @Provides
-        fun providesTestComposeLifePreferences(): TestComposeLifePreferences =
+        internal fun providesTestComposeLifePreferences(): TestComposeLifePreferences =
             TestComposeLifePreferences()
     }
 }

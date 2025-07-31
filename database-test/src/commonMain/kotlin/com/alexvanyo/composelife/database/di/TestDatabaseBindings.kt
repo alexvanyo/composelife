@@ -32,7 +32,7 @@ interface TestDatabaseBindings {
     companion object {
         @Provides
         @SingleIn(AppScope::class)
-        fun providesDatabase(
+        internal fun providesDatabase(
             driver: SqlDriver,
             cellStateAdapter: CellState.Adapter,
             patternCollectionAdapter: PatternCollection.Adapter,

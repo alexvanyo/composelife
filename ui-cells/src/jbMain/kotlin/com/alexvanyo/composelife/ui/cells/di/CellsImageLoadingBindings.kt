@@ -36,14 +36,14 @@ interface CellsImageLoadingBindings {
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
-        fun providesCellsFetcherFactoryIntoFetcherFactories(
+        internal fun providesCellsFetcherFactoryIntoFetcherFactories(
             cellsFetcherFactory: CellsFetcher.Factory,
         ): FetcherFactoryWithType<out Any> = cellsFetcherFactory.withType()
 
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
-        fun providesCellsKeyerIntoKeyers(
+        internal fun providesCellsKeyerIntoKeyers(
             cellsKeyer: CellsKeyer,
         ): KeyerWithType<out Any> = cellsKeyer.withType()
     }

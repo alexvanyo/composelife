@@ -31,13 +31,13 @@ interface QueriesBindings {
     companion object {
         @Provides
         @SingleIn(AppScope::class)
-        fun providesCellStateQueries(
+        internal fun providesCellStateQueries(
             composeLifeDatabase: ComposeLifeDatabase,
         ): CellStateQueries = composeLifeDatabase.cellStateQueries
 
         @Provides
         @SingleIn(AppScope::class)
-        fun providesPatternCollectionQueries(
+        internal fun providesPatternCollectionQueries(
             composeLifeDatabase: ComposeLifeDatabase,
         ): PatternCollectionQueries = composeLifeDatabase.patternCollectionQueries
     }

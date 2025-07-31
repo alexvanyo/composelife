@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.ui.app
 
 import com.alexvanyo.composelife.scopes.GlobalScope
+import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
@@ -28,6 +29,7 @@ interface GlobalGraph
 internal val globalGraph = createGraph<GlobalGraph>()
 
 @ContributesTo(UiWithLoadedPreferencesScope::class, replaces = [UiWithLoadedPreferencesScopeBindings::class])
+@BindingContainer
 interface TestLoadedComposeLifePreferencesHolderBindings {
 
     companion object {

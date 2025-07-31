@@ -408,7 +408,7 @@ interface UiWithLoadedPreferencesScopeBindings {
     companion object {
         @Provides
         @SingleIn(UiWithLoadedPreferencesScope::class)
-        fun providesLoadedComposeLifePreferencesHolder(
+        internal fun providesLoadedComposeLifePreferencesHolder(
             uiWithLoadedPreferencesGraphArguments: UiWithLoadedPreferencesGraphArguments,
         ): LoadedComposeLifePreferencesHolder =
             uiWithLoadedPreferencesGraphArguments.loadedComposeLifePreferencesHolder

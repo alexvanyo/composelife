@@ -23,7 +23,7 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Multibinds
 
-// @BindingContainer TODO: https://github.com/ZacSweers/metro/issues/742
+// @BindingContainer TODO
 @ContributesTo(AppScope::class)
 interface UpdatableBindings {
 

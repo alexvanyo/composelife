@@ -40,7 +40,7 @@ import kotlinx.coroutines.selects.select
 
 @Inject
 @ContributesBinding(AppScope::class)
-class ConfigurableGameOfLifeAlgorithm(
+internal class ConfigurableGameOfLifeAlgorithm(
     private val preferences: ComposeLifePreferences,
     private val naiveGameOfLifeAlgorithm: NaiveGameOfLifeAlgorithm,
     private val hashLifeAlgorithm: HashLifeAlgorithm,
