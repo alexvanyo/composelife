@@ -28,6 +28,6 @@ interface ClockBindings {
 
     companion object {
         @Provides
-        fun providesClock(): Clock = Clock.System
+        internal fun providesClock(): Clock = Clock.System
     }
 }

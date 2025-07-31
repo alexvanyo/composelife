@@ -31,7 +31,7 @@ interface ProcessLifecycleBindings {
         @SingleIn(AppScope::class)
         @Provides
         @ProcessLifecycleOwner
-        fun providesProcessLifecycleOwner(): LifecycleOwner =
+        internal fun providesProcessLifecycleOwner(): LifecycleOwner =
             androidx.lifecycle.ProcessLifecycleOwner.get()
     }
 }

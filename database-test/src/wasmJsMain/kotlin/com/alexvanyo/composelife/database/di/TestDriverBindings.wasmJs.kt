@@ -38,14 +38,14 @@ interface TestDriverBindings {
     companion object {
         @Provides
         @SingleIn(AppScope::class)
-        fun providesDriver(): SqlDriver =
+        internal fun providesDriver(): SqlDriver =
             createDefaultWebWorkerDriver()
 
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
         @AppUpdatable
-        fun providesDriverClosingIntoUpdatable(
+        internal fun providesDriverClosingIntoUpdatable(
             driver: SqlDriver,
         ): Updatable = object : Updatable {
             override suspend fun update(): Nothing =

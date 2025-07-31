@@ -158,8 +158,8 @@ com.squareup.okio:okio-jvm:3.16.0
 com.squareup.okio:okio:3.16.0
 com.squareup.wire:wire-runtime-jvm:5.3.5
 com.squareup.wire:wire-runtime:5.3.5
-dev.zacsweers.metro:runtime-jvm:0.5.2
-dev.zacsweers.metro:runtime:0.5.2
+dev.zacsweers.metro:runtime-jvm:0.5.3
+dev.zacsweers.metro:runtime:0.5.3
 org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.1
 org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.1
 org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.9.1

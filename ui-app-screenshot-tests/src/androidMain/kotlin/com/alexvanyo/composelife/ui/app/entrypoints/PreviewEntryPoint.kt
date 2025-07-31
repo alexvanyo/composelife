@@ -37,6 +37,7 @@ import com.alexvanyo.composelife.ui.app.action.ClipboardCellStatePreviewEntryPoi
 import com.alexvanyo.composelife.ui.app.action.InlineEditPaneEntryPoint
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorEntryPoint
 import com.alexvanyo.composelife.ui.settings.SettingUiEntryPoint
+import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
@@ -61,6 +62,7 @@ internal interface PreviewEntryPoint : ComposeLifePreferencesProvider {
 interface PreviewGlobalGraph
 
 @ContributesTo(UiWithLoadedPreferencesScope::class, replaces = [UiWithLoadedPreferencesScopeBindings::class])
+@BindingContainer
 interface TestLoadedComposeLifePreferencesHolderBindings {
 
     companion object {

@@ -31,7 +31,7 @@ interface ImageLoaderDiskCacheBindings {
     companion object {
         @SingleIn(AppScope::class)
         @Provides
-        fun providesDiskCache(
+        internal fun providesDiskCache(
             dispatchers: ComposeLifeDispatchers,
             fileSystem: FileSystem,
         ): DiskCache = DiskCache.Builder()

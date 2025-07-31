@@ -30,7 +30,7 @@ interface AndroidApplicationBindings {
     companion object {
         @Provides
         @ApplicationContext
-        fun bindApplicationContext(applicationGraphArguments: ApplicationGraphArguments): Context =
+        internal fun bindApplicationContext(applicationGraphArguments: ApplicationGraphArguments): Context =
             applicationGraphArguments.applicationContext
     }
 }
