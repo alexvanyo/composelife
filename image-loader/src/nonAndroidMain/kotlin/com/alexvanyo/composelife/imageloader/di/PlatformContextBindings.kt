@@ -27,6 +27,6 @@ import dev.zacsweers.metro.Provides
 interface PlatformContextBindings {
     companion object {
         @Provides
-        fun providesPlatformContext(): PlatformContext = PlatformContext.INSTANCE
+        internal fun providesPlatformContext(): PlatformContext = PlatformContext.INSTANCE
     }
 }

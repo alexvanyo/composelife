@@ -58,13 +58,13 @@ interface DiskPreferencesDataStoreBindings {
     @Binds
     @IntoSet
     @AppUpdatable
-    val DiskPreferencesDataStore.bindIntoUpdatable: Updatable
+    private fun DiskPreferencesDataStore.bindIntoUpdatable(): Updatable = this
 }
 
 @SingleIn(AppScope::class)
 @ContributesBinding(AppScope::class, binding = binding<PreferencesDataStore>())
 @Inject
-class DiskPreferencesDataStore(
+internal class DiskPreferencesDataStore(
     private val fileSystem: FileSystem,
     @param:PreferencesProtoPath private val path: Lazy<Path>,
     private val dispatchers: ComposeLifeDispatchers,

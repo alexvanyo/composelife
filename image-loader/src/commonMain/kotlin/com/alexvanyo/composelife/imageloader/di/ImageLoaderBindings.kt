@@ -39,7 +39,7 @@ interface ImageLoaderBindings {
         @Suppress("LongParameterList")
         @SingleIn(AppScope::class)
         @Provides
-        fun providesImageLoader(
+        internal fun providesImageLoader(
             context: PlatformContext,
             diskCache: Lazy<DiskCache>,
             fetcherFactoriesWithType: Set<FetcherFactoryWithType<out Any>>,
@@ -61,7 +61,7 @@ interface ImageLoaderBindings {
         @SingleIn(AppScope::class)
         @IntoSet
         @AppUpdatable
-        fun providesImagerLoaderShutdownIntoUpdatable(
+        internal fun providesImagerLoaderShutdownIntoUpdatable(
             imageLoader: ImageLoader,
         ): Updatable = object : Updatable {
             override suspend fun update(): Nothing =

@@ -32,7 +32,7 @@ interface FileSystemBindings {
     companion object {
         @Provides
         @SingleIn(AppScope::class)
-        fun providesFileSystem(
+        internal fun providesFileSystem(
             clock: Clock,
         ): FileSystem = FakeFileSystem(
             clock = clock,

@@ -38,7 +38,7 @@ interface NetworkBindings {
     companion object {
         @SingleIn(AppScope::class)
         @Provides
-        fun providesHttpClient(
+        internal fun providesHttpClient(
             dispatchers: ComposeLifeDispatchers,
             logger: Logger,
             engineFactoryWithConfigBlock: EngineFactoryWithConfigBlock<*>,
@@ -59,7 +59,7 @@ interface NetworkBindings {
         @SingleIn(AppScope::class)
         @IntoSet
         @AppUpdatable
-        fun providesHttpClientClosingIntoUpdatable(
+        internal fun providesHttpClientClosingIntoUpdatable(
             httpClient: Lazy<HttpClient>,
         ): Updatable = object : Updatable {
             override suspend fun update(): Nothing =

@@ -39,13 +39,13 @@ interface WorkManagerBindings {
 
     companion object {
         @Provides
-        fun providesWorkerFactoryClassNameMap(
+        internal fun providesWorkerFactoryClassNameMap(
             workerFactoryClassMap: Map<KClass<out ListenableWorker>, AssistedWorkerFactory>,
         ): Map<String, AssistedWorkerFactory> =
             workerFactoryClassMap.mapKeys { it.key.java.name }
 
         @Provides
-        fun providesWorkManagerConfiguration(
+        internal fun providesWorkManagerConfiguration(
             injectWorkerFactory: InjectWorkerFactory,
         ): androidx.work.Configuration =
             androidx.work.Configuration.Builder()
@@ -54,7 +54,7 @@ interface WorkManagerBindings {
 
         @Provides
         @SingleIn(AppScope::class)
-        fun providesWorkManager(
+        internal fun providesWorkManager(
             @ApplicationContext context: Context,
             workManagerConfiguration: androidx.work.Configuration,
         ): WorkManager {

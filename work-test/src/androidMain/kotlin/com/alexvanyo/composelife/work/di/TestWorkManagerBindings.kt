@@ -45,13 +45,13 @@ interface TestWorkManagerBindings {
 
     companion object {
         @Provides
-        fun providesWorkerFactoryClassNameMap(
+        internal fun providesWorkerFactoryClassNameMap(
             workerFactoryClassMap: Map<KClass<out ListenableWorker>, AssistedWorkerFactory>,
         ): Map<String, AssistedWorkerFactory> =
             workerFactoryClassMap.mapKeys { it.key.java.name }
 
         @Provides
-        fun providesWorkManagerConfiguration(
+        internal fun providesWorkManagerConfiguration(
             injectWorkerFactory: InjectWorkerFactory,
         ): androidx.work.Configuration =
             androidx.work.Configuration.Builder()
@@ -62,7 +62,7 @@ interface TestWorkManagerBindings {
 
         @Provides
         @SingleIn(AppScope::class)
-        fun providesWorkManager(
+        internal fun providesWorkManager(
             @ApplicationContext context: Context,
             workManagerConfiguration: androidx.work.Configuration,
         ): WorkManager {
@@ -78,7 +78,7 @@ interface TestWorkManagerBindings {
         @SingleIn(AppScope::class)
         @IntoSet
         @AppUpdatable
-        fun providesWorkManagerIntoUpdatable(): Updatable =
+        internal fun providesWorkManagerIntoUpdatable(): Updatable =
             object : Updatable {
                 override suspend fun update(): Nothing =
                     try {

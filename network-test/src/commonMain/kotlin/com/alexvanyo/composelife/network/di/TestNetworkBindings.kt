@@ -36,7 +36,7 @@ interface TestNetworkBindings {
     companion object {
         @SingleIn(AppScope::class)
         @Provides
-        fun providesHttpClient(
+        internal fun providesHttpClient(
             dispatchers: ComposeLifeDispatchers,
             fakeRequestHandler: FakeRequestHandler,
         ): HttpClient =
@@ -52,7 +52,7 @@ interface TestNetworkBindings {
         @SingleIn(AppScope::class)
         @IntoSet
         @AppUpdatable
-        fun providesHttpClientClosingIntoUpdatable(
+        internal fun providesHttpClientClosingIntoUpdatable(
             httpClient: HttpClient,
         ): Updatable = object : Updatable {
             override suspend fun update(): Nothing =
