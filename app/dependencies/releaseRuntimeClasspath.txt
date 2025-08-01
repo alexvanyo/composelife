@@ -126,8 +126,8 @@ androidx.viewpager:viewpager:1.0.0
 androidx.window:window-core-android:1.5.0-beta01
 androidx.window:window-core:1.5.0-beta01
 androidx.window:window:1.5.0-beta01
-androidx.work:work-runtime-ktx:2.10.2
-androidx.work:work-runtime:2.10.2
+androidx.work:work-runtime-ktx:2.10.3
+androidx.work:work-runtime:2.10.3
 androidx.xr.arcore:arcore:1.0.0-alpha03
 androidx.xr.compose:compose:1.0.0-alpha03
 androidx.xr.runtime:runtime-openxr:1.0.0-alpha03
