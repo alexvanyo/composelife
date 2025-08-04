@@ -46,8 +46,8 @@ co.touchlab:kermit-core:2.0.6
 co.touchlab:kermit-jvm:2.0.6
 co.touchlab:kermit:2.0.6
 com.github.livefront.sealed-enum:runtime:0.7.0
-com.slack.circuit:circuit-retained-jvm:0.29.1
-com.slack.circuit:circuit-retained:0.29.1
+com.slack.circuit:circuit-retained-jvm:0.30.0
+com.slack.circuit:circuit-retained:0.30.0
 com.squareup.okhttp3:okhttp-sse:4.12.0
 com.squareup.okhttp3:okhttp:4.12.0
 com.squareup.okio:okio-jvm:3.16.0
@@ -91,6 +91,8 @@ org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.1
 org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose-desktop:2.9.1
 org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.1
 org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.9.1
+org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose-desktop:2.9.1
+org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.9.1
 org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.1
 org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.1
 org.jetbrains.androidx.savedstate:savedstate-compose-desktop:1.3.0
