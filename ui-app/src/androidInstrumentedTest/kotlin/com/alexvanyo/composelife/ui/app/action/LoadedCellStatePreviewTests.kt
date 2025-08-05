@@ -84,9 +84,7 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest(
     private val appEntryPoint get() = applicationGraph.loadedCellStatePreviewTestsAppEntryPoint
 
     @Test
-    fun drag_and_drop_works_correctly() = runUiTest(
-        appEntryPoint.generalTestDispatcher,
-    ) { uiGraph ->
+    fun drag_and_drop_works_correctly() = runUiTest { uiGraph ->
         val uiEntryPoint = uiGraph.loadedCellStatePreviewTestsAppEntryPoint
 
         var droppedCellState: CellState? = null
