@@ -83,9 +83,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
     private val entryPoint get() = applicationGraph.cellStateDragAndDropTestsAppEntryPoint
 
     @Test
-    fun drag_and_drop_works_correctly_when_dropped() = runUiTest(
-        entryPoint.generalTestDispatcher,
-    ) { uiGraph ->
+    fun drag_and_drop_works_correctly_when_dropped() = runUiTest { uiGraph ->
         val cellStateParser = uiGraph.cellStateDragAndDropTestsUiEntryPoint.cellStateParser
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
@@ -209,9 +207,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
     }
 
     @Test
-    fun drag_and_drop_works_correctly_when_ended() = runUiTest(
-        entryPoint.generalTestDispatcher,
-    ) { uiGraph ->
+    fun drag_and_drop_works_correctly_when_ended() = runUiTest { uiGraph ->
         val cellStateParser = uiGraph.cellStateDragAndDropTestsUiEntryPoint.cellStateParser
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder

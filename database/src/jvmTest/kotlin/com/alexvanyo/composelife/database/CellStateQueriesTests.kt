@@ -29,6 +29,7 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
 import kotlinx.coroutines.test.TestDispatcher
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -37,8 +38,6 @@ import kotlin.time.Duration.Companion.seconds
 @ContributesTo(AppScope::class)
 interface CellStateQueriesTestsEntryPoint {
     val cellStateQueries: CellStateQueries
-
-    @GeneralTestDispatcher val testDispatcher: TestDispatcher
 }
 
 // TODO: Replace with asContribution()
@@ -50,21 +49,20 @@ class CellStateQueriesTests : BaseInjectTest(
 ) {
     private val entryPoint get() = applicationGraph.cellStateQueriesTestsEntryPoint
     private val cellStateQueries get() = entryPoint.cellStateQueries
-    private val testDispatcher get() = entryPoint.testDispatcher
 
     @Test
-    fun get_cell_states_returns_empty_initially() = runAppTest(testDispatcher) {
+    fun get_cell_states_returns_empty_initially() = runAppTest {
         withTurbineTimeout(60.seconds) {
-            cellStateQueries.getCellStates().asFlow().mapToList(testDispatcher).test {
+            cellStateQueries.getCellStates().asFlow().mapToList(EmptyCoroutineContext).test {
                 assertEquals(emptyList(), awaitItem())
             }
         }
     }
 
     @Test
-    fun get_cell_states_returns_value_once_saved() = runAppTest(testDispatcher) {
+    fun get_cell_states_returns_value_once_saved() = runAppTest {
         withTurbineTimeout(60.seconds) {
-            cellStateQueries.getCellStates().asFlow().mapToList(testDispatcher).test {
+            cellStateQueries.getCellStates().asFlow().mapToList(EmptyCoroutineContext).test {
                 assertEquals(emptyList(), awaitItem())
 
                 val insertedId = cellStateQueries.transactionWithResult {
@@ -102,7 +100,7 @@ class CellStateQueriesTests : BaseInjectTest(
     }
 
     @Test
-    fun get_cell_states_returns_value_if_saved_before() = runAppTest(testDispatcher) {
+    fun get_cell_states_returns_value_if_saved_before() = runAppTest {
         withTurbineTimeout(60.seconds) {
             val insertedId = cellStateQueries.transactionWithResult {
                 cellStateQueries.insertCellState(
@@ -118,7 +116,7 @@ class CellStateQueriesTests : BaseInjectTest(
                 cellStateQueries.lastInsertedRowId().awaitAsOne()
             }
 
-            cellStateQueries.getCellStates().asFlow().mapToList(testDispatcher).test {
+            cellStateQueries.getCellStates().asFlow().mapToList(EmptyCoroutineContext).test {
                 assertEquals(
                     listOf(
                         CellState(
@@ -140,9 +138,9 @@ class CellStateQueriesTests : BaseInjectTest(
     }
 
     @Test
-    fun get_cell_states_returns_empty_once_deleted() = runAppTest(testDispatcher) {
+    fun get_cell_states_returns_empty_once_deleted() = runAppTest {
         withTurbineTimeout(60.seconds) {
-            cellStateQueries.getCellStates().asFlow().mapToList(testDispatcher).test {
+            cellStateQueries.getCellStates().asFlow().mapToList(EmptyCoroutineContext).test {
                 assertEquals(emptyList(), awaitItem())
 
                 val insertedId = cellStateQueries.transactionWithResult {
@@ -184,16 +182,16 @@ class CellStateQueriesTests : BaseInjectTest(
     }
 
     @Test
-    fun get_cell_state_by_id_returns_null_initially() = runAppTest(testDispatcher) {
+    fun get_cell_state_by_id_returns_null_initially() = runAppTest {
         withTurbineTimeout(60.seconds) {
-            cellStateQueries.getCellStateById(CellStateId(123)).asFlow().mapToOneOrNull(testDispatcher).test {
+            cellStateQueries.getCellStateById(CellStateId(123)).asFlow().mapToOneOrNull(EmptyCoroutineContext).test {
                 assertNull(awaitItem())
             }
         }
     }
 
     @Test
-    fun get_cell_state_by_id_returns_value_if_saved_before() = runAppTest(testDispatcher) {
+    fun get_cell_state_by_id_returns_value_if_saved_before() = runAppTest {
         withTurbineTimeout(60.seconds) {
             val insertedId = cellStateQueries.transactionWithResult {
                 cellStateQueries.insertCellState(
@@ -209,7 +207,9 @@ class CellStateQueriesTests : BaseInjectTest(
                 cellStateQueries.lastInsertedRowId().awaitAsOne()
             }
 
-            cellStateQueries.getCellStateById(CellStateId(insertedId)).asFlow().mapToOneOrNull(testDispatcher).test {
+            cellStateQueries.getCellStateById(
+                CellStateId(insertedId),
+            ).asFlow().mapToOneOrNull(EmptyCoroutineContext).test {
                 assertEquals(
                     CellState(
                         id = CellStateId(insertedId),
@@ -229,7 +229,7 @@ class CellStateQueriesTests : BaseInjectTest(
     }
 
     @Test
-    fun get_cell_states_returns_null_once_deleted() = runAppTest(testDispatcher) {
+    fun get_cell_states_returns_null_once_deleted() = runAppTest {
         withTurbineTimeout(60.seconds) {
             val insertedId = cellStateQueries.transactionWithResult {
                 cellStateQueries.insertCellState(
@@ -245,7 +245,9 @@ class CellStateQueriesTests : BaseInjectTest(
                 cellStateQueries.lastInsertedRowId().awaitAsOne()
             }
 
-            cellStateQueries.getCellStateById(CellStateId(insertedId)).asFlow().mapToOneOrNull(testDispatcher).test {
+            cellStateQueries.getCellStateById(
+                CellStateId(insertedId),
+            ).asFlow().mapToOneOrNull(EmptyCoroutineContext).test {
                 assertEquals(
                     CellState(
                         id = CellStateId(insertedId),
@@ -269,16 +271,16 @@ class CellStateQueriesTests : BaseInjectTest(
     }
 
     @Test
-    fun get_most_recent_autosaved_cell_state_returns_null_initially() = runAppTest(testDispatcher) {
+    fun get_most_recent_autosaved_cell_state_returns_null_initially() = runAppTest {
         withTurbineTimeout(60.seconds) {
-            cellStateQueries.getMostRecentAutosavedCellState().asFlow().mapToOneOrNull(testDispatcher).test {
+            cellStateQueries.getMostRecentAutosavedCellState().asFlow().mapToOneOrNull(EmptyCoroutineContext).test {
                 assertNull(awaitItem())
             }
         }
     }
 
     @Test
-    fun get_most_recent_autosaved_cell_state_returns_null_if_not_autosaved_before() = runAppTest(testDispatcher) {
+    fun get_most_recent_autosaved_cell_state_returns_null_if_not_autosaved_before() = runAppTest {
         withTurbineTimeout(60.seconds) {
             cellStateQueries.transactionWithResult {
                 cellStateQueries.insertCellState(
@@ -294,14 +296,14 @@ class CellStateQueriesTests : BaseInjectTest(
                 cellStateQueries.lastInsertedRowId().awaitAsOne()
             }
 
-            cellStateQueries.getMostRecentAutosavedCellState().asFlow().mapToOneOrNull(testDispatcher).test {
+            cellStateQueries.getMostRecentAutosavedCellState().asFlow().mapToOneOrNull(EmptyCoroutineContext).test {
                 assertNull(awaitItem())
             }
         }
     }
 
     @Test
-    fun get_most_recent_autosaved_cell_state_returns_value_if_autosaved_before() = runAppTest(testDispatcher) {
+    fun get_most_recent_autosaved_cell_state_returns_value_if_autosaved_before() = runAppTest {
         withTurbineTimeout(60.seconds) {
             val insertedId = cellStateQueries.transactionWithResult {
                 cellStateQueries.insertCellState(
@@ -317,7 +319,7 @@ class CellStateQueriesTests : BaseInjectTest(
                 cellStateQueries.lastInsertedRowId().awaitAsOne()
             }
 
-            cellStateQueries.getMostRecentAutosavedCellState().asFlow().mapToOneOrNull(testDispatcher).test {
+            cellStateQueries.getMostRecentAutosavedCellState().asFlow().mapToOneOrNull(EmptyCoroutineContext).test {
                 assertEquals(
                     CellState(
                         id = CellStateId(insertedId),
@@ -337,9 +339,9 @@ class CellStateQueriesTests : BaseInjectTest(
     }
 
     @Test
-    fun get_most_recent_autosaved_cell_state_returns_value_once_autosaved() = runAppTest(testDispatcher) {
+    fun get_most_recent_autosaved_cell_state_returns_value_once_autosaved() = runAppTest {
         withTurbineTimeout(60.seconds) {
-            cellStateQueries.getMostRecentAutosavedCellState().asFlow().mapToOneOrNull(testDispatcher).test {
+            cellStateQueries.getMostRecentAutosavedCellState().asFlow().mapToOneOrNull(EmptyCoroutineContext).test {
                 assertNull(awaitItem())
 
                 val insertedId = cellStateQueries.transactionWithResult {

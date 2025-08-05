@@ -42,8 +42,6 @@ import kotlin.uuid.Uuid
 interface CellStateRepositoryTestsEntryPoint {
     val cellStateRepository: CellStateRepository
     val cellStateQueries: CellStateQueries
-
-    @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
     val fakeFileSystem: FakeFileSystem
 
     @PersistedDataPath val persistedDataPath: Path
@@ -62,20 +60,18 @@ class CellStateRepositoryTests : BaseInjectTest(
 
     private val cellStateQueries get() = entryPoint.cellStateQueries
 
-    private val testDispatcher get() = entryPoint.generalTestDispatcher
-
     private val fakeFileSystem get() = entryPoint.fakeFileSystem
 
     private val persistedDataPath get() = entryPoint.persistedDataPath
 
     @Test
-    fun get_autosaved_cell_state_returns_null_initially() = runAppTest(testDispatcher) {
+    fun get_autosaved_cell_state_returns_null_initially() = runAppTest {
         assertNull(cellStateRepository.getAutosavedCellState())
     }
 
     @Suppress("LongMethod")
     @Test
-    fun save_autosaved_cell_state_then_get_returns_new_cell_state() = runAppTest(testDispatcher) {
+    fun save_autosaved_cell_state_then_get_returns_new_cell_state() = runAppTest {
         val insertedId = cellStateRepository.autosaveCellState(
             SaveableCellState(
                 cellState = "O".toCellState(),
