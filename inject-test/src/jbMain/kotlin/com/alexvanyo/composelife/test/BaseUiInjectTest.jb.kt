@@ -22,13 +22,19 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.updatable.UiUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.ContributesTo
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestResult
+import kotlinx.coroutines.test.TestScope
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.coroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -51,11 +57,41 @@ abstract class BaseUiInjectTest(
 ) : BaseInjectTest(applicationGraphCreator) {
     internal val uiGraphCreator: UiGraph.Factory get() =
         applicationGraph as UiGraph.Factory
+
+    @Deprecated("Testing with BaseUiInjectTest should call runUiTest instead of runAppTest")
+    override fun runAppTest(
+        context: CoroutineContext,
+        timeout: Duration,
+        testBody: suspend TestScope.() -> Unit,
+    ): TestResult = super.runAppTest(context, timeout, testBody)
 }
 
-@OptIn(ExperimentalTestApi::class)
-expect fun BaseUiInjectTest.runUiTest(
+@OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
+fun BaseUiInjectTest.runUiTest(
     appTestContext: CoroutineContext = EmptyCoroutineContext,
     timeout: Duration = 60.seconds,
     testBody: suspend ComposeUiTest.(uiGraph: UiGraph) -> Unit,
+): TestResult =
+    runPlatformUiTest(
+        runTestContext = generalTestDispatcher + appTestContext,
+        timeout = timeout,
+    ) { uiGraphArguments ->
+        val uiGraph = uiGraphCreator.create(uiGraphArguments)
+        val uiUpdatables = uiGraph.baseUiInjectTestEntryPoint.uiUpdatables
+        withUpdatables(appUpdatables + uiUpdatables) {
+            // Let any background jobs launch and stabilize before running the test body
+            val testDispatcher = coroutineContext[CoroutineDispatcher] as? TestDispatcher
+            testDispatcher?.scheduler?.advanceUntilIdle()
+            testBody(
+                this@runPlatformUiTest,
+                uiGraph,
+            )
+        }
+    }
+
+@OptIn(ExperimentalTestApi::class)
+internal expect fun runPlatformUiTest(
+    runTestContext: CoroutineContext,
+    timeout: Duration,
+    testBody: suspend ComposeUiTest.(uiGraphArguments: UiGraphArguments) -> Unit,
 ): TestResult
