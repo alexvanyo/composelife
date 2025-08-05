@@ -52,8 +52,6 @@ interface PatternCollectionRepositoryTestsEntryPoint {
     val patternCollectionRepository: PatternCollectionRepository
     val cellStateRepository: CellStateRepository
     val cellStateQueries: CellStateQueries
-
-    @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
     val fakeRequestHandler: FakeRequestHandler
     val fakeFileSystem: FakeFileSystem
 
@@ -78,8 +76,6 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
 
     private val cellStateQueries get() = entryPoint.cellStateQueries
 
-    private val testDispatcher get() = entryPoint.generalTestDispatcher
-
     private val fakeRequestHandler: FakeRequestHandler get() = entryPoint.fakeRequestHandler
 
     private val fakeFileSystem get() = entryPoint.fakeFileSystem
@@ -87,7 +83,7 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
     private val persistedDataPath get() = entryPoint.persistedDataPath
 
     @Test
-    fun pattern_collection_is_empty_initially() = runAppTest(testDispatcher) {
+    fun pattern_collection_is_empty_initially() = runAppTest {
         backgroundScope.launch {
             patternCollectionRepository.observePatternCollections()
         }
@@ -101,7 +97,7 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
     }
 
     @Test
-    fun adding_pattern_collection_updates_collections() = runAppTest(testDispatcher) {
+    fun adding_pattern_collection_updates_collections() = runAppTest {
         backgroundScope.launch {
             patternCollectionRepository.observePatternCollections()
         }
@@ -131,7 +127,7 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
 
     @Suppress("LongMethod")
     @Test
-    fun after_adding_pattern_collection_synchronization_updates() = runAppTest(testDispatcher) {
+    fun after_adding_pattern_collection_synchronization_updates() = runAppTest {
         backgroundScope.launch {
             patternCollectionRepository.observePatternCollections()
         }
@@ -261,7 +257,7 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
     }
 
     @Test
-    fun deleting_pattern_collection_removes_files() = runAppTest(testDispatcher) {
+    fun deleting_pattern_collection_removes_files() = runAppTest {
         backgroundScope.launch {
             patternCollectionRepository.observePatternCollections()
         }
@@ -310,7 +306,7 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
 
     @Suppress("LongMethod")
     @Test
-    fun deleting_pattern_from_archive_removes_files() = runAppTest(testDispatcher) {
+    fun deleting_pattern_from_archive_removes_files() = runAppTest {
         backgroundScope.launch {
             patternCollectionRepository.observePatternCollections()
         }
