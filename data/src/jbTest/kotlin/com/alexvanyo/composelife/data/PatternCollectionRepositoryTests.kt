@@ -220,6 +220,8 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
                 "PatternCollections/${patternCollectionId.value}/archive.sha256".toPath(),
                 "PatternCollections/${patternCollectionId.value}/extracted".toPath(),
                 "PatternCollections/${patternCollectionId.value}/extracted/pulsarpixeldisplay.mc".toPath(),
+                "datastore".toPath(),
+                "datastore/preferences.pb".toPath(),
             ),
             fakeFileSystem.listRecursively(persistedDataPath)
                 .map { it.relativeTo(persistedDataPath) }
@@ -297,6 +299,8 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
         assertEquals(
             setOf(
                 "PatternCollections".toPath(),
+                "datastore".toPath(),
+                "datastore/preferences.pb".toPath(),
             ),
             fakeFileSystem.listRecursively(persistedDataPath)
                 .map { it.relativeTo(persistedDataPath) }
@@ -385,6 +389,8 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
                 "PatternCollections/${patternCollectionId.value}/archive.zip".toPath(),
                 "PatternCollections/${patternCollectionId.value}/archive.sha256".toPath(),
                 "PatternCollections/${patternCollectionId.value}/extracted".toPath(),
+                "datastore".toPath(),
+                "datastore/preferences.pb".toPath(),
             ),
             fakeFileSystem.listRecursively(persistedDataPath)
                 .map { it.relativeTo(persistedDataPath) }
