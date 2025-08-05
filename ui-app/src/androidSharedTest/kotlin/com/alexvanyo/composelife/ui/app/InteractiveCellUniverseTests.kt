@@ -132,7 +132,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     private val dispatchers get() = entryPoint.dispatchers
 
     @Test
-    fun info_card_closes_upon_back_press() = runUiTest(generalTestDispatcher) { uiGraph ->
+    fun info_card_closes_upon_back_press() = runUiTest { uiGraph ->
         val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
@@ -183,7 +183,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     }
 
     @Test
-    fun action_card_closes_upon_back_press() = runUiTest(generalTestDispatcher) { uiGraph ->
+    fun action_card_closes_upon_back_press() = runUiTest { uiGraph ->
         val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
 
         lateinit var resolver: (ParameterizedString) -> String
