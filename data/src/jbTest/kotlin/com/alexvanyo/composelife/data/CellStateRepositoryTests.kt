@@ -131,6 +131,8 @@ class CellStateRepositoryTests : BaseInjectTest(
             setOf(
                 "AutosavedCellStates".toPath(),
                 expectedPath,
+                "datastore".toPath(),
+                "datastore/preferences.pb".toPath(),
             ),
             fakeFileSystem.listRecursively(persistedDataPath)
                 .map { it.relativeTo(persistedDataPath) }
