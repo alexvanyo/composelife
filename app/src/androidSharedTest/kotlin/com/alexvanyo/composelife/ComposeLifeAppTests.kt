@@ -68,7 +68,6 @@ import com.alexvanyo.composelife.ui.settings.R as uiSettingsR
 
 @ContributesTo(AppScope::class)
 interface ComposeLifeAppTestsEntryPoint {
-    @GeneralTestDispatcher val testDispatcher: TestDispatcher
     val preferences: ComposeLifePreferences
 }
 
@@ -82,13 +81,11 @@ class ComposeLifeAppTests : BaseActivityInjectTest<MainActivity>(
 ) {
     private val entryPoint get() = applicationGraph.composeLifeAppTestsEntryPoint
 
-    private val testDispatcher get() = entryPoint.testDispatcher
-
     private val preferences get() = entryPoint.preferences
 
     @SkipLeakDetection("recomposer", "Outer")
     @Test
-    fun app_does_not_crash() = runAppTest(testDispatcher) {
+    fun app_does_not_crash() = runAppTest {
         composeTestRule.onNodeWithContentDescription(context.getString(uiAppR.string.play)).performClick()
 
         composeTestRule.onNodeWithContentDescription(context.getString(uiAppR.string.pause)).performClick()
@@ -98,7 +95,7 @@ class ComposeLifeAppTests : BaseActivityInjectTest<MainActivity>(
 
     @SkipLeakDetection("recomposer", "Outer", "Inner")
     @Test
-    fun app_does_not_crash_when_recreating() = runAppTest(testDispatcher) {
+    fun app_does_not_crash_when_recreating() = runAppTest {
         composeTestRule.onNodeWithContentDescription(context.getString(uiAppR.string.play)).performClick()
 
         composeTestRule.onNodeWithContentDescription(context.getString(uiAppR.string.pause)).performClick()
@@ -110,7 +107,7 @@ class ComposeLifeAppTests : BaseActivityInjectTest<MainActivity>(
 
     @SkipLeakDetection("recomposer", "Outer", "Inner")
     @Test
-    fun can_change_theme_to_dark_mode() = runAppTest(testDispatcher) {
+    fun can_change_theme_to_dark_mode() = runAppTest {
         val windowSizeClass =
             composeTestRule.activityRule.scenario.withActivity {
                 val dpSize = with(Density(this)) {
@@ -198,7 +195,7 @@ class ComposeLifeAppTests : BaseActivityInjectTest<MainActivity>(
 
     @SkipLeakDetection("recomposer", "Outer", "Inner")
     @Test
-    fun can_save_theme_to_quick_access() = runAppTest(testDispatcher) {
+    fun can_save_theme_to_quick_access() = runAppTest {
         val windowSizeClass =
             composeTestRule.activityRule.scenario.withActivity {
                 val dpSize = with(Density(this)) {
@@ -325,7 +322,7 @@ class ComposeLifeAppTests : BaseActivityInjectTest<MainActivity>(
 
     @SkipLeakDetection("recomposer", "Outer", "Inner")
     @Test
-    fun can_change_algorithm_implementation_to_naive() = runAppTest(testDispatcher) {
+    fun can_change_algorithm_implementation_to_naive() = runAppTest {
         val windowSizeClass =
             composeTestRule.activityRule.scenario.withActivity {
                 val dpSize = with(Density(this)) {
@@ -411,7 +408,7 @@ class ComposeLifeAppTests : BaseActivityInjectTest<MainActivity>(
     @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
     @SkipLeakDetection("recomposer", "Outer", "Inner")
     @Test
-    fun can_watch_clipboard_and_view_deserialization_info() = runAppTest(testDispatcher) {
+    fun can_watch_clipboard_and_view_deserialization_info() = runAppTest {
         val windowSizeClass =
             composeTestRule.activityRule.scenario.withActivity {
                 val dpSize = with(Density(this)) {
