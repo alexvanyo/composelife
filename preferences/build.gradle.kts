@@ -103,7 +103,6 @@ kotlin {
             dependencies {
                 implementation(projects.dispatchersTest)
                 implementation(projects.kmpAndroidRunner)
-                implementation(projects.preferencesTest)
             }
         }
         val jbTest by creating {

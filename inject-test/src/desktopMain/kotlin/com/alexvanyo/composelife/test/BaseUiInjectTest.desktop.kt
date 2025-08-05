@@ -20,41 +20,23 @@ import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.window.WindowState
-import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestResult
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 
-@OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
-actual fun BaseUiInjectTest.runUiTest(
-    appTestContext: CoroutineContext,
+@OptIn(ExperimentalTestApi::class)
+internal actual fun runPlatformUiTest(
+    runTestContext: CoroutineContext,
     timeout: Duration,
-    testBody: suspend ComposeUiTest.(uiGraph: UiGraph) -> Unit,
-): TestResult =
-    runComposeUiTest {
-        val uiGraph = uiGraphCreator.create(
-            object : UiGraphArguments {
-                override val windowState: WindowState? = null
-            },
-        )
-
-        // TODO: Replace with withAppTestDependencies when runComposeUiTest allows providing a suspend fun
-        runAppTest(
-            context = appTestContext,
-            timeout = timeout,
-        ) {
-            withUpdatables(
-                uiGraph.baseUiInjectTestEntryPoint.uiUpdatables,
-            ) {
-                // Let any background jobs launch and stabilize before running the test body
-                advanceUntilIdle()
-                testBody(
-                    this@runComposeUiTest,
-                    uiGraph,
-                )
-            }
-        }
-    }
+    testBody: suspend ComposeUiTest.(uiGraphArguments: UiGraphArguments) -> Unit,
+): TestResult = runComposeUiTest(
+    runTestContext = runTestContext,
+    testTimeout = timeout,
+) {
+    testBody(
+        object : UiGraphArguments {
+            override val windowState: WindowState? = null
+        },
+    )
+}

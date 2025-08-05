@@ -68,7 +68,7 @@ abstract class BaseInjectTestImpl(
     internal val generalTestDispatcher: TestDispatcher get() = entryPoint.generalTestDispatcher
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun runAppTest(
+    open fun runAppTest(
         context: CoroutineContext = EmptyCoroutineContext,
         timeout: Duration = 60.seconds,
         testBody: suspend TestScope.() -> Unit,
