@@ -49,12 +49,11 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(libs.kotlinx.coroutines.test)
-                api(projects.databaseTest)
                 api(projects.kmpAndroidRunner)
-                api(projects.preferencesTest)
 
                 implementation(projects.dispatchersTest)
                 implementation(projects.injectScopes)
+                implementation(projects.updatable)
             }
         }
         val jbMain by creating {
