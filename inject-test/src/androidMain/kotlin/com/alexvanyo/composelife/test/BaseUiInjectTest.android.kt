@@ -20,39 +20,24 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runAndroidComposeUiTest
-import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestResult
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.coroutineContext
 import kotlin.time.Duration
 
 @OptIn(ExperimentalTestApi::class)
-actual fun BaseUiInjectTest.runUiTest(
-    appTestContext: CoroutineContext,
+internal actual fun runPlatformUiTest(
+    runTestContext: CoroutineContext,
     timeout: Duration,
-    testBody: suspend ComposeUiTest.(uiGraph: UiGraph) -> Unit,
-): TestResult =
-    runAndroidComposeUiTest<ComponentActivity>(
-        runTestContext = generalTestDispatcher + appTestContext,
-        testTimeout = timeout,
-    ) {
-        val uiGraph = uiGraphCreator.create(
-            object : UiGraphArguments {
-                override val activity = requireNotNull(this@runAndroidComposeUiTest.activity)
-                override val uiContext = activity
-            },
-        )
-        val uiUpdatables = uiGraph.baseUiInjectTestEntryPoint.uiUpdatables
-        withUpdatables(appUpdatables + uiUpdatables) {
-            // Let any background jobs launch and stabilize before running the test body
-            val testDispatcher = coroutineContext[CoroutineDispatcher] as? TestDispatcher
-            testDispatcher?.scheduler?.advanceUntilIdle()
-            testBody(
-                this@runAndroidComposeUiTest,
-                uiGraph,
-            )
-        }
-    }
+    testBody: suspend ComposeUiTest.(uiGraphArguments: UiGraphArguments) -> Unit,
+): TestResult = runAndroidComposeUiTest<ComponentActivity>(
+    runTestContext = runTestContext,
+    testTimeout = timeout,
+) {
+    testBody(
+        object : UiGraphArguments {
+            override val activity = requireNotNull(this@runAndroidComposeUiTest.activity)
+            override val uiContext = activity
+        },
+    )
+}
