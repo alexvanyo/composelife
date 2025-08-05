@@ -24,6 +24,7 @@ import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Provides
 import okio.FileSystem
 import okio.Path
+import okio.Path.Companion.toPath
 
 @ContributesTo(AppScope::class)
 @BindingContainer
@@ -32,6 +33,6 @@ interface PreferencesDataStoreBindings {
         @Provides
         @PreferencesProtoPath
         internal fun providesDataStorePath(): Path =
-            FileSystem.SYSTEM_TEMPORARY_DIRECTORY.resolve("preferences.pb")
+            FileSystem.SYSTEM_TEMPORARY_DIRECTORY.resolve("datastore/preferences.pb")
     }
 }

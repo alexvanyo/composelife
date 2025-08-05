@@ -144,7 +144,6 @@ kotlin {
                 implementation(libs.androidx.compose.uiTest)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
-                implementation(projects.preferencesTest)
                 implementation(projects.testActivity)
             }
         }
