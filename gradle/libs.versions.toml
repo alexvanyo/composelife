@@ -34,7 +34,7 @@ androidxSavedState = "1.4.0-alpha01"
 #androidxTestCore
 androidxTestCore = "1.7.0"
 #androidxTestEspresso
-androidxTestEspresso = "3.7.0-rc01"
+androidxTestEspresso = "3.7.0"
 #androidxTestExt
 androidxTestExt = "1.3.0-rc01"
 #androidxTestRunner
