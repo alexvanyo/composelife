@@ -35,6 +35,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 class DefaultComposeLifeDispatchers : ComposeLifeDispatchers {
     override val Default: CoroutineContext = Dispatchers.Default
     override val Main: CoroutineContext = Dispatchers.Main
+    override val MainImmediate: CoroutineContext = Dispatchers.Main.immediate
     override val Unconfined: CoroutineContext = Dispatchers.Unconfined
     override val IO: CoroutineContext = Dispatchers.Default
     override fun IOWithLimitedParallelism(parallelism: Int): CoroutineDispatcher =
