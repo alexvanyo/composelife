@@ -36,6 +36,11 @@ interface ComposeLifeDispatchers {
     val Main: CoroutineContext
 
     /**
+     * @see Dispatchers.Main.immediate
+     */
+    val MainImmediate: CoroutineContext
+
+    /**
      * @see Dispatchers.Unconfined
      */
     val Unconfined: CoroutineContext

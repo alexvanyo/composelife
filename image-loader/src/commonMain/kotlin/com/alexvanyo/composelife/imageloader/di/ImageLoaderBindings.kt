@@ -18,7 +18,9 @@ package com.alexvanyo.composelife.imageloader.di
 
 import coil3.ImageLoader
 import coil3.PlatformContext
+import coil3.annotation.ExperimentalCoilApi
 import coil3.disk.DiskCache
+import coil3.memory.MemoryCache
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.updatable.AppUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
@@ -36,11 +38,21 @@ import okio.FileSystem
 interface ImageLoaderBindings {
 
     companion object {
+        @SingleIn(AppScope::class)
+        @Provides
+        internal fun providesMemoryCache(
+            context: PlatformContext,
+        ): MemoryCache = MemoryCache.Builder()
+            .maxSizePercent(context)
+            .build()
+
+        @OptIn(ExperimentalCoilApi::class)
         @Suppress("LongParameterList")
         @SingleIn(AppScope::class)
         @Provides
         internal fun providesImageLoader(
             context: PlatformContext,
+            memoryCache: Lazy<MemoryCache>,
             diskCache: Lazy<DiskCache>,
             fetcherFactoriesWithType: Set<FetcherFactoryWithType<out Any>>,
             keyers: Set<KeyerWithType<out Any>>,
@@ -48,20 +60,21 @@ interface ImageLoaderBindings {
             fileSystem: FileSystem,
         ): ImageLoader = ImageLoader.Builder(context)
             .fileSystem(fileSystem)
+            .memoryCache(memoryCache::value)
             .diskCache(diskCache::value)
             .components {
                 addFetcherFactories { fetcherFactoriesWithType.map { it.fetcherFactory to it.type } }
                 keyers.forEach { it.addTo(this) }
             }
-            .fetcherCoroutineContext(dispatchers.IO)
-            .decoderCoroutineContext(dispatchers.IO)
+            .coroutineContext(dispatchers.IO)
+            .mainCoroutineContext { dispatchers.MainImmediate }
             .build()
 
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
         @AppUpdatable
-        internal fun providesImagerLoaderShutdownIntoUpdatable(
+        internal fun providesImageLoaderShutdownIntoUpdatable(
             imageLoader: ImageLoader,
         ): Updatable = object : Updatable {
             override suspend fun update(): Nothing =
