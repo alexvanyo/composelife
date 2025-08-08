@@ -69,6 +69,7 @@ import com.alexvanyo.composelife.data.PatternCollectionRepository
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailInfo
 import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
+import com.alexvanyo.composelife.ui.mobile.rememberTooltipPositionProvider
 import com.alexvanyo.composelife.ui.settings.resources.Back
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.util.trySharedBounds
@@ -226,7 +227,7 @@ private fun StandardSettingsCategoryDetail(
                             modifier = Modifier.align(Alignment.CenterStart),
                         ) {
                             TooltipBox(
-                                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                                positionProvider = rememberTooltipPositionProvider(),
                                 tooltip = {
                                     PlainTooltip {
                                         Text(parameterizedStringResource(Strings.Back))
@@ -348,7 +349,7 @@ private fun PatternCollectionsDetail(
                             modifier = Modifier.align(Alignment.CenterStart),
                         ) {
                             TooltipBox(
-                                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                                positionProvider = rememberTooltipPositionProvider(),
                                 tooltip = {
                                     PlainTooltip {
                                         Text(parameterizedStringResource(Strings.Back))
