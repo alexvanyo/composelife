@@ -162,8 +162,8 @@ com.squareup.okio:okio-jvm:3.16.0
 com.squareup.okio:okio:3.16.0
 com.squareup.wire:wire-runtime-jvm:5.3.5
 com.squareup.wire:wire-runtime:5.3.5
-dev.zacsweers.metro:runtime-jvm:0.5.3
-dev.zacsweers.metro:runtime:0.5.3
+dev.zacsweers.metro:runtime-jvm:0.5.5
+dev.zacsweers.metro:runtime:0.5.5
 io.coil-kt.coil3:coil-compose-core-android:3.3.0
 io.coil-kt.coil3:coil-compose-core:3.3.0
 io.coil-kt.coil3:coil-core-android:3.3.0
