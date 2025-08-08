@@ -74,6 +74,7 @@ import com.alexvanyo.composelife.ui.app.resources.Play
 import com.alexvanyo.composelife.ui.app.resources.Step
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.cells.SelectionState
+import com.alexvanyo.composelife.ui.mobile.rememberTooltipPositionProvider
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Suppress("LongParameterList", "LongMethod", "CyclomaticComplexMethod")
@@ -141,7 +142,7 @@ fun ActionControlRow(
 
                 AnimatedVisibility(showTimeControls) {
                     TooltipBox(
-                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        positionProvider = rememberTooltipPositionProvider(),
                         tooltip = {
                             PlainTooltip {
                                 Text(
@@ -184,7 +185,7 @@ fun ActionControlRow(
 
                 AnimatedVisibility(showTimeControls) {
                     TooltipBox(
-                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        positionProvider = rememberTooltipPositionProvider(),
                         tooltip = {
                             PlainTooltip {
                                 Text(parameterizedStringResource(Strings.Step))
@@ -205,7 +206,7 @@ fun ActionControlRow(
 
                 AnimatedVisibility(showSelectingControls) {
                     TooltipBox(
-                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        positionProvider = rememberTooltipPositionProvider(),
                         tooltip = {
                             PlainTooltip {
                                 Text(parameterizedStringResource(Strings.ClearSelection))
@@ -226,7 +227,7 @@ fun ActionControlRow(
 
                 AnimatedVisibility(showSelectingControls) {
                     TooltipBox(
-                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        positionProvider = rememberTooltipPositionProvider(),
                         tooltip = {
                             PlainTooltip {
                                 Text(parameterizedStringResource(Strings.Copy))
@@ -247,7 +248,7 @@ fun ActionControlRow(
 
                 AnimatedVisibility(showSelectingControls) {
                     TooltipBox(
-                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        positionProvider = rememberTooltipPositionProvider(),
                         tooltip = {
                             PlainTooltip {
                                 Text(parameterizedStringResource(Strings.Cut))
@@ -268,7 +269,7 @@ fun ActionControlRow(
 
                 AnimatedVisibility(showTimeControls || showSelectingControls) {
                     TooltipBox(
-                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        positionProvider = rememberTooltipPositionProvider(),
                         tooltip = {
                             PlainTooltip {
                                 Text(parameterizedStringResource(Strings.Paste))
@@ -289,7 +290,7 @@ fun ActionControlRow(
 
                 AnimatedVisibility(showSelectionControls) {
                     TooltipBox(
-                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        positionProvider = rememberTooltipPositionProvider(),
                         tooltip = {
                             PlainTooltip {
                                 Text(parameterizedStringResource(Strings.CancelPaste))
@@ -310,7 +311,7 @@ fun ActionControlRow(
 
                 AnimatedVisibility(showSelectionControls) {
                     TooltipBox(
-                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        positionProvider = rememberTooltipPositionProvider(),
                         tooltip = {
                             PlainTooltip {
                                 Text(parameterizedStringResource(Strings.ApplyPaste))
@@ -330,7 +331,7 @@ fun ActionControlRow(
                 }
 
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    positionProvider = rememberTooltipPositionProvider(),
                     tooltip = {
                         PlainTooltip {
                             Text(
@@ -365,7 +366,7 @@ fun ActionControlRow(
 
                 AnimatedVisibility(showImmersiveModeControl) {
                     TooltipBox(
-                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        positionProvider = rememberTooltipPositionProvider(),
                         tooltip = {
                             PlainTooltip {
                                 Text(
@@ -405,7 +406,7 @@ fun ActionControlRow(
 
                 AnimatedVisibility(showFullSpaceModeControl) {
                     TooltipBox(
-                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        positionProvider = rememberTooltipPositionProvider(),
                         tooltip = {
                             PlainTooltip {
                                 Text(
@@ -445,7 +446,7 @@ fun ActionControlRow(
                 }
 
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    positionProvider = rememberTooltipPositionProvider(),
                     tooltip = {
                         PlainTooltip {
                             Text(

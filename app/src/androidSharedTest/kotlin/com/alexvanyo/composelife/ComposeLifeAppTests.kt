@@ -42,7 +42,6 @@ import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
 import androidx.window.core.layout.computeWindowSizeClass
 import androidx.window.layout.WindowMetricsCalculator
-import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
@@ -57,7 +56,6 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import leakcanary.SkipLeakDetection
 import kotlin.test.Test
@@ -158,7 +156,7 @@ class ComposeLifeAppTests : BaseActivityInjectTest<MainActivity>(
             .performClick()
 
         composeTestRule
-            .onNode(isPopup())
+            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(uiSettingsR.string.dark_theme)))
             .assertDoesNotExist()
 
         assertEquals(ResourceState.Success(DarkThemeConfig.Dark), preferences.darkThemeConfigState)
@@ -273,7 +271,7 @@ class ComposeLifeAppTests : BaseActivityInjectTest<MainActivity>(
             .performClick()
 
         composeTestRule
-            .onNode(isPopup())
+            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(uiSettingsR.string.dark_theme)))
             .assertDoesNotExist()
 
         assertEquals(ResourceState.Success(DarkThemeConfig.Dark), preferences.darkThemeConfigState)
@@ -373,7 +371,7 @@ class ComposeLifeAppTests : BaseActivityInjectTest<MainActivity>(
             .performClick()
 
         composeTestRule
-            .onNode(isPopup())
+            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(uiSettingsR.string.naive_algorithm)))
             .assertDoesNotExist()
 
         assertEquals(ResourceState.Success(AlgorithmType.NaiveAlgorithm), preferences.algorithmChoiceState)
