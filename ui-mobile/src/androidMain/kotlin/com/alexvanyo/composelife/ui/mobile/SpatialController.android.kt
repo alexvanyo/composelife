@@ -19,23 +19,18 @@ package com.alexvanyo.composelife.ui.mobile
 import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.xr.compose.platform.LocalHasXrSpatialFeature
-import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.LocalSpatialConfiguration
-import androidx.xr.runtime.Config
-import androidx.xr.runtime.Session
 
 @Composable
 actual fun rememberSpatialController(): SpatialController =
     if (Build.VERSION.SDK_INT >= 34) {
-        val hasXrSpatialFeature = LocalHasXrSpatialFeature.current
         val spatialCapabilities = LocalSpatialCapabilities.current
         val spatialConfiguration = LocalSpatialConfiguration.current
 
-        remember(hasXrSpatialFeature, spatialCapabilities, spatialConfiguration) {
+        remember(spatialCapabilities, spatialConfiguration) {
             object : SpatialController {
-                override val hasXrSpatialFeature: Boolean get() = hasXrSpatialFeature
+                override val hasXrSpatialFeature: Boolean get() = spatialConfiguration.hasXrSpatialFeature
                 override val isSpatialUiEnabled: Boolean get() = spatialCapabilities.isSpatialUiEnabled
                 override var isFullSpaceMode: Boolean
                     get() = isSpatialUiEnabled

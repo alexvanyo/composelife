@@ -41,6 +41,8 @@
 -dontwarn com.android.extensions.xr.node.NodeTransaction
 -dontwarn com.android.extensions.xr.node.NodeTransform
 -dontwarn com.android.extensions.xr.node.Vec3
--dontwarn com.android.extensions.xr.splitengine.SplitEngineBridge
+-dontwarn com.android.extensions.xr.splitengine.BufferHandle
+-dontwarn com.android.extensions.xr.splitengine.MessageGroupCallback
+-dontwarn com.android.extensions.xr.splitengine.RequestCallback
+-dontwarn com.android.extensions.xr.splitengine.SystemRendererConnection
 -dontwarn com.android.extensions.xr.subspace.Subspace
--dontwarn com.google.j2objc.annotations.ReflectionSupport
