@@ -60,6 +60,7 @@ import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.offset
 import com.alexvanyo.composelife.ui.cells.scale
+import com.alexvanyo.composelife.ui.mobile.rememberTooltipPositionProvider
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -201,7 +202,7 @@ private fun CellUniverseInfoExpandButton(
     modifier: Modifier = Modifier,
 ) {
     TooltipBox(
-        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+        positionProvider = rememberTooltipPositionProvider(),
         tooltip = {
             PlainTooltip {
                 Text(
