@@ -53,20 +53,20 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.databaseTest)
-                implementation(projects.dispatchersTest)
-                implementation(projects.filesystemTest)
+                implementation(projects.databaseTestFixtures)
+                implementation(projects.dispatchersTestFixtures)
+                implementation(projects.filesystemTestFixtures)
                 implementation(projects.injectScopes)
-                implementation(projects.networkTest)
+                implementation(projects.networkTestFixtures)
                 implementation(projects.patterns)
-                implementation(projects.preferencesTest)
-                implementation(projects.randomTest)
+                implementation(projects.preferencesTestFixtures)
+                implementation(projects.randomTestFixtures)
                 implementation(projects.uiApp)
                 implementation(projects.uiCommon)
                 implementation(projects.uiMobile)
                 implementation(projects.uiToolingPreview)
                 implementation(projects.work)
-                implementation(projects.workTest)
+                implementation(projects.workTestFixtures)
             }
         }
         val jbMain by creating {

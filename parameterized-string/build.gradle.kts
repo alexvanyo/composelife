@@ -16,6 +16,9 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -40,41 +43,57 @@ android {
 kotlin {
     androidTarget()
     jvm("desktop")
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.jetbrains.compose.runtime)
-                api(libs.jetbrains.compose.runtime.saveable)
-
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(projects.serialization)
             }
         }
-        val jvmMain by creating {
-            dependsOn(commonMain)
-        }
-        val jvmNonAndroidMain by creating {
-            dependsOn(jvmMain)
-        }
         val jbMain by creating {
-            dependsOn(jvmMain)
+            dependsOn(commonMain)
             dependencies {
+                api(libs.jetbrains.compose.runtime)
+                api(libs.jetbrains.compose.runtime.saveable)
                 api(libs.jetbrains.compose.uiText)
             }
         }
-        val desktopMain by getting {
-            dependsOn(jvmNonAndroidMain)
+        val jbNonAndroidMain by creating {
             dependsOn(jbMain)
+        }
+        val jvmMain by creating {
+            dependsOn(jbMain)
+        }
+        val desktopMain by getting {
+            dependsOn(jbNonAndroidMain)
+            dependsOn(jvmMain)
         }
         val androidMain by getting {
             dependsOn(jbMain)
+            dependsOn(jvmMain)
             dependencies {
                 api(libs.androidx.compose.foundation)
 
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.tracing)
                 implementation(libs.kotlinx.coroutines.android)
+            }
+        }
+        val wasmJsMain by getting {
+            dependsOn(jbNonAndroidMain)
+            dependencies {
+                implementation(libs.jetbrains.compose.ui)
             }
         }
         val commonTest by getting {
@@ -84,23 +103,23 @@ kotlin {
                 implementation(projects.kmpStateRestorationTester)
             }
         }
-        val jvmTest by creating {
-            dependsOn(commonTest)
-        }
         val jbTest by creating {
-            dependsOn(jvmTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.jetbrains.compose.uiTest)
             }
         }
-        val desktopTest by getting {
+        val jvmTest by creating {
             dependsOn(jbTest)
+        }
+        val desktopTest by getting {
+            dependsOn(jvmTest)
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
         }
         val androidSharedTest by getting {
-            dependsOn(jbTest)
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.androidx.compose.uiTest)
                 implementation(libs.androidx.test.core)
@@ -108,6 +127,9 @@ kotlin {
                 implementation(projects.parameterizedStringTestResources)
                 implementation(projects.testActivity)
             }
+        }
+        val wasmJsTest by getting {
+            dependsOn(jbTest)
         }
     }
 }
