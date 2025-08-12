@@ -27,13 +27,14 @@ import kotlinx.serialization.serializer
  * serialized with the given [surrogateSerializer].
  */
 inline fun <reified T, reified S> SurrogatingSerializer(
+    serialName: String,
     noinline convertToSurrogate: (T) -> S,
     noinline convertFromSurrogate: (S) -> T,
     surrogateSerializer: KSerializer<S> = serializer(),
 ): KSerializer<T> =
     object : KSerializer<T> {
         override val descriptor = SerialDescriptor(
-            serialName = requireNotNull(T::class.qualifiedName),
+            serialName = serialName,
             original = surrogateSerializer.descriptor,
         )
         override fun deserialize(decoder: Decoder): T =
