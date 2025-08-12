@@ -161,6 +161,7 @@ private class MutableCellWindowViewportStateImpl(
     )
 
     private object Serializer : KSerializer<MutableCellWindowViewportStateImpl> by SurrogatingSerializer(
+        "com.alexvanyo.composelife.ui.cells.MutableCellWindowViewportStateImpl",
         MutableCellWindowViewportStateImpl::surrogate,
         ::MutableCellWindowViewportStateImpl,
     )
