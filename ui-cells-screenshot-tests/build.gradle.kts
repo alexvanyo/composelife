@@ -49,10 +49,10 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.algorithm)
-                implementation(projects.dispatchersTest)
-                implementation(projects.filesystemTest)
+                implementation(projects.dispatchersTestFixtures)
+                implementation(projects.filesystemTestFixtures)
                 implementation(projects.injectScopes)
-                implementation(projects.preferencesTest)
+                implementation(projects.preferencesTestFixtures)
                 implementation(projects.sessionValue)
                 implementation(projects.uiCells)
                 implementation(projects.uiCommon)
