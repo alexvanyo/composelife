@@ -67,6 +67,7 @@ kotlin {
         val jbMain by creating {
             dependsOn(jvmMain)
             dependencies {
+                implementation(libs.androidx.lifecycle.runtime.compose)
                 implementation(libs.jetbrains.compose.animation)
                 implementation(libs.jetbrains.compose.foundation)
                 implementation(libs.jetbrains.compose.materialIconsExtended)
@@ -100,6 +101,7 @@ kotlin {
                 implementation(libs.molecule)
                 implementation(libs.turbine)
                 implementation(projects.dispatchersTest)
+                implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.testActivity)
