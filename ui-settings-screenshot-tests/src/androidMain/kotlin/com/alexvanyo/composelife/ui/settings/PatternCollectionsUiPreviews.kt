@@ -20,6 +20,8 @@ import androidx.compose.runtime.Composable
 import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.data.model.PatternCollection
 import com.alexvanyo.composelife.database.PatternCollectionId
+import com.alexvanyo.composelife.scopes.implicit
+import com.alexvanyo.composelife.ui.settings.entrypoints.PreviewEntryPoint
 import com.alexvanyo.composelife.ui.settings.entrypoints.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import kotlin.time.Clock
@@ -34,22 +36,24 @@ import kotlin.time.Instant
 internal fun PatternCollectionPreviewNoSuccessfulSynchronization() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies {
-        with(
-            object : Clock {
-                override fun now(): Instant = referenceInstant
-            },
-        ) {
-            PatternCollection(
-                patternCollection = PatternCollection(
-                    id = PatternCollectionId(0),
-                    sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
-                    lastSuccessfulSynchronizationTimestamp = null,
-                    lastUnsuccessfulSynchronizationTimestamp = null,
-                    synchronizationFailureMessage = null,
-                    isSynchronizing = false,
-                ),
-                onDelete = {},
-            )
+        with(implicit().timeZoneHolder) {
+            with(
+                object : Clock {
+                    override fun now(): Instant = referenceInstant
+                },
+            ) {
+                PatternCollection(
+                    patternCollection = PatternCollection(
+                        id = PatternCollectionId(0),
+                        sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                        lastSuccessfulSynchronizationTimestamp = null,
+                        lastUnsuccessfulSynchronizationTimestamp = null,
+                        synchronizationFailureMessage = null,
+                        isSynchronizing = false,
+                    ),
+                    onDelete = {},
+                )
+            }
         }
     }
 }
@@ -60,22 +64,24 @@ internal fun PatternCollectionPreviewNoSuccessfulSynchronization() {
 internal fun PatternCollectionPreviewSynchronizing() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies {
-        with(
-            object : Clock {
-                override fun now(): Instant = referenceInstant
-            },
-        ) {
-            PatternCollection(
-                patternCollection = PatternCollection(
-                    id = PatternCollectionId(0),
-                    sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
-                    lastSuccessfulSynchronizationTimestamp = null,
-                    lastUnsuccessfulSynchronizationTimestamp = null,
-                    synchronizationFailureMessage = null,
-                    isSynchronizing = true,
-                ),
-                onDelete = {},
-            )
+        with(implicit().timeZoneHolder) {
+            with(
+                object : Clock {
+                    override fun now(): Instant = referenceInstant
+                },
+            ) {
+                PatternCollection(
+                    patternCollection = PatternCollection(
+                        id = PatternCollectionId(0),
+                        sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                        lastSuccessfulSynchronizationTimestamp = null,
+                        lastUnsuccessfulSynchronizationTimestamp = null,
+                        synchronizationFailureMessage = null,
+                        isSynchronizing = true,
+                    ),
+                    onDelete = {},
+                )
+            }
         }
     }
 }
@@ -86,22 +92,24 @@ internal fun PatternCollectionPreviewSynchronizing() {
 internal fun PatternCollectionPreviewSuccessfulSynchronizationNow() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies {
-        with(
-            object : Clock {
-                override fun now(): Instant = referenceInstant
-            },
-        ) {
-            PatternCollection(
-                patternCollection = PatternCollection(
-                    id = PatternCollectionId(0),
-                    sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
-                    lastSuccessfulSynchronizationTimestamp = referenceInstant,
-                    lastUnsuccessfulSynchronizationTimestamp = null,
-                    synchronizationFailureMessage = null,
-                    isSynchronizing = false,
-                ),
-                onDelete = {},
-            )
+        with(implicit().timeZoneHolder) {
+            with(
+                object : Clock {
+                    override fun now(): Instant = referenceInstant
+                },
+            ) {
+                PatternCollection(
+                    patternCollection = PatternCollection(
+                        id = PatternCollectionId(0),
+                        sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                        lastSuccessfulSynchronizationTimestamp = referenceInstant,
+                        lastUnsuccessfulSynchronizationTimestamp = null,
+                        synchronizationFailureMessage = null,
+                        isSynchronizing = false,
+                    ),
+                    onDelete = {},
+                )
+            }
         }
     }
 }
@@ -112,22 +120,24 @@ internal fun PatternCollectionPreviewSuccessfulSynchronizationNow() {
 internal fun PatternCollectionPreviewSuccessfulSynchronization55SecondsAgo() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies {
-        with(
-            object : Clock {
-                override fun now(): Instant = referenceInstant
-            },
-        ) {
-            PatternCollection(
-                patternCollection = PatternCollection(
-                    id = PatternCollectionId(0),
-                    sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
-                    lastSuccessfulSynchronizationTimestamp = referenceInstant - 55.seconds,
-                    lastUnsuccessfulSynchronizationTimestamp = null,
-                    synchronizationFailureMessage = null,
-                    isSynchronizing = false,
-                ),
-                onDelete = {},
-            )
+        with(implicit().timeZoneHolder) {
+            with(
+                object : Clock {
+                    override fun now(): Instant = referenceInstant
+                },
+            ) {
+                PatternCollection(
+                    patternCollection = PatternCollection(
+                        id = PatternCollectionId(0),
+                        sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                        lastSuccessfulSynchronizationTimestamp = referenceInstant - 55.seconds,
+                        lastUnsuccessfulSynchronizationTimestamp = null,
+                        synchronizationFailureMessage = null,
+                        isSynchronizing = false,
+                    ),
+                    onDelete = {},
+                )
+            }
         }
     }
 }
@@ -138,22 +148,24 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization55SecondsAgo() {
 internal fun PatternCollectionPreviewSuccessfulSynchronization60SecondsAgo() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies {
-        with(
-            object : Clock {
-                override fun now(): Instant = referenceInstant
-            },
-        ) {
-            PatternCollection(
-                patternCollection = PatternCollection(
-                    id = PatternCollectionId(0),
-                    sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
-                    lastSuccessfulSynchronizationTimestamp = referenceInstant - 60.seconds,
-                    lastUnsuccessfulSynchronizationTimestamp = null,
-                    synchronizationFailureMessage = null,
-                    isSynchronizing = false,
-                ),
-                onDelete = {},
-            )
+        with(implicit().timeZoneHolder) {
+            with(
+                object : Clock {
+                    override fun now(): Instant = referenceInstant
+                },
+            ) {
+                PatternCollection(
+                    patternCollection = PatternCollection(
+                        id = PatternCollectionId(0),
+                        sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                        lastSuccessfulSynchronizationTimestamp = referenceInstant - 60.seconds,
+                        lastUnsuccessfulSynchronizationTimestamp = null,
+                        synchronizationFailureMessage = null,
+                        isSynchronizing = false,
+                    ),
+                    onDelete = {},
+                )
+            }
         }
     }
 }
@@ -164,22 +176,24 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization60SecondsAgo() {
 internal fun PatternCollectionPreviewSuccessfulSynchronization65SecondsAgo() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies {
-        with(
-            object : Clock {
-                override fun now(): Instant = referenceInstant
-            },
-        ) {
-            PatternCollection(
-                patternCollection = PatternCollection(
-                    id = PatternCollectionId(0),
-                    sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
-                    lastSuccessfulSynchronizationTimestamp = referenceInstant - 65.seconds,
-                    lastUnsuccessfulSynchronizationTimestamp = null,
-                    synchronizationFailureMessage = null,
-                    isSynchronizing = false,
-                ),
-                onDelete = {},
-            )
+        with(implicit().timeZoneHolder) {
+            with(
+                object : Clock {
+                    override fun now(): Instant = referenceInstant
+                },
+            ) {
+                PatternCollection(
+                    patternCollection = PatternCollection(
+                        id = PatternCollectionId(0),
+                        sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                        lastSuccessfulSynchronizationTimestamp = referenceInstant - 65.seconds,
+                        lastUnsuccessfulSynchronizationTimestamp = null,
+                        synchronizationFailureMessage = null,
+                        isSynchronizing = false,
+                    ),
+                    onDelete = {},
+                )
+            }
         }
     }
 }
@@ -190,22 +204,24 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization65SecondsAgo() {
 internal fun PatternCollectionPreviewSuccessfulSynchronization65MinutesAgo() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies {
-        with(
-            object : Clock {
-                override fun now(): Instant = referenceInstant
-            },
-        ) {
-            PatternCollection(
-                patternCollection = PatternCollection(
-                    id = PatternCollectionId(0),
-                    sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
-                    lastSuccessfulSynchronizationTimestamp = referenceInstant - 65.minutes,
-                    lastUnsuccessfulSynchronizationTimestamp = null,
-                    synchronizationFailureMessage = null,
-                    isSynchronizing = false,
-                ),
-                onDelete = {},
-            )
+        with(implicit().timeZoneHolder) {
+            with(
+                object : Clock {
+                    override fun now(): Instant = referenceInstant
+                },
+            ) {
+                PatternCollection(
+                    patternCollection = PatternCollection(
+                        id = PatternCollectionId(0),
+                        sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                        lastSuccessfulSynchronizationTimestamp = referenceInstant - 65.minutes,
+                        lastUnsuccessfulSynchronizationTimestamp = null,
+                        synchronizationFailureMessage = null,
+                        isSynchronizing = false,
+                    ),
+                    onDelete = {},
+                )
+            }
         }
     }
 }
@@ -216,22 +232,24 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization65MinutesAgo() {
 internal fun PatternCollectionPreviewSuccessfulSynchronization25HoursAgo() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies {
-        with(
-            object : Clock {
-                override fun now(): Instant = referenceInstant
-            },
-        ) {
-            PatternCollection(
-                patternCollection = PatternCollection(
-                    id = PatternCollectionId(0),
-                    sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
-                    lastSuccessfulSynchronizationTimestamp = referenceInstant - 25.hours,
-                    lastUnsuccessfulSynchronizationTimestamp = null,
-                    synchronizationFailureMessage = null,
-                    isSynchronizing = false,
-                ),
-                onDelete = {},
-            )
+        with(implicit().timeZoneHolder) {
+            with(
+                object : Clock {
+                    override fun now(): Instant = referenceInstant
+                },
+            ) {
+                PatternCollection(
+                    patternCollection = PatternCollection(
+                        id = PatternCollectionId(0),
+                        sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                        lastSuccessfulSynchronizationTimestamp = referenceInstant - 25.hours,
+                        lastUnsuccessfulSynchronizationTimestamp = null,
+                        synchronizationFailureMessage = null,
+                        isSynchronizing = false,
+                    ),
+                    onDelete = {},
+                )
+            }
         }
     }
 }
