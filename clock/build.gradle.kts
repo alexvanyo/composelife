@@ -27,7 +27,7 @@ plugins {
 android {
     namespace = "com.alexvanyo.composelife.clock"
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
     }
 }
 

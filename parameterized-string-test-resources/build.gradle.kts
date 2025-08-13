@@ -24,7 +24,7 @@ plugins {
 android {
     namespace = "com.alexvanyo.composelife.parameterizedstring.testresources"
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
     }
 }
 
