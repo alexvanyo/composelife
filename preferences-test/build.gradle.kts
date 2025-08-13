@@ -31,7 +31,7 @@ plugins {
 android {
     namespace = "com.alexvanyo.composelife.preferencestest"
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
         testInstrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
     }
     configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)

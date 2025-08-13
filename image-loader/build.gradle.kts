@@ -25,7 +25,7 @@ plugins {
 android {
     namespace = "com.alexvanyo.composelife.imageloader"
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
     }
 }
 
