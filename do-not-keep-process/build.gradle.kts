@@ -25,7 +25,7 @@ plugins {
 android {
     namespace = "com.alexvanyo.composelife.donotkeepprocess"
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
     }
 }
 
