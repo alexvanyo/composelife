@@ -34,7 +34,7 @@ plugins {
 android {
     namespace = "com.alexvanyo.composelife.ui.common.screenshottests"
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
     }
     configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
 }

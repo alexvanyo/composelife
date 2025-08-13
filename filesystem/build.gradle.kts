@@ -26,7 +26,7 @@ plugins {
 android {
     namespace = "com.alexvanyo.composelife.filesystem"
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
     }
 }
 

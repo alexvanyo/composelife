@@ -31,7 +31,7 @@ plugins {
 android {
     namespace = "com.alexvanyo.composelife.ui.mobile"
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
     }
     configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
 }

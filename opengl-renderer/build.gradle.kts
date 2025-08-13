@@ -25,7 +25,7 @@ plugins {
 android {
     namespace = "com.alexvanyo.composelife.openglrenderer"
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
     }
 }
 
