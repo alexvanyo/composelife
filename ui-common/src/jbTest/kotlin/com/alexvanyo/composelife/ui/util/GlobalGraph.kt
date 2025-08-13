@@ -16,10 +16,11 @@
 
 package com.alexvanyo.composelife.ui.util
 
-import androidx.compose.runtime.Composable
-import androidx.lifecycle.Lifecycle
-import kotlinx.datetime.TimeZone
+import com.alexvanyo.composelife.scopes.GlobalScope
+import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.createGraph
 
-@Composable
-actual fun currentTimeZone(lifecycleState: Lifecycle.State): TimeZone =
-    TimeZone.currentSystemDefault()
+@DependencyGraph(GlobalScope::class, isExtendable = true)
+interface GlobalGraph
+
+internal val globalGraph = createGraph<GlobalGraph>()
