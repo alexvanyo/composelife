@@ -24,16 +24,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.test.BaseInjectTest
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.asContribution
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaZoneId
-import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@ContributesTo(AppScope::class)
+interface TimeZoneTestsEntryPoint {
+    val timeZoneHolder: TimeZoneHolder
+}
+
+// TODO: Replace with asContribution()
+val ApplicationGraph.timeZoneTests: TimeZoneTestsEntryPoint get() =
+    this as TimeZoneTestsEntryPoint
+
 @OptIn(ExperimentalTestApi::class)
-@RunWith(AndroidJUnit4::class)
-class TimeZoneTests {
+class TimeZoneTests : BaseInjectTest(
+    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+) {
 
     @Test
     fun time_zone_updates_correctly() = runComposeUiTest {
@@ -41,7 +54,9 @@ class TimeZoneTests {
         var timeZone: TimeZone by mutableStateOf(TimeZone.UTC)
 
         setContent {
-            timeZone = currentTimeZone()
+            with(applicationGraph.timeZoneTests.timeZoneHolder) {
+                timeZone = currentTimeZone()
+            }
         }
 
         assertEquals(systemDefaultTimeZone, timeZone)
