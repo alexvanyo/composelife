@@ -25,7 +25,7 @@ plugins {
 android {
     namespace = "com.alexvanyo.composelife.roborazzishowkasescreenshottest"
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
     }
     packagingOptions.resources.excludes.add("META-INF/versions/9/OSGI-INF/MANIFEST.MF")
 }
