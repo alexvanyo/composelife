@@ -84,6 +84,7 @@ import com.alexvanyo.composelife.ui.settings.resources.Sources
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.TargetState
+import com.alexvanyo.composelife.ui.util.TimeZoneHolder
 import com.alexvanyo.composelife.ui.util.currentTimeZone
 import com.alexvanyo.composelife.ui.util.dateComponentInWholeUnits
 import com.alexvanyo.composelife.ui.util.progressivePeriodUntil
@@ -101,16 +102,17 @@ import kotlin.time.Clock
 class PatternCollectionsUiEntryPoint(
     private val patternCollectionRepository: PatternCollectionRepository,
     private val clock: Clock,
+    val timeZoneHolder: TimeZoneHolder,
 ) {
     @Suppress("ComposableNaming")
     @Composable
     operator fun invoke(
         modifier: Modifier = Modifier,
-    ) = lambda(patternCollectionRepository, clock, modifier)
+    ) = lambda(patternCollectionRepository, clock, timeZoneHolder, modifier)
 
     companion object {
         private val lambda:
-            @Composable context(PatternCollectionRepository, Clock) (modifier: Modifier) -> Unit =
+            @Composable context(PatternCollectionRepository, Clock, TimeZoneHolder) (modifier: Modifier) -> Unit =
             { modifier ->
                 PatternCollectionsUi(modifier)
             }
@@ -125,7 +127,8 @@ fun PatternCollectionsUi(
 
 context(
     patternCollectionRepository: PatternCollectionRepository,
-clock: Clock,
+_: Clock,
+_: TimeZoneHolder,
 )
 @Composable
 fun PatternCollectionsUi(
@@ -146,7 +149,7 @@ fun PatternCollectionsUi(
     )
 }
 
-context(_: Clock)
+context(_: Clock, _: TimeZoneHolder)
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongMethod")
 @Composable
@@ -262,7 +265,7 @@ fun PatternCollectionsUi(
     }
 }
 
-context(clock: Clock)
+context(clock: Clock, _: TimeZoneHolder)
 @Suppress("CyclomaticComplexMethod", "LongMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
