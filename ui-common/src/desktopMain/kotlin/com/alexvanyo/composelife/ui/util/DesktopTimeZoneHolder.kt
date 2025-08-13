@@ -16,16 +16,21 @@
 
 package com.alexvanyo.composelife.ui.util
 
-import androidx.compose.runtime.Composable
-import androidx.lifecycle.Lifecycle
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.datetime.TimeZone
 
-/**
- * Returns the current [TimeZone] as an observable value.
- *
- * @param lifecycleState the minimum [Lifecycle.State] to watch for updates to the [TimeZone] in. If the [TimeZone] is
- * just being used to drive UI such as for formatting, then the default [Lifecycle.State.STARTED] is appropriate to
- * only listen while the UI is visible.
- */
-@Composable
-expect fun currentTimeZone(lifecycleState: Lifecycle.State = Lifecycle.State.STARTED): TimeZone
+@ContributesBinding(AppScope::class, binding<TimeZoneHolder>())
+@Inject
+class DesktopTimeZoneHolder : TimeZoneHolder {
+    override val timeZone: TimeZone
+        get() = TimeZone.currentSystemDefault()
+
+    /**
+     * TODO: Figure out how to listen for time zone updates on desktop.
+     */
+    override suspend fun update(): Nothing = awaitCancellation()
+}

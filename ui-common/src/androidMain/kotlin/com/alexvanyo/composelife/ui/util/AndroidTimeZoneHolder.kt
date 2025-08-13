@@ -21,35 +21,20 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
+import com.alexvanyo.composelife.scopes.ApplicationContext
+import com.alexvanyo.composelife.updatable.Updatable
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.datetime.TimeZone
 import java.util.concurrent.atomic.AtomicInteger
-
-@Composable
-actual fun currentTimeZone(lifecycleState: Lifecycle.State): TimeZone {
-    val applicationContext = LocalContext.current.applicationContext
-    val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(applicationContext, lifecycleOwner) {
-        lifecycleOwner.repeatOnLifecycle(lifecycleState) {
-            TimeZoneBroadcastReceiver.update(applicationContext)
-        }
-    }
-    // Update the time zone with the current one in case it changed while the process has been alive, but not while
-    // listening for updates. This avoids one frame where the time zone is incorrect if this comes into composition
-    // in that state, even though the LaunchedEffect would update it quickly after
-    TimeZoneBroadcastReceiver.timeZone = TimeZone.currentSystemDefault()
-    return TimeZoneBroadcastReceiver.timeZone
-}
 
 /**
  * A global singleton [BroadcastReceiver] to listen for time zone changes.
@@ -57,23 +42,39 @@ actual fun currentTimeZone(lifecycleState: Lifecycle.State): TimeZone {
  * The use of a singleton avoids registering many [BroadcastReceiver] if many pieces of UI all listen for the current
  * time zone.
  */
-private object TimeZoneBroadcastReceiver : BroadcastReceiver() {
-    var timeZone by mutableStateOf(TimeZone.currentSystemDefault())
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding<TimeZoneHolder>())
+@Inject
+class AndroidTimeZoneHolder(
+    @param:ApplicationContext private val context: Context,
+) : BroadcastReceiver(), TimeZoneHolder, Updatable {
+    private var _timeZone by mutableStateOf(TimeZone.currentSystemDefault())
+
+    override val timeZone: TimeZone
+        get() {
+            val currentTimeZone = TimeZone.currentSystemDefault()
+            // Update the time zone with the current one in case it changed while the process has been alive, but not
+            // while listening for updates. This avoids one frame where the time zone is incorrect if this comes into
+            // composition in that state, even though the LaunchedEffect would update it quickly after
+            if (_timeZone != currentTimeZone) {
+                _timeZone = currentTimeZone
+            }
+            return _timeZone
+        }
 
     private val count = AtomicInteger(0)
 
     override fun onReceive(context: Context, intent: Intent) {
-        timeZone = TimeZone.currentSystemDefault()
+        _timeZone = TimeZone.currentSystemDefault()
     }
 
-    suspend fun update(context: Context): Nothing {
-        timeZone = TimeZone.currentSystemDefault()
+    override suspend fun update(): Nothing {
+        _timeZone = TimeZone.currentSystemDefault()
 
-        val applicationContext = context.applicationContext
         try {
             if (count.andIncrement == 0) {
                 // If the increment increased from 0, register the receiver
-                applicationContext.registerReceiverCompat(
+                context.registerReceiverCompat(
                     receiver = this,
                     filter = IntentFilter(Intent.ACTION_TIMEZONE_CHANGED),
                     flags = ContextCompat.RECEIVER_NOT_EXPORTED,
@@ -83,9 +84,7 @@ private object TimeZoneBroadcastReceiver : BroadcastReceiver() {
         } finally {
             if (count.decrementAndGet() == 0) {
                 // If the increment decreased to 0, unregister the receiver
-                // There should be exactly one application context, so it is fine if the context this function
-                // was called with was different than the one that registered the receiver
-                applicationContext.unregisterReceiver(this)
+                context.unregisterReceiver(this)
             }
         }
     }
