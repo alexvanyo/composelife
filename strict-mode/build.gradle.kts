@@ -24,7 +24,7 @@ plugins {
 android {
     namespace = "com.alexvanyo.composelife.strictmode"
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
     }
 }
 

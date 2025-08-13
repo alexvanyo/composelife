@@ -90,7 +90,6 @@ abstract class BaseRoborazziTest(
         HardwareRendererCompat.setDrawingEnabled(wasDrawingEnabled)
     }
 
-    @RequiresApi(23)
     @Test
     fun previewScreenshotTest() = runComposeUiTest(testTimeout = 3.minutes) {
         val testParameterizations = when (roborazziParameterization) {

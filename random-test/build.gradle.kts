@@ -27,7 +27,7 @@ plugins {
 android {
     namespace = "com.alexvanyo.composelife.randomtest"
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
     }
 }
 
