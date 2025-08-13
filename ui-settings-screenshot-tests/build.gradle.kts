@@ -35,7 +35,7 @@ plugins {
 android {
     namespace = "com.alexvanyo.composelife.ui.settings.screenshottests"
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
         testInstrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
     }
     configureGradleManagedDevices(setOf(FormFactor.Mobile), this)

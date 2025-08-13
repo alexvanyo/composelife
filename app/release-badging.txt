@@ -1,5 +1,5 @@
 package: name='com.alexvanyo.composelife' versionCode='1' versionName='1.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
-minSdkVersion:'21'
+minSdkVersion:'23'
 targetSdkVersion:'35'
 uses-permission: name='android.permission.WAKE_LOCK'
 uses-permission: name='android.permission.ACCESS_NETWORK_STATE'
