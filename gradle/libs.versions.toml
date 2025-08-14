@@ -25,6 +25,8 @@ androidxDataStore = "1.2.0-alpha02"
 androidxLifecycle = "2.10.0-alpha02"
 #androidxLintGradle
 androidxLintGradle = "1.0.0-alpha05"
+#androidxNavigationEvent
+androidxNavigationEvent = "1.0.0-alpha06"
 #androidxPoolingContainer
 androidxPoolingContainer = "1.1.0"
 #androidxProfileInstaller
@@ -175,6 +177,8 @@ androidx-dataStore-core-okio = { group = "androidx.datastore", name = "datastore
 androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "androidxLifecycle" }
 androidx-lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime", version.ref = "androidxLifecycle" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
+androidx-navigationEvent = { group = "androidx.navigationevent", name = "navigationevent", version.ref = "androidxNavigationEvent" }
+androidx-navigationEvent-compose = { group = "androidx.navigationevent", name = "navigationevent-compose", version.ref = "androidxNavigationEvent" }
 androidx-savedState = { group = "androidx.savedstate", name = "savedstate", version.ref = "androidxSavedState" }
 androidx-savedState-compose = { group = "androidx.savedstate", name = "savedstate-compose", version.ref = "androidxSavedState" }
 androidx-lint-gradle = { group = "androidx.lint", name = "lint-gradle", version.ref = "androidxLintGradle" }

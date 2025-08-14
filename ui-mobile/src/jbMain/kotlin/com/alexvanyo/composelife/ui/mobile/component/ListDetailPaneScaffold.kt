@@ -55,10 +55,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -74,14 +76,15 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
+import androidx.navigationevent.NavigationEvent
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.NavigationEventState
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.compose.NavigationEventHandler
 import com.alexvanyo.composelife.ui.util.AnimatedContent
-import com.alexvanyo.composelife.ui.util.BackEventEdge
 import com.alexvanyo.composelife.ui.util.ContentStatus
 import com.alexvanyo.composelife.ui.util.Layout
-import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
-import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
-import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
 import kotlin.math.roundToInt
@@ -99,11 +102,18 @@ fun ListDetailPaneScaffold(
 ) {
     val showListAndDetail = showList && showDetail
 
-    val predictiveBackStateHolder = rememberRepeatablePredictiveBackStateHolder()
-    RepeatablePredictiveBackHandler(
-        repeatablePredictiveBackStateHolder = predictiveBackStateHolder,
+    val dispatcher = requireNotNull(LocalNavigationEventDispatcherOwner.current).navigationEventDispatcher
+    val navigationEventState by dispatcher.getState<ListDetailPaneScaffoldNavigationEventInfo>(
+        rememberCoroutineScope(),
+        ListDetailPaneScaffoldNavigationEventInfo,
+    ).collectAsState()
+
+    NavigationEventHandler(
         enabled = showDetail && !showList,
-    ) {
+        currentInfo = ListDetailPaneScaffoldNavigationEventInfo,
+        previousInfo = null,
+    ) { progress ->
+        progress.collect {}
         onBackButtonPressed()
     }
 
@@ -319,14 +329,16 @@ fun ListDetailPaneScaffold(
             )
         } else {
             AnimatedContent(
-                targetState = when (val predictiveBackState = predictiveBackStateHolder.value) {
-                    RepeatablePredictiveBackState.NotRunning -> TargetState.Single(showList)
-                    is RepeatablePredictiveBackState.Running ->
+                targetState = when (val navigationEventState = navigationEventState) {
+                    is NavigationEventState.Idle<ListDetailPaneScaffoldNavigationEventInfo> -> TargetState.Single(
+                        showList,
+                    )
+                    is NavigationEventState.InProgress<ListDetailPaneScaffoldNavigationEventInfo> ->
                         TargetState.InProgress(
                             current = false,
                             provisional = true,
-                            progress = predictiveBackState.progress,
-                            metadata = predictiveBackState,
+                            progress = navigationEventState.progress,
+                            metadata = navigationEventState,
                         )
                 },
                 transitionSpec = { contentWithStatus ->
@@ -359,7 +371,15 @@ fun ListDetailPaneScaffold(
                         }
                     }
                     val lastDisappearingValue by remember {
-                        mutableStateOf<ContentStatus.Disappearing<out RepeatablePredictiveBackState.Running>?>(null)
+                        mutableStateOf<
+                            ContentStatus.Disappearing<
+                                out NavigationEventState.InProgress<
+                                    ListDetailPaneScaffoldNavigationEventInfo,
+                                    >,
+                                >?,
+                            >(
+                            null,
+                        )
                     }.apply {
                         when (contentStatusTargetState) {
                             is ContentStatus.Appearing -> value = null
@@ -394,17 +414,17 @@ fun ListDetailPaneScaffold(
                                     0.dp,
                                     8.dp,
                                     it.progressToNotVisible,
-                                ) * when (metadata.backEventEdge) {
-                                    BackEventEdge.None -> 0f
-                                    BackEventEdge.Left -> -1f
-                                    BackEventEdge.Right -> 1f
+                                ) * when (metadata.latestEvent.swipeEdge) {
+                                    NavigationEvent.EDGE_LEFT -> -1f
+                                    NavigationEvent.EDGE_RIGHT -> 1f
+                                    else -> 0f
                                 }
                             }
                             ContentStatus.NotVisible -> {
-                                8.dp * when (lastDisappearingValue?.metadata?.backEventEdge) {
-                                    null, BackEventEdge.None -> 0f
-                                    BackEventEdge.Left -> -1f
-                                    BackEventEdge.Right -> 1f
+                                8.dp * when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
+                                    NavigationEvent.EDGE_LEFT -> -1f
+                                    NavigationEvent.EDGE_RIGHT -> 1f
+                                    else -> 0f
                                 }
                             }
                             ContentStatus.Visible -> 0.dp
@@ -426,17 +446,17 @@ fun ListDetailPaneScaffold(
                         when (it) {
                             is ContentStatus.Appearing -> 0.5f
                             is ContentStatus.Disappearing -> {
-                                when (it.metadata.backEventEdge) {
-                                    BackEventEdge.None -> 0.5f
-                                    BackEventEdge.Left -> 1f
-                                    BackEventEdge.Right -> 0f
+                                when (it.metadata.latestEvent.swipeEdge) {
+                                    NavigationEvent.EDGE_LEFT -> 1f
+                                    NavigationEvent.EDGE_RIGHT -> 0f
+                                    else -> 0.5f
                                 }
                             }
                             ContentStatus.NotVisible -> {
-                                when (lastDisappearingValue?.metadata?.backEventEdge) {
-                                    null, BackEventEdge.None -> 0.5f
-                                    BackEventEdge.Left -> 1f
-                                    BackEventEdge.Right -> 0f
+                                when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
+                                    NavigationEvent.EDGE_LEFT -> 1f
+                                    NavigationEvent.EDGE_RIGHT -> 0f
+                                    else -> 0.5f
                                 }
                             }
                             ContentStatus.Visible -> 0.5f
@@ -474,6 +494,8 @@ fun ListDetailPaneScaffold(
         }
     }
 }
+
+private object ListDetailPaneScaffoldNavigationEventInfo : NavigationEventInfo
 
 data class ContinuousDraggableAnchors(
     private val minAnchoredDraggablePosition: Float,
