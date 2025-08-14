@@ -25,10 +25,10 @@ androidx.lifecycle:lifecycle-viewmodel-desktop:2.10.0-alpha01
 androidx.lifecycle:lifecycle-viewmodel-savedstate-desktop:2.10.0-alpha01
 androidx.lifecycle:lifecycle-viewmodel-savedstate:2.10.0-alpha01
 androidx.lifecycle:lifecycle-viewmodel:2.10.0-alpha01
-androidx.savedstate:savedstate-compose-desktop:1.4.0-alpha01
-androidx.savedstate:savedstate-compose:1.4.0-alpha01
-androidx.savedstate:savedstate-desktop:1.4.0-alpha01
-androidx.savedstate:savedstate:1.4.0-alpha01
+androidx.savedstate:savedstate-compose-desktop:1.4.0-alpha02
+androidx.savedstate:savedstate-compose:1.4.0-alpha02
+androidx.savedstate:savedstate-desktop:1.4.0-alpha02
+androidx.savedstate:savedstate:1.4.0-alpha02
 androidx.window:window-core-jvm:1.5.0-beta01
 androidx.window:window-core:1.5.0-beta01
 app.cash.sqldelight:async-extensions-jvm:2.1.0
