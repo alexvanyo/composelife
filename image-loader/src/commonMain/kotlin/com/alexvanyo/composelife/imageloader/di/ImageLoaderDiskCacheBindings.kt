@@ -27,6 +27,7 @@ import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.withContext
 import okio.FileSystem
 
 @ContributesTo(AppScope::class)
@@ -53,7 +54,7 @@ interface ImageLoaderDiskCacheBindings {
             dispatchers: ComposeLifeDispatchers,
         ): Updatable = object : Updatable {
             override suspend fun update(): Nothing =
-                with(dispatchers.IO) {
+                withContext(dispatchers.IO) {
                     val cache = diskCache.value
                     try {
                         awaitCancellation()
