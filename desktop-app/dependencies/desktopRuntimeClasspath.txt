@@ -25,6 +25,10 @@ androidx.lifecycle:lifecycle-viewmodel-desktop:2.10.0-alpha02
 androidx.lifecycle:lifecycle-viewmodel-savedstate-desktop:2.10.0-alpha02
 androidx.lifecycle:lifecycle-viewmodel-savedstate:2.10.0-alpha02
 androidx.lifecycle:lifecycle-viewmodel:2.10.0-alpha02
+androidx.navigationevent:navigationevent-compose-desktop:1.0.0-alpha06
+androidx.navigationevent:navigationevent-compose:1.0.0-alpha06
+androidx.navigationevent:navigationevent-desktop:1.0.0-alpha06
+androidx.navigationevent:navigationevent:1.0.0-alpha06
 androidx.savedstate:savedstate-compose-desktop:1.4.0-alpha02
 androidx.savedstate:savedstate-compose:1.4.0-alpha02
 androidx.savedstate:savedstate-desktop:1.4.0-alpha02
