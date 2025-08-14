@@ -20,35 +20,14 @@ package com.alexvanyo.composelife.ui.util
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-
-/**
- * The state describing a repeatable back state, with use in a [RepeatablePredictiveBackHandler].
- *
- * Because the back handler can be used repeatedly, there are only two states that [RepeatablePredictiveBackState] can
- * be in:
- *
- * - [NotRunning], which will always be the case on API 33 and below
- * - [Running], which can happen on API 34 and above if a predictive back is in progress.
- */
-sealed interface RepeatablePredictiveBackState {
-    /**
-     * There is no predictive back ongoing. On API 33 and below, this will always be the case.
-     */
-    data object NotRunning : RepeatablePredictiveBackState
-
-    /**
-     * There is an ongoing predictive back animation, with the given [progress].
-     */
-    data class Running(
-        val touchX: Float,
-        val touchY: Float,
-        val progress: Float,
-        val backEventEdge: BackEventEdge,
-    ) : RepeatablePredictiveBackState
-}
+import androidx.navigationevent.NavigationEvent
+import androidx.navigationevent.compose.NavigationEventHandler
+import kotlinx.coroutines.CancellationException
 
 /**
  * The state describing a one-shot back state, with use in a [CompletablePredictiveBackStateHandler].
@@ -89,27 +68,6 @@ sealed interface BackEventEdge {
 }
 
 @Composable
-fun rememberRepeatablePredictiveBackStateHolder(): RepeatablePredictiveBackStateHolder =
-    remember {
-        RepeatablePredictiveBackStateHolderImpl()
-    }
-
-sealed interface RepeatablePredictiveBackStateHolder {
-    val value: RepeatablePredictiveBackState
-}
-
-internal class RepeatablePredictiveBackStateHolderImpl : RepeatablePredictiveBackStateHolder {
-    override var value: RepeatablePredictiveBackState by mutableStateOf(RepeatablePredictiveBackState.NotRunning)
-}
-
-@Composable
-expect fun RepeatablePredictiveBackHandler(
-    repeatablePredictiveBackStateHolder: RepeatablePredictiveBackStateHolder,
-    enabled: Boolean = true,
-    onBack: () -> Unit,
-)
-
-@Composable
 fun rememberCompletablePredictiveBackStateHolder(): CompletablePredictiveBackStateHolder =
     remember {
         CompletablePredictiveBackStateHolderImpl()
@@ -124,8 +82,42 @@ internal class CompletablePredictiveBackStateHolderImpl : CompletablePredictiveB
 }
 
 @Composable
-expect fun CompletablePredictiveBackStateHandler(
+fun CompletablePredictiveBackStateHandler(
     completablePredictiveBackStateHolder: CompletablePredictiveBackStateHolder,
-    enabled: Boolean = true,
+    enabled: Boolean,
     onBack: () -> Unit,
-)
+) {
+    // Safely update the current `onBack` lambda when a new one is provided
+    val currentOnBack by rememberUpdatedState(onBack)
+
+    key(completablePredictiveBackStateHolder) {
+        when (completablePredictiveBackStateHolder) {
+            is CompletablePredictiveBackStateHolderImpl -> Unit
+        }
+        NavigationEventHandler(
+            enabled = enabled &&
+                completablePredictiveBackStateHolder.value !is CompletablePredictiveBackState.Completed,
+        ) { progress ->
+            try {
+                progress.collect { backEvent ->
+                    completablePredictiveBackStateHolder.value = CompletablePredictiveBackState.Running(
+                        backEvent.touchX,
+                        backEvent.touchY,
+                        backEvent.progress,
+                        when (backEvent.swipeEdge) {
+                            NavigationEvent.EDGE_LEFT -> BackEventEdge.Left
+                            NavigationEvent.EDGE_RIGHT -> BackEventEdge.Right
+                            NavigationEvent.EDGE_NONE -> BackEventEdge.None
+                            else -> BackEventEdge.None // Default to None for any other unhandled cases
+                        },
+                    )
+                }
+                completablePredictiveBackStateHolder.value = CompletablePredictiveBackState.Completed
+                currentOnBack()
+            } catch (cancellationException: CancellationException) {
+                completablePredictiveBackStateHolder.value = CompletablePredictiveBackState.NotRunning
+                throw cancellationException
+            }
+        }
+    }
+}

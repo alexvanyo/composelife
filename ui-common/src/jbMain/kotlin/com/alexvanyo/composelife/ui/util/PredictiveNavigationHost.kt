@@ -53,6 +53,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.util.lerp
+import androidx.navigationevent.NavigationEvent
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.NavigationEventState
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.RenderableNavigationState
@@ -63,7 +66,7 @@ import com.alexvanyo.composelife.navigation.previousEntry
 @Composable
 @Suppress("LongParameterList")
 fun <T> MaterialPredictiveNavigationHost(
-    repeatablePredictiveBackState: RepeatablePredictiveBackState,
+    navigationEventState: NavigationEventState<NavigationEventInfo>,
     backstackState: BackstackState<T>,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
@@ -74,7 +77,7 @@ fun <T> MaterialPredictiveNavigationHost(
 ) = MaterialPredictiveNavigationFrame(
     renderableNavigationState = associateWithRenderablePanes(backstackState, content),
     modifier = modifier,
-    repeatablePredictiveBackState = repeatablePredictiveBackState,
+    navigationEventState = navigationEventState,
     contentAlignment = contentAlignment,
     contentSizeAnimationSpec = contentSizeAnimationSpec,
     animateInternalContentSizeChanges = animateInternalContentSizeChanges,
@@ -85,7 +88,7 @@ fun <T> MaterialPredictiveNavigationHost(
 @Composable
 fun <T> CrossfadePredictiveNavigationFrame(
     renderableNavigationState: RenderableNavigationState<BackstackEntry<T>, BackstackState<T>>,
-    repeatablePredictiveBackState: RepeatablePredictiveBackState,
+    navigationEventState: NavigationEventState<NavigationEventInfo>,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
@@ -98,15 +101,15 @@ fun <T> CrossfadePredictiveNavigationFrame(
     }
 
     val backstackState = renderableNavigationState.navigationState
-    val targetState = when (repeatablePredictiveBackState) {
-        RepeatablePredictiveBackState.NotRunning -> TargetState.Single(backstackState.currentEntry)
-        is RepeatablePredictiveBackState.Running -> {
+    val targetState = when (navigationEventState) {
+        is NavigationEventState.Idle<NavigationEventInfo> -> TargetState.Single(backstackState.currentEntry)
+        is NavigationEventState.InProgress<NavigationEventInfo> -> {
             val previous = backstackState.previousEntry
             if (previous != null) {
                 TargetState.InProgress(
                     current = backstackState.currentEntry,
                     provisional = previous,
-                    progress = repeatablePredictiveBackState.progress,
+                    progress = navigationEventState.progress,
                 )
             } else {
                 TargetState.Single(backstackState.currentEntry)
@@ -139,7 +142,7 @@ fun <T> CrossfadePredictiveNavigationFrame(
 @Composable
 fun <T> MaterialPredictiveNavigationFrame(
     renderableNavigationState: RenderableNavigationState<BackstackEntry<T>, BackstackState<T>>,
-    repeatablePredictiveBackState: RepeatablePredictiveBackState,
+    navigationEventState: NavigationEventState<NavigationEventInfo>,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
@@ -154,16 +157,16 @@ fun <T> MaterialPredictiveNavigationFrame(
 
     val backstackState = renderableNavigationState.navigationState
 
-    val targetState = when (repeatablePredictiveBackState) {
-        RepeatablePredictiveBackState.NotRunning -> TargetState.Single(backstackState.currentEntry)
-        is RepeatablePredictiveBackState.Running -> {
+    val targetState = when (navigationEventState) {
+        is NavigationEventState.Idle<*> -> TargetState.Single(backstackState.currentEntry)
+        is NavigationEventState.InProgress<*> -> {
             val previous = backstackState.previousEntry
             if (previous != null) {
                 TargetState.InProgress(
                     current = backstackState.currentEntry,
                     provisional = previous,
-                    progress = repeatablePredictiveBackState.progress,
-                    metadata = repeatablePredictiveBackState,
+                    progress = navigationEventState.progress,
+                    metadata = navigationEventState,
                 )
             } else {
                 TargetState.Single(backstackState.currentEntry)
@@ -204,7 +207,9 @@ fun <T> MaterialPredictiveNavigationFrame(
                 }
             }
             val lastDisappearingValue by remember {
-                mutableStateOf<ContentStatus.Disappearing<out RepeatablePredictiveBackState.Running>?>(null)
+                mutableStateOf<ContentStatus.Disappearing<out NavigationEventState.InProgress<NavigationEventInfo>>?>(
+                    null,
+                )
             }.apply {
                 when (contentStatusTargetState) {
                     is ContentStatus.Appearing -> value = null
@@ -237,17 +242,17 @@ fun <T> MaterialPredictiveNavigationFrame(
                             0.dp,
                             8.dp,
                             it.progressToNotVisible,
-                        ) * when (metadata.backEventEdge) {
-                            BackEventEdge.None -> 0f
-                            BackEventEdge.Left -> -1f
-                            BackEventEdge.Right -> 1f
+                        ) * when (metadata.latestEvent.swipeEdge) {
+                            NavigationEvent.EDGE_LEFT -> -1f
+                            NavigationEvent.EDGE_RIGHT -> 1f
+                            else -> 0f
                         }
                     }
                     ContentStatus.NotVisible -> {
-                        8.dp * when (lastDisappearingValue?.metadata?.backEventEdge) {
-                            null, BackEventEdge.None -> 0f
-                            BackEventEdge.Left -> -1f
-                            BackEventEdge.Right -> 1f
+                        8.dp * when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
+                            NavigationEvent.EDGE_LEFT -> -1f
+                            NavigationEvent.EDGE_RIGHT -> 1f
+                            else -> 0f
                         }
                     }
                     ContentStatus.Visible -> 0.dp
@@ -269,17 +274,17 @@ fun <T> MaterialPredictiveNavigationFrame(
                 when (it) {
                     is ContentStatus.Appearing -> 0.5f
                     is ContentStatus.Disappearing -> {
-                        when (it.metadata.backEventEdge) {
-                            BackEventEdge.None -> 0.5f
-                            BackEventEdge.Left -> 1f
-                            BackEventEdge.Right -> 0f
+                        when (it.metadata.latestEvent.swipeEdge) {
+                            NavigationEvent.EDGE_LEFT -> 1f
+                            NavigationEvent.EDGE_RIGHT -> 0f
+                            else -> 0.5f
                         }
                     }
                     ContentStatus.NotVisible -> {
-                        when (lastDisappearingValue?.metadata?.backEventEdge) {
-                            null, BackEventEdge.None -> 0.5f
-                            BackEventEdge.Left -> 1f
-                            BackEventEdge.Right -> 0f
+                        when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
+                            NavigationEvent.EDGE_LEFT -> 1f
+                            NavigationEvent.EDGE_RIGHT -> 0f
+                            else -> 0.5f
                         }
                     }
                     ContentStatus.Visible -> 0.5f
