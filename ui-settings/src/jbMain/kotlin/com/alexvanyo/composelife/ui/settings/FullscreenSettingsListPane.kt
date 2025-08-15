@@ -62,6 +62,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailInfo
+import com.alexvanyo.composelife.ui.mobile.rememberTooltipPositionProvider
 import com.alexvanyo.composelife.ui.settings.resources.Back
 import com.alexvanyo.composelife.ui.settings.resources.Settings
 import com.alexvanyo.composelife.ui.settings.resources.Strings
@@ -141,7 +142,7 @@ private fun SettingsCategoryList(
                         modifier = Modifier.align(Alignment.CenterStart),
                     ) {
                         TooltipBox(
-                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                            positionProvider = rememberTooltipPositionProvider(),
                             tooltip = {
                                 PlainTooltip {
                                     Text(parameterizedStringResource(Strings.Back))
