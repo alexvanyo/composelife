@@ -65,6 +65,7 @@ import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowEntryPoint
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
 import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropSource
 import com.alexvanyo.composelife.ui.cells.rememberTrackingCellWindowViewportState
+import com.alexvanyo.composelife.ui.mobile.rememberTooltipPositionProvider
 
 @Suppress("ComposableNaming", "LongParameterList")
 @Composable
@@ -219,7 +220,7 @@ fun LoadedCellStatePreview(
         )
         Column {
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider = rememberTooltipPositionProvider(),
                 tooltip = {
                     PlainTooltip {
                         Text(parameterizedStringResource(Strings.Paste))
@@ -237,7 +238,7 @@ fun LoadedCellStatePreview(
                 }
             }
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider = rememberTooltipPositionProvider(),
                 tooltip = {
                     PlainTooltip {
                         Text(parameterizedStringResource(if (isPinned) Strings.Unpin else Strings.Pin))
@@ -257,7 +258,7 @@ fun LoadedCellStatePreview(
             }
             if (deserializationResult.warnings.isNotEmpty()) {
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    positionProvider = rememberTooltipPositionProvider(),
                     tooltip = {
                         PlainTooltip {
                             Text(parameterizedStringResource(Strings.Warnings))

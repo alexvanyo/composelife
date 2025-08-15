@@ -68,6 +68,7 @@ import com.alexvanyo.composelife.ui.app.resources.DeserializationSucceeded
 import com.alexvanyo.composelife.ui.app.resources.Errors
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.resources.Warnings
+import com.alexvanyo.composelife.ui.mobile.rememberTooltipPositionProvider
 import com.alexvanyo.composelife.ui.util.plus
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -170,7 +171,7 @@ fun DeserializationInfoTopAppBar(
             }
 
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider = rememberTooltipPositionProvider(),
                 tooltip = {
                     PlainTooltip {
                         Text(parameterizedStringResource(text))
