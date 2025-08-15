@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
+import com.alexvanyo.composelife.ui.mobile.rememberTooltipPositionProvider
 import com.alexvanyo.composelife.ui.settings.resources.AddSettingToQuickAccess
 import com.alexvanyo.composelife.ui.settings.resources.OpenInSettings
 import com.alexvanyo.composelife.ui.settings.resources.RemoveSettingFromQuickAccess
@@ -64,7 +65,7 @@ fun QuickAccessSettingHeader(
 
         if (onOpenInSettingsClicked != null) {
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider = rememberTooltipPositionProvider(),
                 tooltip = {
                     PlainTooltip {
                         Text(parameterizedStringResource(Strings.OpenInSettings))
@@ -88,7 +89,7 @@ fun QuickAccessSettingHeader(
         }
 
         TooltipBox(
-            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+            positionProvider = rememberTooltipPositionProvider(),
             tooltip = {
                 PlainTooltip {
                     Text(

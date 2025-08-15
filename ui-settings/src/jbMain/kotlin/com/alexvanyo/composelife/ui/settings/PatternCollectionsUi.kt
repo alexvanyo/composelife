@@ -70,6 +70,7 @@ import com.alexvanyo.composelife.data.model.PatternCollection
 import com.alexvanyo.composelife.database.PatternCollectionId
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.resourcestate.ResourceState
+import com.alexvanyo.composelife.ui.mobile.rememberTooltipPositionProvider
 import com.alexvanyo.composelife.ui.settings.resources.AddPatternCollection
 import com.alexvanyo.composelife.ui.settings.resources.DayUnit
 import com.alexvanyo.composelife.ui.settings.resources.Delete
@@ -355,7 +356,7 @@ fun PatternCollection(
                 }
 
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    positionProvider = rememberTooltipPositionProvider(),
                     tooltip = {
                         PlainTooltip {
                             Text(parameterizedStringResource(Strings.Delete))
