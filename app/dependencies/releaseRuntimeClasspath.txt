@@ -154,8 +154,8 @@ com.google.errorprone:error_prone_annotations:2.30.0
 com.google.guava:failureaccess:1.0.1
 com.google.guava:guava:32.1.3-android
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
-com.slack.circuit:circuit-retained-android:0.29.1
-com.slack.circuit:circuit-retained:0.29.1
+com.slack.circuit:circuit-retained-android:0.30.0
+com.slack.circuit:circuit-retained:0.30.0
 com.squareup.okhttp3:okhttp-sse:4.12.0
 com.squareup.okhttp3:okhttp:4.12.0
 com.squareup.okio:okio-jvm:3.16.0
@@ -200,6 +200,7 @@ org.jetbrains.androidx.graphics:graphics-shapes:1.0.0-alpha09
 org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.1
 org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.1
 org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.9.1
+org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.9.1
 org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.1
 org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.1
 org.jetbrains.androidx.savedstate:savedstate-compose:1.3.0
