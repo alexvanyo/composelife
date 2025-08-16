@@ -58,7 +58,7 @@ internal interface PreviewEntryPoint : ComposeLifePreferencesProvider {
     val testRandom: TestRandom
 }
 
-@DependencyGraph(GlobalScope::class, isExtendable = true)
+@DependencyGraph(GlobalScope::class)
 interface PreviewGlobalGraph
 
 @ContributesTo(UiWithLoadedPreferencesScope::class, replaces = [UiWithLoadedPreferencesScopeBindings::class])

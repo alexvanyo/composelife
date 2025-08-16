@@ -128,5 +128,5 @@ interface MainInjectEntryPoint : ComposeLifePreferencesProvider {
 internal val UiGraph.mainInjectEntryPoint: MainInjectEntryPoint get() =
     this as MainInjectEntryPoint
 
-@DependencyGraph(GlobalScope::class, isExtendable = true)
+@DependencyGraph(GlobalScope::class)
 interface GlobalGraph
