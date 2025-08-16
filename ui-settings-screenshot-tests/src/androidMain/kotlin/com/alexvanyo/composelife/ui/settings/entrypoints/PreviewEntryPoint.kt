@@ -51,7 +51,7 @@ internal interface PreviewEntryPoint : ComposeLifePreferencesProvider {
     val timeZoneHolder: TimeZoneHolder
 }
 
-@DependencyGraph(GlobalScope::class, isExtendable = true)
+@DependencyGraph(GlobalScope::class)
 interface PreviewGlobalGraph
 
 /**

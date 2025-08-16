@@ -69,8 +69,8 @@ import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.ReportDrawn
 import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import dev.zacsweers.metro.BindingContainer
-import dev.zacsweers.metro.ContributesGraphExtension
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
@@ -385,11 +385,12 @@ sealed interface ComposeLifeAppState {
 
 abstract class UiWithLoadedPreferencesScope private constructor()
 
-@ContributesGraphExtension(UiWithLoadedPreferencesScope::class)
+@GraphExtension(UiWithLoadedPreferencesScope::class)
 interface UiWithLoadedPreferencesGraph {
     val composeLifeAppUiWithLoadedPreferencesEntryPoint: ComposeLifeAppUiWithLoadedPreferencesEntryPoint
 
-    @ContributesGraphExtension.Factory(UiScope::class)
+    @ContributesTo(UiScope::class)
+    @GraphExtension.Factory
     fun interface Factory {
         fun create(
             @Provides uiWithLoadedPreferencesGraphArguments: UiWithLoadedPreferencesGraphArguments,
