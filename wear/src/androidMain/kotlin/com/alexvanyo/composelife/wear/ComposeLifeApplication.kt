@@ -88,5 +88,5 @@ class ComposeLifeApplication : Application(), ApplicationGraphOwner {
     }
 }
 
-@DependencyGraph(GlobalScope::class, isExtendable = true)
+@DependencyGraph(GlobalScope::class)
 interface GlobalGraph
