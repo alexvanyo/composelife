@@ -22,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
@@ -33,7 +34,6 @@ import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorCtx
-import com.slack.circuit.retained.rememberRetained
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -75,8 +75,11 @@ fun rememberCellUniversePaneState(
     dispatchers: ComposeLifeDispatchers,
     clock: Clock,
 ): CellUniversePaneState {
-    var retainedInitialSaveableCellState: SaveableCellState? by rememberRetained { mutableStateOf(null) }
-    var retainedTemporalGameOfLifeState: TemporalGameOfLifeState? by rememberRetained { mutableStateOf(null) }
+    @Suppress("ComposeRememberMissing")
+    var retainedInitialSaveableCellState: SaveableCellState? by retain { mutableStateOf(null) }
+
+    @Suppress("ComposeRememberMissing")
+    var retainedTemporalGameOfLifeState: TemporalGameOfLifeState? by retain { mutableStateOf(null) }
 
     val initialSaveableCellState = retainedInitialSaveableCellState
     val temporalGameOfLifeState = retainedTemporalGameOfLifeState

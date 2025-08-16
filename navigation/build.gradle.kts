@@ -43,15 +43,14 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.jetbrains.compose.runtime)
-                implementation(libs.jetbrains.compose.runtime.saveable)
+                implementation(libs.androidx.collection)
+                implementation(libs.androidx.compose.runtime)
                 implementation(libs.kotlinx.coroutines.core)
             }
         }
         val jbMain by creating {
             dependsOn(commonMain)
             dependencies {
-                api(libs.circuit.retained)
                 api(libs.jetbrains.compose.animation)
                 api(libs.jetbrains.compose.ui)
             }
