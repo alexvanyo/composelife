@@ -52,7 +52,7 @@ internal interface PreviewEntryPoint : ComposeLifePreferencesProvider {
     val loadedComposeLifePreferencesHolder: LoadedComposeLifePreferencesHolder
 }
 
-@DependencyGraph(GlobalScope::class, isExtendable = true)
+@DependencyGraph(GlobalScope::class)
 interface PreviewGlobalGraph
 
 /**
