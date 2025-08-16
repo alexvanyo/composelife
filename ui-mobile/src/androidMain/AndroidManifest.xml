@@ -15,5 +15,5 @@
      limitations under the License.
 -->
 <manifest xmlns:tools="http://schemas.android.com/tools">
-    <uses-sdk tools:overrideLibrary="androidx.xr.compose,androidx.xr.scenecore,com.google.ar.imp.apibindings" />
+    <uses-sdk tools:overrideLibrary="androidx.xr.arcore,androidx.xr.compose,androidx.xr.runtime,androidx.xr.runtime.openxr,androidx.xr.scenecore,com.google.ar.imp.apibindings" />
 </manifest>
