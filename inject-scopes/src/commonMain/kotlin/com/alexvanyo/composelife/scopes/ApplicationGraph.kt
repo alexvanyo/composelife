@@ -17,12 +17,14 @@
 package com.alexvanyo.composelife.scopes
 
 import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesGraphExtension
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
 
-@ContributesGraphExtension(AppScope::class, isExtendable = true)
+@GraphExtension(AppScope::class)
 interface ApplicationGraph {
-    @ContributesGraphExtension.Factory(GlobalScope::class)
+    @ContributesTo(GlobalScope::class)
+    @GraphExtension.Factory
     fun interface Factory {
         fun create(
             @Provides applicationGraphArguments: ApplicationGraphArguments,
