@@ -25,7 +25,7 @@ package com.alexvanyo.composelife.scopes
  * [ApplicationGraph], which is centrally defined in this module:
  *
  * ```kotlin
- * @DependencyGraph(GlobalScope::class, isExtendable = true)
+ * @DependencyGraph(GlobalScope::class)
  * interface GlobalGraph
  *
  * internal val globalGraph = createGraph<GlobalGraph>()

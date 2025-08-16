@@ -23,7 +23,7 @@ import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.createGraph
 
-@DependencyGraph(GlobalScope::class, isExtendable = true)
+@DependencyGraph(GlobalScope::class)
 interface GlobalGraph
 
 internal val globalGraph = createGraph<GlobalGraph>()
