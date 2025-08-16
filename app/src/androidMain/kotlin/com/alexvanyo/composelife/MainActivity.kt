@@ -19,10 +19,12 @@ package com.alexvanyo.composelife
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -30,14 +32,13 @@ import androidx.compose.material3.adaptive.currentWindowSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.LocalRetainScope
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.findViewTreeCompositionContext
 import androidx.compose.ui.unit.toSize
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
@@ -51,8 +52,6 @@ import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
 import com.alexvanyo.composelife.ui.util.ProvideLocalWindowInsetsHolder
 import com.alexvanyo.composelife.updatable.UiUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
-import com.slack.circuit.retained.LocalRetainedStateRegistry
-import com.slack.circuit.retained.continuityRetainedStateRegistry
 import dev.zacsweers.metro.ContributesTo
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
@@ -69,6 +68,24 @@ internal val UiGraph.mainActivityInjectEntryPoint: MainActivityInjectEntryPoint 
     this as MainActivityInjectEntryPoint
 
 class MainActivity : AppCompatActivity() {
+
+    private val activityRetainScopeOwner by viewModels<ActivityRetainScopeOwner>()
+
+    private val onAttachStateChangeListener: View.OnAttachStateChangeListener =
+        object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(v: View) {
+                activityRetainScopeOwner.installIn(
+                    this@MainActivity,
+                    requireNotNull(v.findViewTreeCompositionContext()),
+                )
+                v.removeOnAttachStateChangeListener(this)
+            }
+
+            override fun onViewDetachedFromWindow(v: View) = Unit
+        }
+
+    private val composeView: ComposeView get() =
+        (findViewById<ViewGroup>(android.R.id.content).getChildAt(0) as ComposeView)
 
     @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -105,7 +122,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            CompositionLocalProvider(LocalRetainedStateRegistry provides continuityRetainedStateRegistry()) {
+            CompositionLocalProvider(LocalRetainScope provides activityRetainScopeOwner.retainScope) {
                 ProvideLocalWindowInsetsHolder {
                     with(mainActivityEntryPoint) {
                         val darkTheme = shouldUseDarkTheme()
@@ -137,7 +154,13 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        (findViewById<ViewGroup>(android.R.id.content).getChildAt(0) as ComposeView).consumeWindowInsets = false
+        composeView.consumeWindowInsets = false
+        composeView.addOnAttachStateChangeListener(onAttachStateChangeListener)
+    }
+
+    override fun onDestroy() {
+        composeView.removeOnAttachStateChangeListener(onAttachStateChangeListener)
+        super.onDestroy()
     }
 }
 

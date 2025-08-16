@@ -18,7 +18,9 @@ package com.alexvanyo.composelife
 
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ControlledRetainScope
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.LocalRetainScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -42,8 +44,6 @@ import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
 import com.alexvanyo.composelife.updatable.AppUpdatable
 import com.alexvanyo.composelife.updatable.UiUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
-import com.slack.circuit.retained.LocalRetainedStateRegistry
-import com.slack.circuit.retained.continuityRetainedStateRegistry
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
@@ -73,6 +73,7 @@ fun main() = application {
     }
 
     val windowState = rememberWindowState()
+    val retainScope = ControlledRetainScope()
 
     val currentExitApplication by rememberUpdatedState(::exitApplication)
 
@@ -90,7 +91,7 @@ fun main() = application {
         }
 
         CompositionLocalProvider(
-            LocalRetainedStateRegistry provides continuityRetainedStateRegistry(),
+            LocalRetainScope provides retainScope,
             LocalNavigationEventDispatcherOwner provides navigationEventDispatcherOwner,
         ) {
             val uiGraph = remember(applicationGraph) {
