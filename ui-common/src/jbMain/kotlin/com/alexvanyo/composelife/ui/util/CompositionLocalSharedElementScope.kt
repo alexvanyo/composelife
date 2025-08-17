@@ -26,7 +26,6 @@ import androidx.compose.animation.SharedTransitionScope.OverlayClip
 import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize
 import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize.Companion.contentSize
 import androidx.compose.animation.SharedTransitionScope.ResizeMode
-import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.ScaleToBounds
 import androidx.compose.animation.SharedTransitionScope.SharedContentState
 import androidx.compose.animation.core.Spring.StiffnessMediumLow
 import androidx.compose.animation.core.VisibilityThreshold
@@ -36,7 +35,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Path
@@ -94,7 +93,7 @@ fun Modifier.trySharedBounds(
     enter: EnterTransition = fadeIn(),
     exit: ExitTransition = fadeOut(),
     boundsTransform: BoundsTransform = DefaultBoundsTransform,
-    resizeMode: ResizeMode = ScaleToBounds(ContentScale.FillWidth, Center),
+    resizeMode: ResizeMode = scaleToBounds(ContentScale.FillWidth, Alignment.Center),
     placeHolderSize: PlaceHolderSize = contentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
@@ -124,6 +123,15 @@ fun Modifier.trySharedBounds(
         },
     )
 }
+
+/**
+ * TODO: Replace when available in common
+ */
+@OptIn(ExperimentalSharedTransitionApi::class)
+internal expect fun scaleToBounds(
+    contentScale: ContentScale = ContentScale.FillWidth,
+    alignment: Alignment = Alignment.Center,
+): ResizeMode
 
 @Suppress("ComposeComposableModifier", "ComposeModifierWithoutDefault", "LongParameterList")
 @OptIn(ExperimentalSharedTransitionApi::class)
