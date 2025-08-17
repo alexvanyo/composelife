@@ -21,11 +21,16 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.compose.NavigationEventHandler
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackRenderableNavigationTransformResult
@@ -39,8 +44,6 @@ import com.alexvanyo.composelife.serialization.uuidSaver
 import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavigationFrame
 import com.alexvanyo.composelife.ui.util.LocalNavigationSharedTransitionScope
 import com.alexvanyo.composelife.ui.util.PlatformEdgeToEdgeDialog
-import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
-import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import kotlin.uuid.Uuid
 
 fun <T> dialogNavigationTransform(
@@ -135,18 +138,30 @@ private fun <T> entryTransform(
                     ) {
                         SharedTransitionLayout {
                             CompositionLocalProvider(LocalNavigationSharedTransitionScope provides null) {
-                                val repeatablePredictiveBackStateHolder =
-                                    rememberRepeatablePredictiveBackStateHolder()
+                                val dispatcher = requireNotNull(
+                                    LocalNavigationEventDispatcherOwner.current,
+                                ).navigationEventDispatcher
+                                val navigationEventState by dispatcher.getState<
+                                    DialogNavigationTransformNavigationEventInfo,
+                                    >(
+                                    rememberCoroutineScope(),
+                                    DialogNavigationTransformNavigationEventInfo(dialogEntries.last().id),
+                                ).collectAsState()
 
-                                RepeatablePredictiveBackHandler(
-                                    repeatablePredictiveBackStateHolder = repeatablePredictiveBackStateHolder,
+                                NavigationEventHandler(
                                     enabled = dialogEntries.size > 1,
-                                    onBack = onBackButtonPressed,
-                                )
+                                    currentInfo = DialogNavigationTransformNavigationEventInfo(dialogEntries.last().id),
+                                    previousInfo = dialogEntries.getOrNull(
+                                        dialogEntries.size - 2,
+                                    )?.id?.let(::DialogNavigationTransformNavigationEventInfo),
+                                ) { progress ->
+                                    progress.collect {}
+                                    onBackButtonPressed()
+                                }
 
                                 CrossfadePredictiveNavigationFrame(
                                     dialogRenderableNavigationState,
-                                    repeatablePredictiveBackStateHolder.value,
+                                    navigationEventState,
                                 )
                             }
                         }
@@ -175,6 +190,10 @@ private fun <T> entryTransform(
     } else {
         null
     }
+
+private data class DialogNavigationTransformNavigationEventInfo(
+    val entryId: Uuid,
+) : NavigationEventInfo
 
 @Composable
 private fun <T> createDialogRenderableNavigationState(

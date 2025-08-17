@@ -20,6 +20,7 @@ package com.alexvanyo.composelife.ui.app
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +30,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.round
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.NavigationEventState
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.compose.NavigationEventHandler
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
@@ -55,11 +60,8 @@ import com.alexvanyo.composelife.ui.mobile.rememberSpatialController
 import com.alexvanyo.composelife.ui.util.ClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.ImmersiveModeManager
 import com.alexvanyo.composelife.ui.util.LocalGhostElement
-import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
-import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.rememberClipboardReaderWriter
-import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import com.alexvanyo.composelife.ui.util.setText
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
@@ -253,32 +255,43 @@ internal fun rememberInteractiveCellUniverseState(
         }
     }
 
-    val infoCardExpandedPredictiveBackStateHolder = rememberRepeatablePredictiveBackStateHolder()
-    RepeatablePredictiveBackHandler(
-        repeatablePredictiveBackStateHolder = infoCardExpandedPredictiveBackStateHolder,
+    val dispatcher = requireNotNull(LocalNavigationEventDispatcherOwner.current).navigationEventDispatcher
+    val infoCardNavigationEventState by dispatcher.getState<InfoCardNavigationEventInfo>(
+        rememberCoroutineScope(),
+        InfoCardNavigationEventInfo,
+    ).collectAsState()
+    NavigationEventHandler(
         enabled = isInfoCardExpanded && !isActionCardTopCard,
-    ) {
+        currentInfo = InfoCardNavigationEventInfo,
+        previousInfo = null,
+    ) { progress ->
+        progress.collect {}
         setIsInfoCardExpanded(false)
     }
 
-    val actionCardExpandedPredictiveBackStateHolder = rememberRepeatablePredictiveBackStateHolder()
-    RepeatablePredictiveBackHandler(
-        repeatablePredictiveBackStateHolder = actionCardExpandedPredictiveBackStateHolder,
+    val actionCardNavigationEventState by dispatcher.getState<ActionCardNavigationEventInfo>(
+        rememberCoroutineScope(),
+        ActionCardNavigationEventInfo,
+    ).collectAsState()
+    NavigationEventHandler(
         enabled = isActionCardExpanded,
-    ) {
+        currentInfo = ActionCardNavigationEventInfo,
+        previousInfo = null,
+    ) { progress ->
+        progress.collect {}
         setIsActionCardExpanded(false)
     }
 
     val infoCardState = rememberCellUniverseInfoCardState(
         setIsExpanded = ::setIsInfoCardExpanded,
-        expandedTargetState = when (val predictiveBackState = infoCardExpandedPredictiveBackStateHolder.value) {
-            RepeatablePredictiveBackState.NotRunning -> TargetState.Single(isInfoCardExpanded)
-            is RepeatablePredictiveBackState.Running -> {
+        expandedTargetState = when (val navEventState = infoCardNavigationEventState) {
+            is NavigationEventState.Idle<*> -> TargetState.Single(isInfoCardExpanded)
+            is NavigationEventState.InProgress<*> -> {
                 check(isInfoCardExpanded)
                 TargetState.InProgress(
                     current = true,
                     provisional = false,
-                    progress = predictiveBackState.progress,
+                    progress = navEventState.progress,
                 )
             }
         },
@@ -286,14 +299,14 @@ internal fun rememberInteractiveCellUniverseState(
     val actionCardState = rememberCellUniverseActionCardState(
         setIsExpanded = ::setIsActionCardExpanded,
         enableBackHandler = isActionCardTopCard,
-        expandedTargetState = when (val predictiveBackState = actionCardExpandedPredictiveBackStateHolder.value) {
-            RepeatablePredictiveBackState.NotRunning -> TargetState.Single(isActionCardExpanded)
-            is RepeatablePredictiveBackState.Running -> {
+        expandedTargetState = when (val navEventState = actionCardNavigationEventState) {
+            is NavigationEventState.Idle<*> -> TargetState.Single(isActionCardExpanded)
+            is NavigationEventState.InProgress<*> -> {
                 check(isActionCardExpanded)
                 TargetState.InProgress(
                     current = true,
                     provisional = false,
-                    progress = predictiveBackState.progress,
+                    progress = navEventState.progress,
                 )
             }
         },
@@ -476,3 +489,7 @@ internal fun rememberInteractiveCellUniverseState(
         }
     }
 }
+
+private object InfoCardNavigationEventInfo : NavigationEventInfo
+
+private object ActionCardNavigationEventInfo : NavigationEventInfo
