@@ -27,11 +27,13 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -40,6 +42,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.compose.NavigationEventHandler
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.BackstackValueSaverFactory
@@ -53,9 +58,7 @@ import com.alexvanyo.composelife.navigation.segmentingNavigationTransform
 import com.alexvanyo.composelife.serialization.uuidSaver
 import com.alexvanyo.composelife.ui.util.AnimatedVisibility
 import com.alexvanyo.composelife.ui.util.MaterialPredictiveNavigationFrame
-import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.TargetState
-import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import kotlinx.coroutines.delay
 import kotlin.uuid.Uuid
 
@@ -174,12 +177,18 @@ private fun DialogNavigationTransformPreview() {
         }
     }
 
-    val repeatablePredictiveBackStateHolder = rememberRepeatablePredictiveBackStateHolder()
+    val dispatcher = requireNotNull(LocalNavigationEventDispatcherOwner.current).navigationEventDispatcher
+    val navigationEventState by dispatcher.getState<DialogNavigationTransformPreviewNavigationEventInfo>(
+        rememberCoroutineScope(),
+        DialogNavigationTransformPreviewNavigationEventInfo(navController.currentEntryId),
+    ).collectAsState()
 
-    RepeatablePredictiveBackHandler(
-        repeatablePredictiveBackStateHolder = repeatablePredictiveBackStateHolder,
+    NavigationEventHandler(
         enabled = navController.canNavigateBack,
-    ) {
+        currentInfo = DialogNavigationTransformPreviewNavigationEventInfo(navController.currentEntryId),
+        previousInfo = navController.previousEntryId?.let(::DialogNavigationTransformPreviewNavigationEventInfo),
+    ) { progress ->
+        progress.collect {}
         navController.popBackstack()
     }
 
@@ -189,10 +198,14 @@ private fun DialogNavigationTransformPreview() {
                 renderableNavigationState,
             ),
         ),
-        repeatablePredictiveBackState = repeatablePredictiveBackStateHolder.value,
+        navigationEventState = navigationEventState,
         modifier = Modifier.fillMaxSize(),
     )
 }
+
+private data class DialogNavigationTransformPreviewNavigationEventInfo(
+    val entryId: Uuid,
+) : NavigationEventInfo
 
 @Preview
 @Composable

@@ -67,6 +67,8 @@ kotlin {
         val jbMain by creating {
             dependsOn(jvmMain)
             dependencies {
+                api(libs.androidx.navigationEvent)
+                api(libs.androidx.navigationEvent.compose)
                 implementation(libs.androidx.lifecycle.runtime.compose)
                 implementation(libs.jetbrains.compose.animation)
                 implementation(libs.jetbrains.compose.foundation)

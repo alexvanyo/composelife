@@ -459,7 +459,7 @@ fun CellUniverseActionCard(
                             ) {
                                 CrossfadePredictiveNavigationFrame(
                                     renderableNavigationState = renderableNavigationState,
-                                    repeatablePredictiveBackState = actionCardState.inlineRepeatablePredictiveBackState,
+                                    navigationEventState = actionCardState.inlineNavigationEventState,
                                     contentAlignment = Alignment.BottomCenter,
                                     animateInternalContentSizeChanges = false,
                                     modifier = Modifier.weight(1f, fill = false),
