@@ -25,8 +25,6 @@ androidx.lifecycle:lifecycle-viewmodel-desktop:2.10.0-alpha02
 androidx.lifecycle:lifecycle-viewmodel-savedstate-desktop:2.10.0-alpha02
 androidx.lifecycle:lifecycle-viewmodel-savedstate:2.10.0-alpha02
 androidx.lifecycle:lifecycle-viewmodel:2.10.0-alpha02
-androidx.savedstate:savedstate-compose-desktop:1.4.0-alpha02
-androidx.savedstate:savedstate-compose:1.4.0-alpha02
 androidx.savedstate:savedstate-desktop:1.4.0-alpha02
 androidx.savedstate:savedstate:1.4.0-alpha02
 androidx.window:window-core-jvm:1.5.0-beta02
@@ -45,7 +43,6 @@ co.touchlab:kermit-core-jvm:2.0.6
 co.touchlab:kermit-core:2.0.6
 co.touchlab:kermit-jvm:2.0.6
 co.touchlab:kermit:2.0.6
-com.github.livefront.sealed-enum:runtime:0.7.0
 com.slack.circuit:circuit-retained-jvm:0.29.1
 com.slack.circuit:circuit-retained:0.29.1
 com.squareup.okhttp3:okhttp-sse:4.12.0
