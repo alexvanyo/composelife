@@ -27,6 +27,7 @@
 -dontwarn androidx.fragment.app.FragmentActivity
 -dontwarn androidx.fragment.app.FragmentManager$FragmentLifecycleCallbacks
 -dontwarn androidx.fragment.app.FragmentManager
+-dontwarn androidx.fragment.app.FragmentTransitionImpl
 -dontwarn androidx.test.platform.app.AppComponentFactoryRegistry
 -dontwarn androidx.test.platform.concurrent.DirectExecutor
 -dontwarn androidx.work.Data$Builder
