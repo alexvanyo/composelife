@@ -29,13 +29,18 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.unit.DpSize
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.compose.NavigationEventHandler
 import androidx.window.core.layout.WindowSizeClass
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.navigation.BackstackEntry
@@ -65,15 +70,14 @@ import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.util.LocalNavigationSharedTransitionScope
 import com.alexvanyo.composelife.ui.util.MaterialPredictiveNavigationFrame
-import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
 import com.alexvanyo.composelife.ui.util.ReportDrawn
-import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
+import kotlin.uuid.Uuid
 
 @Immutable
 @Inject
@@ -134,13 +138,26 @@ fun ComposeLifeApp(
                     is ComposeLifeAppState.LoadedPreferences -> {
                         ReportDrawn()
 
-                        val predictiveBackStateHolder = rememberRepeatablePredictiveBackStateHolder()
+                        val dispatcher = requireNotNull(
+                            LocalNavigationEventDispatcherOwner.current,
+                        ).navigationEventDispatcher
+                        val navigationEventState by dispatcher.getState<ComposeLifeAppNavigationEventInfo>(
+                            rememberCoroutineScope(),
+                            ComposeLifeAppNavigationEventInfo(targetComposeLifeAppState.navigationState.currentEntryId),
+                        ).collectAsState()
 
-                        RepeatablePredictiveBackHandler(
-                            repeatablePredictiveBackStateHolder = predictiveBackStateHolder,
+                        NavigationEventHandler(
                             enabled = targetComposeLifeAppState.canNavigateBack,
-                            onBack = targetComposeLifeAppState::onBackPressed,
-                        )
+                            currentInfo = ComposeLifeAppNavigationEventInfo(
+                                targetComposeLifeAppState.navigationState.currentEntryId,
+                            ),
+                            previousInfo = targetComposeLifeAppState.navigationState.previousEntryId?.let(
+                                ::ComposeLifeAppNavigationEventInfo,
+                            ),
+                        ) { progress ->
+                            progress.collect {}
+                            targetComposeLifeAppState.onBackPressed()
+                        }
 
                         with(targetComposeLifeAppState.composeLifeAppUiWithLoadedPreferencesEntryPoint) {
                             SharedTransitionLayout {
@@ -204,7 +221,7 @@ fun ComposeLifeApp(
                                                     .invoke(renderableNavigationState),
                                             ),
                                         ),
-                                        repeatablePredictiveBackState = predictiveBackStateHolder.value,
+                                        navigationEventState = navigationEventState,
                                         clipUsingWindowShape = preferencesHolder.preferences.enableWindowShapeClipping,
                                     )
                                 }
@@ -348,6 +365,10 @@ fun rememberComposeLifeAppState(
         }
     }
 }
+
+private data class ComposeLifeAppNavigationEventInfo(
+    val entryId: Uuid,
+) : NavigationEventInfo
 
 sealed interface ComposeLifeAppState {
     /**

@@ -18,12 +18,18 @@ package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.NavigationEventState
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.compose.NavigationEventHandler
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackState
@@ -32,10 +38,7 @@ import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneEntryPoint
-import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackHandler
-import com.alexvanyo.composelife.ui.util.RepeatablePredictiveBackState
 import com.alexvanyo.composelife.ui.util.TargetState
-import com.alexvanyo.composelife.ui.util.rememberRepeatablePredictiveBackStateHolder
 import dev.zacsweers.metro.Inject
 import kotlin.uuid.Uuid
 
@@ -69,9 +72,9 @@ interface CellUniverseActionCardState {
     val inlineNavigationState: BackstackState<InlineActionCardNavigation>
 
     /**
-     * The [RepeatablePredictiveBackState] for the inline navigation of the [CellUniverseActionCard].
+     * The [NavigationEventState] for the inline navigation of the [CellUniverseActionCard].
      */
-    val inlineRepeatablePredictiveBackState: RepeatablePredictiveBackState
+    val inlineNavigationEventState: NavigationEventState<NavigationEventInfo>
 
     /**
      * `true` if the card can navigate back.
@@ -188,16 +191,22 @@ fun rememberCellUniverseActionCardState(
         }
     }
 
-    val inlinePredictiveBackStateHolder = rememberRepeatablePredictiveBackStateHolder()
-    RepeatablePredictiveBackHandler(
-        repeatablePredictiveBackStateHolder = inlinePredictiveBackStateHolder,
+    val dispatcher = requireNotNull(LocalNavigationEventDispatcherOwner.current).navigationEventDispatcher
+    val navigationEventState by dispatcher.getState<CellUniverseActionCardNavigationEventInfo>(
+        rememberCoroutineScope(),
+        CellUniverseActionCardNavigationEventInfo(inlineNavigationState.currentEntryId),
+    ).collectAsState()
+
+    NavigationEventHandler(
         enabled = enableBackHandler && expandedTargetState.current && canNavigateBack,
-    ) {
+        currentInfo = CellUniverseActionCardNavigationEventInfo(inlineNavigationState.currentEntryId),
+        previousInfo = inlineNavigationState.previousEntryId?.let(::CellUniverseActionCardNavigationEventInfo),
+    ) { progress ->
+        progress.collect {}
         onBackPressed(inlineNavigationState.currentEntryId)
     }
 
     return object : CellUniverseActionCardState {
-
         override fun setIsExpanded(isExpanded: Boolean) {
             setIsExpanded(isExpanded)
         }
@@ -207,7 +216,7 @@ fun rememberCellUniverseActionCardState(
 
         override val inlineNavigationState get() = inlineNavigationState
 
-        override val inlineRepeatablePredictiveBackState get() = inlinePredictiveBackStateHolder.value
+        override val inlineNavigationEventState get() = navigationEventState
 
         override val canNavigateBack: Boolean get() = canNavigateBack
 
@@ -234,3 +243,7 @@ fun rememberCellUniverseActionCardState(
         }
     }
 }
+
+private data class CellUniverseActionCardNavigationEventInfo(
+    val entryId: Uuid,
+): NavigationEventInfo
