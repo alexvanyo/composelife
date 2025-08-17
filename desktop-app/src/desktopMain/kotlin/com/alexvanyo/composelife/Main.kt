@@ -52,6 +52,7 @@ import dev.zacsweers.metro.createGraph
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
+@Suppress("LongMethod")
 fun main() = application {
     val globalGraph = createGraph<GlobalGraph>()
     val applicationGraph = globalGraph.asContribution<ApplicationGraph.Factory>().create(
