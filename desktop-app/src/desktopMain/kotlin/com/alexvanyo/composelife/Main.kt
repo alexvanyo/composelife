@@ -19,10 +19,15 @@ package com.alexvanyo.composelife
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import androidx.navigationevent.NavigationEventDispatcher
+import androidx.navigationevent.NavigationEventDispatcherOwner
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
@@ -68,12 +73,25 @@ fun main() = application {
 
     val windowState = rememberWindowState()
 
+    val currentExitApplication by rememberUpdatedState(::exitApplication)
+
     Window(
-        onCloseRequest = ::exitApplication,
+        onCloseRequest = currentExitApplication,
         title = "ComposeLife",
         state = windowState,
     ) {
-        CompositionLocalProvider(LocalRetainedStateRegistry provides continuityRetainedStateRegistry()) {
+        val navigationEventDispatcherOwner = remember {
+            object : NavigationEventDispatcherOwner {
+                override val navigationEventDispatcher = NavigationEventDispatcher(
+                    fallbackOnBackPressed = currentExitApplication,
+                )
+            }
+        }
+
+        CompositionLocalProvider(
+            LocalRetainedStateRegistry provides continuityRetainedStateRegistry(),
+            LocalNavigationEventDispatcherOwner provides navigationEventDispatcherOwner,
+        ) {
             val uiGraph = remember(applicationGraph) {
                 (applicationGraph as UiGraph.Factory).create(
                     object : UiGraphArguments {
