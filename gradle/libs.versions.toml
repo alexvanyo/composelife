@@ -80,7 +80,7 @@ guavaAndroid = "32.1.3-android"
 #keeper
 keeper = "0.16.1"
 #kermit
-kermit = "2.0.6"
+kermit = "2.0.8"
 #kotlin
 kotlin = "2.2.10"
 #kotlinPoet
