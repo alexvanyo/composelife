@@ -3,10 +3,10 @@ androidx.annotation:annotation:1.9.1
 androidx.arch.core:core-common:2.2.0
 androidx.collection:collection-jvm:1.5.0
 androidx.collection:collection:1.5.0
-androidx.compose.runtime:runtime-annotation-jvm:1.9.0-rc01
-androidx.compose.runtime:runtime-annotation:1.9.0-rc01
-androidx.compose.runtime:runtime-desktop:1.9.0-rc01
-androidx.compose.runtime:runtime:1.9.0-rc01
+androidx.compose.runtime:runtime-annotation-jvm:1.10.0-alpha01
+androidx.compose.runtime:runtime-annotation:1.10.0-alpha01
+androidx.compose.runtime:runtime-desktop:1.10.0-alpha01
+androidx.compose.runtime:runtime:1.10.0-alpha01
 androidx.datastore:datastore-core-jvm:1.2.0-alpha02
 androidx.datastore:datastore-core-okio-jvm:1.2.0-alpha02
 androidx.datastore:datastore-core-okio:1.2.0-alpha02
@@ -50,8 +50,6 @@ co.touchlab:kermit-core:2.0.8
 co.touchlab:kermit-jvm:2.0.8
 co.touchlab:kermit:2.0.8
 com.github.livefront.sealed-enum:runtime:0.7.0
-com.slack.circuit:circuit-retained-jvm:0.29.1
-com.slack.circuit:circuit-retained:0.29.1
 com.squareup.okhttp3:okhttp-sse:4.12.0
 com.squareup.okhttp3:okhttp:4.12.0
 com.squareup.okio:okio-jvm:3.16.0
@@ -147,9 +145,8 @@ org.jetbrains.compose.ui:ui-unit:1.9.0-beta03
 org.jetbrains.compose.ui:ui-util-desktop:1.9.0-beta03
 org.jetbrains.compose.ui:ui-util:1.9.0-beta03
 org.jetbrains.compose.ui:ui:1.9.0-beta03
-org.jetbrains.kotlin:kotlin-bom:2.2.0
-org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0
-org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0
+org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.21
+org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.21
 org.jetbrains.kotlin:kotlin-stdlib:2.2.10
 org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
 org.jetbrains.kotlinx:atomicfu:0.23.2
