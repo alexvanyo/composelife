@@ -32,7 +32,6 @@ import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.settings.CellStatePreviewUiEntryPoint
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneEntryPoint
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneEntryPoint
-import com.alexvanyo.composelife.ui.settings.PatternCollectionsUiEntryPoint
 import com.alexvanyo.composelife.ui.util.TimeZoneHolder
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph

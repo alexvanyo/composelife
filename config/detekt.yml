@@ -91,8 +91,6 @@ formatting:
     excludes: [ '**/generated/**' ]
   NoUnitReturn:
     excludes: [ '**/generated/**' ]
-  NoUnusedImports:
-    active: false # TODO: Re-enable when context parameters are supported
   PackageName:
     excludes: [ '**/generated/**' ]
   ParameterListWrapping:
@@ -101,8 +99,6 @@ formatting:
     excludes: [ '**/generated/**' ]
   SpacingAroundAngleBrackets:
     active: true
-  SpacingAroundColon:
-    active: false # TODO: Re-enable when context parameters are supported
   SpacingAroundComma:
     excludes: [ '**/generated/**' ]
   SpacingAroundCurly:
@@ -125,7 +121,6 @@ formatting:
     active: true
   Wrapping:
     excludes: [ '**/generated/**' ]
-    active: false # TODO: Re-enable when context parameters are supported
 
 naming:
   ConstructorParameterNaming:
