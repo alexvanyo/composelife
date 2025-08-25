@@ -24,7 +24,6 @@ import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Provides
 import okio.FileSystem
 import okio.Path
-import okio.Path.Companion.toPath
 
 @ContributesTo(AppScope::class)
 @BindingContainer
