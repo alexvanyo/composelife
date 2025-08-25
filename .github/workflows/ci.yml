@@ -34,12 +34,13 @@ jobs:
               {"sdk": "32"},
               {"sdk": "33"},
               {"sdk": "34"},
-              {"sdk": "35"}
+              {"sdk": "35"},
+              {"sdk": "36"}
             '
           else
             MATRIX='
               {"sdk": "23"},
-              {"sdk": "35"}
+              {"sdk": "36"}
             '
           fi
           echo "matrix={\"include\":[${MATRIX//$'\n'/}]}" >> $GITHUB_OUTPUT
@@ -152,7 +153,7 @@ jobs:
         with:
           # Use PAT if on a pull request from the main repo, in preparation for auto-committing fixes
           # Otherwise use the default token
-          token: ${{ (matrix.sdk == '35' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' && secrets.PAT) || github.token}}
+          token: ${{ (matrix.sdk == '36' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' && secrets.PAT) || github.token}}
 
       - name: Copy ci-gradle.properties
         run: |
@@ -171,10 +172,10 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          cache-read-only: ${{ matrix.sdk != 35 || github.ref != 'refs/heads/main' }}
+          cache-read-only: ${{ matrix.sdk != 36 || github.ref != 'refs/heads/main' }}
 
       - name: Create CI robolectric.properties
-        if: ${{ matrix.sdk != 35 }}
+        if: ${{ matrix.sdk != 36 }}
         run: |
           robolectric_projects=($(find . -regex ".*/src/androidUnitTest/resources/com/alexvanyo/robolectric.properties" | grep -oP '\./(.*?)/'))
           for project in "${robolectric_projects[@]}"
@@ -188,40 +189,40 @@ jobs:
         run: ./gradlew check --stacktrace
 
       - name: Auto-commit formatting changes
-        if: ${{ !cancelled() && matrix.sdk == '35' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
+        if: ${{ !cancelled() && matrix.sdk == '36' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Fix formatting issues
           push_options: --force-with-lease
 
       - name: Update dependency guard baseline
-        if: ${{ !cancelled() && matrix.sdk == '35' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
+        if: ${{ !cancelled() && matrix.sdk == '36' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         run: ./gradlew dependencyGuardBaseline
 
       - name: Auto-commit dependency guard baseline changes
-        if: ${{ !cancelled() && matrix.sdk == '35' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
+        if: ${{ !cancelled() && matrix.sdk == '36' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Auto update dependency guard baseline
           push_options: --force-with-lease
 
       - name: Update screenshots
-        if: ${{ !cancelled() && matrix.sdk == '35' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
+        if: ${{ !cancelled() && matrix.sdk == '36' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         run: ./gradlew recordRoborazzi
 
       - name: Auto-commit screenshot changes
-        if: ${{ !cancelled() && matrix.sdk == '35' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
+        if: ${{ !cancelled() && matrix.sdk == '36' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Auto update screenshots
           push_options: --force-with-lease
 
       - name: Update badging
-        if: ${{ !cancelled() && matrix.sdk == '35' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
+        if: ${{ !cancelled() && matrix.sdk == '36' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         run: ./gradlew updateReleaseBadging
 
       - name: Auto-commit badging changes
-        if: ${{ !cancelled() && matrix.sdk == '35' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
+        if: ${{ !cancelled() && matrix.sdk == '36' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Auto update badging
@@ -247,12 +248,12 @@ jobs:
           path: "build/reports/jacoco/**/*.xml"
 
       - name: Assemble
-        if: matrix.sdk == '35'
+        if: matrix.sdk == '36'
         # Assemble with running benchmarks and generating baseline profile to ensure those compile
         run: ./gradlew assemble assembleAndroidTest -Pcom.alexvanyo.composelife.runBenchmarks=true -Pandroidx.baselineprofile.skipgeneration
 
       - name: Upload APKs
-        if: matrix.sdk == '35'
+        if: matrix.sdk == '36'
         uses: actions/upload-artifact@v4
         with:
           name: apks
