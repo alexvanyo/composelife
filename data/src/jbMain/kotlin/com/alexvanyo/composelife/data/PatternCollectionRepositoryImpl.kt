@@ -75,17 +75,12 @@ import okio.openZip
 import okio.use
 import kotlin.time.Clock
 
-@ContributesTo(AppScope::class)
-@BindingContainer
-interface PatternCollectionRepositoryImplBindings {
-    @Binds
-    @IntoSet
-    @ForScope(AppScope::class)
-    private fun PatternCollectionRepositoryImpl.bindIntoUpdatable(): Updatable = this
-}
-
 @Inject
 @ContributesBinding(AppScope::class, binding = binding<PatternCollectionRepository>())
+@ContributesIntoSet(AppScope::class, binding = binding<
+    @ForScope(AppScope::class)
+    Updatable,
+    >())
 @SingleIn(AppScope::class)
 @Suppress("LongParameterList")
 internal class PatternCollectionRepositoryImpl(
