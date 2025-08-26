@@ -22,11 +22,11 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.disk.DiskCache
 import coil3.memory.MemoryCache
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.updatable.AppUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
@@ -73,7 +73,7 @@ interface ImageLoaderBindings {
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
-        @AppUpdatable
+        @ForScope(AppScope::class)
         internal fun providesImageLoaderShutdownIntoUpdatable(
             imageLoader: ImageLoader,
         ): Updatable = object : Updatable {

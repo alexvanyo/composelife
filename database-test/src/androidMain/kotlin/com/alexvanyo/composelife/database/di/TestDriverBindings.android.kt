@@ -24,11 +24,11 @@ import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.alexvanyo.composelife.database.ComposeLifeDatabase
 import com.alexvanyo.composelife.scopes.ApplicationContext
-import com.alexvanyo.composelife.updatable.AppUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
@@ -59,7 +59,7 @@ interface TestDriverBindings {
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
-        @AppUpdatable
+        @ForScope(AppScope::class)
         fun providesDriverClosingIntoUpdatable(
             driver: SqlDriver,
         ): Updatable = object : Updatable {
