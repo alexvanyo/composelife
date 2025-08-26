@@ -122,7 +122,7 @@ okio = "3.16.0"
 #proguard
 proguard = "7.7.0"
 #robolectric
-robolectric = "4.16-beta-1"
+robolectric = "4.16"
 #roborazzi
 roborazzi = "1.49.0"
 #sealedEnum
