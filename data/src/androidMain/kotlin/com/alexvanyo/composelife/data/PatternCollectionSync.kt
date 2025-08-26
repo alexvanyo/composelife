@@ -24,15 +24,17 @@ import androidx.work.WorkManager
 import androidx.work.await
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.successes
-import com.alexvanyo.composelife.updatable.AppUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
+import dev.zacsweers.metro.ContributesIntoSet
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -40,17 +42,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.guava.await
 
-@ContributesTo(AppScope::class)
-@BindingContainer
-interface PatternCollectionSyncBindings {
-    @Binds
-    @IntoSet
-    @AppUpdatable
-    val PatternCollectionSync.bindIntoUpdatable: Updatable
-}
-
 @Inject
 @SingleIn(AppScope::class)
+@ContributesIntoSet(AppScope::class, binding = binding<
+    @ForScope(AppScope::class)
+    Updatable,
+    >())
 class PatternCollectionSync(
     private val composeLifePreferences: ComposeLifePreferences,
     workManager: Lazy<WorkManager>,

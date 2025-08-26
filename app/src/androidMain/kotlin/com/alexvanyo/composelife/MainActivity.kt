@@ -35,9 +35,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.toSize
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
@@ -49,11 +46,11 @@ import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiEntryPoint
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
 import com.alexvanyo.composelife.ui.util.ProvideLocalWindowInsetsHolder
-import com.alexvanyo.composelife.updatable.UiUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import com.slack.circuit.retained.LocalRetainedStateRegistry
 import com.slack.circuit.retained.continuityRetainedStateRegistry
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.ForScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
@@ -61,7 +58,8 @@ import kotlinx.coroutines.supervisorScope
 interface MainActivityInjectEntryPoint : ComposeLifePreferencesProvider {
     val composeLifeAppUiEntryPoint: ComposeLifeAppUiEntryPoint
 
-    @UiUpdatable val uiUpdatables: Set<Updatable>
+    @ForScope(UiScope::class)
+    val uiUpdatables: Set<Updatable>
 }
 
 // TODO: Replace with asContribution()
