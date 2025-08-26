@@ -20,11 +20,11 @@ import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.logging.Logger
 import com.alexvanyo.composelife.network.EngineFactoryWithConfigBlock
 import com.alexvanyo.composelife.network.HttpClient
-import com.alexvanyo.composelife.updatable.AppUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
@@ -58,7 +58,7 @@ interface NetworkBindings {
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
-        @AppUpdatable
+        @ForScope(AppScope::class)
         internal fun providesHttpClientClosingIntoUpdatable(
             httpClient: Lazy<HttpClient>,
         ): Updatable = object : Updatable {

@@ -24,9 +24,9 @@ import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
-import com.alexvanyo.composelife.updatable.UiUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.ForScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
@@ -40,7 +40,8 @@ import kotlin.time.Duration.Companion.seconds
 
 @ContributesTo(UiScope::class)
 interface BaseUiInjectTestEntryPoint {
-    @UiUpdatable val uiUpdatables: Set<Updatable>
+    @ForScope(UiScope::class)
+    val uiUpdatables: Set<Updatable>
 }
 
 // TODO: Replace with asContribution()
