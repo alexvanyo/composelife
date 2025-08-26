@@ -16,11 +16,11 @@
 
 package com.alexvanyo.composelife.filesystem.di
 
-import com.alexvanyo.composelife.updatable.AppUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
@@ -43,7 +43,7 @@ interface FakeFileSystemBindings {
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
-        @AppUpdatable
+        @ForScope(AppScope::class)
         internal fun providesFakeFileSystemIntoUpdatable(
             fakeFileSystem: FakeFileSystem,
         ): Updatable = object : Updatable {
