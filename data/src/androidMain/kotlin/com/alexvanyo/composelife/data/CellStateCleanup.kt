@@ -23,27 +23,24 @@ import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
+import dev.zacsweers.metro.ContributesIntoSet
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.guava.await
 import kotlinx.datetime.DateTimePeriod
 
-@ContributesTo(AppScope::class)
-@BindingContainer
-interface CellStateCleanupBindings {
-    @Binds
-    @IntoSet
-    @ForScope(AppScope::class)
-    val CellStateCleanup.bindIntoUpdatable: Updatable
-}
-
 @Inject
 @SingleIn(AppScope::class)
+@ContributesIntoSet(AppScope::class, binding = binding<
+    @ForScope(AppScope::class)
+    Updatable,
+    >())
 class CellStateCleanup(
     workManager: Lazy<WorkManager>,
 ) : Updatable {
