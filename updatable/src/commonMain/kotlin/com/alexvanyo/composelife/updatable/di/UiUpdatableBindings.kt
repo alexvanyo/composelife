@@ -17,16 +17,16 @@
 package com.alexvanyo.composelife.updatable.di
 
 import com.alexvanyo.composelife.scopes.UiScope
-import com.alexvanyo.composelife.updatable.UiUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.Multibinds
 
 @BindingContainer
 @ContributesTo(UiScope::class)
 interface UiUpdatableBindings {
     @Multibinds(allowEmpty = true)
-    @UiUpdatable
+    @ForScope(UiScope::class)
     val uiUpdatables: Set<Updatable>
 }

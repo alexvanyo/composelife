@@ -25,12 +25,12 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.updatable.PowerableUpdatable
-import com.alexvanyo.composelife.updatable.UiUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.Provides
@@ -111,7 +111,7 @@ class AndroidImmersiveModeManager private constructor(
 interface AndroidImmersiveModeManagerBindings {
     @Binds
     @IntoSet
-    @UiUpdatable
+    @ForScope(UiScope::class)
     val AndroidImmersiveModeManager.bindIntoUpdatable: Updatable
 }
 

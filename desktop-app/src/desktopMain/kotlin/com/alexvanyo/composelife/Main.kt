@@ -39,14 +39,13 @@ import com.alexvanyo.composelife.ui.app.ComposeLifeApp
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiEntryPoint
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
-import com.alexvanyo.composelife.updatable.AppUpdatable
-import com.alexvanyo.composelife.updatable.UiUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import com.slack.circuit.retained.LocalRetainedStateRegistry
 import com.slack.circuit.retained.continuityRetainedStateRegistry
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.asContribution
 import dev.zacsweers.metro.createGraph
 import kotlinx.coroutines.launch
@@ -129,7 +128,8 @@ fun main() = application {
 
 @ContributesTo(AppScope::class)
 interface ComposeLifeApplicationEntryPoint {
-    @AppUpdatable val appUpdatables: Set<Updatable>
+    @ForScope(AppScope::class)
+    val appUpdatables: Set<Updatable>
 }
 
 // TODO: Replace with asContribution()
@@ -140,7 +140,8 @@ internal val ApplicationGraph.composeLifeApplicationEntryPoint: ComposeLifeAppli
 interface MainInjectEntryPoint : ComposeLifePreferencesProvider {
     val composeLifeAppUiEntryPoint: ComposeLifeAppUiEntryPoint
 
-    @UiUpdatable val uiUpdatables: Set<Updatable>
+    @ForScope(UiScope::class)
+    val uiUpdatables: Set<Updatable>
 }
 
 // TODO: Replace with asContribution()

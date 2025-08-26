@@ -19,10 +19,10 @@ package com.alexvanyo.composelife.test
 import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
-import com.alexvanyo.composelife.updatable.AppUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.ForScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
@@ -41,7 +41,8 @@ import kotlin.time.Duration.Companion.seconds
 interface BaseInjectTestEntryPoint {
     @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
 
-    @AppUpdatable val appUpdatables: Set<Updatable>
+    @ForScope(AppScope::class)
+    val appUpdatables: Set<Updatable>
 }
 
 // TODO: Replace with asContribution()
