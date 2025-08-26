@@ -25,14 +25,13 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.updatable.PowerableUpdatable
-import com.alexvanyo.composelife.updatable.UiUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.BindingContainer
-import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ContributesIntoSet
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.binding
@@ -41,6 +40,10 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 @SingleIn(UiScope::class)
 @ContributesBinding(UiScope::class, binding = binding<ImmersiveModeManager>())
+@ContributesIntoSet(UiScope::class, binding = binding<
+    @ForScope(UiScope::class)
+    Updatable,
+    >())
 class AndroidImmersiveModeManager private constructor(
     private val activity: Activity?,
     private val powerableUpdatable: PowerableUpdatable,
@@ -104,15 +107,6 @@ class AndroidImmersiveModeManager private constructor(
         } else {
             Result.failure(IllegalStateException("Not supported on API < 35"))
         }
-}
-
-@ContributesTo(UiScope::class)
-@BindingContainer
-interface AndroidImmersiveModeManagerBindings {
-    @Binds
-    @IntoSet
-    @UiUpdatable
-    val AndroidImmersiveModeManager.bindIntoUpdatable: Updatable
 }
 
 @ContributesTo(UiScope::class)

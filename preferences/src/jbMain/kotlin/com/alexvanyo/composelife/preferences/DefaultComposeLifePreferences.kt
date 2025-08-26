@@ -32,15 +32,15 @@ import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.asResourceState
 import com.alexvanyo.composelife.resourcestate.isFailure
 import com.alexvanyo.composelife.sessionvalue.SessionValue
-import com.alexvanyo.composelife.updatable.AppUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ContributesIntoSet
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.binding
 import kotlinx.coroutines.awaitCancellation
@@ -50,20 +50,13 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retry
 import kotlinx.datetime.DateTimePeriod
 
-@ContributesTo(AppScope::class)
-@BindingContainer
-interface DefaultComposeLifePreferencesBindings {
-    @Binds
-    @IntoSet
-    @AppUpdatable
-    val DefaultComposeLifePreferences.bindIntoUpdatable: Updatable
-
-    @Binds
-    val DefaultComposeLifePreferences.bindComposeLifePreferences: ComposeLifePreferences
-}
-
 @Inject
 @SingleIn(AppScope::class)
+@ContributesIntoSet(AppScope::class, binding = binding<
+    @ForScope(AppScope::class)
+    Updatable,
+    >())
+@ContributesBinding(AppScope::class, binding = binding<ComposeLifePreferences>())
 class DefaultComposeLifePreferences(
     private val preferencesDataStore: PreferencesDataStore,
     private val logger: Logger,

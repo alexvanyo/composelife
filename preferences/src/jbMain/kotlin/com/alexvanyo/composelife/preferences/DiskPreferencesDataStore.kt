@@ -24,15 +24,12 @@ import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.core.okio.OkioStorage
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.preferences.proto.PreferencesProto
-import com.alexvanyo.composelife.updatable.AppUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.BindingContainer
-import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesBinding
-import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.Qualifier
 import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.binding
@@ -52,17 +49,12 @@ import java.io.IOException
 @Qualifier
 annotation class PreferencesProtoPath
 
-@ContributesTo(AppScope::class)
-@BindingContainer
-interface DiskPreferencesDataStoreBindings {
-    @Binds
-    @IntoSet
-    @AppUpdatable
-    private fun DiskPreferencesDataStore.bindIntoUpdatable(): Updatable = this
-}
-
 @SingleIn(AppScope::class)
 @ContributesBinding(AppScope::class, binding = binding<PreferencesDataStore>())
+@ContributesIntoSet(AppScope::class, binding = binding<
+    @ForScope(AppScope::class)
+    Updatable,
+    >())
 @Inject
 internal class DiskPreferencesDataStore(
     private val fileSystem: FileSystem,
