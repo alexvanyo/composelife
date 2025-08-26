@@ -32,12 +32,4 @@ internal val globalGraph = createGraph<GlobalGraph>()
 
 @ContributesTo(UiWithLoadedPreferencesScope::class, replaces = [UiWithLoadedPreferencesScopeBindings::class])
 @BindingContainer
-interface TestLoadedComposeLifePreferencesHolderBindings {
-
-    companion object {
-        @Provides
-        internal fun emptyProvides(): EmptyProvides = EmptyProvides()
-    }
-}
-
-internal class EmptyProvides
+interface TestLoadedComposeLifePreferencesHolderBindings
