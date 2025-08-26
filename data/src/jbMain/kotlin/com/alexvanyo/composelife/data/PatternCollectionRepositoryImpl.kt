@@ -34,7 +34,6 @@ import com.alexvanyo.composelife.filesystem.PersistedDataPath
 import com.alexvanyo.composelife.logging.Logger
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.resourcestate.map
-import com.alexvanyo.composelife.updatable.AppUpdatable
 import com.alexvanyo.composelife.updatable.PowerableUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
@@ -43,6 +42,7 @@ import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.ContributesIntoSet
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.SingleIn
@@ -80,7 +80,7 @@ import kotlin.time.Clock
 interface PatternCollectionRepositoryImplBindings {
     @Binds
     @IntoSet
-    @AppUpdatable
+    @ForScope(AppScope::class)
     private fun PatternCollectionRepositoryImpl.bindIntoUpdatable(): Updatable = this
 }
 
