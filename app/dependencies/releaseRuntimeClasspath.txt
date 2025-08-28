@@ -111,11 +111,11 @@ androidx.resourceinspection:resourceinspection-annotation:1.0.1
 androidx.room:room-common:2.6.1
 androidx.room:room-ktx:2.6.1
 androidx.room:room-runtime:2.6.1
-androidx.savedstate:savedstate-android:1.4.0-alpha02
-androidx.savedstate:savedstate-compose-android:1.4.0-alpha02
-androidx.savedstate:savedstate-compose:1.4.0-alpha02
-androidx.savedstate:savedstate-ktx:1.4.0-alpha02
-androidx.savedstate:savedstate:1.4.0-alpha02
+androidx.savedstate:savedstate-android:1.4.0-alpha03
+androidx.savedstate:savedstate-compose-android:1.4.0-alpha03
+androidx.savedstate:savedstate-compose:1.4.0-alpha03
+androidx.savedstate:savedstate-ktx:1.4.0-alpha03
+androidx.savedstate:savedstate:1.4.0-alpha03
 androidx.sqlite:sqlite-android:2.5.1
 androidx.sqlite:sqlite-framework-android:2.5.1
 androidx.sqlite:sqlite-framework:2.5.1
