@@ -40,7 +40,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.unit.DpSize
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
 import androidx.window.core.layout.computeWindowSizeClass
@@ -99,13 +98,10 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
         setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
-                val windowSize = DpSize(maxWidth, maxHeight)
-                val windowSizeClass = with(LocalDensity.current) {
-                    BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = windowSize.width.value,
-                        heightDp = windowSize.height.value,
-                    )
-                }
+                val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                    widthDp = maxWidth.value,
+                    heightDp = maxHeight.value,
+                )
 
                 with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
                     FullscreenSettingsPane(
@@ -191,13 +187,10 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
         setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
-                val windowSize = DpSize(maxWidth, maxHeight)
-                val windowSizeClass = with(LocalDensity.current) {
-                    BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = windowSize.width.value,
-                        heightDp = windowSize.height.value,
-                    )
-                }
+                val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                    widthDp = maxWidth.value,
+                    heightDp = maxHeight.value,
+                )
 
                 with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
                     FullscreenSettingsPane(
@@ -287,13 +280,10 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
         setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
-                val windowSize = DpSize(maxWidth, maxHeight)
-                val windowSizeClass = with(LocalDensity.current) {
-                    BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = windowSize.width.value,
-                        heightDp = windowSize.height.value,
-                    )
-                }
+                val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                    widthDp = maxWidth.value,
+                    heightDp = maxHeight.value,
+                )
 
                 with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
                     FullscreenSettingsPane(
@@ -367,13 +357,10 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
         setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
-                val windowSize = DpSize(maxWidth, maxHeight)
-                val windowSizeClass = with(LocalDensity.current) {
-                    BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = windowSize.width.value,
-                        heightDp = windowSize.height.value,
-                    )
-                }
+                val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                    widthDp = maxWidth.value,
+                    heightDp = maxHeight.value,
+                )
 
                 with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
                     FullscreenSettingsPane(
@@ -455,13 +442,10 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
         setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
-                val windowSize = DpSize(maxWidth, maxHeight)
-                val windowSizeClass = with(LocalDensity.current) {
-                    BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = windowSize.width.value,
-                        heightDp = windowSize.height.value,
-                    )
-                }
+                val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                    widthDp = maxWidth.value,
+                    heightDp = maxHeight.value,
+                )
 
                 with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
                     FullscreenSettingsPane(
@@ -529,13 +513,10 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
         setContent {
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
-                val windowSize = DpSize(maxWidth, maxHeight)
-                val windowSizeClass = with(LocalDensity.current) {
-                    BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = windowSize.width.value,
-                        heightDp = windowSize.height.value,
-                    )
-                }
+                val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                    widthDp = maxWidth.value,
+                    heightDp = maxHeight.value,
+                )
 
                 with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
                     FullscreenSettingsPane(
@@ -729,13 +710,10 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
             view = LocalView.current
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
-                val windowSize = DpSize(maxWidth, maxHeight)
-                val windowSizeClass = with(LocalDensity.current) {
-                    BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = windowSize.width.value,
-                        heightDp = windowSize.height.value,
-                    )
-                }
+                val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                    widthDp = maxWidth.value,
+                    heightDp = maxHeight.value,
+                )
 
                 with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
                     FullscreenSettingsPane(
@@ -804,13 +782,10 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
             view = LocalView.current
             resolver = parameterizedStringResolver()
             BoxWithConstraints {
-                val windowSize = DpSize(maxWidth, maxHeight)
-                val windowSizeClass = with(LocalDensity.current) {
-                    BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = windowSize.width.value,
-                        heightDp = windowSize.height.value,
-                    )
-                }
+                val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                    widthDp = maxWidth.value,
+                    heightDp = maxHeight.value,
+                )
 
                 with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
                     FullscreenSettingsPane(

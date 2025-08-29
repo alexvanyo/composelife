@@ -23,8 +23,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.toSize
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
 import androidx.window.core.layout.computeWindowSizeClass
@@ -44,10 +42,9 @@ internal fun FullscreenSettingsPaneListPreview(modifier: Modifier = Modifier) {
         ComposeLifeTheme {
             with(implicit().fullscreenSettingsDetailPaneEntryPoint) {
                 BoxWithConstraints(modifier) {
-                    val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                     val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = size.width,
-                        heightDp = size.height,
+                        widthDp = maxWidth.value,
+                        heightDp = maxHeight.value,
                     )
 
                     val fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
@@ -89,10 +86,9 @@ internal fun FullscreenSettingsPaneAlgorithmPreview(modifier: Modifier = Modifie
         ComposeLifeTheme {
             with(implicit().fullscreenSettingsDetailPaneEntryPoint) {
                 BoxWithConstraints(modifier) {
-                    val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                     val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = size.width,
-                        heightDp = size.height,
+                        widthDp = maxWidth.value,
+                        heightDp = maxHeight.value,
                     )
 
                     val fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
@@ -134,10 +130,9 @@ internal fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) 
         ComposeLifeTheme {
             with(implicit().fullscreenSettingsDetailPaneEntryPoint) {
                 BoxWithConstraints(modifier) {
-                    val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                     val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = size.width,
-                        heightDp = size.height,
+                        widthDp = maxWidth.value,
+                        heightDp = maxHeight.value,
                     )
 
                     val fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
@@ -179,10 +174,9 @@ internal fun FullscreenSettingsPaneFeatureFlagsPreview(modifier: Modifier = Modi
         ComposeLifeTheme {
             with(implicit().fullscreenSettingsDetailPaneEntryPoint) {
                 BoxWithConstraints(modifier) {
-                    val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                     val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = size.width,
-                        heightDp = size.height,
+                        widthDp = maxWidth.value,
+                        heightDp = maxHeight.value,
                     )
 
                     val fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
