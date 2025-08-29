@@ -18,9 +18,7 @@ package com.alexvanyo.composelife.ui.app
 
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.unit.DpSize
 import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
 import androidx.window.core.layout.computeWindowSizeClass
 import com.airbnb.android.showkase.annotation.ShowkaseComposable
@@ -37,13 +35,13 @@ internal fun LoadingPreferencesComposeLifeAppPreview() {
         ComposeLifeTheme {
             with(implicit().composeLifeAppUiEntryPoint) {
                 BoxWithConstraints {
-                    val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
+                    val windowSize = DpSize(maxWidth, maxHeight)
                     ComposeLifeApp(
                         windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                            widthDp = size.width,
-                            heightDp = size.height,
+                            widthDp = windowSize.width.value,
+                            heightDp = windowSize.height.value,
                         ),
-                        windowSize = with(LocalDensity.current) { size.toDpSize() },
+                        windowSize = windowSize,
                         composeLifeAppState = ComposeLifeAppState.LoadingPreferences,
                     )
                 }
