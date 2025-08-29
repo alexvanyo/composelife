@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -47,7 +48,6 @@ import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
@@ -269,8 +269,9 @@ private fun StandardSettingsCategoryDetail(
                             Modifier
                         },
                     )
-                    .safeDrawingPadding()
+                    .imePadding()
                     .verticalScroll(detailScrollState)
+                    .safeDrawingPadding()
                     .padding(vertical = 16.dp),
             ) {
                 settingsCategory.settings.forEach { setting ->

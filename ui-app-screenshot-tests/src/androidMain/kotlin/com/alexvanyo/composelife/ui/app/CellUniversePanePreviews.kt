@@ -19,8 +19,6 @@ package com.alexvanyo.composelife.ui.app
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.toSize
 import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
 import androidx.window.core.layout.computeWindowSizeClass
 import com.airbnb.android.showkase.annotation.ShowkaseComposable
@@ -39,11 +37,10 @@ internal fun LoadingCellStateCellUniversePanePreview(modifier: Modifier = Modifi
         ComposeLifeTheme {
             with(implicit().cellUniversePaneEntryPoint) {
                 BoxWithConstraints(modifier = modifier) {
-                    val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                     CellUniversePane(
                         windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                            widthDp = size.width,
-                            heightDp = size.height,
+                            widthDp = maxWidth.value,
+                            heightDp = maxHeight.value,
                         ),
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
@@ -64,15 +61,14 @@ internal fun LoadedCellUniversePanePreview(modifier: Modifier = Modifier) {
         ComposeLifeTheme {
             with(implicit().cellUniversePaneEntryPoint) {
                 BoxWithConstraints(modifier = modifier) {
-                    val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                     val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                         seedCellState = gosperGliderGun,
                         isRunning = false,
                     )
                     CellUniversePane(
                         windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                            widthDp = size.width,
-                            heightDp = size.height,
+                            widthDp = maxWidth.value,
+                            heightDp = maxHeight.value,
                         ),
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
