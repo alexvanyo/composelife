@@ -19,8 +19,6 @@ package com.alexvanyo.composelife.ui.app
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.toSize
 import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
 import androidx.window.core.layout.computeWindowSizeClass
 import com.airbnb.android.showkase.annotation.ShowkaseComposable
@@ -39,7 +37,6 @@ internal fun SuccessfulDeserializationInfoPanePreview(modifier: Modifier = Modif
     WithPreviewDependencies {
         ComposeLifeTheme {
             BoxWithConstraints(modifier = modifier) {
-                val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 DeserializationInfoPane(
                     navEntryValue = ComposeLifeUiNavigation.DeserializationInfo(
                         nav = ComposeLifeNavigation.DeserializationInfo(
@@ -53,8 +50,8 @@ internal fun SuccessfulDeserializationInfoPanePreview(modifier: Modifier = Modif
                             ),
                         ),
                         windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                            widthDp = size.width,
-                            heightDp = size.height,
+                            widthDp = maxWidth.value,
+                            heightDp = maxHeight.value,
                         ),
                     ),
                     onBackButtonPressed = {},
@@ -71,7 +68,6 @@ internal fun UnsuccessfulDeserializationInfoPanePreview(modifier: Modifier = Mod
     WithPreviewDependencies {
         ComposeLifeTheme {
             BoxWithConstraints(modifier = modifier) {
-                val size = IntSize(constraints.maxWidth, constraints.maxHeight).toSize()
                 DeserializationInfoPane(
                     navEntryValue = ComposeLifeUiNavigation.DeserializationInfo(
                         nav = ComposeLifeNavigation.DeserializationInfo(
@@ -87,8 +83,8 @@ internal fun UnsuccessfulDeserializationInfoPanePreview(modifier: Modifier = Mod
                             ),
                         ),
                         windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                            widthDp = size.width,
-                            heightDp = size.height,
+                            widthDp = maxWidth.value,
+                            heightDp = maxHeight.value,
                         ),
                     ),
                     onBackButtonPressed = {},

@@ -20,7 +20,11 @@ import android.app.Activity
 import android.content.Context
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigationevent.NavigationEventDispatcher
+import androidx.navigationevent.NavigationEventDispatcherOwner
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.scopes.ApplicationGraph
@@ -32,7 +36,6 @@ import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.settings.CellStatePreviewUiEntryPoint
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneEntryPoint
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneEntryPoint
-import com.alexvanyo.composelife.ui.settings.PatternCollectionsUiEntryPoint
 import com.alexvanyo.composelife.ui.util.TimeZoneHolder
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
@@ -75,6 +78,10 @@ internal fun WithPreviewDependencies(
         },
     )
     val entryPoint = uiGraph as PreviewEntryPoint
-
-    content(entryPoint)
+    val navigationEventDispatcherOwner = object : NavigationEventDispatcherOwner {
+        override val navigationEventDispatcher = NavigationEventDispatcher()
+    }
+    CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides navigationEventDispatcherOwner) {
+        content(entryPoint)
+    }
 }

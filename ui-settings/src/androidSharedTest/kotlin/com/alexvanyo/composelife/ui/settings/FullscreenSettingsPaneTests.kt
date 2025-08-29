@@ -98,13 +98,10 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest(
                 DeviceConfigurationOverride.ForcedSize(DpSize(500.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSize = DpSize(maxWidth, maxHeight)
-                    val windowSizeClass = with(LocalDensity.current) {
-                        BREAKPOINTS_V1.computeWindowSizeClass(
-                            widthDp = windowSize.width.value,
-                            heightDp = windowSize.height.value,
-                        )
-                    }
+                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                        widthDp = maxWidth.value,
+                        heightDp = maxHeight.value,
+                    )
 
                     with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
                         FullscreenSettingsPane(
@@ -193,13 +190,10 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest(
                 DeviceConfigurationOverride.ForcedSize(DpSize(700.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSize = DpSize(maxWidth, maxHeight)
-                    val windowSizeClass = with(LocalDensity.current) {
-                        BREAKPOINTS_V1.computeWindowSizeClass(
-                            widthDp = windowSize.width.value,
-                            heightDp = windowSize.height.value,
-                        )
-                    }
+                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                        widthDp = maxWidth.value,
+                        heightDp = maxHeight.value,
+                    )
 
                     with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
                         FullscreenSettingsPane(
@@ -292,13 +286,10 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest(
                 DeviceConfigurationOverride.ForcedSize(DpSize(500.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSize = DpSize(maxWidth, maxHeight)
-                    val windowSizeClass = with(LocalDensity.current) {
-                        BREAKPOINTS_V1.computeWindowSizeClass(
-                            widthDp = windowSize.width.value,
-                            heightDp = windowSize.height.value,
-                        )
-                    }
+                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                        widthDp = maxWidth.value,
+                        heightDp = maxHeight.value,
+                    )
 
                     with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
                         FullscreenSettingsPane(
@@ -375,13 +366,10 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest(
                 DeviceConfigurationOverride.ForcedSize(DpSize(700.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSize = DpSize(maxWidth, maxHeight)
-                    val windowSizeClass = with(LocalDensity.current) {
-                        BREAKPOINTS_V1.computeWindowSizeClass(
-                            widthDp = windowSize.width.value,
-                            heightDp = windowSize.height.value,
-                        )
-                    }
+                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                        widthDp = maxWidth.value,
+                        heightDp = maxHeight.value,
+                    )
 
                     with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
                         FullscreenSettingsPane(
@@ -466,13 +454,10 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest(
                 DeviceConfigurationOverride.ForcedSize(DpSize(500.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSize = DpSize(maxWidth, maxHeight)
-                    val windowSizeClass = with(LocalDensity.current) {
-                        BREAKPOINTS_V1.computeWindowSizeClass(
-                            widthDp = windowSize.width.value,
-                            heightDp = windowSize.height.value,
-                        )
-                    }
+                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                        widthDp = maxWidth.value,
+                        heightDp = maxHeight.value,
+                    )
 
                     with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
                         FullscreenSettingsPane(
@@ -543,13 +528,10 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest(
                 DeviceConfigurationOverride.ForcedSize(DpSize(700.dp, 500.dp)),
             ) {
                 BoxWithConstraints {
-                    val windowSize = DpSize(maxWidth, maxHeight)
-                    val windowSizeClass = with(LocalDensity.current) {
-                        BREAKPOINTS_V1.computeWindowSizeClass(
-                            widthDp = windowSize.width.value,
-                            heightDp = windowSize.height.value,
-                        )
-                    }
+                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                        widthDp = maxWidth.value,
+                        heightDp = maxHeight.value,
+                    )
 
                     with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
                         FullscreenSettingsPane(
@@ -752,13 +734,10 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest(
                 DeviceConfigurationOverride.ForcedSize(size),
             ) {
                 BoxWithConstraints {
-                    val windowSize = DpSize(maxWidth, maxHeight)
-                    val windowSizeClass = with(LocalDensity.current) {
-                        BREAKPOINTS_V1.computeWindowSizeClass(
-                            widthDp = windowSize.width.value,
-                            heightDp = windowSize.height.value,
-                        )
-                    }
+                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                        widthDp = maxWidth.value,
+                        heightDp = maxHeight.value,
+                    )
 
                     with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
                         FullscreenSettingsPane(
@@ -827,13 +806,10 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest(
                 DeviceConfigurationOverride.ForcedSize(size),
             ) {
                 BoxWithConstraints {
-                    val windowSize = DpSize(maxWidth, maxHeight)
-                    val windowSizeClass = with(LocalDensity.current) {
-                        BREAKPOINTS_V1.computeWindowSizeClass(
-                            widthDp = windowSize.width.value,
-                            heightDp = windowSize.height.value,
-                        )
-                    }
+                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                        widthDp = maxWidth.value,
+                        heightDp = maxHeight.value,
+                    )
 
                     with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
                         FullscreenSettingsPane(
