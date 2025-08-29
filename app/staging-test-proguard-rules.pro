@@ -24,7 +24,3 @@
 -dontwarn androidx.appcompat.graphics.drawable.DrawableWrapper
 
 -dontwarn javax.lang.model.element.Modifier
-
--keep,allowoptimization class **.*$$$MetroContribution* {
-    *;
-}
