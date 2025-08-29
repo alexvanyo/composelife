@@ -40,6 +40,10 @@ android {
     configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
 }
 
+ksp {
+    arg("skipPrivatePreviews", "true")
+}
+
 kotlin {
     androidTarget()
     jvm("desktop")
@@ -109,6 +113,7 @@ kotlin {
                 implementation(libs.androidx.compose.uiTooling)
                 implementation(libs.androidx.compose.uiUtil)
                 implementation(libs.androidx.core)
+                implementation(libs.androidx.graphics.core)
                 implementation(libs.androidx.lifecycle.runtime)
                 implementation(libs.androidx.poolingContainer)
                 implementation(libs.androidx.window)
