@@ -56,6 +56,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(libs.androidx.navigationEvent)
                 implementation(projects.data)
                 implementation(projects.databaseTest)
                 implementation(projects.dispatchersTest)
