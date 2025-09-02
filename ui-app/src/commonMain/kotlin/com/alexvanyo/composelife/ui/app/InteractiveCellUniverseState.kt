@@ -45,7 +45,7 @@ import com.alexvanyo.composelife.ui.app.action.rememberCellUniverseActionCardSta
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.cells.CellWindowInteractionState
-import com.alexvanyo.composelife.ui.cells.MutableCellWindowEntryPoint
+import com.alexvanyo.composelife.ui.cells.MutableCellWindowCtx
 import com.alexvanyo.composelife.ui.cells.MutableCellWindowInteractionState
 import com.alexvanyo.composelife.ui.cells.MutableCellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.MutableSelectionStateHolder
@@ -67,16 +67,18 @@ import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
 
+// region templated-ctx
 @Immutable
 @Inject
-class InteractiveCellUniverseEntryPoint(
+class InteractiveCellUniverseCtx(
     internal val cellStateParser: CellStateParser,
     internal val immersiveModeManager: ImmersiveModeManager,
-    internal val mutableCellWindowEntryPoint: MutableCellWindowEntryPoint,
-    internal val interactiveCellUniverseOverlayEntryPoint: InteractiveCellUniverseOverlayEntryPoint,
+    internal val mutableCellWindowCtx: MutableCellWindowCtx,
+    internal val interactiveCellUniverseOverlayCtx: InteractiveCellUniverseOverlayCtx,
 ) {
     companion object
 }
+// endregion templated-ctx
 
 interface InteractiveCellUniverseState {
 
@@ -180,7 +182,7 @@ interface InteractiveCellUniverseState {
     fun onClearSelection()
 }
 
-context(entryPoint: InteractiveCellUniverseEntryPoint)
+context(ctx: InteractiveCellUniverseCtx)
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun rememberInteractiveCellUniverseState(
@@ -189,8 +191,8 @@ fun rememberInteractiveCellUniverseState(
     clipboardReaderWriter: ClipboardReaderWriter = rememberClipboardReaderWriter(),
 ): InteractiveCellUniverseState =
     rememberInteractiveCellUniverseState(
-        cellStateParser = entryPoint.cellStateParser,
-        immersiveModeManager = entryPoint.immersiveModeManager,
+        cellStateParser = ctx.cellStateParser,
+        immersiveModeManager = ctx.immersiveModeManager,
         temporalGameOfLifeState = temporalGameOfLifeState,
         mutableCellWindowViewportState = mutableCellWindowViewportState,
         clipboardReaderWriter = clipboardReaderWriter,

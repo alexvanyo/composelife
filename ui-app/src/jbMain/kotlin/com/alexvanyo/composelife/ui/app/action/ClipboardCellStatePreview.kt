@@ -43,7 +43,6 @@ import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -61,23 +60,24 @@ import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.resources.Unpin
 import com.alexvanyo.composelife.ui.app.resources.Warnings
 import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindow
-import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowEntryPoint
+import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowCtx
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
 import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropSource
 import com.alexvanyo.composelife.ui.cells.rememberTrackingCellWindowViewportState
 import com.alexvanyo.composelife.ui.mobile.rememberTooltipPositionProvider
 
+// region templated-ctx
 @Suppress("ComposableNaming", "LongParameterList")
 @Composable
-private operator fun ClipboardCellStatePreviewEntryPoint.invoke(
+private operator fun ClipboardCellStatePreviewCtx.invoke(
     deserializationResult: DeserializationResult,
     isPinned: Boolean,
     onPaste: () -> Unit,
     onPinChanged: () -> Unit,
     onViewDeserializationInfo: () -> Unit,
     modifier: Modifier = Modifier,
-) = ClipboardCellStatePreviewEntryPoint.lambda(
-    thumbnailImmutableCellWindowEntryPoint,
+) = ClipboardCellStatePreviewCtx.lambda(
+    thumbnailImmutableCellWindowCtx,
     deserializationResult,
     isPinned,
     onPaste,
@@ -86,8 +86,8 @@ private operator fun ClipboardCellStatePreviewEntryPoint.invoke(
     modifier,
 )
 
-private val ClipboardCellStatePreviewEntryPoint.Companion.lambda:
-    @Composable context(ThumbnailImmutableCellWindowEntryPoint) (
+private val ClipboardCellStatePreviewCtx.Companion.lambda:
+    @Composable context(ThumbnailImmutableCellWindowCtx) (
         deserializationResult: DeserializationResult,
         isPinned: Boolean,
         onPaste: () -> Unit,
@@ -106,7 +106,7 @@ private val ClipboardCellStatePreviewEntryPoint.Companion.lambda:
         )
     }
 
-context(entryPoint: ClipboardCellStatePreviewEntryPoint)
+context(ctx: ClipboardCellStatePreviewCtx)
 @Suppress("LongParameterList")
 @Composable
 fun ClipboardCellStatePreview(
@@ -116,12 +116,13 @@ fun ClipboardCellStatePreview(
     onPinChanged: () -> Unit,
     onViewDeserializationInfo: () -> Unit,
     modifier: Modifier = Modifier,
-) = entryPoint(deserializationResult, isPinned, onPaste, onPinChanged, onViewDeserializationInfo, modifier)
+) = ctx(deserializationResult, isPinned, onPaste, onPinChanged, onViewDeserializationInfo, modifier)
+// endregion templated-ctx
 
 /**
  * Renders the current clipboard as a cell-state, if possible.
  */
-context(_: ThumbnailImmutableCellWindowEntryPoint)
+context(_: ThumbnailImmutableCellWindowCtx)
 @Suppress("LongParameterList")
 @Composable
 fun ClipboardCellStatePreview(
@@ -183,7 +184,7 @@ fun ClipboardCellStatePreview(
     }
 }
 
-context(_: ThumbnailImmutableCellWindowEntryPoint,)
+context(_: ThumbnailImmutableCellWindowCtx,)
 @Suppress("LongMethod", "LongParameterList")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

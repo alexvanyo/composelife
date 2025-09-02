@@ -31,9 +31,10 @@ import com.alexvanyo.composelife.ui.settings.resources.SynchronizePatternCollect
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 
+// region templated-ctx
 @Immutable
 @Inject
-class SynchronizePatternCollectionsOnMeteredNetworkUiEntryPoint(
+class SynchronizePatternCollectionsOnMeteredNetworkUiCtx(
     private val preferencesHolder: LoadedComposeLifePreferencesHolder,
     private val composeLifePreferences: ComposeLifePreferences,
 ) {
@@ -54,11 +55,12 @@ class SynchronizePatternCollectionsOnMeteredNetworkUiEntryPoint(
     }
 }
 
-context(entryPoint: SynchronizePatternCollectionsOnMeteredNetworkUiEntryPoint)
+context(ctx: SynchronizePatternCollectionsOnMeteredNetworkUiCtx)
 @Composable
 fun SynchronizePatternCollectionsOnMeteredNetworkUi(
     modifier: Modifier = Modifier,
-) = entryPoint(modifier)
+) = ctx(modifier)
+// endregion templated-ctx
 
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,

@@ -43,7 +43,7 @@ import kotlin.uuid.Uuid
 
 @Immutable
 @Inject
-class CellShapeConfigUiEntryPoint(
+class CellShapeConfigUiCtx(
     internal val preferencesHolder: LoadedComposeLifePreferencesHolder,
     internal val composeLifePreferences: ComposeLifePreferences,
 ) {
@@ -71,12 +71,12 @@ sealed interface CurrentShapeConfigUiState {
     }
 }
 
-context(entryPoint: CellShapeConfigUiEntryPoint)
+context(ctx: CellShapeConfigUiCtx)
 @Composable
 fun rememberCellShapeConfigUiState(): CellShapeConfigUiState =
     rememberCellShapeConfigUiState(
-        composeLifePreferences = entryPoint.composeLifePreferences,
-        preferences = entryPoint.preferencesHolder.preferences,
+        composeLifePreferences = ctx.composeLifePreferences,
+        preferences = ctx.preferencesHolder.preferences,
     )
 
 context(

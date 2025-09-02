@@ -47,7 +47,7 @@ import com.alexvanyo.composelife.ui.util.anchoredDraggable2D
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 
-context(_: CellWindowImplEntryPoint)
+context(_: CellWindowImplCtx)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 internal fun SelectionBoxOverlay(

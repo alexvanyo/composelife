@@ -35,13 +35,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @ContributesTo(AppScope::class)
-interface TimeZoneTestsEntryPoint {
+interface TimeZoneTestsCtx {
     val timeZoneHolder: TimeZoneHolder
 }
 
 // TODO: Replace with asContribution()
-val ApplicationGraph.timeZoneTests: TimeZoneTestsEntryPoint get() =
-    this as TimeZoneTestsEntryPoint
+val ApplicationGraph.timeZoneTests: TimeZoneTestsCtx get() =
+    this as TimeZoneTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
 class TimeZoneTests : BaseInjectTest(

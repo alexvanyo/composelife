@@ -44,7 +44,7 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.ImmutableCellWindow
-import com.alexvanyo.composelife.ui.cells.ImmutableCellWindowEntryPoint
+import com.alexvanyo.composelife.ui.cells.ImmutableCellWindowCtx
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
 import kotlinx.coroutines.awaitCancellation
@@ -54,12 +54,13 @@ import kotlin.random.Random
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
+// region templated-ctx
 @Suppress("ComposableNaming")
 @Composable
-private operator fun GameOfLifeProgressIndicatorEntryPoint.invoke(
+private operator fun GameOfLifeProgressIndicatorCtx.invoke(
     modifier: Modifier = Modifier,
-) = GameOfLifeProgressIndicatorEntryPoint.lambda(
-    immutableCellWindowEntryPoint,
+) = GameOfLifeProgressIndicatorCtx.lambda(
+    immutableCellWindowCtx,
     random,
     clock,
     gameOfLifeAlgorithm,
@@ -67,26 +68,27 @@ private operator fun GameOfLifeProgressIndicatorEntryPoint.invoke(
     modifier,
 )
 
-private val GameOfLifeProgressIndicatorEntryPoint.Companion.lambda:
+private val GameOfLifeProgressIndicatorCtx.Companion.lambda:
     @Composable context(
-        ImmutableCellWindowEntryPoint, Random, Clock, GameOfLifeAlgorithm, ComposeLifeDispatchers
+        ImmutableCellWindowCtx, Random, Clock, GameOfLifeAlgorithm, ComposeLifeDispatchers
     ) (Modifier) -> Unit
     get() = { modifier ->
         GameOfLifeProgressIndicator(modifier)
     }
 
-context(entryPoint: GameOfLifeProgressIndicatorEntryPoint)
+context(ctx: GameOfLifeProgressIndicatorCtx)
 @Composable
 fun GameOfLifeProgressIndicator(
     modifier: Modifier = Modifier,
-) = entryPoint(modifier)
+) = ctx(modifier)
+// endregion templated-ctx
 
 /**
  * A progress indicator that displays progress via an embedded set of cells displaying an
  * oscillating pattern.
  */
 context(
-    _: ImmutableCellWindowEntryPoint,
+    _: ImmutableCellWindowCtx,
 random: Random,
 clock: Clock,
 gameOfLifeAlgorithm: GameOfLifeAlgorithm,
@@ -158,7 +160,7 @@ private suspend fun <R> withInfiniteAnimationPolicy(block: suspend () -> R): R {
 }
 
 context(
-    immutableCellWindowEntryPoint: ImmutableCellWindowEntryPoint,
+    immutableCellWindowCtx: ImmutableCellWindowCtx,
 )
 @Suppress("LongParameterList")
 @Composable
