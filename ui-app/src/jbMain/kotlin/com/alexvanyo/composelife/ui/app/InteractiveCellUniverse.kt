@@ -44,15 +44,16 @@ import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.isRunning
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.cells.MutableCellWindow
-import com.alexvanyo.composelife.ui.cells.MutableCellWindowEntryPoint
+import com.alexvanyo.composelife.ui.cells.MutableCellWindowCtx
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.ImmersiveModeManager
 import kotlin.uuid.Uuid
 
+// region templated-ctx
 @Suppress("ComposableNaming", "LongParameterList")
 @Composable
-private operator fun InteractiveCellUniverseEntryPoint.invoke(
+private operator fun InteractiveCellUniverseCtx.invoke(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     windowSizeClass: WindowSizeClass,
     onSeeMoreSettingsClicked: () -> Unit,
@@ -61,11 +62,11 @@ private operator fun InteractiveCellUniverseEntryPoint.invoke(
     modifier: Modifier = Modifier,
     interactiveCellUniverseState: InteractiveCellUniverseState =
         rememberInteractiveCellUniverseState(temporalGameOfLifeState),
-) = InteractiveCellUniverseEntryPoint.lambda(
+) = InteractiveCellUniverseCtx.lambda(
     cellStateParser,
     immersiveModeManager,
-    mutableCellWindowEntryPoint,
-    interactiveCellUniverseOverlayEntryPoint,
+    mutableCellWindowCtx,
+    interactiveCellUniverseOverlayCtx,
     temporalGameOfLifeState,
     windowSizeClass,
     onSeeMoreSettingsClicked,
@@ -75,12 +76,12 @@ private operator fun InteractiveCellUniverseEntryPoint.invoke(
     interactiveCellUniverseState,
 )
 
-private val InteractiveCellUniverseEntryPoint.Companion.lambda:
+private val InteractiveCellUniverseCtx.Companion.lambda:
     @Composable context(
         CellStateParser,
         ImmersiveModeManager,
-        MutableCellWindowEntryPoint,
-        InteractiveCellUniverseOverlayEntryPoint,
+        MutableCellWindowCtx,
+        InteractiveCellUniverseOverlayCtx,
     ) (
         temporalGameOfLifeState: TemporalGameOfLifeState,
         windowSizeClass: WindowSizeClass,
@@ -114,7 +115,7 @@ private val InteractiveCellUniverseEntryPoint.Companion.lambda:
  * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
  * evolves.
  */
-context(entryPoint: InteractiveCellUniverseEntryPoint)
+context(ctx: InteractiveCellUniverseCtx)
 @Suppress("LongParameterList")
 @Composable
 fun InteractiveCellUniverse(
@@ -126,7 +127,7 @@ fun InteractiveCellUniverse(
     modifier: Modifier = Modifier,
     interactiveCellUniverseState: InteractiveCellUniverseState =
         rememberInteractiveCellUniverseState(temporalGameOfLifeState),
-) = entryPoint(
+) = ctx(
     temporalGameOfLifeState = temporalGameOfLifeState,
     windowSizeClass = windowSizeClass,
     onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
@@ -135,12 +136,13 @@ fun InteractiveCellUniverse(
     modifier = modifier,
     interactiveCellUniverseState = interactiveCellUniverseState,
 )
+// endregion templated-ctx
 
 context(
     cellStateParser: CellStateParser,
 immersiveModeManager: ImmersiveModeManager,
-_: MutableCellWindowEntryPoint,
-_: InteractiveCellUniverseOverlayEntryPoint,
+_: MutableCellWindowCtx,
+_: InteractiveCellUniverseOverlayCtx,
 )
 @Suppress("LongParameterList", "LongMethod", "CyclomaticComplexMethod")
 @Composable

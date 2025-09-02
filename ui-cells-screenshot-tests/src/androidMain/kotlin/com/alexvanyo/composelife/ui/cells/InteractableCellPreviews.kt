@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.preferences.CurrentShape
-import com.alexvanyo.composelife.ui.cells.entrypoints.WithPreviewDependencies
+import com.alexvanyo.composelife.ui.cells.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 

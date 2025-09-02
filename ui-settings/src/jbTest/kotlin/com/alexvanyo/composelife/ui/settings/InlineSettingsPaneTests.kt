@@ -51,14 +51,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @ContributesTo(UiScope::class)
-interface InlineSettingsPaneTestsEntryPoint {
-    val inlineSettingsPaneEntryPoint: InlineSettingsPaneEntryPoint
+interface InlineSettingsPaneTestsCtx {
+    val inlineSettingsPaneCtx: InlineSettingsPaneCtx
     val testComposeLifePreferences: TestComposeLifePreferences
 }
 
 // TODO: Replace with asContribution()
-val UiGraph.inlineSettingsPaneTestsEntryPoint: InlineSettingsPaneTestsEntryPoint get() =
-    this as InlineSettingsPaneTestsEntryPoint
+val UiGraph.inlineSettingsPaneTestsCtx: InlineSettingsPaneTestsCtx get() =
+    this as InlineSettingsPaneTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
 class InlineSettingsPaneTests : BaseUiInjectTest(
@@ -66,8 +66,8 @@ class InlineSettingsPaneTests : BaseUiInjectTest(
 ) {
     @Test
     fun saving_settings_onboarding_is_shown_with_no_quick_access_settings_saved() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.inlineSettingsPaneTestsEntryPoint
-        entryPoint.testComposeLifePreferences.quickAccessSettings = emptySet()
+        val ctx = uiGraph.inlineSettingsPaneTestsCtx
+        ctx.testComposeLifePreferences.quickAccessSettings = emptySet()
 
         var onSeeMoreClickedCount = 0
 
@@ -75,7 +75,7 @@ class InlineSettingsPaneTests : BaseUiInjectTest(
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(entryPoint.inlineSettingsPaneEntryPoint) {
+            with(ctx.inlineSettingsPaneCtx) {
                 InlineSettingsPane(
                     onSeeMoreClicked = {
                         onSeeMoreClickedCount++
@@ -101,14 +101,14 @@ class InlineSettingsPaneTests : BaseUiInjectTest(
 
     @Test
     fun saved_opengl_setting_is_displayed_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.inlineSettingsPaneTestsEntryPoint
-        entryPoint.testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
+        val ctx = uiGraph.inlineSettingsPaneTestsCtx
+        ctx.testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(entryPoint.inlineSettingsPaneEntryPoint) {
+            with(ctx.inlineSettingsPaneCtx) {
                 InlineSettingsPane(
                     onSeeMoreClicked = {},
                     onOpenInSettingsClicked = {},
@@ -143,8 +143,8 @@ class InlineSettingsPaneTests : BaseUiInjectTest(
 
     @Test
     fun opening_saved_setting_functions_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.inlineSettingsPaneTestsEntryPoint
-        entryPoint.testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
+        val ctx = uiGraph.inlineSettingsPaneTestsCtx
+        ctx.testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
 
         var onOpenInSettingsClickedCount = 0
         var onOpenInSettingsClickedSetting: Setting? = null
@@ -153,7 +153,7 @@ class InlineSettingsPaneTests : BaseUiInjectTest(
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(entryPoint.inlineSettingsPaneEntryPoint) {
+            with(ctx.inlineSettingsPaneCtx) {
                 InlineSettingsPane(
                     onSeeMoreClicked = {},
                     onOpenInSettingsClicked = {
@@ -178,14 +178,14 @@ class InlineSettingsPaneTests : BaseUiInjectTest(
 
     @Test
     fun removing_saved_setting_functions_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.inlineSettingsPaneTestsEntryPoint
-        entryPoint.testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
+        val ctx = uiGraph.inlineSettingsPaneTestsCtx
+        ctx.testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(entryPoint.inlineSettingsPaneEntryPoint) {
+            with(ctx.inlineSettingsPaneCtx) {
                 InlineSettingsPane(
                     onSeeMoreClicked = {},
                     onOpenInSettingsClicked = {},

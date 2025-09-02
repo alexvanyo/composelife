@@ -39,7 +39,7 @@ import kotlin.test.assertNull
 import kotlin.uuid.Uuid
 
 @ContributesTo(AppScope::class)
-interface CellStateRepositoryTestsEntryPoint {
+interface CellStateRepositoryTestsCtx {
     val cellStateRepository: CellStateRepository
     val cellStateQueries: CellStateQueries
     val fakeFileSystem: FakeFileSystem
@@ -48,21 +48,21 @@ interface CellStateRepositoryTestsEntryPoint {
 }
 
 // TODO: Replace with asContribution()
-internal val ApplicationGraph.cellStateRepositoryTestsEntryPoint: CellStateRepositoryTestsEntryPoint get() =
-    this as CellStateRepositoryTestsEntryPoint
+internal val ApplicationGraph.cellStateRepositoryTestsCtx: CellStateRepositoryTestsCtx get() =
+    this as CellStateRepositoryTestsCtx
 
 class CellStateRepositoryTests : BaseInjectTest(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationGraph.cellStateRepositoryTestsEntryPoint
+    private val ctx get() = applicationGraph.cellStateRepositoryTestsCtx
 
-    private val cellStateRepository get() = entryPoint.cellStateRepository
+    private val cellStateRepository get() = ctx.cellStateRepository
 
-    private val cellStateQueries get() = entryPoint.cellStateQueries
+    private val cellStateQueries get() = ctx.cellStateQueries
 
-    private val fakeFileSystem get() = entryPoint.fakeFileSystem
+    private val fakeFileSystem get() = ctx.fakeFileSystem
 
-    private val persistedDataPath get() = entryPoint.persistedDataPath
+    private val persistedDataPath get() = ctx.persistedDataPath
 
     @Test
     fun get_autosaved_cell_state_returns_null_initially() = runAppTest {

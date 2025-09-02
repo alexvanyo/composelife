@@ -57,22 +57,22 @@ import kotlin.test.assertIs
 import kotlin.test.assertNull
 
 @ContributesTo(AppScope::class)
-interface CellStateDragAndDropTestsAppEntryPoint {
+interface CellStateDragAndDropTestsAppCtx {
     @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
 }
 
 // TODO: Replace with asContribution()
-val ApplicationGraph.cellStateDragAndDropTestsAppEntryPoint: CellStateDragAndDropTestsAppEntryPoint get() =
-    this as CellStateDragAndDropTestsAppEntryPoint
+val ApplicationGraph.cellStateDragAndDropTestsAppCtx: CellStateDragAndDropTestsAppCtx get() =
+    this as CellStateDragAndDropTestsAppCtx
 
 @ContributesTo(UiScope::class)
-interface CellStateDragAndDropTestsUiEntryPoint {
+interface CellStateDragAndDropTestsUiCtx {
     val cellStateParser: CellStateParser
 }
 
 // TODO: Replace with asContribution()
-val UiGraph.cellStateDragAndDropTestsUiEntryPoint: CellStateDragAndDropTestsUiEntryPoint get() =
-    this as CellStateDragAndDropTestsUiEntryPoint
+val UiGraph.cellStateDragAndDropTestsUiCtx: CellStateDragAndDropTestsUiCtx get() =
+    this as CellStateDragAndDropTestsUiCtx
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 @RunWith(KmpAndroidJUnit4::class)
@@ -80,11 +80,11 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
 
-    private val entryPoint get() = applicationGraph.cellStateDragAndDropTestsAppEntryPoint
+    private val ctx get() = applicationGraph.cellStateDragAndDropTestsAppCtx
 
     @Test
     fun drag_and_drop_works_correctly_when_dropped() = runUiTest { uiGraph ->
-        val cellStateParser = uiGraph.cellStateDragAndDropTestsUiEntryPoint.cellStateParser
+        val cellStateParser = uiGraph.cellStateDragAndDropTestsUiCtx.cellStateParser
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
 
@@ -155,7 +155,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
 
         mainClock.advanceTimeBy(viewConfiguration.longPressTimeoutMillis + 100)
         waitForIdle()
-        entryPoint.generalTestDispatcher.scheduler.runCurrent()
+        ctx.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
             assertIs<CellStateDropState.ApplicableDropAvailable>(cellStateDropState)
@@ -175,7 +175,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
         move.recycle()
 
         waitForIdle()
-        entryPoint.generalTestDispatcher.scheduler.runCurrent()
+        ctx.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
             assertIs<CellStateDropState.DropPreview>(cellStateDropState)
@@ -197,7 +197,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
         up.recycle()
 
         waitForIdle()
-        entryPoint.generalTestDispatcher.scheduler.runCurrent()
+        ctx.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
             assertIs<CellStateDropState.None>(cellStateDropState)
@@ -208,7 +208,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
 
     @Test
     fun drag_and_drop_works_correctly_when_ended() = runUiTest { uiGraph ->
-        val cellStateParser = uiGraph.cellStateDragAndDropTestsUiEntryPoint.cellStateParser
+        val cellStateParser = uiGraph.cellStateDragAndDropTestsUiCtx.cellStateParser
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
 
@@ -279,7 +279,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
 
         mainClock.advanceTimeBy(viewConfiguration.longPressTimeoutMillis + 100)
         waitForIdle()
-        entryPoint.generalTestDispatcher.scheduler.runCurrent()
+        ctx.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
             assertIs<CellStateDropState.ApplicableDropAvailable>(cellStateDropState)
@@ -299,7 +299,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
         move1.recycle()
 
         waitForIdle()
-        entryPoint.generalTestDispatcher.scheduler.runCurrent()
+        ctx.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
             assertIs<CellStateDropState.DropPreview>(cellStateDropState)
@@ -321,7 +321,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
         move2.recycle()
 
         waitForIdle()
-        entryPoint.generalTestDispatcher.scheduler.runCurrent()
+        ctx.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
             assertIs<CellStateDropState.ApplicableDropAvailable>(cellStateDropState)
@@ -344,7 +344,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
         SystemClock.sleep(500)
 
         waitForIdle()
-        entryPoint.generalTestDispatcher.scheduler.runCurrent()
+        ctx.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
             assertIs<CellStateDropState.None>(cellStateDropState)

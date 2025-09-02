@@ -25,20 +25,20 @@ import kotlin.test.Test
 import kotlin.test.assertIs
 
 @ContributesTo(AppScope::class)
-interface ComposeLifeDatabaseTestsEntryPoint {
+interface ComposeLifeDatabaseTestsCtx {
     val composeLifeDatabase: ComposeLifeDatabase
 }
 
 // TODO: Replace with asContribution()
-internal val ApplicationGraph.composeLifeDatabaseTestsEntryPoint: ComposeLifeDatabaseTestsEntryPoint get() =
-    this as ComposeLifeDatabaseTestsEntryPoint
+internal val ApplicationGraph.composeLifeDatabaseTestsCtx: ComposeLifeDatabaseTestsCtx get() =
+    this as ComposeLifeDatabaseTestsCtx
 
 class ComposeLifeDatabaseTests : BaseInjectTest(
     globalGraph.asContribution<ApplicationGraph.Factory>()::create,
 ) {
-    private val entryPoint get() = applicationGraph.composeLifeDatabaseTestsEntryPoint
+    private val ctx get() = applicationGraph.composeLifeDatabaseTestsCtx
 
-    private val composeLifeDatabase get() = entryPoint.composeLifeDatabase
+    private val composeLifeDatabase get() = ctx.composeLifeDatabase
 
     @Test
     fun cell_state_dao_returns_valid_instance() = runAppTest {
