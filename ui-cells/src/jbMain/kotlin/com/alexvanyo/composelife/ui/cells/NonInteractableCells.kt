@@ -30,9 +30,10 @@ import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import dev.zacsweers.metro.Inject
 
+// region templated-ctx
 @Immutable
 @Inject
-class NonInteractableCellsEntryPoint(
+class NonInteractableCellsCtx(
     private val imageLoader: ImageLoader,
     private val preferencesHolder: LoadedComposeLifePreferencesHolder,
 ) {
@@ -93,7 +94,7 @@ class NonInteractableCellsEntryPoint(
     }
 }
 
-context(entryPoint: NonInteractableCellsEntryPoint)
+context(ctx: NonInteractableCellsCtx)
 @Composable
 @Suppress("LongParameterList")
 fun NonInteractableCells(
@@ -104,7 +105,8 @@ fun NonInteractableCells(
     isThumbnail: Boolean,
     modifier: Modifier = Modifier,
     inOverlay: Boolean = false,
-) = entryPoint(gameOfLifeState, scaledCellDpSize, cellWindow, pixelOffsetFromCenter, isThumbnail, modifier, inOverlay)
+) = ctx(gameOfLifeState, scaledCellDpSize, cellWindow, pixelOffsetFromCenter, isThumbnail, modifier, inOverlay)
+// endregion templated-ctx
 
 /**
  * A fixed size composable that displays a specific [cellWindow] into the given [GameOfLifeState].

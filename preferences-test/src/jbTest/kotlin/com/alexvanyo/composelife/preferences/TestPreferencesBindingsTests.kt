@@ -26,20 +26,20 @@ import kotlin.test.Test
 import kotlin.test.assertIs
 
 @ContributesTo(AppScope::class)
-interface TestPreferencesBindingsTestsEntryPoint : ComposeLifePreferencesProvider
+interface TestPreferencesBindingsTestsCtx : ComposeLifePreferencesProvider
 
 // TODO: Replace with asContribution()
-internal val ApplicationGraph.testPreferencesBindingsTestsEntryPoint: TestPreferencesBindingsTestsEntryPoint get() =
-    this as TestPreferencesBindingsTestsEntryPoint
+internal val ApplicationGraph.testPreferencesBindingsTestsCtx: TestPreferencesBindingsTestsCtx get() =
+    this as TestPreferencesBindingsTestsCtx
 
 class TestPreferencesBindingsTests : BaseInjectTest(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val entryPoint = applicationGraph.testPreferencesBindingsTestsEntryPoint
+    private val ctx = applicationGraph.testPreferencesBindingsTestsCtx
 
     @Test
     fun checkType() {
-        assertIs<ComposeLifePreferences>(entryPoint.composeLifePreferences)
-        assertIs<TestComposeLifePreferences>(entryPoint.composeLifePreferences)
+        assertIs<ComposeLifePreferences>(ctx.composeLifePreferences)
+        assertIs<TestComposeLifePreferences>(ctx.composeLifePreferences)
     }
 }

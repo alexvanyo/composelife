@@ -53,7 +53,7 @@ import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutType
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.TopInsets
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCard
-import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardEntryPoint
+import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardCtx
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.SelectionState
@@ -64,9 +64,10 @@ import com.livefront.sealedenum.SealedEnum
 import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
 
+// region templated-ctx
 @Suppress("ComposableNaming", "LongParameterList")
 @Composable
-private operator fun InteractiveCellUniverseOverlayEntryPoint.invoke(
+private operator fun InteractiveCellUniverseOverlayCtx.invoke(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     interactiveCellUniverseState: InteractiveCellUniverseState,
     cellWindowViewportState: CellWindowViewportState,
@@ -75,8 +76,8 @@ private operator fun InteractiveCellUniverseOverlayEntryPoint.invoke(
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
     modifier: Modifier = Modifier,
-) = InteractiveCellUniverseOverlayEntryPoint.lambda(
-    cellUniverseActionCardEntryPoint,
+) = InteractiveCellUniverseOverlayCtx.lambda(
+    cellUniverseActionCardCtx,
     temporalGameOfLifeState,
     interactiveCellUniverseState,
     cellWindowViewportState,
@@ -87,9 +88,9 @@ private operator fun InteractiveCellUniverseOverlayEntryPoint.invoke(
     modifier,
 )
 
-private val InteractiveCellUniverseOverlayEntryPoint.Companion.lambda:
+private val InteractiveCellUniverseOverlayCtx.Companion.lambda:
     @Composable context(
-        CellUniverseActionCardEntryPoint
+        CellUniverseActionCardCtx
     ) (
         temporalGameOfLifeState: TemporalGameOfLifeState,
         interactiveCellUniverseState: InteractiveCellUniverseState,
@@ -126,7 +127,7 @@ private val InteractiveCellUniverseOverlayEntryPoint.Companion.lambda:
  * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
  * evolves.
  */
-context(entryPoint: InteractiveCellUniverseOverlayEntryPoint)
+context(ctx: InteractiveCellUniverseOverlayCtx)
 @Suppress("LongParameterList")
 @Composable
 fun InteractiveCellUniverseOverlay(
@@ -138,7 +139,7 @@ fun InteractiveCellUniverseOverlay(
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
     modifier: Modifier = Modifier,
-) = entryPoint(
+) = ctx(
     temporalGameOfLifeState = temporalGameOfLifeState,
     interactiveCellUniverseState = interactiveCellUniverseState,
     cellWindowViewportState = cellWindowViewportState,
@@ -148,9 +149,10 @@ fun InteractiveCellUniverseOverlay(
     onViewDeserializationInfo = onViewDeserializationInfo,
     modifier = modifier,
 )
+// endregion templated-ctx
 
 context(
-    _: CellUniverseActionCardEntryPoint,
+    _: CellUniverseActionCardCtx,
 )
 @Suppress("LongMethod", "ComplexMethod", "LongParameterList")
 @Composable

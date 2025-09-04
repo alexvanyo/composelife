@@ -53,7 +53,7 @@ import kotlin.test.assertEquals
 @RunWith(KmpAndroidJUnit4::class)
 class InteractableCellsTests {
 
-    private val interactableCellsLocalEntryPoint = InteractableCellsEntryPoint(
+    private val interactableCellsLocalCtx = InteractableCellsCtx(
         preferencesHolder = TestComposeLifePreferences(),
     )
 
@@ -77,7 +77,7 @@ class InteractableCellsTests {
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
-            with(interactableCellsLocalEntryPoint) {
+            with(interactableCellsLocalCtx) {
                 resolver = parameterizedStringResolver()
 
                 InteractableCells(
@@ -180,7 +180,7 @@ class InteractableCellsTests {
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
-            with(interactableCellsLocalEntryPoint) {
+            with(interactableCellsLocalCtx) {
                 resolver = parameterizedStringResolver()
 
                 InteractableCells(
@@ -241,7 +241,7 @@ class InteractableCellsTests {
         setContent {
             density = LocalDensity.current
             with(
-                InteractableCellsEntryPoint(
+                InteractableCellsCtx(
                     preferencesHolder = TestComposeLifePreferences(
                         initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
                             mouseToolConfig = ToolConfig.Draw,
@@ -312,7 +312,7 @@ class InteractableCellsTests {
         setContent {
             density = LocalDensity.current
             with(
-                InteractableCellsEntryPoint(
+                InteractableCellsCtx(
                     preferencesHolder = TestComposeLifePreferences(
                         initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
                             mouseToolConfig = ToolConfig.None,

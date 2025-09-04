@@ -95,7 +95,7 @@ import kotlin.time.Duration.Companion.seconds
 import com.alexvanyo.composelife.ui.cells.resources.Strings as CellsStrings
 
 @ContributesTo(AppScope::class)
-interface InteractiveCellUniverseTestsAppEntryPoint {
+interface InteractiveCellUniverseTestsAppCtx {
     @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
 
     @CellTickerTestDispatcher val cellTickerTestDispatcher: TestDispatcher
@@ -104,36 +104,36 @@ interface InteractiveCellUniverseTestsAppEntryPoint {
 }
 
 // TODO: Replace with asContribution()
-val ApplicationGraph.interactiveCellUniverseTestsAppEntryPoint: InteractiveCellUniverseTestsAppEntryPoint get() =
-    this as InteractiveCellUniverseTestsAppEntryPoint
+val ApplicationGraph.interactiveCellUniverseTestsAppCtx: InteractiveCellUniverseTestsAppCtx get() =
+    this as InteractiveCellUniverseTestsAppCtx
 
 @ContributesTo(UiScope::class)
-interface InteractiveCellUniverseTestsUiEntryPoint {
-    val interactiveCellUniverseEntryPoint: InteractiveCellUniverseEntryPoint
+interface InteractiveCellUniverseTestsUiCtx {
+    val interactiveCellUniverseCtx: InteractiveCellUniverseCtx
 }
 
 // TODO: Replace with asContribution()
-val UiGraph.interactiveCellUniverseTestsUiEntryPoint: InteractiveCellUniverseTestsUiEntryPoint get() =
-    this as InteractiveCellUniverseTestsUiEntryPoint
+val UiGraph.interactiveCellUniverseTestsUiCtx: InteractiveCellUniverseTestsUiCtx get() =
+    this as InteractiveCellUniverseTestsUiCtx
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
 class InteractiveCellUniverseTests : BaseUiInjectTest(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationGraph.interactiveCellUniverseTestsAppEntryPoint
+    private val ctx get() = applicationGraph.interactiveCellUniverseTestsAppCtx
 
-    private val generalTestDispatcher get() = entryPoint.generalTestDispatcher
+    private val generalTestDispatcher get() = ctx.generalTestDispatcher
 
-    private val cellTickerTestDispatcher get() = entryPoint.cellTickerTestDispatcher
+    private val cellTickerTestDispatcher get() = ctx.cellTickerTestDispatcher
 
-    private val gameOfLifeAlgorithm get() = entryPoint.gameOfLifeAlgorithm
+    private val gameOfLifeAlgorithm get() = ctx.gameOfLifeAlgorithm
 
-    private val dispatchers get() = entryPoint.dispatchers
+    private val dispatchers get() = ctx.dispatchers
 
     @Test
     fun info_card_closes_upon_back_press() = runUiTest { uiGraph ->
-        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
+        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -155,7 +155,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+            with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
@@ -184,7 +184,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
 
     @Test
     fun action_card_closes_upon_back_press() = runUiTest { uiGraph ->
-        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
+        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -206,7 +206,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+            with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
@@ -238,7 +238,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         generalTestDispatcher,
         120.seconds,
     ) { uiGraph ->
-        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
+        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -259,7 +259,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+            with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
@@ -303,7 +303,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         generalTestDispatcher,
         120.seconds,
     ) { uiGraph ->
-        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
+        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -324,7 +324,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+            with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
@@ -372,7 +372,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         generalTestDispatcher,
         120.seconds,
     ) { uiGraph ->
-        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
+        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -393,7 +393,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+            with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
@@ -452,7 +452,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         generalTestDispatcher,
         120.seconds,
     ) { uiGraph ->
-        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
+        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -473,7 +473,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+            with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
@@ -513,7 +513,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         generalTestDispatcher,
         120.seconds,
     ) { uiGraph ->
-        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
+        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -533,7 +533,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             LaunchedEffect(temporalGameOfLifeStateMutator) {
                 temporalGameOfLifeStateMutator.update()
             }
-            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+            with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
@@ -588,7 +588,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         generalTestDispatcher,
         120.seconds,
     ) { uiGraph ->
-        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
+        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -608,7 +608,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             LaunchedEffect(temporalGameOfLifeStateMutator) {
                 temporalGameOfLifeStateMutator.update()
             }
-            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+            with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
@@ -670,7 +670,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     fun glider_is_copied_correctly_with_keyboard_shortcuts() = runUiTest(
         generalTestDispatcher,
     ) { uiGraph ->
-        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
+        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
         lateinit var clipboardReaderWriter: ClipboardReaderWriter
         lateinit var resolver: (ParameterizedString) -> String
@@ -691,7 +691,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             LaunchedEffect(temporalGameOfLifeStateMutator) {
                 temporalGameOfLifeStateMutator.update()
             }
-            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+            with(uiCtx.interactiveCellUniverseCtx) {
                 clipboardReaderWriter = rememberFakeClipboardReaderWriter()
 
                 InteractiveCellUniverse(
@@ -764,7 +764,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     fun selection_is_cleared_correctly_with_keyboard_shortcuts() = runUiTest(
         generalTestDispatcher,
     ) { uiGraph ->
-        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
+        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -785,7 +785,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+            with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
@@ -840,7 +840,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     fun glider_is_pasted_correctly_with_keyboard_shortcuts() = runUiTest(
         generalTestDispatcher,
     ) { uiGraph ->
-        val uiEntryPoint = uiGraph.interactiveCellUniverseTestsUiEntryPoint
+        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
         lateinit var clipboardReaderWriter: ClipboardReaderWriter
         lateinit var resolver: (ParameterizedString) -> String
@@ -862,7 +862,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(uiEntryPoint.interactiveCellUniverseEntryPoint) {
+            with(uiCtx.interactiveCellUniverseCtx) {
                 clipboardReaderWriter = rememberFakeClipboardReaderWriter()
 
                 InteractiveCellUniverse(

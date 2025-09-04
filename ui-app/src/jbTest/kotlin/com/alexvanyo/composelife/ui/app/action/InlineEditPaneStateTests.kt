@@ -38,22 +38,22 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 @ContributesTo(AppScope::class)
-interface InlineEditPaneStateTestsEntryPoint {
+interface InlineEditPaneStateTestsCtx {
     val composeLifePreferences: ComposeLifePreferences
     val cellStateParser: CellStateParser
 }
 
 // TODO: Replace with asContribution()
-val ApplicationGraph.inlineEditPaneStateTestsEntryPoint: InlineEditPaneStateTestsEntryPoint get() =
-    this as InlineEditPaneStateTestsEntryPoint
+val ApplicationGraph.inlineEditPaneStateTestsCtx: InlineEditPaneStateTestsCtx get() =
+    this as InlineEditPaneStateTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
 class InlineEditPaneStateTests : BaseUiInjectTest(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationGraph.inlineEditPaneStateTestsEntryPoint
+    private val ctx get() = applicationGraph.inlineEditPaneStateTestsCtx
 
-    private val composeLifePreferences get() = entryPoint.composeLifePreferences
+    private val composeLifePreferences get() = ctx.composeLifePreferences
 
     @Test
     fun initial_state_is_correct_when_onboarding() = runUiTest {
@@ -74,7 +74,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
             inlineEditPaneState = rememberInlineEditPaneState(
                 composeLifePreferences = composeLifePreferences,
                 preferences = loadedPreferencesState.value,
-                cellStateParser = entryPoint.cellStateParser,
+                cellStateParser = ctx.cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -117,7 +117,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
             inlineEditPaneState = rememberInlineEditPaneState(
                 composeLifePreferences = composeLifePreferences,
                 preferences = loadedPreferencesState.value,
-                cellStateParser = entryPoint.cellStateParser,
+                cellStateParser = ctx.cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -159,7 +159,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
             inlineEditPaneState = rememberInlineEditPaneState(
                 composeLifePreferences = composeLifePreferences,
                 preferences = loadedPreferencesState.value,
-                cellStateParser = entryPoint.cellStateParser,
+                cellStateParser = ctx.cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -201,7 +201,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
             inlineEditPaneState = rememberInlineEditPaneState(
                 composeLifePreferences = composeLifePreferences,
                 preferences = loadedPreferencesState.value,
-                cellStateParser = entryPoint.cellStateParser,
+                cellStateParser = ctx.cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -244,7 +244,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
             inlineEditPaneState = rememberInlineEditPaneState(
                 composeLifePreferences = composeLifePreferences,
                 preferences = loadedPreferencesState.value,
-                cellStateParser = entryPoint.cellStateParser,
+                cellStateParser = ctx.cellStateParser,
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )

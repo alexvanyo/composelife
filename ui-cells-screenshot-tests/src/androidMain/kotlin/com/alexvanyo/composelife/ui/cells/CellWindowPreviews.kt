@@ -24,7 +24,7 @@ import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.scopes.implicit
 import com.alexvanyo.composelife.sessionvalue.SessionValue
-import com.alexvanyo.composelife.ui.cells.entrypoints.WithPreviewDependencies
+import com.alexvanyo.composelife.ui.cells.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import kotlin.uuid.Uuid
@@ -35,7 +35,7 @@ import kotlin.uuid.Uuid
 internal fun NavigableImmutableCellWindowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().immutableCellWindowEntryPoint) {
+            with(implicit().immutableCellWindowCtx) {
                 ImmutableCellWindow(
                     gameOfLifeState = remember {
                         GameOfLifeState(
@@ -74,7 +74,7 @@ internal fun NavigableImmutableCellWindowPreview() {
 internal fun TrackingImmutableCellWindowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().immutableCellWindowEntryPoint) {
+            with(implicit().immutableCellWindowCtx) {
                 val gameOfLifeState = remember {
                     GameOfLifeState(
                         setOf(
@@ -116,7 +116,7 @@ internal fun TrackingImmutableCellWindowPreview() {
 internal fun NavigableMutableCellWindowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().mutableCellWindowEntryPoint) {
+            with(implicit().mutableCellWindowCtx) {
                 val mutableCellWindowViewportState = rememberMutableCellWindowViewportState()
 
                 val selectionStateHolder = rememberMutableSelectionStateHolder(
@@ -162,7 +162,7 @@ internal fun NavigableMutableCellWindowPreview() {
 internal fun TrackingMutableCellWindowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().mutableCellWindowEntryPoint) {
+            with(implicit().mutableCellWindowCtx) {
                 val gameOfLifeState = remember {
                     MutableGameOfLifeState(
                         setOf(
