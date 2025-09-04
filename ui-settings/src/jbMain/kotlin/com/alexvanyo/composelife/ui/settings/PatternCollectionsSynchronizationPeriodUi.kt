@@ -54,9 +54,10 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
 
+// region templated-ctx
 @Immutable
 @Inject
-class PatternCollectionsSynchronizationPeriodUiEntryPoint(
+class PatternCollectionsSynchronizationPeriodUiCtx(
     private val preferencesHolder: LoadedComposeLifePreferencesHolder,
     private val composeLifePreferences: ComposeLifePreferences,
 ) {
@@ -77,11 +78,12 @@ class PatternCollectionsSynchronizationPeriodUiEntryPoint(
     }
 }
 
-context(entryPoint: PatternCollectionsSynchronizationPeriodUiEntryPoint)
+context(ctx: PatternCollectionsSynchronizationPeriodUiCtx)
 @Composable
 fun PatternCollectionsSynchronizationPeriodUi(
     modifier: Modifier = Modifier,
-) = entryPoint(modifier)
+) = ctx(modifier)
+// endregion templated-ctx
 
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,

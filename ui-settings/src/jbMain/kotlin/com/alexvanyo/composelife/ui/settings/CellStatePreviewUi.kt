@@ -31,37 +31,39 @@ import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindow
-import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowEntryPoint
+import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowCtx
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
 import dev.zacsweers.metro.Inject
 
+// region templated-ctx
 @Immutable
 @Inject
-class CellStatePreviewUiEntryPoint(
-    private val thumbnailImmutableCellWindowEntryPoint: ThumbnailImmutableCellWindowEntryPoint,
+class CellStatePreviewUiCtx(
+    private val thumbnailImmutableCellWindowCtx: ThumbnailImmutableCellWindowCtx,
 ) {
     @Suppress("ComposableNaming")
     @Composable
     operator fun invoke(
         modifier: Modifier = Modifier,
-    ) = lambda(thumbnailImmutableCellWindowEntryPoint, modifier)
+    ) = lambda(thumbnailImmutableCellWindowCtx, modifier)
 
     companion object {
         private val lambda:
-            @Composable context(ThumbnailImmutableCellWindowEntryPoint) (modifier: Modifier) -> Unit =
+            @Composable context(ThumbnailImmutableCellWindowCtx) (modifier: Modifier) -> Unit =
             { modifier ->
                 CellStatePreviewUi(modifier)
             }
     }
 }
 
-context(entryPoint: CellStatePreviewUiEntryPoint)
+context(ctx: CellStatePreviewUiCtx)
 @Composable
 fun CellStatePreviewUi(
     modifier: Modifier = Modifier,
-) = entryPoint(modifier)
+) = ctx(modifier)
+// endregion templated-ctx
 
-context(_: ThumbnailImmutableCellWindowEntryPoint)
+context(_: ThumbnailImmutableCellWindowCtx)
 @Suppress("LongMethod")
 @Composable
 private fun CellStatePreviewUi(

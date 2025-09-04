@@ -13,17 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MatchingDeclarationName")
 
-package com.alexvanyo.composelife.ui.app
+package com.alexvanyo.composelife.ui.app.component
 
 import androidx.compose.runtime.Immutable
-import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardEntryPoint
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.ui.cells.ImmutableCellWindowCtx
 import dev.zacsweers.metro.Inject
+import kotlin.random.Random
+import kotlin.time.Clock
 
 @Immutable
 @Inject
-class InteractiveCellUniverseOverlayEntryPoint(
-    internal val cellUniverseActionCardEntryPoint: CellUniverseActionCardEntryPoint,
+class GameOfLifeProgressIndicatorCtx(
+    internal val immutableCellWindowCtx: ImmutableCellWindowCtx,
+    internal val random: Random,
+    internal val clock: Clock,
+    internal val gameOfLifeAlgorithm: GameOfLifeAlgorithm,
+    internal val dispatchers: ComposeLifeDispatchers,
 ) {
     companion object
 }

@@ -32,7 +32,7 @@ import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorEntryPoint
+import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorCtx
 import com.slack.circuit.retained.rememberRetained
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.delay
@@ -43,27 +43,29 @@ import kotlinx.coroutines.flow.transform
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 
+// region templated-ctx
 @Immutable
 @Inject
-class CellUniversePaneEntryPoint(
+class CellUniversePaneCtx(
     internal val cellStateRepository: CellStateRepository,
     internal val gameOfLifeAlgorithm: GameOfLifeAlgorithm,
     internal val clock: Clock,
     internal val dispatchers: ComposeLifeDispatchers,
-    internal val gameOfLifeProgressIndicatorEntryPoint: GameOfLifeProgressIndicatorEntryPoint,
-    internal val interactiveCellUniverseEntryPoint: InteractiveCellUniverseEntryPoint,
+    internal val gameOfLifeProgressIndicatorCtx: GameOfLifeProgressIndicatorCtx,
+    internal val interactiveCellUniverseCtx: InteractiveCellUniverseCtx,
 ) {
     companion object
 }
 
-context(entryPoint: CellUniversePaneEntryPoint)
+context(ctx: CellUniversePaneCtx)
 @Composable
 fun rememberCellUniversePaneState(): CellUniversePaneState = rememberCellUniversePaneState(
-    cellStateRepository = entryPoint.cellStateRepository,
-    gameOfLifeAlgorithm = entryPoint.gameOfLifeAlgorithm,
-    dispatchers = entryPoint.dispatchers,
-    clock = entryPoint.clock,
+    cellStateRepository = ctx.cellStateRepository,
+    gameOfLifeAlgorithm = ctx.gameOfLifeAlgorithm,
+    dispatchers = ctx.dispatchers,
+    clock = ctx.clock,
 )
+// endregion templated-ctx
 
 @Suppress("LongMethod")
 @Composable

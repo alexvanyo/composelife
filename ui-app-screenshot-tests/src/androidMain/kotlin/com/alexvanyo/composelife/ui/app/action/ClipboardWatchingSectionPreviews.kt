@@ -24,7 +24,7 @@ import com.alexvanyo.composelife.model.CellStateFormat
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.patterns.GliderPattern
 import com.alexvanyo.composelife.scopes.implicit
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
+import com.alexvanyo.composelife.ui.app.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import kotlin.uuid.Uuid
@@ -35,7 +35,7 @@ import kotlin.uuid.Uuid
 internal fun ClipboardWatchingSectionOnboardingPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().clipboardCellStatePreviewEntryPoint) {
+            with(implicit().clipboardCellStatePreviewCtx) {
                 Surface(modifier) {
                     ClipboardWatchingSection(
                         clipboardWatchingState = object : ClipboardWatchingState.Onboarding {
@@ -55,7 +55,7 @@ internal fun ClipboardWatchingSectionOnboardingPreview(modifier: Modifier = Modi
 private fun ClipboardWatchingSectionDisabledPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().clipboardCellStatePreviewEntryPoint) {
+            with(implicit().clipboardCellStatePreviewCtx) {
                 Surface(modifier) {
                     ClipboardWatchingSection(
                         clipboardWatchingState = ClipboardWatchingState.ClipboardWatchingDisabled,
@@ -72,7 +72,7 @@ private fun ClipboardWatchingSectionDisabledPreview(modifier: Modifier = Modifie
 internal fun ClipboardWatchingSectionEnabledLoadingPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().clipboardCellStatePreviewEntryPoint) {
+            with(implicit().clipboardCellStatePreviewCtx) {
                 Surface(modifier) {
                     ClipboardWatchingSection(
                         clipboardWatchingState = object : ClipboardWatchingState.ClipboardWatchingEnabled {
@@ -94,7 +94,7 @@ internal fun ClipboardWatchingSectionEnabledLoadingPreview(modifier: Modifier = 
 internal fun ClipboardWatchingSectionEnabledUnsuccessfulPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().clipboardCellStatePreviewEntryPoint) {
+            with(implicit().clipboardCellStatePreviewCtx) {
                 Surface(modifier) {
                     ClipboardWatchingSection(
                         clipboardWatchingState = object : ClipboardWatchingState.ClipboardWatchingEnabled {
@@ -130,7 +130,7 @@ internal fun ClipboardWatchingSectionEnabledUnsuccessfulPreview(modifier: Modifi
 internal fun ClipboardWatchingSectionEnabledSuccessfulPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().clipboardCellStatePreviewEntryPoint) {
+            with(implicit().clipboardCellStatePreviewCtx) {
                 Surface(modifier) {
                     ClipboardWatchingSection(
                         clipboardWatchingState = object : ClipboardWatchingState.ClipboardWatchingEnabled {

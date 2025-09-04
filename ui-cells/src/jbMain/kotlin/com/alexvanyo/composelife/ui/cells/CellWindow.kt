@@ -42,8 +42,8 @@ object CellWindow {
 
 @Immutable
 @Inject
-class ThumbnailImmutableCellWindowEntryPoint internal constructor(
-    private val cellWindowImplEntryPoint: CellWindowImplEntryPoint,
+class ThumbnailImmutableCellWindowCtx internal constructor(
+    private val cellWindowImplCtx: CellWindowImplCtx,
 ) {
     @Suppress("ComposableNaming", "LongParameterList")
     @Composable
@@ -55,7 +55,7 @@ class ThumbnailImmutableCellWindowEntryPoint internal constructor(
         centerOffset: Offset = CellWindow.defaultCenterOffset,
         inOverlay: Boolean = CellWindow.defaultInOverlay,
     ) = lambda(
-        cellWindowImplEntryPoint,
+        cellWindowImplCtx,
         gameOfLifeState,
         viewportInteractionConfig,
         modifier,
@@ -68,7 +68,7 @@ class ThumbnailImmutableCellWindowEntryPoint internal constructor(
         private val lambda:
             @Composable
             context(
-                CellWindowImplEntryPoint,
+                CellWindowImplCtx,
             ) (
                 gameOfLifeState: GameOfLifeState,
                 viewportInteractionConfig: ViewportInteractionConfig,
@@ -93,7 +93,7 @@ class ThumbnailImmutableCellWindowEntryPoint internal constructor(
 /**
  * A cell window that displays the given [gameOfLifeState] in an immutable fashion for a thumbnail.
  */
-context(entryPoint: ThumbnailImmutableCellWindowEntryPoint)
+context(ctx: ThumbnailImmutableCellWindowCtx)
 @Suppress("LongParameterList")
 @Composable
 fun ThumbnailImmutableCellWindow(
@@ -103,9 +103,9 @@ fun ThumbnailImmutableCellWindow(
     cellDpSize: Dp = CellWindow.defaultCellDpSize,
     centerOffset: Offset = CellWindow.defaultCenterOffset,
     inOverlay: Boolean = CellWindow.defaultInOverlay,
-) = entryPoint.invoke(gameOfLifeState, viewportInteractionConfig, modifier, cellDpSize, centerOffset, inOverlay)
+) = ctx.invoke(gameOfLifeState, viewportInteractionConfig, modifier, cellDpSize, centerOffset, inOverlay)
 
-context(_: CellWindowImplEntryPoint)
+context(_: CellWindowImplCtx)
 @Suppress("LongParameterList")
 @Composable
 internal fun ThumbnailImmutableCellWindow(
@@ -130,8 +130,8 @@ internal fun ThumbnailImmutableCellWindow(
 
 @Immutable
 @Inject
-class ImmutableCellWindowEntryPoint internal constructor(
-    private val cellWindowImplEntryPoint: CellWindowImplEntryPoint,
+class ImmutableCellWindowCtx internal constructor(
+    private val cellWindowImplCtx: CellWindowImplCtx,
 ) {
     @Suppress("ComposableNaming", "LongParameterList")
     @Composable
@@ -143,7 +143,7 @@ class ImmutableCellWindowEntryPoint internal constructor(
         centerOffset: Offset = CellWindow.defaultCenterOffset,
         inOverlay: Boolean = CellWindow.defaultInOverlay,
     ) = lambda(
-        cellWindowImplEntryPoint,
+        cellWindowImplCtx,
         gameOfLifeState,
         cellWindowInteractionState,
         modifier,
@@ -156,7 +156,7 @@ class ImmutableCellWindowEntryPoint internal constructor(
         private val lambda:
             @Composable
             context(
-                CellWindowImplEntryPoint,
+                CellWindowImplCtx,
             ) (
                 gameOfLifeState: GameOfLifeState,
                 cellWindowInteractionState: CellWindowInteractionState,
@@ -181,7 +181,7 @@ class ImmutableCellWindowEntryPoint internal constructor(
 /**
  * A cell window that displays the given [gameOfLifeState] in an immutable fashion.
  */
-context(entryPoint: ImmutableCellWindowEntryPoint)
+context(ctx: ImmutableCellWindowCtx)
 @Suppress("LongParameterList")
 @Composable
 fun ImmutableCellWindow(
@@ -191,9 +191,9 @@ fun ImmutableCellWindow(
     cellDpSize: Dp = CellWindow.defaultCellDpSize,
     centerOffset: Offset = CellWindow.defaultCenterOffset,
     inOverlay: Boolean = CellWindow.defaultInOverlay,
-) = entryPoint.invoke(gameOfLifeState, cellWindowInteractionState, modifier, cellDpSize, centerOffset, inOverlay)
+) = ctx.invoke(gameOfLifeState, cellWindowInteractionState, modifier, cellDpSize, centerOffset, inOverlay)
 
-context(_: CellWindowImplEntryPoint)
+context(_: CellWindowImplCtx)
 @Suppress("LongParameterList")
 @Composable
 private fun ImmutableCellWindow(
@@ -218,8 +218,8 @@ private fun ImmutableCellWindow(
 
 @Immutable
 @Inject
-class MutableCellWindowEntryPoint internal constructor(
-    private val cellWindowImplEntryPoint: CellWindowImplEntryPoint,
+class MutableCellWindowCtx internal constructor(
+    private val cellWindowImplCtx: CellWindowImplCtx,
 ) {
     @Suppress("ComposableNaming", "LongParameterList")
     @Composable
@@ -232,7 +232,7 @@ class MutableCellWindowEntryPoint internal constructor(
         centerOffset: Offset = CellWindow.defaultCenterOffset,
         inOverlay: Boolean = CellWindow.defaultInOverlay,
     ) = lambda(
-        cellWindowImplEntryPoint,
+        cellWindowImplCtx,
         gameOfLifeState,
         cellWindowInteractionState,
         modifier,
@@ -246,7 +246,7 @@ class MutableCellWindowEntryPoint internal constructor(
         private val lambda:
             @Composable
             context(
-                CellWindowImplEntryPoint,
+                CellWindowImplCtx,
             ) (
                 gameOfLifeState: MutableGameOfLifeState,
                 cellWindowInteractionState: MutableCellWindowInteractionState,
@@ -274,7 +274,7 @@ class MutableCellWindowEntryPoint internal constructor(
  *
  * The cells will be editable if and only if [isEditable] returns true.
  */
-context(entryPoint: MutableCellWindowEntryPoint)
+context(ctx: MutableCellWindowCtx)
 @Suppress("LongParameterList")
 @Composable
 fun MutableCellWindow(
@@ -285,7 +285,7 @@ fun MutableCellWindow(
     cellDpSize: Dp = CellWindow.defaultCellDpSize,
     centerOffset: Offset = CellWindow.defaultCenterOffset,
     inOverlay: Boolean = CellWindow.defaultInOverlay,
-) = entryPoint.invoke(
+) = ctx.invoke(
     gameOfLifeState,
     cellWindowInteractionState,
     modifier,
@@ -295,7 +295,7 @@ fun MutableCellWindow(
     inOverlay,
 )
 
-context(_: CellWindowImplEntryPoint)
+context(_: CellWindowImplCtx)
 @Suppress("LongParameterList")
 @Composable
 private fun MutableCellWindow(
