@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,33 +14,31 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.app.entrypoints
+package com.alexvanyo.composelife.ui.settings.ctxs
 
 import android.app.Activity
 import android.content.Context
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigationevent.NavigationEventDispatcher
+import androidx.navigationevent.NavigationEventDispatcherOwner
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.random.TestRandom
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
-import com.alexvanyo.composelife.ui.app.CellUniversePaneEntryPoint
-import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiEntryPoint
-import com.alexvanyo.composelife.ui.app.UiWithLoadedPreferencesScope
-import com.alexvanyo.composelife.ui.app.UiWithLoadedPreferencesScopeBindings
-import com.alexvanyo.composelife.ui.app.action.ClipboardCellStatePreviewEntryPoint
-import com.alexvanyo.composelife.ui.app.action.InlineEditPaneEntryPoint
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorEntryPoint
-import com.alexvanyo.composelife.ui.settings.SettingUiEntryPoint
-import dev.zacsweers.metro.BindingContainer
+import com.alexvanyo.composelife.ui.settings.CellStatePreviewUiCtx
+import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneCtx
+import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneCtx
+import com.alexvanyo.composelife.ui.util.TimeZoneHolder
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
-import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.createGraph
 
 /**
@@ -48,22 +46,16 @@ import dev.zacsweers.metro.createGraph
  * previews in this module.
  */
 @ContributesTo(UiScope::class)
-internal interface PreviewEntryPoint : ComposeLifePreferencesProvider {
-    val cellUniversePaneEntryPoint: CellUniversePaneEntryPoint
-    val composeLifeAppUiEntryPoint: ComposeLifeAppUiEntryPoint
-    val clipboardCellStatePreviewEntryPoint: ClipboardCellStatePreviewEntryPoint
-    val gameOfLifeProgressIndicatorEntryPoint: GameOfLifeProgressIndicatorEntryPoint
-    val inlineEditPaneEntryPoint: InlineEditPaneEntryPoint
-    val settingUiEntryPoint: SettingUiEntryPoint
-    val testRandom: TestRandom
+internal interface PreviewCtx : ComposeLifePreferencesProvider {
+    val cellStatePreviewUiCtx: CellStatePreviewUiCtx
+    val fullscreenSettingsDetailPaneCtx: FullscreenSettingsDetailPaneCtx
+    val inlineSettingsPaneCtx: InlineSettingsPaneCtx
+    val testComposeLifePreferences: TestComposeLifePreferences
+    val timeZoneHolder: TimeZoneHolder
 }
 
 @DependencyGraph(GlobalScope::class)
 interface PreviewGlobalGraph
-
-@ContributesTo(UiWithLoadedPreferencesScope::class, replaces = [UiWithLoadedPreferencesScopeBindings::class])
-@BindingContainer
-interface TestLoadedComposeLifePreferencesHolderBindings
 
 /**
  * Provides preview-appropriate bindings for the dependency graph.
@@ -71,7 +63,7 @@ interface TestLoadedComposeLifePreferencesHolderBindings
 @Suppress("LongParameterList")
 @Composable
 internal fun WithPreviewDependencies(
-    content: @Composable context(PreviewEntryPoint) () -> Unit,
+    content: @Composable context(PreviewCtx) () -> Unit,
 ) {
     val previewGraph = createGraph<PreviewGlobalGraph>()
     val applicationGraph = (previewGraph as ApplicationGraph.Factory).create(
@@ -85,7 +77,11 @@ internal fun WithPreviewDependencies(
             override val activity: Activity? = LocalActivity.current
         },
     )
-    val entryPoint = uiGraph as PreviewEntryPoint
-
-    content(entryPoint)
+    val ctx = uiGraph as PreviewCtx
+    val navigationEventDispatcherOwner = object : NavigationEventDispatcherOwner {
+        override val navigationEventDispatcher = NavigationEventDispatcher()
+    }
+    CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides navigationEventDispatcherOwner) {
+        content(ctx)
+    }
 }

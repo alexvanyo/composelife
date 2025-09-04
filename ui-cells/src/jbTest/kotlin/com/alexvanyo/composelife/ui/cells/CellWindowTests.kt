@@ -53,14 +53,14 @@ import kotlin.test.assertTrue
 import kotlin.uuid.Uuid
 
 @ContributesTo(UiScope::class)
-interface CellWindowTestsEntryPoint {
-    val mutableCellWindowEntryPoint: MutableCellWindowEntryPoint
+interface CellWindowTestsCtx {
+    val mutableCellWindowCtx: MutableCellWindowCtx
     val testComposeLifePreferences: TestComposeLifePreferences
 }
 
 // TODO: Replace with asContribution()
-val UiGraph.cellWindowTestsEntryPoint: CellWindowTestsEntryPoint get() =
-    this as CellWindowTestsEntryPoint
+val UiGraph.cellWindowTestsCtx: CellWindowTestsCtx get() =
+    this as CellWindowTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
 class CellWindowTests : BaseUiInjectTest(
@@ -70,7 +70,7 @@ class CellWindowTests : BaseUiInjectTest(
     @Suppress("LongMethod")
     @Test
     fun cells_are_displayed_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.cellWindowTestsEntryPoint
+        val ctx = uiGraph.cellWindowTestsCtx
 
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
@@ -97,7 +97,7 @@ class CellWindowTests : BaseUiInjectTest(
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
-            with(entryPoint.mutableCellWindowEntryPoint) {
+            with(ctx.mutableCellWindowCtx) {
                 resolver = parameterizedStringResolver()
 
                 MutableCellWindow(
@@ -158,8 +158,8 @@ class CellWindowTests : BaseUiInjectTest(
     @Suppress("LongMethod")
     @Test
     fun cells_are_displayed_correctly_after_scrolling() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.cellWindowTestsEntryPoint
-        entryPoint.testComposeLifePreferences.touchToolConfig = ToolConfig.Pan
+        val ctx = uiGraph.cellWindowTestsCtx
+        ctx.testComposeLifePreferences.touchToolConfig = ToolConfig.Pan
 
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
@@ -189,7 +189,7 @@ class CellWindowTests : BaseUiInjectTest(
         setContent {
             density = LocalDensity.current
 
-            with(entryPoint.mutableCellWindowEntryPoint) {
+            with(ctx.mutableCellWindowCtx) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),
@@ -220,8 +220,8 @@ class CellWindowTests : BaseUiInjectTest(
     @Suppress("LongMethod")
     @Test
     fun cells_are_not_scrolled_with_none_touch_tool_config() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.cellWindowTestsEntryPoint
-        entryPoint.testComposeLifePreferences.touchToolConfig = ToolConfig.None
+        val ctx = uiGraph.cellWindowTestsCtx
+        ctx.testComposeLifePreferences.touchToolConfig = ToolConfig.None
 
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
@@ -251,7 +251,7 @@ class CellWindowTests : BaseUiInjectTest(
         setContent {
             density = LocalDensity.current
 
-            with(entryPoint.mutableCellWindowEntryPoint) {
+            with(ctx.mutableCellWindowCtx) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),
@@ -283,7 +283,7 @@ class CellWindowTests : BaseUiInjectTest(
 
     @Test
     fun cells_are_displayed_correctly_after_zooming_in_with_mouse_wheel() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.cellWindowTestsEntryPoint
+        val ctx = uiGraph.cellWindowTestsCtx
 
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
@@ -309,7 +309,7 @@ class CellWindowTests : BaseUiInjectTest(
         )
 
         setContent {
-            with(entryPoint.mutableCellWindowEntryPoint) {
+            with(ctx.mutableCellWindowCtx) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),
@@ -333,7 +333,7 @@ class CellWindowTests : BaseUiInjectTest(
 
     @Test
     fun cells_are_displayed_correctly_after_zooming_out_with_mouse_wheel() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.cellWindowTestsEntryPoint
+        val ctx = uiGraph.cellWindowTestsCtx
 
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
@@ -359,7 +359,7 @@ class CellWindowTests : BaseUiInjectTest(
         )
 
         setContent {
-            with(entryPoint.mutableCellWindowEntryPoint) {
+            with(ctx.mutableCellWindowCtx) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),

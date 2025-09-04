@@ -57,11 +57,12 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 
+// region templated-ctx
 @Immutable
 @Inject
-class InlineSettingsPaneEntryPoint(
+class InlineSettingsPaneCtx(
     private val preferencesHolder: LoadedComposeLifePreferencesHolder,
-    private val settingUiEntryPoint: SettingUiEntryPoint,
+    private val settingUiCtx: SettingUiCtx,
 ) {
     @Suppress("ComposableNaming")
     @Composable
@@ -72,7 +73,7 @@ class InlineSettingsPaneEntryPoint(
         scrollState: ScrollState = rememberScrollState(initial = Int.MAX_VALUE),
     ) = lambda(
         preferencesHolder,
-        settingUiEntryPoint,
+        settingUiCtx,
         onSeeMoreClicked,
         onOpenInSettingsClicked,
         modifier,
@@ -81,7 +82,7 @@ class InlineSettingsPaneEntryPoint(
 
     companion object {
         private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, SettingUiEntryPoint) (
+            @Composable context(LoadedComposeLifePreferencesHolder, SettingUiCtx) (
                 onSeeMoreClicked: () -> Unit,
                 onOpenInSettingsClicked: (Setting) -> Unit,
                 modifier: Modifier,
@@ -93,18 +94,19 @@ class InlineSettingsPaneEntryPoint(
     }
 }
 
-context(entryPoint: InlineSettingsPaneEntryPoint)
+context(ctx: InlineSettingsPaneCtx)
 @Composable
 fun InlineSettingsPane(
     onSeeMoreClicked: () -> Unit,
     onOpenInSettingsClicked: (Setting) -> Unit,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(initial = Int.MAX_VALUE),
-) = entryPoint(onSeeMoreClicked, onOpenInSettingsClicked, modifier, scrollState)
+) = ctx(onSeeMoreClicked, onOpenInSettingsClicked, modifier, scrollState)
+// endregion templated-ctx
 
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-_: SettingUiEntryPoint,
+_: SettingUiCtx,
 )
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod")

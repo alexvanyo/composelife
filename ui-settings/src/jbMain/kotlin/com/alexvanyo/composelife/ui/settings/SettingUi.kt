@@ -34,27 +34,28 @@ import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 
+// region templated-ctx
 @Immutable
 @Inject
 @Suppress("LongParameterList")
-class SettingUiEntryPoint(
+class SettingUiCtx(
     private val preferencesHolder: LoadedComposeLifePreferencesHolder,
     private val composeLifePreferences: ComposeLifePreferences,
-    private val algorithmImplementationUiEntryPoint: AlgorithmImplementationUiEntryPoint,
-    private val cellStatePreviewUiEntryPoint: CellStatePreviewUiEntryPoint,
-    private val darkThemeConfigUiEntryPoint: DarkThemeConfigUiEntryPoint,
-    private val cellShapeConfigUiEntryPoint: CellShapeConfigUiEntryPoint,
-    private val synchronizePatternCollectionsOnMeteredNetworkUiEntryPoint:
-    SynchronizePatternCollectionsOnMeteredNetworkUiEntryPoint,
-    private val patternCollectionsSynchronizationPeriodUiEntryPoint:
-    PatternCollectionsSynchronizationPeriodUiEntryPoint,
-    private val patternCollectionsUiEntryPoint: PatternCollectionsUiEntryPoint,
-    private val disableAGSLUiEntryPoint: DisableAGSLUiEntryPoint,
-    private val disableOpenGLUiEntryPoint: DisableOpenGLUiEntryPoint,
-    private val doNotKeepProcessUiEntryPoint: DoNotKeepProcessUiEntryPoint,
-    private val enableClipboardWatchingUiEntryPoint: EnableClipboardWatchingUiEntryPoint,
-    private val clipboardWatchingOnboardingCompletedUiEntryPoint: ClipboardWatchingOnboardingCompletedUiEntryPoint,
-    private val enableWindowShapeClippingUiEntryPoint: EnableWindowShapeClippingUiEntryPoint,
+    private val algorithmImplementationUiCtx: AlgorithmImplementationUiCtx,
+    private val cellStatePreviewUiCtx: CellStatePreviewUiCtx,
+    private val darkThemeConfigUiCtx: DarkThemeConfigUiCtx,
+    private val cellShapeConfigUiCtx: CellShapeConfigUiCtx,
+    private val synchronizePatternCollectionsOnMeteredNetworkUiCtx:
+    SynchronizePatternCollectionsOnMeteredNetworkUiCtx,
+    private val patternCollectionsSynchronizationPeriodUiCtx:
+    PatternCollectionsSynchronizationPeriodUiCtx,
+    private val patternCollectionsUiCtx: PatternCollectionsUiCtx,
+    private val disableAGSLUiCtx: DisableAGSLUiCtx,
+    private val disableOpenGLUiCtx: DisableOpenGLUiCtx,
+    private val doNotKeepProcessUiCtx: DoNotKeepProcessUiCtx,
+    private val enableClipboardWatchingUiCtx: EnableClipboardWatchingUiCtx,
+    private val clipboardWatchingOnboardingCompletedUiCtx: ClipboardWatchingOnboardingCompletedUiCtx,
+    private val enableWindowShapeClippingUiCtx: EnableWindowShapeClippingUiCtx,
 ) {
     @Suppress("ComposableNaming", "LongParameterList")
     @Composable
@@ -65,19 +66,19 @@ class SettingUiEntryPoint(
     ) = lambda(
         preferencesHolder,
         composeLifePreferences,
-        algorithmImplementationUiEntryPoint,
-        cellStatePreviewUiEntryPoint,
-        darkThemeConfigUiEntryPoint,
-        cellShapeConfigUiEntryPoint,
-        synchronizePatternCollectionsOnMeteredNetworkUiEntryPoint,
-        patternCollectionsSynchronizationPeriodUiEntryPoint,
-        patternCollectionsUiEntryPoint,
-        disableAGSLUiEntryPoint,
-        disableOpenGLUiEntryPoint,
-        doNotKeepProcessUiEntryPoint,
-        enableClipboardWatchingUiEntryPoint,
-        clipboardWatchingOnboardingCompletedUiEntryPoint,
-        enableWindowShapeClippingUiEntryPoint,
+        algorithmImplementationUiCtx,
+        cellStatePreviewUiCtx,
+        darkThemeConfigUiCtx,
+        cellShapeConfigUiCtx,
+        synchronizePatternCollectionsOnMeteredNetworkUiCtx,
+        patternCollectionsSynchronizationPeriodUiCtx,
+        patternCollectionsUiCtx,
+        disableAGSLUiCtx,
+        disableOpenGLUiCtx,
+        doNotKeepProcessUiCtx,
+        enableClipboardWatchingUiCtx,
+        clipboardWatchingOnboardingCompletedUiCtx,
+        enableWindowShapeClippingUiCtx,
         setting,
         modifier,
         onOpenInSettingsClicked,
@@ -88,19 +89,19 @@ class SettingUiEntryPoint(
             @Composable context(
                 LoadedComposeLifePreferencesHolder,
                 ComposeLifePreferences,
-                AlgorithmImplementationUiEntryPoint,
-                CellStatePreviewUiEntryPoint,
-                DarkThemeConfigUiEntryPoint,
-                CellShapeConfigUiEntryPoint,
-                SynchronizePatternCollectionsOnMeteredNetworkUiEntryPoint,
-                PatternCollectionsSynchronizationPeriodUiEntryPoint,
-                PatternCollectionsUiEntryPoint,
-                DisableAGSLUiEntryPoint,
-                DisableOpenGLUiEntryPoint,
-                DoNotKeepProcessUiEntryPoint,
-                EnableClipboardWatchingUiEntryPoint,
-                ClipboardWatchingOnboardingCompletedUiEntryPoint,
-                EnableWindowShapeClippingUiEntryPoint,
+                AlgorithmImplementationUiCtx,
+                CellStatePreviewUiCtx,
+                DarkThemeConfigUiCtx,
+                CellShapeConfigUiCtx,
+                SynchronizePatternCollectionsOnMeteredNetworkUiCtx,
+                PatternCollectionsSynchronizationPeriodUiCtx,
+                PatternCollectionsUiCtx,
+                DisableAGSLUiCtx,
+                DisableOpenGLUiCtx,
+                DoNotKeepProcessUiCtx,
+                EnableClipboardWatchingUiCtx,
+                ClipboardWatchingOnboardingCompletedUiCtx,
+                EnableWindowShapeClippingUiCtx,
             ) (
                 setting: Setting,
                 modifier: Modifier,
@@ -112,13 +113,14 @@ class SettingUiEntryPoint(
     }
 }
 
-context(entryPoint: SettingUiEntryPoint)
+context(ctx: SettingUiCtx)
 @Composable
 fun SettingUi(
     setting: Setting,
     modifier: Modifier = Modifier,
     onOpenInSettingsClicked: ((Setting) -> Unit)? = null,
-) = entryPoint(setting, modifier, onOpenInSettingsClicked)
+) = ctx(setting, modifier, onOpenInSettingsClicked)
+// endregion templated-ctx
 
 /**
  * Displays the setting UI for the given [setting].
@@ -129,19 +131,19 @@ fun SettingUi(
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
 composeLifePreferences: ComposeLifePreferences,
-_: AlgorithmImplementationUiEntryPoint,
-_: CellStatePreviewUiEntryPoint,
-_: DarkThemeConfigUiEntryPoint,
-_: CellShapeConfigUiEntryPoint,
-_: SynchronizePatternCollectionsOnMeteredNetworkUiEntryPoint,
-_: PatternCollectionsSynchronizationPeriodUiEntryPoint,
-_: PatternCollectionsUiEntryPoint,
-_: DisableAGSLUiEntryPoint,
-_: DisableOpenGLUiEntryPoint,
-_: DoNotKeepProcessUiEntryPoint,
-_: EnableClipboardWatchingUiEntryPoint,
-_: ClipboardWatchingOnboardingCompletedUiEntryPoint,
-_: EnableWindowShapeClippingUiEntryPoint,
+_: AlgorithmImplementationUiCtx,
+_: CellStatePreviewUiCtx,
+_: DarkThemeConfigUiCtx,
+_: CellShapeConfigUiCtx,
+_: SynchronizePatternCollectionsOnMeteredNetworkUiCtx,
+_: PatternCollectionsSynchronizationPeriodUiCtx,
+_: PatternCollectionsUiCtx,
+_: DisableAGSLUiCtx,
+_: DisableOpenGLUiCtx,
+_: DoNotKeepProcessUiCtx,
+_: EnableClipboardWatchingUiCtx,
+_: ClipboardWatchingOnboardingCompletedUiCtx,
+_: EnableWindowShapeClippingUiCtx,
 )
 @Suppress("CyclomaticComplexMethod")
 @Composable

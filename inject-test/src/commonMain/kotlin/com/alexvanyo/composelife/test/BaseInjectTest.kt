@@ -38,7 +38,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 @ContributesTo(AppScope::class)
-interface BaseInjectTestEntryPoint {
+interface BaseInjectTestCtx {
     @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
 
     @ForScope(AppScope::class)
@@ -46,8 +46,8 @@ interface BaseInjectTestEntryPoint {
 }
 
 // TODO: Replace with asContribution()
-private val ApplicationGraph.baseInjectTestEntryPoint: BaseInjectTestEntryPoint get() =
-    this as BaseInjectTestEntryPoint
+private val ApplicationGraph.baseInjectTestCtx: BaseInjectTestCtx get() =
+    this as BaseInjectTestCtx
 
 expect abstract class BaseInjectTest(
     applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
@@ -64,9 +64,9 @@ abstract class BaseInjectTestImpl(
 ) {
     val applicationGraph = applicationGraphCreator(createApplicationGraphArguments())
 
-    private val entryPoint get() = applicationGraph.baseInjectTestEntryPoint
-    internal val appUpdatables: Set<Updatable> get() = entryPoint.appUpdatables
-    internal val generalTestDispatcher: TestDispatcher get() = entryPoint.generalTestDispatcher
+    private val ctx get() = applicationGraph.baseInjectTestCtx
+    internal val appUpdatables: Set<Updatable> get() = ctx.appUpdatables
+    internal val generalTestDispatcher: TestDispatcher get() = ctx.generalTestDispatcher
 
     @OptIn(ExperimentalCoroutinesApi::class)
     open fun runAppTest(

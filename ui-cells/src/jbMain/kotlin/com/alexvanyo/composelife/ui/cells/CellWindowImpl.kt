@@ -69,14 +69,14 @@ import kotlin.math.ceil
 
 @Immutable
 @Inject
-internal class CellWindowImplEntryPoint(
-    internal val nonInteractableCellsEntryPoint: NonInteractableCellsEntryPoint,
-    internal val interactableCellsEntryPoint: InteractableCellsEntryPoint,
+internal class CellWindowImplCtx(
+    internal val nonInteractableCellsCtx: NonInteractableCellsCtx,
+    internal val interactableCellsCtx: InteractableCellsCtx,
     internal val preferencesHolder: LoadedComposeLifePreferencesHolder,
     internal val cellStateParser: CellStateParser,
 )
 
-context(entryPoint: CellWindowImplEntryPoint)
+context(ctx: CellWindowImplCtx)
 @Composable
 internal fun CellWindowImpl(
     cellWindowUiState: CellWindowUiState,
@@ -85,11 +85,11 @@ internal fun CellWindowImpl(
     inOverlay: Boolean,
     modifier: Modifier = Modifier,
 ) = CellWindowImpl(
-    entryPoint.nonInteractableCellsEntryPoint,
-    entryPoint.interactableCellsEntryPoint,
-    entryPoint.preferencesHolder,
-    entryPoint.cellStateParser,
-    entryPoint,
+    ctx.nonInteractableCellsCtx,
+    ctx.interactableCellsCtx,
+    ctx.preferencesHolder,
+    ctx.cellStateParser,
+    ctx,
     cellWindowUiState,
     cellDpSize,
     centerOffset,
@@ -100,11 +100,11 @@ internal fun CellWindowImpl(
 @Suppress("LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 @Composable
 private fun CellWindowImpl(
-    nonInteractableCellsEntryPoint: NonInteractableCellsEntryPoint,
-    interactableCellsEntryPoint: InteractableCellsEntryPoint,
+    nonInteractableCellsCtx: NonInteractableCellsCtx,
+    interactableCellsCtx: InteractableCellsCtx,
     preferencesHolder: LoadedComposeLifePreferencesHolder,
     cellStateParser: CellStateParser,
-    cellWindowImplEntryPoint: CellWindowImplEntryPoint,
+    cellWindowImplCtx: CellWindowImplCtx,
     cellWindowUiState: CellWindowUiState,
     cellDpSize: Dp,
     centerOffset: Offset,
@@ -329,7 +329,7 @@ private fun CellWindowImpl(
             Box(
                 modifier = navigableModifier,
             ) {
-                with(nonInteractableCellsEntryPoint) {
+                with(nonInteractableCellsCtx) {
                     // Keep the non-interactable cells always visible, to easily be able to switch to it when moving
                     NonInteractableCells(
                         gameOfLifeState = cellWindowUiState.gameOfLifeState,
@@ -347,7 +347,7 @@ private fun CellWindowImpl(
                     )
                 }
 
-                with(interactableCellsEntryPoint) {
+                with(interactableCellsCtx) {
                     // Only show the interactable cells if the conditions are met to be interactable.
                     if (
                         cellWindowUiState.isEditable(
@@ -377,7 +377,7 @@ private fun CellWindowImpl(
             when (cellWindowUiState) {
                 is CellWindowUiState.ImmutableCellWindowUiState -> Unit
                 is CellWindowUiState.MutableState -> {
-                    with(cellWindowImplEntryPoint) {
+                    with(cellWindowImplCtx) {
                         with(cellStateParser) {
                             SelectionOverlay(
                                 selectionSessionState =

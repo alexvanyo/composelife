@@ -78,7 +78,7 @@ class CellShapeConfigUiTests {
             resolver = parameterizedStringResolver()
 
             val cellShapeConfigUiState = with(
-                CellShapeConfigUiEntryPoint(
+                CellShapeConfigUiCtx(
                     preferencesHolder = composeLifePreferences,
                     composeLifePreferences = composeLifePreferences,
                 ),
@@ -134,7 +134,7 @@ class CellShapeConfigUiTests {
             resolver = parameterizedStringResolver()
 
             val cellShapeConfigUiState = with(
-                CellShapeConfigUiEntryPoint(
+                CellShapeConfigUiCtx(
                     preferencesHolder = composeLifePreferences,
                     composeLifePreferences = composeLifePreferences,
                 ),
@@ -176,7 +176,7 @@ class CellShapeConfigUiTests {
             resolver = parameterizedStringResolver()
 
             val cellShapeConfigUiState = with(
-                CellShapeConfigUiEntryPoint(
+                CellShapeConfigUiCtx(
                     preferencesHolder = composeLifePreferences,
                     composeLifePreferences = composeLifePreferences,
                 ),
@@ -218,7 +218,7 @@ class CellShapeConfigUiTests {
             resolver = parameterizedStringResolver()
 
             val cellShapeConfigUiState = with(
-                CellShapeConfigUiEntryPoint(
+                CellShapeConfigUiCtx(
                     preferencesHolder = composeLifePreferences,
                     composeLifePreferences = composeLifePreferences,
                 ),

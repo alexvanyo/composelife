@@ -20,7 +20,7 @@ package com.alexvanyo.composelife.ui.app.component
 import androidx.compose.runtime.Composable
 import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.scopes.implicit
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
+import com.alexvanyo.composelife.ui.app.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
@@ -31,7 +31,7 @@ internal fun GameOfLifeProgressIndicatorBlinkerPreview() {
     WithPreviewDependencies {
         implicit().testRandom.setSeed(6)
         ComposeLifeTheme {
-            with(implicit().gameOfLifeProgressIndicatorEntryPoint) {
+            with(implicit().gameOfLifeProgressIndicatorCtx) {
                 GameOfLifeProgressIndicator()
             }
         }
@@ -45,7 +45,7 @@ internal fun GameOfLifeProgressIndicatorToadPreview() {
     WithPreviewDependencies {
         implicit().testRandom.setSeed(2)
         ComposeLifeTheme {
-            with(implicit().gameOfLifeProgressIndicatorEntryPoint) {
+            with(implicit().gameOfLifeProgressIndicatorCtx) {
                 GameOfLifeProgressIndicator()
             }
         }
@@ -59,7 +59,7 @@ internal fun GameOfLifeProgressIndicatorBeaconPreview() {
     WithPreviewDependencies {
         implicit().testRandom.setSeed(1)
         ComposeLifeTheme {
-            with(implicit().gameOfLifeProgressIndicatorEntryPoint) {
+            with(implicit().gameOfLifeProgressIndicatorCtx) {
                 GameOfLifeProgressIndicator()
             }
         }
@@ -73,7 +73,7 @@ internal fun GameOfLifeProgressIndicatorPulsarPreview() {
     WithPreviewDependencies {
         implicit().testRandom.setSeed(0)
         ComposeLifeTheme {
-            with(implicit().gameOfLifeProgressIndicatorEntryPoint) {
+            with(implicit().gameOfLifeProgressIndicatorCtx) {
                 GameOfLifeProgressIndicator()
             }
         }

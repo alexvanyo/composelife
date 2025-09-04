@@ -54,14 +54,14 @@ import kotlinx.coroutines.launch
 import kotlin.time.Clock
 
 @ContributesTo(AppScope::class)
-interface GameOfLifeWatchFaceServiceEntryPoint {
+interface GameOfLifeWatchFaceServiceCtx {
     val gameOfLifeAlgorithm: GameOfLifeAlgorithm
     val dispatchers: ComposeLifeDispatchers
 }
 
 // TODO: Replace with asContribution()
-internal val ApplicationGraph.gameOfLifeWatchFaceServiceEntryPoint: GameOfLifeWatchFaceServiceEntryPoint get() =
-    this as GameOfLifeWatchFaceServiceEntryPoint
+internal val ApplicationGraph.gameOfLifeWatchFaceServiceCtx: GameOfLifeWatchFaceServiceCtx get() =
+    this as GameOfLifeWatchFaceServiceCtx
 
 @Suppress("Deprecated")
 @OptIn(WatchFaceExperimental::class)
@@ -85,9 +85,9 @@ class GameOfLifeWatchFaceService : WatchFaceService() {
         super.onCreate()
 
         val applicationGraph = (application as ApplicationGraphOwner).applicationGraph
-        val entryPoint = applicationGraph.gameOfLifeWatchFaceServiceEntryPoint
-        gameOfLifeAlgorithm = entryPoint.gameOfLifeAlgorithm
-        dispatchers = entryPoint.dispatchers
+        val ctx = applicationGraph.gameOfLifeWatchFaceServiceCtx
+        gameOfLifeAlgorithm = ctx.gameOfLifeAlgorithm
+        dispatchers = ctx.dispatchers
 
         scope.launch {
             with(gameOfLifeAlgorithm) {

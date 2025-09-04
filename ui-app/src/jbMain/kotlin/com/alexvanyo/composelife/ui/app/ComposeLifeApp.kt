@@ -64,7 +64,7 @@ import com.alexvanyo.composelife.ui.mobile.component.ListDetailInfo
 import com.alexvanyo.composelife.ui.mobile.component.dialogNavigationTransform
 import com.alexvanyo.composelife.ui.mobile.component.listDetailNavigationTransform
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPane
-import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneEntryPoint
+import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneCtx
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsListPane
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.settings.SettingsCategory
@@ -81,7 +81,7 @@ import kotlin.uuid.Uuid
 
 @Immutable
 @Inject
-class ComposeLifeAppUiEntryPoint(
+class ComposeLifeAppUiCtx(
     internal val composeLifePreferences: ComposeLifePreferences,
     internal val uiGraph: UiGraph,
 ) {
@@ -90,15 +90,15 @@ class ComposeLifeAppUiEntryPoint(
 
 @Immutable
 @Inject
-class ComposeLifeAppUiWithLoadedPreferencesEntryPoint(
+class ComposeLifeAppUiWithLoadedPreferencesCtx(
     internal val preferencesHolder: LoadedComposeLifePreferencesHolder,
-    internal val cellUniversePaneEntryPoint: CellUniversePaneEntryPoint,
-    internal val fullscreenSettingsDetailPaneEntryPoint: FullscreenSettingsDetailPaneEntryPoint,
+    internal val cellUniversePaneCtx: CellUniversePaneCtx,
+    internal val fullscreenSettingsDetailPaneCtx: FullscreenSettingsDetailPaneCtx,
 ) {
     companion object
 }
 
-context(uiEntryPoint: ComposeLifeAppUiEntryPoint)
+context(uiCtx: ComposeLifeAppUiCtx)
 @Suppress("LongMethod")
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalAnimationApi::class)
 @Composable
@@ -107,8 +107,8 @@ fun ComposeLifeApp(
     windowSize: DpSize,
     modifier: Modifier = Modifier,
     composeLifeAppState: ComposeLifeAppState = rememberComposeLifeAppState(
-        uiEntryPoint.composeLifePreferences,
-        uiEntryPoint.uiGraph,
+        uiCtx.composeLifePreferences,
+        uiCtx.uiGraph,
         windowSizeClass,
         windowSize,
     ),
@@ -159,7 +159,7 @@ fun ComposeLifeApp(
                             targetComposeLifeAppState.onBackPressed()
                         }
 
-                        with(targetComposeLifeAppState.composeLifeAppUiWithLoadedPreferencesEntryPoint) {
+                        with(targetComposeLifeAppState.composeLifeAppUiWithLoadedPreferencesCtx) {
                             SharedTransitionLayout {
                                 CompositionLocalProvider(LocalNavigationSharedTransitionScope provides this) {
                                     val renderableNavigationState = associateWithRenderablePanes(
@@ -168,7 +168,7 @@ fun ComposeLifeApp(
                                         when (val value = entry.value) {
                                             is ComposeLifeUiNavigation.CellUniverse -> {
                                                 Surface {
-                                                    with(cellUniversePaneEntryPoint) {
+                                                    with(cellUniversePaneCtx) {
                                                         CellUniversePane(
                                                             windowSizeClass = windowSizeClass,
                                                             onSeeMoreSettingsClicked =
@@ -192,7 +192,7 @@ fun ComposeLifeApp(
                                             }
 
                                             is ComposeLifeUiNavigation.FullscreenSettingsDetail -> {
-                                                with(fullscreenSettingsDetailPaneEntryPoint) {
+                                                with(fullscreenSettingsDetailPaneCtx) {
                                                     FullscreenSettingsDetailPane(
                                                         fullscreenSettingsDetailPaneState = value,
                                                         onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
@@ -279,9 +279,9 @@ fun rememberComposeLifeAppState(
 
             remember(navController, navigationUiState) {
                 object : ComposeLifeAppState.LoadedPreferences {
-                    override val composeLifeAppUiWithLoadedPreferencesEntryPoint:
-                        ComposeLifeAppUiWithLoadedPreferencesEntryPoint
-                        get() = uiWithLoadedPreferencesGraph.composeLifeAppUiWithLoadedPreferencesEntryPoint
+                    override val composeLifeAppUiWithLoadedPreferencesCtx:
+                        ComposeLifeAppUiWithLoadedPreferencesCtx
+                        get() = uiWithLoadedPreferencesGraph.composeLifeAppUiWithLoadedPreferencesCtx
 
                     override val navigationState: BackstackState<ComposeLifeUiNavigation>
                         get() = navigationUiState
@@ -386,7 +386,7 @@ sealed interface ComposeLifeAppState {
      */
     interface LoadedPreferences : ComposeLifeAppState {
 
-        val composeLifeAppUiWithLoadedPreferencesEntryPoint: ComposeLifeAppUiWithLoadedPreferencesEntryPoint
+        val composeLifeAppUiWithLoadedPreferencesCtx: ComposeLifeAppUiWithLoadedPreferencesCtx
 
         val navigationState: BackstackState<ComposeLifeUiNavigation>
 
@@ -408,7 +408,7 @@ abstract class UiWithLoadedPreferencesScope private constructor()
 
 @GraphExtension(UiWithLoadedPreferencesScope::class)
 interface UiWithLoadedPreferencesGraph {
-    val composeLifeAppUiWithLoadedPreferencesEntryPoint: ComposeLifeAppUiWithLoadedPreferencesEntryPoint
+    val composeLifeAppUiWithLoadedPreferencesCtx: ComposeLifeAppUiWithLoadedPreferencesCtx
 
     @ContributesTo(UiScope::class)
     @GraphExtension.Factory

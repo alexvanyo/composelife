@@ -40,9 +40,10 @@ import dev.zacsweers.metro.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 
+// region templated-ctx
 @Immutable
 @Inject
-class DarkThemeConfigUiEntryPoint(
+class DarkThemeConfigUiCtx(
     private val preferencesHolder: LoadedComposeLifePreferencesHolder,
     private val composeLifePreferences: ComposeLifePreferences,
 ) {
@@ -63,11 +64,12 @@ class DarkThemeConfigUiEntryPoint(
     }
 }
 
-context(entryPoint: DarkThemeConfigUiEntryPoint)
+context(ctx: DarkThemeConfigUiCtx)
 @Composable
 fun DarkThemeConfigUi(
     modifier: Modifier = Modifier,
-) = entryPoint(modifier)
+) = ctx(modifier)
+// endregion templated-ctx
 
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,

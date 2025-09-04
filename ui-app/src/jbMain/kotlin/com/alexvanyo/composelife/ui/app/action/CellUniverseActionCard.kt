@@ -48,7 +48,7 @@ import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPane
-import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneEntryPoint
+import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneCtx
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavigationFrame
@@ -62,9 +62,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.max
 
+// region templated-ctx
 @Suppress("ComposableNaming", "LongParameterList")
 @Composable
-private operator fun CellUniverseActionCardEntryPoint.invoke(
+private operator fun CellUniverseActionCardCtx.invoke(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     isViewportTracking: Boolean,
     setIsViewportTracking: (Boolean) -> Unit,
@@ -87,9 +88,9 @@ private operator fun CellUniverseActionCardEntryPoint.invoke(
     actionCardState: CellUniverseActionCardState,
     modifier: Modifier = Modifier,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-) = CellUniverseActionCardEntryPoint.lambda(
-    inlineEditPaneEntryPoint,
-    inlineSettingsPaneEntryPoint,
+) = CellUniverseActionCardCtx.lambda(
+    inlineEditPaneCtx,
+    inlineSettingsPaneCtx,
     temporalGameOfLifeState,
     isViewportTracking,
     setIsViewportTracking,
@@ -114,8 +115,8 @@ private operator fun CellUniverseActionCardEntryPoint.invoke(
     coroutineScope,
 )
 
-private val CellUniverseActionCardEntryPoint.Companion.lambda:
-    @Composable (context(InlineEditPaneEntryPoint, InlineSettingsPaneEntryPoint) (
+private val CellUniverseActionCardCtx.Companion.lambda:
+    @Composable (context(InlineEditPaneCtx, InlineSettingsPaneCtx) (
         temporalGameOfLifeState: TemporalGameOfLifeState,
         isViewportTracking: Boolean,
         setIsViewportTracking: (Boolean) -> Unit,
@@ -189,7 +190,7 @@ private val CellUniverseActionCardEntryPoint.Companion.lambda:
         )
     }
 
-context(entryPoint: CellUniverseActionCardEntryPoint)
+context(ctx: CellUniverseActionCardCtx)
 @Suppress("LongParameterList")
 @Composable
 fun CellUniverseActionCard(
@@ -215,7 +216,7 @@ fun CellUniverseActionCard(
     actionCardState: CellUniverseActionCardState,
     modifier: Modifier = Modifier,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-) = entryPoint(
+) = ctx(
     temporalGameOfLifeState = temporalGameOfLifeState,
     isViewportTracking = isViewportTracking,
     setIsViewportTracking = setIsViewportTracking,
@@ -239,10 +240,11 @@ fun CellUniverseActionCard(
     modifier = modifier,
     coroutineScope = coroutineScope,
 )
+// endregion templated-ctx
 
 context(
-    _: InlineEditPaneEntryPoint,
-_: InlineSettingsPaneEntryPoint
+    _: InlineEditPaneCtx,
+_: InlineSettingsPaneCtx
 )
 @Suppress("LongParameterList", "LongMethod")
 @Composable
@@ -309,8 +311,8 @@ private fun CellUniverseActionCard(
 }
 
 context(
-    _: InlineEditPaneEntryPoint,
-_: InlineSettingsPaneEntryPoint
+    _: InlineEditPaneCtx,
+_: InlineSettingsPaneCtx
 )
 @Suppress("LongParameterList", "LongMethod", "ComplexMethod")
 @Composable

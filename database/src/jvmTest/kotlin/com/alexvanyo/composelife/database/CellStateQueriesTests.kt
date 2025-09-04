@@ -36,19 +36,19 @@ import kotlin.test.assertNull
 import kotlin.time.Duration.Companion.seconds
 
 @ContributesTo(AppScope::class)
-interface CellStateQueriesTestsEntryPoint {
+interface CellStateQueriesTestsCtx {
     val cellStateQueries: CellStateQueries
 }
 
 // TODO: Replace with asContribution()
-internal val ApplicationGraph.cellStateQueriesTestsEntryPoint: CellStateQueriesTestsEntryPoint get() =
-    this as CellStateQueriesTestsEntryPoint
+internal val ApplicationGraph.cellStateQueriesTestsCtx: CellStateQueriesTestsCtx get() =
+    this as CellStateQueriesTestsCtx
 
 class CellStateQueriesTests : BaseInjectTest(
     globalGraph.asContribution<ApplicationGraph.Factory>()::create,
 ) {
-    private val entryPoint get() = applicationGraph.cellStateQueriesTestsEntryPoint
-    private val cellStateQueries get() = entryPoint.cellStateQueries
+    private val ctx get() = applicationGraph.cellStateQueriesTestsCtx
+    private val cellStateQueries get() = ctx.cellStateQueries
 
     @Test
     fun get_cell_states_returns_empty_initially() = runAppTest {

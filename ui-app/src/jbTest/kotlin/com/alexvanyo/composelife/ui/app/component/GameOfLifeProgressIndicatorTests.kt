@@ -38,13 +38,13 @@ import dev.zacsweers.metro.asContribution
 import kotlin.test.Test
 
 @ContributesTo(UiScope::class)
-interface GameOfLifeProgressIndicatorTestsEntryPoint {
-    val gameOfLifeProgressIndicatorEntryPoint: GameOfLifeProgressIndicatorEntryPoint
+interface GameOfLifeProgressIndicatorTestsCtx {
+    val gameOfLifeProgressIndicatorCtx: GameOfLifeProgressIndicatorCtx
 }
 
 // TODO: Replace with asContribution()
-val UiGraph.gameOfLifeProgressIndicatorTestsEntryPoint: GameOfLifeProgressIndicatorTestsEntryPoint get() =
-    this as GameOfLifeProgressIndicatorTestsEntryPoint
+val UiGraph.gameOfLifeProgressIndicatorTestsCtx: GameOfLifeProgressIndicatorTestsCtx get() =
+    this as GameOfLifeProgressIndicatorTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
 class GameOfLifeProgressIndicatorTests : BaseUiInjectTest(
@@ -53,7 +53,7 @@ class GameOfLifeProgressIndicatorTests : BaseUiInjectTest(
 
     @Test
     fun progress_indicator_is_displayed_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.gameOfLifeProgressIndicatorTestsEntryPoint
+        val ctx = uiGraph.gameOfLifeProgressIndicatorTestsCtx
 
         setContent {
             CompositionLocalProvider(
@@ -63,7 +63,7 @@ class GameOfLifeProgressIndicatorTests : BaseUiInjectTest(
                     }
                 },
             ) {
-                with(entryPoint.gameOfLifeProgressIndicatorEntryPoint) {
+                with(ctx.gameOfLifeProgressIndicatorCtx) {
                     GameOfLifeProgressIndicator()
                 }
             }

@@ -37,19 +37,21 @@ import com.alexvanyo.composelife.navigation.canNavigateBack
 import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
-import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneEntryPoint
+import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneCtx
 import com.alexvanyo.composelife.ui.util.TargetState
 import dev.zacsweers.metro.Inject
 import kotlin.uuid.Uuid
 
+// region templated-ctx
 @Immutable
 @Inject
-class CellUniverseActionCardEntryPoint(
-    internal val inlineEditPaneEntryPoint: InlineEditPaneEntryPoint,
-    internal val inlineSettingsPaneEntryPoint: InlineSettingsPaneEntryPoint,
+class CellUniverseActionCardCtx(
+    internal val inlineEditPaneCtx: InlineEditPaneCtx,
+    internal val inlineSettingsPaneCtx: InlineSettingsPaneCtx,
 ) {
     companion object
 }
+// endregion templated-ctx
 
 /**
  * The persistable state describing the [CellUniverseActionCard].

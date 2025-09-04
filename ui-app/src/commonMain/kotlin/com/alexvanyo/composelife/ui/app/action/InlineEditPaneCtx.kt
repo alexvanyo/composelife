@@ -49,15 +49,14 @@ import kotlin.collections.removeLast as removeLastKt
 
 @Immutable
 @Inject
-class InlineEditPaneEntryPoint(
+class InlineEditPaneCtx internal constructor(
     internal val preferencesHolder: LoadedComposeLifePreferencesHolder,
     internal val composeLifePreferences: ComposeLifePreferences,
-    internal val clipboardCellStatePreviewEntryPoint: ClipboardCellStatePreviewEntryPoint,
+    internal val clipboardCellStatePreviewCtx: ClipboardCellStatePreviewCtx,
     internal val cellStateParser: CellStateParser,
 ) {
     companion object
 }
-
 interface InlineEditPaneState {
     val touchToolConfig: ToolConfig
     fun setTouchToolConfig(toolConfig: ToolConfig)
@@ -121,7 +120,7 @@ preferencesHolder: LoadedComposeLifePreferencesHolder,
 cellStateParser: CellStateParser,
 )
 @Composable
-fun rememberInlineEditPaneState(
+internal fun rememberInlineEditPaneState(
     setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
 ): InlineEditPaneState = rememberInlineEditPaneState(

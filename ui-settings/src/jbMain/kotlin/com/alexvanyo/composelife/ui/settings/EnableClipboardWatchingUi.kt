@@ -31,9 +31,10 @@ import com.alexvanyo.composelife.ui.settings.resources.Strings
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 
+// region templated-ctx
 @Immutable
 @Inject
-class EnableClipboardWatchingUiEntryPoint(
+class EnableClipboardWatchingUiCtx(
     private val preferencesHolder: LoadedComposeLifePreferencesHolder,
     private val composeLifePreferences: ComposeLifePreferences,
 ) {
@@ -54,11 +55,12 @@ class EnableClipboardWatchingUiEntryPoint(
     }
 }
 
-context(entryPoint: EnableClipboardWatchingUiEntryPoint)
+context(ctx: EnableClipboardWatchingUiCtx)
 @Composable
 fun EnableClipboardWatchingUi(
     modifier: Modifier = Modifier,
-) = entryPoint(modifier)
+) = ctx(modifier)
+// endregion templated-ctx
 
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
