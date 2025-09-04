@@ -65,21 +65,21 @@ import com.alexvanyo.composelife.ui.app.R as uiAppR
 import com.alexvanyo.composelife.ui.settings.R as uiSettingsR
 
 @ContributesTo(AppScope::class)
-interface ComposeLifeAppTestsEntryPoint {
+interface ComposeLifeAppTestsCtx {
     val preferences: ComposeLifePreferences
 }
 
 // TODO: Replace with asContribution()
-internal val ApplicationGraph.composeLifeAppTestsEntryPoint: ComposeLifeAppTestsEntryPoint get() =
-    this as ComposeLifeAppTestsEntryPoint
+internal val ApplicationGraph.composeLifeAppTestsCtx: ComposeLifeAppTestsCtx get() =
+    this as ComposeLifeAppTestsCtx
 
 class ComposeLifeAppTests : BaseActivityInjectTest<MainActivity>(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
     MainActivity::class.java,
 ) {
-    private val entryPoint get() = applicationGraph.composeLifeAppTestsEntryPoint
+    private val ctx get() = applicationGraph.composeLifeAppTestsCtx
 
-    private val preferences get() = entryPoint.preferences
+    private val preferences get() = ctx.preferences
 
     @SkipLeakDetection("recomposer", "Outer")
     @Test

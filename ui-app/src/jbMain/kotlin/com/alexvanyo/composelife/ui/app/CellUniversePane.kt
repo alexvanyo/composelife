@@ -27,27 +27,27 @@ import com.alexvanyo.composelife.data.CellStateRepository
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicator
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorEntryPoint
+import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorCtx
 import com.alexvanyo.composelife.ui.settings.Setting
-import com.alexvanyo.composelife.ui.util.ImmersiveModeManager
 import kotlin.time.Clock
 
+// region templated-ctx
 @Suppress("ComposableNaming", "LongParameterList")
 @Composable
-private operator fun CellUniversePaneEntryPoint.invoke(
+private operator fun CellUniversePaneCtx.invoke(
     windowSizeClass: WindowSizeClass,
     onSeeMoreSettingsClicked: () -> Unit,
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
     modifier: Modifier = Modifier,
     cellUniversePaneState: CellUniversePaneState = rememberCellUniversePaneState(),
-) = CellUniversePaneEntryPoint.lambda(
+) = CellUniversePaneCtx.lambda(
     cellStateRepository,
     gameOfLifeAlgorithm,
     dispatchers,
     clock,
-    gameOfLifeProgressIndicatorEntryPoint,
-    interactiveCellUniverseEntryPoint,
+    gameOfLifeProgressIndicatorCtx,
+    interactiveCellUniverseCtx,
     windowSizeClass,
     onSeeMoreSettingsClicked,
     onOpenInSettingsClicked,
@@ -56,14 +56,14 @@ private operator fun CellUniversePaneEntryPoint.invoke(
     cellUniversePaneState,
 )
 
-private val CellUniversePaneEntryPoint.Companion.lambda:
+private val CellUniversePaneCtx.Companion.lambda:
     @Composable context(
         CellStateRepository,
         GameOfLifeAlgorithm,
         ComposeLifeDispatchers,
         Clock,
-        GameOfLifeProgressIndicatorEntryPoint,
-        InteractiveCellUniverseEntryPoint,
+        GameOfLifeProgressIndicatorCtx,
+        InteractiveCellUniverseCtx,
     ) (
         windowSizeClass: WindowSizeClass,
         onSeeMoreSettingsClicked: () -> Unit,
@@ -90,7 +90,7 @@ private val CellUniversePaneEntryPoint.Companion.lambda:
         )
     }
 
-context(entryPoint: CellUniversePaneEntryPoint)
+context(ctx: CellUniversePaneCtx)
 @Suppress("LongParameterList")
 @Composable
 fun CellUniversePane(
@@ -100,7 +100,7 @@ fun CellUniversePane(
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
     modifier: Modifier = Modifier,
     cellUniversePaneState: CellUniversePaneState = rememberCellUniversePaneState(),
-) = entryPoint(
+) = ctx(
     windowSizeClass = windowSizeClass,
     onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
     onOpenInSettingsClicked = onOpenInSettingsClicked,
@@ -108,14 +108,15 @@ fun CellUniversePane(
     modifier = modifier,
     cellUniversePaneState = cellUniversePaneState,
 )
+// endregion templated-ctx
 
 context(
     cellStateRepository: CellStateRepository,
 gameOfLifeAlgorithm: GameOfLifeAlgorithm,
 dispatchers: ComposeLifeDispatchers,
 clock: Clock,
-_: GameOfLifeProgressIndicatorEntryPoint,
-_: InteractiveCellUniverseEntryPoint,
+_: GameOfLifeProgressIndicatorCtx,
+_: InteractiveCellUniverseCtx,
 )
 @Suppress("LongParameterList")
 @Composable

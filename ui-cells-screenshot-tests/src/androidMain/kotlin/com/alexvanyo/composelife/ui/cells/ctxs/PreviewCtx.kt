@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.cells.entrypoints
+package com.alexvanyo.composelife.ui.cells.ctxs
 
 import android.app.Activity
 import android.content.Context
@@ -30,10 +30,10 @@ import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
-import com.alexvanyo.composelife.ui.cells.ImmutableCellWindowEntryPoint
-import com.alexvanyo.composelife.ui.cells.InteractableCellsEntryPoint
-import com.alexvanyo.composelife.ui.cells.MutableCellWindowEntryPoint
-import com.alexvanyo.composelife.ui.cells.NonInteractableCellsEntryPoint
+import com.alexvanyo.composelife.ui.cells.ImmutableCellWindowCtx
+import com.alexvanyo.composelife.ui.cells.InteractableCellsCtx
+import com.alexvanyo.composelife.ui.cells.MutableCellWindowCtx
+import com.alexvanyo.composelife.ui.cells.NonInteractableCellsCtx
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.createGraph
@@ -43,11 +43,11 @@ import dev.zacsweers.metro.createGraph
  * previews in this module.
  */
 @ContributesTo(UiScope::class)
-internal interface PreviewEntryPoint : ComposeLifePreferencesProvider {
-    val mutableCellWindowEntryPoint: MutableCellWindowEntryPoint
-    val immutableCellWindowEntryPoint: ImmutableCellWindowEntryPoint
-    val interactableCellsEntryPoint: InteractableCellsEntryPoint
-    val nonInteractableCellsEntryPoint: NonInteractableCellsEntryPoint
+internal interface PreviewCtx : ComposeLifePreferencesProvider {
+    val mutableCellWindowCtx: MutableCellWindowCtx
+    val immutableCellWindowCtx: ImmutableCellWindowCtx
+    val interactableCellsCtx: InteractableCellsCtx
+    val nonInteractableCellsCtx: NonInteractableCellsCtx
     val imageLoader: ImageLoader
     val loadedComposeLifePreferencesHolder: LoadedComposeLifePreferencesHolder
 }
@@ -61,7 +61,7 @@ interface PreviewGlobalGraph
 @Suppress("LongParameterList")
 @Composable
 internal fun WithPreviewDependencies(
-    content: @Composable context(PreviewEntryPoint) () -> Unit,
+    content: @Composable context(PreviewCtx) () -> Unit,
 ) {
     val previewGraph = createGraph<PreviewGlobalGraph>()
     val applicationGraph = (previewGraph as ApplicationGraph.Factory).create(
@@ -75,7 +75,7 @@ internal fun WithPreviewDependencies(
             override val activity: Activity? = LocalActivity.current
         },
     )
-    val entryPoint = uiGraph as PreviewEntryPoint
+    val ctx = uiGraph as PreviewCtx
 
-    content(entryPoint)
+    content(ctx)
 }

@@ -42,7 +42,7 @@ import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
-import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiEntryPoint
+import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiCtx
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
 import com.alexvanyo.composelife.ui.util.ProvideLocalWindowInsetsHolder
@@ -55,16 +55,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
 @ContributesTo(UiScope::class)
-interface MainActivityInjectEntryPoint : ComposeLifePreferencesProvider {
-    val composeLifeAppUiEntryPoint: ComposeLifeAppUiEntryPoint
+interface MainActivityInjectCtx : ComposeLifePreferencesProvider {
+    val composeLifeAppUiCtx: ComposeLifeAppUiCtx
 
     @ForScope(UiScope::class)
     val uiUpdatables: Set<Updatable>
 }
 
 // TODO: Replace with asContribution()
-internal val UiGraph.mainActivityInjectEntryPoint: MainActivityInjectEntryPoint get() =
-    this as MainActivityInjectEntryPoint
+internal val UiGraph.mainActivityInjectCtx: MainActivityInjectCtx get() =
+    this as MainActivityInjectCtx
 
 class MainActivity : AppCompatActivity() {
 
@@ -80,12 +80,12 @@ class MainActivity : AppCompatActivity() {
                 override val uiContext: Context = activity
             },
         )
-        val mainActivityEntryPoint = uiGraph.mainActivityInjectEntryPoint
-        val uiUpdatables = mainActivityEntryPoint.uiUpdatables
+        val mainActivityCtx = uiGraph.mainActivityInjectCtx
+        val uiUpdatables = mainActivityCtx.uiUpdatables
 
         // Keep the splash screen on screen until we've loaded preferences
         splashScreen.setKeepOnScreenCondition {
-            !mainActivityEntryPoint.composeLifePreferences.loadedPreferencesState.isSuccess()
+            !mainActivityCtx.composeLifePreferences.loadedPreferencesState.isSuccess()
         }
 
         enableEdgeToEdge()
@@ -105,7 +105,7 @@ class MainActivity : AppCompatActivity() {
 
             CompositionLocalProvider(LocalRetainedStateRegistry provides continuityRetainedStateRegistry()) {
                 ProvideLocalWindowInsetsHolder {
-                    with(mainActivityEntryPoint) {
+                    with(mainActivityCtx) {
                         val darkTheme = shouldUseDarkTheme()
                         DisposableEffect(darkTheme) {
                             enableEdgeToEdge(
@@ -122,7 +122,7 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         ComposeLifeTheme(darkTheme) {
-                            with(composeLifeAppUiEntryPoint) {
+                            with(composeLifeAppUiCtx) {
                                 ComposeLifeApp(
                                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                                     windowSize = with(LocalDensity.current) {

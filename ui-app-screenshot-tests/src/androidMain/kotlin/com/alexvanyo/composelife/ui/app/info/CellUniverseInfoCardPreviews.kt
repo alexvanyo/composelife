@@ -18,7 +18,7 @@ package com.alexvanyo.composelife.ui.app.info
 
 import androidx.compose.runtime.Composable
 import com.airbnb.android.showkase.annotation.ShowkaseComposable
-import com.alexvanyo.composelife.ui.app.entrypoints.WithPreviewDependencies
+import com.alexvanyo.composelife.ui.app.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.ThemePreviews

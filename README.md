@@ -19,8 +19,8 @@ These include:
   - Mobile Android app and desktop app for exploring Game of Life patterns.
   - Watchface for Wear OS with configuration
   - Custom [adaptive navigation library][navigation]
-- [Dependency injection][dependency-injection] using [kotlin-inject][kotlin_inject],
-  [kotlin-inject-anvil][kotlin_inject_anvil] and [context parameters][context_parameters]
+- [Dependency injection][dependency-injection] using [Metro][metro] and
+  [context parameters][context_parameters]
 - [AGSL][agsl], [OpenGL](https://developer.android.com/develop/ui/views/graphics/opengl/about-opengl) and [SKSL][sksl] rendering
 - Fully functional CI system with GitHub Actions with:
     - Comprehensive automated tests
@@ -88,9 +88,8 @@ limitations under the License.
 [jetpack_compose]: https://developer.android.com/jetpack/compose
 [keeper]: https://slackhq.github.io/keeper/
 [kotlin]: https://kotlinlang.org/
-[kotlin_inject]: https://github.com/evant/kotlin-inject
-[kotlin_inject_anvil]: https://github.com/amzn/kotlin-inject-anvil
 [leakcanary]: https://square.github.io/leakcanary/
+[metro]: https://github.com/ZacSweers/metro
 [opengl]: https://developer.android.com/develop/ui/views/graphics/opengl/about-opengl
 [renovate]: https://docs.renovatebot.com/
 [robolectric]: https://robolectric.org/

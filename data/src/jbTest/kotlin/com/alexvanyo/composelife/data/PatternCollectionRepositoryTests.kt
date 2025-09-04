@@ -48,7 +48,7 @@ import kotlin.test.assertTrue
 import kotlin.time.Instant
 
 @ContributesTo(AppScope::class)
-interface PatternCollectionRepositoryTestsEntryPoint {
+interface PatternCollectionRepositoryTestsCtx {
     val patternCollectionRepository: PatternCollectionRepository
     val cellStateRepository: CellStateRepository
     val cellStateQueries: CellStateQueries
@@ -59,28 +59,28 @@ interface PatternCollectionRepositoryTestsEntryPoint {
 }
 
 // TODO: Replace with asContribution()
-internal val ApplicationGraph.patternCollectionRepositoryTestsEntryPoint:
-    PatternCollectionRepositoryTestsEntryPoint get() =
-        this as PatternCollectionRepositoryTestsEntryPoint
+internal val ApplicationGraph.patternCollectionRepositoryTestsCtx:
+    PatternCollectionRepositoryTestsCtx get() =
+        this as PatternCollectionRepositoryTestsCtx
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PatternCollectionRepositoryTests : BaseInjectTest(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val entryPoint get() = applicationGraph.patternCollectionRepositoryTestsEntryPoint
+    private val ctx get() = applicationGraph.patternCollectionRepositoryTestsCtx
 
     private val patternCollectionRepository: PatternCollectionRepository
-        get() = entryPoint.patternCollectionRepository
+        get() = ctx.patternCollectionRepository
 
-    private val cellStateRepository get() = entryPoint.cellStateRepository
+    private val cellStateRepository get() = ctx.cellStateRepository
 
-    private val cellStateQueries get() = entryPoint.cellStateQueries
+    private val cellStateQueries get() = ctx.cellStateQueries
 
-    private val fakeRequestHandler: FakeRequestHandler get() = entryPoint.fakeRequestHandler
+    private val fakeRequestHandler: FakeRequestHandler get() = ctx.fakeRequestHandler
 
-    private val fakeFileSystem get() = entryPoint.fakeFileSystem
+    private val fakeFileSystem get() = ctx.fakeFileSystem
 
-    private val persistedDataPath get() = entryPoint.persistedDataPath
+    private val persistedDataPath get() = ctx.persistedDataPath
 
     @Test
     fun pattern_collection_is_empty_initially() = runAppTest {

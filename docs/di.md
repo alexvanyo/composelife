@@ -1,12 +1,10 @@
 # Dependency Injection
 
-This project uses a combination of [kotlin-inject][kotlin_inject],
-[kotlin-inject-anvil][kotlin_inject_anvil] and
+This project uses a combination of [Metro][metro] and
 [context parameters][context_parameters] to
 implement dependency injection.
 
-kotlin-inject and kotlin-inject-anvil are used to create a dependency graph of singleton and
-`Activity`-scoped classes (data layer, preferences, and algorithm configuration).
+Metro is used to create dependency graphs for various scoped components.
 
 These dependencies are then provided to UI components via context parameters with the approach
 outlined below.
@@ -20,6 +18,7 @@ an argument:
 @Composable
 fun InnerComposable(
     random: Random,
+    modifier: Modifier = Modifier,
 ) {
     // use random
 }
@@ -27,6 +26,7 @@ fun InnerComposable(
 @Composable
 fun OuterComposable(
     random: Random,
+    modifier: Modifier = Modifier,
 ) {
     InnerComposable(
         random = random,
@@ -46,6 +46,7 @@ requires changing the call sites and declaration sites of all intermediate layer
 fun InnerComposable(
     random: Random,
     clock: Clock,
+    modifier: Modifier = Modifier,
 ) {
     // use random
 }
@@ -54,6 +55,7 @@ fun InnerComposable(
 fun OuterComposable(
     random: Random,
     clock: Clock,
+    modifier: Modifier = Modifier,
 ) {
     InnerComposable(
         random = random,
@@ -93,203 +95,139 @@ However, each additional dependency still requires changing the declaration site
 ```kotlin
 context(random: Random, clock: Clock)
 @Composable
-fun InnerComposable() {
+fun InnerComposable(modifier: Modifier = Modifier) {
     // use methods and properties in Random and Clock
 }
 
 context(_: Random, _: Clock)
 @Composable
-fun OuterComposable() {
+fun OuterComposable(modifier: Modifier = Modifier) {
     InnerComposable() // Random and Clock are passed as context parameters
 }
 ```
 
 ## Context Parameters Step 2
 
-Instead of using the dependency directly as a context parameter, we can define a canonical `Provider`
-interface for a dependency injected in this manner:
+Instead of expecting callers to have the dependency directly available as a context parameter,
+we can define an injectable `Ctx` class that contains each dependency, along with helper methods
+to extract these dependencies:
 
 ```kotlin
-interface RandomProvider {
-    val random: Random
+// region templated-ctx
+@Inject
+class InnerComposableCtx internal constructor(
+    private val random: Random,
+    private val clock: Clock,
+) {
+    @Composable
+    operator fun invoke(
+        modifier: Modifier = Modifier,
+    ) = lambda(random, clock, modifier)
+
+    companion object {
+        private val lambda:
+            @Composable context(Random, Clock) (
+                modifier: Modifier,
+            ) -> Unit =
+            { modifier ->
+                InnerComposable(modifier)
+            }
+    }
+}
+
+context(ctx: InnerComposableCtx)
+@Composable
+fun InnerComposable(modifier: Modifier = Modifier) =
+    ctx(modifier)
+// endregion templated-ctx
+
+context(random: Random, clock: Clock)
+@Composable
+private fun InnerComposable(modifier: Modifier = Modifier) {
+    // use methods and properties in Random and Clock
 }
 ```
 
-We can then use that provider interface as the context parameter:
+We can then use that context class as the context parameter in the `OuterComposable` to call the
+`InnerComposable`, without having knowledge of what dependencies `InnerComposable` needs:
 
 ```kotlin
-context(randomProvider: RandomProvider)
-@Composable
-fun InnerComposable() {
-    randomProvider.random
-}
-
-context(_: RandomProvider)
+context(_: InnerComposableCtx)
 @Composable
 fun OuterComposable() {
-    InnerComposable() // RandomProvider passed as context parameter
+    InnerComposable() // InnerComposableCtx passed as context parameter
 }
 ```
 
-Each dependency would then have its own provider interface declared:
+We can also nest these `Ctx` classes, by injecting the inner component `Ctx` in an outer component
+`Ctx` in a similar way:
 
 ```kotlin
-interface ClockProvider {
-    val clock: Clock
+// region templated-ctx
+@Inject
+class OuterComposableCtx internal constructor(
+    private val innerComposableCtx: InnerComposableCtx,
+) {
+    @Composable
+    operator fun invoke(
+        modifier: Modifier = Modifier,
+    ) = lambda(random, clock, modifier)
+
+    companion object {
+        private val lambda:
+            @Composable context(InnerComposableCtx) (
+                modifier: Modifier,
+            ) -> Unit =
+            { modifier ->
+                OuterComposable(modifier)
+            }
+    }
 }
 
-context(randomProvider: RandomProvider, clockProvider: ClockProvider)
+context(ctx: OuterComposableCtx)
 @Composable
-fun InnerComposable() {
-    randomProvider.random // from RandomProvider scope
-    clockProvider.clock // from ClockProvider scope
-}
+fun OuterComposable(modifier: Modifier = Modifier) =
+    ctx(modifier)
+// endregion templated-ctx
 
-context(_: RandomProvider, _: ClockProvider)
+context(_: InnerComposableCtx)
 @Composable
-fun OuterComposable() {
-    InnerComposable() // RandomProvider and ClockProvider are passed as context parameters
+private fun OuterComposable(modifier: Modifier = Modifier) {
+    InnerComposable() // InnerComposableCtx passed as context parameter
 }
 ```
 
-Having a canonical provider interface for each dependency means that multiple components can
-use the same interface type to request being injected with a particular dependency. Additionally,
-using a provider interface specific to each dependency type (as opposed to using the Dagger
-`Provider<T>` interface) keeps the naming to retrieve each dependency.
+By nesting these `Ctx` classes, adding an additional dependency only changes a single `Ctx`
+location. Additionally, since the dependencies are internal to the `Ctx` objects, they don't "leak".
+Outer functions can't see what the inner functions depend on.
 
-However, the declaration of each component in all layers has to change to inject a new dependency.
+The approach also takes a more opinionated stance on how top-level functions are injected:
+instead of allowing for _instances of a function_ to be directly injected, _instances of a
+function's context_ are injected instead.
+
+This preserves the composition of functions, and works nicely with how Compose's lifecycle of
+function calls doesn't map 1:1 with the lifecycle of an injected object.
 
 ## Context Parameters Step 3
 
-The next step is to collect these provider into a combined super-interface for each component.
-I've termed these "entry-point" interfaces for a component, and are the name of the component
-suffixed by `EntryPoint`. Each component that is capable of being injected gets one of these entry
-point interfaces:
+The regions in the snippets above are theoretically generatable, as the context objects are derived
+from the signature of the implementation functions in an assisted injection manner.
+Currently however, Metro doesn't support injecting context parameters, and KSP doesn't support
+reading context parameters, so in this project this templated regions are explicitly written out.
 
-```kotlin
-interface InnerComposableEntryPoint : RandomProvider
+## Injecting with graphs
 
-context(entryPoint: InnerComposableEntryPoint)
-@Composable
-fun InnerComposable() {
-    entryPoint.random // from inherited RandomProvider scope
-}
+With the approach above, the scope of local context object can be governed by normal Compose state
+mechanisms, where the dependency graphs are created and remembered with snapshot state.
 
-interface OuterComposableEntryPoint : InnerComposableEntryPoint
-
-context(_: OuterComposableEntryPoint)
-@Composable
-fun OuterComposable() {
-    InnerComposable() // InnerComposableEntryPoint passed as context parameter
-}
-```
-
-This does not change the call-site usage at all, since the entry-point component interfaces
-extend from the provider interfaces (meaning that the same properties of the provider interfaces
-are still in scope).
-
-However, this does change the declaration site: Now, each component only declares a combination
-of its direct dependencies and any subcomponents it may call. This localizes the requirement
-of knowing about dependencies to a particular component, and breaks the requirement that every
-intermediate component changes in some way due to a new dependency introduced:
-
-```kotlin
-interface InnerComposableEntryPoint : RandomProvider, ClockProvider
-
-context(entryPoint: InnerComposableEntryPoint)
-@Composable
-fun InnerComposable() {
-    entryPoint.random // from inherited RandomProvider scope
-    entryPoint.clock // from inherited ClockProvider scope
-}
-
-interface OuterComposableEntryPoint : InnerComposableEntryPoint
-
-context(_: OuterComposableEntryPoint)
-@Composable
-fun OuterComposable() {
-    InnerComposable() // InnerComposableEntryPoint passed as context parameter
-}
-```
-
-Dependencies are still available in scope throughout the entire call stack, if a subcomponent
-is depending on it. This is unfortunate, but is more a problem of explict-ness and convention
-instead of correctness. This should be fixable with a lint check of some sort, where each
-component should only use dependencies that are from directly inherited interfaces, and not the
-transitively inherited interfaces.
-
-## Context Parameters Step 4
-
-The final step is providing the actual implementations for the entry points.
-
-The project here creates a distinction between two types of dependencies:
-- Injected, `Activity`-scoped dependencies
-- Local scoped dependencies defined by Compose
-
-These two sets of dependencies are then provided by two different entry points for each component:
-
-```kotlin
-interface InnerComposableInjectEntryPoint : RandomProvider, ClockProvider
-
-interface InnerComposableLocalEntryPoint : LoadedComposeLifePreferencesProvider
-
-context(injectEntryPoint: InnerComposableInjectEntryPoint, localEntryPoint: InnerComposableLocalEntryPoint)
-@Composable
-fun InnerComposable() {
-    injectEntryPoint.random // from inherited RandomProvider scope
-    injectEntryPoint.clock // from inherited ClockProvider scope
-    localEntryPoint.preferences // from inherited LoadedComposeLifePreferencesProvider scope
-}
-
-interface OuterComposableInjectEntryPoint :
-    InnerComposableInjectEntryPoint,
-    ComposeLifePreferencesProvider
-
-context(injectEntryPoint: OuterComposableInjectEntryPoint)
-@Composable
-fun OuterComposable() {
-    val loadedPreferencesState = injectEntryPoint.composeLifePreferences.loadedPreferencesState
-    
-    when (loadedPreferencesState) {
-        is ResourceState.Failure -> {
-            // Error screen
-        }
-        ResourceState.Loading -> {
-            CircularProgressIndicator()
-        }
-        is ResourceState.Success -> {
-            with(
-                remember(loadedPreferencesState) {
-                    object : InnerComposableLocalEntryPoint {
-                        override val preferences = loadedPreferencesState
-                    }
-                }
-            ) {
-                // InnerComposableInjectEntryPoint passed as context parameter
-                // InnerComposableLocalEntryPoint created in-scope
-                InnerComposable()
-            }
-        }
-    }
-}
-```
-
-With the approach above, the scope of local entry points is governed by normal Compose state
-mechanisms, where the entry points are created and remembered with snapshot state.
-
-This allows, as in the example above, creating a type-safe subcomponent where loaded preferences
-are available, with the loading state handled by a higher-level component.
-
-For `@Preview`s, each of these entry points can also be implemented directly with appropriate
-fakes or mock values, as in `ui-app`'s
-[`PreviewEntryPoint`][preview_entry_point].
+For `@Preview`s, each of these context object can also be created directly with an appropriate
+dependency graph as in `ui-app-screenshot-tests`'s [`PreviewEntryPoint`][preview_entry_point].
 
 [//]: # (website links)
 
 [context_parameters]: https://github.com/Kotlin/KEEP/blob/master/proposals/context-parameters.md
-[kotlin_inject]: https://github.com/evant/kotlin-inject
-[kotlin_inject_anvil]: https://github.com/amzn/kotlin-inject-anvil
+[metro]: https://github.com/ZacSweers/metro
 
 [//]: # (relative links)
 
-[preview_entry_point]: ../ui-app/src/androidMain/kotlin/com/alexvanyo/composelife/ui/app/entrypoints/PreviewEntryPoint.kt
+[preview_entry_point]: ../ui-app-screenshot-tests/src/androidMain/kotlin/com/alexvanyo/composelife/ui/app/ctxs/PreviewCtx.kt

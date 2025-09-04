@@ -69,13 +69,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 @ContributesTo(UiScope::class)
-interface FullscreenSettingsPaneRobolectricTestsEntryPoint {
-    val fullscreenSettingsDetailPaneEntryPoint: FullscreenSettingsDetailPaneEntryPoint
+interface FullscreenSettingsPaneRobolectricTestsCtx {
+    val fullscreenSettingsDetailPaneCtx: FullscreenSettingsDetailPaneCtx
 }
 
 // TODO: Replace with asContribution()
-val UiGraph.fullscreenSettingsPaneRobolectricTestsEntryPoint: FullscreenSettingsPaneRobolectricTestsEntryPoint get() =
-    this as FullscreenSettingsPaneRobolectricTestsEntryPoint
+val UiGraph.fullscreenSettingsPaneRobolectricTestsCtx: FullscreenSettingsPaneRobolectricTestsCtx get() =
+    this as FullscreenSettingsPaneRobolectricTestsCtx
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalTestApi::class)
@@ -86,7 +86,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
     @Config(qualifiers = "w500dp-h500dp")
     @Test
     fun show_list_screen_is_displayed_correctly_with_compact_width() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.fullscreenSettingsPaneRobolectricTestsEntryPoint
+        val ctx = uiGraph.fullscreenSettingsPaneRobolectricTestsCtx
 
         var onBackButtonPressedCount = 0
 
@@ -103,7 +103,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
                     heightDp = maxHeight.value,
                 )
 
-                with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
+                with(ctx.fullscreenSettingsDetailPaneCtx) {
                     FullscreenSettingsPane(
                         fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                             override val settingsCategory = settingsCategory
@@ -175,7 +175,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
     @Config(qualifiers = "w700dp-h500dp")
     @Test
     fun show_list_screen_is_displayed_correctly_with_medium_width() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.fullscreenSettingsPaneRobolectricTestsEntryPoint
+        val ctx = uiGraph.fullscreenSettingsPaneRobolectricTestsCtx
 
         var onBackButtonPressedCount = 0
 
@@ -192,7 +192,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
                     heightDp = maxHeight.value,
                 )
 
-                with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
+                with(ctx.fullscreenSettingsDetailPaneCtx) {
                     FullscreenSettingsPane(
                         fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                             override val settingsCategory = settingsCategory
@@ -268,7 +268,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
     @Config(qualifiers = "w500dp-h500dp")
     @Test
     fun show_detail_screen_is_displayed_correctly_with_compact_width() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.fullscreenSettingsPaneRobolectricTestsEntryPoint
+        val ctx = uiGraph.fullscreenSettingsPaneRobolectricTestsCtx
 
         var onBackButtonPressedCount = 0
 
@@ -285,7 +285,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
                     heightDp = maxHeight.value,
                 )
 
-                with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
+                with(ctx.fullscreenSettingsDetailPaneCtx) {
                     FullscreenSettingsPane(
                         fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                             override val settingsCategory = settingsCategory
@@ -345,7 +345,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
     @Config(qualifiers = "w700dp-h500dp")
     @Test
     fun show_detail_screen_is_displayed_correctly_with_medium_width() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.fullscreenSettingsPaneRobolectricTestsEntryPoint
+        val ctx = uiGraph.fullscreenSettingsPaneRobolectricTestsCtx
 
         var onBackButtonPressedCount = 0
 
@@ -362,7 +362,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
                     heightDp = maxHeight.value,
                 )
 
-                with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
+                with(ctx.fullscreenSettingsDetailPaneCtx) {
                     FullscreenSettingsPane(
                         fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                             override val settingsCategory = settingsCategory
@@ -432,7 +432,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
     @Config(qualifiers = "w500dp-h500dp")
     @Test
     fun click_on_detail_is_displayed_correctly_with_compact_width() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.fullscreenSettingsPaneRobolectricTestsEntryPoint
+        val ctx = uiGraph.fullscreenSettingsPaneRobolectricTestsCtx
 
         var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
         var isDetailPresent by mutableStateOf(false)
@@ -447,7 +447,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
                     heightDp = maxHeight.value,
                 )
 
-                with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
+                with(ctx.fullscreenSettingsDetailPaneCtx) {
                     FullscreenSettingsPane(
                         fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                             override val settingsCategory = settingsCategory
@@ -503,7 +503,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
     @Config(qualifiers = "w700dp-h500dp")
     @Test
     fun click_on_detail_is_displayed_correctly_with_medium_width() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.fullscreenSettingsPaneRobolectricTestsEntryPoint
+        val ctx = uiGraph.fullscreenSettingsPaneRobolectricTestsCtx
 
         var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
         var isDetailPresent by mutableStateOf(false)
@@ -518,7 +518,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
                     heightDp = maxHeight.value,
                 )
 
-                with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
+                with(ctx.fullscreenSettingsDetailPaneCtx) {
                     FullscreenSettingsPane(
                         fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                             override val settingsCategory = settingsCategory
@@ -586,7 +586,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
     @Config(qualifiers = "w300dp-h300dp")
     @Test
     fun no_detail_to_scroll_to_is_displayed_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.fullscreenSettingsPaneRobolectricTestsEntryPoint
+        val ctx = uiGraph.fullscreenSettingsPaneRobolectricTestsCtx
 
         val settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Visual)
         var settingToScrollTo: Setting? by mutableStateOf(null)
@@ -596,7 +596,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
+            with(ctx.fullscreenSettingsDetailPaneCtx) {
                 FullscreenSettingsPane(
                     fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                         override val settingsCategory = settingsCategory
@@ -640,7 +640,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
     @Config(qualifiers = "w300dp-h300dp")
     @Test
     fun detail_to_scroll_to_is_displayed_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.fullscreenSettingsPaneRobolectricTestsEntryPoint
+        val ctx = uiGraph.fullscreenSettingsPaneRobolectricTestsCtx
 
         val settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Visual)
         var settingToScrollTo: Setting? by mutableStateOf(Setting.CellShapeConfig)
@@ -650,7 +650,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
+            with(ctx.fullscreenSettingsDetailPaneCtx) {
                 FullscreenSettingsPane(
                     fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                         override val settingsCategory = settingsCategory
@@ -698,7 +698,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
     @Config(qualifiers = "w700dp-h500dp")
     @Test
     fun reducing_size_keeps_selected_detail() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.fullscreenSettingsPaneRobolectricTestsEntryPoint
+        val ctx = uiGraph.fullscreenSettingsPaneRobolectricTestsCtx
 
         var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
         var isDetailPresent by mutableStateOf(false)
@@ -715,7 +715,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
                     heightDp = maxHeight.value,
                 )
 
-                with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
+                with(ctx.fullscreenSettingsDetailPaneCtx) {
                     FullscreenSettingsPane(
                         fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                             override val settingsCategory = settingsCategory
@@ -770,7 +770,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
     @Config(qualifiers = "w500dp-h500dp")
     @Test
     fun expanding_size_keeps_selected_detail() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.fullscreenSettingsPaneRobolectricTestsEntryPoint
+        val ctx = uiGraph.fullscreenSettingsPaneRobolectricTestsCtx
 
         var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
         var isDetailPresent by mutableStateOf(false)
@@ -787,7 +787,7 @@ class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
                     heightDp = maxHeight.value,
                 )
 
-                with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
+                with(ctx.fullscreenSettingsDetailPaneCtx) {
                     FullscreenSettingsPane(
                         fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                             override val settingsCategory = settingsCategory

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.app.action
+package com.alexvanyo.composelife.ui.app
 
 import androidx.compose.runtime.Immutable
-import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowEntryPoint
+import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardCtx
 import dev.zacsweers.metro.Inject
 
 @Immutable
 @Inject
-class ClipboardCellStatePreviewEntryPoint(
-    internal val thumbnailImmutableCellWindowEntryPoint: ThumbnailImmutableCellWindowEntryPoint,
+class InteractiveCellUniverseOverlayCtx(
+    internal val cellUniverseActionCardCtx: CellUniverseActionCardCtx,
 ) {
     companion object
 }

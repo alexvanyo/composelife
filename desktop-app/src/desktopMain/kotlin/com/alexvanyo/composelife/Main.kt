@@ -36,7 +36,7 @@ import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
-import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiEntryPoint
+import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiCtx
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
 import com.alexvanyo.composelife.updatable.Updatable
@@ -58,8 +58,8 @@ fun main() = application {
         object : ApplicationGraphArguments {},
     )
 
-    val entryPoint = applicationGraph.composeLifeApplicationEntryPoint
-    val appUpdatables = entryPoint.appUpdatables
+    val ctx = applicationGraph.composeLifeApplicationCtx
+    val appUpdatables = ctx.appUpdatables
 
     LaunchedEffect(Unit) {
         supervisorScope {
@@ -99,8 +99,8 @@ fun main() = application {
                     },
                 )
             }
-            val mainInjectEntryPoint = uiGraph.mainInjectEntryPoint
-            val uiUpdatables = mainInjectEntryPoint.uiUpdatables
+            val mainInjectCtx = uiGraph.mainInjectCtx
+            val uiUpdatables = mainInjectCtx.uiUpdatables
 
             LaunchedEffect(uiUpdatables) {
                 supervisorScope {
@@ -112,9 +112,9 @@ fun main() = application {
                 }
             }
 
-            with(mainInjectEntryPoint) {
+            with(mainInjectCtx) {
                 ComposeLifeTheme(shouldUseDarkTheme()) {
-                    with(mainInjectEntryPoint.composeLifeAppUiEntryPoint) {
+                    with(mainInjectCtx.composeLifeAppUiCtx) {
                         ComposeLifeApp(
                             windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
                             windowSize = windowState.size,
@@ -127,26 +127,26 @@ fun main() = application {
 }
 
 @ContributesTo(AppScope::class)
-interface ComposeLifeApplicationEntryPoint {
+interface ComposeLifeApplicationCtx {
     @ForScope(AppScope::class)
     val appUpdatables: Set<Updatable>
 }
 
 // TODO: Replace with asContribution()
-internal val ApplicationGraph.composeLifeApplicationEntryPoint: ComposeLifeApplicationEntryPoint get() =
-    this as ComposeLifeApplicationEntryPoint
+internal val ApplicationGraph.composeLifeApplicationCtx: ComposeLifeApplicationCtx get() =
+    this as ComposeLifeApplicationCtx
 
 @ContributesTo(UiScope::class)
-interface MainInjectEntryPoint : ComposeLifePreferencesProvider {
-    val composeLifeAppUiEntryPoint: ComposeLifeAppUiEntryPoint
+interface MainInjectCtx : ComposeLifePreferencesProvider {
+    val composeLifeAppUiCtx: ComposeLifeAppUiCtx
 
     @ForScope(UiScope::class)
     val uiUpdatables: Set<Updatable>
 }
 
 // TODO: Replace with asContribution()
-internal val UiGraph.mainInjectEntryPoint: MainInjectEntryPoint get() =
-    this as MainInjectEntryPoint
+internal val UiGraph.mainInjectCtx: MainInjectCtx get() =
+    this as MainInjectCtx
 
 @DependencyGraph(GlobalScope::class)
 interface GlobalGraph

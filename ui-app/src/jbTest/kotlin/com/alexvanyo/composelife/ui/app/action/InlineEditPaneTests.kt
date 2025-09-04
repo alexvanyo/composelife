@@ -60,13 +60,13 @@ import kotlin.test.assertEquals
 import kotlin.uuid.Uuid
 
 @ContributesTo(UiScope::class)
-interface InlineEditPaneTestsEntryPoint {
-    val clipboardCellStatePreviewEntryPoint: ClipboardCellStatePreviewEntryPoint
+interface InlineEditPaneTestsCtx {
+    val clipboardCellStatePreviewCtx: ClipboardCellStatePreviewCtx
 }
 
 // TODO: Replace with asContribution()
-val UiGraph.inlineEditPaneTestsEntryPoint: InlineEditPaneTestsEntryPoint get() =
-    this as InlineEditPaneTestsEntryPoint
+val UiGraph.inlineEditPaneTestsCtx: InlineEditPaneTestsCtx get() =
+    this as InlineEditPaneTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
 class InlineEditPaneTests : BaseUiInjectTest(
@@ -75,10 +75,10 @@ class InlineEditPaneTests : BaseUiInjectTest(
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun clipboard_cell_state_preview_loading_is_displayed_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
+        val ctx = uiGraph.inlineEditPaneTestsCtx
 
         setContent {
-            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
+            with(ctx.clipboardCellStatePreviewCtx) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig = ToolConfig.Pan
@@ -114,13 +114,13 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
     @Test
     fun clipboard_cell_state_preview_success_is_displayed_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
+        val ctx = uiGraph.inlineEditPaneTestsCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
+            with(ctx.clipboardCellStatePreviewCtx) {
                 val clipboardPreviewStates = remember {
                     listOf(
                         object : ClipboardPreviewState {
@@ -185,7 +185,7 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
     @Test
     fun clipboard_cell_state_preview_success_paste_is_handled_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
+        val ctx = uiGraph.inlineEditPaneTestsCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -193,7 +193,7 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
+            with(ctx.clipboardCellStatePreviewCtx) {
                 val clipboardPreviewStates = remember {
                     listOf(
                         object : ClipboardPreviewState {
@@ -254,7 +254,7 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
     @Test
     fun clipboard_cell_state_preview_success_pin_is_handled_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
+        val ctx = uiGraph.inlineEditPaneTestsCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -262,7 +262,7 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
+            with(ctx.clipboardCellStatePreviewCtx) {
                 val clipboardPreviewStates = remember {
                     listOf(
                         object : ClipboardPreviewState {
@@ -322,13 +322,13 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
     @Test
     fun touch_config_pan_is_displayed_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
+        val ctx = uiGraph.inlineEditPaneTestsCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
+            with(ctx.clipboardCellStatePreviewCtx) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig = ToolConfig.Pan
@@ -365,13 +365,13 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
     @Test
     fun touch_config_draw_is_displayed_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
+        val ctx = uiGraph.inlineEditPaneTestsCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
+            with(ctx.clipboardCellStatePreviewCtx) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig = ToolConfig.Draw
@@ -408,13 +408,13 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
     @Test
     fun touch_config_erase_is_displayed_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
+        val ctx = uiGraph.inlineEditPaneTestsCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
+            with(ctx.clipboardCellStatePreviewCtx) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig = ToolConfig.Erase
@@ -451,13 +451,13 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
     @Test
     fun touch_config_select_is_displayed_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
+        val ctx = uiGraph.inlineEditPaneTestsCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
+            with(ctx.clipboardCellStatePreviewCtx) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig = ToolConfig.Select
@@ -494,13 +494,13 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
     @Test
     fun touch_config_none_is_displayed_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
+        val ctx = uiGraph.inlineEditPaneTestsCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
+            with(ctx.clipboardCellStatePreviewCtx) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig = ToolConfig.None
@@ -537,7 +537,7 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
     @Test
     fun touch_config_popup_displays_options() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.inlineEditPaneTestsEntryPoint
+        val ctx = uiGraph.inlineEditPaneTestsCtx
 
         var touchToolConfig: ToolConfig by mutableStateOf(ToolConfig.Pan)
 
@@ -545,7 +545,7 @@ class InlineEditPaneTests : BaseUiInjectTest(
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(entryPoint.clipboardCellStatePreviewEntryPoint) {
+            with(ctx.clipboardCellStatePreviewCtx) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig get() = touchToolConfig

@@ -133,17 +133,18 @@ private fun ToolConfig.toToolDropdownOption(): ToolDropdownOption =
         ToolConfig.Select -> ToolDropdownOption.Select
     }
 
+// region templated-ctx
 @Suppress("ComposableNaming")
 @Composable
-private operator fun InlineEditPaneEntryPoint.invoke(
+private operator fun InlineEditPaneCtx.invoke(
     setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
-) = InlineEditPaneEntryPoint.lambda(
+) = InlineEditPaneCtx.lambda(
     preferencesHolder,
     composeLifePreferences,
-    clipboardCellStatePreviewEntryPoint,
+    clipboardCellStatePreviewCtx,
     cellStateParser,
     setSelectionToCellState,
     onViewDeserializationInfo,
@@ -151,11 +152,11 @@ private operator fun InlineEditPaneEntryPoint.invoke(
     scrollState,
 )
 
-private val InlineEditPaneEntryPoint.Companion.lambda:
+private val InlineEditPaneCtx.Companion.lambda:
     @Composable context(
         LoadedComposeLifePreferencesHolder,
         ComposeLifePreferences,
-        ClipboardCellStatePreviewEntryPoint,
+        ClipboardCellStatePreviewCtx,
         CellStateParser
     ) (
         (CellState) -> Unit,
@@ -167,19 +168,20 @@ private val InlineEditPaneEntryPoint.Companion.lambda:
         InlineEditPane(setSelectionToCellState, onViewDeserializationInfo, modifier, scrollState)
     }
 
-context(entryPoint: InlineEditPaneEntryPoint)
+context(ctx: InlineEditPaneCtx)
 @Composable
 fun InlineEditPane(
     setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
-) = entryPoint(setSelectionToCellState, onViewDeserializationInfo, modifier, scrollState)
+) = ctx(setSelectionToCellState, onViewDeserializationInfo, modifier, scrollState)
+// endregion templated-ctx
 
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
 composeLifePreferences: ComposeLifePreferences,
-clipboardCellStatePreviewEntryPoint: ClipboardCellStatePreviewEntryPoint,
+clipboardCellStatePreviewCtx: ClipboardCellStatePreviewCtx,
 cellStateParser: CellStateParser,
 )
 @Composable
@@ -194,7 +196,7 @@ fun InlineEditPane(
     scrollState = scrollState,
 )
 
-context(clipboardCellStatePreviewEntryPoint: ClipboardCellStatePreviewEntryPoint)
+context(clipboardCellStatePreviewCtx: ClipboardCellStatePreviewCtx)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 fun InlineEditPane(

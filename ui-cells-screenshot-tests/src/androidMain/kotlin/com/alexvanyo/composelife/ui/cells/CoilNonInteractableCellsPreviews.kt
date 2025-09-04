@@ -31,8 +31,8 @@ import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.currentShape
 import com.alexvanyo.composelife.scopes.implicit
-import com.alexvanyo.composelife.ui.cells.entrypoints.PreviewEntryPoint
-import com.alexvanyo.composelife.ui.cells.entrypoints.WithPreviewDependencies
+import com.alexvanyo.composelife.ui.cells.ctxs.PreviewCtx
+import com.alexvanyo.composelife.ui.cells.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
@@ -64,7 +64,7 @@ internal fun CoilNonInteractableCellsPreview(modifier: Modifier = Modifier) {
                             IntSize(10, 10),
                         ),
                     ),
-                    shape = implicit<PreviewEntryPoint>().loadedComposeLifePreferencesHolder.preferences.currentShape,
+                    shape = implicit<PreviewCtx>().loadedComposeLifePreferencesHolder.preferences.currentShape,
                     pixelOffsetFromCenter = Offset.Zero,
                     modifier = modifier.size(300.dp),
                 )

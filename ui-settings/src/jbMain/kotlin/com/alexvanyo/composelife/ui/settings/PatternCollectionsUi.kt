@@ -43,7 +43,6 @@ import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -98,9 +97,10 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
 import kotlin.time.Clock
 
+// region templated-ctx
 @Immutable
 @Inject
-class PatternCollectionsUiEntryPoint(
+class PatternCollectionsUiCtx(
     private val patternCollectionRepository: PatternCollectionRepository,
     private val clock: Clock,
     val timeZoneHolder: TimeZoneHolder,
@@ -120,11 +120,12 @@ class PatternCollectionsUiEntryPoint(
     }
 }
 
-context(entryPoint: PatternCollectionsUiEntryPoint)
+context(ctx: PatternCollectionsUiCtx)
 @Composable
 fun PatternCollectionsUi(
     modifier: Modifier = Modifier,
-) = entryPoint(modifier)
+) = ctx(modifier)
+// endregion templated-ctx
 
 context(
     patternCollectionRepository: PatternCollectionRepository,

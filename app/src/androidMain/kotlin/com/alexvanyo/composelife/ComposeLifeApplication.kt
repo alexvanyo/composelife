@@ -39,7 +39,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
 @ContributesTo(AppScope::class)
-interface ComposeLifeApplicationEntryPoint {
+interface ComposeLifeApplicationCtx {
     @ProcessLifecycleOwner val processLifecycleOwner: LifecycleOwner
 
     @ForScope(AppScope::class)
@@ -47,8 +47,8 @@ interface ComposeLifeApplicationEntryPoint {
 }
 
 // TODO: Replace with asContribution()
-internal val ApplicationGraph.composeLifeApplicationEntryPoint: ComposeLifeApplicationEntryPoint get() =
-    this as ComposeLifeApplicationEntryPoint
+internal val ApplicationGraph.composeLifeApplicationCtx: ComposeLifeApplicationCtx get() =
+    this as ComposeLifeApplicationCtx
 
 class ComposeLifeApplication : Application(), ApplicationGraphOwner {
 
@@ -65,9 +65,9 @@ class ComposeLifeApplication : Application(), ApplicationGraphOwner {
                 override val applicationContext: Context = this@ComposeLifeApplication
             },
         )
-        val entryPoint = applicationGraph.composeLifeApplicationEntryPoint
-        val processLifecycleOwner = entryPoint.processLifecycleOwner
-        val appUpdatables = entryPoint.appUpdatables
+        val ctx = applicationGraph.composeLifeApplicationCtx
+        val processLifecycleOwner = ctx.processLifecycleOwner
+        val appUpdatables = ctx.appUpdatables
 
         // Update all singleton scoped updatables in the process lifecycle scope, when its created.
         // Effectively, this is just a permanently running coroutine scope.

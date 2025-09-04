@@ -77,10 +77,11 @@ import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+// region templated-ctx
 @Immutable
 @Inject
-class FullscreenSettingsDetailPaneEntryPoint(
-    private val settingUiEntryPoint: SettingUiEntryPoint,
+class FullscreenSettingsDetailPaneCtx(
+    private val settingUiCtx: SettingUiCtx,
     private val patternCollectionRepository: PatternCollectionRepository,
 ) {
     @Suppress("ComposableNaming")
@@ -90,7 +91,7 @@ class FullscreenSettingsDetailPaneEntryPoint(
         onBackButtonPressed: () -> Unit,
         modifier: Modifier = Modifier,
     ) = lambda(
-        settingUiEntryPoint,
+        settingUiCtx,
         patternCollectionRepository,
         fullscreenSettingsDetailPaneState,
         onBackButtonPressed,
@@ -99,7 +100,7 @@ class FullscreenSettingsDetailPaneEntryPoint(
 
     companion object {
         private val lambda:
-            @Composable context(SettingUiEntryPoint, PatternCollectionRepository) (
+            @Composable context(SettingUiCtx, PatternCollectionRepository) (
                 fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
                 onBackButtonPressed: () -> Unit,
                 modifier: Modifier,
@@ -110,16 +111,17 @@ class FullscreenSettingsDetailPaneEntryPoint(
     }
 }
 
-context(entryPoint: FullscreenSettingsDetailPaneEntryPoint)
+context(ctx: FullscreenSettingsDetailPaneCtx)
 @Composable
 fun FullscreenSettingsDetailPane(
     fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
     onBackButtonPressed: () -> Unit,
     modifier: Modifier = Modifier,
-) = entryPoint(fullscreenSettingsDetailPaneState, onBackButtonPressed, modifier)
+) = ctx(fullscreenSettingsDetailPaneState, onBackButtonPressed, modifier)
+// endregion templated-ctx
 
 context(
-    _: SettingUiEntryPoint,
+    _: SettingUiCtx,
 _: PatternCollectionRepository,
 )
 @Composable
@@ -143,7 +145,7 @@ private fun FullscreenSettingsDetailPane(
 }
 
 context(
-    _: SettingUiEntryPoint,
+    _: SettingUiCtx,
 _: PatternCollectionRepository,
 )
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
@@ -186,7 +188,7 @@ private fun SettingsCategoryDetail(
     }
 }
 
-context(_: SettingUiEntryPoint)
+context(_: SettingUiCtx)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
@@ -308,7 +310,7 @@ private fun StandardSettingsCategoryDetail(
 }
 
 context(
-    _: SettingUiEntryPoint,
+    _: SettingUiCtx,
 patternCollectionRepository: PatternCollectionRepository,
 )
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)

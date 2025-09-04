@@ -56,13 +56,13 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 
 @ContributesTo(UiScope::class)
-interface FullscreenSettingsDetailPaneTestsEntryPoint {
-    val fullscreenSettingsDetailPaneEntryPoint: FullscreenSettingsDetailPaneEntryPoint
+interface FullscreenSettingsDetailPaneTestsCtx {
+    val fullscreenSettingsDetailPaneCtx: FullscreenSettingsDetailPaneCtx
 }
 
 // TODO: Replace with asContribution()
-val UiGraph.fullscreenSettingsDetailPaneTestsEntryPoint: FullscreenSettingsDetailPaneTestsEntryPoint get() =
-    this as FullscreenSettingsDetailPaneTestsEntryPoint
+val UiGraph.fullscreenSettingsDetailPaneTestsCtx: FullscreenSettingsDetailPaneTestsCtx get() =
+    this as FullscreenSettingsDetailPaneTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
 class FullscreenSettingsDetailPaneTests : BaseUiInjectTest(
@@ -71,7 +71,7 @@ class FullscreenSettingsDetailPaneTests : BaseUiInjectTest(
     @Test
     fun visual_settings_category_keeps_scroll_position_with_ime() = runUiTest { uiGraph ->
         assumeTrue(Build.VERSION.SDK_INT >= 30)
-        val entryPoint = uiGraph.fullscreenSettingsDetailPaneTestsEntryPoint
+        val ctx = uiGraph.fullscreenSettingsDetailPaneTestsCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -79,7 +79,7 @@ class FullscreenSettingsDetailPaneTests : BaseUiInjectTest(
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(entryPoint.fullscreenSettingsDetailPaneEntryPoint) {
+            with(ctx.fullscreenSettingsDetailPaneCtx) {
                 DeviceConfigurationOverride(
                     DeviceConfigurationOverride.ForcedSize(DpSize(400.dp, 1200.dp)),
                 ) {

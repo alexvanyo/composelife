@@ -52,14 +52,14 @@ import kotlin.test.assertEquals
 import kotlin.uuid.Uuid
 
 @ContributesTo(UiScope::class)
-internal interface SelectionOverlayTestsEntryPoint {
-    val cellWindowImplEntryPoint: CellWindowImplEntryPoint
+internal interface SelectionOverlayTestsCtx {
+    val cellWindowImplCtx: CellWindowImplCtx
     val cellStateParser: CellStateParser
 }
 
 // TODO: Replace with asContribution()
-private val UiGraph.selectionOverlayTestsEntryPoint: SelectionOverlayTestsEntryPoint get() =
-    this as SelectionOverlayTestsEntryPoint
+private val UiGraph.selectionOverlayTestsCtx: SelectionOverlayTestsCtx get() =
+    this as SelectionOverlayTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
 class SelectionOverlayTests : BaseUiInjectTest(
@@ -68,15 +68,15 @@ class SelectionOverlayTests : BaseUiInjectTest(
 
     @Test
     fun no_selection_is_displayed_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.selectionOverlayTestsEntryPoint
+        val ctx = uiGraph.selectionOverlayTestsCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
 
-            with(entryPoint.cellWindowImplEntryPoint) {
-                with(entryPoint.cellStateParser) {
+            with(ctx.cellWindowImplCtx) {
+                with(ctx.cellStateParser) {
                     SelectionOverlay(
                         selectionSessionState = SessionValue(
                             sessionId = Uuid.random(),
@@ -106,15 +106,15 @@ class SelectionOverlayTests : BaseUiInjectTest(
 
     @Test
     fun selecting_box_is_displayed_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.selectionOverlayTestsEntryPoint
+        val ctx = uiGraph.selectionOverlayTestsCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
             resolver = parameterizedStringResolver()
 
-            with(entryPoint.cellWindowImplEntryPoint) {
-                with(entryPoint.cellStateParser) {
+            with(ctx.cellWindowImplCtx) {
+                with(ctx.cellStateParser) {
                     SelectionOverlay(
                         selectionSessionState = SessionValue(
                             sessionId = Uuid.random(),
@@ -167,7 +167,7 @@ class SelectionOverlayTests : BaseUiInjectTest(
         // TODO: This test tends to deadlock on desktop
         assumeTrue(isAndroid())
 
-        val entryPoint = uiGraph.selectionOverlayTestsEntryPoint
+        val ctx = uiGraph.selectionOverlayTestsCtx
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -187,8 +187,8 @@ class SelectionOverlayTests : BaseUiInjectTest(
         setContent {
             resolver = parameterizedStringResolver()
 
-            with(entryPoint.cellWindowImplEntryPoint) {
-                with(entryPoint.cellStateParser) {
+            with(ctx.cellWindowImplCtx) {
+                with(ctx.cellStateParser) {
                     SelectionOverlay(
                         selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
                         setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
@@ -228,11 +228,11 @@ class SelectionOverlayTests : BaseUiInjectTest(
 
     @Test
     fun selection_is_displayed_correctly() = runUiTest { uiGraph ->
-        val entryPoint = uiGraph.selectionOverlayTestsEntryPoint
+        val ctx = uiGraph.selectionOverlayTestsCtx
 
         setContent {
-            with(entryPoint.cellWindowImplEntryPoint) {
-                with(entryPoint.cellStateParser) {
+            with(ctx.cellWindowImplCtx) {
+                with(ctx.cellStateParser) {
                     SelectionOverlay(
                         selectionSessionState = SessionValue(
                             sessionId = Uuid.random(),
@@ -269,7 +269,7 @@ class SelectionOverlayTests : BaseUiInjectTest(
         // TODO: This test tends to deadlock on desktop
         assumeTrue(isAndroid())
 
-        val entryPoint = uiGraph.selectionOverlayTestsEntryPoint
+        val ctx = uiGraph.selectionOverlayTestsCtx
 
         val mutableSelectionStateHolder = MutableSelectionStateHolder(
             SessionValue(
@@ -287,8 +287,8 @@ class SelectionOverlayTests : BaseUiInjectTest(
         )
 
         setContent {
-            with(entryPoint.cellWindowImplEntryPoint) {
-                with(entryPoint.cellStateParser) {
+            with(ctx.cellWindowImplCtx) {
+                with(ctx.cellStateParser) {
                     SelectionOverlay(
                         selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
                         setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },

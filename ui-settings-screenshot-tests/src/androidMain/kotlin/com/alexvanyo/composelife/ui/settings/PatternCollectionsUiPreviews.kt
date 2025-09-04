@@ -21,8 +21,8 @@ import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.data.model.PatternCollection
 import com.alexvanyo.composelife.database.PatternCollectionId
 import com.alexvanyo.composelife.scopes.implicit
-import com.alexvanyo.composelife.ui.settings.entrypoints.PreviewEntryPoint
-import com.alexvanyo.composelife.ui.settings.entrypoints.WithPreviewDependencies
+import com.alexvanyo.composelife.ui.settings.ctxs.PreviewCtx
+import com.alexvanyo.composelife.ui.settings.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours

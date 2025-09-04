@@ -69,9 +69,10 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 import kotlin.uuid.Uuid
 
+// region templated-ctx
 @Immutable
 @Inject
-class InteractableCellsEntryPoint(
+class InteractableCellsCtx(
     private val preferencesHolder: LoadedComposeLifePreferencesHolder,
 ) {
     @Suppress("ComposableNaming", "LongParameterList")
@@ -131,7 +132,7 @@ class InteractableCellsEntryPoint(
  *
  * The [GameOfLifeState] is interactable, so each cell is displayed by a unique [InteractableCell].
  */
-context(entryPoint: InteractableCellsEntryPoint)
+context(ctx: InteractableCellsCtx)
 @Composable
 @Suppress("LongParameterList")
 fun InteractableCells(
@@ -141,7 +142,8 @@ fun InteractableCells(
     cellWindow: CellWindow,
     pixelOffsetFromCenter: Offset,
     modifier: Modifier = Modifier,
-) = entryPoint(gameOfLifeState, setSelectionSessionState, scaledCellDpSize, cellWindow, pixelOffsetFromCenter, modifier)
+) = ctx(gameOfLifeState, setSelectionSessionState, scaledCellDpSize, cellWindow, pixelOffsetFromCenter, modifier)
+// endregion templated-ctx
 
 context(preferencesHolder: LoadedComposeLifePreferencesHolder)
 @Suppress("LongParameterList", "LongMethod")

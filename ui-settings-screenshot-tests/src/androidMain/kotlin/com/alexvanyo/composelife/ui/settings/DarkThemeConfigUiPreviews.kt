@@ -20,7 +20,7 @@ import androidx.compose.runtime.Composable
 import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.preferences.DarkThemeConfig
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.settings.entrypoints.WithPreviewDependencies
+import com.alexvanyo.composelife.ui.settings.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 @ShowkaseComposable
