@@ -30,7 +30,7 @@ import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.scopes.implicit
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailInfo
-import com.alexvanyo.composelife.ui.settings.entrypoints.WithPreviewDependencies
+import com.alexvanyo.composelife.ui.settings.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
 
 @ShowkaseComposable
@@ -40,7 +40,7 @@ import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
 internal fun FullscreenSettingsPaneListPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().fullscreenSettingsDetailPaneEntryPoint) {
+            with(implicit().fullscreenSettingsDetailPaneCtx) {
                 BoxWithConstraints(modifier) {
                     val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
                         widthDp = maxWidth.value,
@@ -84,7 +84,7 @@ internal fun FullscreenSettingsPaneListPreview(modifier: Modifier = Modifier) {
 internal fun FullscreenSettingsPaneAlgorithmPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().fullscreenSettingsDetailPaneEntryPoint) {
+            with(implicit().fullscreenSettingsDetailPaneCtx) {
                 BoxWithConstraints(modifier) {
                     val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
                         widthDp = maxWidth.value,
@@ -128,7 +128,7 @@ internal fun FullscreenSettingsPaneAlgorithmPreview(modifier: Modifier = Modifie
 internal fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().fullscreenSettingsDetailPaneEntryPoint) {
+            with(implicit().fullscreenSettingsDetailPaneCtx) {
                 BoxWithConstraints(modifier) {
                     val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
                         widthDp = maxWidth.value,
@@ -172,7 +172,7 @@ internal fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) 
 internal fun FullscreenSettingsPaneFeatureFlagsPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().fullscreenSettingsDetailPaneEntryPoint) {
+            with(implicit().fullscreenSettingsDetailPaneCtx) {
                 BoxWithConstraints(modifier) {
                     val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
                         widthDp = maxWidth.value,
