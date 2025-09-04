@@ -91,6 +91,8 @@ private fun Application.initStrictModeVmPolicy() {
 
 private val strictModeAllowlist: List<String> = listOf(
     "android.app.IdsController.doIds", // Samsung
+    "com.mediatek.boostfwk", // MediaTek Boost framework
+    "com.mediatek.scnmodule", // MediaTek
 )
 
 private val Application.isDebuggable get() =
