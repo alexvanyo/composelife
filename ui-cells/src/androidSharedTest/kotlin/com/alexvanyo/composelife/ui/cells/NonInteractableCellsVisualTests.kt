@@ -45,14 +45,14 @@ import org.junit.Assume.assumeTrue
 import kotlin.test.Test
 
 @ContributesTo(UiScope::class)
-interface NonInteractableCellsVisualTestsEntryPoint {
-    val nonInteractableCellsEntryPoint: NonInteractableCellsEntryPoint
+interface NonInteractableCellsVisualTestsCtx {
+    val nonInteractableCellsCtx: NonInteractableCellsCtx
     val testComposeLifePreferences: TestComposeLifePreferences
 }
 
 // TODO: Replace with asContribution()
-val UiGraph.nonInteractableCellsVisualTestsEntryPoint: NonInteractableCellsVisualTestsEntryPoint get() =
-    this as NonInteractableCellsVisualTestsEntryPoint
+val UiGraph.nonInteractableCellsVisualTestsCtx: NonInteractableCellsVisualTestsCtx get() =
+    this as NonInteractableCellsVisualTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
 class NonInteractableCellsVisualTests : BaseUiInjectTest(
@@ -63,9 +63,9 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest(
         assumeTrue(Build.VERSION.SDK_INT >= 28)
         if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
-        val entryPoint = uiGraph.nonInteractableCellsVisualTestsEntryPoint
-        entryPoint.testComposeLifePreferences.disableAGSL = true
-        entryPoint.testComposeLifePreferences.disableOpenGL = true
+        val ctx = uiGraph.nonInteractableCellsVisualTestsCtx
+        ctx.testComposeLifePreferences.disableAGSL = true
+        ctx.testComposeLifePreferences.disableOpenGL = true
 
         val cellState = setOf(
             0 to 0,
@@ -84,7 +84,7 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest(
 
         setContent {
             ComposeLifeTheme(darkTheme = true) {
-                with(entryPoint.nonInteractableCellsEntryPoint) {
+                with(ctx.nonInteractableCellsCtx) {
                     NonInteractableCells(
                         gameOfLifeState = GameOfLifeState(
                             setOf(
@@ -135,9 +135,9 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest(
         assumeTrue(Build.VERSION.SDK_INT >= 28)
         if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
-        val entryPoint = uiGraph.nonInteractableCellsVisualTestsEntryPoint
-        entryPoint.testComposeLifePreferences.disableAGSL = true
-        entryPoint.testComposeLifePreferences.disableOpenGL = true
+        val ctx = uiGraph.nonInteractableCellsVisualTestsCtx
+        ctx.testComposeLifePreferences.disableAGSL = true
+        ctx.testComposeLifePreferences.disableOpenGL = true
 
         val cellState = setOf(
             0 to 0,
@@ -156,7 +156,7 @@ class NonInteractableCellsVisualTests : BaseUiInjectTest(
 
         setContent {
             ComposeLifeTheme(darkTheme = false) {
-                with(entryPoint.nonInteractableCellsEntryPoint) {
+                with(ctx.nonInteractableCellsCtx) {
                     NonInteractableCells(
                         gameOfLifeState = GameOfLifeState(
                             setOf(

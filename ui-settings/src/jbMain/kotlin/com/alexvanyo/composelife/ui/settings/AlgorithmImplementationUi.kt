@@ -38,9 +38,10 @@ import dev.zacsweers.metro.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 
+// region templated-ctx
 @Immutable
 @Inject
-class AlgorithmImplementationUiEntryPoint(
+class AlgorithmImplementationUiCtx(
     private val preferencesHolder: LoadedComposeLifePreferencesHolder,
     private val composeLifePreferences: ComposeLifePreferences,
 ) {
@@ -61,11 +62,12 @@ class AlgorithmImplementationUiEntryPoint(
     }
 }
 
-context(entryPoint: AlgorithmImplementationUiEntryPoint)
+context(ctx: AlgorithmImplementationUiCtx)
 @Composable
 fun AlgorithmImplementationUi(
     modifier: Modifier = Modifier,
-) = entryPoint(modifier)
+) = ctx(modifier)
+// endregion templated-ctx
 
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,

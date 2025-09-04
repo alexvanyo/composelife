@@ -39,14 +39,14 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 @ContributesTo(UiScope::class)
-interface BaseUiInjectTestEntryPoint {
+interface BaseUiInjectTestCtx {
     @ForScope(UiScope::class)
     val uiUpdatables: Set<Updatable>
 }
 
 // TODO: Replace with asContribution()
-internal val UiGraph.baseUiInjectTestEntryPoint: BaseUiInjectTestEntryPoint get() =
-    this as BaseUiInjectTestEntryPoint
+internal val UiGraph.baseUiInjectTestCtx: BaseUiInjectTestCtx get() =
+    this as BaseUiInjectTestCtx
 
 /**
  * A base class for testing UI that depends on injected classes.
@@ -78,7 +78,7 @@ fun BaseUiInjectTest.runUiTest(
         timeout = timeout,
     ) { uiGraphArguments ->
         val uiGraph = uiGraphCreator.create(uiGraphArguments)
-        val uiUpdatables = uiGraph.baseUiInjectTestEntryPoint.uiUpdatables
+        val uiUpdatables = uiGraph.baseUiInjectTestCtx.uiUpdatables
         withUpdatables(appUpdatables + uiUpdatables) {
             // Let any background jobs launch and stabilize before running the test body
             val testDispatcher = coroutineContext[CoroutineDispatcher] as? TestDispatcher

@@ -30,7 +30,7 @@ import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.scopes.implicit
-import com.alexvanyo.composelife.ui.cells.entrypoints.WithPreviewDependencies
+import com.alexvanyo.composelife.ui.cells.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
@@ -40,7 +40,7 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 internal fun NonInteractableCellsPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().nonInteractableCellsEntryPoint) {
+            with(implicit().nonInteractableCellsCtx) {
                 NonInteractableCells(
                     gameOfLifeState = GameOfLifeState(
                         setOf(

@@ -43,7 +43,8 @@ import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.util.nonNegativeDouble
 import kotlinx.collections.immutable.toImmutableList
 
-private val CellShapeConfigUiEntryPoint.Companion.lambda:
+// region templated-ctx
+private val CellShapeConfigUiCtx.Companion.lambda:
     @Composable (context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (Modifier) -> Unit)
     get() = { modifier ->
         CellShapeConfigUi(modifier)
@@ -51,15 +52,16 @@ private val CellShapeConfigUiEntryPoint.Companion.lambda:
 
 @Suppress("ComposableNaming")
 @Composable
-private operator fun CellShapeConfigUiEntryPoint.invoke(
+private operator fun CellShapeConfigUiCtx.invoke(
     modifier: Modifier = Modifier,
-) = CellShapeConfigUiEntryPoint.Companion.lambda(preferencesHolder, composeLifePreferences, modifier)
+) = CellShapeConfigUiCtx.Companion.lambda(preferencesHolder, composeLifePreferences, modifier)
 
-context(entryPoint: CellShapeConfigUiEntryPoint)
+context(ctx: CellShapeConfigUiCtx)
 @Composable
 fun CellShapeConfigUi(
     modifier: Modifier = Modifier,
-) = entryPoint(modifier)
+) = ctx(modifier)
+// endregion templated-ctx
 
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,

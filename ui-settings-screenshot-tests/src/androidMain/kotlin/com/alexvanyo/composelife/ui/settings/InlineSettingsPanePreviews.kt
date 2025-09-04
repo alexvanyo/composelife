@@ -23,7 +23,7 @@ import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.scopes.implicit
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
-import com.alexvanyo.composelife.ui.settings.entrypoints.WithPreviewDependencies
+import com.alexvanyo.composelife.ui.settings.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
 @ShowkaseComposable
@@ -32,7 +32,7 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 internal fun InlineSettingsPaneNoQuickAccessPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().inlineSettingsPaneEntryPoint) {
+            with(implicit().inlineSettingsPaneCtx) {
                 Surface(modifier) {
                     InlineSettingsPane(
                         onSeeMoreClicked = {},
@@ -54,7 +54,7 @@ internal fun InlineSettingsPaneWithQuickAccessPreview(modifier: Modifier = Modif
             QuickAccessSetting.CellShapeConfig,
         )
         ComposeLifeTheme {
-            with(implicit().inlineSettingsPaneEntryPoint) {
+            with(implicit().inlineSettingsPaneCtx) {
                 Surface(modifier) {
                     InlineSettingsPane(
                         onSeeMoreClicked = {},
