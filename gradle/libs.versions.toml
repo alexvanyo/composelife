@@ -2,9 +2,9 @@
 #androidDesugarJdkLibs
 androidDesugarJdkLibs = "2.1.5"
 #androidGradlePlugin
-androidGradlePlugin = "8.12.0"
+androidGradlePlugin = "8.13.0"
 #androidTools
-androidTools = "31.12.0"
+androidTools = "31.13.0"
 #androidxActivity
 androidxActivity = "1.12.0-alpha07"
 #androidxAnnotation
@@ -26,7 +26,7 @@ androidxLifecycle = "2.10.0-alpha03"
 #androidxLintGradle
 androidxLintGradle = "1.0.0-alpha05"
 #androidxNavigationEvent
-androidxNavigationEvent = "1.0.0-alpha06"
+androidxNavigationEvent = "1.0.0-alpha07"
 #androidxPoolingContainer
 androidxPoolingContainer = "1.1.0"
 #androidxProfileInstaller
@@ -114,7 +114,7 @@ junit4 = "4.13.2"
 #leakCanary
 leakCanary = "3.0-alpha-8"
 #metro
-metro = "0.6.3"
+metro = "0.6.4"
 #molecule
 molecule = "2.1.0"
 #okio
@@ -149,6 +149,7 @@ wire = "5.3.11"
 [libraries]
 android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "androidDesugarJdkLibs" }
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
+android-gradlePluginApi = { group = "com.android.tools.build", name = "gradle-api", version.ref = "androidGradlePlugin" }
 android-tools-common = { group = "com.android.tools", name = "common", version.ref = "androidTools" }
 androidx-activityCompose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
 androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "androidxAnnotation" }

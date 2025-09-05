@@ -47,6 +47,7 @@ kotlin {
                 api(projects.parameterizedString)
                 api(projects.preferences)
 
+                implementation(libs.androidx.navigationEvent)
                 implementation(projects.logging)
                 implementation(projects.navigation)
                 implementation(projects.resourceState)

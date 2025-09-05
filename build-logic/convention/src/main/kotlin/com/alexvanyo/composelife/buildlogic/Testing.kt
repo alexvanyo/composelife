@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife.buildlogic
 
 import com.android.build.api.dsl.CommonExtension
-import com.android.build.gradle.TestedExtension
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
@@ -66,9 +65,10 @@ private val Project.useSharedTest: Provider<SharedTestConfig> get() =
 
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 fun Project.configureAndroidTesting(
-    testedExtension: TestedExtension,
+    commonExtension: CommonExtension<*, *, *, *, *, *>,
+    testedExtension: com.android.build.gradle.TestedExtension,
 ) {
-    testedExtension.apply {
+    commonExtension.apply {
         defaultConfig {
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
@@ -84,8 +84,11 @@ fun Project.configureAndroidTesting(
                 test.systemProperty("robolectric.graphicsMode", "NATIVE")
             }
         }
+    }
 
+    testedExtension.apply {
         if (useSharedTest.get() == SharedTestConfig.Robolectric) {
+            // TODO: Replace with gradle-api API
             testVariants.configureEach {
                 connectedInstrumentTestProvider.configure {
                     doFirst {

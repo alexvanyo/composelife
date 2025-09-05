@@ -112,6 +112,7 @@ kotlin {
                 implementation(libs.androidx.compose.uiUtil)
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.lifecycle.runtime)
+                implementation(libs.androidx.navigationEvent)
                 implementation(libs.androidx.poolingContainer)
                 implementation(libs.androidx.window)
                 implementation(libs.kotlinx.coroutines.android)
