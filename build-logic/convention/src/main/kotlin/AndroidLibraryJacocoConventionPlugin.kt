@@ -16,7 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureJacoco
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.dsl.LibraryExtension
 
 class AndroidLibraryJacocoConventionPlugin : ConventionPlugin({
     with(pluginManager) {
