@@ -67,6 +67,7 @@ detekt {
 
 dependencies {
     implementation(libs.android.gradlePlugin)
+    implementation(libs.android.gradlePluginApi)
     implementation(libs.android.tools.common)
     implementation(libs.dependencyGuard.gradlePlugin)
     implementation(kotlin("gradle-plugin", libs.versions.kotlin.get()))
