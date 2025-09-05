@@ -96,6 +96,7 @@ kotlin {
                 implementation(libs.androidx.compose.uiTooling)
                 implementation(libs.androidx.compose.uiUtil)
                 implementation(libs.androidx.core)
+                implementation(libs.androidx.navigationEvent)
                 implementation(libs.showkase.runtime)
             }
         }
