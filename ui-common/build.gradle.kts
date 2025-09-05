@@ -46,6 +46,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(libs.androidx.annotation)
+                implementation(libs.androidx.navigationEvent)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(projects.dispatchers)
