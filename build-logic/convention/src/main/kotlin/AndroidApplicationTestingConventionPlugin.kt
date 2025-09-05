@@ -19,7 +19,6 @@ import com.alexvanyo.composelife.buildlogic.configureAndroidTesting
 import com.alexvanyo.composelife.buildlogic.configureTesting
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
-import com.android.build.gradle.TestedExtension
 import com.slack.keeper.KeeperExtension
 import com.slack.keeper.optInToKeeper
 import org.gradle.api.GradleException
@@ -55,7 +54,10 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
         configureTesting(this)
     }
 
-    configureAndroidTesting(extensions.getByType(TestedExtension::class.java))
+    configureAndroidTesting(
+        extensions.getByType(ApplicationExtension::class.java),
+        extensions.getByType(com.android.build.gradle.TestedExtension::class.java),
+    )
 
     if (enableKeeper.get()) {
         with(pluginManager) {

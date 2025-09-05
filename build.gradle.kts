@@ -49,7 +49,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath(libs.android.gradlePlugin)
+        classpath(libs.android.gradlePluginApi)
         classpath(kotlin("gradle-plugin", libs.versions.kotlin.get()))
     }
 }
