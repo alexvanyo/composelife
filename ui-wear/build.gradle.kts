@@ -67,6 +67,7 @@ kotlin {
                 implementation(libs.androidx.compose.foundation)
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.androidx.core)
+                implementation(libs.androidx.navigationEvent)
                 implementation(libs.androidx.wear.compose.foundation)
                 implementation(libs.androidx.wear.compose.material3)
                 implementation(libs.androidx.wear.compose.uiToolingPreview)
