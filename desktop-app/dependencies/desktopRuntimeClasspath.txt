@@ -15,8 +15,8 @@ androidx.datastore:datastore-core-okio:1.2.0-alpha02
 androidx.datastore:datastore-core:1.2.0-alpha02
 androidx.datastore:datastore-jvm:1.2.0-alpha02
 androidx.datastore:datastore:1.2.0-alpha02
-androidx.graphics:graphics-shapes-desktop:1.0.1
-androidx.graphics:graphics-shapes:1.0.1
+androidx.graphics:graphics-shapes-desktop:1.1.0-beta01
+androidx.graphics:graphics-shapes:1.1.0-beta01
 androidx.lifecycle:lifecycle-common-jvm:2.10.0-alpha03
 androidx.lifecycle:lifecycle-common:2.10.0-alpha03
 androidx.lifecycle:lifecycle-runtime-compose-desktop:2.10.0-alpha03
@@ -92,7 +92,6 @@ io.ktor:ktor-websocket-serialization-jvm:3.2.3
 io.ktor:ktor-websocket-serialization:3.2.3
 io.ktor:ktor-websockets-jvm:3.2.3
 io.ktor:ktor-websockets:3.2.3
-org.jetbrains.androidx.graphics:graphics-shapes:1.0.0-alpha09
 org.jetbrains.androidx.lifecycle:lifecycle-common:2.10.0-alpha01
 org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose-desktop:2.10.0-alpha01
 org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.10.0-alpha01
@@ -119,8 +118,8 @@ org.jetbrains.compose.foundation:foundation-layout:1.10.0-alpha01
 org.jetbrains.compose.foundation:foundation:1.10.0-alpha01
 org.jetbrains.compose.material3.adaptive:adaptive-desktop:1.2.0-alpha05
 org.jetbrains.compose.material3.adaptive:adaptive:1.2.0-alpha05
-org.jetbrains.compose.material3:material3-desktop:1.9.0-alpha04
-org.jetbrains.compose.material3:material3:1.9.0-alpha04
+org.jetbrains.compose.material3:material3-desktop:1.10.0-alpha01
+org.jetbrains.compose.material3:material3:1.10.0-alpha01
 org.jetbrains.compose.material:material-desktop:1.10.0-alpha01
 org.jetbrains.compose.material:material-icons-core-desktop:1.7.3
 org.jetbrains.compose.material:material-icons-core:1.7.3
