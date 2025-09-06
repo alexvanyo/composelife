@@ -82,7 +82,7 @@ keeper = "0.16.1"
 #kermit
 kermit = "2.0.8"
 #kotlin
-kotlin = "2.2.10"
+kotlin = "2.2.20-RC2"
 #kotlinPoet
 kotlinPoet = "2.2.0"
 #kotlinxCollectionsImmutable
@@ -96,7 +96,7 @@ kotlinxIo = "0.8.0"
 #kotlinxSerialization
 kotlinxSerialization = "1.9.0"
 #ksp
-ksp = "2.2.10-2.0.2"
+ksp = "2.2.20-RC2-2.0.2"
 #ktor
 ktor = "3.2.3"
 #jacoco
@@ -114,7 +114,7 @@ junit4 = "4.13.2"
 #leakCanary
 leakCanary = "3.0-alpha-8"
 #metro
-metro = "0.6.4"
+metro = "0.7.0-2.2.20-RC2-alpha06"
 #molecule
 molecule = "2.1.0"
 #okio
