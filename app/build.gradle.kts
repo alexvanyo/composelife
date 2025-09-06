@@ -56,7 +56,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.circuit.retained)
+                implementation(libs.androidx.compose.runtime)
                 implementation(libs.kotlinx.serialization.core)
                 implementation(projects.doNotKeepProcess)
                 implementation(projects.filesystem)
