@@ -102,7 +102,7 @@ ktor = "3.2.3"
 #jacoco
 jacoco = "0.8.13"
 #jetbrainsCompose
-jetbrainsCompose = "1.9.0-beta01"
+jetbrainsCompose = "1.10.0-alpha01"
 #jetbrainsComposeMaterialIconsExtended
 jetbrainsComposeMaterialIconsExtended = "1.7.3"
 #jetbrainsComposeMaterial3
