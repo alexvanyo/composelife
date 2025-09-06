@@ -108,9 +108,10 @@ androidx.navigationevent:navigationevent:1.0.0-alpha07
 androidx.print:print:1.0.0
 androidx.profileinstaller:profileinstaller:1.4.1
 androidx.resourceinspection:resourceinspection-annotation:1.0.1
-androidx.room:room-common:2.6.1
-androidx.room:room-ktx:2.6.1
-androidx.room:room-runtime:2.6.1
+androidx.room:room-common-jvm:2.7.0
+androidx.room:room-common:2.7.0
+androidx.room:room-runtime-android:2.7.0
+androidx.room:room-runtime:2.7.0
 androidx.savedstate:savedstate-android:1.4.0-alpha03
 androidx.savedstate:savedstate-compose-android:1.4.0-alpha03
 androidx.savedstate:savedstate-compose:1.4.0-alpha03
@@ -132,8 +133,8 @@ androidx.viewpager:viewpager:1.0.0
 androidx.window:window-core-android:1.5.0-rc01
 androidx.window:window-core:1.5.0-rc01
 androidx.window:window:1.5.0-rc01
-androidx.work:work-runtime-ktx:2.10.3
-androidx.work:work-runtime:2.10.3
+androidx.work:work-runtime-ktx:2.11.0-alpha01
+androidx.work:work-runtime:2.11.0-alpha01
 androidx.xr.arcore:arcore:1.0.0-alpha03
 androidx.xr.compose:compose:1.0.0-alpha03
 androidx.xr.runtime:runtime-openxr:1.0.0-alpha03
