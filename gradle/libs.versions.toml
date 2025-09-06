@@ -106,7 +106,7 @@ jetbrainsCompose = "1.10.0-alpha01"
 #jetbrainsComposeMaterialIconsExtended
 jetbrainsComposeMaterialIconsExtended = "1.7.3"
 #jetbrainsComposeMaterial3
-jetbrainsComposeMaterial3 = "1.9.0-alpha04"
+jetbrainsComposeMaterial3 = "1.10.0-alpha01"
 #jetbrainsComposeMaterial3Adaptive
 jetbrainsComposeMaterial3Adaptive = "1.2.0-alpha05"
 #junit4
