@@ -93,7 +93,7 @@ fun Modifier.trySharedBounds(
     enter: EnterTransition = fadeIn(),
     exit: ExitTransition = fadeOut(),
     boundsTransform: BoundsTransform = DefaultBoundsTransform,
-    resizeMode: ResizeMode = scaleToBounds(ContentScale.FillWidth, Alignment.Center),
+    resizeMode: ResizeMode = ResizeMode.scaleToBounds(ContentScale.FillWidth, Alignment.Center),
     placeHolderSize: PlaceHolderSize = contentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
@@ -123,15 +123,6 @@ fun Modifier.trySharedBounds(
         },
     )
 }
-
-/**
- * TODO: Replace when available in common
- */
-@OptIn(ExperimentalSharedTransitionApi::class)
-internal expect fun scaleToBounds(
-    contentScale: ContentScale = ContentScale.FillWidth,
-    alignment: Alignment = Alignment.Center,
-): ResizeMode
 
 @Suppress("ComposeComposableModifier", "ComposeModifierWithoutDefault", "LongParameterList")
 @OptIn(ExperimentalSharedTransitionApi::class)
