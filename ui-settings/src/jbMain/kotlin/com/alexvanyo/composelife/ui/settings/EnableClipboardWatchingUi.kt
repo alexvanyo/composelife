@@ -39,6 +39,12 @@ class EnableClipboardWatchingUiCtx(
     private val composeLifePreferences: ComposeLifePreferences,
 ) {
     @Suppress("ComposableNaming")
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "EnableClipboardWatchingUi(modifier)",
+        ),
+    )
     @Composable
     operator fun invoke(
         modifier: Modifier = Modifier,
@@ -56,6 +62,7 @@ class EnableClipboardWatchingUiCtx(
 }
 
 context(ctx: EnableClipboardWatchingUiCtx)
+@Suppress("DEPRECATION")
 @Composable
 fun EnableClipboardWatchingUi(
     modifier: Modifier = Modifier,

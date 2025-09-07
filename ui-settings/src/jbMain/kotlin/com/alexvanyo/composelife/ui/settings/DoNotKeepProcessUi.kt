@@ -39,6 +39,12 @@ class DoNotKeepProcessUiCtx(
     private val composeLifePreferences: ComposeLifePreferences,
 ) {
     @Suppress("ComposableNaming")
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "DoNotKeepProcessUi(modifier)",
+        ),
+    )
     @Composable
     operator fun invoke(
         modifier: Modifier = Modifier,
@@ -56,6 +62,7 @@ class DoNotKeepProcessUiCtx(
 }
 
 context(ctx: DoNotKeepProcessUiCtx)
+@Suppress("DEPRECATION")
 @Composable
 fun DoNotKeepProcessUi(
     modifier: Modifier = Modifier,

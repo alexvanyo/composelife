@@ -42,6 +42,12 @@ class CellStatePreviewUiCtx(
     private val thumbnailImmutableCellWindowCtx: ThumbnailImmutableCellWindowCtx,
 ) {
     @Suppress("ComposableNaming")
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "CellStatePreviewUi(modifier)",
+        ),
+    )
     @Composable
     operator fun invoke(
         modifier: Modifier = Modifier,
@@ -57,6 +63,7 @@ class CellStatePreviewUiCtx(
 }
 
 context(ctx: CellStatePreviewUiCtx)
+@Suppress("DEPRECATION")
 @Composable
 fun CellStatePreviewUi(
     modifier: Modifier = Modifier,
