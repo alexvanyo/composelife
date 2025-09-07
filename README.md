@@ -37,7 +37,7 @@ These include:
 ## Setup
 
 Requirements:
-- Android Studio Narwhal 2025.1.1
+- Android Studio Narwhal 3 Feature Drop 2025.1.3
 - JDK 21+
 
 Clone the project, and build! (no API keys or other setup necessary)

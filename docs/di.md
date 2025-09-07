@@ -221,7 +221,7 @@ With the approach above, the scope of local context object can be governed by no
 mechanisms, where the dependency graphs are created and remembered with snapshot state.
 
 For `@Preview`s, each of these context object can also be created directly with an appropriate
-dependency graph as in `ui-app-screenshot-tests`'s [`PreviewEntryPoint`][preview_entry_point].
+dependency graph as in `ui-app-screenshot-tests`'s [`PreviewCtx`][preview_ctx].
 
 [//]: # (website links)
 
@@ -230,4 +230,4 @@ dependency graph as in `ui-app-screenshot-tests`'s [`PreviewEntryPoint`][preview
 
 [//]: # (relative links)
 
-[preview_entry_point]: ../ui-app-screenshot-tests/src/androidMain/kotlin/com/alexvanyo/composelife/ui/app/ctxs/PreviewCtx.kt
+[preview_ctx]: ../ui-app-screenshot-tests/src/androidMain/kotlin/com/alexvanyo/composelife/ui/app/ctxs/PreviewCtx.kt

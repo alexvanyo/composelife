@@ -9,7 +9,7 @@ This is a Kotlin Multiplatform (KMP) project that implements Conway's Game of Li
 - **UI:** The user interface is built entirely with Jetpack Compose.
 - **Build System:** The project uses Gradle with the Kotlin DSL (`.gradle.kts` files).
 - **Architecture:** This is a multi-module project. Functionality is separated into layers like `data`, `database`, `algorithm`, and UI modules (`ui-mobile`, `ui-wear`, etc.).
-- **Dependency Injection:** The project uses `kotlin-inject` and `kotlin-inject-anvil` for dependency injection.
+- **Dependency Injection:** The project uses `metro` for dependency injection.
 - **Rendering:** The project uses advanced rendering techniques including AGSL, OpenGL, and SKSL.
 
 ## Coding Style & Conventions
