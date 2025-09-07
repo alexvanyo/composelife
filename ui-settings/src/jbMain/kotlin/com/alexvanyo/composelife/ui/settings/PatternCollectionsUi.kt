@@ -107,6 +107,12 @@ class PatternCollectionsUiCtx(
     val timeZoneHolder: TimeZoneHolder,
 ) {
     @Suppress("ComposableNaming")
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "PatternCollectionsUi(modifier)",
+        ),
+    )
     @Composable
     operator fun invoke(
         modifier: Modifier = Modifier,
@@ -122,6 +128,7 @@ class PatternCollectionsUiCtx(
 }
 
 context(ctx: PatternCollectionsUiCtx)
+@Suppress("DEPRECATION")
 @Composable
 fun PatternCollectionsUi(
     modifier: Modifier = Modifier,

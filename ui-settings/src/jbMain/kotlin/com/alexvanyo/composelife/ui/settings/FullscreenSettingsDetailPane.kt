@@ -86,6 +86,12 @@ class FullscreenSettingsDetailPaneCtx(
     private val patternCollectionRepository: PatternCollectionRepository,
 ) {
     @Suppress("ComposableNaming")
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "FullscreenSettingsDetailPane(fullscreenSettingsDetailPaneState, onBackButtonPressed, modifier)",
+        ),
+    )
     @Composable
     operator fun invoke(
         fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
@@ -113,6 +119,7 @@ class FullscreenSettingsDetailPaneCtx(
 }
 
 context(ctx: FullscreenSettingsDetailPaneCtx)
+@Suppress("DEPRECATION")
 @Composable
 fun FullscreenSettingsDetailPane(
     fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
