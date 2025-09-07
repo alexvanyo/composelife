@@ -39,6 +39,12 @@ class DisableAGSLUiCtx(
     private val composeLifePreferences: ComposeLifePreferences,
 ) {
     @Suppress("ComposableNaming")
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "DisableAGSLUi(modifier)",
+        ),
+    )
     @Composable
     operator fun invoke(
         modifier: Modifier = Modifier,
@@ -56,6 +62,7 @@ class DisableAGSLUiCtx(
 }
 
 context(ctx: DisableAGSLUiCtx)
+@Suppress("DEPRECATION")
 @Composable
 fun DisableAGSLUi(
     modifier: Modifier = Modifier,

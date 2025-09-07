@@ -49,6 +49,12 @@ class DarkThemeConfigUiCtx(
 ) {
     @Suppress("ComposableNaming")
     @Composable
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "DarkThemeConfigUi(modifier)",
+        ),
+    )
     operator fun invoke(
         modifier: Modifier = Modifier,
     ) = lambda(preferencesHolder, composeLifePreferences, modifier)
@@ -65,6 +71,7 @@ class DarkThemeConfigUiCtx(
 }
 
 context(ctx: DarkThemeConfigUiCtx)
+@Suppress("DEPRECATION")
 @Composable
 fun DarkThemeConfigUi(
     modifier: Modifier = Modifier,

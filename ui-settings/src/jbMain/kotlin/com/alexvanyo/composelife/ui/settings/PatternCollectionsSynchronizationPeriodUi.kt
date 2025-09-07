@@ -62,6 +62,12 @@ class PatternCollectionsSynchronizationPeriodUiCtx(
     private val composeLifePreferences: ComposeLifePreferences,
 ) {
     @Suppress("ComposableNaming")
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "PatternCollectionsSynchronizationPeriodUi(modifier)",
+        ),
+    )
     @Composable
     operator fun invoke(
         modifier: Modifier = Modifier,
@@ -79,6 +85,7 @@ class PatternCollectionsSynchronizationPeriodUiCtx(
 }
 
 context(ctx: PatternCollectionsSynchronizationPeriodUiCtx)
+@Suppress("DEPRECATION")
 @Composable
 fun PatternCollectionsSynchronizationPeriodUi(
     modifier: Modifier = Modifier,

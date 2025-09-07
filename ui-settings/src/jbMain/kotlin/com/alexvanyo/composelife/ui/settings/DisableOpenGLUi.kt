@@ -39,6 +39,12 @@ class DisableOpenGLUiCtx(
     private val composeLifePreferences: ComposeLifePreferences,
 ) {
     @Suppress("ComposableNaming")
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "DisableOpenGLUi(modifier)",
+        ),
+    )
     @Composable
     operator fun invoke(
         modifier: Modifier = Modifier,
@@ -56,6 +62,7 @@ class DisableOpenGLUiCtx(
 }
 
 context(ctx: DisableOpenGLUiCtx)
+@Suppress("DEPRECATION")
 @Composable
 fun DisableOpenGLUi(
     modifier: Modifier = Modifier,

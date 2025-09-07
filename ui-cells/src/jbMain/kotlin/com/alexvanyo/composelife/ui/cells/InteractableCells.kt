@@ -76,6 +76,13 @@ class InteractableCellsCtx(
     private val preferencesHolder: LoadedComposeLifePreferencesHolder,
 ) {
     @Suppress("ComposableNaming", "LongParameterList")
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "InteractableCells(gameOfLifeState, setSelectionSessionState, scaledCellDpSize, cellWindow, " +
+                "pixelOffsetFromCenter, modifier)",
+        ),
+    )
     @Composable
     operator fun invoke(
         gameOfLifeState: MutableGameOfLifeState,
@@ -134,7 +141,7 @@ class InteractableCellsCtx(
  */
 context(ctx: InteractableCellsCtx)
 @Composable
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "DEPRECATION")
 fun InteractableCells(
     gameOfLifeState: MutableGameOfLifeState,
     setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,

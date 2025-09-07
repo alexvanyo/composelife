@@ -46,6 +46,12 @@ class AlgorithmImplementationUiCtx(
     private val composeLifePreferences: ComposeLifePreferences,
 ) {
     @Suppress("ComposableNaming")
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "AlgorithmImplementationUi(modifier)",
+        ),
+    )
     @Composable
     operator fun invoke(
         modifier: Modifier = Modifier,
@@ -63,6 +69,7 @@ class AlgorithmImplementationUiCtx(
 }
 
 context(ctx: AlgorithmImplementationUiCtx)
+@Suppress("DEPRECATION")
 @Composable
 fun AlgorithmImplementationUi(
     modifier: Modifier = Modifier,

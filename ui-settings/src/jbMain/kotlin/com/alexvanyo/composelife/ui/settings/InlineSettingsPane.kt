@@ -65,6 +65,12 @@ class InlineSettingsPaneCtx(
     private val settingUiCtx: SettingUiCtx,
 ) {
     @Suppress("ComposableNaming")
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "InlineSettingsPane(onSeeMoreClicked, onOpenInSettingsClicked, modifier, scrollState)",
+        ),
+    )
     @Composable
     operator fun invoke(
         onSeeMoreClicked: () -> Unit,
@@ -95,6 +101,7 @@ class InlineSettingsPaneCtx(
 }
 
 context(ctx: InlineSettingsPaneCtx)
+@Suppress("DEPRECATION")
 @Composable
 fun InlineSettingsPane(
     onSeeMoreClicked: () -> Unit,

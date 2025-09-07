@@ -58,6 +58,12 @@ class SettingUiCtx(
     private val enableWindowShapeClippingUiCtx: EnableWindowShapeClippingUiCtx,
 ) {
     @Suppress("ComposableNaming", "LongParameterList")
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "SettingUi(setting, modifier, onOpenInSettingsClicked)",
+        ),
+    )
     @Composable
     operator fun invoke(
         setting: Setting,
@@ -114,6 +120,7 @@ class SettingUiCtx(
 }
 
 context(ctx: SettingUiCtx)
+@Suppress("DEPRECATION")
 @Composable
 fun SettingUi(
     setting: Setting,

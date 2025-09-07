@@ -38,6 +38,13 @@ class NonInteractableCellsCtx(
     private val preferencesHolder: LoadedComposeLifePreferencesHolder,
 ) {
     @Suppress("ComposableNaming", "LongParameterList")
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "NonInteractableCells(gameOfLifeState, scaledCellDpSize, cellWindow, pixelOffsetFromCenter, " +
+                "isThumbnail, modifier, inOverlay)",
+        ),
+    )
     @Composable
     operator fun invoke(
         gameOfLifeState: GameOfLifeState,
@@ -96,7 +103,7 @@ class NonInteractableCellsCtx(
 
 context(ctx: NonInteractableCellsCtx)
 @Composable
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "DEPRECATION")
 fun NonInteractableCells(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,

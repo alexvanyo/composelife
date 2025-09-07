@@ -39,6 +39,12 @@ class EnableWindowShapeClippingUiCtx(
     private val composeLifePreferences: ComposeLifePreferences,
 ) {
     @Suppress("ComposableNaming")
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "EnableWindowShapeClippingUi(modifier)",
+        ),
+    )
     @Composable
     operator fun invoke(
         modifier: Modifier = Modifier,
@@ -56,6 +62,7 @@ class EnableWindowShapeClippingUiCtx(
 }
 
 context(ctx: EnableWindowShapeClippingUiCtx)
+@Suppress("DEPRECATION")
 @Composable
 fun EnableWindowShapeClippingUi(
     modifier: Modifier = Modifier,
