@@ -37,6 +37,7 @@ import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
@@ -60,7 +61,6 @@ import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.offset
 import com.alexvanyo.composelife.ui.cells.scale
-import com.alexvanyo.composelife.ui.mobile.rememberTooltipPositionProvider
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -202,7 +202,7 @@ private fun CellUniverseInfoExpandButton(
     modifier: Modifier = Modifier,
 ) {
     TooltipBox(
-        positionProvider = rememberTooltipPositionProvider(),
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
         tooltip = {
             PlainTooltip {
                 Text(
