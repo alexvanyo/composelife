@@ -46,6 +46,13 @@ class ThumbnailImmutableCellWindowCtx internal constructor(
     private val cellWindowImplCtx: CellWindowImplCtx,
 ) {
     @Suppress("ComposableNaming", "LongParameterList")
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "ThumbnailImmutableCellWindow(gameOfLifeState, viewportInteractionConfig, modifier, cellDpSize, " +
+                "centerOffset, inOverlay)",
+        ),
+    )
     @Composable
     operator fun invoke(
         gameOfLifeState: GameOfLifeState,
@@ -94,7 +101,7 @@ class ThumbnailImmutableCellWindowCtx internal constructor(
  * A cell window that displays the given [gameOfLifeState] in an immutable fashion for a thumbnail.
  */
 context(ctx: ThumbnailImmutableCellWindowCtx)
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "DEPRECATION")
 @Composable
 fun ThumbnailImmutableCellWindow(
     gameOfLifeState: GameOfLifeState,
@@ -134,6 +141,13 @@ class ImmutableCellWindowCtx internal constructor(
     private val cellWindowImplCtx: CellWindowImplCtx,
 ) {
     @Suppress("ComposableNaming", "LongParameterList")
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "ImmutableCellWindow(gameOfLifeState, cellWindowInteractionState, modifier, cellDpSize, " +
+                "centerOffset, inOverlay)",
+        ),
+    )
     @Composable
     operator fun invoke(
         gameOfLifeState: GameOfLifeState,
@@ -182,7 +196,7 @@ class ImmutableCellWindowCtx internal constructor(
  * A cell window that displays the given [gameOfLifeState] in an immutable fashion.
  */
 context(ctx: ImmutableCellWindowCtx)
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "DEPRECATION")
 @Composable
 fun ImmutableCellWindow(
     gameOfLifeState: GameOfLifeState,
@@ -222,6 +236,13 @@ class MutableCellWindowCtx internal constructor(
     private val cellWindowImplCtx: CellWindowImplCtx,
 ) {
     @Suppress("ComposableNaming", "LongParameterList")
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "MutableCellWindow(gameOfLifeState, cellWindowInteractionState, modifier, isEditable, cellDpSize, " +
+                "centerOffset, inOverlay)",
+        ),
+    )
     @Composable
     operator fun invoke(
         gameOfLifeState: MutableGameOfLifeState,
@@ -275,7 +296,7 @@ class MutableCellWindowCtx internal constructor(
  * The cells will be editable if and only if [isEditable] returns true.
  */
 context(ctx: MutableCellWindowCtx)
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "DEPRECATION")
 @Composable
 fun MutableCellWindow(
     gameOfLifeState: MutableGameOfLifeState,

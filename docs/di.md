@@ -120,6 +120,12 @@ class InnerComposableCtx internal constructor(
     private val clock: Clock,
 ) {
     @Composable
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "InnerComposable(modifier)"
+        ),
+    )
     operator fun invoke(
         modifier: Modifier = Modifier,
     ) = lambda(random, clock, modifier)
@@ -136,6 +142,7 @@ class InnerComposableCtx internal constructor(
 }
 
 context(ctx: InnerComposableCtx)
+@Suppress("DEPRECATION")
 @Composable
 fun InnerComposable(modifier: Modifier = Modifier) =
     ctx(modifier)
@@ -169,9 +176,15 @@ class OuterComposableCtx internal constructor(
     private val innerComposableCtx: InnerComposableCtx,
 ) {
     @Composable
+    @Deprecated(
+        "Ctx should not be invoked directly, instead use the top-level function",
+        replaceWith = ReplaceWith(
+            "OuterComposable(modifier)"
+        ),
+    )
     operator fun invoke(
         modifier: Modifier = Modifier,
-    ) = lambda(random, clock, modifier)
+    ) = lambda(innerComposableCtx, modifier)
 
     companion object {
         private val lambda:
@@ -185,6 +198,7 @@ class OuterComposableCtx internal constructor(
 }
 
 context(ctx: OuterComposableCtx)
+@Suppress("DEPRECATION")
 @Composable
 fun OuterComposable(modifier: Modifier = Modifier) =
     ctx(modifier)
