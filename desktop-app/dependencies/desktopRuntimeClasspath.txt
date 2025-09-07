@@ -58,8 +58,8 @@ com.squareup.okhttp3:okhttp-sse:4.12.0
 com.squareup.okhttp3:okhttp:4.12.0
 com.squareup.okio:okio-jvm:3.16.0
 com.squareup.okio:okio:3.16.0
-com.squareup.wire:wire-runtime-jvm:5.3.11
-com.squareup.wire:wire-runtime:5.3.11
+com.squareup.wire:wire-runtime-jvm:5.4.0
+com.squareup.wire:wire-runtime:5.4.0
 dev.zacsweers.metro:runtime-jvm:0.7.0-2.2.20-RC2-alpha06
 dev.zacsweers.metro:runtime:0.7.0-2.2.20-RC2-alpha06
 io.coil-kt.coil3:coil-compose-core-jvm:3.3.0
