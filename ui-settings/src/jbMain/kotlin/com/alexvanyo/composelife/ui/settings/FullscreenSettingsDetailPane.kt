@@ -47,7 +47,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
@@ -69,7 +71,6 @@ import com.alexvanyo.composelife.data.PatternCollectionRepository
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailInfo
 import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
-import com.alexvanyo.composelife.ui.mobile.rememberTooltipPositionProvider
 import com.alexvanyo.composelife.ui.settings.resources.Back
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.util.trySharedBounds
@@ -229,7 +230,9 @@ private fun StandardSettingsCategoryDetail(
                             modifier = Modifier.align(Alignment.CenterStart),
                         ) {
                             TooltipBox(
-                                positionProvider = rememberTooltipPositionProvider(),
+                                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                                    TooltipAnchorPosition.Above,
+                                ),
                                 tooltip = {
                                     PlainTooltip {
                                         Text(parameterizedStringResource(Strings.Back))
@@ -352,7 +355,9 @@ private fun PatternCollectionsDetail(
                             modifier = Modifier.align(Alignment.CenterStart),
                         ) {
                             TooltipBox(
-                                positionProvider = rememberTooltipPositionProvider(),
+                                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                                    TooltipAnchorPosition.Above,
+                                ),
                                 tooltip = {
                                     PlainTooltip {
                                         Text(parameterizedStringResource(Strings.Back))
