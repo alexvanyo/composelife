@@ -158,10 +158,10 @@ com.slack.circuit:circuit-retained-android:0.29.1
 com.slack.circuit:circuit-retained:0.29.1
 com.squareup.okio:okio-jvm:3.16.0
 com.squareup.okio:okio:3.16.0
-com.squareup.wire:wire-runtime-jvm:5.3.11
-com.squareup.wire:wire-runtime:5.3.11
-dev.zacsweers.metro:runtime-jvm:0.6.4
-dev.zacsweers.metro:runtime:0.6.4
+com.squareup.wire:wire-runtime-jvm:5.4.0
+com.squareup.wire:wire-runtime:5.4.0
+dev.zacsweers.metro:runtime-jvm:0.7.0-2.2.20-RC2-alpha06
+dev.zacsweers.metro:runtime:0.7.0-2.2.20-RC2-alpha06
 org.jetbrains.androidx.lifecycle:lifecycle-common:2.10.0-alpha01
 org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.10.0-alpha01
 org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.10.0-alpha01
@@ -189,7 +189,7 @@ org.jetbrains.compose.ui:ui:1.10.0-alpha01
 org.jetbrains.kotlin:kotlin-bom:2.2.0
 org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0
 org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0
-org.jetbrains.kotlin:kotlin-stdlib:2.2.10
+org.jetbrains.kotlin:kotlin-stdlib:2.2.20-RC2
 org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2
 org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.10.2
 org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2

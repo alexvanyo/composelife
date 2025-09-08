@@ -74,7 +74,7 @@ detekt = "1.23.8"
 #googleAutoValue
 googleAutoValue = "1.11.0"
 #gradleDependenciesSorter
-gradleDependenciesSorter = "0.14"
+gradleDependenciesSorter = "0.15"
 #guavaAndroid
 guavaAndroid = "32.1.3-android"
 #keeper
@@ -82,7 +82,7 @@ keeper = "0.16.1"
 #kermit
 kermit = "2.0.8"
 #kotlin
-kotlin = "2.2.10"
+kotlin = "2.2.20-RC2"
 #kotlinPoet
 kotlinPoet = "2.2.0"
 #kotlinxCollectionsImmutable
@@ -96,7 +96,7 @@ kotlinxIo = "0.8.0"
 #kotlinxSerialization
 kotlinxSerialization = "1.9.0"
 #ksp
-ksp = "2.2.10-2.0.2"
+ksp = "2.2.20-RC2-2.0.2"
 #ktor
 ktor = "3.2.3"
 #jacoco
@@ -106,15 +106,15 @@ jetbrainsCompose = "1.10.0-alpha01"
 #jetbrainsComposeMaterialIconsExtended
 jetbrainsComposeMaterialIconsExtended = "1.7.3"
 #jetbrainsComposeMaterial3
-jetbrainsComposeMaterial3 = "1.9.0-alpha04"
+jetbrainsComposeMaterial3 = "1.10.0-alpha01"
 #jetbrainsComposeMaterial3Adaptive
-jetbrainsComposeMaterial3Adaptive = "1.2.0-alpha05"
+jetbrainsComposeMaterial3Adaptive = "1.2.0-alpha06"
 #junit4
 junit4 = "4.13.2"
 #leakCanary
 leakCanary = "3.0-alpha-8"
 #metro
-metro = "0.6.4"
+metro = "0.7.0-2.2.20-RC2-alpha06"
 #molecule
 molecule = "2.1.0"
 #okio
@@ -144,7 +144,7 @@ turbine = "1.2.1"
 #webPackPlugin
 webPackPlugin = "9.1.0"
 #wire
-wire = "5.3.11"
+wire = "5.4.0"
 
 [libraries]
 android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "androidDesugarJdkLibs" }
