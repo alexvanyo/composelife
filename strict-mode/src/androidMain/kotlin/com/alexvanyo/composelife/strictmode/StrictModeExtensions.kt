@@ -22,6 +22,7 @@ import android.os.Build
 import android.os.StrictMode
 import com.alexvanyo.composelife.logging.Logger
 import com.alexvanyo.composelife.logging.e
+import com.alexvanyo.composelife.logging.w
 
 fun Application.initStrictModeIfNeeded() {
     if (isDebuggable) {
@@ -48,6 +49,8 @@ private fun Application.initStrictModeThreadPolicy() {
                             Logger.e("StrictMode", it) { "StrictMode ThreadPolicy violation" }
                             @Suppress("TooGenericExceptionThrown")
                             throw RuntimeException("StrictMode ThreadPolicy violation", it)
+                        } else {
+                            Logger.w("StrictMode", it) { "Allow-listed StrictMode ThreadPolicy violation" }
                         }
                     }
                 } else {
@@ -73,6 +76,8 @@ private fun Application.initStrictModeVmPolicy() {
                             Logger.e("StrictMode", it) { "StrictMode VmPolicy violation" }
                             @Suppress("TooGenericExceptionThrown")
                             throw RuntimeException("StrictMode VmPolicy violation", it)
+                        } else {
+                            Logger.w("StrictMode", it) { "Allow-listed StrictMode VmPolicy violation" }
                         }
                     }
                 } else {
