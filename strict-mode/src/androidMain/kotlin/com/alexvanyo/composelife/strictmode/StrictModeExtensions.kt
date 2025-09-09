@@ -50,7 +50,7 @@ private fun Application.initStrictModeThreadPolicy() {
                             @Suppress("TooGenericExceptionThrown")
                             throw RuntimeException("StrictMode ThreadPolicy violation", it)
                         } else {
-                            Logger.w("StrictMode", it) { "Allow-listed StrictMode VmPolicy violation" }
+                            Logger.w("StrictMode", it) { "Allow-listed StrictMode ThreadPolicy violation" }
                         }
                     }
                 } else {
