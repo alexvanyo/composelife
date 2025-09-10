@@ -76,7 +76,7 @@ googleAutoValue = "1.11.0"
 #gradleDependenciesSorter
 gradleDependenciesSorter = "0.15"
 #guavaAndroid
-guavaAndroid = "32.1.3-android"
+guavaAndroid = "33.4.8-jre"
 #keeper
 keeper = "0.16.1"
 #kermit
