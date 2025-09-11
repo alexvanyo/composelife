@@ -40,6 +40,7 @@ import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.unit.DpSize
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.NavigationEventHandler
 import androidx.window.core.layout.WindowSizeClass
 import com.alexvanyo.composelife.model.DeserializationResult
@@ -146,18 +147,18 @@ fun ComposeLifeApp(
                             ComposeLifeAppNavigationEventInfo(targetComposeLifeAppState.navigationState.currentEntryId),
                         ).collectAsState()
 
-                        NavigationEventHandler(
-                            enabled = targetComposeLifeAppState.canNavigateBack,
+                        NavigationBackHandler(
+                            isBackEnabled = targetComposeLifeAppState.canNavigateBack,
                             currentInfo = ComposeLifeAppNavigationEventInfo(
                                 targetComposeLifeAppState.navigationState.currentEntryId,
                             ),
-                            previousInfo = targetComposeLifeAppState.navigationState.previousEntryId?.let(
-                                ::ComposeLifeAppNavigationEventInfo,
+                            backInfo = listOfNotNull(
+                                targetComposeLifeAppState.navigationState.previousEntryId?.let(
+                                    ::ComposeLifeAppNavigationEventInfo,
+                                ),
                             ),
-                        ) { progress ->
-                            progress.collect {}
-                            targetComposeLifeAppState.onBackPressed()
-                        }
+                            onBackCompleted = targetComposeLifeAppState::onBackPressed,
+                        )
 
                         with(targetComposeLifeAppState.composeLifeAppUiWithLoadedPreferencesCtx) {
                             SharedTransitionLayout {
