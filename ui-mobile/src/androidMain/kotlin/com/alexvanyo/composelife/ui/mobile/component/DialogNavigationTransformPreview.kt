@@ -44,6 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.NavigationEventHandler
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
@@ -183,14 +184,14 @@ private fun DialogNavigationTransformPreview() {
         DialogNavigationTransformPreviewNavigationEventInfo(navController.currentEntryId),
     ).collectAsState()
 
-    NavigationEventHandler(
-        enabled = navController.canNavigateBack,
+    NavigationBackHandler(
+        isBackEnabled = navController.canNavigateBack,
         currentInfo = DialogNavigationTransformPreviewNavigationEventInfo(navController.currentEntryId),
-        previousInfo = navController.previousEntryId?.let(::DialogNavigationTransformPreviewNavigationEventInfo),
-    ) { progress ->
-        progress.collect {}
-        navController.popBackstack()
-    }
+        backInfo = listOfNotNull(
+            navController.previousEntryId?.let(::DialogNavigationTransformPreviewNavigationEventInfo),
+        ),
+        onBackCompleted = navController::popBackstack,
+    )
 
     MaterialPredictiveNavigationFrame(
         renderableNavigationState = dialogNavigationTransform<TestPaneState>(navController::popBackstack).invoke(

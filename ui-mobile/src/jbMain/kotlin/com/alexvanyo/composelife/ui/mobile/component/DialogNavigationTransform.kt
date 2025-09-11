@@ -30,6 +30,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.NavigationEventHandler
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMap
@@ -148,16 +149,16 @@ private fun <T> entryTransform(
                                     DialogNavigationTransformNavigationEventInfo(dialogEntries.last().id),
                                 ).collectAsState()
 
-                                NavigationEventHandler(
-                                    enabled = dialogEntries.size > 1,
+                                NavigationBackHandler(
+                                    isBackEnabled = dialogEntries.size > 1,
                                     currentInfo = DialogNavigationTransformNavigationEventInfo(dialogEntries.last().id),
-                                    previousInfo = dialogEntries.getOrNull(
-                                        dialogEntries.size - 2,
-                                    )?.id?.let(::DialogNavigationTransformNavigationEventInfo),
-                                ) { progress ->
-                                    progress.collect {}
-                                    onBackButtonPressed()
-                                }
+                                    backInfo = listOfNotNull(
+                                        dialogEntries.getOrNull(
+                                            dialogEntries.size - 2,
+                                        )?.id?.let(::DialogNavigationTransformNavigationEventInfo),
+                                    ),
+                                    onBackCompleted = onBackButtonPressed,
+                                )
 
                                 CrossfadePredictiveNavigationFrame(
                                     dialogRenderableNavigationState,

@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.NavigationEventState
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.NavigationEventHandler
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMap
@@ -199,14 +200,16 @@ fun rememberCellUniverseActionCardState(
         CellUniverseActionCardNavigationEventInfo(inlineNavigationState.currentEntryId),
     ).collectAsState()
 
-    NavigationEventHandler(
-        enabled = enableBackHandler && expandedTargetState.current && canNavigateBack,
+    NavigationBackHandler(
+        isBackEnabled = enableBackHandler && expandedTargetState.current && canNavigateBack,
         currentInfo = CellUniverseActionCardNavigationEventInfo(inlineNavigationState.currentEntryId),
-        previousInfo = inlineNavigationState.previousEntryId?.let(::CellUniverseActionCardNavigationEventInfo),
-    ) { progress ->
-        progress.collect {}
-        onBackPressed(inlineNavigationState.currentEntryId)
-    }
+        backInfo = listOfNotNull(
+            inlineNavigationState.previousEntryId?.let(::CellUniverseActionCardNavigationEventInfo),
+        ),
+        onBackCompleted = {
+            onBackPressed(inlineNavigationState.currentEntryId)
+        },
+    )
 
     return object : CellUniverseActionCardState {
         override fun setIsExpanded(isExpanded: Boolean) {

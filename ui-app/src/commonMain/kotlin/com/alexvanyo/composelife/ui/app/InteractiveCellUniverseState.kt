@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.round
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.NavigationEventState
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.NavigationEventHandler
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellStateParser
@@ -262,27 +263,21 @@ internal fun rememberInteractiveCellUniverseState(
         rememberCoroutineScope(),
         InfoCardNavigationEventInfo,
     ).collectAsState()
-    NavigationEventHandler(
-        enabled = isInfoCardExpanded && !isActionCardTopCard,
+    NavigationBackHandler(
+        isBackEnabled = isInfoCardExpanded && !isActionCardTopCard,
         currentInfo = InfoCardNavigationEventInfo,
-        previousInfo = null,
-    ) { progress ->
-        progress.collect {}
-        setIsInfoCardExpanded(false)
-    }
+        onBackCompleted = { setIsInfoCardExpanded(false) },
+    )
 
     val actionCardNavigationEventState by dispatcher.getState<ActionCardNavigationEventInfo>(
         rememberCoroutineScope(),
         ActionCardNavigationEventInfo,
     ).collectAsState()
     NavigationEventHandler(
-        enabled = isActionCardExpanded,
+        isBackEnabled = isActionCardExpanded,
         currentInfo = ActionCardNavigationEventInfo,
-        previousInfo = null,
-    ) { progress ->
-        progress.collect {}
-        setIsActionCardExpanded(false)
-    }
+        onBackCompleted = { setIsActionCardExpanded(false) },
+    )
 
     val infoCardState = rememberCellUniverseInfoCardState(
         setIsExpanded = ::setIsInfoCardExpanded,
