@@ -56,6 +56,7 @@ import androidx.compose.ui.util.lerp
 import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.NavigationEventState
+import androidx.navigationevent.NavigationEventSwipeEdge
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.RenderableNavigationState
@@ -243,15 +244,15 @@ fun <T> MaterialPredictiveNavigationFrame(
                             8.dp,
                             it.progressToNotVisible,
                         ) * when (metadata.latestEvent.swipeEdge) {
-                            NavigationEvent.EDGE_LEFT -> -1f
-                            NavigationEvent.EDGE_RIGHT -> 1f
+                            NavigationEventSwipeEdge.Left -> -1f
+                            NavigationEventSwipeEdge.Right -> 1f
                             else -> 0f
                         }
                     }
                     ContentStatus.NotVisible -> {
                         8.dp * when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
-                            NavigationEvent.EDGE_LEFT -> -1f
-                            NavigationEvent.EDGE_RIGHT -> 1f
+                            NavigationEventSwipeEdge.Left -> -1f
+                            NavigationEventSwipeEdge.Right -> 1f
                             else -> 0f
                         }
                     }
@@ -275,15 +276,15 @@ fun <T> MaterialPredictiveNavigationFrame(
                     is ContentStatus.Appearing -> 0.5f
                     is ContentStatus.Disappearing -> {
                         when (it.metadata.latestEvent.swipeEdge) {
-                            NavigationEvent.EDGE_LEFT -> 1f
-                            NavigationEvent.EDGE_RIGHT -> 0f
+                            NavigationEventSwipeEdge.Left -> 1f
+                            NavigationEventSwipeEdge.Right -> 0f
                             else -> 0.5f
                         }
                     }
                     ContentStatus.NotVisible -> {
                         when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
-                            NavigationEvent.EDGE_LEFT -> 1f
-                            NavigationEvent.EDGE_RIGHT -> 0f
+                            NavigationEventSwipeEdge.Left -> 1f
+                            NavigationEventSwipeEdge.Right -> 0f
                             else -> 0.5f
                         }
                     }
