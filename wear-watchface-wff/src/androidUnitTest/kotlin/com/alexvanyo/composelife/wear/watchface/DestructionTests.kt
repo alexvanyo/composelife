@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
+import com.alexvanyo.composelife.geometry.getVonNeumannNeighbors
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.DeserializationResult
@@ -85,8 +86,8 @@ class DestructionTests {
 
     val solutionCellStateFile get() =
         File("src/androidUnitTest/resources/solutions/${targetTimeDigits.timeDigits.firstDigit.char}${targetTimeDigits.timeDigits.secondDigit.char}:${targetTimeDigits.timeDigits.thirdDigit.char}${targetTimeDigits.timeDigits.fourthDigit.char}.rle")
-    val solutionImagesDirectory get() =
-        File("src/androidUnitTest/resources/solutions/${targetTimeDigits.timeDigits.firstDigit.char}${targetTimeDigits.timeDigits.secondDigit.char}:${targetTimeDigits.timeDigits.thirdDigit.char}${targetTimeDigits.timeDigits.fourthDigit.char}")
+    val solutionFontFile get() =
+        File("src/androidUnitTest/resources/solutions/${targetTimeDigits.timeDigits.firstDigit.char}${targetTimeDigits.timeDigits.secondDigit.char}:${targetTimeDigits.timeDigits.thirdDigit.char}${targetTimeDigits.timeDigits.fourthDigit.char}.sfd")
 
     @Test
     fun destructionIsCorrect() = runTest(testDispatcher, timeout = Duration.INFINITE) {
@@ -141,32 +142,81 @@ class DestructionTests {
             }
         }
 
-        solutionImagesDirectory.mkdir()
-        algorithm.computeGenerationsWithStep(solution, 1)
-            .take(MAX_GENERATIONS)
-            .withIndex()
-            .collect { (index, cellState) ->
-                solutionImagesDirectory
-                    .resolve("frame_$index.xml")
-                    .bufferedWriter()
-                    .use { bufferedWriter ->
-                        bufferedWriter.write("""<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="70dp" android:height="70dp" android:viewportWidth="70" android:viewportHeight="70">""")
-                        bufferedWriter.newLine()
+        solutionFontFile.bufferedWriter().use { bufferedWriter ->
+            algorithm.computeGenerationsWithStep(solution, 1)
+                .take(MAX_GENERATIONS)
+                .withIndex()
+                .collect { (index, cellState) ->
+                    bufferedWriter.write("StartChar: custom_" +
+                            "${targetTimeDigits.timeDigits.firstDigit.char}_" +
+                            "${targetTimeDigits.timeDigits.secondDigit.char}_" +
+                            "${targetTimeDigits.timeDigits.thirdDigit.char}_" +
+                            "${targetTimeDigits.timeDigits.fourthDigit.char}_" +
+                            index.toString().padStart(3, '0').toCharArray().joinToString("_")
+                    )
+                    bufferedWriter.newLine()
 
-                        repeat(70) { y ->
-                            repeat(70) { x ->
-                                if (IntOffset(x + 1, y + 1) in cellState.aliveCells) {
-                                    bufferedWriter.write("""<path android:pathData="M${x},${y}h1v1h-1z" android:fillColor="#FFF"/>""")
-                                    bufferedWriter.newLine()
-                                }
+                    bufferedWriter.write("Encoding: ${256 + index} -1 ${11 + index}")
+                    bufferedWriter.newLine()
+                    bufferedWriter.write("Width: 70")
+                    bufferedWriter.newLine()
+                    bufferedWriter.write("Flags: H")
+                    bufferedWriter.newLine()
+                    bufferedWriter.write("LayerCount: 2")
+                    bufferedWriter.newLine()
+                    bufferedWriter.write("Fore")
+                    bufferedWriter.newLine()
+                    bufferedWriter.write("SplineSet")
+                    bufferedWriter.newLine()
+                    createContours(
+                        cellState.getAliveCellsInWindow(
+                            CellWindow(IntRect(IntOffset(1, 1), IntSize(70, 70)))
+                        ).toSet()
+                    )
+                        .forEach { contour ->
+                            bufferedWriter.write("${contour.last().x - 1} ${contour.last().y - 1} m 1")
+                            bufferedWriter.newLine()
+                            contour.forEach { corner ->
+                                bufferedWriter.write(" ${corner.x - 1} ${corner.y - 1} l 1")
+                                bufferedWriter.newLine()
                             }
                         }
-
-                        bufferedWriter.write("""</vector>""")
-                        bufferedWriter.newLine()
-                    }
-            }
+                    bufferedWriter.write("EndSplineSet")
+                    bufferedWriter.newLine()
+                    bufferedWriter.write("""Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" """ +
+                            targetTimeDigits.timeDigits.firstDigit.toWord() + " " +
+                            targetTimeDigits.timeDigits.secondDigit.toWord() + " " +
+                            targetTimeDigits.timeDigits.thirdDigit.toWord() + " " +
+                            targetTimeDigits.timeDigits.fourthDigit.toWord() + " " +
+                            index.toString().padStart(3, '0').toCharArray().joinToString(" ", transform = { it.toWord() } )
+                    )
+                    bufferedWriter.newLine()
+                    bufferedWriter.write("LCarets2: 1 0")
+                    bufferedWriter.newLine()
+                    bufferedWriter.write("EndChar")
+                    bufferedWriter.newLine()
+                    bufferedWriter.newLine()
+                }
+        }
     }
+
+    private fun GameOfLifeSegmentChar.toWord(): String = char.toWord()
+
+    private fun Char.toWord(): String =
+        when (this) {
+            '0' -> "zero"
+            '1' -> "one"
+            '2' -> "two"
+            '3' -> "three"
+            '4' -> "four"
+            '5' -> "five"
+            '6' -> "six"
+            '7' -> "seven"
+            '8' -> "eight"
+            '9' -> "nine"
+            ' ' -> "space"
+            else -> error("Unexpected digit char")
+        }
 
     private suspend fun isDestructionAchieved(
         timeDigits: TimeDigits,
@@ -219,6 +269,179 @@ class DestructionTests {
             }
     }
 }
+
+private fun createContours(aliveCells: Set<IntOffset>): List<List<IntOffset>> {
+    val connectedComponents = buildList {
+        val remainingAliveCells = aliveCells.toMutableSet()
+        while (remainingAliveCells.isNotEmpty()) {
+            add(
+                buildSet {
+                    val searchQueue = ArrayDeque<IntOffset>()
+                    val initialCell = remainingAliveCells.first()
+                    remainingAliveCells.remove(initialCell)
+                    searchQueue.add(initialCell)
+
+                    while (searchQueue.isNotEmpty()) {
+                        val cell = searchQueue.removeFirst()
+                        add(cell)
+                        cell.getVonNeumannNeighbors().forEach { orthogonalCell ->
+                            if (orthogonalCell in remainingAliveCells) {
+                                remainingAliveCells.remove(orthogonalCell)
+                                searchQueue.add(orthogonalCell)
+                            }
+                        }
+                    }
+                }
+            )
+        }
+    }
+
+    return connectedComponents.flatMap { connectedComponent ->
+        val edges = connectedComponent.flatMap { cell ->
+            cell.getVonNeumannNeighbors()
+                .filterNot(connectedComponent::contains)
+                .map { Edge(cell, it) }
+        }
+
+        val edgeContours = buildList {
+            val remainingEdges = edges.toMutableSet()
+            while (remainingEdges.isNotEmpty()) {
+                add(
+                    buildList {
+                        val initialEdge = remainingEdges.first()
+                        remainingEdges.remove(initialEdge)
+                        add(initialEdge)
+                        var currentEdge = initialEdge
+                        do {
+                            val neighborEdge =
+                                currentEdge.possibleClockwiseNeighbors(
+                                    connectedComponent,
+                                ).single(edges::contains)
+                            checkNotNull(neighborEdge)
+                            if (neighborEdge != initialEdge) {
+                                remainingEdges.remove(neighborEdge)
+                                add(neighborEdge)
+                            }
+                            currentEdge = neighborEdge
+                        } while (currentEdge != initialEdge)
+                    }
+                )
+            }
+        }
+
+        val outerEdge = edges
+            .filter { it.normalDirection == Direction.Up }
+            .minBy { it.insideCell.y }
+
+        edgeContours.map { contour ->
+            var isOuterEdge = false
+            buildList {
+                // Find initial corner
+                var index = 0
+                while (getCornerPointOnNeighboringEdgesOrNull(
+                        contour[index],
+                        contour[index + 1],
+                        connectedComponent,
+                    ) == null) {
+                    index++
+                }
+                val initialCornerIndex = index
+                do {
+                    if (contour[index.mod(contour.size)] == outerEdge) {
+                        isOuterEdge = true
+                    }
+                    val cornerPoint = getCornerPointOnNeighboringEdgesOrNull(
+                        contour[index.mod(contour.size)],
+                        contour[(index + 1).mod(contour.size)],
+                        connectedComponent,
+                    )
+                    if (cornerPoint != null) {
+                        add(cornerPoint)
+                    }
+                    index++
+                } while (initialCornerIndex != index.mod(contour.size))
+            }
+                .let { if (isOuterEdge) it.reversed() else it }
+        }
+    }
+}
+
+private data class Edge(
+    val insideCell: IntOffset,
+    val outsideCell: IntOffset,
+)
+
+private val Edge.normalDirection: Direction get() =
+    unitIntOffsetToDirection(outsideCell - insideCell)
+
+private enum class Direction(
+    val intOffset: IntOffset,
+) {
+    Left(
+        IntOffset(-1, 0),
+    ),
+    Right(
+        IntOffset(1, 0),
+    ),
+    Up(
+        IntOffset(0, -1),
+    ),
+    Down(
+        IntOffset(0, 1),
+    )
+}
+
+private operator fun IntOffset.plus(direction: Direction): IntOffset = this + direction.intOffset
+
+private fun Edge.possibleClockwiseNeighbors(connectedComponent: Set<IntOffset>): List<Edge?> {
+    return when (normalDirection) {
+        Direction.Left -> listOf(
+            if (insideCell + Direction.Up in connectedComponent) Edge(insideCell + Direction.Up + Direction.Left, outsideCell) else null,
+            Edge(insideCell + Direction.Up, outsideCell + Direction.Up),
+            Edge(insideCell, insideCell + Direction.Up),
+        )
+        Direction.Right -> listOf(
+            if (insideCell + Direction.Down in connectedComponent) Edge(insideCell + Direction.Down + Direction.Right, outsideCell) else null,
+            Edge(insideCell + Direction.Down, outsideCell + Direction.Down),
+            Edge(insideCell, insideCell + Direction.Down),
+        )
+        Direction.Up -> listOf(
+            if (insideCell + Direction.Right in connectedComponent) Edge(insideCell + Direction.Right + Direction.Up, outsideCell) else null,
+            Edge(insideCell + Direction.Right, outsideCell + Direction.Right),
+            Edge(insideCell, insideCell + Direction.Right),
+        )
+        Direction.Down -> listOf(
+            if (insideCell + Direction.Left in connectedComponent) Edge(insideCell + Direction.Left + Direction.Down, outsideCell) else null,
+            Edge(insideCell + Direction.Left, outsideCell + Direction.Left),
+            Edge(insideCell, insideCell + Direction.Left),
+        )
+    }
+}
+
+private fun unitIntOffsetToDirection(intOffset: IntOffset): Direction =
+    when (intOffset) {
+        IntOffset(-1, 0) -> Direction.Left
+        IntOffset(1, 0) -> Direction.Right
+        IntOffset(0, -1) -> Direction.Up
+        IntOffset(0, 1) -> Direction.Down
+        else -> error("Unexpected non-unit length IntOffset")
+    }
+
+private fun getCornerPointOnNeighboringEdgesOrNull(
+    a: Edge,
+    b: Edge,
+    connectedComponent: Set<IntOffset>,
+): IntOffset? =
+    when (a.possibleClockwiseNeighbors(connectedComponent).indexOf(b)) {
+        0, 2 -> when (a.normalDirection) {
+            Direction.Left -> a.insideCell
+            Direction.Right -> a.insideCell + Direction.Right + Direction.Down
+            Direction.Up -> a.insideCell + Direction.Right
+            Direction.Down -> a.insideCell + Direction.Down
+        }
+        1 -> null
+        else -> error("Edges were not neighbors")
+    }
 
 private fun createTimeCellState(
     timeDigits: TimeDigits,

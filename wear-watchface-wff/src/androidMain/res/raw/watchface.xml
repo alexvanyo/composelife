@@ -104,62 +104,66 @@
                 align="END"
                 format="h:mm"
                 height="400"
-                width="360"
-                alpha="0"
-                x="0"
-                y="0">
+                width="400"
+                x="-29"
+                y="6"
+                alpha="30">
                 <Font
                     color="[CONFIGURATION.themeColor]"
-                    family="gameoflifedigits.otf"
-                    size="100" />
-                <Variant mode="AMBIENT" target="alpha" value="255" />
+                    family="gameoflifedigits2.otf"
+                    size="103" />
+                <Variant mode="AMBIENT" target="alpha" value="255" duration="0" />
             </TimeText>
         </DigitalClock>
-        <PartAnimatedImage
+
+        <Group
             x="0"
             y="0"
-            width="400"
-            height="400">
-            <Variant mode="AMBIENT" target="alpha" value="0" />
-            <AnimationController play="ON_VISIBLE TAP ON_NEXT_MINUTE ON_NEXT_HOUR" />
-            <SequenceImages loopCount="1" frameRate="30">
-                <Image resource="frame_0" />
-                <Image resource="frame_1" />
-                <Image resource="frame_2" />
-                <Image resource="frame_3" />
-                <Image resource="frame_4" />
-                <Image resource="frame_5" />
-                <Image resource="frame_6" />
-                <Image resource="frame_7" />
-                <Image resource="frame_8" />
-                <Image resource="frame_9" />
-                <Image resource="frame_10" />
-                <Image resource="frame_11" />
-                <Image resource="frame_12" />
-                <Image resource="frame_13" />
-                <Image resource="frame_14" />
-                <Image resource="frame_15" />
-                <Image resource="frame_16" />
-                <Image resource="frame_17" />
-                <Image resource="frame_18" />
-                <Image resource="frame_19" />
-                <Image resource="frame_20" />
-                <Image resource="frame_21" />
-                <Image resource="frame_22" />
-                <Image resource="frame_23" />
-                <Image resource="frame_24" />
-                <Image resource="frame_25" />
-                <Image resource="frame_26" />
-                <Image resource="frame_27" />
-                <Image resource="frame_28" />
-                <Image resource="frame_29" />
-                <Image resource="frame_30" />
-                <Image resource="frame_31" />
-                <Image resource="frame_32" />
-                <Image resource="frame_33" />
-                <Image resource="frame_34" />
-            </SequenceImages>
-        </PartAnimatedImage>
+            height="400"
+            width="400">
+            <PartDraw
+                x="0"
+                y="0"
+                height="1"
+                width="1">
+                <Variant mode="AMBIENT" target="alpha" value="0" duration="1.0" />
+                <Reference name="customAlpha" source="alpha" default="0" />
+            </PartDraw>
+            <PartText
+                x="0"
+                y="0"
+                height="400"
+                width="400"
+                alpha="255">
+                <Variant mode="AMBIENT" target="alpha" value="0" duration="0" />
+                <Text
+                    align="CENTER">
+                    <Font
+                        color="[CONFIGURATION.themeColor]"
+                        family="test4.otf"
+                        size="400">
+<!--                    <Font-->
+<!--                        color="[CONFIGURATION.themeColor]"-->
+<!--                        size="70">-->
+                        <Template>active_formatting
+                            <Parameter expression="
+                            floor(clamp(
+                                (
+                                    (ceil(([SECOND_MILLISECOND]/60)-0.1)-ceil(([SECOND_MILLISECOND]/60)-(0.1+1/3)))*
+                                    (([SECOND_MILLISECOND]/60)-0.1)*3*300
+                                )+
+                                (
+                                    ceil(([SECOND_MILLISECOND]/60)-(0.1+1/3))*
+                                    (297+2*(fract([SECOND_MILLISECOND]/60*3*300/2)+0.5))
+                                ),
+                                0,
+                                299
+                            ))"/>
+                        </Template>
+                    </Font>
+                </Text>
+            </PartText>
+        </Group>
 
         <ComplicationSlot
             x="84"

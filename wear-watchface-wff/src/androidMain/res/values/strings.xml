@@ -15,7 +15,7 @@
      limitations under the License.
 -->
 <resources>
-    <string name="watch_face_name">ComposeLife</string>
+    <string name="watch_face_name">ComposeLifeWFF</string>
     <string name="color_selector_display_name">Color</string>
     <string name="red">Red</string>
     <string name="pink">Pink</string>
@@ -33,4 +33,5 @@
     <string name="amber">Amber</string>
     <string name="orange">Orange</string>
     <string name="deep_orange">Deep Orange</string>
+    <string name="active_formatting">\u200B%07d</string>
 </resources>
