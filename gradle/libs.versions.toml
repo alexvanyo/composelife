@@ -6,15 +6,15 @@ androidGradlePlugin = "8.13.0"
 #androidTools
 androidTools = "31.13.0"
 #androidxActivity
-androidxActivity = "1.12.0-alpha07"
+androidxActivity = "1.12.0-alpha08"
 #androidxAnnotation
 androidxAnnotation = "1.9.1"
 #androidxAppcompat
 androidxAppcompat = "1.7.1"
 #androidxBenchmark
-androidxBenchmark = "1.4.0"
+androidxBenchmark = "1.4.1"
 #androidxComposeBomAlpha
-androidxComposeBomAlpha = "2025.08.01"
+androidxComposeBomAlpha = "2025.09.00"
 #androidxCore
 androidxCore = "1.17.0"
 #androidxCoreSplashscreen
@@ -26,7 +26,7 @@ androidxLifecycle = "2.10.0-alpha03"
 #androidxLintGradle
 androidxLintGradle = "1.0.0-alpha05"
 #androidxNavigationEvent
-androidxNavigationEvent = "1.0.0-alpha07"
+androidxNavigationEvent = "1.0.0-alpha08"
 #androidxPoolingContainer
 androidxPoolingContainer = "1.1.0"
 #androidxProfileInstaller
@@ -46,9 +46,9 @@ androidxTestUiAutomator = "2.4.0-alpha06"
 #androidxTracing
 androidxTracing = "1.3.0"
 #androidxWearCompose
-androidxWearCompose = "1.5.0"
+androidxWearCompose = "1.6.0-alpha01"
 #androidxWearComposeMaterial3
-androidxWearComposeMaterial3 = "1.5.0"
+androidxWearComposeMaterial3 = "1.6.0-alpha01"
 #androidxWearWatchface
 androidxWearWatchface = "1.3.0-alpha05"
 #androidxWindow
@@ -82,7 +82,7 @@ keeper = "0.16.1"
 #kermit
 kermit = "2.0.8"
 #kotlin
-kotlin = "2.2.20-RC2"
+kotlin = "2.2.20"
 #kotlinPoet
 kotlinPoet = "2.2.0"
 #kotlinxCollectionsImmutable
@@ -96,9 +96,9 @@ kotlinxIo = "0.8.0"
 #kotlinxSerialization
 kotlinxSerialization = "1.9.0"
 #ksp
-ksp = "2.2.20-RC2-2.0.2"
+ksp = "2.2.20-2.0.3"
 #ktor
-ktor = "3.2.3"
+ktor = "3.3.0"
 #jacoco
 jacoco = "0.8.13"
 #jetbrainsCompose
@@ -114,7 +114,7 @@ junit4 = "4.13.2"
 #leakCanary
 leakCanary = "3.0-alpha-8"
 #metro
-metro = "0.7.0-2.2.20-RC2-alpha06"
+metro = "0.6.6"
 #molecule
 molecule = "2.1.0"
 #okio
@@ -138,7 +138,7 @@ sqldelight = "2.1.0"
 #sqlJs
 sqlJs = "1.8.0"
 #testParameterInjector
-testParameterInjector = "1.18"
+testParameterInjector = "1.19"
 #turbine
 turbine = "1.2.1"
 #webPackPlugin
